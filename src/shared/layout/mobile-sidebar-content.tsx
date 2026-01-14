@@ -1,21 +1,21 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronRight, Copy, User } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { formatUnits } from "viem";
 import { useAccount, useBalance } from "wagmi";
+import { cn } from "@/lib/utils";
 import { sidebarData } from "@/shared/layout/sidebar-data";
+import { Badge } from "@/shared/ui/badge";
+import Balatro from "@/shared/ui/balatro";
 import { Button } from "@/shared/ui/button-v2";
 import CountUp from "@/shared/ui/count-up";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
-import { Badge } from "@/shared/ui/badge";
 import { Typography } from "@/shared/ui/typography";
-import { cn } from "@/lib/utils";
-import Balatro from "@/shared/ui/balatro";
 
 // Component to generate abstract avatar from address
 const AddressAvatar = ({ address, size = "size-12" }: { address: string; size?: string }) => {
@@ -67,8 +67,8 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
     <div className="flex h-full w-full flex-col bg-sidebar">
       {/* Header */}
       <div className="flex-shrink-0 p-4">
-        <Link 
-          href="/agents" 
+        <Link
+          href="/agents"
           className="flex items-center gap-2"
           {...(onClose && { onClick: onClose })}
         >
@@ -102,8 +102,8 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
             <div key={groupIndex} className="space-y-2">
               {group.items.map((item) => {
                 // Check if active - also highlight Agents for /chat/* routes
-                const isActive = 
-                  pathname === item.url || 
+                const isActive =
+                  pathname === item.url ||
                   pathname.startsWith(`${item.url}/`) ||
                   (item.url === "/agents" && pathname.startsWith("/chat/"));
                 return (

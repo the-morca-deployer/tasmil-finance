@@ -1,13 +1,13 @@
 "use client";
 
-import { MessageSquare, Plus, Search, RefreshCw, X } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { useMultiSidebar } from "@/shared/ui/multi-sidebar";
-import { useThreads } from "@/providers/thread";
-import { Thread } from "@langchain/langgraph-sdk";
+import type { Thread } from "@langchain/langgraph-sdk";
+import { MessageSquare, Plus, RefreshCw, Search, X } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { getContentString } from "@/features/chat/thread/utils";
+import { cn } from "@/lib/utils";
+import { useThreads } from "@/providers/thread";
+import { useMultiSidebar } from "@/shared/ui/multi-sidebar";
 
 export function ChatHistorySidebar() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,10 +15,10 @@ export function ChatHistorySidebar() {
   const router = useRouter();
   const params = useParams();
   const { rightSidebarOpen, setRightSidebarOpen } = useMultiSidebar();
-  
+
   // Get current agent ID from URL
-  const currentAgentId = params['agentId'] as string || "staking";
-  
+  const currentAgentId = (params["agentId"] as string) || "staking";
+
   // Use threads from provider
   const { getThreads, threads, setThreads, threadsLoading, setThreadsLoading } = useThreads();
 
@@ -37,21 +37,21 @@ export function ChatHistorySidebar() {
   const chatHistory = threads.map((t: Thread) => {
     let title = t.thread_id;
     let lastMessage = "";
-    
+
     if (
       typeof t.values === "object" &&
       t.values &&
       "messages" in t.values &&
-      Array.isArray(t.values['messages']) &&
-      t.values['messages']?.length > 0
+      Array.isArray(t.values["messages"]) &&
+      t.values["messages"]?.length > 0
     ) {
-      const firstMessage = t.values['messages'][0];
+      const firstMessage = t.values["messages"][0];
       title = getContentString(firstMessage.content);
-      
-      const lastMsg = t.values['messages'][t.values['messages'].length - 1];
+
+      const lastMsg = t.values["messages"][t.values["messages"].length - 1];
       lastMessage = getContentString(lastMsg.content);
     }
-    
+
     return {
       id: t.thread_id,
       title: title.slice(0, 50) + (title.length > 50 ? "..." : ""),
@@ -60,9 +60,10 @@ export function ChatHistorySidebar() {
     };
   });
 
-  const filteredChats = chatHistory.filter((chat) =>
-    chat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredChats = chatHistory.filter(
+    (chat) =>
+      chat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Group chats by date
@@ -71,16 +72,16 @@ export function ChatHistorySidebar() {
       const today = new Date();
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
-      
+
       const chatDate = new Date(chat.timestamp);
       let group = "Older";
-      
+
       if (chatDate.toDateString() === today.toDateString()) {
         group = "Today";
       } else if (chatDate.toDateString() === yesterday.toDateString()) {
         group = "Yesterday";
       }
-      
+
       if (!acc[group]) {
         acc[group] = [];
       }

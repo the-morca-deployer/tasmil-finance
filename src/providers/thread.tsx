@@ -1,18 +1,18 @@
 "use client";
 
-import { validate } from "uuid";
-import { getApiKey } from "@/lib/api-key";
-import { Thread } from "@langchain/langgraph-sdk";
+import type { Thread } from "@langchain/langgraph-sdk";
 import {
   createContext,
-  useContext,
-  ReactNode,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
   useCallback,
-  useState,
-  Dispatch,
-  SetStateAction,
+  useContext,
   useMemo,
+  useState,
 } from "react";
+import { validate } from "uuid";
+import { getApiKey } from "@/lib/api-key";
 import { createClient } from "@/providers/client";
 
 interface ThreadContextType {
@@ -26,7 +26,7 @@ interface ThreadContextType {
 const ThreadContext = createContext<ThreadContextType | undefined>(undefined);
 
 function getThreadSearchMetadata(
-  assistantId: string,
+  assistantId: string
 ): { graph_id: string } | { assistant_id: string } {
   if (validate(assistantId)) {
     return { assistant_id: assistantId };
@@ -36,36 +36,40 @@ function getThreadSearchMetadata(
 }
 
 export function ThreadProvider({ children }: { children: ReactNode }) {
-  const apiUrl = process.env['NEXT_PUBLIC_API_URL'] || "";
-  
+  const apiUrl = process.env["NEXT_PUBLIC_API_URL"] || "";
+
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
 
-  const getThreads = useCallback(async (assistantId: string): Promise<Thread[]> => {
-    if (!apiUrl || !assistantId) return [];
-    const client = createClient(apiUrl, getApiKey() ?? undefined);
+  const getThreads = useCallback(
+    async (assistantId: string): Promise<Thread[]> => {
+      if (!apiUrl || !assistantId) return [];
+      const client = createClient(apiUrl, getApiKey() ?? undefined);
 
-    const threads = await client.threads.search({
-      metadata: {
-        ...getThreadSearchMetadata(assistantId),
-      },
-      limit: 100,
-    });
+      const threads = await client.threads.search({
+        metadata: {
+          ...getThreadSearchMetadata(assistantId),
+        },
+        limit: 100,
+      });
 
-    return threads;
-  }, [apiUrl]);
-
-  const value = useMemo(() => ({
-    getThreads,
-    threads,
-    setThreads,
-    threadsLoading,
-    setThreadsLoading,
-  }), [getThreads, threads, threadsLoading]);
-
-  return (
-    <ThreadContext.Provider value={value}>{children}</ThreadContext.Provider>
+      return threads;
+    },
+    [apiUrl]
   );
+
+  const value = useMemo(
+    () => ({
+      getThreads,
+      threads,
+      setThreads,
+      threadsLoading,
+      setThreadsLoading,
+    }),
+    [getThreads, threads, threadsLoading]
+  );
+
+  return <ThreadContext.Provider value={value}>{children}</ThreadContext.Provider>;
 }
 
 export function useThreads() {

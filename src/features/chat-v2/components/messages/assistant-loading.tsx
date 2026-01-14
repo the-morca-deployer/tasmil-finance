@@ -2,8 +2,8 @@
 
 // 🎨 Assistant loading indicator - matches old UI styling
 
-import Image from 'next/image';
-import { cn } from '@/lib/utils';
+import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface AssistantLoadingProps {
   className?: string;
@@ -25,20 +25,20 @@ function AgentAvatar() {
 
 export function AssistantLoading({ className }: AssistantLoadingProps) {
   return (
-    <div className={cn('mr-auto flex items-start gap-3', className)}>
+    <div className={cn("mr-auto flex items-start gap-3", className)}>
       <AgentAvatar />
       <div className="bg-muted flex h-8 items-center gap-1 rounded-2xl px-4 py-2">
-        <div 
+        <div
           className="bg-foreground/50 h-1.5 w-1.5 rounded-full animate-wave"
-          style={{ animationDelay: '0s' }}
+          style={{ animationDelay: "0s" }}
         />
-        <div 
+        <div
           className="bg-foreground/50 h-1.5 w-1.5 rounded-full animate-wave"
-          style={{ animationDelay: '0.15s' }}
+          style={{ animationDelay: "0.15s" }}
         />
-        <div 
+        <div
           className="bg-foreground/50 h-1.5 w-1.5 rounded-full animate-wave"
-          style={{ animationDelay: '0.3s' }}
+          style={{ animationDelay: "0.3s" }}
         />
       </div>
     </div>

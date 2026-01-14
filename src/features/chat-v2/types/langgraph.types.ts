@@ -2,7 +2,7 @@
 
 export interface LangGraphMessage {
   id: string;
-  type: 'human' | 'ai' | 'system' | 'tool';
+  type: "human" | "ai" | "system" | "tool";
   content: string | LangGraphContentBlock[];
   tool_calls?: LangGraphToolCall[];
   tool_call_id?: string;

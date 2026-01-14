@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useChainId, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { BaseError, formatEther } from "viem";
 import type { Address } from "viem";
+import { type BaseError, formatEther } from "viem";
+import { useChainId, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "@/shared/utils/waitForTransactionReceipt";
 
 // SFC Contract Address on U2U Network

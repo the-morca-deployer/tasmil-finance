@@ -1,9 +1,9 @@
 "use client";
 
-import { ExternalLink, Info } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/shared/ui/card";
-import { Badge } from "@/shared/ui/badge";
+import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/shared/ui/badge";
+import { Card, CardContent, CardHeader } from "@/shared/ui/card";
 import type { StrategyPrompt } from "../types";
 
 interface StrategyPromptTabProps {
@@ -49,11 +49,7 @@ export function StrategyPromptTab({
             <p className="mb-2 text-muted-foreground text-sm">Assets:</p>
             <div className="flex flex-wrap gap-2">
               {strategyPrompt.info.assets_involved.map((asset) => (
-                <Badge
-                  key={asset}
-                  variant="outline"
-                  className="cursor-pointer hover:bg-accent"
-                >
+                <Badge key={asset} variant="outline" className="cursor-pointer hover:bg-accent">
                   {asset}
                   <ExternalLink className="ml-1 h-3 w-3" />
                 </Badge>
@@ -79,8 +75,8 @@ export function StrategyPromptTab({
       <Card>
         <CardContent className="pt-6">
           <p className="text-muted-foreground text-sm">
-            This strategy is created by AI Agents on INFINIT by using the prompt below from a Strategy
-            Creator to coordinate the AI Agents and build this strategy.
+            This strategy is created by AI Agents on INFINIT by using the prompt below from a
+            Strategy Creator to coordinate the AI Agents and build this strategy.
           </p>
         </CardContent>
       </Card>
@@ -94,24 +90,24 @@ export function StrategyPromptTab({
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-input">
-                  <th className="px-4 py-2 text-left text-muted-foreground text-sm font-medium">
+                <tr className="border-input border-b">
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground text-sm">
                     Step Number
                   </th>
-                  <th className="px-4 py-2 text-left text-muted-foreground text-sm font-medium">
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground text-sm">
                     Chain
                   </th>
-                  <th className="px-4 py-2 text-left text-muted-foreground text-sm font-medium">
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground text-sm">
                     Protocol
                   </th>
-                  <th className="px-4 py-2 text-left text-muted-foreground text-sm font-medium">
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground text-sm">
                     Action
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {strategyPrompt.execution_steps.map((step) => (
-                  <tr key={step.step} className="border-b border-input/50">
+                  <tr key={step.step} className="border-input/50 border-b">
                     <td className="px-4 py-3">{step.step}</td>
                     <td className="px-4 py-3">
                       <Badge variant="outline">{step.chain}</Badge>

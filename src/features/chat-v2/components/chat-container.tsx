@@ -2,22 +2,21 @@
 
 // 🎨 Chat container - main chat layout
 
-import { useState, useRef, useEffect, FormEvent, useCallback } from 'react';
-import { useAccount } from 'wagmi';
-import { useCopilotReadable } from '@copilotkit/react-core';
-import { cn } from '@/lib/utils';
-import { useFileUpload } from '@/shared/hooks/use-file-upload';
-import { useIsMobile } from '@/shared/hooks/use-mobile';
-
-import { useChatSession } from '@/features/chat-v2/hooks';
-import { useDefiActions, useStakingActions } from '@/features/chat-v2/actions';
-import { ChatHeader } from '@/features/chat-v2/components/chat-header';
-import { ChatMessages } from '@/features/chat-v2/components/chat-messages';
-import { ChatInput } from '@/features/chat-v2/components/chat-input';
-import { Greeting } from '@/features/chat-v2/components/greeting';
-import { Suggestions } from '@/features/chat-v2/components/suggestions';
-import { ScrollToBottom } from '@/features/chat-v2/components/scroll-to-bottom';
-import { HistorySkeleton } from '@/features/chat-v2/components/messages';
+import { useCopilotReadable } from "@copilotkit/react-core";
+import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useAccount } from "wagmi";
+import { useDefiActions, useStakingActions } from "@/features/chat-v2/actions";
+import { ChatHeader } from "@/features/chat-v2/components/chat-header";
+import { ChatInput } from "@/features/chat-v2/components/chat-input";
+import { ChatMessages } from "@/features/chat-v2/components/chat-messages";
+import { Greeting } from "@/features/chat-v2/components/greeting";
+import { HistorySkeleton } from "@/features/chat-v2/components/messages";
+import { ScrollToBottom } from "@/features/chat-v2/components/scroll-to-bottom";
+import { Suggestions } from "@/features/chat-v2/components/suggestions";
+import { useChatSession } from "@/features/chat-v2/hooks";
+import { cn } from "@/lib/utils";
+import { useFileUpload } from "@/shared/hooks/use-file-upload";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 interface ChatContainerProps {
   agentId: string;
@@ -33,14 +32,9 @@ function StakingActionsProvider({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-export function ChatContainer({ 
-  agentId, 
-  chatId, 
-  onNewThread,
-  className 
-}: ChatContainerProps) {
+export function ChatContainer({ agentId, chatId, onNewThread, className }: ChatContainerProps) {
   const isMobile = useIsMobile();
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -56,9 +50,10 @@ export function ChatContainer({
   // for read-only queries without asking
   useCopilotReadable({
     description: "The user's connected wallet address for blockchain operations",
-    value: isConnected && address 
-      ? `User's wallet address: ${address}` 
-      : "User has not connected their wallet yet. Ask them to connect their wallet first.",
+    value:
+      isConnected && address
+        ? `User's wallet address: ${address}`
+        : "User has not connected their wallet yet. Ask them to connect their wallet first.",
   });
 
   // Initialize DeFi actions (read-only renders for all agents)
@@ -87,18 +82,23 @@ export function ChatContainer({
   } = useChatSession({ agentId, chatId, onNewThread });
 
   // Determine UI states
-  const isNewChat = chatId === 'new';
+  const isNewChat = chatId === "new";
   const showGreeting = isNewChat && messages.length === 0 && !isLoading;
-  const showSuggestions = (isNewChat && messages.length === 0) || (!isLoading && messages.length > 0);
-  
+  const showSuggestions =
+    (isNewChat && messages.length === 0) || (!isLoading && messages.length > 0);
+
   // Only show AI loading when actually sending a message, not when loading history
   const showAiLoading = isLoading && !isLoadingHistory;
 
   // Auto-scroll to bottom only when new messages arrive and user hasn't scrolled up
   // and user is not interacting with scrollable content inside messages
   useEffect(() => {
-    if (messages.length > lastMessageCountRef.current && !userScrolledUp && !isInteractingWithContent) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (
+      messages.length > lastMessageCountRef.current &&
+      !userScrolledUp &&
+      !isInteractingWithContent
+    ) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
     lastMessageCountRef.current = messages.length;
   }, [messages.length, userScrolledUp, isInteractingWithContent]);
@@ -112,14 +112,14 @@ export function ChatContainer({
       const { scrollTop, scrollHeight, clientHeight } = container;
       const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
       setShowScrollButton(!isNearBottom);
-      
+
       if (!isNearBottom) {
         setUserScrolledUp(true);
       }
     };
 
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Detect when user is interacting with scrollable content inside messages
@@ -131,7 +131,9 @@ export function ChatContainer({
     const handleMouseEnter = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       // Check if hovering over a scrollable element inside messages
-      const scrollableParent = target.closest('[data-scrollable="true"], .overflow-y-auto, .overflow-auto');
+      const scrollableParent = target.closest(
+        '[data-scrollable="true"], .overflow-y-auto, .overflow-auto'
+      );
       if (scrollableParent && scrollableParent !== container) {
         setIsInteractingWithContent(true);
       }
@@ -139,89 +141,104 @@ export function ChatContainer({
 
     const handleMouseLeave = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const scrollableParent = target.closest('[data-scrollable="true"], .overflow-y-auto, .overflow-auto');
+      const scrollableParent = target.closest(
+        '[data-scrollable="true"], .overflow-y-auto, .overflow-auto'
+      );
       if (scrollableParent && scrollableParent !== container) {
         setIsInteractingWithContent(false);
       }
     };
 
     // Use event delegation for better performance
-    container.addEventListener('mouseenter', handleMouseEnter, true);
-    container.addEventListener('mouseleave', handleMouseLeave, true);
+    container.addEventListener("mouseenter", handleMouseEnter, true);
+    container.addEventListener("mouseleave", handleMouseLeave, true);
 
     return () => {
-      container.removeEventListener('mouseenter', handleMouseEnter, true);
-      container.removeEventListener('mouseleave', handleMouseLeave, true);
+      container.removeEventListener("mouseenter", handleMouseEnter, true);
+      container.removeEventListener("mouseleave", handleMouseLeave, true);
     };
   }, []);
 
   const scrollToBottom = useCallback(() => {
     setUserScrolledUp(false);
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  const handleSubmit = useCallback((e: FormEvent) => {
-    e.preventDefault();
-    if ((input.trim().length === 0 && contentBlocks.length === 0) || isLoading) return;
+  const handleSubmit = useCallback(
+    (e: FormEvent) => {
+      e.preventDefault();
+      if ((input.trim().length === 0 && contentBlocks.length === 0) || isLoading) return;
 
-    let messageContent = input.trim();
-    
-    if (contentBlocks.length > 0) {
-      const fileDescriptions = contentBlocks.map(block => {
-        if (block.type === 'image_url') {
-          return `[Image: ${(block as any).image_url?.url || 'uploaded image'}]`;
-        }
-        return `[File: ${block.type}]`;
-      }).join('\n');
-      
-      messageContent = messageContent ? `${messageContent}\n\n${fileDescriptions}` : fileDescriptions;
-    }
+      let messageContent = input.trim();
 
-    sendMessage(messageContent);
-    setInput('');
-    setContentBlocks([]);
-    setUserScrolledUp(false);
-  }, [input, contentBlocks, isLoading, sendMessage, setContentBlocks]);
+      if (contentBlocks.length > 0) {
+        const fileDescriptions = contentBlocks
+          .map((block) => {
+            if (block.type === "image_url") {
+              return `[Image: ${(block as any).image_url?.url || "uploaded image"}]`;
+            }
+            return `[File: ${block.type}]`;
+          })
+          .join("\n");
 
-  const handleRegenerate = useCallback((messageIndex: number) => {
-    if (isLoading) return;
-    
-    const targetMessage = messages[messageIndex];
-    if (!targetMessage || targetMessage.role !== 'ai') {
-      return;
-    }
+        messageContent = messageContent
+          ? `${messageContent}\n\n${fileDescriptions}`
+          : fileDescriptions;
+      }
 
-    regenerate(targetMessage.id);
-  }, [isLoading, messages, regenerate]);
+      sendMessage(messageContent);
+      setInput("");
+      setContentBlocks([]);
+      setUserScrolledUp(false);
+    },
+    [input, contentBlocks, isLoading, sendMessage, setContentBlocks]
+  );
 
-  const handleEditMessage = useCallback((messageIndex: number, newContent: string) => {
-    if (isLoading || !newContent.trim()) return;
-    
-    const targetMessage = messages[messageIndex];
-    if (!targetMessage) return;
+  const handleRegenerate = useCallback(
+    (messageIndex: number) => {
+      if (isLoading) return;
 
-    editMessage(targetMessage.id, newContent);
-  }, [isLoading, messages, editMessage]);
+      const targetMessage = messages[messageIndex];
+      if (!targetMessage || targetMessage.role !== "ai") {
+        return;
+      }
 
-  const handleSendSuggestion = useCallback((text: string) => {
-    if (!text.trim() || isLoading) return;
-    sendMessage(text);
-    setUserScrolledUp(false);
-  }, [isLoading, sendMessage]);
+      regenerate(targetMessage.id);
+    },
+    [isLoading, messages, regenerate]
+  );
+
+  const handleEditMessage = useCallback(
+    (messageIndex: number, newContent: string) => {
+      if (isLoading || !newContent.trim()) return;
+
+      const targetMessage = messages[messageIndex];
+      if (!targetMessage) return;
+
+      editMessage(targetMessage.id, newContent);
+    },
+    [isLoading, messages, editMessage]
+  );
+
+  const handleSendSuggestion = useCallback(
+    (text: string) => {
+      if (!text.trim() || isLoading) return;
+      sendMessage(text);
+      setUserScrolledUp(false);
+    },
+    [isLoading, sendMessage]
+  );
 
   const content = (
-    <div className={cn('flex h-full flex-col overflow-hidden', className)}>
+    <div className={cn("flex h-full flex-col overflow-hidden", className)}>
       {/* Header */}
       <ChatHeader agentId={agentId} chatId={chatId} />
 
       {/* Messages Area */}
-      <div 
-        ref={messagesContainerRef}
-        className="relative flex-1 overflow-y-auto"
-      >
+      <div ref={messagesContainerRef} className="relative flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl px-4 pt-6 pb-4">
           {showGreeting && <Greeting agentId={agentId} />}
-          
+
           {/* Show skeleton only when loading history */}
           {isLoadingHistory ? (
             <HistorySkeleton />
@@ -238,18 +255,11 @@ export function ChatContainer({
         </div>
 
         {/* Scroll to bottom button */}
-        <ScrollToBottom 
-          show={showScrollButton} 
-          onClick={scrollToBottom} 
-          isMobile={isMobile} 
-        />
+        <ScrollToBottom show={showScrollButton} onClick={scrollToBottom} isMobile={isMobile} />
       </div>
 
       {/* Input Area */}
-      <div className={cn(
-        'shrink-0 bg-background px-4 py-4',
-        isMobile && 'pb-6'
-      )}>
+      <div className={cn("shrink-0 bg-background px-4 py-4", isMobile && "pb-6")}>
         <div className="mx-auto max-w-3xl">
           {/* Suggestions */}
           {showSuggestions && !isLoadingHistory && (
@@ -279,7 +289,7 @@ export function ChatContainer({
 
   // Wrap with StakingActionsProvider only for staking_agent
   // This registers wallet operation tools (useHumanInTheLoop) only for staking
-  if (agentId === 'staking_agent') {
+  if (agentId === "staking_agent") {
     return <StakingActionsProvider>{content}</StakingActionsProvider>;
   }
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { memo, useRef, useEffect, useCallback } from "react";
-import { TrendingUp, AlertCircle, Shield } from "lucide-react";
+import { AlertCircle, Shield, TrendingUp } from "lucide-react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface YieldResultCardProps {
@@ -23,14 +23,15 @@ const formatNumber = (num: number | undefined | null): string => {
 
 // APY indicator with color
 const APYIndicator = ({ value }: { value: number | undefined | null }) => {
-  if (value === undefined || value === null) return <span className="text-muted-foreground">N/A</span>;
-  
+  if (value === undefined || value === null)
+    return <span className="text-muted-foreground">N/A</span>;
+
   const getColor = () => {
     if (value >= 20) return "text-green-500";
     if (value >= 10) return "text-yellow-500";
     return "text-blue-500";
   };
-  
+
   return (
     <span className={cn("flex items-center gap-1 font-medium", getColor())}>
       <TrendingUp className="h-3 w-3" />
@@ -42,17 +43,15 @@ const APYIndicator = ({ value }: { value: number | undefined | null }) => {
 // Risk indicator
 const RiskIndicator = ({ risk }: { risk: string | undefined }) => {
   if (!risk) return null;
-  
+
   const getRiskColor = (risk: string) => {
     if (risk.toLowerCase().includes("no")) return "text-green-500 bg-green-500/10";
     if (risk.toLowerCase().includes("low")) return "text-yellow-500 bg-yellow-500/10";
     return "text-red-500 bg-red-500/10";
   };
-  
+
   return (
-    <span className={cn("px-2 py-1 rounded text-xs font-medium", getRiskColor(risk))}>
-      {risk}
-    </span>
+    <span className={cn("px-2 py-1 rounded text-xs font-medium", getRiskColor(risk))}>{risk}</span>
   );
 };
 
@@ -62,7 +61,7 @@ const scrollPositions = new Map<string, number>();
 // Custom hook for scroll preservation with global store
 function useScrollPreservation(id: string) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+
   // Restore scroll position on mount
   useEffect(() => {
     const el = scrollRef.current;
@@ -74,11 +73,14 @@ function useScrollPreservation(id: string) {
       });
     }
   }, [id]);
-  
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    scrollPositions.set(id, e.currentTarget.scrollTop);
-  }, [id]);
-  
+
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      scrollPositions.set(id, e.currentTarget.scrollTop);
+    },
+    [id]
+  );
+
   return { scrollRef, handleScroll };
 }
 
@@ -86,33 +88,34 @@ function useScrollPreservation(id: string) {
 const YieldPoolsResult = memo(({ data, scrollId }: { data: any; scrollId: string }) => {
   const pools = data.pools || [];
   const { scrollRef, handleScroll } = useScrollPreservation(scrollId);
-  
+
   return (
     <div className="space-y-2">
       <div className="text-sm text-muted-foreground mb-2">
         Found {data.totalPools || pools.length} yield opportunities
       </div>
-      <div 
+      <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="max-h-[400px] overflow-y-auto space-y-2" 
+        className="max-h-[400px] overflow-y-auto space-y-2"
         data-scrollable="true"
       >
         {pools.slice(0, 15).map((pool: any, index: number) => (
-          <div key={`pool-${index}-${pool.symbol}`} className="border border-border/50 rounded-lg p-3 space-y-2">
+          <div
+            key={`pool-${index}-${pool.symbol}`}
+            className="border border-border/50 rounded-lg p-3 space-y-2"
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="font-medium">{pool.symbol}</span>
                 <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
                   {pool.chain}
                 </span>
-                {pool.stablecoin && (
-                  <Shield className="h-3 w-3 text-green-500" />
-                )}
+                {pool.stablecoin && <Shield className="h-3 w-3 text-green-500" />}
               </div>
               <APYIndicator value={pool.apy} />
             </div>
-            
+
             <div className="flex items-center justify-between text-sm">
               <div>
                 <span className="text-muted-foreground">Project:</span>
@@ -123,7 +126,7 @@ const YieldPoolsResult = memo(({ data, scrollId }: { data: any; scrollId: string
                 <span className="ml-1 font-medium">${formatNumber(pool.tvlUsd)}</span>
               </div>
             </div>
-            
+
             {(pool.apyBase !== undefined || pool.apyReward !== undefined || pool.ilRisk) && (
               <div className="grid grid-cols-3 gap-2 text-xs">
                 <div className="bg-muted/30 rounded p-1.5 text-center">
@@ -146,41 +149,40 @@ const YieldPoolsResult = memo(({ data, scrollId }: { data: any; scrollId: string
     </div>
   );
 });
-YieldPoolsResult.displayName = 'YieldPoolsResult';
+YieldPoolsResult.displayName = "YieldPoolsResult";
 
 // Top Yields by Chain Result
 const TopYieldsByChainResult = memo(({ data, scrollId }: { data: any; scrollId: string }) => {
   const pools = data.pools || [];
   const { scrollRef, handleScroll } = useScrollPreservation(scrollId);
-  
+
   return (
     <div className="space-y-2">
       <div className="text-sm text-muted-foreground mb-2">
         Top yields on {data.chain} ({data.totalPools || pools.length} pools found)
       </div>
-      <div 
+      <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="max-h-[350px] overflow-y-auto space-y-1" 
+        className="max-h-[350px] overflow-y-auto space-y-1"
         data-scrollable="true"
       >
         {pools.map((pool: any, index: number) => (
-          <div key={`chain-pool-${index}-${pool.symbol}`} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
+          <div
+            key={`chain-pool-${index}-${pool.symbol}`}
+            className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+          >
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground w-6 text-xs">#{pool.rank || index + 1}</span>
               <div>
                 <span className="font-medium">{pool.symbol}</span>
                 <div className="text-xs text-muted-foreground">{pool.project}</div>
               </div>
-              {pool.stablecoin && (
-                <Shield className="h-3 w-3 text-green-500" />
-              )}
+              {pool.stablecoin && <Shield className="h-3 w-3 text-green-500" />}
             </div>
             <div className="text-right">
               <APYIndicator value={pool.apy} />
-              <div className="text-xs text-muted-foreground">
-                TVL: ${formatNumber(pool.tvlUsd)}
-              </div>
+              <div className="text-xs text-muted-foreground">TVL: ${formatNumber(pool.tvlUsd)}</div>
             </div>
           </div>
         ))}
@@ -188,13 +190,13 @@ const TopYieldsByChainResult = memo(({ data, scrollId }: { data: any; scrollId: 
     </div>
   );
 });
-TopYieldsByChainResult.displayName = 'TopYieldsByChainResult';
+TopYieldsByChainResult.displayName = "TopYieldsByChainResult";
 
 // Yield Statistics Result
 const YieldStatsResult = memo(({ data }: { data: any }) => {
   const overview = data.overview || {};
   const topChains = data.topChains || [];
-  
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
@@ -215,19 +217,20 @@ const YieldStatsResult = memo(({ data }: { data: any }) => {
           <div className="font-bold text-lg">{overview.chainsCount}</div>
         </div>
       </div>
-      
+
       {topChains.length > 0 && (
         <div>
           <div className="text-sm text-muted-foreground mb-2">Top Chains by TVL</div>
           <div className="space-y-1">
             {topChains.slice(0, 8).map((chain: any, index: number) => (
-              <div key={`stats-chain-${index}-${chain.chain}`} className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0">
+              <div
+                key={`stats-chain-${index}-${chain.chain}`}
+                className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0"
+              >
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground w-6 text-xs">#{index + 1}</span>
                   <span className="font-medium">{chain.chain}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {chain.poolCount} pools
-                  </span>
+                  <span className="text-xs text-muted-foreground">{chain.poolCount} pools</span>
                 </div>
                 <div className="text-right text-sm">
                   <div className="font-medium">${formatNumber(chain.totalTvl)}</div>
@@ -243,39 +246,42 @@ const YieldStatsResult = memo(({ data }: { data: any }) => {
     </div>
   );
 });
-YieldStatsResult.displayName = 'YieldStatsResult';
+YieldStatsResult.displayName = "YieldStatsResult";
 
 // Stablecoin Yields Result
 const StablecoinYieldsResult = memo(({ data, scrollId }: { data: any; scrollId: string }) => {
   const pools = data.pools || [];
   const { scrollRef, handleScroll } = useScrollPreservation(scrollId);
-  
+
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
         <Shield className="h-4 w-4 text-green-500" />
         Safe stablecoin yields ({data.totalPools || pools.length} found)
       </div>
-      <div 
+      <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="max-h-[350px] overflow-y-auto space-y-1" 
+        className="max-h-[350px] overflow-y-auto space-y-1"
         data-scrollable="true"
       >
         {pools.map((pool: any, index: number) => (
-          <div key={`stable-${index}-${pool.symbol}`} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
+          <div
+            key={`stable-${index}-${pool.symbol}`}
+            className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+          >
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground w-6 text-xs">#{pool.rank || index + 1}</span>
               <div>
                 <span className="font-medium">{pool.symbol}</span>
-                <div className="text-xs text-muted-foreground">{pool.project} • {pool.chain}</div>
+                <div className="text-xs text-muted-foreground">
+                  {pool.project} • {pool.chain}
+                </div>
               </div>
             </div>
             <div className="text-right">
               <APYIndicator value={pool.apy} />
-              <div className="text-xs text-muted-foreground">
-                TVL: ${formatNumber(pool.tvlUsd)}
-              </div>
+              <div className="text-xs text-muted-foreground">TVL: ${formatNumber(pool.tvlUsd)}</div>
             </div>
           </div>
         ))}
@@ -283,7 +289,7 @@ const StablecoinYieldsResult = memo(({ data, scrollId }: { data: any; scrollId: 
     </div>
   );
 });
-StablecoinYieldsResult.displayName = 'StablecoinYieldsResult';
+StablecoinYieldsResult.displayName = "StablecoinYieldsResult";
 
 // Loading state
 const LoadingState = ({ toolName }: { toolName: string }) => (
@@ -303,15 +309,16 @@ const ErrorState = ({ error }: { error: string }) => (
 
 // Generic Result (fallback)
 const GenericResult = ({ data }: { data: any }) => {
-  const summary = data.success !== undefined ? (
-    <div className="text-sm">
-      <span className={data.success ? "text-green-500" : "text-red-500"}>
-        {data.success ? "✓ Success" : "✗ Failed"}
-      </span>
-      {data.error && <span className="text-red-500 ml-2">{data.error}</span>}
-    </div>
-  ) : null;
-  
+  const summary =
+    data.success !== undefined ? (
+      <div className="text-sm">
+        <span className={data.success ? "text-green-500" : "text-red-500"}>
+          {data.success ? "✓ Success" : "✗ Failed"}
+        </span>
+        {data.error && <span className="text-red-500 ml-2">{data.error}</span>}
+      </div>
+    ) : null;
+
   return (
     <div className="space-y-2">
       {summary}
@@ -353,7 +360,7 @@ function YieldResultCardComponent({ toolName, result, status }: YieldResultCardP
     // Generate stable scroll ID based on tool name and data hash
     const dataHash = JSON.stringify(data).slice(0, 50);
     const scrollId = `${toolName}-${dataHash}`;
-    
+
     switch (toolName) {
       case "yield_get_yield_pools":
         return <YieldPoolsResult data={data} scrollId={scrollId} />;
@@ -370,11 +377,7 @@ function YieldResultCardComponent({ toolName, result, status }: YieldResultCardP
     }
   };
 
-  return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      {renderContent()}
-    </div>
-  );
+  return <div className="rounded-lg border border-border bg-card p-4">{renderContent()}</div>;
 }
 
 export const YieldResultCard = memo(YieldResultCardComponent);

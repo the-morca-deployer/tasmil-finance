@@ -22,7 +22,10 @@ export function HeaderSidebar({
 
   return (
     <div className="relative">
-      <Link href="/agents" className={`flex h-12 w-full items-center gap-2 p-3 ${isCollapsed ? "justify-center" : ""}`}>
+      <Link
+        href="/agents"
+        className={`flex h-12 w-full items-center gap-2 p-3 ${isCollapsed ? "justify-center" : ""}`}
+      >
         <Image
           alt={header.brand_name}
           height={45}

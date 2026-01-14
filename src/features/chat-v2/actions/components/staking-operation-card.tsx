@@ -4,25 +4,25 @@
 // Uses HITL pattern: when user signs transaction, result is sent back to agent via respond()
 // This ensures transaction results are persisted in thread messages
 
-import { useState } from "react";
-import { useAccount } from "wagmi";
-import { formatEther } from "viem";
 import {
-  Coins,
-  TrendingUp,
-  Lock,
-  CheckCircle,
   AlertCircle,
-  Loader2,
   ArrowUpRight,
+  CheckCircle,
+  Coins,
+  Loader2,
+  Lock,
+  TrendingUp,
 } from "lucide-react";
+import { useState } from "react";
+import { formatEther } from "viem";
+import { useAccount } from "wagmi";
 import { Button } from "@/shared/ui/button";
 import {
-  useDelegateStake,
-  useUndelegateStake,
   useClaimRewards,
-  useRestakeRewards,
+  useDelegateStake,
   useLockStake,
+  useRestakeRewards,
+  useUndelegateStake,
 } from "../../hooks/use-staking-operations";
 
 type StakingOperation =
@@ -139,20 +139,27 @@ export function StakingOperationCard({
   const lockupDurationDays = data["lockupDurationDays"];
 
   // Format amount from wei to U2U
-  const amountFormatted: string | undefined = amountWei 
-    ? `${formatAmount(amountWei as string)} U2U` 
+  const amountFormatted: string | undefined = amountWei
+    ? `${formatAmount(amountWei as string)} U2U`
     : undefined;
 
   // Use result from CopilotKit (persisted) or local txResult
   // This ensures state persists across page reloads
   const persistedResult = result as Record<string, unknown> | undefined;
   const hasPersistedResult = persistedResult && persistedResult["success"] !== undefined;
-  
-  const effectiveResult = txResult || (hasPersistedResult ? {
-    success: Boolean(persistedResult["success"]),
-    hash: persistedResult["hash"] as string | undefined,
-    message: String(persistedResult["message"] || (persistedResult["success"] ? "Transaction successful!" : "Transaction failed")),
-  } : null);
+
+  const effectiveResult =
+    txResult ||
+    (hasPersistedResult
+      ? {
+          success: Boolean(persistedResult["success"]),
+          hash: persistedResult["hash"] as string | undefined,
+          message: String(
+            persistedResult["message"] ||
+              (persistedResult["success"] ? "Transaction successful!" : "Transaction failed")
+          ),
+        }
+      : null);
 
   // Check if any hook is pending
   const isPending =
@@ -193,7 +200,7 @@ export function StakingOperationCard({
           walletResult = await delegateStake.delegateStake(validatorNum, amountStr);
           break;
 
-        case "undelegate":
+        case "undelegate": {
           if (!amountWei) {
             throw new Error("Amount is required for undelegation");
           }
@@ -205,6 +212,7 @@ export function StakingOperationCard({
             amountStr
           );
           break;
+        }
 
         case "claim_rewards":
           walletResult = await claimRewards.claimRewards(validatorNum);
@@ -218,11 +226,7 @@ export function StakingOperationCard({
           if (!amountWei || !lockupDuration) {
             throw new Error("Amount and lockup duration are required");
           }
-          walletResult = await lockStake.lockStake(
-            validatorNum,
-            Number(lockupDuration),
-            amountStr
-          );
+          walletResult = await lockStake.lockStake(validatorNum, Number(lockupDuration), amountStr);
           break;
 
         default:
@@ -243,10 +247,9 @@ export function StakingOperationCard({
         validatorID: String(validatorID),
         amount: amountFormatted,
       });
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Transaction failed";
-      
+
       setTxResult({
         success: false,
         message: errorMessage,
@@ -270,7 +273,7 @@ export function StakingOperationCard({
   // Check success status first - if failed, show failed UI even if status is complete
   const isSuccess = effectiveResult?.success === true && effectiveResult?.hash;
   const isFailed = effectiveResult?.success === false;
-  
+
   if (isSuccess || (status === "complete" && !isFailed && effectiveResult?.hash)) {
     const hash = effectiveResult?.hash;
     const truncatedHash = hash ? `${hash.slice(0, 6)}...${hash.slice(-4)}` : "";
@@ -284,9 +287,7 @@ export function StakingOperationCard({
           </div>
           <div className="space-y-1 min-w-0">
             <h3 className="text-base font-semibold">Transaction Completed</h3>
-            <p className="text-muted-foreground text-sm">
-              {config.title} was successful
-            </p>
+            <p className="text-muted-foreground text-sm">{config.title} was successful</p>
           </div>
         </div>
 
@@ -334,7 +335,7 @@ export function StakingOperationCard({
   // Show failed transaction UI - check this BEFORE showing success
   if (isFailed || (status === "complete" && effectiveResult?.success === false)) {
     const errorMessage = effectiveResult?.message || "Transaction failed";
-    
+
     return (
       <div className={`${cardWidthClass} rounded-lg border bg-card p-6 shadow-sm`}>
         <div className="mb-4 flex items-center gap-3">
@@ -382,9 +383,7 @@ export function StakingOperationCard({
           </div>
           <div className="space-y-1">
             <h3 className="text-base font-semibold">{config.title}</h3>
-            <p className="text-muted-foreground text-sm">
-              Preparing transaction...
-            </p>
+            <p className="text-muted-foreground text-sm">Preparing transaction...</p>
           </div>
         </div>
       </div>
@@ -403,7 +402,9 @@ export function StakingOperationCard({
         </div>
         <div className="space-y-1 min-w-0">
           <h3 className="text-base font-semibold">{config.title}</h3>
-          <p className="text-muted-foreground text-sm">Click the button below to sign the transaction</p>
+          <p className="text-muted-foreground text-sm">
+            Click the button below to sign the transaction
+          </p>
         </div>
       </div>
 

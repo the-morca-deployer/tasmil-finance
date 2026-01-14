@@ -4,10 +4,10 @@ import { ArrowDown } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { Button } from "@/shared/ui/button-v2";
-import { Typography } from "@/shared/ui/typography";
 import { PATHS, SECTION_IDS } from "@/shared/constants/routes";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
+import { Button } from "@/shared/ui/button-v2";
+import { Typography } from "@/shared/ui/typography";
 
 const HERO_IMAGES = {
   background: "/images/landing-v3/hero/bg.png",

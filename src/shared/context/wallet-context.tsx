@@ -1,12 +1,12 @@
 "use client";
 
-import type React from "react";
-import { createContext, useContext, useEffect, useCallback, useRef } from "react";
-import { useAccount, useDisconnect, useSignMessage } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { useWalletStore } from "@/store/use-wallet";
-import { useAuthStore, type AuthUser } from "@/store/use-auth";
+import type React from "react";
+import { createContext, useCallback, useContext, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { useAccount, useDisconnect, useSignMessage } from "wagmi";
+import { type AuthUser, useAuthStore } from "@/store/use-auth";
+import { useWalletStore } from "@/store/use-wallet";
 
 interface WalletContextType {
   isConnected: boolean;

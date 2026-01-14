@@ -1,8 +1,8 @@
-import React from "react";
+import type { ContentBlock } from "@langchain/core/messages";
 import { File, X as XIcon } from "lucide-react";
-import { ContentBlock } from "@langchain/core/messages";
-import { cn } from "@/lib/utils";
 import Image from "next/image";
+import type React from "react";
+import { cn } from "@/lib/utils";
 export interface MultimodalPreviewProps {
   block: ContentBlock.Multimodal.Data;
   removable?: boolean;
@@ -32,7 +32,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
       <div className={cn("relative inline-block", className)}>
         <Image
           src={url}
-          alt={String(block.metadata?.['name'] || "uploaded image")}
+          alt={String(block.metadata?.["name"] || "uploaded image")}
           className={imgClass}
           width={size === "sm" ? 16 : size === "md" ? 32 : 48}
           height={size === "sm" ? 16 : size === "md" ? 32 : 48}
@@ -53,22 +53,16 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
 
   // PDF block
   if (block.type === "file" && block.mimeType === "application/pdf") {
-    const filename =
-      block.metadata?.['filename'] || block.metadata?.['name'] || "PDF file";
+    const filename = block.metadata?.["filename"] || block.metadata?.["name"] || "PDF file";
     return (
       <div
         className={cn(
           "relative flex items-start gap-2 rounded-md border bg-gray-100 px-3 py-2",
-          className,
+          className
         )}
       >
         <div className="flex flex-shrink-0 flex-col items-start justify-start">
-          <File
-            className={cn(
-              "text-teal-700",
-              size === "sm" ? "h-5 w-5" : "h-7 w-7",
-            )}
-          />
+          <File className={cn("text-teal-700", size === "sm" ? "h-5 w-5" : "h-7 w-7")} />
         </div>
         <span
           className={cn("min-w-0 flex-1 text-sm break-all text-gray-800")}
@@ -95,7 +89,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
     <div
       className={cn(
         "flex items-center gap-2 rounded-md border bg-gray-100 px-3 py-2 text-gray-500",
-        className,
+        className
       )}
     >
       <File className="h-5 w-5 flex-shrink-0" />

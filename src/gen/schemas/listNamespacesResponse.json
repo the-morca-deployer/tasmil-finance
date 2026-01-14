@@ -1,1 +1,5 @@
-{"type":"array","items":{"type":"array","items":{"type":"string"}},"x-readme-ref-name":"ListNamespaceResponse"}
+{
+  "type": "array",
+  "items": { "type": "array", "items": { "type": "string" } },
+  "x-readme-ref-name": "ListNamespaceResponse"
+}

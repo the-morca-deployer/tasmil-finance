@@ -1,7 +1,7 @@
-import React from "react";
-import { MultimodalPreview } from "./multimodal-preview";
+import type { ContentBlock } from "@langchain/core/messages";
+import type React from "react";
 import { cn } from "@/lib/utils";
-import { ContentBlock } from "@langchain/core/messages";
+import { MultimodalPreview } from "./multimodal-preview";
 
 interface ContentBlocksPreviewProps {
   blocks: ContentBlock.Multimodal.Data[];

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import type { NavGroup, NavItem } from "@/shared/layout/sidebar-data";
 import {
   SidebarGroup,
   SidebarMenu,
@@ -9,8 +11,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/shared/ui/sidebar";
-import { cn } from "@/lib/utils";
-import type { NavGroup, NavItem } from "@/shared/layout/sidebar-data";
 
 export function NavGroup({ items }: NavGroup) {
   const pathname = usePathname();
@@ -59,10 +59,7 @@ function NavMenuItem({
         <Link
           href={item.url}
           onClick={() => setOpenMobile(false)}
-          className={cn(
-            "flex items-center gap-3",
-            isCollapsed ? "sidebar-collapsed-center" : ""
-          )}
+          className={cn("flex items-center gap-3", isCollapsed ? "sidebar-collapsed-center" : "")}
         >
           {item.icon && (
             <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? "text-black" : ""}`} />

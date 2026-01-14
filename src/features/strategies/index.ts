@@ -1,12 +1,12 @@
 export { StrategyDetailPage, StrategyListPage } from "./components";
-export { useStrategy, useStrategies } from "./hooks";
+export { useStrategies, useStrategy } from "./hooks";
 export type {
+  AllActivities,
+  ExecutionPanel,
+  MyActivities,
   Strategy,
   StrategyListItem,
   StrategyMetadata,
-  ExecutionPanel,
   StrategyOverview,
   StrategyPrompt,
-  MyActivities,
-  AllActivities,
 } from "./types";

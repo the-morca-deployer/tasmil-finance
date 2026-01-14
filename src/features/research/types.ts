@@ -3,7 +3,7 @@ export interface ResearchQuery {
   id: string;
   query: string;
   timestamp: Date;
-  status: 'pending' | 'completed' | 'error';
+  status: "pending" | "completed" | "error";
 }
 
 export interface ResearchResult {

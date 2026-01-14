@@ -89,7 +89,7 @@ export function StrategyDetailPage({ strategyId, className }: StrategyDetailPage
                 }
                 className={
                   strategy.strategy_metadata.status === "Active"
-                    ? "bg-green-500/20 text-green-500 border-green-500/30"
+                    ? "border-green-500/30 bg-green-500/20 text-green-500"
                     : ""
                 }
               >

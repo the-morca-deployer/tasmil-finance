@@ -50,8 +50,8 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules", 
-    "kubb.config.ts", 
+    "node_modules",
+    "kubb.config.ts",
     "scripts/**/*",
     "src/gen/**/*",
     "e2e/**/*",

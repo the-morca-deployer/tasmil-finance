@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { memo, useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronUp, RefreshCw, SparkleIcon } from "lucide-react";
+import { memo, useEffect, useState } from "react";
 import { Suggestion } from "./suggestion";
 
 type SuggestedActionsProps = {
@@ -24,7 +24,7 @@ const agentSuggestions = {
     "Lock 200 U2U for 30 days on validator 1",
     "What are the risks of staking?",
   ],
-  
+
   research: [
     "What's the current price of Bitcoin?",
     "Analyze Ethereum's market trends",
@@ -37,7 +37,7 @@ const agentSuggestions = {
     "What are the best performing coins this week?",
     "What's the market sentiment right now?",
   ],
-  
+
   yield: [
     "What are the best yields on Ethereum?",
     "Show stablecoin yields",
@@ -50,7 +50,7 @@ const agentSuggestions = {
     "Give me a yield market overview",
     "Show me high TVL yield pools",
   ],
-  
+
   bridge: [
     "Show available bridge routes",
     "Bridge 100 USDT to Ethereum",
@@ -63,7 +63,7 @@ const agentSuggestions = {
     "Is bridging safe?",
     "Help me understand cross-chain bridging",
   ],
-  
+
   default: [
     "What can you help me with?",
     "Show me yield opportunities",
@@ -73,7 +73,7 @@ const agentSuggestions = {
     "How do I get started with crypto investing?",
     "What's the difference between Bitcoin and Ethereum?",
     "What is DeFi and how does it work?",
-  ]
+  ],
 };
 
 function PureSuggestedActions({ agentId, onSendMessage }: SuggestedActionsProps) {
@@ -96,9 +96,9 @@ function PureSuggestedActions({ agentId, onSendMessage }: SuggestedActionsProps)
         return agentSuggestions.default;
     }
   };
-  
+
   const availableSuggestions = getSuggestionsForAgent(agentId);
-  
+
   // Randomly select 4 suggestions to show
   const getRandomSuggestions = () => {
     const shuffled = [...availableSuggestions].sort(() => 0.5 - Math.random());
@@ -108,12 +108,12 @@ function PureSuggestedActions({ agentId, onSendMessage }: SuggestedActionsProps)
   // Use state to store suggestions and collapse state
   const [suggestedActions, setSuggestedActions] = useState(() => getRandomSuggestions());
   const [isCollapsed, setIsCollapsed] = useState(false);
-  
+
   // Refresh suggestions when agent changes
   useEffect(() => {
     setSuggestedActions(getRandomSuggestions());
   }, [agentId]);
-  
+
   // Get agent display name for UI
   const getAgentDisplayName = (agentId: string) => {
     switch (agentId) {
@@ -133,7 +133,7 @@ function PureSuggestedActions({ agentId, onSendMessage }: SuggestedActionsProps)
         return "General Assistant";
     }
   };
-  
+
   const agentDisplayName = getAgentDisplayName(agentId);
 
   return (
@@ -141,12 +141,9 @@ function PureSuggestedActions({ agentId, onSendMessage }: SuggestedActionsProps)
       {/* Header with collapse/expand controls */}
       <div className="flex flex-row items-center justify-between rounded-lg gap-1 px-2">
         <div className="flex flex-row items-center gap-1">
-          <SparkleIcon width={12} height={12}/>
+          <SparkleIcon width={12} height={12} />
 
-          <span className="text-xs text-muted-foreground">
-            Suggestions for {agentDisplayName}
-          </span>
-
+          <span className="text-xs text-muted-foreground">Suggestions for {agentDisplayName}</span>
         </div>
         <div className="flex items-center gap-2">
           {!isCollapsed && (
@@ -165,11 +162,15 @@ function PureSuggestedActions({ agentId, onSendMessage }: SuggestedActionsProps)
             type="button"
             title={isCollapsed ? "Show suggestions" : "Hide suggestions"}
           >
-            {isCollapsed ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            {isCollapsed ? (
+              <ChevronUp className="h-3.5 w-3.5" />
+            ) : (
+              <ChevronDown className="h-3.5 w-3.5" />
+            )}
           </button>
         </div>
       </div>
-      
+
       {/* Suggestions horizontal scroll with animation */}
       <AnimatePresence>
         {!isCollapsed && (
@@ -184,13 +185,13 @@ function PureSuggestedActions({ agentId, onSendMessage }: SuggestedActionsProps)
               {/* Gradient fade effects */}
               <div className="absolute left-0 top-0 z-10 h-full w-[10%] bg-gradient-to-r from-background to-transparent pointer-events-none" />
               <div className="absolute right-0 top-0 z-10 h-full w-[10%] bg-gradient-to-l from-background to-transparent pointer-events-none" />
-              
+
               {/* Horizontal scrolling container */}
-              <div 
+              <div
                 className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden"
                 style={{
-                  scrollbarWidth: 'none', /* Firefox */
-                  msOverflowStyle: 'none', /* IE and Edge */
+                  scrollbarWidth: "none" /* Firefox */,
+                  msOverflowStyle: "none" /* IE and Edge */,
                 }}
               >
                 {suggestedActions.map((suggestedAction: string, index: number) => (
@@ -220,12 +221,9 @@ function PureSuggestedActions({ agentId, onSendMessage }: SuggestedActionsProps)
   );
 }
 
-export const SuggestedActions = memo(
-  PureSuggestedActions,
-  (prevProps, nextProps) => {
-    if (prevProps.agentId !== nextProps.agentId) {
-      return false;
-    }
-    return true;
+export const SuggestedActions = memo(PureSuggestedActions, (prevProps, nextProps) => {
+  if (prevProps.agentId !== nextProps.agentId) {
+    return false;
   }
-);
+  return true;
+});

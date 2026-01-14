@@ -2,13 +2,13 @@
 
 // 🎨 Staking info card component for displaying staking data
 
-import { Coins, DollarSign, Lock, Wallet, Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle, Coins, DollarSign, Loader2, Lock, Wallet } from "lucide-react";
 
-type StakingInfoType = 
-  | "user_stake" 
-  | "pending_rewards" 
-  | "unlocked_stake" 
-  | "lockup_info" 
+type StakingInfoType =
+  | "user_stake"
+  | "pending_rewards"
+  | "unlocked_stake"
+  | "lockup_info"
   | "rewards_stash";
 
 interface StakingInfoCardProps {
@@ -37,15 +37,18 @@ const getFormattedValue = (data: Record<string, unknown>, key: string): string =
   return formatNumber(value as number | string);
 };
 
-const CONFIG: Record<StakingInfoType, {
-  title: string;
-  description: string;
-  icon: typeof Coins;
-  iconColor: string;
-  bgColor: string;
-  valueKey: string;
-  valueLabel: string;
-}> = {
+const CONFIG: Record<
+  StakingInfoType,
+  {
+    title: string;
+    description: string;
+    icon: typeof Coins;
+    iconColor: string;
+    bgColor: string;
+    valueKey: string;
+    valueLabel: string;
+  }
+> = {
   user_stake: {
     title: "Staked Amount",
     description: "Your delegation to validator",
@@ -102,7 +105,9 @@ export function StakingInfoCard({ type, args, result, status }: StakingInfoCardP
     return (
       <div className="w-fit rounded-lg border bg-card/40 p-6 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className={`flex h-10 w-10 items-center justify-center rounded-full ${config.bgColor}`}>
+          <div
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${config.bgColor}`}
+          >
             <Loader2 className={`h-5 w-5 ${config.iconColor} animate-spin`} />
           </div>
           <div className="space-y-1">
@@ -116,10 +121,11 @@ export function StakingInfoCard({ type, args, result, status }: StakingInfoCardP
 
   // Error state
   if (status === "error" || (result && typeof result === "object" && "error" in result)) {
-    const errorMsg = result && typeof result === "object" && "error" in result 
-      ? (result as { error: string }).error 
-      : "Failed to fetch data";
-    
+    const errorMsg =
+      result && typeof result === "object" && "error" in result
+        ? (result as { error: string }).error
+        : "Failed to fetch data";
+
     return (
       <div className="w-fit rounded-lg border border-destructive/30 bg-destructive/5 p-6 shadow-sm">
         <div className="flex items-center gap-3">
@@ -137,13 +143,15 @@ export function StakingInfoCard({ type, args, result, status }: StakingInfoCardP
 
   // Success state
   const data = (result as Record<string, unknown>) || {};
-  const validatorID = args['validator_id'] || args['validatorID'] || data['validatorID'];
-  const delegatorAddress = args['delegator_address'] || data['delegatorAddress'];
+  const validatorID = args["validator_id"] || args["validatorID"] || data["validatorID"];
+  const delegatorAddress = args["delegator_address"] || data["delegatorAddress"];
 
   return (
     <div className="w-fit min-w-[280px] rounded-lg border bg-card/40 p-6 shadow-sm">
       <div className="mb-4 flex items-center gap-3">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-full ${config.bgColor}`}>
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-full ${config.bgColor}`}
+        >
           <Icon className={`h-5 w-5 ${config.iconColor}`} />
         </div>
         <div className="space-y-1">
@@ -159,7 +167,7 @@ export function StakingInfoCard({ type, args, result, status }: StakingInfoCardP
             <span className="font-medium">{String(validatorID)}</span>
           </div>
         )}
-        
+
         {delegatorAddress != null && (
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Delegator</span>
@@ -172,33 +180,37 @@ export function StakingInfoCard({ type, args, result, status }: StakingInfoCardP
         {/* Lockup specific fields */}
         {type === "lockup_info" && (
           <>
-            {data['lockupDuration'] != null && (
+            {data["lockupDuration"] != null && (
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Duration</span>
-                <span className="font-medium">{String(data['lockupDuration'])}</span>
+                <span className="font-medium">{String(data["lockupDuration"])}</span>
               </div>
             )}
-            {data['endTime'] != null && (
+            {data["endTime"] != null && (
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">End Time</span>
-                <span className="font-medium">{String(data['endTime'])}</span>
+                <span className="font-medium">{String(data["endTime"])}</span>
               </div>
             )}
           </>
         )}
 
         {/* Main value display */}
-        <div className={`rounded-md border ${
-          type === "pending_rewards" || type === "rewards_stash" 
-            ? "border-green-500/30 bg-green-500/10" 
-            : "border-primary/30 bg-primary/10"
-        } p-3 text-center`}>
+        <div
+          className={`rounded-md border ${
+            type === "pending_rewards" || type === "rewards_stash"
+              ? "border-green-500/30 bg-green-500/10"
+              : "border-primary/30 bg-primary/10"
+          } p-3 text-center`}
+        >
           <div className="text-muted-foreground text-xs mb-1">{config.valueLabel}</div>
-          <div className={`text-xl font-bold ${
-            type === "pending_rewards" || type === "rewards_stash" 
-              ? "text-green-500" 
-              : "text-primary"
-          }`}>
+          <div
+            className={`text-xl font-bold ${
+              type === "pending_rewards" || type === "rewards_stash"
+                ? "text-green-500"
+                : "text-primary"
+            }`}
+          >
             {getFormattedValue(data, config.valueKey)}
           </div>
         </div>

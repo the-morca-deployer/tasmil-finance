@@ -1,6 +1,6 @@
 "use client";
 
-import { Wallet, Clock, TrendingUp, Users, AlertCircle, DollarSign, Coins } from "lucide-react";
+import { AlertCircle, Clock, Coins, DollarSign, TrendingUp, Users, Wallet } from "lucide-react";
 
 interface StakingResultProps {
   result: any;
@@ -21,12 +21,12 @@ const formatNumber = (num: number | string | undefined | null): string => {
 const getFormattedValue = (data: any, key: string): string => {
   const value = data[key];
   if (!value) return "N/A";
-  
+
   // If it's an object with formatted property (new format)
   if (typeof value === "object" && value.formatted) {
     return value.formatted;
   }
-  
+
   // If it's a direct number/string (old format)
   return formatNumber(value);
 };
@@ -50,14 +50,14 @@ const UserStakeResult = ({ data }: { data: any }) => (
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">Delegator</span>
         <span className="font-mono text-xs" title={data.delegatorAddress}>
-          {data.delegatorAddress ? `${data.delegatorAddress.slice(0, 6)}...${data.delegatorAddress.slice(-4)}` : "N/A"}
+          {data.delegatorAddress
+            ? `${data.delegatorAddress.slice(0, 6)}...${data.delegatorAddress.slice(-4)}`
+            : "N/A"}
         </span>
       </div>
       <div className="rounded-md border border-primary/30 bg-primary/10 p-3 text-center">
         <div className="text-muted-foreground text-xs mb-1">Total Staked</div>
-        <div className="text-xl font-bold text-primary">
-          {getFormattedValue(data, "stake")}
-        </div>
+        <div className="text-xl font-bold text-primary">{getFormattedValue(data, "stake")}</div>
       </div>
     </div>
   </div>
@@ -82,7 +82,9 @@ const PendingRewardsResult = ({ data }: { data: any }) => (
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">Delegator</span>
         <span className="font-mono text-xs" title={data.delegatorAddress}>
-          {data.delegatorAddress ? `${data.delegatorAddress.slice(0, 6)}...${data.delegatorAddress.slice(-4)}` : "N/A"}
+          {data.delegatorAddress
+            ? `${data.delegatorAddress.slice(0, 6)}...${data.delegatorAddress.slice(-4)}`
+            : "N/A"}
         </span>
       </div>
       <div className="rounded-md border border-green-500/30 bg-green-500/10 p-3 text-center">
@@ -109,12 +111,16 @@ const AccountBalanceResult = ({ data }: { data: any }) => (
     <div className="space-y-3">
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">Address</span>
-        <span className="font-mono text-xs">{data.walletAddress || data.delegatorAddress || "N/A"}</span>
+        <span className="font-mono text-xs">
+          {data.walletAddress || data.delegatorAddress || "N/A"}
+        </span>
       </div>
       <div className="rounded-md border border-primary/30 bg-primary/10 p-3 text-center">
         <div className="text-muted-foreground text-xs mb-1">Balance</div>
         <div className="text-xl font-bold text-primary">
-          {data.balance?.formatted || formatNumber(data.balance) || getFormattedValue(data, "stake")}
+          {data.balance?.formatted ||
+            formatNumber(data.balance) ||
+            getFormattedValue(data, "stake")}
           {data.unit && <span className="text-muted-foreground text-sm ml-1">{data.unit}</span>}
         </div>
       </div>
@@ -299,61 +305,41 @@ const ErrorResult = ({ error }: { error: string }) => (
 
 export default function StakingResult({ result, toolType }: StakingResultProps) {
   if (!result) return null;
-  
+
   if (!result.success) {
-    return (
-        <ErrorResult error={result.error || "Operation failed"} />
-    );
+    return <ErrorResult error={result.error || "Operation failed"} />;
   }
-  
+
   switch (toolType) {
     case "tool-getAccountBalance":
-      return (
-          <AccountBalanceResult data={result} />
-      );
-    
+      return <AccountBalanceResult data={result} />;
+
     case "tool-u2u_staking_get_user_stake":
-      return (
-          <UserStakeResult data={result} />
-      );
-    
+      return <UserStakeResult data={result} />;
+
     case "tool-getCurrentEpoch":
-      return (
-          <CurrentEpochResult data={result} />
-      );
-    
+      return <CurrentEpochResult data={result} />;
+
     case "tool-getTotalStake":
     case "tool-getTotalActiveStake":
-      return (
-          <TotalStakeResult data={result} />
-      );
-    
+      return <TotalStakeResult data={result} />;
+
     case "tool-getValidatorInfo":
-      return (
-          <ValidatorInfoResult data={result} />
-      );
-    
+      return <ValidatorInfoResult data={result} />;
+
     case "tool-getPendingRewards":
     case "tool-u2u_staking_get_pending_rewards":
-      return (
-          <PendingRewardsResult data={result} />
-      );
-    
+      return <PendingRewardsResult data={result} />;
+
     case "tool-u2u_staking_get_rewards_stash":
-      return (
-          <RewardsStashResult data={result} />
-      );
-    
+      return <RewardsStashResult data={result} />;
+
     case "tool-u2u_staking_get_unlocked_stake":
-      return (
-          <UnlockedStakeResult data={result} />
-      );
-    
+      return <UnlockedStakeResult data={result} />;
+
     case "tool-u2u_staking_get_lockup_info":
-      return (
-          <LockupInfoResult data={result} />
-      );
-    
+      return <LockupInfoResult data={result} />;
+
     default:
       return (
         <div className="p-4 text-sm text-muted-foreground">

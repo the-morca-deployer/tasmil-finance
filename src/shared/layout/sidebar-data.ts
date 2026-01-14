@@ -1,4 +1,4 @@
-import { Home, Bot, TrendingUp } from "lucide-react";
+import { Bot, Home, TrendingUp } from "lucide-react";
 
 export interface NavItem {
   title: string;

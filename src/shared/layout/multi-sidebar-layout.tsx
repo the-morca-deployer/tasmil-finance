@@ -1,19 +1,19 @@
 "use client";
 
-import { PanelLeft, Clock, X } from "lucide-react";
+import { Clock, PanelLeft, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
+import { AppSidebar } from "@/shared/layout/app-sidebar";
+import { ChatHistoryWrapper } from "@/shared/layout/chat-history-wrapper";
+import { MobileSidebarContent } from "@/shared/layout/mobile-sidebar-content";
+import { Button } from "@/shared/ui/button-v2";
 import {
   MultiSidebarProvider,
   MultiSidebarTrigger,
   useMultiSidebar,
 } from "@/shared/ui/multi-sidebar";
-import { SidebarProvider, SidebarInset, useSidebar } from "@/shared/ui/sidebar";
-import { AppSidebar } from "@/shared/layout/app-sidebar";
-import { MobileSidebarContent } from "@/shared/layout/mobile-sidebar-content";
-import { ChatHistoryWrapper } from "@/shared/layout/chat-history-wrapper";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/shared/ui/sheet";
-import { useIsMobile } from "@/shared/hooks/use-mobile";
-import { cn } from "@/lib/utils";
-import { Button } from "@/shared/ui/button-v2";
+import { SidebarInset, SidebarProvider, useSidebar } from "@/shared/ui/sidebar";
 
 interface MultiSidebarLayoutProps {
   children: React.ReactNode;
@@ -181,7 +181,7 @@ export function MultiSidebarLayout({
   showHeader = true,
 }: MultiSidebarLayoutProps) {
   return (
-    <MultiSidebarProvider className={className || ''}>
+    <MultiSidebarProvider className={className || ""}>
       <LayoutContent showRightSidebar={showRightSidebar} showHeader={showHeader}>
         {children}
       </LayoutContent>

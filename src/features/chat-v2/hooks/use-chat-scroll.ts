@@ -2,7 +2,7 @@
 
 // 🪝 Chat scroll behavior hook
 
-import { useState, useRef, useEffect, useCallback, type RefObject } from 'react';
+import { type RefObject, useCallback, useEffect, useRef, useState } from "react";
 
 interface UseChatScrollOptions {
   messageCount: number;
@@ -24,16 +24,16 @@ interface UseChatScrollReturn {
  */
 export function useChatScroll(options: UseChatScrollOptions): UseChatScrollReturn {
   const { messageCount, threshold = 100 } = options;
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastMessageCountRef = useRef(0);
-  
+
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
 
   // Scroll to bottom function
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
     setUserScrolledUp(false);
   }, []);
@@ -54,15 +54,15 @@ export function useChatScroll(options: UseChatScrollOptions): UseChatScrollRetur
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-      
+
       // User is considered "scrolled up" if they're more than threshold from bottom
       const isScrolledUp = distanceFromBottom > threshold;
       setUserScrolledUp(isScrolledUp);
       setShowScrollButton(isScrolledUp);
     };
 
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
   }, [threshold]);
 
   return {

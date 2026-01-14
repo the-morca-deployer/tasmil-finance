@@ -1,10 +1,10 @@
 "use client";
 
+import { TokenIcon } from "@web3icons/react/dynamic";
+import { Bot, Brain, TrendingUp, Zap } from "lucide-react";
 import Image from "next/image";
-import { Bot, Brain, Zap, TrendingUp } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import LightPillar from "@/shared/ui/light-pillar";
-import { TokenIcon } from "@web3icons/react/dynamic";
 
 const avatarIcons = [Bot, Brain, Zap, TrendingUp];
 

@@ -19,7 +19,7 @@ export interface Thread {
   status: ThreadStatus;
 }
 
-export type ThreadStatus = 'active' | 'archived' | 'deleted';
+export type ThreadStatus = "active" | "archived" | "deleted";
 
 export interface ThreadListParams {
   assistantId?: string;

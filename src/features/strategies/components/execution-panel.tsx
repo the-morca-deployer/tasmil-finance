@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, ChevronUp, Fuel, Zap } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card";
@@ -23,6 +23,8 @@ export function ExecutionPanelComponent({
 }: ExecutionPanelProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [inputAmount, setInputAmount] = useState(executionPanel.input_amount.toString());
+  const amountInputId = useId();
+  const tokenInputId = useId();
 
   const handleMaxClick = () => {
     setInputAmount(executionPanel.available_balance.toString());
@@ -50,7 +52,7 @@ export function ExecutionPanelComponent({
         <CardContent className="p-6">
           <div className="space-y-1">
             <p className="text-muted-foreground text-sm">APY</p>
-            <p className="text-primary font-bold text-4xl">{currentApy}</p>
+            <p className="font-bold text-4xl text-primary">{currentApy}</p>
           </div>
         </CardContent>
       </Card>
@@ -78,10 +80,10 @@ export function ExecutionPanelComponent({
 
           {/* Token Input */}
           <div className="space-y-2">
-            <Label htmlFor="token-input">Token</Label>
+            <Label htmlFor={tokenInputId}>Token</Label>
             <div className="flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2">
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
-                <span className="text-primary text-xs font-semibold">$</span>
+                <span className="font-semibold text-primary text-xs">$</span>
               </div>
               <span className="font-medium">{executionPanel.input_token}</span>
             </div>
@@ -89,9 +91,9 @@ export function ExecutionPanelComponent({
 
           {/* Amount Input */}
           <div className="space-y-2">
-            <Label htmlFor="amount-input">Amount</Label>
+            <Label htmlFor={amountInputId}>Amount</Label>
             <Input
-              id="amount-input"
+              id={amountInputId}
               type="number"
               value={inputAmount}
               onChange={(e) => setInputAmount(e.target.value)}

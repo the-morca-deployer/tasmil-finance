@@ -1,7 +1,7 @@
 "use client";
 
-import { memo, useRef, useEffect, useCallback } from "react";
-import { TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
+import { AlertCircle, TrendingDown, TrendingUp } from "lucide-react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface ResearchResultCardProps {
@@ -23,15 +23,17 @@ const formatNumber = (num: number | undefined | null): string => {
 
 // Price change indicator
 const PriceChange = ({ value }: { value: number | undefined | null }) => {
-  if (value === undefined || value === null) return <span className="text-muted-foreground">N/A</span>;
-  
+  if (value === undefined || value === null)
+    return <span className="text-muted-foreground">N/A</span>;
+
   const isPositive = value >= 0;
   const Icon = isPositive ? TrendingUp : TrendingDown;
-  
+
   return (
     <span className={cn("flex items-center gap-1", isPositive ? "text-green-500" : "text-red-500")}>
       <Icon className="h-3 w-3" />
-      {value >= 0 ? "+" : ""}{value.toFixed(2)}%
+      {value >= 0 ? "+" : ""}
+      {value.toFixed(2)}%
     </span>
   );
 };
@@ -42,7 +44,7 @@ const scrollPositions = new Map<string, number>();
 // Custom hook for scroll preservation with global store
 function useScrollPreservation(id: string) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+
   // Restore scroll position on mount
   useEffect(() => {
     const el = scrollRef.current;
@@ -53,18 +55,21 @@ function useScrollPreservation(id: string) {
       });
     }
   }, [id]);
-  
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    scrollPositions.set(id, e.currentTarget.scrollTop);
-  }, [id]);
-  
+
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      scrollPositions.set(id, e.currentTarget.scrollTop);
+    },
+    [id]
+  );
+
   return { scrollRef, handleScroll };
 }
 
 // Crypto Price Result
 const CryptoPriceResult = memo(({ data }: { data: any }) => {
   const coin = data.coin || data;
-  
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -74,7 +79,7 @@ const CryptoPriceResult = memo(({ data }: { data: any }) => {
         </div>
         <span className="text-xl font-bold">${coin.currentPrice?.toLocaleString()}</span>
       </div>
-      
+
       <div className="grid grid-cols-3 gap-2 text-sm">
         <div className="bg-muted/30 rounded p-2">
           <div className="text-muted-foreground text-xs">24h</div>
@@ -89,7 +94,7 @@ const CryptoPriceResult = memo(({ data }: { data: any }) => {
           <PriceChange value={coin.priceChange30d} />
         </div>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-2 text-sm">
         <div>
           <span className="text-muted-foreground">Market Cap:</span>
@@ -103,7 +108,7 @@ const CryptoPriceResult = memo(({ data }: { data: any }) => {
     </div>
   );
 });
-CryptoPriceResult.displayName = 'CryptoPriceResult';
+CryptoPriceResult.displayName = "CryptoPriceResult";
 
 // Format price with proper handling
 const formatPrice = (price: number | string | undefined | null): string => {
@@ -119,28 +124,37 @@ const formatPrice = (price: number | string | undefined | null): string => {
 const TopCoinsResult = memo(({ data, scrollId }: { data: any; scrollId: string }) => {
   const coins = data.topCoins || data.trendingCoins || data.coins || data.results || [];
   const { scrollRef, handleScroll } = useScrollPreservation(scrollId);
-  
+
   return (
     <div className="space-y-2">
       <div className="text-sm text-muted-foreground mb-2">
         Showing top {coins.length} coins by market cap
       </div>
-      <div 
+      <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="max-h-[300px] overflow-y-auto space-y-1" 
+        className="max-h-[300px] overflow-y-auto space-y-1"
         data-scrollable="true"
       >
         {coins.slice(0, 15).map((coin: any, index: number) => (
-          <div key={`coin-${coin.id || index}-${coin.symbol}`} className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0">
+          <div
+            key={`coin-${coin.id || index}-${coin.symbol}`}
+            className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0"
+          >
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground w-6 text-xs">#{coin.rank || coin.marketCapRank || index + 1}</span>
+              <span className="text-muted-foreground w-6 text-xs">
+                #{coin.rank || coin.marketCapRank || index + 1}
+              </span>
               <span className="font-medium">{coin.symbol?.toUpperCase()}</span>
               <span className="text-muted-foreground text-xs hidden sm:inline">{coin.name}</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-medium">{formatPrice(coin.currentPrice || coin.current_price || coin.price)}</span>
-              <PriceChange value={coin.priceChange24h || coin.price_change_percentage_24h || coin.priceChange} />
+              <span className="font-medium">
+                {formatPrice(coin.currentPrice || coin.current_price || coin.price)}
+              </span>
+              <PriceChange
+                value={coin.priceChange24h || coin.price_change_percentage_24h || coin.priceChange}
+              />
             </div>
           </div>
         ))}
@@ -148,12 +162,12 @@ const TopCoinsResult = memo(({ data, scrollId }: { data: any; scrollId: string }
     </div>
   );
 });
-TopCoinsResult.displayName = 'TopCoinsResult';
+TopCoinsResult.displayName = "TopCoinsResult";
 
 // Global Market Data Result
 const GlobalMarketResult = memo(({ data }: { data: any }) => {
   const market = data.globalMarket || data;
-  
+
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2 text-sm">
@@ -183,7 +197,7 @@ const GlobalMarketResult = memo(({ data }: { data: any }) => {
     </div>
   );
 });
-GlobalMarketResult.displayName = 'GlobalMarketResult';
+GlobalMarketResult.displayName = "GlobalMarketResult";
 
 // Loading state
 const LoadingState = ({ toolName }: { toolName: string }) => (
@@ -203,15 +217,16 @@ const ErrorState = ({ error }: { error: string }) => (
 
 // Generic Result (fallback)
 const GenericResult = ({ data }: { data: any }) => {
-  const summary = data.success !== undefined ? (
-    <div className="text-sm">
-      <span className={data.success ? "text-green-500" : "text-red-500"}>
-        {data.success ? "✓ Success" : "✗ Failed"}
-      </span>
-      {data.error && <span className="text-red-500 ml-2">{data.error}</span>}
-    </div>
-  ) : null;
-  
+  const summary =
+    data.success !== undefined ? (
+      <div className="text-sm">
+        <span className={data.success ? "text-green-500" : "text-red-500"}>
+          {data.success ? "✓ Success" : "✗ Failed"}
+        </span>
+        {data.error && <span className="text-red-500 ml-2">{data.error}</span>}
+      </div>
+    ) : null;
+
   return (
     <div className="space-y-2">
       {summary}
@@ -252,7 +267,7 @@ function ResearchResultCardComponent({ toolName, result, status }: ResearchResul
   const renderContent = () => {
     const dataHash = JSON.stringify(data).slice(0, 50);
     const scrollId = `${toolName}-${dataHash}`;
-    
+
     switch (toolName) {
       case "research_get_crypto_price":
         return <CryptoPriceResult data={data} />;
@@ -271,11 +286,7 @@ function ResearchResultCardComponent({ toolName, result, status }: ResearchResul
     }
   };
 
-  return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      {renderContent()}
-    </div>
-  );
+  return <div className="rounded-lg border border-border bg-card p-4">{renderContent()}</div>;
 }
 
 export const ResearchResultCard = memo(ResearchResultCardComponent);

@@ -122,7 +122,11 @@ interface MultiSidebarTriggerProps {
   className?: string;
 }
 
-export function MultiSidebarTrigger({ side, children, className: _className }: MultiSidebarTriggerProps) {
+export function MultiSidebarTrigger({
+  side,
+  children,
+  className: _className,
+}: MultiSidebarTriggerProps) {
   const { toggleLeftSidebar, toggleRightSidebar } = useMultiSidebar();
 
   const handleClick = side === "left" ? toggleLeftSidebar : toggleRightSidebar;

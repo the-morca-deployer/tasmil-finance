@@ -14,11 +14,11 @@ export interface AgentConfig {
 export const AGENTS: Record<string, AgentConfig> = {
   // Staking Agent - U2U Network staking operations
   staking_agent: {
-    id: 'staking_agent',
-    name: 'Staking Agent',
-    description: 'Stake tokens and manage validators on U2U Network',
-    icon: '/agents/staking-agent.svg',
-    supportedChains: ['U2U'],
+    id: "staking_agent",
+    name: "Staking Agent",
+    description: "Stake tokens and manage validators on U2U Network",
+    icon: "/agents/staking-agent.svg",
+    supportedChains: ["U2U"],
     suggestions: [
       "What's my staked balance?",
       "Show me all validators",
@@ -29,15 +29,15 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Show network staking statistics",
       "Claim my rewards from validator 1",
     ],
-    capabilities: ['stake', 'unstake', 'claim_rewards', 'view_validators'],
+    capabilities: ["stake", "unstake", "claim_rewards", "view_validators"],
   },
-  
+
   // Research Agent - Crypto market research and analysis
   research_agent: {
-    id: 'research_agent',
-    name: 'Research Agent',
-    description: 'Analyze crypto markets, prices, and trends',
-    icon: '/agents/research-agent.svg',
+    id: "research_agent",
+    name: "Research Agent",
+    description: "Analyze crypto markets, prices, and trends",
+    icon: "/agents/research-agent.svg",
     supportedChains: [],
     suggestions: [
       "What's the current price of Bitcoin?",
@@ -49,16 +49,16 @@ export const AGENTS: Record<string, AgentConfig> = {
       "What's the global market overview?",
       "Search for Solana information",
     ],
-    capabilities: ['price_lookup', 'market_analysis', 'news_search', 'defi_tvl'],
+    capabilities: ["price_lookup", "market_analysis", "news_search", "defi_tvl"],
   },
-  
+
   // Yield Agent - DeFi yield farming opportunities
   yield_agent: {
-    id: 'yield_agent',
-    name: 'Yield Agent',
-    description: 'Find and compare DeFi yield opportunities',
-    icon: '/agents/yield-agent.svg',
-    supportedChains: ['Ethereum', 'Arbitrum', 'BSC', 'Polygon', 'Avalanche', 'Optimism'],
+    id: "yield_agent",
+    name: "Yield Agent",
+    description: "Find and compare DeFi yield opportunities",
+    icon: "/agents/yield-agent.svg",
+    supportedChains: ["Ethereum", "Arbitrum", "BSC", "Polygon", "Avalanche", "Optimism"],
     suggestions: [
       "What are the best yields on Ethereum?",
       "Show stablecoin yields",
@@ -69,16 +69,16 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Give me a yield market overview",
       "Search for ETH yield pools",
     ],
-    capabilities: ['yield_search', 'pool_analysis', 'apy_comparison', 'stablecoin_yields'],
+    capabilities: ["yield_search", "pool_analysis", "apy_comparison", "stablecoin_yields"],
   },
-  
+
   // Bridge Agent - Cross-chain token bridging
   bridge_agent: {
-    id: 'bridge_agent',
-    name: 'Bridge Agent',
-    description: 'Bridge tokens between U2U and other chains',
-    icon: '/agents/bridge-agent.svg',
-    supportedChains: ['U2U', 'Ethereum', 'BSC', 'Arbitrum', 'Polygon', 'Optimism'],
+    id: "bridge_agent",
+    name: "Bridge Agent",
+    description: "Bridge tokens between U2U and other chains",
+    icon: "/agents/bridge-agent.svg",
+    supportedChains: ["U2U", "Ethereum", "BSC", "Arbitrum", "Polygon", "Optimism"],
     suggestions: [
       "Show available bridge routes",
       "What are the bridge fees?",
@@ -89,14 +89,14 @@ export const AGENTS: Record<string, AgentConfig> = {
       "How long does bridging take?",
       "What tokens can I bridge?",
     ],
-    capabilities: ['bridge_tokens', 'route_search', 'fee_estimation', 'get_quote'],
+    capabilities: ["bridge_tokens", "route_search", "fee_estimation", "get_quote"],
   },
 } as const;
 
 export const DEFAULT_AGENT: AgentConfig = {
-  id: 'default',
-  name: 'DeFi Agent',
-  description: 'General DeFi assistant',
+  id: "default",
+  name: "DeFi Agent",
+  description: "General DeFi assistant",
   suggestions: [
     "What can you help me with?",
     "Show me yield opportunities",

@@ -25,7 +25,8 @@
   animation: float 3s ease-in-out infinite;
 }
 @keyframes wave {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   25% {
@@ -44,7 +45,6 @@
     animation: wave 1.2s ease-in-out infinite;
   }
 }
-
 
 /* define design tokens (light mode) - DeFi Theme */
 :root {

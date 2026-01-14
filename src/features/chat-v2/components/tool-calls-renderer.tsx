@@ -2,21 +2,24 @@
 
 /**
  * 🎨 Tool Calls Renderer
- * 
+ *
  * Renders all tool calls in a message using registered renderers.
  * This solves the CopilotKit limitation where only the first tool call gets generativeUI.
  */
 
-import { Fragment } from 'react';
-import type { UniversalMessage } from '@/features/chat-v2/types';
-import { StakingInfoCard } from '@/features/chat-v2/actions/components';
+import { Fragment } from "react";
+import { StakingInfoCard } from "@/features/chat-v2/actions/components";
+import type { UniversalMessage } from "@/features/chat-v2/types";
 
-const STAKING_INFO_TOOLS: Record<string, { type: 'user_stake' | 'pending_rewards' | 'unlocked_stake' | 'lockup_info' | 'rewards_stash' }> = {
-  'u2u_staking_get_user_stake': { type: 'user_stake' },
-  'u2u_staking_get_pending_rewards': { type: 'pending_rewards' },
-  'u2u_staking_get_unlocked_stake': { type: 'unlocked_stake' },
-  'u2u_staking_get_lockup_info': { type: 'lockup_info' },
-  'u2u_staking_get_rewards_stash': { type: 'rewards_stash' },
+const STAKING_INFO_TOOLS: Record<
+  string,
+  { type: "user_stake" | "pending_rewards" | "unlocked_stake" | "lockup_info" | "rewards_stash" }
+> = {
+  u2u_staking_get_user_stake: { type: "user_stake" },
+  u2u_staking_get_pending_rewards: { type: "pending_rewards" },
+  u2u_staking_get_unlocked_stake: { type: "unlocked_stake" },
+  u2u_staking_get_lockup_info: { type: "lockup_info" },
+  u2u_staking_get_rewards_stash: { type: "rewards_stash" },
 };
 
 interface ToolCallsRendererProps {
@@ -29,7 +32,7 @@ interface ToolCallsRendererProps {
  */
 export function ToolCallsRenderer({ message, toolResults }: ToolCallsRendererProps) {
   const toolCalls = message.toolCalls;
-  
+
   if (!toolCalls?.length) return null;
 
   return (
@@ -40,15 +43,15 @@ export function ToolCallsRenderer({ message, toolResults }: ToolCallsRendererPro
 
         // Get result from tool results map or from toolCall itself
         const result = toolResults.get(toolCall.id) ?? toolCall.result;
-        
+
         // Determine status
-        let status: 'pending' | 'executing' | 'complete' | 'error' | 'inProgress' = 'pending';
+        let status: "pending" | "executing" | "complete" | "error" | "inProgress" = "pending";
         if (result !== undefined) {
-          status = 'complete';
-        } else if (toolCall.status === 'running') {
-          status = 'executing';
-        } else if (toolCall.status === 'error') {
-          status = 'error';
+          status = "complete";
+        } else if (toolCall.status === "running") {
+          status = "executing";
+        } else if (toolCall.status === "error") {
+          status = "error";
         }
 
         return (

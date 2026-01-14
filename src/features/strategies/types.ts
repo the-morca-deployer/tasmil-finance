@@ -2,6 +2,7 @@ export interface StrategyCreator {
   name: string;
   handle: string;
   created_at: string;
+  avatar?: string;
 }
 
 export interface StrategyMetadata {
@@ -95,6 +96,11 @@ export interface Strategy {
   tabs: StrategyTabs;
 }
 
+export interface AssetIcon {
+  src: string;
+  alt: string;
+}
+
 export interface StrategyListItem {
   id: string;
   title: string;
@@ -102,4 +108,17 @@ export interface StrategyListItem {
   current_apy: string;
   creator: StrategyCreator;
   tags: string[];
+  category?: string;
+  assets?: AssetIcon[];
+  agents?: AssetIcon[];
+  chain?: AssetIcon;
+  hasPoints?: boolean;
+}
+
+export interface FeaturedStrategy {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  chain: string;
 }

@@ -1,12 +1,12 @@
 "use client";
 
 import { ExternalLink, Info } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/shared/ui/card";
-import { Badge } from "@/shared/ui/badge";
-import { Alert } from "@/shared/ui/alert";
 import { cn } from "@/lib/utils";
+import { Alert } from "@/shared/ui/alert";
+import { Badge } from "@/shared/ui/badge";
+import { Card, CardContent, CardHeader } from "@/shared/ui/card";
+import type { ExecutionStep, StrategyOverview } from "../types";
 import { ExecutionPanelFlow } from "./execution-panel-flow";
-import type { StrategyOverview, ExecutionStep } from "../types";
 
 interface StrategyOverviewTabProps {
   overview: StrategyOverview;
@@ -38,11 +38,7 @@ export function StrategyOverviewTab({
             <p className="mb-2 text-muted-foreground text-sm">Executed by Agents:</p>
             <div className="flex flex-wrap gap-2">
               {overview.agents.map((agent) => (
-                <Badge
-                  key={agent}
-                  variant="outline"
-                  className="cursor-pointer hover:bg-accent"
-                >
+                <Badge key={agent} variant="outline" className="cursor-pointer hover:bg-accent">
                   {agent}
                   <ExternalLink className="ml-1 h-3 w-3" />
                 </Badge>
@@ -58,11 +54,7 @@ export function StrategyOverviewTab({
             <p className="mb-2 text-muted-foreground text-sm">Assets / Pools:</p>
             <div className="flex flex-wrap gap-2">
               {overview.assets_pools.map((asset) => (
-                <Badge
-                  key={asset}
-                  variant="outline"
-                  className="cursor-pointer hover:bg-accent"
-                >
+                <Badge key={asset} variant="outline" className="cursor-pointer hover:bg-accent">
                   {asset}
                   <ExternalLink className="ml-1 h-3 w-3" />
                 </Badge>
@@ -106,7 +98,7 @@ export function StrategyOverviewTab({
             Click &apos;Simulate&apos; to preview the amount used in each steps of the strategy.
           </p>
           {executionSteps && executionSteps.length > 0 ? (
-            <div className="rounded-lg border border-dashed border-input bg-muted/30 p-4">
+            <div className="rounded-lg border border-input border-dashed bg-muted/30 p-4">
               <ExecutionPanelFlow executionSteps={executionSteps} className="h-[400px]" />
               <div className="mt-4 flex items-center justify-between">
                 <span className="font-semibold">
@@ -122,7 +114,7 @@ export function StrategyOverviewTab({
               </div>
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed border-input bg-muted/30 p-4">
+            <div className="rounded-lg border border-input border-dashed bg-muted/30 p-4">
               <div className="mb-4 flex items-center justify-between">
                 <span className="font-semibold">
                   {overview.strategy_flow_summary.total_steps} Steps

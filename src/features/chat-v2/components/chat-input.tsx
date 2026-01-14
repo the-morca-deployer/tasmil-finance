@@ -2,13 +2,13 @@
 
 // 🎨 Chat input component
 
-import { memo, type FormEvent } from 'react';
-import { Send, Paperclip, Square, Wrench } from 'lucide-react';
-import { Button } from '@/shared/ui/button-v2';
-import { cn } from '@/lib/utils';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip';
-import { ContentBlocksPreview } from '@/features/chat/thread/components/content-blocks-preview';
-import { useChatState } from '@/features/chat-v2/providers';
+import { Paperclip, Send, Square, Wrench } from "lucide-react";
+import { type FormEvent, memo } from "react";
+import { ContentBlocksPreview } from "@/features/chat/thread/components/content-blocks-preview";
+import { useChatState } from "@/features/chat-v2/providers";
+import { cn } from "@/lib/utils";
+import { Button } from "@/shared/ui/button-v2";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 
 interface ChatInputProps {
   input: string;
@@ -44,23 +44,23 @@ function ChatInputComponent({
     <div
       ref={dropRef}
       className={cn(
-        'rounded-xl border bg-muted/50 transition-all',
-        dragOver ? 'border-primary border-2 border-dotted' : 'border-border'
+        "rounded-xl border bg-muted/50 transition-all",
+        dragOver ? "border-primary border-2 border-dotted" : "border-border"
       )}
     >
       <form onSubmit={onSubmit}>
         {/* Content blocks preview */}
         <ContentBlocksPreview blocks={contentBlocks} onRemove={onRemoveBlock} />
-        
+
         {/* Text input */}
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onPaste={onPaste}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.nativeEvent.isComposing) {
+            if (e.key === "Enter" && !e.shiftKey && !e.metaKey && !e.nativeEvent.isComposing) {
               e.preventDefault();
-              const form = (e.target as HTMLElement)?.closest('form');
+              const form = (e.target as HTMLElement)?.closest("form");
               form?.requestSubmit();
             }
           }}
@@ -93,7 +93,7 @@ function ChatInputComponent({
               accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
               className="hidden"
             />
-            
+
             {/* Toggle hide tools button with label */}
             <Tooltip>
               <TooltipTrigger asChild>
@@ -101,10 +101,10 @@ function ChatInputComponent({
                   type="button"
                   onClick={() => setHideToolCalls(!hideToolCalls)}
                   className={cn(
-                    'flex h-8 items-center gap-1.5 px-2 rounded-lg transition-colors',
-                    hideToolCalls 
-                      ? 'bg-primary/10 text-primary' 
-                      : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                    "flex h-8 items-center gap-1.5 px-2 rounded-lg transition-colors",
+                    hideToolCalls
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   )}
                 >
                   <Wrench className="h-4 w-4" />
@@ -112,7 +112,7 @@ function ChatInputComponent({
                 </button>
               </TooltipTrigger>
               <TooltipContent>
-                {hideToolCalls ? 'Show tool calls' : 'Hide tool calls'}
+                {hideToolCalls ? "Show tool calls" : "Hide tool calls"}
               </TooltipContent>
             </Tooltip>
           </div>

@@ -2,10 +2,10 @@
 
 /**
  * 🔌 Pending Message Provider
- * 
+ *
  * Persists the first message when creating a new thread.
  * Uses sessionStorage to survive navigation from /new to /{threadId}.
- * 
+ *
  * Flow:
  * 1. User sends message on /new
  * 2. Thread is created, message stored here
@@ -16,15 +16,15 @@
 
 import {
   createContext,
+  type ReactNode,
+  useCallback,
   useContext,
-  useState,
   useEffect,
   useMemo,
-  useCallback,
-  type ReactNode,
-} from 'react';
+  useState,
+} from "react";
 
-const STORAGE_KEY = 'chat_pending_message';
+const STORAGE_KEY = "chat_pending_message";
 
 interface PendingMessageContextValue {
   pendingMessage: string | null;
@@ -36,7 +36,7 @@ const PendingMessageContext = createContext<PendingMessageContextValue | undefin
 
 export function PendingMessageProvider({ children }: { children: ReactNode }) {
   const [pendingMessage, setPendingMessageState] = useState<string | null>(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       return sessionStorage.getItem(STORAGE_KEY);
     }
     return null;
@@ -60,23 +60,22 @@ export function PendingMessageProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  const value = useMemo<PendingMessageContextValue>(() => ({
-    pendingMessage,
-    setPendingMessage,
-    clearPendingMessage,
-  }), [pendingMessage, setPendingMessage, clearPendingMessage]);
-
-  return (
-    <PendingMessageContext.Provider value={value}>
-      {children}
-    </PendingMessageContext.Provider>
+  const value = useMemo<PendingMessageContextValue>(
+    () => ({
+      pendingMessage,
+      setPendingMessage,
+      clearPendingMessage,
+    }),
+    [pendingMessage, setPendingMessage, clearPendingMessage]
   );
+
+  return <PendingMessageContext.Provider value={value}>{children}</PendingMessageContext.Provider>;
 }
 
 export function usePendingMessage(): PendingMessageContextValue {
   const context = useContext(PendingMessageContext);
   if (!context) {
-    throw new Error('usePendingMessage must be used within a PendingMessageProvider');
+    throw new Error("usePendingMessage must be used within a PendingMessageProvider");
   }
   return context;
 }

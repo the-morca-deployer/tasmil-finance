@@ -1,8 +1,8 @@
 "use client";
 
 import { Search, Settings, Sparkles } from "lucide-react";
-import { Input } from "@/shared/ui/input";
 import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
 
 interface FilterBarProps {
   activeFilter: string;
@@ -33,7 +33,7 @@ export function FilterBar({
   // Create dynamic filters based on available types
   const filters = [
     { label: "All", icon: null },
-    ...availableTypes.map(type => ({
+    ...availableTypes.map((type) => ({
       label: type,
       icon: getTypeIcon(type),
     })),

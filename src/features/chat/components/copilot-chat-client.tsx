@@ -1,23 +1,23 @@
 "use client";
 
-import { useState, useRef, useEffect, FormEvent, useMemo, useCallback } from "react";
-import { ArrowLeft, Send, Clock, ArrowDown, Paperclip, Square, Wrench } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/shared/ui/button-v2";
-import { cn } from "@/lib/utils";
-import { useMultiSidebar } from "@/shared/ui/multi-sidebar";
-import { SuggestedActions } from "./suggested-actions";
-import { Greeting } from "./greeting";
-import { useFileUpload } from "@/shared/hooks/use-file-upload";
-import { ContentBlocksPreview } from "@/features/chat/thread/components/content-blocks-preview";
-import { useIsMobile } from "@/shared/hooks/use-mobile";
-import { useChatState } from "@/providers/chat-state-provider";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { useCopilotChatHeadless_c } from "@copilotkit/react-core";
-import { AssistantMessage, AssistantMessageLoading, HumanMessage } from "./copilot-messages";
-import { useDefiActions } from "../hooks/use-defi-actions";
-import { CopilotSuggestions } from "./copilot-suggestions";
+import { ArrowDown, ArrowLeft, Clock, Paperclip, Send, Square, Wrench } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { ContentBlocksPreview } from "@/features/chat/thread/components/content-blocks-preview";
+import { cn } from "@/lib/utils";
+import { useChatState } from "@/providers/chat-state-provider";
+import { useFileUpload } from "@/shared/hooks/use-file-upload";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
+import { Button } from "@/shared/ui/button-v2";
+import { useMultiSidebar } from "@/shared/ui/multi-sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
+import { useDefiActions } from "../hooks/use-defi-actions";
+import { AssistantMessage, AssistantMessageLoading, HumanMessage } from "./copilot-messages";
+import { CopilotSuggestions } from "./copilot-suggestions";
+import { Greeting } from "./greeting";
+import { SuggestedActions } from "./suggested-actions";
 
 // Agent configuration
 const AGENT_CONFIG: Record<string, { name: string }> = {
@@ -69,29 +69,31 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
   const messages = useMemo(() => {
     return rawMessages.map((msg: any) => {
       // Extract tool calls from assistant messages
-      const toolCalls = msg.toolCalls?.map((tc: any) => {
-        let args = {};
-        try {
-          args = typeof tc.function?.arguments === "string" 
-            ? JSON.parse(tc.function.arguments || "{}") 
-            : (tc.function?.arguments || tc.args || {});
-        } catch {
-          // Handle partial/streaming JSON - use empty object or raw string
-          args = tc.function?.arguments ? { _raw: tc.function.arguments } : (tc.args || {});
-        }
-        
-        return {
-          id: tc.id,
-          name: tc.function?.name || tc.name || "unknown",
-          args,
-          result: tc.result,
-          status: tc.status,
-        };
-      }) || [];
+      const toolCalls =
+        msg.toolCalls?.map((tc: any) => {
+          let args = {};
+          try {
+            args =
+              typeof tc.function?.arguments === "string"
+                ? JSON.parse(tc.function.arguments || "{}")
+                : tc.function?.arguments || tc.args || {};
+          } catch {
+            // Handle partial/streaming JSON - use empty object or raw string
+            args = tc.function?.arguments ? { _raw: tc.function.arguments } : tc.args || {};
+          }
+
+          return {
+            id: tc.id,
+            name: tc.function?.name || tc.name || "unknown",
+            args,
+            result: tc.result,
+            status: tc.status,
+          };
+        }) || [];
 
       return {
         id: msg.id,
-        type: msg.role === "user" ? "human" as const : "ai" as const,
+        type: msg.role === "user" ? ("human" as const) : ("ai" as const),
         content: msg.content || "",
         toolCalls,
         generativeUI: msg.generativeUI,
@@ -108,11 +110,11 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
   const config = AGENT_CONFIG[agentId] || DEFAULT_AGENT;
   const chatTitle = chatId === "new" ? "New Chat" : `Chat with ${config.name}`;
   const isNewChat = messages.length === 0 && !isLoading;
-  
+
   // Check if last AI message has content (streaming complete for that message)
-  const lastAiMessage = messages.filter(m => m.type === "ai").pop();
+  const lastAiMessage = messages.filter((m) => m.type === "ai").pop();
   const isAiStreaming = isLoading && lastAiMessage && !lastAiMessage.content;
-  
+
   // Show suggestions when: new chat OR agent finished responding
   const showSuggestions = isNewChat || (!isLoading && messages.length > 0);
 
@@ -133,7 +135,7 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
       setShowScrollButton(!isNearBottom);
-      
+
       // Track if user manually scrolled up
       if (!isNearBottom) {
         setUserScrolledUp(true);
@@ -155,17 +157,21 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
 
     // Create message content
     let messageContent = input.trim();
-    
+
     // Add file content if any
     if (contentBlocks.length > 0) {
-      const fileDescriptions = contentBlocks.map(block => {
-        if (block.type === "image_url") {
-          return `[Image: ${(block as any).image_url?.url || 'uploaded image'}]`;
-        }
-        return `[File: ${block.type}]`;
-      }).join('\n');
-      
-      messageContent = messageContent ? `${messageContent}\n\n${fileDescriptions}` : fileDescriptions;
+      const fileDescriptions = contentBlocks
+        .map((block) => {
+          if (block.type === "image_url") {
+            return `[Image: ${(block as any).image_url?.url || "uploaded image"}]`;
+          }
+          return `[File: ${block.type}]`;
+        })
+        .join("\n");
+
+      messageContent = messageContent
+        ? `${messageContent}\n\n${fileDescriptions}`
+        : fileDescriptions;
     }
 
     // Send message using CopilotKit
@@ -181,59 +187,65 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
   };
 
   // Regenerate AI response - remove last AI message and resend
-  const handleRegenerate = useCallback((messageIndex: number) => {
-    if (isLoading) return;
-    
-    // Find the message to regenerate
-    const targetMessage = messages[messageIndex];
-    if (!targetMessage || targetMessage.type !== "ai") {
-      toast.error("Cannot regenerate this message");
-      return;
-    }
+  const handleRegenerate = useCallback(
+    (messageIndex: number) => {
+      if (isLoading) return;
 
-    // Get all messages before this AI message
-    const messagesBeforeAI = rawMessages.slice(0, messageIndex);
-    
-    // Find the last user message before this AI message
-    const lastUserMessage = [...messagesBeforeAI].reverse().find(m => m.role === "user");
-    
-    if (!lastUserMessage) {
-      toast.error("No user message found to regenerate from");
-      return;
-    }
+      // Find the message to regenerate
+      const targetMessage = messages[messageIndex];
+      if (!targetMessage || targetMessage.type !== "ai") {
+        toast.error("Cannot regenerate this message");
+        return;
+      }
 
-    // Remove messages from the AI message onwards
-    setMessages(messagesBeforeAI);
+      // Get all messages before this AI message
+      const messagesBeforeAI = rawMessages.slice(0, messageIndex);
 
-    // Resend the last user message to trigger a new AI response
-    setTimeout(() => {
-      sendMessage({
-        id: Date.now().toString(),
-        role: "user",
-        content: lastUserMessage.content,
-      });
-    }, 100);
-  }, [isLoading, messages, rawMessages, setMessages, sendMessage]);
+      // Find the last user message before this AI message
+      const lastUserMessage = [...messagesBeforeAI].reverse().find((m) => m.role === "user");
+
+      if (!lastUserMessage) {
+        toast.error("No user message found to regenerate from");
+        return;
+      }
+
+      // Remove messages from the AI message onwards
+      setMessages(messagesBeforeAI);
+
+      // Resend the last user message to trigger a new AI response
+      setTimeout(() => {
+        sendMessage({
+          id: Date.now().toString(),
+          role: "user",
+          content: lastUserMessage.content,
+        });
+      }, 100);
+    },
+    [isLoading, messages, rawMessages, setMessages, sendMessage]
+  );
 
   // Edit human message - remove messages from this point and resend with new content
-  const handleEditMessage = useCallback((messageIndex: number, newContent: string) => {
-    if (isLoading || !newContent.trim()) return;
+  const handleEditMessage = useCallback(
+    (messageIndex: number, newContent: string) => {
+      if (isLoading || !newContent.trim()) return;
 
-    // Get all messages before this message
-    const messagesBefore = rawMessages.slice(0, messageIndex);
-    
-    // Update messages to remove from this point
-    setMessages(messagesBefore);
+      // Get all messages before this message
+      const messagesBefore = rawMessages.slice(0, messageIndex);
 
-    // Send the edited message
-    setTimeout(() => {
-      sendMessage({
-        id: Date.now().toString(),
-        role: "user",
-        content: newContent,
-      });
-    }, 100);
-  }, [isLoading, rawMessages, setMessages, sendMessage]);
+      // Update messages to remove from this point
+      setMessages(messagesBefore);
+
+      // Send the edited message
+      setTimeout(() => {
+        sendMessage({
+          id: Date.now().toString(),
+          role: "user",
+          content: newContent,
+        });
+      }, 100);
+    },
+    [isLoading, rawMessages, setMessages, sendMessage]
+  );
 
   const handleSendSuggestion = (text: string) => {
     if (!text.trim() || isLoading) return;
@@ -250,7 +262,7 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
     <>
       {/* Configure CopilotKit suggestions */}
       <CopilotSuggestions agentId={agentId} />
-      
+
       <div className="flex h-full flex-col overflow-hidden">
         {/* Header - no border */}
         <header className="flex shrink-0 items-center gap-3 bg-background px-4 py-3">
@@ -266,13 +278,10 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
         </header>
 
         {/* Messages Area - Scrollable, takes remaining space */}
-        <div 
-          ref={messagesContainerRef}
-          className="relative flex-1 overflow-y-auto"
-        >
+        <div ref={messagesContainerRef} className="relative flex-1 overflow-y-auto">
           <div className="mx-auto max-w-3xl px-4 pt-6 pb-4">
             {isNewChat && <Greeting agentId={agentId} />}
-            
+
             <div className="flex flex-col gap-4">
               {messages.map((message, index) => {
                 return message.type === "human" ? (
@@ -292,8 +301,8 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
                     {/* Render generative UI if available */}
                     {message.generativeUI && (
                       <div className="mt-2 ml-11">
-                        {typeof message.generativeUI === "function" 
-                          ? message.generativeUI() 
+                        {typeof message.generativeUI === "function"
+                          ? message.generativeUI()
                           : message.generativeUI}
                       </div>
                     )}
@@ -323,10 +332,12 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
         </div>
 
         {/* Fixed Input Area at Bottom - no border */}
-        <div className={cn(
-          "shrink-0 bg-background px-4 py-4",
-          isMobile && "pb-6" // Extra padding on mobile for safe area
-        )}>
+        <div
+          className={cn(
+            "shrink-0 bg-background px-4 py-4",
+            isMobile && "pb-6" // Extra padding on mobile for safe area
+          )}
+        >
           <div className="mx-auto max-w-3xl">
             {/* Suggestions - show when not loading */}
             {showSuggestions && (
@@ -346,14 +357,19 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
               <form onSubmit={handleSubmit}>
                 {/* Content blocks preview */}
                 <ContentBlocksPreview blocks={contentBlocks} onRemove={removeBlock} />
-                
+
                 {/* Text input */}
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onPaste={handlePaste}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey && !e.metaKey && !e.nativeEvent.isComposing) {
+                    if (
+                      e.key === "Enter" &&
+                      !e.shiftKey &&
+                      !e.metaKey &&
+                      !e.nativeEvent.isComposing
+                    ) {
                       e.preventDefault();
                       const form = (e.target as HTMLElement)?.closest("form");
                       form?.requestSubmit();
@@ -388,7 +404,7 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
                       accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
                       className="hidden"
                     />
-                    
+
                     {/* Toggle hide tools button with label */}
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -397,8 +413,8 @@ export function CopilotChatClient({ agentId, chatId }: CopilotChatClientProps) {
                           onClick={() => setHideToolCalls(!hideToolCalls)}
                           className={cn(
                             "flex h-8 items-center gap-1.5 px-2 rounded-lg transition-colors",
-                            hideToolCalls 
-                              ? "bg-primary/10 text-primary" 
+                            hideToolCalls
+                              ? "bg-primary/10 text-primary"
                               : "text-muted-foreground hover:bg-accent hover:text-foreground"
                           )}
                         >

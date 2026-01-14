@@ -1,6 +1,6 @@
 "use client";
 
-import { ToolCall as ToolCallUI, ToolState } from "@/features/chat/components/tool-call";
+import { ToolCall as ToolCallUI, type ToolState } from "@/features/chat/components/tool-call";
 
 // CopilotKit tool call type
 interface CopilotToolCall {
@@ -36,10 +36,7 @@ export function ToolCalls({
           // Check if error
           let hasError = false;
           try {
-            const content =
-              typeof toolResult === "string"
-                ? JSON.parse(toolResult)
-                : toolResult;
+            const content = typeof toolResult === "string" ? JSON.parse(toolResult) : toolResult;
             hasError =
               typeof content === "object" && content !== null
                 ? "error" in content || content.success === false
@@ -69,9 +66,7 @@ export function ToolCalls({
 
         if (toolResult !== undefined) {
           toolCallProps.output =
-            typeof toolResult === "string"
-              ? toolResult
-              : (toolResult as Record<string, unknown>);
+            typeof toolResult === "string" ? toolResult : (toolResult as Record<string, unknown>);
         }
 
         return <ToolCallUI {...toolCallProps} />;
@@ -80,13 +75,7 @@ export function ToolCalls({
   );
 }
 
-export function ToolResult({
-  result,
-  name,
-}: {
-  result: unknown;
-  name?: string;
-}) {
+export function ToolResult({ result, name }: { result: unknown; name?: string }) {
   let parsedContent: Record<string, unknown> | string | unknown[];
   let hasError = false;
 
@@ -118,9 +107,7 @@ export function ToolResult({
 
   // Convert to format expected by ToolCallUI
   const output =
-    typeof parsedContent === "string"
-      ? parsedContent
-      : (parsedContent as Record<string, unknown>);
+    typeof parsedContent === "string" ? parsedContent : (parsedContent as Record<string, unknown>);
 
   const toolResultProps: any = {
     type: name || "tool-result",

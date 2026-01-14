@@ -2,12 +2,12 @@
 
 // 🎨 Human message component - matches old UI styling
 
-import { cn } from '@/lib/utils';
-import { CommandBar } from '@/features/chat/thread/messages/shared';
-import { MultimodalPreview } from '@/features/chat/thread/components/multimodal-preview';
-import { isBase64ContentBlock } from '@/lib/multimodal-utils';
-import type { UniversalMessage, ContentBlock } from '@/features/chat-v2/types';
-import { getTextFromContent } from '@/features/chat-v2/types';
+import { MultimodalPreview } from "@/features/chat/thread/components/multimodal-preview";
+import { CommandBar } from "@/features/chat/thread/messages/shared";
+import type { ContentBlock, UniversalMessage } from "@/features/chat-v2/types";
+import { getTextFromContent } from "@/features/chat-v2/types";
+import { isBase64ContentBlock } from "@/lib/multimodal-utils";
+import { cn } from "@/lib/utils";
 
 interface HumanMessageProps {
   message: UniversalMessage;
@@ -16,21 +16,16 @@ interface HumanMessageProps {
   className?: string;
 }
 
-export function HumanMessage({ 
-  message, 
-  isLoading = false, 
+export function HumanMessage({
+  message,
+  isLoading = false,
   onEdit: _onEdit,
-  className 
+  className,
 }: HumanMessageProps) {
   const contentString = getTextFromContent(message.content);
 
   return (
-    <div
-      className={cn(
-        'group ml-auto flex items-center gap-2',
-        className
-      )}
-    >
+    <div className={cn("group ml-auto flex items-center gap-2", className)}>
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
           {/* Render images and files if present */}
@@ -38,9 +33,7 @@ export function HumanMessage({
             <div className="flex flex-wrap items-end justify-end gap-2">
               {(message.content as ContentBlock[]).reduce<React.ReactNode[]>((acc, block, idx) => {
                 if (isBase64ContentBlock(block)) {
-                  acc.push(
-                    <MultimodalPreview key={idx} block={block} size="md" />
-                  );
+                  acc.push(<MultimodalPreview key={idx} block={block} size="md" />);
                 }
                 return acc;
               }, [])}
@@ -57,11 +50,7 @@ export function HumanMessage({
         {/* Copy button - same style as AI message */}
         {contentString && (
           <div className="ml-auto flex items-center gap-2">
-            <CommandBar
-              content={contentString}
-              isLoading={isLoading}
-              isAiMessage={true}
-            />
+            <CommandBar content={contentString} isLoading={isLoading} isAiMessage={true} />
           </div>
         )}
       </div>

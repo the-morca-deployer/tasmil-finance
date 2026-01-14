@@ -1,1 +1,1 @@
-export { getStrategy, getStrategies } from "./strategy.service";
+export { getFeaturedStrategies, getStrategies, getStrategy } from "./strategy.service";

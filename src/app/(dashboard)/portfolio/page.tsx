@@ -1,17 +1,17 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Typography } from "@/shared/ui/typography";
-import { Button } from "@/shared/ui/button-v2";
 import {
-  TrendingUp,
-  TrendingDown,
+  ArrowDownRight,
+  ArrowUpRight,
   DollarSign,
   Percent,
-  ArrowUpRight,
-  ArrowDownRight,
   Plus,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
+import { Button } from "@/shared/ui/button-v2";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Typography } from "@/shared/ui/typography";
 
 const portfolioData = [
   {

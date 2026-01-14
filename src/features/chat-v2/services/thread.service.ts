@@ -1,8 +1,13 @@
 // 🟢 Thread CRUD service
 
-import { validate as isUUID } from 'uuid';
-import type { Thread, ThreadCreateParams, ThreadListParams, ThreadMetadata } from '@/features/chat-v2/types';
-import { getLangGraphClient } from '@/features/chat-v2/services/langgraph-client';
+import { validate as isUUID } from "uuid";
+import { getLangGraphClient } from "@/features/chat-v2/services/langgraph-client";
+import type {
+  Thread,
+  ThreadCreateParams,
+  ThreadListParams,
+  ThreadMetadata,
+} from "@/features/chat-v2/types";
 
 export class ThreadService {
   /**
@@ -22,11 +27,11 @@ export class ThreadService {
   async getThreads(params: ThreadListParams): Promise<Thread[]> {
     const client = this.getClient();
     if (!client) return [];
-    
+
     const { assistantId, graphId, limit = 100, offset = 0 } = params;
 
     const metadata = this.buildSearchMetadata(assistantId, graphId);
-    
+
     const threads = await client.threads.search({
       metadata,
       limit,
@@ -42,7 +47,7 @@ export class ThreadService {
   async getThread(threadId: string): Promise<Thread | null> {
     const client = this.getClient();
     if (!client) return null;
-    
+
     try {
       const thread = await client.threads.get(threadId);
       return this.mapToThread(thread);
@@ -58,10 +63,10 @@ export class ThreadService {
   async createThread(params: ThreadCreateParams = {}): Promise<Thread | null> {
     const client = this.getClient();
     if (!client) {
-      console.warn('[ThreadService] Client not initialized, cannot create thread');
+      console.warn("[ThreadService] Client not initialized, cannot create thread");
       return null;
     }
-    
+
     const thread = await client.threads.create({
       metadata: params.metadata ?? {},
     });
@@ -75,7 +80,7 @@ export class ThreadService {
   async updateThread(threadId: string, metadata: Partial<ThreadMetadata>): Promise<Thread | null> {
     const client = this.getClient();
     if (!client) return null;
-    
+
     const thread = await client.threads.update(threadId, {
       metadata,
     });
@@ -89,7 +94,7 @@ export class ThreadService {
   async deleteThread(threadId: string): Promise<void> {
     const client = this.getClient();
     if (!client) return;
-    
+
     await client.threads.delete(threadId);
   }
 
@@ -121,7 +126,7 @@ export class ThreadService {
       metadata: thread.metadata ?? {},
       createdAt: new Date(thread.created_at),
       updatedAt: new Date(thread.updated_at),
-      status: thread.status ?? 'active',
+      status: thread.status ?? "active",
     };
   }
 }

@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { HeroSection } from "@/features/agents/components/hero-section";
-import { FilterBar } from "@/features/agents/components/filter-bar";
+import { useEffect, useMemo, useState } from "react";
 import { AgentCard } from "@/features/agents/components/agent-card";
+import { FilterBar } from "@/features/agents/components/filter-bar";
+import { HeroSection } from "@/features/agents/components/hero-section";
 import { useSearchAssistantsAssistantsSearchPost } from "@/gen";
-import { $ } from "@/lib/kubb";
 import type { Assistant } from "@/gen/types/assistant";
+import { $ } from "@/lib/kubb";
 
 // Define metadata interface based on the response structure
 interface AssistantMetadata {
@@ -37,14 +37,14 @@ const normalizeIconPath = (icon: string | undefined, graphId: string): string =>
     research_agent: "/agents/research-agent.svg",
     yield_agent: "/agents/yield-agent.svg",
   };
-  
+
   if (!icon) return defaultIcons[graphId] || "/agents/staking-agent.svg";
-  
+
   // Convert /sidebar/ paths to /agents/
   if (icon.includes("/sidebar/")) {
     return icon.replace("/sidebar/", "/agents/").replace(".png", ".svg");
   }
-  
+
   return icon;
 };
 
@@ -66,35 +66,37 @@ export default function AgentsPage() {
   // Get unique types from API data for filter bar (only from valid agents)
   const validAgents = useMemo(() => {
     if (!searchAssistants.data) return [];
-    
-    return searchAssistants.data.filter((assistant) => {
-      const metadata = assistant.metadata as AssistantMetadata;
-      // Filter by valid graph_id AND must have proper metadata (not "Untitled")
-      return (
-        VALID_AGENT_IDS.includes(assistant.graph_id || "") &&
-        metadata?.name &&
-        metadata.name !== "Untitled" &&
-        metadata.type // Must have a type defined
-      );
-    }).map((assistant) => {
-      // Normalize icon paths
-      const metadata = assistant.metadata as AssistantMetadata;
-      return {
-        ...assistant,
-        metadata: {
-          ...metadata,
-          icon: normalizeIconPath(metadata?.icon, assistant.graph_id || ""),
-        },
-      };
-    });
+
+    return searchAssistants.data
+      .filter((assistant) => {
+        const metadata = assistant.metadata as AssistantMetadata;
+        // Filter by valid graph_id AND must have proper metadata (not "Untitled")
+        return (
+          VALID_AGENT_IDS.includes(assistant.graph_id || "") &&
+          metadata?.name &&
+          metadata.name !== "Untitled" &&
+          metadata.type // Must have a type defined
+        );
+      })
+      .map((assistant) => {
+        // Normalize icon paths
+        const metadata = assistant.metadata as AssistantMetadata;
+        return {
+          ...assistant,
+          metadata: {
+            ...metadata,
+            icon: normalizeIconPath(metadata?.icon, assistant.graph_id || ""),
+          },
+        };
+      });
   }, [searchAssistants.data]);
 
   const availableTypes = useMemo(() => {
     const types = validAgents
-      .map(assistant => (assistant.metadata as AssistantMetadata)?.type)
+      .map((assistant) => (assistant.metadata as AssistantMetadata)?.type)
       .filter((type): type is "Strategy" | "Intelligence" => Boolean(type))
       .filter((type, index, array) => array.indexOf(type) === index);
-    
+
     return types;
   }, [validAgents]);
 
@@ -102,15 +104,14 @@ export default function AgentsPage() {
   const filteredAgents = useMemo(() => {
     return validAgents.filter((assistant) => {
       const metadata = assistant.metadata as AssistantMetadata;
-      
-      const matchesFilter =
-        activeFilter === "All" || metadata?.type === activeFilter;
+
+      const matchesFilter = activeFilter === "All" || metadata?.type === activeFilter;
 
       const matchesSearch =
         !searchQuery ||
         metadata?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         assistant.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        metadata?.description?.some((desc: string) => 
+        metadata?.description?.some((desc: string) =>
           desc.toLowerCase().includes(searchQuery.toLowerCase())
         );
 
@@ -152,10 +153,10 @@ export default function AgentsPage() {
           {!searchAssistants.isPending && !searchAssistants.error && (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredAgents.map((assistant: any) => (
-                <AgentCard 
-                  key={assistant.assistant_id} 
-                  assistant={assistant} 
-                  onClick={() => handleAgentClick(assistant)} 
+                <AgentCard
+                  key={assistant.assistant_id}
+                  assistant={assistant}
+                  onClick={() => handleAgentClick(assistant)}
                 />
               ))}
             </div>

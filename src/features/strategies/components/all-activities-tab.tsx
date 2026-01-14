@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card";
@@ -27,11 +27,11 @@ export function AllActivitiesTab({ allActivities, className }: AllActivitiesTabP
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-input">
-                  <th className="px-4 py-2 text-left text-muted-foreground text-sm font-medium">
+                <tr className="border-input border-b">
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground text-sm">
                     Time
                   </th>
-                  <th className="px-4 py-2 text-left text-muted-foreground text-sm font-medium">
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground text-sm">
                     Wallet Address
                   </th>
                 </tr>
@@ -40,7 +40,7 @@ export function AllActivitiesTab({ allActivities, className }: AllActivitiesTabP
                 {allActivities.recent_transactions.map((transaction, index) => (
                   <tr
                     key={index}
-                    className="border-b border-input/50 transition-colors hover:bg-muted/50"
+                    className="border-input/50 border-b transition-colors hover:bg-muted/50"
                   >
                     <td className="px-4 py-3">{transaction.time}</td>
                     <td className="px-4 py-3">

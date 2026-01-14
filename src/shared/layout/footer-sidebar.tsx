@@ -7,14 +7,14 @@ import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
 import { formatUnits } from "viem";
 import { useAccount, useBalance } from "wagmi";
+import { cn } from "@/lib/utils";
+import Balatro from "../ui/balatro";
 import { Button } from "../ui/button-v2";
 import CountUp from "../ui/count-up";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { useSidebar } from "../ui/sidebar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { Typography } from "../ui/typography";
-import { cn } from "@/lib/utils";
-import Balatro from "../ui/balatro";
 
 // Social Links Constants
 const SOCIAL_LINKS = {

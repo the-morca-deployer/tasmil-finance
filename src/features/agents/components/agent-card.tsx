@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
-import { type LucideIcon, Settings, Sparkles, Bot } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/shared/ui/card";
-import { Badge } from "@/shared/ui/badge";
-import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { TokenIcon } from "@web3icons/react/dynamic";
+import { Bot, type LucideIcon, Settings, Sparkles } from "lucide-react";
+import Image from "next/image";
 import type { Assistant } from "@/gen/types/assistant";
+import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
+import { Badge } from "@/shared/ui/badge";
+import { Card, CardContent, CardHeader } from "@/shared/ui/card";
 
 // Define metadata interface based on the response structure
 interface AssistantMetadata {
@@ -37,41 +37,41 @@ const getTypeIcon = (type: string): LucideIcon => {
 // Map chain name to token symbol for web3icons
 const getChainTokenSymbol = (chainName: string): string => {
   const chainMap: Record<string, string> = {
-    'ethereum': 'eth',
-    'eth': 'eth',
-    'arbitrum': 'arb',
-    'avalanche': 'avax',
-    'avax': 'avax',
-    'bnb': 'bnb',
-    'bsc': 'bnb',
-    'base': 'base',
-    'blast': 'blast',
-    'celo': 'celo',
-    'fantom': 'ftm',
-    'gnosis': 'gno',
-    'linea': 'linea',
-    'manta': 'manta',
-    'mantle': 'mnt',
-    'metis': 'metis',
-    'mode': 'mode',
-    'moonbeam': 'glmr',
-    'optimism': 'op',
-    'op': 'op',
-    'polygon': 'matic',
-    'scroll': 'scr',
-    'solana': 'sol',
-    'aurora': 'aurora',
-    'zksync': 'zk',
+    ethereum: "eth",
+    eth: "eth",
+    arbitrum: "arb",
+    avalanche: "avax",
+    avax: "avax",
+    bnb: "bnb",
+    bsc: "bnb",
+    base: "base",
+    blast: "blast",
+    celo: "celo",
+    fantom: "ftm",
+    gnosis: "gno",
+    linea: "linea",
+    manta: "manta",
+    mantle: "mnt",
+    metis: "metis",
+    mode: "mode",
+    moonbeam: "glmr",
+    optimism: "op",
+    op: "op",
+    polygon: "matic",
+    scroll: "scr",
+    solana: "sol",
+    aurora: "aurora",
+    zksync: "zk",
   };
-  
-  const normalized = chainName.toLowerCase().replace(/\s+/g, '');
+
+  const normalized = chainName.toLowerCase().replace(/\s+/g, "");
   return chainMap[normalized] || normalized;
 };
 
 // Check if chain is U2U (use PNG instead of web3icons)
 const isU2UChain = (chainName: string): boolean => {
-  const normalized = chainName.toLowerCase().replace(/\s+/g, '');
-  return normalized === 'u2u' || normalized === 'u2usolaris';
+  const normalized = chainName.toLowerCase().replace(/\s+/g, "");
+  return normalized === "u2u" || normalized === "u2usolaris";
 };
 
 // Chain icon component
@@ -87,25 +87,19 @@ function ChainIcon({ chain, size = 22 }: { chain: string; size?: number }) {
       />
     );
   }
-  
-  return (
-    <TokenIcon
-      symbol={getChainTokenSymbol(chain)}
-      variant="branded"
-      size={size}
-    />
-  );
+
+  return <TokenIcon symbol={getChainTokenSymbol(chain)} variant="branded" size={size} />;
 }
 
 export function AgentCard({ assistant, onClick }: AgentCardProps) {
   const metadata = assistant.metadata as AssistantMetadata;
-  
+
   const agentName = metadata?.name || assistant.name || "Unknown Agent";
   const agentType = metadata?.type || "Intelligence";
   const agentIcon = metadata?.icon;
   const agentDescription = metadata?.description || ["No description available"];
   const supportedChains = metadata?.supportedChains || [];
-  
+
   const TypeIcon = getTypeIcon(agentType);
 
   // Extract first 5 chains for display
@@ -162,8 +156,8 @@ export function AgentCard({ assistant, onClick }: AgentCardProps) {
               <span className="text-muted-foreground text-sm">Supported Chains</span>
               <div className="-space-x-2 flex items-center">
                 {displayChains.map((chain, index) => (
-                  <Avatar 
-                    key={index} 
+                  <Avatar
+                    key={index}
                     className="h-8 w-8 ring-0 flex items-center justify-center bg-secondary"
                   >
                     <ChainIcon chain={chain} size={22} />

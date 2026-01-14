@@ -3,8 +3,8 @@
 import { Globe, MessageCircle, Wrench } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { Typography } from "@/shared/ui/typography";
 import { cn } from "@/lib/utils";
+import { Typography } from "@/shared/ui/typography";
 
 const BENEFIT_IMAGES = {
   crossBackground: "/images/landing-v3/benefit/cross-bg.png",

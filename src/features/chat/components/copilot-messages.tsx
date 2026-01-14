@@ -1,15 +1,15 @@
 "use client";
 
-import { useChatState } from "@/providers/chat-state-provider";
-import { CommandBar } from "@/features/chat/thread/messages/shared";
+import Image from "next/image";
+import { useState } from "react";
 import { MarkdownText } from "@/features/chat/thread/components/markdown-text";
-import { ToolCalls } from "@/features/chat/thread/messages/tool-calls";
 import { MultimodalPreview } from "@/features/chat/thread/components/multimodal-preview";
+import { CommandBar } from "@/features/chat/thread/messages/shared";
+import { ToolCalls } from "@/features/chat/thread/messages/tool-calls";
 import { isBase64ContentBlock } from "@/lib/multimodal-utils";
 import { cn } from "@/lib/utils";
+import { useChatState } from "@/providers/chat-state-provider";
 import { Textarea } from "@/shared/ui/textarea";
-import { useState } from "react";
-import Image from "next/image";
 
 // CopilotKit message types
 interface CopilotToolCall {
@@ -60,7 +60,9 @@ function AgentAvatar() {
 function getContentString(content: CopilotMessage["content"]): string {
   if (typeof content === "string") return content;
   const texts = content
-    .filter((c): c is ContentBlock & { type: "text"; text: string } => c.type === "text" && !!c.text)
+    .filter(
+      (c): c is ContentBlock & { type: "text"; text: string } => c.type === "text" && !!c.text
+    )
     .map((c) => c.text);
   return texts.join(" ");
 }
@@ -106,19 +108,10 @@ export function HumanMessage({
   };
 
   return (
-    <div
-      className={cn(
-        "group ml-auto flex items-center gap-2",
-        isEditing && "w-full max-w-xl"
-      )}
-    >
+    <div className={cn("group ml-auto flex items-center gap-2", isEditing && "w-full max-w-xl")}>
       <div className={cn("flex flex-col gap-2", isEditing && "w-full")}>
         {isEditing ? (
-          <EditableContent
-            value={value}
-            setValue={setValue}
-            onSubmit={handleSubmitEdit}
-          />
+          <EditableContent value={value} setValue={setValue} onSubmit={handleSubmitEdit} />
         ) : (
           <div className="flex flex-col gap-2">
             {/* Render images and files if present */}
@@ -126,9 +119,7 @@ export function HumanMessage({
               <div className="flex flex-wrap items-end justify-end gap-2">
                 {message.content.reduce<React.ReactNode[]>((acc, block, idx) => {
                   if (isBase64ContentBlock(block)) {
-                    acc.push(
-                      <MultimodalPreview key={idx} block={block} size="md" />
-                    );
+                    acc.push(<MultimodalPreview key={idx} block={block} size="md" />);
                   }
                   return acc;
                 }, [])}
@@ -143,12 +134,7 @@ export function HumanMessage({
           </div>
         )}
 
-        <div
-          className={cn(
-            "ml-auto flex items-center gap-2",
-            isEditing && "opacity-100"
-          )}
-        >
+        <div className={cn("ml-auto flex items-center gap-2", isEditing && "opacity-100")}>
           <CommandBar
             isLoading={isLoading}
             content={contentString}
@@ -178,8 +164,7 @@ export function AssistantMessage({
 
   const hasToolCalls = message.toolCalls && message.toolCalls.length > 0;
   const toolCallsHaveContents =
-    hasToolCalls &&
-    message.toolCalls?.some((tc) => tc.args && Object.keys(tc.args).length > 0);
+    hasToolCalls && message.toolCalls?.some((tc) => tc.args && Object.keys(tc.args).length > 0);
 
   return (
     <div className="group mr-auto flex w-full items-start gap-3">

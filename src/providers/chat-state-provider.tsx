@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import { createContext, type ReactNode, useCallback, useContext, useState } from "react";
 
 // Assistant metadata from /assistants/search
 interface AssistantMetadata {

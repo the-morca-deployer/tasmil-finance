@@ -67,7 +67,7 @@ const chains = [u2uSolaris, mainnet] as const;
 
 const metadata = {
   name: "Tasmil Finance",
-  projectId: process.env['NEXT_PUBLIC_PROJECT_ID'] || "",
+  projectId: process.env["NEXT_PUBLIC_PROJECT_ID"] || "",
 };
 
 export const wagmiConfig = getDefaultConfig({

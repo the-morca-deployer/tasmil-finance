@@ -1,20 +1,22 @@
 // ⚡ CopilotKit actions - Public exports
 
+export { useBridgeRenders } from "@/features/chat-v2/actions/bridge-renders.action";
+// UI Components
+export * from "@/features/chat-v2/actions/components";
+export { useResearchRenders } from "@/features/chat-v2/actions/research.action";
 // 🎨 Tool renders for custom UI (useRenderToolCall)
 // These render custom UI when backend tools are called
-export { useStakingRenders } from '@/features/chat-v2/actions/staking-renders.action';
-export { useBridgeRenders } from '@/features/chat-v2/actions/bridge-renders.action';
-export { useYieldRenders } from '@/features/chat-v2/actions/yield-renders.action';
-export { useResearchRenders } from '@/features/chat-v2/actions/research.action';
+export { useStakingRenders } from "@/features/chat-v2/actions/staking-renders.action";
+export { useYieldRenders } from "@/features/chat-v2/actions/yield-renders.action";
 
-// UI Components
-export * from '@/features/chat-v2/actions/components';
-
+import { useBridgeRenders } from "@/features/chat-v2/actions/bridge-renders.action";
+import { useResearchRenders } from "@/features/chat-v2/actions/research.action";
 // Combined hook to register all DeFi renders
-import { useStakingReadOnlyRenders, useStakingWalletTools } from '@/features/chat-v2/actions/staking-renders.action';
-import { useBridgeRenders } from '@/features/chat-v2/actions/bridge-renders.action';
-import { useYieldRenders } from '@/features/chat-v2/actions/yield-renders.action';
-import { useResearchRenders } from '@/features/chat-v2/actions/research.action';
+import {
+  useStakingReadOnlyRenders,
+  useStakingWalletTools,
+} from "@/features/chat-v2/actions/staking-renders.action";
+import { useYieldRenders } from "@/features/chat-v2/actions/yield-renders.action";
 
 /**
  * Register DeFi actions based on current agent

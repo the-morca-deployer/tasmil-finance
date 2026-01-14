@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, AlertCircle, Clock, Zap, Link2 } from "lucide-react";
+import { AlertCircle, ArrowRight, Clock, Link2, Zap } from "lucide-react";
 
 interface BridgeResultProps {
   result: any;
@@ -13,7 +13,7 @@ const getChainDisplayName = (chain: string): string => {
 
 const BridgePairsResult = ({ data }: { data: any }) => {
   const pairs = data.pairs || [];
-  
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
@@ -28,7 +28,7 @@ const BridgePairsResult = ({ data }: { data: any }) => {
                 <span className="font-medium text-primary">{pair.tokenName}</span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2 text-sm">
               <span className="bg-muted px-2 py-1 rounded text-xs">
                 {getChainDisplayName(pair.fromChainName)}
@@ -38,7 +38,7 @@ const BridgePairsResult = ({ data }: { data: any }) => {
                 {getChainDisplayName(pair.toChainName)}
               </span>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="bg-muted/30 rounded p-1.5">
                 <div className="text-muted-foreground">Min</div>
@@ -58,14 +58,14 @@ const BridgePairsResult = ({ data }: { data: any }) => {
 
 const BridgeQuoteResult = ({ data }: { data: any }) => {
   const quote = data.quote || {};
-  
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
         <Zap className="h-4 w-4 text-yellow-500" />
         Bridge Quote
       </div>
-      
+
       <div className="border border-border/50 rounded-lg p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -80,13 +80,13 @@ const BridgeQuoteResult = ({ data }: { data: any }) => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-muted/30 rounded-lg p-3 text-center">
           <div className="text-2xl font-bold text-primary">
             {quote.amountFormatted || `${quote.amount} ${quote.tokenName}`}
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="bg-muted/30 rounded p-2">
             <div className="text-muted-foreground text-xs">Min Amount</div>
@@ -97,7 +97,7 @@ const BridgeQuoteResult = ({ data }: { data: any }) => {
             <div className="font-medium">{quote.maxAmount}</div>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock className="h-4 w-4" />
           Estimated time: {quote.estimatedTime || "~30 seconds"}
@@ -116,24 +116,18 @@ const ErrorResult = ({ error }: { error: string }) => (
 
 export default function BridgeResult({ result, toolType }: BridgeResultProps) {
   if (!result) return null;
-  
+
   if (result.error || result.success === false) {
-    return (
-        <ErrorResult error={result.error || "Operation failed"} />
-    );
+    return <ErrorResult error={result.error || "Operation failed"} />;
   }
-  
+
   switch (toolType) {
     case "tool-getBridgePairs":
-      return (
-          <BridgePairsResult data={result} />
-      );
-    
+      return <BridgePairsResult data={result} />;
+
     case "tool-getBridgeQuote":
-      return (
-          <BridgeQuoteResult data={result} />
-      );
-    
+      return <BridgeQuoteResult data={result} />;
+
     default:
       return (
         <div className="p-4 text-sm text-muted-foreground">

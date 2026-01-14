@@ -8,9 +8,5 @@ import { PendingMessageProvider } from "@/features/chat-v2/providers";
  * so it persists when navigating from /new to /{threadId}
  */
 export default function AgentChatLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <PendingMessageProvider>
-      {children}
-    </PendingMessageProvider>
-  );
+  return <PendingMessageProvider>{children}</PendingMessageProvider>;
 }

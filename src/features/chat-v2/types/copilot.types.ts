@@ -1,5 +1,5 @@
 // CopilotKit-specific types
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 export interface CopilotToolCall {
   id: string;
@@ -11,12 +11,12 @@ export interface CopilotToolCall {
   name?: string;
   args?: Record<string, unknown>;
   result?: unknown;
-  status?: 'pending' | 'running' | 'complete' | 'error';
+  status?: "pending" | "running" | "complete" | "error";
 }
 
 export interface CopilotMessage {
   id: string;
-  role: 'user' | 'assistant' | 'system' | 'tool';
+  role: "user" | "assistant" | "system" | "tool";
   content: string;
   toolCalls?: CopilotToolCall[];
   generativeUI?: ReactNode | (() => ReactNode);
@@ -41,14 +41,14 @@ export interface CopilotActionConfig {
 
 export interface CopilotActionParameter {
   name: string;
-  type: 'string' | 'number' | 'boolean' | 'object' | 'array';
+  type: "string" | "number" | "boolean" | "object" | "array";
   description: string;
   required?: boolean;
   enum?: string[];
 }
 
 export interface CopilotActionRenderProps {
-  status: 'executing' | 'complete' | 'error';
+  status: "executing" | "complete" | "error";
   args: Record<string, unknown>;
   result?: unknown;
 }

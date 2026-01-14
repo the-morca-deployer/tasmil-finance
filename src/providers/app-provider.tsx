@@ -7,9 +7,9 @@ import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import { Toaster } from "sonner";
 import { WagmiProvider } from "wagmi";
-import { TooltipProvider } from "@/shared/ui/tooltip";
-import { wagmiConfig, defaultNetwork } from "@/shared/config/wagmi";
+import { defaultNetwork, wagmiConfig } from "@/shared/config/wagmi";
 import { WalletProvider } from "@/shared/context/wallet-context";
+import { TooltipProvider } from "@/shared/ui/tooltip";
 import "@rainbow-me/rainbowkit/styles.css";
 
 // Custom DeFi dark theme matching globals.css dark mode colors
@@ -97,14 +97,17 @@ const defiDarkTheme: Theme = {
 export function AppProvider({ children }: PropsWithChildren) {
   // CRITICAL: Use useState to ensure QueryClient is only created once
   // Creating new QueryClient on every render causes all queries to re-run
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        gcTime: 1000 * 60 * 10, // 10 minutes
-      },
-    },
-  }));
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            gcTime: 1000 * 60 * 10, // 10 minutes
+          },
+        },
+      })
+  );
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -118,7 +121,7 @@ export function AppProvider({ children }: PropsWithChildren) {
           <RainbowKitProvider
             appInfo={{
               appName: "Tasmil Finance",
-              learnMoreUrl: process.env['NEXT_PUBLIC_URL'] || "",
+              learnMoreUrl: process.env["NEXT_PUBLIC_URL"] || "",
             }}
             initialChain={defaultNetwork}
             modalSize="wide"

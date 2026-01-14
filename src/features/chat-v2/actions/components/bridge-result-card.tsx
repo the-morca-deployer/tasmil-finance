@@ -1,7 +1,7 @@
 "use client";
 
-import { memo, useRef, useEffect, useCallback } from "react";
-import { ArrowRight, AlertCircle, Clock, Link2, Zap } from "lucide-react";
+import { AlertCircle, ArrowRight, Clock, Link2, Zap } from "lucide-react";
+import { memo, useCallback, useEffect, useRef } from "react";
 
 interface BridgeResultCardProps {
   toolName: string;
@@ -21,7 +21,7 @@ const scrollPositions = new Map<string, number>();
 // Custom hook for scroll preservation with global store
 function useScrollPreservation(id: string) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+
   // Restore scroll position on mount
   useEffect(() => {
     const el = scrollRef.current;
@@ -32,11 +32,14 @@ function useScrollPreservation(id: string) {
       });
     }
   }, [id]);
-  
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    scrollPositions.set(id, e.currentTarget.scrollTop);
-  }, [id]);
-  
+
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      scrollPositions.set(id, e.currentTarget.scrollTop);
+    },
+    [id]
+  );
+
   return { scrollRef, handleScroll };
 }
 
@@ -44,27 +47,30 @@ function useScrollPreservation(id: string) {
 const BridgePairsResult = memo(({ data, scrollId }: { data: any; scrollId: string }) => {
   const pairs = data.pairs || [];
   const { scrollRef, handleScroll } = useScrollPreservation(scrollId);
-  
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
         <Link2 className="h-4 w-4 text-primary" />
         Available bridge routes ({data.totalPairs || pairs.length} found)
       </div>
-      <div 
+      <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="max-h-[400px] overflow-y-auto space-y-2" 
+        className="max-h-[400px] overflow-y-auto space-y-2"
         data-scrollable="true"
       >
         {pairs.slice(0, 15).map((pair: any, index: number) => (
-          <div key={`pair-${index}-${pair.tokenName}-${pair.fromChainName}`} className="border border-border/50 rounded-lg p-3 space-y-2">
+          <div
+            key={`pair-${index}-${pair.tokenName}-${pair.fromChainName}`}
+            className="border border-border/50 rounded-lg p-3 space-y-2"
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="font-medium text-primary">{pair.tokenName}</span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2 text-sm">
               <span className="bg-muted px-2 py-1 rounded text-xs">
                 {getChainDisplayName(pair.fromChainName)}
@@ -74,15 +80,19 @@ const BridgePairsResult = memo(({ data, scrollId }: { data: any; scrollId: strin
                 {getChainDisplayName(pair.toChainName)}
               </span>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="bg-muted/30 rounded p-1.5">
                 <div className="text-muted-foreground">Min</div>
-                <div className="font-medium">{pair.minValue?.uiValue || pair.minValue || "N/A"}</div>
+                <div className="font-medium">
+                  {pair.minValue?.uiValue || pair.minValue || "N/A"}
+                </div>
               </div>
               <div className="bg-muted/30 rounded p-1.5">
                 <div className="text-muted-foreground">Max</div>
-                <div className="font-medium">{pair.maxValue?.uiValue || pair.maxValue || "N/A"}</div>
+                <div className="font-medium">
+                  {pair.maxValue?.uiValue || pair.maxValue || "N/A"}
+                </div>
               </div>
             </div>
           </div>
@@ -91,19 +101,19 @@ const BridgePairsResult = memo(({ data, scrollId }: { data: any; scrollId: strin
     </div>
   );
 });
-BridgePairsResult.displayName = 'BridgePairsResult';
+BridgePairsResult.displayName = "BridgePairsResult";
 
 // Bridge Quote Result
 const BridgeQuoteResult = memo(({ data }: { data: any }) => {
   const quote = data.quote || data;
-  
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
         <Zap className="h-4 w-4 text-yellow-500" />
         Bridge Quote
       </div>
-      
+
       <div className="border border-border/50 rounded-lg p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -118,13 +128,13 @@ const BridgeQuoteResult = memo(({ data }: { data: any }) => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-muted/30 rounded-lg p-3 text-center">
           <div className="text-2xl font-bold text-primary">
             {quote.amountFormatted || `${quote.amount} ${quote.tokenName}`}
           </div>
         </div>
-        
+
         {(quote.minAmount || quote.maxAmount) && (
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="bg-muted/30 rounded p-2">
@@ -137,14 +147,14 @@ const BridgeQuoteResult = memo(({ data }: { data: any }) => {
             </div>
           </div>
         )}
-        
+
         {quote.estimatedFeeFormatted && (
           <div className="text-sm">
             <span className="text-muted-foreground">Estimated Fee:</span>
             <span className="ml-2 font-medium">{quote.estimatedFeeFormatted}</span>
           </div>
         )}
-        
+
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock className="h-4 w-4" />
           Estimated time: {quote.estimatedTime || "~30 seconds"}
@@ -153,12 +163,12 @@ const BridgeQuoteResult = memo(({ data }: { data: any }) => {
     </div>
   );
 });
-BridgeQuoteResult.displayName = 'BridgeQuoteResult';
+BridgeQuoteResult.displayName = "BridgeQuoteResult";
 
 // Supported Chains Result
 const SupportedChainsResult = memo(({ data }: { data: any }) => {
   const chains = data.chains || [];
-  
+
   return (
     <div className="space-y-3">
       <div className="text-sm text-muted-foreground mb-2">
@@ -166,7 +176,10 @@ const SupportedChainsResult = memo(({ data }: { data: any }) => {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {chains.map((chain: any, index: number) => (
-          <div key={`chain-${index}-${chain.name || chain}`} className="bg-muted/30 rounded-lg p-3 text-center">
+          <div
+            key={`chain-${index}-${chain.name || chain}`}
+            className="bg-muted/30 rounded-lg p-3 text-center"
+          >
             <div className="font-medium text-sm">{chain.displayName || chain.name || chain}</div>
           </div>
         ))}
@@ -174,7 +187,7 @@ const SupportedChainsResult = memo(({ data }: { data: any }) => {
     </div>
   );
 });
-SupportedChainsResult.displayName = 'SupportedChainsResult';
+SupportedChainsResult.displayName = "SupportedChainsResult";
 
 // Loading state
 const LoadingState = ({ toolName }: { toolName: string }) => (
@@ -194,16 +207,17 @@ const ErrorState = ({ error }: { error: string }) => (
 
 // Generic Result (fallback)
 const GenericResult = ({ data }: { data: any }) => {
-  const summary = data.success !== undefined ? (
-    <div className="text-sm">
-      <span className={data.success ? "text-green-500" : "text-red-500"}>
-        {data.success ? "✓ Success" : "✗ Failed"}
-      </span>
-      {data.error && <span className="text-red-500 ml-2">{data.error}</span>}
-      {data.message && <div className="text-muted-foreground mt-1">{data.message}</div>}
-    </div>
-  ) : null;
-  
+  const summary =
+    data.success !== undefined ? (
+      <div className="text-sm">
+        <span className={data.success ? "text-green-500" : "text-red-500"}>
+          {data.success ? "✓ Success" : "✗ Failed"}
+        </span>
+        {data.error && <span className="text-red-500 ml-2">{data.error}</span>}
+        {data.message && <div className="text-muted-foreground mt-1">{data.message}</div>}
+      </div>
+    ) : null;
+
   return (
     <div className="space-y-2">
       {summary}
@@ -244,7 +258,7 @@ function BridgeResultCardComponent({ toolName, result, status }: BridgeResultCar
   const renderContent = () => {
     const dataHash = JSON.stringify(data).slice(0, 50);
     const scrollId = `${toolName}-${dataHash}`;
-    
+
     switch (toolName) {
       case "bridge_get_bridge_pairs":
         return <BridgePairsResult data={data} scrollId={scrollId} />;
@@ -257,11 +271,7 @@ function BridgeResultCardComponent({ toolName, result, status }: BridgeResultCar
     }
   };
 
-  return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      {renderContent()}
-    </div>
-  );
+  return <div className="rounded-lg border border-border bg-card p-4">{renderContent()}</div>;
 }
 
 export const BridgeResultCard = memo(BridgeResultCardComponent);

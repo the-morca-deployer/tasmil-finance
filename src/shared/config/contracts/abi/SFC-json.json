@@ -2,29 +2,21 @@
   {
     "type": "function",
     "name": "createValidator",
-    "inputs": [
-      { "name": "pubkey", "type": "bytes", "internalType": "bytes", "indexed": false }
-    ],
+    "inputs": [{ "name": "pubkey", "type": "bytes", "internalType": "bytes", "indexed": false }],
     "stateMutability": "payable",
     "outputs": []
   },
   {
     "type": "function",
     "name": "getValidatorID",
-    "inputs": [
-      { "name": "auth", "type": "address" }
-    ],
+    "inputs": [{ "name": "auth", "type": "address" }],
     "stateMutability": "view",
-    "outputs": [
-      { "name": "", "type": "uint256" }
-    ]
+    "outputs": [{ "name": "", "type": "uint256" }]
   },
   {
     "type": "function",
     "name": "getValidator",
-    "inputs": [
-      { "name": "validatorID", "type": "uint256" }
-    ],
+    "inputs": [{ "name": "validatorID", "type": "uint256" }],
     "stateMutability": "view",
     "outputs": [
       { "name": "status", "type": "uint256" },
@@ -38,20 +30,14 @@
   {
     "type": "function",
     "name": "getSelfStake",
-    "inputs": [
-      { "name": "validatorID", "type": "uint256" }
-    ],
+    "inputs": [{ "name": "validatorID", "type": "uint256" }],
     "stateMutability": "view",
-    "outputs": [
-      { "name": "", "type": "uint256" }
-    ]
+    "outputs": [{ "name": "", "type": "uint256" }]
   },
   {
     "type": "function",
     "name": "delegate",
-    "inputs": [
-      { "name": "toValidatorID", "type": "uint256" }
-    ],
+    "inputs": [{ "name": "toValidatorID", "type": "uint256" }],
     "stateMutability": "payable",
     "outputs": []
   },
@@ -84,9 +70,7 @@
       { "name": "toValidatorID", "type": "uint256" }
     ],
     "stateMutability": "view",
-    "outputs": [
-      { "name": "", "type": "uint256" }
-    ]
+    "outputs": [{ "name": "", "type": "uint256" }]
   },
   {
     "type": "function",
@@ -96,9 +80,7 @@
       { "name": "toValidatorID", "type": "uint256" }
     ],
     "stateMutability": "view",
-    "outputs": [
-      { "name": "", "type": "uint256" }
-    ]
+    "outputs": [{ "name": "", "type": "uint256" }]
   },
   {
     "type": "function",
@@ -108,9 +90,7 @@
       { "name": "toValidatorID", "type": "uint256" }
     ],
     "stateMutability": "view",
-    "outputs": [
-      { "name": "", "type": "uint256" }
-    ]
+    "outputs": [{ "name": "", "type": "uint256" }]
   },
   {
     "type": "function",
@@ -120,25 +100,19 @@
       { "name": "toValidatorID", "type": "uint256" }
     ],
     "stateMutability": "view",
-    "outputs": [
-      { "name": "", "type": "uint256" }
-    ]
+    "outputs": [{ "name": "", "type": "uint256" }]
   },
   {
     "type": "function",
     "name": "claimRewards",
-    "inputs": [
-      { "name": "toValidatorID", "type": "uint256" }
-    ],
+    "inputs": [{ "name": "toValidatorID", "type": "uint256" }],
     "stateMutability": "nonpayable",
     "outputs": []
   },
   {
     "type": "function",
     "name": "restakeRewards",
-    "inputs": [
-      { "name": "toValidatorID", "type": "uint256" }
-    ],
+    "inputs": [{ "name": "toValidatorID", "type": "uint256" }],
     "stateMutability": "nonpayable",
     "outputs": []
   },
@@ -182,9 +156,7 @@
       { "name": "amount", "type": "uint256" }
     ],
     "stateMutability": "nonpayable",
-    "outputs": [
-      { "name": "", "type": "uint256" }
-    ]
+    "outputs": [{ "name": "", "type": "uint256" }]
   },
   {
     "type": "function",
@@ -206,36 +178,28 @@
     "name": "currentEpoch",
     "inputs": [],
     "stateMutability": "view",
-    "outputs": [
-      { "name": "", "type": "uint256" }
-    ]
+    "outputs": [{ "name": "", "type": "uint256" }]
   },
   {
     "type": "function",
     "name": "currentSealedEpoch",
     "inputs": [],
     "stateMutability": "view",
-    "outputs": [
-      { "name": "", "type": "uint256" }
-    ]
+    "outputs": [{ "name": "", "type": "uint256" }]
   },
   {
     "type": "function",
     "name": "totalStake",
     "inputs": [],
     "stateMutability": "view",
-    "outputs": [
-      { "name": "", "type": "uint256" }
-    ]
+    "outputs": [{ "name": "", "type": "uint256" }]
   },
   {
     "type": "function",
     "name": "totalActiveStake",
     "inputs": [],
     "stateMutability": "view",
-    "outputs": [
-      { "name": "", "type": "uint256" }
-    ]
+    "outputs": [{ "name": "", "type": "uint256" }]
   },
   {
     "type": "event",

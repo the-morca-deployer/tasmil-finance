@@ -2,12 +2,12 @@
 
 // 🎨 Suggestions component - matches old UI styling
 
-import { memo, useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp, RefreshCw, SparkleIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Suggestion } from '@/features/chat/components/suggestion';
-import { getAgentSuggestions, getAgentConfig } from '@/features/chat-v2/config';
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, ChevronUp, RefreshCw, SparkleIcon } from "lucide-react";
+import { memo, useCallback, useEffect, useState } from "react";
+import { Suggestion } from "@/features/chat/components/suggestion";
+import { getAgentConfig, getAgentSuggestions } from "@/features/chat-v2/config";
+import { cn } from "@/lib/utils";
 
 interface SuggestionsProps {
   agentId: string;
@@ -15,11 +15,7 @@ interface SuggestionsProps {
   className?: string;
 }
 
-function SuggestionsComponent({ 
-  agentId, 
-  onSendMessage,
-  className 
-}: SuggestionsProps) {
+function SuggestionsComponent({ agentId, onSendMessage, className }: SuggestionsProps) {
   const [suggestedActions, setSuggestedActions] = useState<string[]>([]);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -35,14 +31,12 @@ function SuggestionsComponent({
   const config = getAgentConfig(agentId);
 
   return (
-    <div className={cn('w-full pt-2', className)}>
+    <div className={cn("w-full pt-2", className)}>
       {/* Header with collapse/expand controls */}
       <div className="flex flex-row items-center justify-between rounded-lg gap-1 px-2">
         <div className="flex flex-row items-center gap-1">
-          <SparkleIcon width={12} height={12}/>
-          <span className="text-xs text-muted-foreground">
-            Suggestions for {config.name}
-          </span>
+          <SparkleIcon width={12} height={12} />
+          <span className="text-xs text-muted-foreground">Suggestions for {config.name}</span>
         </div>
         <div className="flex items-center gap-2">
           {!isCollapsed && (
@@ -61,11 +55,15 @@ function SuggestionsComponent({
             type="button"
             title={isCollapsed ? "Show suggestions" : "Hide suggestions"}
           >
-            {isCollapsed ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            {isCollapsed ? (
+              <ChevronUp className="h-3.5 w-3.5" />
+            ) : (
+              <ChevronDown className="h-3.5 w-3.5" />
+            )}
           </button>
         </div>
       </div>
-      
+
       {/* Suggestions horizontal scroll with animation */}
       <AnimatePresence>
         {!isCollapsed && (
@@ -80,13 +78,13 @@ function SuggestionsComponent({
               {/* Gradient fade effects */}
               <div className="absolute left-0 top-0 z-10 h-full w-[10%] bg-gradient-to-r from-background to-transparent pointer-events-none" />
               <div className="absolute right-0 top-0 z-10 h-full w-[10%] bg-gradient-to-l from-background to-transparent pointer-events-none" />
-              
+
               {/* Horizontal scrolling container */}
-              <div 
+              <div
                 className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden"
                 style={{
-                  scrollbarWidth: 'none',
-                  msOverflowStyle: 'none',
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
                 }}
               >
                 {suggestedActions.map((suggestedAction: string, index: number) => (
@@ -116,12 +114,9 @@ function SuggestionsComponent({
   );
 }
 
-export const Suggestions = memo(
-  SuggestionsComponent,
-  (prevProps, nextProps) => {
-    if (prevProps.agentId !== nextProps.agentId) {
-      return false;
-    }
-    return true;
+export const Suggestions = memo(SuggestionsComponent, (prevProps, nextProps) => {
+  if (prevProps.agentId !== nextProps.agentId) {
+    return false;
   }
-);
+  return true;
+});

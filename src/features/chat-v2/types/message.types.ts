@@ -1,11 +1,11 @@
 // Universal message types - framework agnostic
 
-export type MessageRole = 'human' | 'ai' | 'system';
-export type ToolStatus = 'pending' | 'running' | 'complete' | 'error';
-export type ToolState = 'input-streaming' | 'input-available' | 'output-available' | 'output-error';
+export type MessageRole = "human" | "ai" | "system";
+export type ToolStatus = "pending" | "running" | "complete" | "error";
+export type ToolState = "input-streaming" | "input-available" | "output-available" | "output-error";
 
 export interface ContentBlock {
-  type: 'text' | 'image_url' | 'file';
+  type: "text" | "image_url" | "file";
   text?: string;
   image_url?: { url: string };
   file?: {
@@ -35,20 +35,23 @@ export interface UniversalMessage {
 }
 
 // Helper type guards
-export function isTextContent(content: UniversalMessage['content']): content is string {
-  return typeof content === 'string';
+export function isTextContent(content: UniversalMessage["content"]): content is string {
+  return typeof content === "string";
 }
 
-export function isMultimodalContent(content: UniversalMessage['content']): content is ContentBlock[] {
+export function isMultimodalContent(
+  content: UniversalMessage["content"]
+): content is ContentBlock[] {
   return Array.isArray(content);
 }
 
-export function getTextFromContent(content: UniversalMessage['content']): string {
+export function getTextFromContent(content: UniversalMessage["content"]): string {
   if (isTextContent(content)) return content;
   return content
-    .filter((block): block is ContentBlock & { text: string } => 
-      block.type === 'text' && typeof block.text === 'string'
+    .filter(
+      (block): block is ContentBlock & { text: string } =>
+        block.type === "text" && typeof block.text === "string"
     )
-    .map(block => block.text)
-    .join(' ');
+    .map((block) => block.text)
+    .join(" ");
 }

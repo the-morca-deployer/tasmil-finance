@@ -9,9 +9,9 @@ import {
   XCircleIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/shared/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui/collapsible";
-import { cn } from "@/lib/utils";
 
 export type ToolState =
   | "input-streaming"
@@ -175,17 +175,17 @@ export function ToolCall({
       <CollapsibleContent>
         {/* Input/Parameters - show for all states except streaming and error */}
         {input && state !== "input-streaming" && state !== "output-error" && (
-            <div className="space-y-2 border-border border-t p-4">
-              <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
-                Parameters
-              </h4>
-              <div className="overflow-x-auto rounded-md bg-muted/50 p-3">
-                <pre className="font-mono text-xs">
-                  {highlightJSON(JSON.stringify(input, null, 2))}
-                </pre>
-              </div>
+          <div className="space-y-2 border-border border-t p-4">
+            <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
+              Parameters
+            </h4>
+            <div className="overflow-x-auto rounded-md bg-muted/50 p-3">
+              <pre className="font-mono text-xs">
+                {highlightJSON(JSON.stringify(input, null, 2))}
+              </pre>
             </div>
-          )}
+          </div>
+        )}
 
         {/* Approval Buttons */}
         {state === "approval-requested" && onApprove && onDeny && (

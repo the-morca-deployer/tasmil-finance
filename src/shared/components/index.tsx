@@ -1,10 +1,10 @@
 /**
  * Custom UI Components Registry
- * 
+ *
  * Register your custom UI components here.
  * These components will be rendered when the backend emits UI messages
  * with matching names.
- * 
+ *
  * Usage in backend:
  * ```typescript
  * ui.push({
@@ -19,8 +19,8 @@
 
 // DeFi components - now imported from feature directories
 import { BridgeResult } from "@/features/bridge";
-import { YieldResult } from "@/features/yield";
 import { ResearchResult } from "@/features/research";
+import { YieldResult } from "@/features/yield";
 
 const ComponentMap = {
   // DeFi Agent UI Components

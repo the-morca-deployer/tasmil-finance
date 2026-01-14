@@ -2,20 +2,15 @@
 
 // 🎨 History loading skeleton with shimmer effect
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 function SkeletonLine({ className }: { className?: string }) {
   return (
-    <div
-      className={cn(
-        'h-4 rounded-md bg-muted/60 relative overflow-hidden',
-        className
-      )}
-    >
-      <div 
+    <div className={cn("h-4 rounded-md bg-muted/60 relative overflow-hidden", className)}>
+      <div
         className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/5 to-transparent"
         style={{
-          animation: 'shimmer 1.5s infinite',
+          animation: "shimmer 1.5s infinite",
         }}
       />
       <style jsx>{`
@@ -45,14 +40,14 @@ function AssistantMessageSkeleton() {
     <div className="mr-auto flex w-full items-start gap-3">
       {/* Avatar skeleton */}
       <div className="h-8 w-8 shrink-0 rounded-full bg-muted/60 relative overflow-hidden">
-        <div 
+        <div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/5 to-transparent"
           style={{
-            animation: 'shimmer 1.5s infinite',
+            animation: "shimmer 1.5s infinite",
           }}
         />
       </div>
-      
+
       {/* Content skeleton */}
       <div className="flex w-full flex-col gap-2 min-w-0">
         <div className="py-1 space-y-2">

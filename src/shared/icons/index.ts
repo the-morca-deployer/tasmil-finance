@@ -1,2 +1,2 @@
 // Shared icons barrel export
-export { LangGraphLogoSVG as LangGraphIcon } from './langgraph';
+export { LangGraphLogoSVG as LangGraphIcon } from "./langgraph";

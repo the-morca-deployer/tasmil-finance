@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     // Ignore TypeScript errors during build for generated files
     ignoreBuildErrors: false,
     // Custom TypeScript configuration
-    tsconfigPath: './tsconfig.json',
+    tsconfigPath: "./tsconfig.json",
   },
   // Use Turbopack configuration instead of webpack
   turbopack: {

@@ -1,8 +1,8 @@
 "use client";
 
 import type { ComponentProps } from "react";
-import { Button } from "@/shared/ui/button-v2";
 import { cn } from "@/lib/utils";
+import { Button } from "@/shared/ui/button-v2";
 
 export type SuggestionProps = Omit<ComponentProps<typeof Button>, "onClick"> & {
   suggestion: string;
@@ -23,7 +23,10 @@ export const Suggestion = ({
 
   return (
     <Button
-      className={cn("cursor-pointer rounded-lg px-3 py-1.5 text-left text-xs h-auto whitespace-normal", className)}
+      className={cn(
+        "cursor-pointer rounded-lg px-3 py-1.5 text-left text-xs h-auto whitespace-normal",
+        className
+      )}
       onClick={handleClick}
       type="button"
       variant={variant}

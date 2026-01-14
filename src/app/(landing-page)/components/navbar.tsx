@@ -5,11 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { PATHS, SECTION_IDS } from "@/shared/constants/routes";
 import { Button } from "@/shared/ui/button-v2";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip";
 import { Typography } from "@/shared/ui/typography";
-import { PATHS, SECTION_IDS } from "@/shared/constants/routes";
-import { cn } from "@/lib/utils";
 
 const TRANSITION_STYLES = {
   indicator: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
@@ -47,12 +47,12 @@ interface NavbarProps {
   onSectionClick?: (sectionId: SectionId) => void;
 }
 
-const MainNavbar = ({ 
-  isMobileMenuOpen, 
-  toggleMobileMenu, 
-  isScrolled, 
-  isAnnouncementVisible: _isAnnouncementVisible, 
-  onSectionClick: _onSectionClick 
+const MainNavbar = ({
+  isMobileMenuOpen,
+  toggleMobileMenu,
+  isScrolled,
+  isAnnouncementVisible: _isAnnouncementVisible,
+  onSectionClick: _onSectionClick,
 }: MainNavbarProps) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabName>("DEMO");

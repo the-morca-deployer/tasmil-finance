@@ -4,19 +4,17 @@
  * Script to clean up temporary files after Kubb generation
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const TEMP_FILES = [
-  'temp-openapi.json'
-];
+const TEMP_FILES = ["temp-openapi.json"];
 
 function cleanTempFiles() {
   let cleaned = 0;
-  
-  TEMP_FILES.forEach(file => {
-    const filePath = path.join(__dirname, '../..', file);
-    
+
+  TEMP_FILES.forEach((file) => {
+    const filePath = path.join(__dirname, "../..", file);
+
     if (fs.existsSync(filePath)) {
       try {
         fs.unlinkSync(filePath);
@@ -27,9 +25,9 @@ function cleanTempFiles() {
       }
     }
   });
-  
+
   if (cleaned === 0) {
-    console.log('No temporary files to clean');
+    console.log("No temporary files to clean");
   } else {
     console.log(`✓ Cleaned ${cleaned} temporary file(s)`);
   }

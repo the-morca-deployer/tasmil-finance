@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useChainId, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { BaseError, parseEther } from "viem";
 import type { Address } from "viem";
+import { type BaseError, parseEther } from "viem";
+import { useChainId, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import SFC_ABI from "@/shared/config/contracts/abi/SFC-json.json";
 import { waitForTransactionReceipt } from "@/shared/utils/waitForTransactionReceipt";
 
@@ -46,20 +46,20 @@ export const useDelegateStake = () => {
 
   const delegateStake = async (validatorID: number, amount: string) => {
     setIsConfirmed(false);
-    
+
     try {
       const amountInWei = parseEther(amount);
-      
+
       const txHash = await writeContractAsync({
         ...contract,
         functionName: "delegate",
         args: [BigInt(validatorID)],
         value: amountInWei,
       });
-      
+
       const { receipt, isConfirmed: confirmed } = await waitForTransactionReceipt(txHash);
       setIsConfirmed(confirmed);
-      
+
       return {
         receipt,
         isConfirmed: confirmed,
@@ -77,12 +77,10 @@ export const useDelegateStake = () => {
     delegateStake,
     isPending: isConfirming || isPending,
     hash,
-    errorMessage:
-      (error as BaseError)?.shortMessage || error?.message || "Unknown error",
+    errorMessage: (error as BaseError)?.shortMessage || error?.message || "Unknown error",
     isError: isCallError || isExecuteError,
   };
 };
-
 
 /**
  * Hook for undelegate/unstake U2U tokens
@@ -109,19 +107,19 @@ export const useUndelegateStake = () => {
 
   const undelegateStake = async (validatorID: number, wrID: number, amount: string) => {
     setIsConfirmed(false);
-    
+
     try {
       const amountInWei = parseEther(amount);
-      
+
       const txHash = await writeContractAsync({
         ...contract,
         functionName: "undelegate",
         args: [BigInt(validatorID), BigInt(wrID), amountInWei],
       });
-      
+
       const { receipt, isConfirmed: confirmed } = await waitForTransactionReceipt(txHash);
       setIsConfirmed(confirmed);
-      
+
       return {
         receipt,
         isConfirmed: confirmed,
@@ -139,8 +137,7 @@ export const useUndelegateStake = () => {
     undelegateStake,
     isPending: isConfirming || isPending,
     hash,
-    errorMessage:
-      (error as BaseError)?.shortMessage || error?.message || "Unknown error",
+    errorMessage: (error as BaseError)?.shortMessage || error?.message || "Unknown error",
     isError: isCallError || isExecuteError,
   };
 };
@@ -170,17 +167,17 @@ export const useClaimRewards = () => {
 
   const claimRewards = async (validatorID: number) => {
     setIsConfirmed(false);
-    
+
     try {
       const txHash = await writeContractAsync({
         ...contract,
         functionName: "claimRewards",
         args: [BigInt(validatorID)],
       });
-      
+
       const { receipt, isConfirmed: confirmed } = await waitForTransactionReceipt(txHash);
       setIsConfirmed(confirmed);
-      
+
       return {
         receipt,
         isConfirmed: confirmed,
@@ -198,8 +195,7 @@ export const useClaimRewards = () => {
     claimRewards,
     isPending: isConfirming || isPending,
     hash,
-    errorMessage:
-      (error as BaseError)?.shortMessage || error?.message || "Unknown error",
+    errorMessage: (error as BaseError)?.shortMessage || error?.message || "Unknown error",
     isError: isCallError || isExecuteError,
   };
 };
@@ -229,17 +225,17 @@ export const useRestakeRewards = () => {
 
   const restakeRewards = async (validatorID: number) => {
     setIsConfirmed(false);
-    
+
     try {
       const txHash = await writeContractAsync({
         ...contract,
         functionName: "restakeRewards",
         args: [BigInt(validatorID)],
       });
-      
+
       const { receipt, isConfirmed: confirmed } = await waitForTransactionReceipt(txHash);
       setIsConfirmed(confirmed);
-      
+
       return {
         receipt,
         isConfirmed: confirmed,
@@ -257,8 +253,7 @@ export const useRestakeRewards = () => {
     restakeRewards,
     isPending: isConfirming || isPending,
     hash,
-    errorMessage:
-      (error as BaseError)?.shortMessage || error?.message || "Unknown error",
+    errorMessage: (error as BaseError)?.shortMessage || error?.message || "Unknown error",
     isError: isCallError || isExecuteError,
   };
 };
@@ -288,19 +283,19 @@ export const useLockStake = () => {
 
   const lockStake = async (validatorID: number, lockupDuration: number, amount: string) => {
     setIsConfirmed(false);
-    
+
     try {
       const amountInWei = parseEther(amount);
-      
+
       const txHash = await writeContractAsync({
         ...contract,
         functionName: "lockStake",
         args: [BigInt(validatorID), BigInt(lockupDuration), amountInWei],
       });
-      
+
       const { receipt, isConfirmed: confirmed } = await waitForTransactionReceipt(txHash);
       setIsConfirmed(confirmed);
-      
+
       return {
         receipt,
         isConfirmed: confirmed,
@@ -318,8 +313,7 @@ export const useLockStake = () => {
     lockStake,
     isPending: isConfirming || isPending,
     hash,
-    errorMessage:
-      (error as BaseError)?.shortMessage || error?.message || "Unknown error",
+    errorMessage: (error as BaseError)?.shortMessage || error?.message || "Unknown error",
     isError: isCallError || isExecuteError,
   };
 };

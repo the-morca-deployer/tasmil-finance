@@ -2,15 +2,15 @@
 
 // 🎨 Assistant message component - matches old UI styling
 
-import { memo } from 'react';
-import Image from 'next/image';
-import { cn } from '@/lib/utils';
-import { CommandBar } from '@/features/chat/thread/messages/shared';
-import { MarkdownText } from '@/features/chat/thread/components/markdown-text';
-import { ToolCalls } from '@/features/chat/thread/messages/tool-calls';
-import { useChatState } from '@/features/chat-v2/providers';
-import type { UniversalMessage } from '@/features/chat-v2/types';
-import { getTextFromContent } from '@/features/chat-v2/types';
+import Image from "next/image";
+import { memo } from "react";
+import { MarkdownText } from "@/features/chat/thread/components/markdown-text";
+import { CommandBar } from "@/features/chat/thread/messages/shared";
+import { ToolCalls } from "@/features/chat/thread/messages/tool-calls";
+import { useChatState } from "@/features/chat-v2/providers";
+import type { UniversalMessage } from "@/features/chat-v2/types";
+import { getTextFromContent } from "@/features/chat-v2/types";
+import { cn } from "@/lib/utils";
 
 interface AssistantMessageProps {
   message: UniversalMessage;
@@ -21,11 +21,11 @@ interface AssistantMessageProps {
 
 // Frontend tools that have custom UI via generativeUI - don't show tool call indicator for these
 const FRONTEND_TOOLS = new Set([
-  'u2u_staking_delegate',
-  'u2u_staking_undelegate', 
-  'u2u_staking_claim_rewards',
-  'u2u_staking_restake_rewards',
-  'u2u_staking_lock_stake',
+  "u2u_staking_delegate",
+  "u2u_staking_undelegate",
+  "u2u_staking_claim_rewards",
+  "u2u_staking_restake_rewards",
+  "u2u_staking_lock_stake",
 ]);
 
 function AgentAvatar() {
@@ -42,11 +42,11 @@ function AgentAvatar() {
   );
 }
 
-function AssistantMessageComponent({ 
-  message, 
+function AssistantMessageComponent({
+  message,
   isLoading = false,
   handleRegenerate: _handleRegenerate,
-  className 
+  className,
 }: AssistantMessageProps) {
   const contentString = getTextFromContent(message.content);
   const { hideToolCalls } = useChatState();
@@ -54,8 +54,8 @@ function AssistantMessageComponent({
   // Convert toolCalls to old format for ToolCalls component
   // Filter out frontend tools that have custom generativeUI
   const toolCalls = message.toolCalls
-    ?.filter(tc => !FRONTEND_TOOLS.has(tc.name))
-    ?.map(tc => ({
+    ?.filter((tc) => !FRONTEND_TOOLS.has(tc.name))
+    ?.map((tc) => ({
       id: tc.id,
       name: tc.name,
       args: tc.args,
@@ -65,11 +65,10 @@ function AssistantMessageComponent({
 
   const hasToolCalls = toolCalls && toolCalls.length > 0;
   const toolCallsHaveContents =
-    hasToolCalls &&
-    toolCalls?.some((tc) => tc.args && Object.keys(tc.args).length > 0);
+    hasToolCalls && toolCalls?.some((tc) => tc.args && Object.keys(tc.args).length > 0);
 
   return (
-    <div className={cn('group mr-auto flex w-full items-start gap-3', className)}>
+    <div className={cn("group mr-auto flex w-full items-start gap-3", className)}>
       <AgentAvatar />
       <div className="flex w-full flex-col gap-2 min-w-0">
         {/* 1. AI Text Response - FIRST so user knows what to do */}
@@ -87,11 +86,7 @@ function AssistantMessageComponent({
         {/* Copy only - regenerate disabled */}
         {contentString.length > 0 && (
           <div className="mr-auto flex items-center gap-2">
-            <CommandBar
-              content={contentString}
-              isLoading={isLoading}
-              isAiMessage={true}
-            />
+            <CommandBar content={contentString} isLoading={isLoading} isAiMessage={true} />
           </div>
         )}
       </div>

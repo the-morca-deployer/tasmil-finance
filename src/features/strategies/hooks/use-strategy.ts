@@ -8,10 +8,7 @@ interface UseStrategyOptions {
   enabled?: boolean;
 }
 
-export function useStrategy(
-  strategyId: string,
-  options: UseStrategyOptions = {}
-) {
+export function useStrategy(strategyId: string, options: UseStrategyOptions = {}) {
   const { enabled = true } = options;
 
   return useQuery<Strategy>({

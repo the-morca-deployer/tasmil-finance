@@ -1,8 +1,8 @@
 "use client";
 
-import { FileSearch, ExternalLink } from "lucide-react";
-import { Card, CardContent } from "@/shared/ui/card";
+import { ExternalLink, FileSearch } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/shared/ui/card";
 import type { MyActivities } from "../types";
 
 interface MyActivitiesTabProps {
@@ -10,17 +10,14 @@ interface MyActivitiesTabProps {
   className?: string;
 }
 
-export function MyActivitiesTab({
-  myActivities,
-  className,
-}: MyActivitiesTabProps) {
+export function MyActivitiesTab({ myActivities, className }: MyActivitiesTabProps) {
   if (myActivities.status === "Empty") {
     return (
       <div className={cn("flex flex-col items-center justify-center py-12", className)}>
         <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-muted">
           <FileSearch className="h-12 w-12 text-muted-foreground" />
         </div>
-        <p className="text-muted-foreground text-lg">{myActivities.message}</p>
+        <p className="text-lg text-muted-foreground">{myActivities.message}</p>
         <a
           href="https://debank.com"
           target="_blank"

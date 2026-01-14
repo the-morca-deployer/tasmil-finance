@@ -7,8 +7,8 @@ export interface BridgeOperation {
 }
 
 export type BridgeState =
-  | { status: 'idle' }
-  | { status: 'confirming'; operation: BridgeOperation }
-  | { status: 'pending'; txHash: string }
-  | { status: 'success'; txHash: string }
-  | { status: 'error'; error: string };
+  | { status: "idle" }
+  | { status: "confirming"; operation: BridgeOperation }
+  | { status: "pending"; txHash: string }
+  | { status: "success"; txHash: string }
+  | { status: "error"; error: string };

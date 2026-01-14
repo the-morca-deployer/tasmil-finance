@@ -1,1 +1,9 @@
-{"properties":{"version":{"type":"integer","title":"Version","description":"The assistant version."}},"type":"object","title":"AssistantVersionChange","description":"Payload for changing the version of an assistant.","x-readme-ref-name":"AssistantVersionChange"}
+{
+  "properties": {
+    "version": { "type": "integer", "title": "Version", "description": "The assistant version." }
+  },
+  "type": "object",
+  "title": "AssistantVersionChange",
+  "description": "Payload for changing the version of an assistant.",
+  "x-readme-ref-name": "AssistantVersionChange"
+}

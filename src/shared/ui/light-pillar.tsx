@@ -282,8 +282,8 @@ const LightPillar: React.FC<LightPillarProps> = ({
 
       if (deltaTime >= frameTime) {
         timeRef.current += 0.016 * rotationSpeed;
-        if (materialRef.current?.uniforms?.['uTime']) {
-          materialRef.current.uniforms['uTime'].value = timeRef.current;
+        if (materialRef.current?.uniforms?.["uTime"]) {
+          materialRef.current.uniforms["uTime"].value = timeRef.current;
         }
         rendererRef.current.render(sceneRef.current, cameraRef.current);
         lastTime = currentTime - (deltaTime % frameTime);
@@ -315,8 +315,8 @@ const LightPillar: React.FC<LightPillarProps> = ({
 
         rendererRef.current.setSize(newWidth, newHeight);
         rendererRef.current.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        if (materialRef.current?.uniforms?.['uResolution']) {
-          materialRef.current.uniforms['uResolution'].value.set(newWidth, newHeight);
+        if (materialRef.current?.uniforms?.["uResolution"]) {
+          materialRef.current.uniforms["uResolution"].value.set(newWidth, newHeight);
         }
         resizeScheduled = false;
       });
