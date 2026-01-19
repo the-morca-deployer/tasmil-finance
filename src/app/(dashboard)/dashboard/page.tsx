@@ -113,7 +113,7 @@ export default function DashboardPage() {
         </GlassCard>
 
         {/* Current APY */}
-        <GlassCard className="lg:col-span-3 flex flex-col justify-center p-6 border-white/5 bg-zinc-900/40 relative overflow-hidden group">
+        <GlassCard className="lg:col-span-3 flex flex-col justify-between p-6 border-white/5 bg-zinc-900/40 relative overflow-hidden group">
           <div className="flex items-start gap-4">
             <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500/20 to-teal-600/20 flex items-center justify-center ring-1 ring-emerald-500/30">
               <TrendingUp className="h-6 w-6 text-emerald-400" />
@@ -178,16 +178,22 @@ export default function DashboardPage() {
       {/* Middle Section - Rebalancing Updates */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Earnings Chart / Abstract Visual */}
-        <GlassCard className="h-[180px] border-white/5 bg-zinc-900/40 flex items-center justify-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] opacity-10" />
-          <div className="text-center z-10">
-            <h3 className="text-3xl font-bold text-white">$0.00</h3>
-            <p className="text-sm text-zinc-500 mt-1 flex items-center justify-center gap-1">
-              Last 24h Earnings <ShieldCheck className="h-3 w-3" />
-            </p>
+        <GlassCard className="flex flex-col justify-between items-start space-y-4 p-6 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
+            <TrendingUp className="h-8 w-8 text-cyan-400" />
           </div>
-          {/* Abstract background element */}
-          <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-linear-to-t from-cyan-500/5 to-transparent" />
+          <div>
+            <p className="text-sm font-medium text-zinc-400">Current APY</p>
+            <div className="flex items-baseline gap-2">
+              <h2 className="text-3xl font-bold text-white mt-1">
+                0.0%
+              </h2>
+              <span className="text-xs text-zinc-500 font-medium">+0.00%</span>
+            </div>
+          </div>
+          <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="h-full bg-cyan-500 w-[65%]" />
+          </div>
         </GlassCard>
 
         {/* Frequency & Boost Status */}

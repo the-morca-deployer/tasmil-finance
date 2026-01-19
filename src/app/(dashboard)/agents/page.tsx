@@ -32,18 +32,18 @@ const VALID_AGENT_IDS = ["staking_agent", "bridge_agent", "research_agent", "yie
 const normalizeIconPath = (icon: string | undefined, graphId: string): string => {
   // Force use of local high-quality 3D icons for known agents
   const defaultIcons: Record<string, string> = {
-    staking_agent: "/agents/staking-agent-v2.png",
-    bridge_agent: "/agents/bridge-agent-v2.png",
-    research_agent: "/agents/research-agent-v2.png",
-    yield_agent: "/agents/yield-agent-v2.png",
-    vault_agent: "/agents/vault-agent-v2.png",
+    staking_agent: "/agents/yield-agent-v6.png", // Swapped based on user feedback
+    bridge_agent: "/agents/bridge-agent-v6.png",
+    research_agent: "/agents/research-agent-v6.png",
+    yield_agent: "/agents/staking-agent-v6.png", // Swapped based on user feedback
+    vault_agent: "/agents/vault-agent-v3.png",
   };
 
   if (defaultIcons[graphId]) {
     return defaultIcons[graphId];
   }
 
-  if (!icon) return "/agents/staking-agent-v2.png";
+  if (!icon) return "/agents/staking-agent-v6.png";
 
   // Convert /sidebar/ paths to /agents/ if needed for others
   if (icon.includes("/sidebar/")) {
@@ -91,6 +91,13 @@ export default function AgentsPage() {
           metadata: {
             ...metadata,
             icon: normalizeIconPath(metadata?.icon, assistant.graph_id || ""),
+            supportedChains: metadata?.supportedChains?.length
+              ? metadata.supportedChains
+              : (assistant.graph_id === "yield_agent" || assistant.graph_id === "research_agent" || assistant.graph_id === "bridge_agent")
+                ? ["U2U Network", "Ethereum", "BNB Chain", "Arbitrum", "Optimism", "Base"]
+                : assistant.graph_id === "staking_agent"
+                  ? ["U2U Network"]
+                  : [],
           },
         };
       });

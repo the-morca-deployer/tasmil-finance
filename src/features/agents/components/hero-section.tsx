@@ -1,9 +1,6 @@
 "use client";
 
-import { Bot, Brain, TrendingUp, Zap } from "lucide-react";
 import Image from "next/image";
-
-const avatarIcons = [Bot, Brain, Zap, TrendingUp];
 
 interface HeroSectionProps {
   agentCount: number;
@@ -16,7 +13,7 @@ export function HeroSection({ agentCount }: HeroSectionProps) {
         {/* Background Image - Professional Isometric */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/agents-hero-professional.png"
+            src="/images/agents-hero-v3.png"
             alt="Agents Hero Background"
             fill
             className="object-cover opacity-80"
@@ -40,14 +37,28 @@ export function HeroSection({ agentCount }: HeroSectionProps) {
           </p>
 
           <div className="flex items-center gap-4">
-            <div className="flex -space-x-3">
-              {avatarIcons.map((Icon, index) => (
-                <div key={index} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-zinc-900/80 backdrop-blur-md">
-                  <Icon size={16} className="text-zinc-400" />
+            <div className="flex gap-3">
+              {[
+                "/agents/yield-agent-v6.png",
+                "/agents/research-agent-v6.png",
+                "/agents/bridge-agent-v6.png",
+                "/agents/staking-agent-v6.png",
+              ].map((src, index) => (
+                <div
+                  key={index}
+                  className={`relative flex items-center justify-center z-10 hover:scale-110 transition-transform duration-300 ${index === 0 ? "h-6 w-6" : "h-8 w-8"}`}
+                >
+                  <Image
+                    src={src}
+                    alt="Agent"
+                    width={index === 0 ? 24 : 32}
+                    height={index === 0 ? 24 : 32}
+                    className="object-contain drop-shadow-lg"
+                  />
                 </div>
               ))}
             </div>
-            <span className="font-medium text-zinc-400 text-sm">
+            <span className="font-medium text-zinc-400 text-sm ml-2">
               {agentCount}+ Agents
             </span>
           </div>

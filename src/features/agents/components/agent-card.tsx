@@ -36,6 +36,7 @@ const getChainTokenSymbol = (chainName: string): string => {
     avalanche: "avax",
     avax: "avax",
     bnb: "bnb",
+    bnbchain: "bnb", // Added for "BNB Chain"
     bsc: "bnb",
     base: "base",
     blast: "blast",
@@ -55,6 +56,8 @@ const getChainTokenSymbol = (chainName: string): string => {
     solana: "sol",
     aurora: "aurora",
     zksync: "zk",
+    u2u: "u2u", // In case it falls through
+    u2unetwork: "u2u", // Added for "U2U Network"
   };
 
   const normalized = chainName.toLowerCase().replace(/\s+/g, "");
@@ -64,7 +67,7 @@ const getChainTokenSymbol = (chainName: string): string => {
 // Check if chain is U2U (use PNG instead of web3icons)
 const isU2UChain = (chainName: string): boolean => {
   const normalized = chainName.toLowerCase().replace(/\s+/g, "");
-  return normalized === "u2u" || normalized === "u2usolaris";
+  return normalized === "u2u" || normalized === "u2usolaris" || normalized === "u2unetwork";
 };
 
 // Chain icon component
@@ -102,17 +105,17 @@ export function AgentCard({ assistant, onClick }: AgentCardProps) {
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           {/* Agent Icon - Floating, Transparent, No Background */}
-          <div className="relative h-16 w-16 flex items-center justify-center shrink-0">
+          <div className="relative h-12 w-12 flex items-center justify-center shrink-0">
             {agentIcon ? (
               <Image
                 src={agentIcon}
                 alt={agentName}
-                width={64}
-                height={64}
+                width={48}
+                height={48}
                 className="object-contain drop-shadow-2xl z-10 group-hover:scale-110 transition-transform duration-500"
               />
             ) : (
-              <Bot className="h-10 w-10 text-zinc-500 z-10" />
+              <Bot className="h-8 w-8 text-zinc-500 z-10" />
             )}
           </div>
 
