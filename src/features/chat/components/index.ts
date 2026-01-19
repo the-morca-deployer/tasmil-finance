@@ -1,7 +1,7 @@
-// Chat Components
-export { ChatClient } from "./chat-client";
-export { ChatPageWrapper } from "./chat-page-wrapper";
-export { Greeting } from "./greeting";
-export { SuggestedActions } from "./suggested-actions";
-export { Suggestion } from "./suggestion";
-export { ToolCall } from "./tool-call";
+export * from "./chat-page-wrapper";
+export * from "./chat-client";
+export * from "./greeting";
+export * from "./suggested-actions";
+export * from "./suggestion";
+export * from "./tool-call";
+export * from "./messages";

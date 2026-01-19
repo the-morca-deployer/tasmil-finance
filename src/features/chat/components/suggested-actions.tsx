@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronUp, RefreshCw, SparkleIcon } from "lucide-react";
 import { memo, useCallback, useEffect, useState } from "react";
 import { Suggestion } from "./suggestion";
-import { getAgentConfig, getAgentSuggestions } from "@/features/chat/config";
+import { getAgentConfig, getAgentSuggestions } from "../config";
 
 type SuggestedActionsProps = {
   agentId: string;

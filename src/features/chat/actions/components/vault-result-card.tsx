@@ -7,10 +7,10 @@
  */
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import { ArrowDownToLine, ArrowUpFromLine, Coins, TrendingUp, Wallet } from "lucide-react";
+import { Coins, TrendingUp, Wallet } from "lucide-react";
 
 interface VaultResultProps {
-  type: "status" | "rebalance" | "harvest" | "read";
+  type: "status" | "rebalance" | "harvest" | "read" | "deposit" | "withdraw" | "redeem";
   args: Record<string, unknown>;
   result?: {
     success: boolean;
@@ -27,6 +27,9 @@ const TITLE_MAP = {
   rebalance: "Vault Rebalance",
   harvest: "Vault Harvest",
   read: "Vault Data",
+  deposit: "Vault Deposit",
+  withdraw: "Vault Withdrawal",
+  redeem: "Vault Redeem",
 };
 
 const ICON_MAP = {
@@ -34,6 +37,9 @@ const ICON_MAP = {
   rebalance: TrendingUp,
   harvest: Coins,
   read: Wallet,
+  deposit: Coins,
+  withdraw: Coins,
+  redeem: Coins,
 };
 
 export function VaultResultCard({ type, args, result, status = "complete" }: VaultResultProps) {
@@ -157,8 +163,29 @@ export function VaultResultCard({ type, args, result, status = "complete" }: Vau
               </>
             )}
 
+            {/* Deposit/Withdraw/Redeem Result */}
+            {["deposit", "withdraw", "redeem"].includes(type) && data && (
+              <>
+                {data.amount && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Amount:</span>
+                    <span className="font-medium">{data.amount}</span>
+                  </div>
+                )}
+                {data.shares && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Shares:</span>
+                    <span className="font-medium">{data.shares}</span>
+                  </div>
+                )}
+                {data.message && (
+                  <div className="text-sm text-muted-foreground">{data.message}</div>
+                )}
+              </>
+            )}
+
             {/* Raw data fallback */}
-            {!["status", "rebalance", "harvest", "read"].includes(type) && data && (
+            {!["status", "rebalance", "harvest", "read", "deposit", "withdraw", "redeem"].includes(type) && data && (
               <pre className="text-xs bg-muted p-2 rounded overflow-auto max-h-40">
                 {JSON.stringify(data, null, 2)}
               </pre>

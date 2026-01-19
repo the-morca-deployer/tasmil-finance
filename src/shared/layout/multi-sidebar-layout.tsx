@@ -185,7 +185,7 @@ export function MultiSidebarLayout({
   className,
   showRightSidebar = true,
   showHeader = true,
-  title ,
+  title = "",
 }: MultiSidebarLayoutProps & { title?: string }) {
   return (
     <MultiSidebarProvider className={className || ""}>

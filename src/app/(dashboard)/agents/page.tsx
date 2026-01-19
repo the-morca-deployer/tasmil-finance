@@ -26,7 +26,7 @@ interface AssistantMetadata {
 }
 
 // Valid agent graph_ids to display (filter out legacy/test agents)
-const VALID_AGENT_IDS = ["staking_agent", "bridge_agent", "research_agent", "yield_agent"];
+const VALID_AGENT_IDS = ["staking_agent", "bridge_agent", "research_agent", "yield_agent", "vault_agent"];
 
 // Map icon paths from /sidebar/ to /agents/ and ensure correct format
 const normalizeIconPath = (icon: string | undefined, graphId: string): string => {
@@ -36,6 +36,7 @@ const normalizeIconPath = (icon: string | undefined, graphId: string): string =>
     bridge_agent: "/agents/bridge-agent.svg",
     research_agent: "/agents/research-agent.svg",
     yield_agent: "/agents/yield-agent.svg",
+    vault_agent: "/agents/vault-agent.svg",
   };
 
   if (!icon) return defaultIcons[graphId] || "/agents/staking-agent.svg";

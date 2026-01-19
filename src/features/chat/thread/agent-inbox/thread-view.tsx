@@ -1,10 +1,11 @@
 import type { Interrupt } from "@langchain/langgraph-sdk";
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useStreamContext } from "@/providers/stream";
+import { useStreamContext } from "../../hooks";
 import { StateView } from "./components/state-view";
 import { ThreadActionsView } from "./components/thread-actions-view";
 import { StakingHITLHandler } from "./staking-hitl-handler";
+import { VaultHITLHandler } from "./vault-hitl-handler";
 import type { HITLRequest } from "./types";
 
 interface ThreadViewProps {
@@ -20,9 +21,26 @@ const STAKING_TOOLS = [
   "u2u_staking_lock_stake",
 ];
 
+// Vault tool names that should use custom handler
+const VAULT_TOOLS = [
+  "vault_deposit",
+  "vault_withdraw",
+  "vault_redeem",
+  "vault_rebalance",
+  "vault_set_weights",
+  "vault_set_weights_and_rebalance",
+  "vault_approve_asset",
+  "vault_harvest",
+];
+
 function isStakingOperation(interrupt: Interrupt<HITLRequest>): boolean {
   const toolName = interrupt.value?.action_requests?.[0]?.name;
   return toolName ? STAKING_TOOLS.includes(toolName) : false;
+}
+
+function isVaultOperation(interrupt: Interrupt<HITLRequest>): boolean {
+  const toolName = interrupt.value?.action_requests?.[0]?.name;
+  return toolName ? VAULT_TOOLS.includes(toolName) : false;
 }
 
 export function ThreadView({ interrupt }: ThreadViewProps) {
@@ -46,8 +64,9 @@ export function ThreadView({ interrupt }: ThreadViewProps) {
   const activeInterrupt = interrupts[activeInterruptIndex];
   const activeDescription = activeInterrupt?.value?.action_requests?.[0]?.description ?? "";
 
-  // Check if this is a staking operation
+  // Check if this is a staking or vault operation
   const isStaking = activeInterrupt ? isStakingOperation(activeInterrupt) : false;
+  const isVault = activeInterrupt ? isVaultOperation(activeInterrupt) : false;
 
   const handleShowSidePanel = (showStateFlag: boolean, showDescriptionFlag: boolean) => {
     if (showStateFlag && showDescriptionFlag) {
@@ -70,9 +89,13 @@ export function ThreadView({ interrupt }: ThreadViewProps) {
     return null;
   }
 
-  // Use custom staking handler for staking operations
+  // Use custom handlers for specific operations
   if (isStaking) {
     return <StakingHITLHandler interrupt={activeInterrupt} />;
+  }
+
+  if (isVault) {
+    return <VaultHITLHandler interrupt={activeInterrupt} />;
   }
 
   // Use default ThreadActionsView for other operations

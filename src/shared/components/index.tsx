@@ -41,6 +41,8 @@ import {
   StakingInfoCard,
   StakingOperationCard,
   VaultResultCard,
+  VaultInfoCard,
+  VaultOperationCard,
 } from "@/features/chat/actions/components";
 
 const ComponentMap = {
@@ -59,6 +61,8 @@ const ComponentMap = {
   
   // Vault Agent UI Components
   "vault-result": VaultResultCard,
+  "vault-info": VaultInfoCard,
+  "vault-operation": VaultOperationCard,
 } as const;
 
 export default ComponentMap;

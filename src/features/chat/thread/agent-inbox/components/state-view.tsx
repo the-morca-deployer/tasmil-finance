@@ -3,11 +3,11 @@ import type { ToolCall } from "@langchain/core/messages/tool";
 import { motion } from "framer-motion";
 import { ChevronRight, ChevronsDownUp, ChevronsUpDown, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { MarkdownText } from "@/features/chat/thread/components/markdown-text";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { baseMessageObject, isArrayOfMessages, prettifyText, unknownToPrettyDate } from "../utils";
-import { ToolCallTable } from "./tool-call-table";
+import { ToolCallTable } from "@/features/chat/thread/agent-inbox/components/tool-call-table";
+import { MarkdownText } from "@/features/chat/thread/components/markdown-text";
 
 interface StateViewRecursiveProps {
   value: unknown;

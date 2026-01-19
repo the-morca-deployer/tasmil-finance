@@ -1,15 +1,8 @@
 "use client";
 
-/**
- * Staking Operation Card Component
- * 
- * Renders UI for staking operations (delegate, undelegate, claim, etc.)
- * Follows the pattern from langgraphjs-gen-ui-examples/buy-stock:
- * 1. Check for persisted result in thread.messages (tool response)
- * 2. If found → show result UI
- * 3. If not → show form UI with sign button
- * 4. On sign → execute wallet tx → submit result to thread
- */
+// 🎨 Staking operation card component for wallet interactions
+// Uses HITL pattern: when user signs transaction, result is sent back to agent via respond()
+// This ensures transaction results are persisted in thread messages
 
 import {
   AlertCircle,
@@ -19,20 +12,18 @@ import {
   Loader2,
   Lock,
   TrendingUp,
-  XCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { Button } from "@/shared/ui/button";
-import { useStreamContext } from "@/providers/stream";
 import {
   useClaimRewards,
   useDelegateStake,
   useLockStake,
   useRestakeRewards,
   useUndelegateStake,
-} from "@/features/staking";
+} from "@/features/chat/hooks/use-staking-operations";
 
 type StakingOperation =
   | "delegate"
@@ -42,22 +33,12 @@ type StakingOperation =
   | "lock_stake";
 
 interface StakingOperationCardProps {
-  // From HITL interrupt or UI message
   operation: StakingOperation;
   args: Record<string, unknown>;
-  toolCallId?: string; // Tool call ID for persisting result
-  result?: StakingResult | null; // Result from backend (persisted state)
-  // Callback to resume HITL (optional - for HITL flow)
-  onComplete?: (result: StakingResult) => void;
-}
-
-interface StakingResult {
-  success: boolean;
-  hash?: string;
-  error?: string;
-  operation: string;
-  validatorID?: string;
-  amount?: string;
+  result: unknown;
+  status: "pending" | "executing" | "complete" | "error" | "inProgress";
+  // respond from useHumanInTheLoop - sends result back to agent
+  respond?: (result: Record<string, unknown>) => void;
 }
 
 const OPERATION_CONFIG: Record<
@@ -72,35 +53,35 @@ const OPERATION_CONFIG: Record<
 > = {
   delegate: {
     title: "Delegate Stake",
-    buttonText: "Sign & Stake",
+    buttonText: "Stake U2U",
     icon: Coins,
     iconColor: "text-primary",
     bgColor: "bg-primary/10",
   },
   undelegate: {
     title: "Undelegate Stake",
-    buttonText: "Sign & Unstake",
+    buttonText: "Unstake U2U",
     icon: TrendingUp,
     iconColor: "text-orange-500",
     bgColor: "bg-orange-500/10",
   },
   claim_rewards: {
     title: "Claim Rewards",
-    buttonText: "Sign & Claim",
+    buttonText: "Claim Rewards",
     icon: CheckCircle,
     iconColor: "text-green-500",
     bgColor: "bg-green-500/10",
   },
   restake_rewards: {
     title: "Restake Rewards",
-    buttonText: "Sign & Restake",
+    buttonText: "Restake Rewards",
     icon: TrendingUp,
     iconColor: "text-blue-500",
     bgColor: "bg-blue-500/10",
   },
   lock_stake: {
     title: "Lock Stake",
-    buttonText: "Sign & Lock",
+    buttonText: "Lock Stake",
     icon: Lock,
     iconColor: "text-purple-500",
     bgColor: "bg-purple-500/10",
@@ -108,198 +89,36 @@ const OPERATION_CONFIG: Record<
 };
 
 /**
- * Format amount to human readable U2U
- * Handles both:
- * - U2U amount (e.g., "2", "100.5") - display as-is
- * - Wei amount (e.g., "2000000000000000000") - convert to U2U
+ * Format wei amount to human readable U2U
  */
-function formatAmount(amount: string | number | undefined): string {
-  if (!amount) return "";
-  
-  const amountStr = String(amount);
-  
+function formatAmount(weiAmount: string | number | undefined): string {
+  if (!weiAmount) return "";
   try {
-    // Check if it's a small number (likely U2U, not wei)
-    // Wei amounts are typically 18+ digits
-    const num = parseFloat(amountStr);
-    
-    if (amountStr.length < 15 && !amountStr.includes('e')) {
-      // Small number - treat as U2U directly
-      if (num === 0) return "0";
-      return num.toLocaleString(undefined, { maximumFractionDigits: 4 });
-    }
-    
-    // Large number - treat as wei, convert to U2U
-    const wei = BigInt(amountStr);
+    const wei = BigInt(String(weiAmount));
     const formatted = formatEther(wei);
-    const ethNum = parseFloat(formatted);
-    if (ethNum === 0) return "0";
-    if (ethNum < 0.0001) return "<0.0001";
-    return ethNum.toLocaleString(undefined, { maximumFractionDigits: 4 });
+    const num = parseFloat(formatted);
+    if (num === 0) return "0";
+    if (num < 0.0001) return "<0.0001";
+    return num.toLocaleString(undefined, { maximumFractionDigits: 4 });
   } catch {
-    return amountStr;
+    return String(weiAmount);
   }
 }
-
-/**
- * Get tool response from thread messages (for persisted state)
- */
-function getToolResponse(
-  toolCallId: string | undefined,
-  messages: any[]
-): StakingResult | null {
-  console.log("[getToolResponse] Looking for toolCallId:", toolCallId);
-  console.log("[getToolResponse] All tool messages:", messages.filter(m => m.type === "tool").map(m => ({
-    id: m.id,
-    tool_call_id: m.tool_call_id,
-    name: m.name,
-    content: m.content?.substring?.(0, 100) || m.content,
-  })));
-  
-  if (!toolCallId) {
-    console.log("[getToolResponse] No toolCallId provided");
-    return null;
-  }
-  
-  const toolMessage = messages.findLast(
-    (msg) => msg.type === "tool" && msg.tool_call_id === toolCallId
-  );
-  
-  console.log("[getToolResponse] Found tool message:", toolMessage ? {
-    id: toolMessage.id,
-    tool_call_id: toolMessage.tool_call_id,
-    name: toolMessage.name,
-    content: toolMessage.content,
-  } : null);
-  
-  if (!toolMessage) return null;
-  
-  try {
-    const content = typeof toolMessage.content === "string"
-      ? JSON.parse(toolMessage.content)
-      : toolMessage.content;
-    
-    console.log("[getToolResponse] Parsed content:", content);
-    
-    if (content && typeof content === "object" && "success" in content) {
-      return content as StakingResult;
-    }
-  } catch (e) {
-    console.log("[getToolResponse] Parse error:", e);
-  }
-  
-  return null;
-}
-
-// ============ Sub-components ============
-
-function SuccessResult({ result, config }: { result: StakingResult; config: typeof OPERATION_CONFIG[StakingOperation] }) {
-  const hash = result.hash || "";
-  const truncatedHash = hash ? `${hash.slice(0, 6)}...${hash.slice(-4)}` : "";
-  const explorerUrl = hash ? `https://u2uscan.xyz/tx/${hash}` : "";
-
-  return (
-    <div className="w-fit min-w-[280px] rounded-lg border bg-card/40 p-6 shadow-sm">
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500/10">
-          <CheckCircle className="h-5 w-5 text-green-600" />
-        </div>
-        <div className="space-y-1 min-w-0">
-          <h3 className="text-base font-semibold">Transaction Completed</h3>
-          <p className="text-muted-foreground text-sm">{config.title} was successful</p>
-        </div>
-      </div>
-
-      <div className="space-y-2 mb-4">
-        {result.validatorID && (
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Validator ID</span>
-            <span className="font-semibold">{result.validatorID}</span>
-          </div>
-        )}
-        {result.amount && (
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Amount</span>
-            <span className="font-semibold">{result.amount}</span>
-          </div>
-        )}
-        {hash && (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Transaction Hash</span>
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-xs">{truncatedHash}</span>
-              <a
-                className="flex h-6 w-6 items-center justify-center rounded-full bg-background/30 transition-colors hover:text-foreground"
-                href={explorerUrl}
-                rel="noopener noreferrer"
-                target="_blank"
-                title="View on U2U Explorer"
-              >
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="rounded-md border border-green-500/30 bg-green-500/20 p-3">
-        <p className="text-green-700 dark:text-green-300 text-sm">
-          Transaction completed successfully!
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function FailedResult({ result, config }: { result: StakingResult; config: typeof OPERATION_CONFIG[StakingOperation] }) {
-  return (
-    <div className="w-fit min-w-[280px] rounded-lg border bg-card p-6 shadow-sm">
-      <div className="mb-4 flex items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10">
-          <XCircle className="h-5 w-5 text-destructive" />
-        </div>
-        <div className="space-y-1 min-w-0">
-          <h3 className="text-base font-semibold">Transaction Failed</h3>
-          <p className="text-muted-foreground text-sm">{config.title}</p>
-        </div>
-      </div>
-
-      <div className="space-y-2 mb-4">
-        {result.validatorID && (
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Validator ID</span>
-            <span className="font-semibold">{result.validatorID}</span>
-          </div>
-        )}
-        {result.amount && (
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Amount</span>
-            <span className="font-semibold">{result.amount}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3">
-        <p className="text-destructive text-sm">{result.error || "Transaction failed"}</p>
-      </div>
-    </div>
-  );
-}
-
-// ============ Main Component ============
 
 export function StakingOperationCard({
   operation,
   args,
-  toolCallId,
-  result: propsResult,
-  onComplete,
+  result,
+  status,
+  respond,
 }: StakingOperationCardProps) {
-  const { isConnected } = useAccount();
-  const thread = useStreamContext();
-  
+  const { address, isConnected } = useAccount();
   const [isExecuting, setIsExecuting] = useState(false);
-  const [localResult, setLocalResult] = useState<StakingResult | null>(null);
+  const [txResult, setTxResult] = useState<{
+    success: boolean;
+    hash?: string;
+    message: string;
+  } | null>(null);
 
   // Staking hooks
   const delegateStake = useDelegateStake();
@@ -311,32 +130,36 @@ export function StakingOperationCard({
   const config = OPERATION_CONFIG[operation];
   const Icon = config.icon;
 
-  // Extract operation details from args
-  const validatorID = args["validatorID"];
-  const amountWei = args["amount"];
-  const wrID = args["wrID"];
-  const lockupDuration = args["lockupDuration"];
+  // Extract operation details from args or result
+  const data = (result as Record<string, unknown>) || {};
+  const validatorID = args["validatorID"] || data["validatorID"];
+  const amountWei = args["amount"] || data["amount"];
+  const wrID = args["wrID"] || data["wrID"];
+  const lockupDuration = args["lockupDuration"] || data["lockupDuration"];
+  const lockupDurationDays = data["lockupDurationDays"];
 
-  // Format amount
-  const amountFormatted = amountWei ? `${formatAmount(amountWei as string)} U2U` : undefined;
+  // Format amount from wei to U2U
+  const amountFormatted: string | undefined = amountWei
+    ? `${formatAmount(amountWei as string)} U2U`
+    : undefined;
 
-  // Check for persisted result in thread messages
-  const persistedResult = getToolResponse(toolCallId, thread.messages);
-  
-  // Priority: propsResult (from backend UI message) > persistedResult (from messages) > localResult
-  const result = propsResult || persistedResult || localResult;
+  // Use result from CopilotKit (persisted) or local txResult
+  // This ensures state persists across page reloads
+  const persistedResult = result as Record<string, unknown> | undefined;
+  const hasPersistedResult = persistedResult && persistedResult["success"] !== undefined;
 
-  // DEBUG: Log component state
-  console.log("[StakingOperationCard] Render:", {
-    operation,
-    toolCallId,
-    propsResult,
-    persistedResult,
-    localResult,
-    finalResult: result,
-    args,
-    messagesCount: thread.messages.length,
-  });
+  const effectiveResult =
+    txResult ||
+    (hasPersistedResult
+      ? {
+          success: Boolean(persistedResult["success"]),
+          hash: persistedResult["hash"] as string | undefined,
+          message: String(
+            persistedResult["message"] ||
+              (persistedResult["success"] ? "Transaction successful!" : "Transaction failed")
+          ),
+        }
+      : null);
 
   // Check if any hook is pending
   const isPending =
@@ -346,18 +169,21 @@ export function StakingOperationCard({
     restakeRewards.isPending ||
     lockStake.isPending;
 
+  // Card width class - use w-fit with min-width for auto sizing
+  const cardWidthClass = "w-fit min-w-[280px]";
+
   // Handle wallet transaction
-  const handleSign = async () => {
-    if (!isConnected) {
-      const errorResult: StakingResult = {
+  const handleExecute = async () => {
+    if (!isConnected || !address) {
+      setTxResult({
+        success: false,
+        message: "Wallet not connected",
+      });
+      // Send result back to agent - agent will generate the response message
+      respond?.({
         success: false,
         error: "Wallet not connected",
-        operation,
-        validatorID: validatorID ? String(validatorID) : undefined,
-        amount: amountFormatted,
-      };
-      setLocalResult(errorResult);
-      onComplete?.(errorResult);
+      });
       return;
     }
 
@@ -375,9 +201,16 @@ export function StakingOperationCard({
           break;
 
         case "undelegate": {
-          if (!amountWei) throw new Error("Amount is required for undelegation");
+          if (!amountWei) {
+            throw new Error("Amount is required for undelegation");
+          }
+          // If wrID is not provided, generate a random one (same as MCP server logic)
           const effectiveWrID = wrID ? Number(wrID) : Math.floor(Math.random() * 1_000_000);
-          walletResult = await undelegateStake.undelegateStake(validatorNum, effectiveWrID, amountStr);
+          walletResult = await undelegateStake.undelegateStake(
+            validatorNum,
+            effectiveWrID,
+            amountStr
+          );
           break;
         }
 
@@ -400,59 +233,177 @@ export function StakingOperationCard({
           throw new Error(`Unsupported operation: ${operation}`);
       }
 
-      const successResult: StakingResult = {
+      setTxResult({
+        success: true,
+        hash: walletResult.hash,
+        message: "Transaction successful!",
+      });
+
+      // Send result back to agent - agent will generate the response message
+      respond?.({
         success: true,
         hash: walletResult.hash,
         operation,
-        validatorID: validatorID ? String(validatorID) : undefined,
+        validatorID: String(validatorID),
         amount: amountFormatted,
-      };
-
-      // Set local result to show UI
-      setLocalResult(successResult);
-      // Call onComplete to persist result
-      onComplete?.(successResult);
-
+      });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Transaction failed";
-      const errorResult: StakingResult = {
+
+      setTxResult({
+        success: false,
+        message: errorMessage,
+      });
+
+      // Send result back to agent - agent will generate the response message
+      respond?.({
         success: false,
         error: errorMessage,
         operation,
-        validatorID: validatorID ? String(validatorID) : undefined,
+        validatorID: String(validatorID),
         amount: amountFormatted,
-      };
-
-      // Set local result to show UI
-      setLocalResult(errorResult);
-      // Call onComplete to persist result
-      onComplete?.(errorResult);
+      });
     } finally {
       setIsExecuting(false);
     }
   };
 
-  // Show result UI if we have a result
-  if (result) {
-    if (result.success) {
-      return <SuccessResult result={result} config={config} />;
-    } else {
-      return <FailedResult result={result} config={config} />;
-    }
+  // Show completed transaction UI (status === "complete" means respond was called)
+  // Use effectiveResult which combines local state and persisted result from CopilotKit
+  // Check success status first - if failed, show failed UI even if status is complete
+  const isSuccess = effectiveResult?.success === true && effectiveResult?.hash;
+  const isFailed = effectiveResult?.success === false;
+
+  if (isSuccess || (status === "complete" && !isFailed && effectiveResult?.hash)) {
+    const hash = effectiveResult?.hash;
+    const truncatedHash = hash ? `${hash.slice(0, 6)}...${hash.slice(-4)}` : "";
+    const explorerUrl = hash ? `https://u2uscan.xyz/tx/${hash}` : "";
+
+    return (
+      <div className={`${cardWidthClass} rounded-lg border bg-card/40 p-6 shadow-sm`}>
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500/10">
+            <CheckCircle className="h-5 w-5 text-green-600" />
+          </div>
+          <div className="space-y-1 min-w-0">
+            <h3 className="text-base font-semibold">Transaction Completed</h3>
+            <p className="text-muted-foreground text-sm">{config.title} was successful</p>
+          </div>
+        </div>
+
+        <div className="space-y-2 mb-4">
+          {validatorID != null && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Validator ID</span>
+              <span className="font-semibold">{String(validatorID)}</span>
+            </div>
+          )}
+          {amountFormatted && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Amount</span>
+              <span className="font-semibold">{amountFormatted}</span>
+            </div>
+          )}
+          {hash && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Transaction Hash</span>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-xs">{truncatedHash}</span>
+                <a
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-background/30 transition-colors hover:text-foreground"
+                  href={explorerUrl}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  title="View on U2U Explorer"
+                >
+                  <ArrowUpRight className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-md border border-green-500/30 bg-green-500/20 p-3">
+          <p className="text-green-700 dark:text-green-300 text-sm">
+            {effectiveResult?.message || "Transaction completed successfully!"}
+          </p>
+        </div>
+      </div>
+    );
   }
 
-  // Show form UI
+  // Show failed transaction UI - check this BEFORE showing success
+  if (isFailed || (status === "complete" && effectiveResult?.success === false)) {
+    const errorMessage = effectiveResult?.message || "Transaction failed";
+
+    return (
+      <div className={`${cardWidthClass} rounded-lg border bg-card p-6 shadow-sm`}>
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+          </div>
+          <div className="space-y-1 min-w-0">
+            <h3 className="text-base font-semibold">Transaction Failed</h3>
+            <p className="text-muted-foreground text-sm">{config.title}</p>
+          </div>
+        </div>
+
+        <div className="space-y-2 mb-4">
+          {validatorID != null && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Validator ID</span>
+              <span className="font-semibold">{String(validatorID)}</span>
+            </div>
+          )}
+          {amountFormatted && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Amount</span>
+              <span className="font-semibold">{amountFormatted}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 p-3">
+          <p className="text-destructive text-sm">{errorMessage}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state - only show when status is "pending" (before tool is called)
+  // When status is "executing" with respond function, we should show the form for user to sign
+  if (status === "pending") {
+    return (
+      <div className={`${cardWidthClass} rounded-lg border bg-card/40 p-6 shadow-sm`}>
+        <div className="flex items-center gap-3">
+          <div
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${config.bgColor}`}
+          >
+            <Loader2 className={`h-5 w-5 ${config.iconColor} animate-spin`} />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-base font-semibold">{config.title}</h3>
+            <p className="text-muted-foreground text-sm">Preparing transaction...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show pending operation UI (ready for wallet interaction)
   return (
-    <div className="w-fit min-w-[280px] rounded-lg border bg-card p-6 shadow-sm">
+    <div className={`${cardWidthClass} rounded-lg border bg-card p-6 shadow-sm`}>
       {/* Header */}
       <div className="mb-4 flex items-center gap-3">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${config.bgColor}`}>
+        <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${config.bgColor}`}
+        >
           <Icon className={`h-5 w-5 ${config.iconColor}`} />
         </div>
         <div className="space-y-1 min-w-0">
           <h3 className="text-base font-semibold">{config.title}</h3>
           <p className="text-muted-foreground text-sm">
-            Review and sign the transaction
+            Click the button below to sign the transaction
           </p>
         </div>
       </div>
@@ -480,10 +431,14 @@ export function StakingOperationCard({
           </div>
         )}
 
-        {lockupDuration != null && (
+        {(lockupDurationDays != null || lockupDuration != null) && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Lockup Duration</span>
-            <span className="font-semibold">{Math.floor(Number(lockupDuration) / 86400)} days</span>
+            <span className="font-semibold">
+              {lockupDurationDays != null
+                ? `${String(lockupDurationDays)} days`
+                : `${Math.floor(Number(lockupDuration) / 86400)} days`}
+            </span>
           </div>
         )}
       </div>
@@ -498,9 +453,9 @@ export function StakingOperationCard({
         </div>
       )}
 
-      {/* Sign Button */}
+      {/* Execute Button */}
       <Button
-        onClick={handleSign}
+        onClick={handleExecute}
         disabled={!isConnected || isExecuting || isPending}
         className="w-full h-10 rounded-lg"
         variant="default"
@@ -508,7 +463,7 @@ export function StakingOperationCard({
         {isExecuting || isPending ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Signing...
+            Processing...
           </>
         ) : (
           config.buttonText

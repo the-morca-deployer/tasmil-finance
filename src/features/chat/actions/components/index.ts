@@ -11,4 +11,6 @@ export { YieldResultCard } from "./yield-result-card";
 export { StakingInfoCard } from "./staking-info-card";
 export { StakingOperationCard } from "./staking-operation-card";
 export { VaultResultCard } from "./vault-result-card";
+export { VaultInfoCard } from "./vault-info-card";
+export { VaultOperationCard } from "./vault-operation-card";
 

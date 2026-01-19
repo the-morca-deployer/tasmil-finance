@@ -8,6 +8,8 @@ import { useState } from "react";
 import { formatUnits } from "viem";
 import { useAccount, useBalance } from "wagmi";
 import { cn } from "@/lib/utils";
+import { USDCBalance } from "@/shared/components/usdc-balance";
+import { USDCBalanceIcon } from "@/shared/components/usdc-balance-icon";
 import Balatro from "../ui/balatro";
 import { Button } from "../ui/button-v2";
 import CountUp from "../ui/count-up";
@@ -179,27 +181,33 @@ export function FooterSidebarSection() {
                     </div>
                   </a>
 
-                  {/* Balance Card */}
-                  <Button
-                    className="flex h-auto items-center justify-start gap-2 rounded-xl bg-zinc-800/50 p-3 backdrop-blur-sm transition-all hover:bg-zinc-800/70"
-                    onClick={() => setDepositOpen(true)}
-                    variant="ghost"
-                  >
-                    <Image
-                      alt="U2U"
-                      className="rounded-full"
-                      height={20}
-                      src="/token/u2u.png"
-                      width={20}
-                    />
-                    <CountUp
-                      abbreviate={false}
-                      className="font-medium text-sm text-white"
-                      decimals={4}
-                      suffix=" U2U"
-                      value={formattedBalance}
-                    />
-                  </Button>
+                  {/* Balance Cards - Conditional based on chain */}
+                  {process.env.NEXT_PUBLIC_USE_LOCAL_CHAIN === "true" ? (
+                    // Local chain: Show USDC only
+                    <USDCBalance />
+                  ) : (
+                    // Mainnet: Show U2U
+                    <Button
+                      className="flex h-auto items-center justify-start gap-2 rounded-xl bg-zinc-800/50 p-3 backdrop-blur-sm transition-all hover:bg-zinc-800/70"
+                      onClick={() => setDepositOpen(true)}
+                      variant="ghost"
+                    >
+                      <Image
+                        alt="U2U"
+                        className="rounded-full"
+                        height={20}
+                        src="/token/u2u.png"
+                        width={20}
+                      />
+                      <CountUp
+                        abbreviate={false}
+                        className="font-medium text-sm text-white"
+                        decimals={4}
+                        suffix=" U2U"
+                        value={formattedBalance}
+                      />
+                    </Button>
+                  )}
 
                   <Button
                     className="flex h-auto items-center justify-start gap-2 rounded-xl bg-zinc-800/50 p-3 backdrop-blur-sm transition-all hover:bg-zinc-800/70"
@@ -272,33 +280,39 @@ export function FooterSidebarSection() {
                       </TooltipContent>
                     </Tooltip>
 
-                    {/* Balance Icon */}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          className="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-800/50 p-0 backdrop-blur-sm transition-all hover:bg-zinc-800/70"
-                          onClick={() => setDepositOpen(true)}
-                          variant="ghost"
-                        >
-                          <Image
-                            alt="U2U"
-                            className="rounded-full"
-                            height={24}
-                            src="/token/u2u.png"
-                            width={24}
+                    {/* Balance Icons - Conditional based on chain */}
+                    {process.env.NEXT_PUBLIC_USE_LOCAL_CHAIN === "true" ? (
+                      // Local chain: Show USDC only
+                      <USDCBalanceIcon />
+                    ) : (
+                      // Mainnet: Show U2U
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            className="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-800/50 p-0 backdrop-blur-sm transition-all hover:bg-zinc-800/70"
+                            onClick={() => setDepositOpen(true)}
+                            variant="ghost"
+                          >
+                            <Image
+                              alt="U2U"
+                              className="rounded-full"
+                              height={24}
+                              src="/token/u2u.png"
+                              width={24}
+                            />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          <CountUp
+                            abbreviate={false}
+                            className="text-xs"
+                            decimals={4}
+                            suffix=" U2U"
+                            value={formattedBalance}
                           />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <CountUp
-                          abbreviate={false}
-                          className="text-xs"
-                          decimals={4}
-                          suffix=" U2U"
-                          value={formattedBalance}
-                        />
-                      </TooltipContent>
-                    </Tooltip>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
 
                     {/* User Avatar */}
                     <Tooltip>
