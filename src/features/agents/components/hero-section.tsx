@@ -9,7 +9,7 @@ interface HeroSectionProps {
 export function HeroSection({ agentCount }: HeroSectionProps) {
   return (
     <section className="py-6">
-      <div className="relative h-[360px] w-full overflow-hidden rounded-3xl border border-white/5 bg-[#0a0a0a] shadow-2xl">
+      <div className="relative h-[360px] w-full overflow-hidden rounded-3xl border border-border bg-background shadow-2xl">
         {/* Background Image - Professional Isometric */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -20,18 +20,16 @@ export function HeroSection({ agentCount }: HeroSectionProps) {
             priority
           />
           {/* Overlay gradient to ensure text readability on the left */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-background/90 via-background/50 to-transparent" />
         </div>
-
-
 
         {/* Content */}
         <div className="relative z-20 flex h-full flex-col justify-center px-8 md:px-16">
-          <h1 className="mb-4 font-bold text-4xl text-white md:text-5xl lg:text-6xl tracking-tight">
+          <h1 className="mb-4 font-bold text-4xl text-foreground md:text-5xl lg:text-6xl tracking-tight">
             Explore AI Tasmil Agents
           </h1>
 
-          <p className="mb-8 max-w-xl text-zinc-300 text-lg leading-relaxed">
+          <p className="mb-8 max-w-xl text-muted-foreground text-lg leading-relaxed">
             Discover AI Tasmil Agents — specialized, collaborative AI Agents
             that power Intelligence and Strategies
           </p>
@@ -58,7 +56,7 @@ export function HeroSection({ agentCount }: HeroSectionProps) {
                 </div>
               ))}
             </div>
-            <span className="font-medium text-zinc-400 text-sm ml-2">
+            <span className="font-medium text-muted-foreground text-sm ml-2">
               {agentCount}+ Agents
             </span>
           </div>

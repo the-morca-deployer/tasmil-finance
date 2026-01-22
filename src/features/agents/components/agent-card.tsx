@@ -4,7 +4,7 @@ import Image from "next/image";
 import type { Assistant } from "@/gen/types/assistant";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { GlassCard } from "@/shared/ui/glass-card";
+import { Card, CardFooter, CardHeader } from "@/shared/ui/card";
 
 // Define metadata interface based on the response structure
 interface AssistantMetadata {
@@ -97,11 +97,11 @@ export function AgentCard({ assistant, onClick }: AgentCardProps) {
   const supportedChains = metadata?.supportedChains || [];
 
   return (
-    <GlassCard
-      className="group relative flex h-full flex-col overflow-hidden border-white/5 bg-zinc-900/40 p-0 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500/20 hover:shadow-xl hover:shadow-cyan-500/5"
+    <Card
+      className="group relative flex h-full flex-col overflow-hidden border-border bg-card p-0 transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 cursor-pointer"
       onClick={onClick}
     >
-      <div className="relative p-6 flex-1">
+      <CardHeader className="relative p-6 flex-1">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           {/* Agent Icon - Floating, Transparent, No Background */}
@@ -115,13 +115,13 @@ export function AgentCard({ assistant, onClick }: AgentCardProps) {
                 className="object-contain drop-shadow-2xl z-10 group-hover:scale-110 transition-transform duration-500"
               />
             ) : (
-              <Bot className="h-8 w-8 text-zinc-500 z-10" />
+              <Bot className="h-8 w-8 text-muted-foreground z-10" />
             )}
           </div>
 
           <Badge
             variant="outline"
-            className={`border-white/10 bg-white/5 backdrop-blur-md px-3 py-1 ${agentType === 'Strategy' ? 'text-emerald-400' : 'text-blue-400'
+            className={`border-border bg-background/50 backdrop-blur-md px-3 py-1 ${agentType === 'Strategy' ? 'text-accent-foreground' : 'text-primary'
               }`}
           >
             {agentType === 'Strategy' ? <Settings className="mr-1 h-3 w-3" /> : <Sparkles className="mr-1 h-3 w-3" />}
@@ -131,42 +131,42 @@ export function AgentCard({ assistant, onClick }: AgentCardProps) {
 
         {/* Content */}
         <div>
-          <h3 className="mb-3 font-bold text-xl text-white group-hover:text-cyan-400 transition-colors">{agentName}</h3>
+          <h3 className="mb-3 font-bold text-xl text-foreground group-hover:text-primary transition-colors">{agentName}</h3>
           <ul className="space-y-2 mb-6">
             {agentDescription.slice(0, 3).map((feature, index) => (
-              <li key={index} className="flex items-start gap-2 text-zinc-400 text-sm">
-                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-zinc-600 group-hover:bg-cyan-500/50 transition-colors" />
+              <li key={index} className="flex items-start gap-2 text-muted-foreground text-sm">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground group-hover:bg-primary/50 transition-colors" />
                 <span className="line-clamp-2 leading-relaxed">{feature}</span>
               </li>
             ))}
           </ul>
         </div>
-      </div>
+      </CardHeader>
 
       {/* Footer */}
-      <div className="mt-auto border-t border-white/5 bg-white/[0.02] p-4 group-hover:bg-white/[0.04] transition-colors">
-        <div className="flex items-center justify-between">
+      <CardFooter className="mt-auto border-t border-border bg-muted/20 p-4 group-hover:bg-muted/40 transition-colors">
+        <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500 font-medium">Supported Chains</span>
+            <span className="text-xs text-muted-foreground font-medium">Supported Chains</span>
             <div className="flex -space-x-2">
               {supportedChains.slice(0, 4).map((chain, i) => (
-                <div key={i} className="h-6 w-6 rounded-full bg-zinc-900 ring-2 ring-zinc-900 flex items-center justify-center overflow-hidden">
+                <div key={i} className="h-6 w-6 rounded-full bg-background ring-2 ring-card flex items-center justify-center overflow-hidden">
                   <ChainIcon chain={chain} size={16} />
                 </div>
               ))}
               {supportedChains.length > 4 && (
-                <div className="h-6 w-6 rounded-full bg-zinc-800 ring-2 ring-zinc-900 flex items-center justify-center text-[9px] text-zinc-400 font-medium">
+                <div className="h-6 w-6 rounded-full bg-muted ring-2 ring-card flex items-center justify-center text-[9px] text-muted-foreground font-medium">
                   +{supportedChains.length - 4}
                 </div>
               )}
             </div>
           </div>
 
-          <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full text-zinc-400 hover:text-white hover:bg-white/10">
+          <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent">
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-      </div>
-    </GlassCard>
+      </CardFooter>
+    </Card>
   );
 }

@@ -93,11 +93,9 @@ export default function AgentsPage() {
             icon: normalizeIconPath(metadata?.icon, assistant.graph_id || ""),
             supportedChains: metadata?.supportedChains?.length
               ? metadata.supportedChains
-              : (assistant.graph_id === "yield_agent" || assistant.graph_id === "research_agent" || assistant.graph_id === "bridge_agent")
-                ? ["U2U Network", "Ethereum", "BNB Chain", "Arbitrum", "Optimism", "Base"]
-                : assistant.graph_id === "staking_agent"
-                  ? ["U2U Network"]
-                  : [],
+              : (assistant.graph_id === "staking_agent")
+                ? ["U2U Network"]
+                : ["U2U Network", "Ethereum", "BNB Chain", "Arbitrum", "Optimism", "Base"],
           },
         };
       });
@@ -158,7 +156,7 @@ export default function AgentsPage() {
 
           {searchAssistants.error && (
             <div className="py-16 text-center">
-              <p className="text-red-500">Error loading agents: {searchAssistants.error.message}</p>
+              <p className="text-destructive">Error loading agents: {searchAssistants.error.message}</p>
             </div>
           )}
 

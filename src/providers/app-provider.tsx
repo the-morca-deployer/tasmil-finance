@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import { WagmiProvider } from "wagmi";
 import { defaultNetwork, wagmiConfig } from "@/shared/config/wagmi";
 import { WalletProvider } from "@/shared/context/wallet-context";
+import { OnboardingProvider } from "@/features/onboarding/components/onboarding-provider";
 import { TooltipProvider } from "@/shared/ui/tooltip";
 import "@rainbow-me/rainbowkit/styles.css";
 
@@ -128,7 +129,11 @@ export function AppProvider({ children }: PropsWithChildren) {
             theme={defiDarkTheme}
           >
             <TooltipProvider>
-              <WalletProvider>{children}</WalletProvider>
+              <WalletProvider>
+                <OnboardingProvider>
+                  {children}
+                </OnboardingProvider>
+              </WalletProvider>
             </TooltipProvider>
             <Toaster position="top-right" richColors />
           </RainbowKitProvider>
