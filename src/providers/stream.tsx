@@ -4,7 +4,6 @@ import React, {
   createContext,
   useContext,
   ReactNode,
-  useState,
   useEffect,
 } from "react";
 import { useStream } from "@langchain/langgraph-sdk/react";
@@ -130,7 +129,6 @@ export const StreamProvider: React.FC<{
 }> = ({
   children,
   agentId,
-  chatId,
 }) => {
   // Get environment variables
   const envApiUrl: string | undefined = process.env['NEXT_PUBLIC_API_URL'];

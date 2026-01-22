@@ -1,9 +1,8 @@
 import type { Thread } from "@langchain/langgraph-sdk";
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useEffect } from "react";
-import { getContentString } from "@/features/chat/thread/utils";
-import { useChatState } from "@/providers/chat-state-provider";
-import { useThreads } from "@/providers/thread";
+import { getContentString } from "../../lib/thread-utils";
+import { useChatState, useThreads } from "../../hooks";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { Button } from "@/shared/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/shared/ui/sheet";

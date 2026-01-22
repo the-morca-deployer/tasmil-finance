@@ -15,8 +15,8 @@
 
 import { Interrupt } from "@langchain/langgraph-sdk";
 import { v4 as uuidv4 } from "uuid";
-import { StakingOperationCard } from "@/features/chat/actions/components";
-import { useStreamContext } from "@/providers/stream";
+import { StakingOperationCard } from "../../actions/components";
+import { useStreamContext } from "../../hooks";
 import { useCallback, useState, useEffect } from "react";
 import { toast } from "sonner";
 import type { HITLRequest } from "./types";
@@ -205,9 +205,11 @@ export function StakingHITLHandler({ interrupt }: StakingHITLHandlerProps) {
     <StakingOperationCard
       operation={operation as any}
       args={actionRequest.args}
-      toolCallId={toolCallId}
       result={localResult}
-      onComplete={handleComplete}
+      status={localResult ? "complete" : "executing"}
+      respond={async (result: Record<string, unknown>) => {
+        await handleComplete(result as unknown as StakingResult);
+      }}
     />
   );
 }

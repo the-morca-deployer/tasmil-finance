@@ -4,7 +4,7 @@ import type { Thread } from "@langchain/langgraph-sdk";
 import { MessageSquare, Plus, RefreshCw, Search, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getContentString } from "@/features/chat/thread/utils";
+import { getContentString } from "@/features/chat/lib/thread-utils";
 import { cn } from "@/lib/utils";
 import { useThreads } from "@/providers/thread";
 import { useMultiSidebar } from "@/shared/ui/multi-sidebar";

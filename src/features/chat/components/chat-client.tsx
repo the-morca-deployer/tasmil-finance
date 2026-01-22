@@ -6,14 +6,13 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
-import { ContentBlocksPreview } from "@/features/chat/thread/components/content-blocks-preview";
-import { AssistantMessage, AssistantMessageLoading } from "@/features/chat/thread/messages/ai";
-import { HumanMessage } from "@/features/chat/thread/messages/human";
+import { ContentBlocksPreview } from "../thread/components/content-blocks-preview";
+import { AssistantMessage, AssistantMessageLoading } from "../components/messages/ai-message";
+import { HumanMessage } from "../components/messages/human-message";
 import { useSearchAssistantsAssistantsSearchPost } from "@/gen/hooks/use-search-assistants-assistants-search-post";
 import { DO_NOT_RENDER_ID_PREFIX, ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
 import { cn } from "@/lib/utils";
-import { useChatState } from "@/providers/chat-state-provider";
-import { useStreamContext } from "@/providers/stream";
+import { useChatState, useStreamContext } from "../hooks";
 import { useFileUpload } from "@/shared/hooks/use-file-upload";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { Button } from "@/shared/ui/button-v2";
@@ -46,6 +45,9 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const { toggleRightSidebar } = useMultiSidebar();
   const [firstTokenReceived, setFirstTokenReceived] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [userScrolledUp, setUserScrolledUp] = useState(false);
+  const [isInteractingWithContent, setIsInteractingWithContent] = useState(false);
+  const lastMessageCountRef = useRef(0);
 
   // File upload hook
   const {
@@ -150,10 +152,18 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     prevMessageLength.current = messages.length;
   }, [messages]);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom only when new messages arrive and user hasn't scrolled up
+  // and user is not interacting with scrollable content inside messages
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (
+      messages.length > lastMessageCountRef.current &&
+      !userScrolledUp &&
+      !isInteractingWithContent
+    ) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+    lastMessageCountRef.current = messages.length;
+  }, [messages.length, userScrolledUp, isInteractingWithContent]);
 
   // Track scroll position for scroll-to-bottom button
   useEffect(() => {
@@ -164,13 +174,56 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
       setShowScrollButton(!isNearBottom);
+
+      // Track if user manually scrolled up
+      if (!isNearBottom) {
+        setUserScrolledUp(true);
+      }
     };
 
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Detect when user is interacting with scrollable content inside messages
+  // This prevents auto-scroll from interrupting user's scroll inside tool UI cards
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const handleMouseEnter = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Check if hovering over a scrollable element inside messages
+      const scrollableParent = target.closest(
+        '[data-scrollable="true"], .overflow-y-auto, .overflow-auto'
+      );
+      if (scrollableParent && scrollableParent !== container) {
+        setIsInteractingWithContent(true);
+      }
+    };
+
+    const handleMouseLeave = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const scrollableParent = target.closest(
+        '[data-scrollable="true"], .overflow-y-auto, .overflow-auto'
+      );
+      if (scrollableParent && scrollableParent !== container) {
+        setIsInteractingWithContent(false);
+      }
+    };
+
+    // Use event delegation for better performance
+    container.addEventListener("mouseenter", handleMouseEnter, true);
+    container.addEventListener("mouseleave", handleMouseLeave, true);
+
+    return () => {
+      container.removeEventListener("mouseenter", handleMouseEnter, true);
+      container.removeEventListener("mouseleave", handleMouseLeave, true);
+    };
+  }, []);
+
   const scrollToBottom = () => {
+    setUserScrolledUp(false);
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -193,18 +246,21 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     stream.submit(
       { messages: [...toolMessages, newHumanMessage] },
       {
+        // @ts-ignore - streamMode may not be in type definition
         streamMode: ["values"],
         streamSubgraphs: true,
         streamResumable: true,
-        optimisticValues: (prev) => ({
+        // @ts-ignore - optimisticValues may not be in type definition
+        optimisticValues: (prev: any) => ({
           ...prev,
-          messages: [...(prev.messages ?? []), ...toolMessages, newHumanMessage],
+          messages: [...(prev?.messages ?? []), ...toolMessages, newHumanMessage],
         }),
       }
     );
 
     setInput("");
     setContentBlocks([]);
+    setUserScrolledUp(false); // Reset scroll state when sending new message
   };
 
   const handleRegenerate = (
@@ -220,11 +276,14 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     setFirstTokenReceived(false);
 
     stream.submit(undefined, {
+      // @ts-ignore - checkpoint may not be in type definition
       checkpoint: parentCheckpoint || null,
+      // @ts-ignore - streamMode may not be in type definition
       streamMode: ["values"],
       streamSubgraphs: true,
       streamResumable: true,
-      optimisticValues: (prev) => {
+      // @ts-ignore - optimisticValues may not be in type definition
+      optimisticValues: (prev: any) => {
         // Return parent state to immediately remove AI message from UI
         if (parentValues) {
           return parentValues;
@@ -249,15 +308,18 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     stream.submit(
       { messages: [...toolMessages, newHumanMessage] },
       {
+        // @ts-ignore - streamMode may not be in type definition
         streamMode: ["values"],
         streamSubgraphs: true,
         streamResumable: true,
-        optimisticValues: (prev) => ({
+        // @ts-ignore - optimisticValues may not be in type definition
+        optimisticValues: (prev: any) => ({
           ...prev,
-          messages: [...(prev.messages ?? []), ...toolMessages, newHumanMessage],
+          messages: [...(prev?.messages ?? []), ...toolMessages, newHumanMessage],
         }),
       }
     );
+    setUserScrolledUp(false); // Reset scroll state
   };
 
   const hasNoAIOrToolMessages = !messages.find((m) => m.type === "ai" || m.type === "tool");

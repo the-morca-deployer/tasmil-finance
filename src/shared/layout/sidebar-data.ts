@@ -1,4 +1,4 @@
-import { Bot, Home, Layers, TrendingUp } from "lucide-react";
+import { Bot, Home, Layers, Vault } from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -65,12 +65,14 @@ export const sidebarData: SidebarData = {
         },
       ],
     },
+
     {
       items: [
         {
-          title: "Portfolio",
-          url: "/portfolio",
-          icon: TrendingUp,
+          title: "Vault",
+          url: "/vault",
+          icon: Vault,
+          badge: "14.7% APY",
         },
       ],
     },

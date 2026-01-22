@@ -38,11 +38,9 @@ function getThreadSearchMetadata(
 export function ThreadProvider({ 
   children,
   agentId,
-  chatId,
 }: { 
   children: ReactNode;
   agentId?: string;
-  chatId?: string;
 }) {
   const apiUrl = process.env["NEXT_PUBLIC_API_URL"] || "";
 

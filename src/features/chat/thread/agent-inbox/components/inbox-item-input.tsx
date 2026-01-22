@@ -1,7 +1,7 @@
 import { Undo2 } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
-import { MarkdownText } from "@/features/chat/thread/components/markdown-text";
+import { MarkdownText } from "../../components/markdown-text";
 import { Button } from "@/shared/ui/button";
 import { Separator } from "@/shared/ui/separator";
 import { Textarea } from "@/shared/ui/textarea";
