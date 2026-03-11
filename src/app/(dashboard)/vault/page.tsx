@@ -64,7 +64,20 @@ export default function VaultPage() {
 
   return (
     <MultiSidebarLayout showRightSidebar={false} showHeader={true} title="Tasmil Vault">
-      <div className="min-h-screen p-6 lg:p-10 max-w-[1600px] mx-auto space-y-8">
+      <div className="relative min-h-screen p-6 lg:p-10 max-w-[1600px] mx-auto space-y-8">
+        {/* Overlay with Blur */}
+        <div className="absolute inset-0 bg-background/30 backdrop-blur-sm z-40 pointer-events-none rounded-lg" />
+
+        {/* Coming Soon Button */}
+        <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-auto">
+          <Button
+            size="lg"
+            disabled
+            className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-lg font-semibold"
+          >
+            Coming Soon
+          </Button>
+        </div>
         <Tabs defaultValue="markets" className="w-full">
           <TabsList className="bg-transparent border-b border-border w-full justify-start rounded-none h-auto p-0 mb-8 gap-8">
             <TabsTrigger
