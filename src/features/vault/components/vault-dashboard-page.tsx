@@ -83,9 +83,9 @@ export function VaultDashboardPage() {
         position={position}
         status={withdraw.status}
         lastData={withdraw.data}
-        onWithdraw={(token, shares) => {
+        onWithdraw={(token, _shares) => {
           if (!publicKey) return;
-          withdraw.mutate({ publicKey, token, shares });
+          withdraw.mutate({ publicKey, receiveToken: token });
         }}
       />
 

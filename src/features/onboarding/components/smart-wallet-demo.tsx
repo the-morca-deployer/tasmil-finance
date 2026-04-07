@@ -8,12 +8,12 @@ import { Wallet, Play, RotateCcw } from "lucide-react";
 import { SmartWalletOnboarding } from "./smart-wallet-onboarding";
 import { SmartWalletInfo } from "./smart-wallet-info";
 import { useOnboarding } from "@/hooks/use-onboarding";
-import { useSimpleSmartWallet } from "@/hooks/use-simple-smart-wallet";
+import { useWallet } from "@/shared/context/wallet-context";
 
 export function SmartWalletDemo() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { hasCompletedOnboarding, resetOnboarding } = useOnboarding();
-  const { smartAccount } = useSimpleSmartWallet();
+  const { address, isConnected } = useWallet();
 
   const handleStartDemo = () => {
     setShowOnboarding(true);
@@ -24,9 +24,8 @@ export function SmartWalletDemo() {
     setShowOnboarding(false);
   };
 
-  const handleOnboardingComplete = (address: string) => {
+  const handleOnboardingComplete = (_address: string) => {
     setShowOnboarding(false);
-    console.log("Smart wallet created:", address);
   };
 
   const handleOnboardingSkip = () => {
@@ -39,19 +38,17 @@ export function SmartWalletDemo() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Wallet className="h-6 w-6" />
-            Smart Wallet Demo
+            Wallet Demo
           </CardTitle>
-          <CardDescription>
-            Test the smart wallet onboarding flow and features
-          </CardDescription>
+          <CardDescription>Test the wallet onboarding flow and features</CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           {/* Status */}
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Status:</span>
-            <Badge variant={smartAccount?.address ? "default" : "secondary"}>
-              {smartAccount?.address ? "Smart Wallet Created" : "No Smart Wallet"}
+            <Badge variant={isConnected ? "default" : "secondary"}>
+              {isConnected ? "Wallet Connected" : "No Wallet"}
             </Badge>
             <Badge variant={hasCompletedOnboarding ? "default" : "outline"}>
               {hasCompletedOnboarding ? "Onboarding Complete" : "Onboarding Pending"}
@@ -71,12 +68,10 @@ export function SmartWalletDemo() {
           </div>
 
           {/* Current State Info */}
-          {smartAccount?.address && (
+          {address && (
             <div className="p-3 bg-muted rounded-lg">
-              <div className="text-sm font-medium mb-1">Smart Wallet Address:</div>
-              <div className="text-xs font-mono text-muted-foreground break-all">
-                {smartAccount.address}
-              </div>
+              <div className="text-sm font-medium mb-1">Wallet Address:</div>
+              <div className="text-xs font-mono text-muted-foreground break-all">{address}</div>
             </div>
           )}
         </CardContent>
@@ -94,10 +89,8 @@ export function SmartWalletDemo() {
         </div>
       )}
 
-      {/* Smart Wallet Info Display */}
-      {smartAccount?.address && (
-        <SmartWalletInfo />
-      )}
+      {/* Wallet Info Display */}
+      {isConnected && <SmartWalletInfo />}
 
       {/* Instructions */}
       <Card>
@@ -105,11 +98,10 @@ export function SmartWalletDemo() {
           <CardTitle>How to Test</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
-          <div>1. Connect your wallet first</div>
+          <div>1. Connect your Stellar wallet first</div>
           <div>2. Click "Start Onboarding Demo" to begin the flow</div>
-          <div>3. Follow the 2-step process: Smart Wallet Setup → Deposit Funds</div>
-          <div>4. View your smart wallet info after completion</div>
-          <div>5. Use "Reset Demo" to test again</div>
+          <div>3. View your wallet info after completion</div>
+          <div>4. Use "Reset Demo" to test again</div>
         </CardContent>
       </Card>
     </div>

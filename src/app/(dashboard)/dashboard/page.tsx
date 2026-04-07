@@ -6,14 +6,17 @@ import { Button } from "@/shared/ui/button-v2";
 import { Card } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { useEffect, useState } from "react";
-import { getSmartAccount } from "@/features/smart-wallet/get-account";
-import { getAssetBalances, type AssetBalance } from "@/features/smart-wallet/get-assets";
 import { OnboardingDialog, useOnboarding } from "@/features/onboarding";
 import { SmartWalletInfo } from "@/features/onboarding/components/smart-wallet-info";
 import { DepositDialog } from "@/components/deposit-dialog";
 import { WithdrawDialog } from "@/components/withdraw-dialog";
-import { useSimpleSmartWallet } from "@/hooks/use-simple-smart-wallet";
 import Image from "next/image";
+
+interface AssetBalance {
+  symbol: string;
+  balance: string;
+  valueUsd: number;
+}
 
 // Mock data types
 interface RebalancingHistory {
@@ -179,7 +182,7 @@ const mockExecutionHistory: ExecutionHistory[] = [
 
 export default function DashboardPage() {
   const { isConnected, connect } = useWallet();
-  const [assets, setAssets] = useState<AssetBalance[]>([]);
+  const [assets] = useState<AssetBalance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   // Onboarding
@@ -187,34 +190,17 @@ export default function DashboardPage() {
     isOnboardingOpen,
     completeOnboarding,
     resetOnboarding,
-    openOnboarding
+    openOnboarding: _openOnboarding
   } = useOnboarding();
-
-  // Smart wallet
-  const { smartAccount } = useSimpleSmartWallet();
 
   // Dialogs
   const [isDepositOpen, setIsDepositOpen] = useState(false);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
 
-  const fetchAccount = async () => {
-    try {
-      const account = await getSmartAccount();
-
-      if (account.address) {
-        const balances = await getAssetBalances(account.address);
-        setAssets(balances);
-      }
-    } catch (error) {
-      console.error('Error fetching account:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   useEffect(() => {
     if (isConnected) {
-      fetchAccount();
+      // TODO: Fetch Stellar asset balances via backend API
+      setIsLoading(false);
     } else {
       setIsLoading(false);
     }
@@ -312,17 +298,6 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex gap-2">
-          {/* Smart Wallet Status */}
-          {smartAccount && !smartAccount.isDeployed && (
-            <Button
-              onClick={openOnboarding}
-              variant="outline"
-              size="sm"
-            >
-              Active Smart Wallet
-            </Button>
-          )}
-
           {/* Test Onboarding Button */}
           <Button
             onClick={resetOnboarding}

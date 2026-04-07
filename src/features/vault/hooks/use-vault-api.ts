@@ -93,12 +93,15 @@ export function useDeposit() {
         body: JSON.stringify({ publicKey, token, amount }),
       });
 
-      // 2. Sign
+      // 2. Sign via StellarWalletsKit
       setStatus("signing");
-      const { signTransaction } = await import("@stellar/freighter-api");
-      const signedXdr = await signTransaction(resp.xdr, {
-        networkPassphrase: process.env.NEXT_PUBLIC_STELLAR_PASSPHRASE ?? "Test SDF Network ; September 2015",
+      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
+      const { signedTxXdr } = await StellarWalletsKit.signTransaction(resp.xdr, {
+        address: publicKey,
+        networkPassphrase:
+          process.env["NEXT_PUBLIC_STELLAR_PASSPHRASE"] ?? "Test SDF Network ; September 2015",
       });
+      const signedXdr = signedTxXdr;
 
       // 3. Submit
       setStatus("confirming");
@@ -147,12 +150,15 @@ export function useWithdraw() {
         body: JSON.stringify({ publicKey, receiveToken }),
       });
 
-      // 2. Sign
+      // 2. Sign via StellarWalletsKit
       setStatus("signing");
-      const { signTransaction } = await import("@stellar/freighter-api");
-      const signedXdr = await signTransaction(resp.xdr, {
-        networkPassphrase: process.env.NEXT_PUBLIC_STELLAR_PASSPHRASE ?? "Test SDF Network ; September 2015",
+      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
+      const { signedTxXdr } = await StellarWalletsKit.signTransaction(resp.xdr, {
+        address: publicKey,
+        networkPassphrase:
+          process.env["NEXT_PUBLIC_STELLAR_PASSPHRASE"] ?? "Test SDF Network ; September 2015",
       });
+      const signedXdr = signedTxXdr;
 
       // 3. Submit
       setStatus("confirming");

@@ -14,9 +14,16 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
-import { formatEther } from "viem";
-import { useAccount } from "wagmi";
+import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
+
+/** Format a wei-denominated bigint to ether string (18 decimals) */
+function formatEther(wei: bigint): string {
+  const str = wei.toString().padStart(19, "0");
+  const intPart = str.slice(0, str.length - 18) || "0";
+  const fracPart = str.slice(str.length - 18);
+  return `${intPart}.${fracPart}`;
+}
 import {
   useClaimRewards,
   useDelegateStake,
@@ -112,7 +119,7 @@ export function StakingOperationCard({
   status,
   respond,
 }: StakingOperationCardProps) {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useWallet();
   const [isExecuting, setIsExecuting] = useState(false);
   const [txResult, setTxResult] = useState<{
     success: boolean;

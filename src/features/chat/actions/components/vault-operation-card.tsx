@@ -15,9 +15,16 @@ import {
   Wallet,
 } from "lucide-react";
 import { useState } from "react";
-import { formatUnits } from "viem";
-import { useAccount } from "wagmi";
+import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
+
+/** Format a bigint value with the given number of decimals */
+function formatUnits(value: bigint, decimals: number): string {
+  const str = value.toString().padStart(decimals + 1, "0");
+  const intPart = str.slice(0, str.length - decimals) || "0";
+  const fracPart = str.slice(str.length - decimals);
+  return `${intPart}.${fracPart}`;
+}
 import {
   useVaultDeposit,
   useVaultWithdraw,
@@ -153,7 +160,7 @@ export function VaultOperationCard({
   status,
   respond,
 }: VaultOperationCardProps) {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useWallet();
   const [isExecuting, setIsExecuting] = useState(false);
   const [txResult, setTxResult] = useState<{
     success: boolean;

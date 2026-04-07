@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 
-export function HexHive({ color = "#1A1B20" }) {
+export function HexHive({ count: _count = 200, color = "#1A1B20", accentColor: _accentColor = "#00D4FF" }) {
     const meshRef = useRef<THREE.InstancedMesh>(null);
     const dummy = useMemo(() => new THREE.Object3D(), []);
 
@@ -15,7 +15,7 @@ export function HexHive({ color = "#1A1B20" }) {
         const xSpacing = hexRadius * 1.5; // Horizontal distance between centers
         const ySpacing = hexRadius * Math.sqrt(3); // Vertical distance
 
-        let i = 0;
+        let _i = 0;
         // Create a wall grid (X/Y plane)
         const cols = 20;
         const rows = 12;
@@ -33,7 +33,7 @@ export function HexHive({ color = "#1A1B20" }) {
                 const phase = Math.random() * Math.PI * 2;
 
                 temp.push({ x, y, z, phase });
-                i++;
+                _i++;
             }
         }
         return temp;
@@ -45,7 +45,7 @@ export function HexHive({ color = "#1A1B20" }) {
         const time = state.clock.getElapsedTime();
 
         particles.forEach((particle, i) => {
-            let { x, y, z } = particle;
+            const { x, y, z, phase: _phase } = particle;
 
             // "Breathing" effect: z-position pulsates
             // Creates a wave-like motion across the wall
