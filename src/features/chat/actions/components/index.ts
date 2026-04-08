@@ -1,10 +1,19 @@
 /**
  * Custom UI Components for LangGraph Chat
  *
- * These components are rendered when backend emits UI messages via LoadExternalComponent.
- * Each component corresponds to a UI emitter in the backend agent.
+ * Stellar-based components are in the ./stellar/ directory.
+ * All routing is handled by StellarInfoDispatcher and StellarOperationDispatcher.
  */
 
-export { BridgeResultCard } from "./bridge-result-card";
-export { ResearchResultCard } from "./research-result-card";
-export { YieldResultCard } from "./yield-result-card";
+export {
+  StellarInfoDispatcher,
+  StellarOperationDispatcher,
+  SwapQuoteCard,
+  BridgeDiscoveryCard,
+  EarnDiscoveryCard,
+  AccountInfoCard,
+  PoolInfoCard,
+  ActionSearchCard,
+  StellarExecuteCard,
+  TxSubmitCard,
+} from "./stellar";
