@@ -1,24 +1,30 @@
-"use client";
+'use client';
 
-import { CheckCircle, Loader2, Wallet } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { CheckCircle, Loader2, Wallet } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/shared/ui/button-v2";
-import { useWalletStore } from "@/store/use-wallet";
+import { cn } from '@/lib/utils';
+import { Button } from '@/shared/ui/button-v2';
+import { useWalletStore } from '@/store/use-wallet';
 
-import { useDeployAccount, useFundAccount, usePresets, useSubmitTx } from "../hooks/use-account-api";
-import type { RiskPreset } from "../types";
-import { FundForm } from "./fund-form";
-import { PresetCard } from "./preset-card";
+import {
+  useDeployAccount,
+  useFundAccount,
+  usePresets,
+  useSubmitTx,
+  useUpdatePreset,
+} from '../hooks/use-account-api';
+import type { RiskPreset } from '../types';
+import { FundForm } from './fund-form';
+import { PresetCard } from './preset-card';
 
 type Step = 1 | 2 | 3;
 
 const STEPS: { step: Step; label: string }[] = [
-  { step: 1, label: "Create Account" },
-  { step: 2, label: "Choose Strategy" },
-  { step: 3, label: "Fund" },
+  { step: 1, label: 'Create Account' },
+  { step: 2, label: 'Choose Strategy' },
+  { step: 3, label: 'Fund' },
 ];
 
 export function OnboardingPage() {
@@ -33,6 +39,7 @@ export function OnboardingPage() {
   const deployAccount = useDeployAccount();
   const fundAccount = useFundAccount();
   const submitTx = useSubmitTx();
+  const updatePreset = useUpdatePreset();
 
   // ---- Step 1: Deploy smart account ----
   const handleDeploy = async () => {
@@ -42,48 +49,66 @@ export function OnboardingPage() {
 
       // Sign via StellarWalletsKit if XDR returned
       if (result?.xdr) {
-        const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-        const { signedTxXdr } = await StellarWalletsKit.signTransaction(result.xdr, {
-          address: publicKey,
-          networkPassphrase:
-            process.env["NEXT_PUBLIC_STELLAR_PASSPHRASE"] ?? "Test SDF Network ; September 2015",
-        });
+        const { StellarWalletsKit } =
+          await import('@creit.tech/stellar-wallets-kit/sdk');
+        const { signedTxXdr } = await StellarWalletsKit.signTransaction(
+          result.xdr,
+          {
+            address: publicKey,
+            networkPassphrase:
+              process.env['NEXT_PUBLIC_STELLAR_PASSPHRASE'] ??
+              'Test SDF Network ; September 2015',
+          }
+        );
         await submitTx.mutateAsync(signedTxXdr);
       }
 
       setCurrentStep(2);
     } catch (err) {
-      console.error("Deploy failed:", err);
+      console.error('Deploy failed:', err);
     }
   };
 
   // ---- Step 2 → 3 ----
-  const handleContinueToFund = () => {
-    if (selectedPreset) {
+  const handleContinueToFund = async () => {
+    if (!selectedPreset || !publicKey) return;
+    try {
+      await updatePreset.mutateAsync({ publicKey, preset: selectedPreset });
       setCurrentStep(3);
+    } catch (err) {
+      console.error('Failed to save preset:', err);
     }
   };
 
   // ---- Step 3: Fund account ----
-  const handleFund = async (amount: number, token: "USDC" | "XLM") => {
+  const handleFund = async (amount: number, token: 'USDC' | 'XLM') => {
     if (!publicKey) return;
     try {
-      const result = await fundAccount.mutateAsync({ publicKey, amount, token });
+      const result = await fundAccount.mutateAsync({
+        publicKey,
+        amount,
+        token,
+      });
 
       // Sign via StellarWalletsKit if XDR returned
       if (result?.xdr) {
-        const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-        const { signedTxXdr } = await StellarWalletsKit.signTransaction(result.xdr, {
-          address: publicKey,
-          networkPassphrase:
-            process.env["NEXT_PUBLIC_STELLAR_PASSPHRASE"] ?? "Test SDF Network ; September 2015",
-        });
+        const { StellarWalletsKit } =
+          await import('@creit.tech/stellar-wallets-kit/sdk');
+        const { signedTxXdr } = await StellarWalletsKit.signTransaction(
+          result.xdr,
+          {
+            address: publicKey,
+            networkPassphrase:
+              process.env['NEXT_PUBLIC_STELLAR_PASSPHRASE'] ??
+              'Test SDF Network ; September 2015',
+          }
+        );
         await submitTx.mutateAsync(signedTxXdr);
       }
 
-      router.push("/account/dashboard");
+      router.push('/account/dashboard');
     } catch (err) {
-      console.error("Fund failed:", err);
+      console.error('Fund failed:', err);
     }
   };
 
@@ -94,7 +119,9 @@ export function OnboardingPage() {
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted/20">
           <Wallet className="h-8 w-8 text-muted-foreground" />
         </div>
-        <h2 className="mb-2 font-bold text-2xl text-foreground">Connect Your Wallet</h2>
+        <h2 className="mb-2 font-bold text-2xl text-foreground">
+          Connect Your Wallet
+        </h2>
         <p className="text-muted-foreground">
           Connect your Stellar wallet to create a smart account and get started.
         </p>
@@ -109,7 +136,9 @@ export function OnboardingPage() {
     <div className="mx-auto max-w-4xl px-4 py-10">
       {/* Header */}
       <div className="mb-8 text-center">
-        <h1 className="mb-2 font-bold text-3xl text-foreground">Set Up Your Account</h1>
+        <h1 className="mb-2 font-bold text-3xl text-foreground">
+          Set Up Your Account
+        </h1>
         <p className="text-muted-foreground">
           Create a self-custody smart account, pick a strategy, and fund it.
         </p>
@@ -122,12 +151,12 @@ export function OnboardingPage() {
             <div className="flex flex-col items-center">
               <div
                 className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-full border-2 font-medium text-sm transition-colors",
+                  'flex h-9 w-9 items-center justify-center rounded-full border-2 font-medium text-sm transition-colors',
                   currentStep > step
-                    ? "border-emerald-500 bg-emerald-500/20 text-emerald-400"
+                    ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400'
                     : currentStep === step
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-muted/20 text-muted-foreground",
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border bg-muted/20 text-muted-foreground'
                 )}
               >
                 {currentStep > step ? (
@@ -138,8 +167,10 @@ export function OnboardingPage() {
               </div>
               <span
                 className={cn(
-                  "mt-1.5 text-xs",
-                  currentStep >= step ? "text-foreground" : "text-muted-foreground",
+                  'mt-1.5 text-xs',
+                  currentStep >= step
+                    ? 'text-foreground'
+                    : 'text-muted-foreground'
                 )}
               >
                 {label}
@@ -148,8 +179,8 @@ export function OnboardingPage() {
             {idx < STEPS.length - 1 && (
               <div
                 className={cn(
-                  "mx-3 mb-5 h-px w-16",
-                  currentStep > step ? "bg-emerald-500/50" : "bg-border",
+                  'mx-3 mb-5 h-px w-16',
+                  currentStep > step ? 'bg-emerald-500/50' : 'bg-border'
                 )}
               />
             )}
@@ -161,11 +192,13 @@ export function OnboardingPage() {
       {currentStep === 1 && (
         <div className="mx-auto max-w-lg space-y-6 text-center">
           <div className="space-y-3 rounded-xl border border-border bg-muted/10 p-6">
-            <h2 className="font-semibold text-foreground text-xl">Create Smart Account</h2>
+            <h2 className="font-semibold text-foreground text-xl">
+              Create Smart Account
+            </h2>
             <p className="text-muted-foreground text-sm">
-              Your smart account is a self-custody Stellar account with session keys for
-              automated rebalancing. You keep full control — only pre-approved actions can
-              be executed by the keeper bot.
+              Your smart account is a self-custody Stellar account with session
+              keys for automated rebalancing. You keep full control — only
+              pre-approved actions can be executed by the keeper bot.
             </p>
             <ul className="mx-auto max-w-xs space-y-2 text-left text-muted-foreground text-sm">
               <li className="flex items-start gap-2">
@@ -191,7 +224,7 @@ export function OnboardingPage() {
             disabled={isDeploying}
           >
             {isDeploying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isDeploying ? "Creating account..." : "Create Smart Account"}
+            {isDeploying ? 'Creating account...' : 'Create Smart Account'}
           </Button>
 
           {deployAccount.isError && (
@@ -205,9 +238,12 @@ export function OnboardingPage() {
       {currentStep === 2 && (
         <div className="space-y-6">
           <div className="text-center">
-            <h2 className="font-semibold text-foreground text-xl">Choose Your Strategy</h2>
+            <h2 className="font-semibold text-foreground text-xl">
+              Choose Your Strategy
+            </h2>
             <p className="text-muted-foreground text-sm">
-              Select a risk profile. The AI engine will allocate across pools accordingly.
+              Select a risk profile. The AI engine will allocate across pools
+              accordingly.
             </p>
           </div>
 
@@ -216,7 +252,7 @@ export function OnboardingPage() {
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
               {presets?.map((preset) => (
                 <PresetCard
                   key={preset.name}
@@ -236,7 +272,7 @@ export function OnboardingPage() {
               onClick={handleContinueToFund}
               disabled={!selectedPreset}
             >
-              Continue with {selectedPreset ?? "..."}
+              Continue with {selectedPreset ?? '...'}
             </Button>
           </div>
         </div>
@@ -245,10 +281,15 @@ export function OnboardingPage() {
       {currentStep === 3 && (
         <div className="mx-auto max-w-lg space-y-6">
           <div className="text-center">
-            <h2 className="font-semibold text-foreground text-xl">Fund Your Account</h2>
+            <h2 className="font-semibold text-foreground text-xl">
+              Fund Your Account
+            </h2>
             <p className="text-muted-foreground text-sm">
-              Deposit funds to start earning yield with the{" "}
-              <span className="font-medium text-foreground">{selectedPreset}</span> strategy.
+              Deposit funds to start earning yield with the{' '}
+              <span className="font-medium text-foreground">
+                {selectedPreset}
+              </span>{' '}
+              strategy.
             </p>
           </div>
 

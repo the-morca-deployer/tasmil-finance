@@ -6,7 +6,6 @@ import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import { Toaster } from "sonner";
 import { WalletProvider } from "@/shared/context/wallet-context";
-import { OnboardingProvider } from "@/features/onboarding/components/onboarding-provider";
 import { TooltipProvider } from "@/shared/ui/tooltip";
 
 export function AppProvider({ children }: PropsWithChildren) {
@@ -34,9 +33,7 @@ export function AppProvider({ children }: PropsWithChildren) {
       >
         <TooltipProvider>
           <WalletProvider>
-            <OnboardingProvider>
-              {children}
-            </OnboardingProvider>
+            {children}
           </WalletProvider>
         </TooltipProvider>
         <Toaster position="top-right" richColors />

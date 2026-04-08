@@ -1,4 +1,4 @@
-import { Bot, Home, LayoutDashboard, Rocket, Vault } from "lucide-react";
+import { Bot, Home, LayoutDashboard, Rocket } from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -53,15 +53,6 @@ export const sidebarData: SidebarData = {
           title: "Agents",
           url: "/agents",
           icon: Bot,
-        },
-      ],
-    },
-    {
-      items: [
-        {
-          title: "Vault",
-          url: "/vault",
-          icon: Vault,
         },
       ],
     },

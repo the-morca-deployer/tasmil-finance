@@ -18,12 +18,13 @@ export function usePresets() {
 }
 
 export function usePosition(publicKey: string | undefined) {
-  return useQuery<PositionData>({
+  return useQuery<PositionData | null>({
     queryKey: ["account", "position", publicKey],
     queryFn: async () => {
       const res = await fetch(`${API_BASE}/account/position/${publicKey}`);
+      if (!res.ok) return null;
       const json = await res.json();
-      return json.data;
+      return json.data ?? null;
     },
     enabled: !!publicKey,
     refetchInterval: 30_000,
@@ -35,8 +36,9 @@ export function useActivity(publicKey: string | undefined) {
     queryKey: ["account", "activity", publicKey],
     queryFn: async () => {
       const res = await fetch(`${API_BASE}/account/activity/${publicKey}`);
+      if (!res.ok) return [];
       const json = await res.json();
-      return json.data;
+      return json.data ?? [];
     },
     enabled: !!publicKey,
     refetchInterval: 60_000,

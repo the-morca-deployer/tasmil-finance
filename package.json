@@ -50,7 +50,6 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "@rainbow-me/rainbowkit": "^2.2.8",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@react-three/postprocessing": "^3.0.4",
@@ -62,7 +61,6 @@
     "@tanstack/react-query": "^5.85.5",
     "@tanstack/react-query-devtools": "^5.85.5",
     "@types/qrcode.react": "^3.0.0",
-    "@wagmi/core": "^2.21.2",
     "@web3icons/react": "^4.1.9",
     "@xyflow/react": "^12.10.0",
     "autoprefixer": "^10.4.20",
@@ -107,8 +105,6 @@
     "typescript": "^5",
     "use-stick-to-bottom": "^1.1.1",
     "uuid": "^13.0.0",
-    "viem": "^2.38.0",
-    "wagmi": "^2.17.5",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
