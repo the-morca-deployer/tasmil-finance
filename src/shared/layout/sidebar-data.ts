@@ -1,4 +1,4 @@
-import { Bot, Home, LayoutDashboard, Rocket } from "lucide-react";
+import { Bot, Home, Tractor, Wallet } from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -59,14 +59,14 @@ export const sidebarData: SidebarData = {
     {
       items: [
         {
-          title: "Get Started",
-          url: "/account",
-          icon: Rocket,
+          title: "Portfolio",
+          url: "/portfolio",
+          icon: Wallet,
         },
         {
-          title: "Portfolio",
-          url: "/account/dashboard",
-          icon: LayoutDashboard,
+          title: "Farming Agent",
+          url: "/farming",
+          icon: Tractor,
         },
       ],
     },

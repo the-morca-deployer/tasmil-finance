@@ -1,4 +1,4 @@
-export type RiskPreset = 'SAFE' | 'BALANCED' | 'AGGRESSIVE';
+export type RiskPreset = 'Safe' | 'Balanced' | 'Aggressive';
 
 export interface PresetCardData {
   name: RiskPreset;
@@ -27,6 +27,7 @@ export interface PositionData {
     q4wExpiresAt?: string;
   }[];
   gasReserveUsd: number;
+  balanceStale?: boolean;
 }
 
 export interface ActivityItem {

@@ -1,13 +1,20 @@
 "use client";
 
-import { DollarSign, TrendingUp, ArrowRight } from "lucide-react";
+import { DollarSign, ArrowRight, Tractor, Wallet } from "lucide-react";
 import { useWallet } from "@/shared/context/wallet-context";
+import { usePosition } from "@/features/account/hooks/use-account-api";
+import { useWalletStore } from "@/store/use-wallet";
 import { Button } from "@/shared/ui/button-v2";
 import { Card } from "@/shared/ui/card";
 import Link from "next/link";
 
 export default function DashboardPage() {
   const { isConnected, connect } = useWallet();
+  const { account } = useWalletStore();
+  const publicKey = account ?? undefined;
+  const { data: position, isLoading } = usePosition(publicKey);
+
+  const hasAccount = !!position;
 
   if (!isConnected) {
     return (
@@ -38,38 +45,40 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6 border-border bg-card">
-          <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-xl bg-linear-to-br from-primary/20 to-primary/40 flex items-center justify-center ring-1 ring-primary/30">
-              <DollarSign className="h-6 w-6 text-primary" />
+        {!isLoading && !hasAccount && (
+          <Card className="p-6 border-border bg-card">
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-xl bg-linear-to-br from-primary/20 to-primary/40 flex items-center justify-center ring-1 ring-primary/30">
+                <DollarSign className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Get Started</p>
+                <h3 className="text-lg font-semibold text-foreground mt-1">Deploy Your Account</h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Create a keeper-wallet, choose a strategy preset, and start earning yield on Stellar.
+                </p>
+                <Link href="/account">
+                  <Button className="mt-4" size="sm">
+                    Set Up Account <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Get Started</p>
-              <h3 className="text-lg font-semibold text-foreground mt-1">Deploy Your Account</h3>
-              <p className="text-sm text-muted-foreground mt-2">
-                Create a keeper-wallet, choose a strategy preset, and start earning yield on Stellar.
-              </p>
-              <Link href="/account">
-                <Button className="mt-4" size="sm">
-                  Set Up Account <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </Card>
+          </Card>
+        )}
 
         <Card className="p-6 border-border bg-card">
           <div className="flex items-start gap-4">
             <div className="h-12 w-12 rounded-xl bg-linear-to-br from-accent/20 to-accent/40 flex items-center justify-center ring-1 ring-accent/30">
-              <TrendingUp className="h-6 w-6 text-accent-foreground" />
+              <Wallet className="h-6 w-6 text-accent-foreground" />
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Portfolio</p>
-              <h3 className="text-lg font-semibold text-foreground mt-1">View Your Positions</h3>
+              <h3 className="text-lg font-semibold text-foreground mt-1">View Your Assets</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Monitor your allocations, P&L, and activity across Blend and Soroswap protocols.
+                View your wallet assets and token balances on the Stellar network.
               </p>
-              <Link href="/account/dashboard">
+              <Link href="/portfolio">
                 <Button className="mt-4" size="sm" variant="outline">
                   View Portfolio <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -77,6 +86,28 @@ export default function DashboardPage() {
             </div>
           </div>
         </Card>
+
+        {hasAccount && (
+          <Card className="p-6 border-border bg-card">
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500/20 to-emerald-500/40 flex items-center justify-center ring-1 ring-emerald-500/30">
+                <Tractor className="h-6 w-6 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Farming Agent</p>
+                <h3 className="text-lg font-semibold text-foreground mt-1">Manage Your Vault</h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Monitor your allocations, P&L, and rebalance activity across Blend and Soroswap.
+                </p>
+                <Link href="/farming">
+                  <Button className="mt-4" size="sm" variant="outline">
+                    View Farming Agent <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );

@@ -10,8 +10,9 @@ export function usePresets() {
     queryKey: ["account", "presets"],
     queryFn: async () => {
       const res = await fetch(`${API_BASE}/account/presets`);
+      if (!res.ok) throw new Error(`Failed to fetch presets (${res.status})`);
       const json = await res.json();
-      return json.data;
+      return json.data ?? [];
     },
     refetchInterval: 60_000,
   });
@@ -53,6 +54,10 @@ export function useDeployAccount() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ publicKey }),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message ?? `Deploy request failed (${res.status})`);
+      }
       return (await res.json()).data;
     },
   });
@@ -66,6 +71,10 @@ export function useFundAccount() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dto),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message ?? `Fund request failed (${res.status})`);
+      }
       return (await res.json()).data;
     },
   });
@@ -79,19 +88,52 @@ export function useUpdatePreset() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ preset }),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message ?? `Update preset failed (${res.status})`);
+      }
       return (await res.json()).data;
     },
   });
 }
 
+export function useSetupAccount() {
+  return useMutation({
+    mutationFn: async (publicKey: string) => {
+      const res = await fetch(`${API_BASE}/account/setup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ publicKey }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message ?? `Setup request failed (${res.status})`);
+      }
+      return (await res.json()).data as { setupTxs: string[] };
+    },
+  });
+}
+
+export interface SubmitTxParams {
+  signedXdr: string;
+  publicKey?: string;
+  txType?: "deploy" | "fund" | "withdraw" | "revoke";
+  amount?: number;
+  token?: string;
+}
+
 export function useSubmitTx() {
   return useMutation({
-    mutationFn: async (signedXdr: string) => {
+    mutationFn: async (params: SubmitTxParams) => {
       const res = await fetch(`${API_BASE}/account/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ signedXdr }),
+        body: JSON.stringify(params),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message ?? `Submit transaction failed (${res.status})`);
+      }
       return (await res.json()).data;
     },
   });
@@ -105,6 +147,10 @@ export function useWithdraw() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dto),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message ?? `Withdraw request failed (${res.status})`);
+      }
       return (await res.json()).data;
     },
   });
@@ -118,6 +164,10 @@ export function useRevoke() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ publicKey }),
       });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message ?? `Revoke request failed (${res.status})`);
+      }
       return (await res.json()).data;
     },
   });

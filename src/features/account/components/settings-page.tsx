@@ -68,7 +68,7 @@ export function SettingsPage() {
 
   // Compute available vs locked amounts
   const { availableUsd, lockedUsd, lockedCountdown, keeperAddress } = useMemo(() => {
-    if (!position) {
+    if (!position?.positions) {
       return { availableUsd: 0, lockedUsd: 0, lockedCountdown: null, keeperAddress: null };
     }
 
@@ -109,13 +109,24 @@ export function SettingsPage() {
         amount: parsedAmount,
       });
 
-      if (result?.xdr) {
-        const signedXdr = await signXdr(result.xdr, publicKey);
-        await submitTx.mutateAsync(signedXdr);
+      const xdrs: string[] = result?.xdrs ?? (result?.xdr ? [result.xdr] : []);
+      if (xdrs.length === 0) {
+        throw new Error("No transaction returned from server");
+      }
+
+      // Sign and submit each strategy withdrawal TX
+      for (const [i, xdr] of xdrs.entries()) {
+        const signedXdr = await signXdr(xdr, publicKey);
+        const isLast = i === xdrs.length - 1;
+        await submitTx.mutateAsync({
+          signedXdr,
+          // Record activity only on the last TX
+          ...(isLast ? { publicKey, txType: "withdraw" as const, amount: parsedAmount } : {}),
+        });
       }
 
       setWithdrawAmount("");
-      router.push("/account/dashboard");
+      router.push("/farming");
     } catch (err) {
       console.error("Withdraw failed:", err);
     }
@@ -126,12 +137,18 @@ export function SettingsPage() {
     try {
       const result = await revokeMutation.mutateAsync(publicKey);
 
-      if (result?.xdr) {
-        const signedXdr = await signXdr(result.xdr, publicKey);
-        await submitTx.mutateAsync(signedXdr);
+      if (!result?.xdr) {
+        throw new Error("No transaction returned from server");
       }
 
-      router.push("/account/dashboard");
+      const signedXdr = await signXdr(result.xdr, publicKey);
+      await submitTx.mutateAsync({
+        signedXdr,
+        publicKey,
+        txType: "revoke",
+      });
+
+      router.push("/farming");
     } catch (err) {
       console.error("Revoke failed:", err);
     }

@@ -47,12 +47,15 @@ function formatTimestamp(iso: string): string {
 }
 
 const ACTIVITY_LABEL: Record<string, string> = {
-  deploy: "Account Created",
-  fund: "Deposit",
-  rebalance: "Rebalance",
-  harvest: "Harvest",
-  revoke: "Bot Revoked",
-  withdraw: "Withdrawal",
+  DEPLOY: "Account Created",
+  FUND: "Deposit",
+  REBALANCE: "Rebalance",
+  HARVEST: "Harvest",
+  REVOKE: "Bot Revoked",
+  WITHDRAW: "Withdrawal",
+  PRESET_CHANGE: "Strategy Changed",
+  HALT: "Bot Halted",
+  RESUME: "Bot Resumed",
 };
 
 export function DashboardPage() {

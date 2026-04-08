@@ -24,7 +24,7 @@ const PRESET_CONFIG: Record<
     description: string;
   }
 > = {
-  SAFE: {
+  Safe: {
     icon: Shield,
     accent: 'from-emerald-500/15 via-emerald-500/5 to-transparent',
     accentText: 'text-emerald-400',
@@ -34,7 +34,7 @@ const PRESET_CONFIG: Record<
     barColor: 'bg-emerald-500',
     description: 'Stablecoin lending with minimal risk exposure',
   },
-  BALANCED: {
+  Balanced: {
     icon: TrendingUp,
     accent: 'from-blue-500/15 via-blue-500/5 to-transparent',
     accentText: 'text-blue-400',
@@ -44,7 +44,7 @@ const PRESET_CONFIG: Record<
     barColor: 'bg-blue-500',
     description: 'Diversified lending & liquidity pools',
   },
-  AGGRESSIVE: {
+  Aggressive: {
     icon: Flame,
     accent: 'from-orange-500/15 via-orange-500/5 to-transparent',
     accentText: 'text-orange-400',

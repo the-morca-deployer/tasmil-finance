@@ -12,6 +12,7 @@ import {
   useDeployAccount,
   useFundAccount,
   usePresets,
+  useSetupAccount,
   useSubmitTx,
   useUpdatePreset,
 } from '../hooks/use-account-api';
@@ -37,30 +38,52 @@ export function OnboardingPage() {
 
   const { data: presets, isLoading: presetsLoading } = usePresets();
   const deployAccount = useDeployAccount();
+  const setupAccount = useSetupAccount();
   const fundAccount = useFundAccount();
   const submitTx = useSubmitTx();
   const updatePreset = useUpdatePreset();
 
-  // ---- Step 1: Deploy smart account ----
+  // ---- Step 1: Deploy smart account + setup session keys ----
   const handleDeploy = async () => {
     if (!publicKey) return;
     try {
       const result = await deployAccount.mutateAsync(publicKey);
 
-      // Sign via StellarWalletsKit if XDR returned
-      if (result?.xdr) {
-        const { StellarWalletsKit } =
-          await import('@creit.tech/stellar-wallets-kit/sdk');
-        const { signedTxXdr } = await StellarWalletsKit.signTransaction(
-          result.xdr,
-          {
+      if (!result?.xdr) {
+        throw new Error('No deploy transaction returned from server');
+      }
+
+      // Sign and submit the deploy TX
+      const { StellarWalletsKit } =
+        await import('@creit.tech/stellar-wallets-kit/sdk');
+      const passphrase =
+        process.env['NEXT_PUBLIC_STELLAR_PASSPHRASE'] ??
+        'Test SDF Network ; September 2015';
+
+      const { signedTxXdr } = await StellarWalletsKit.signTransaction(
+        result.xdr,
+        { address: publicKey, networkPassphrase: passphrase },
+      );
+      await submitTx.mutateAsync({
+        signedXdr: signedTxXdr,
+        publicKey,
+        txType: 'deploy',
+      });
+
+      // After deploy confirms, build and sign setup TXs (session key registration)
+      try {
+        const setupResult = await setupAccount.mutateAsync(publicKey);
+        const setupXdrs = setupResult?.setupTxs ?? [];
+        for (const setupXdr of setupXdrs) {
+          const signed = await StellarWalletsKit.signTransaction(setupXdr, {
             address: publicKey,
-            networkPassphrase:
-              process.env['NEXT_PUBLIC_STELLAR_PASSPHRASE'] ??
-              'Test SDF Network ; September 2015',
-          }
-        );
-        await submitTx.mutateAsync(signedTxXdr);
+            networkPassphrase: passphrase,
+          });
+          await submitTx.mutateAsync({ signedXdr: signed.signedTxXdr });
+        }
+      } catch (setupErr) {
+        console.error('Setup TXs failed (account deployed but session key not registered):', setupErr);
+        // Don't block — account is deployed, setup can be retried
       }
 
       setCurrentStep(2);
@@ -91,22 +114,31 @@ export function OnboardingPage() {
       });
 
       // Sign via StellarWalletsKit if XDR returned
-      if (result?.xdr) {
-        const { StellarWalletsKit } =
-          await import('@creit.tech/stellar-wallets-kit/sdk');
-        const { signedTxXdr } = await StellarWalletsKit.signTransaction(
-          result.xdr,
-          {
-            address: publicKey,
-            networkPassphrase:
-              process.env['NEXT_PUBLIC_STELLAR_PASSPHRASE'] ??
-              'Test SDF Network ; September 2015',
-          }
-        );
-        await submitTx.mutateAsync(signedTxXdr);
+      if (!result?.xdr) {
+        console.error('Fund: no XDR returned from backend');
+        return;
       }
 
-      router.push('/account/dashboard');
+      const { StellarWalletsKit } =
+        await import('@creit.tech/stellar-wallets-kit/sdk');
+      const { signedTxXdr } = await StellarWalletsKit.signTransaction(
+        result.xdr,
+        {
+          address: publicKey,
+          networkPassphrase:
+            process.env['NEXT_PUBLIC_STELLAR_PASSPHRASE'] ??
+            'Test SDF Network ; September 2015',
+        }
+      );
+      await submitTx.mutateAsync({
+        signedXdr: signedTxXdr,
+        publicKey,
+        txType: 'fund',
+        amount,
+        token,
+      });
+
+      router.push('/farming');
     } catch (err) {
       console.error('Fund failed:', err);
     }
@@ -129,7 +161,7 @@ export function OnboardingPage() {
     );
   }
 
-  const isDeploying = deployAccount.isPending || submitTx.isPending;
+  const isDeploying = deployAccount.isPending || setupAccount.isPending || submitTx.isPending;
   const isFunding = fundAccount.isPending || submitTx.isPending;
 
   return (
