@@ -91,9 +91,12 @@ export function FarmingPage() {
   const { account } = useWalletStore();
   const publicKey = account ?? undefined;
 
-  const { data: status, isLoading: statusLoading } = useRebalanceStatus();
-  const { data: pools, isLoading: poolsLoading } = usePools();
   const { data: position, isLoading: positionLoading } = usePosition(publicKey);
+  const { data: status, isLoading: statusLoading } = useRebalanceStatus();
+  const { data: pools, isLoading: poolsLoading } = usePools(
+    "USDC",
+    position?.preset?.toUpperCase() ?? "BALANCED",
+  );
   const { data: activities, isLoading: activitiesLoading } = useActivity(publicKey);
 
   if (!publicKey) {
@@ -136,8 +139,8 @@ export function FarmingPage() {
     );
   }
 
-  const enabledPools = pools?.filter((p) => p.enabled) ?? [];
-  const totalTvl = enabledPools.reduce((sum, p) => sum + p.tvlUsd, 0);
+  const eligiblePools = pools ?? [];
+  const totalTvl = eligiblePools.reduce((sum, p) => sum + p.tvlUsd, 0);
   const profitPositive = position.profitUsd >= 0;
 
   return (
@@ -232,7 +235,7 @@ export function FarmingPage() {
       <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3">
         <StatCard
           label="Tracked Pools"
-          value={String(enabledPools.length)}
+          value={String(eligiblePools.length)}
           icon={<Activity className="h-4 w-4 text-blue-400" />}
         />
         <StatCard
@@ -260,12 +263,12 @@ export function FarmingPage() {
       {/* Pool Registry */}
       <div className="mb-8">
         <h2 className="mb-4 font-semibold text-foreground text-lg">Pool Registry</h2>
-        {enabledPools.length === 0 ? (
+        {eligiblePools.length === 0 ? (
           <p className="py-4 text-center text-muted-foreground text-sm">
             No pools discovered yet. The agent scans every 10 minutes.
           </p>
         ) : (
-          <PoolTable pools={enabledPools} />
+          <PoolTable pools={eligiblePools} />
         )}
       </div>
 
