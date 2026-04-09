@@ -112,10 +112,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
   const config = AGENT_CONFIG[agentId] || DEFAULT_AGENT;
   const chatTitle = chatId === 'new' ? 'New Chat' : `Chat with ${config.name}`;
-  const isNewChat = messages.length === 0 && !isLoading;
-
-  // Show greeting only when there are no messages yet
-  const shouldShowGreeting = isNewChat;
+  const isNewChat = messages.length === 0;
 
   // Check if the last AI message is complete (has content and no pending tool calls)
   const lastAiMessage = messages.filter((m) => m.type === 'ai').pop();
@@ -135,6 +132,12 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   // This helps avoid the 3-5s delay where stream.isLoading is still true after AI finishes
   const effectiveIsLoading =
     isLoading && !(isAiResponseComplete && firstTokenReceived);
+
+  // Keep greeting in DOM for animation transition, but fade it out
+  // Show greeting: on new chat OR while first response is loading (before first token arrives)
+  const showGreetingWithAnimation =
+    isNewChat ||
+    (messages.length > 0 && effectiveIsLoading && !firstTokenReceived);
 
   // Show suggestions when: new chat OR agent finished responding
   // Use isAiResponseComplete as a faster indicator that AI is done
@@ -166,18 +169,29 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     }
   }, [stream.error]);
 
-  // Track first token received
+  // Track first token received for CURRENT response
   const prevMessageLength = useRef(0);
+  const lastAiMessageIdRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
     if (messages?.length && messages[messages.length - 1]?.type === 'ai') {
       const lastAiMsg = messages[messages.length - 1];
+      const messageId = lastAiMsg?.id;
+
+      // If we have a new AI message ID (different from the last one we tracked)
+      // reset firstTokenReceived so we show "Thinking..." for this new response
+      if (messageId && messageId !== lastAiMessageIdRef.current) {
+        lastAiMessageIdRef.current = messageId;
+        setFirstTokenReceived(false);
+      }
+
       const hasContent =
         lastAiMsg &&
         ((typeof lastAiMsg.content === 'string' &&
           lastAiMsg.content.trim().length > 0) ||
           (Array.isArray(lastAiMsg.content) && lastAiMsg.content.length > 0));
 
-      // Only mark firstTokenReceived when AI message actually has content
+      // Only mark firstTokenReceived when CURRENT AI message actually has content
       if (hasContent && !firstTokenReceived) {
         setFirstTokenReceived(true);
       }
@@ -408,7 +422,9 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         className="relative flex-1 overflow-y-auto"
       >
         <div className="mx-auto max-w-3xl px-4 pt-6 pb-4">
-          {shouldShowGreeting && <Greeting agentId={agentId} />}
+          {showGreetingWithAnimation && (
+            <Greeting agentId={agentId} isAnimating={!isNewChat} />
+          )}
 
           <div className="flex flex-col gap-4">
             {messages
@@ -476,7 +492,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
             )}
 
             {effectiveIsLoading && !firstTokenReceived && (
-              <AssistantMessageLoading />
+              <AssistantMessageLoading hideAvatar={showGreetingWithAnimation} />
             )}
           </div>
 

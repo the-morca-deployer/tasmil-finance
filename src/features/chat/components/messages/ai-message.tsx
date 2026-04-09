@@ -2,7 +2,6 @@ import type { MessageContentComplex } from '@langchain/core/messages';
 import { parsePartialJson } from '@langchain/core/output_parsers';
 import type { AIMessage, Checkpoint, Message } from '@langchain/langgraph-sdk';
 import { LoadExternalComponent } from '@langchain/langgraph-sdk/react-ui';
-import Image from 'next/image';
 import { Loader } from '@/shared/ui/loader';
 import { Fragment } from 'react/jsx-runtime';
 import { ThreadView } from '@/features/chat/thread/agent-inbox';
@@ -17,9 +16,9 @@ import {
 } from '@/features/chat/lib/thread-utils';
 import { isAgentInboxInterruptSchema } from '@/lib/agent-inbox-interrupt';
 import { useChatState, useStreamContext } from '@/features/chat/hooks';
-import { getAgentConfig } from '@/features/chat/config/agents.config';
 import ComponentMap from '@/shared/components';
 import { AIReasoning, Shimmer } from '@/features/chat/components/ai';
+import { AgentAvatar } from '@/features/chat/components/agent-avatar';
 import { GenericInterruptView } from './generic-interrupt';
 import { BranchSwitcher, CommandBar } from './shared';
 import { ToolCalls, ToolResult } from './tool-calls';
@@ -43,26 +42,6 @@ function hasSupervisorAgentCalls(
 ): boolean {
   if (!toolCalls) return false;
   return toolCalls.some((tc) => isSupervisorAgentCall(tc.name || ''));
-}
-
-function AgentAvatar() {
-  const { agentId } = useChatState();
-
-  // Get the agent config to find the icon
-  const agentConfig = agentId ? getAgentConfig(agentId) : null;
-  const logoSrc = agentConfig?.icon || '/images/logo.png';
-
-  return (
-    <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full shrink-0">
-      <Image
-        src={logoSrc}
-        alt="AI Assistant"
-        width={32}
-        height={32}
-        className="h-full w-full object-cover"
-      />
-    </div>
-  );
 }
 
 function CustomComponent({
@@ -398,10 +377,14 @@ export function AssistantMessage({
   );
 }
 
-export function AssistantMessageLoading() {
+export function AssistantMessageLoading({
+  hideAvatar = false,
+}: {
+  hideAvatar?: boolean;
+}) {
   return (
     <div className="mr-auto flex items-start gap-3">
-      <AgentAvatar />
+      {!hideAvatar && <AgentAvatar />}
       <div className="flex items-center gap-2 py-1.5">
         <Loader size={16} className="text-muted-foreground" />
         <Shimmer className="font-medium text-sm" duration={2}>

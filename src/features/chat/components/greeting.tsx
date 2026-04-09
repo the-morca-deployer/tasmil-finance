@@ -161,9 +161,10 @@ const DEFAULT_GREETING: GreetingContent = {
 
 interface GreetingProps {
   agentId: string;
+  isAnimating?: boolean;
 }
 
-export const Greeting = ({ agentId }: GreetingProps) => {
+export const Greeting = ({ agentId, isAnimating }: GreetingProps) => {
   const config = getAgentConfig(agentId);
   const content =
     AGENT_GREETING_CONTENT[config.id] ??
@@ -172,16 +173,30 @@ export const Greeting = ({ agentId }: GreetingProps) => {
   const logo = config.icon || '/agents/supervisor-agent.png';
 
   return (
-    <div
-      className="mt-4 flex size-full flex-col justify-center px-4 md:mt-16"
-      key="overview"
+    <motion.div
+      animate={isAnimating ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
+      className="mt-8 flex flex-col gap-6 items-start px-4"
+      exit={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
+      key="greeting"
+      transition={{ duration: 0.3 }}
     >
       <motion.div
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-4"
+        animate={
+          isAnimating
+            ? {
+                opacity: 0,
+                scale: 0.4,
+              }
+            : { opacity: 1, y: 0 }
+        }
+        className="mb-4 w-fit"
         exit={{ opacity: 0, y: 10 }}
         initial={{ opacity: 0, y: 10 }}
-        transition={{ delay: 0.45 }}
+        transition={{
+          delay: isAnimating ? 0 : 0.45,
+          duration: isAnimating ? 0.5 : 0.3,
+        }}
       >
         <div className="relative h-20 w-20 overflow-hidden rounded-full border border-border/60 bg-muted/30 md:h-24 md:w-24">
           <Image src={logo} alt={config.name} fill className="object-cover" />
@@ -193,7 +208,7 @@ export const Greeting = ({ agentId }: GreetingProps) => {
         className=""
         exit={{ opacity: 0, y: 10 }}
         initial={{ opacity: 0, y: 10 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.5, duration: 0.3 }}
       >
         <Typography className="font-semibold text-[30px]">
           {content.title}
@@ -204,7 +219,7 @@ export const Greeting = ({ agentId }: GreetingProps) => {
         className=""
         exit={{ opacity: 0, y: 10 }}
         initial={{ opacity: 0, y: 10 }}
-        transition={{ delay: 0.6 }}
+        transition={{ delay: 0.6, duration: 0.3 }}
       >
         <Typography className="text-lg text-muted-foreground md:text-xl">
           {content.subtitle}
@@ -216,7 +231,7 @@ export const Greeting = ({ agentId }: GreetingProps) => {
         className="mt-6 space-y-2"
         exit={{ opacity: 0, y: 10 }}
         initial={{ opacity: 0, y: 10 }}
-        transition={{ delay: 0.7 }}
+        transition={{ delay: 0.7, duration: 0.3 }}
       >
         {content.bullets.slice(0, 3).map((item) => (
           <li
@@ -228,6 +243,6 @@ export const Greeting = ({ agentId }: GreetingProps) => {
           </li>
         ))}
       </motion.ul>
-    </div>
+    </motion.div>
   );
 };
