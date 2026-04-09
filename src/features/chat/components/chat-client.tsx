@@ -65,6 +65,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const [isInteractingWithContent, setIsInteractingWithContent] =
     useState(false);
   const [isAnimatingGreeting, setIsAnimatingGreeting] = useState(false);
+  const [showGreeting, setShowGreeting] = useState(true);
   const lastMessageCountRef = useRef(0);
 
   // File upload hook
@@ -174,12 +175,16 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     ) {
       setFirstTokenReceived(true);
       // Trigger greeting animation when first AI response arrives
-      if (!isAnimatingGreeting && isNewChat) {
+      if (!isAnimatingGreeting && showGreeting) {
         setIsAnimatingGreeting(true);
+        // Hide greeting after animation completes (600ms)
+        setTimeout(() => {
+          setShowGreeting(false);
+        }, 600);
       }
     }
     prevMessageLength.current = messages.length;
-  }, [messages, isAnimatingGreeting, isNewChat]);
+  }, [messages, isAnimatingGreeting, showGreeting]);
 
   // Auto-scroll to bottom only when new messages arrive and user hasn't scrolled up
   // and user is not interacting with scrollable content inside messages
@@ -404,7 +409,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         className="relative flex-1 overflow-y-auto"
       >
         <div className="mx-auto max-w-3xl px-4 pt-6 pb-4">
-          {isNewChat && (
+          {showGreeting && (
             <Greeting agentId={agentId} isAnimating={isAnimatingGreeting} />
           )}
 
