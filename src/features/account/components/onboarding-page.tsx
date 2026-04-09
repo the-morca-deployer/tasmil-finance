@@ -71,19 +71,14 @@ export function OnboardingPage() {
       });
 
       // After deploy confirms, build and sign setup TXs (session key registration)
-      try {
-        const setupResult = await setupAccount.mutateAsync(publicKey);
-        const setupXdrs = setupResult?.setupTxs ?? [];
-        for (const setupXdr of setupXdrs) {
-          const signed = await StellarWalletsKit.signTransaction(setupXdr, {
-            address: publicKey,
-            networkPassphrase: passphrase,
-          });
-          await submitTx.mutateAsync({ signedXdr: signed.signedTxXdr });
-        }
-      } catch (setupErr) {
-        console.error('Setup TXs failed (account deployed but session key not registered):', setupErr);
-        // Don't block — account is deployed, setup can be retried
+      const setupResult = await setupAccount.mutateAsync(publicKey);
+      const setupXdrs = setupResult?.setupTxs ?? [];
+      for (const setupXdr of setupXdrs) {
+        const signed = await StellarWalletsKit.signTransaction(setupXdr, {
+          address: publicKey,
+          networkPassphrase: passphrase,
+        });
+        await submitTx.mutateAsync({ signedXdr: signed.signedTxXdr });
       }
 
       setCurrentStep(2);
