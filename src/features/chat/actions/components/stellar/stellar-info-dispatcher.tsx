@@ -29,6 +29,14 @@ const InfoComponentMap: Record<string, ComponentType<any>> = {
   account_info: AccountInfoCard,
   price_info: AccountInfoCard,
 
+  // Blend agent (lending)
+  blend_pool_info: PoolInfoCard,
+  blend_user_position: AccountInfoCard,
+  blend_reserve_info: PoolInfoCard,
+  blend_backstop_info: PoolInfoCard,
+  blend_backstop_balance: AccountInfoCard,
+  pool_discovery: PoolInfoCard,
+
   // Shared
   pool_info: PoolInfoCard,
   action_search: ActionSearchCard,

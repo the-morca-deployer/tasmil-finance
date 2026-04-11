@@ -2,6 +2,7 @@
 
 import type { ComponentType } from "react";
 import { StellarExecuteCard } from "./execute-card";
+import { BlendExecuteCard } from "./blend-execute-card";
 import { TxSubmitCard } from "./tx-submit-card";
 
 /**
@@ -12,6 +13,17 @@ const OperationComponentMap: Record<string, ComponentType<any>> = {
   bridge_execute: StellarExecuteCard,
   vault_execute: StellarExecuteCard,
   staking_execute: StellarExecuteCard,
+  // Blend operations - use BlendExecuteCard (no HITL, direct stream submission)
+  blend_supply: BlendExecuteCard,
+  blend_borrow: BlendExecuteCard,
+  blend_repay: BlendExecuteCard,
+  blend_withdraw: BlendExecuteCard,
+  blend_toggle_collateral: BlendExecuteCard,
+  blend_claim: BlendExecuteCard,
+  backstop_deposit: BlendExecuteCard,
+  backstop_queue: BlendExecuteCard,
+  backstop_dequeue: BlendExecuteCard,
+  backstop_withdraw: BlendExecuteCard,
   tx_submit: TxSubmitCard,
 };
 
@@ -32,6 +44,12 @@ export function StellarOperationDispatcher({
   operation,
   ...props
 }: StellarOperationDispatcherProps) {
+  console.log('[StellarOperationDispatcher] Dispatching:', {
+    operation,
+    hasComponent: !!OperationComponentMap[operation ?? ""],
+    componentName: OperationComponentMap[operation ?? ""]?.name,
+  });
+  
   const Component = OperationComponentMap[operation ?? ""] ?? StellarExecuteCard;
   return <Component operation={operation} {...props} />;
 }

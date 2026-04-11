@@ -81,7 +81,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
   // Stream context from provider
   const stream = useStreamContext();
-  const isLoading = stream.isLoading;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isLoading = stream.isLoading || isSubmitting;
   
   // Preserve messages to avoid flicker when submitting new message
   const [displayMessages, setDisplayMessages] = useState<Message[]>([]);
@@ -90,9 +91,17 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     // Only update display messages if we have messages from stream
     // This prevents clearing messages during optimistic updates
     if (stream.messages && stream.messages.length > 0) {
+      console.log('[ChatClient] Stream messages updated:', stream.messages.length, stream.messages);
       setDisplayMessages(stream.messages);
     }
   }, [stream.messages]);
+
+  // Clear isSubmitting when stream actually starts loading
+  useEffect(() => {
+    if (stream.isLoading) {
+      setIsSubmitting(false);
+    }
+  }, [stream.isLoading]);
   
   const messages = displayMessages;
   
@@ -295,6 +304,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     )
       return;
     setFirstTokenReceived(false);
+    setIsSubmitting(true);
 
     const newHumanMessage: Message = {
       id: uuidv4(),
@@ -345,6 +355,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
     prevMessageLength.current = prevMessageLength.current - 1;
     setFirstTokenReceived(false);
+    setIsSubmitting(true);
 
     stream.submit(undefined, {
       // @ts-ignore - checkpoint may not be in type definition
@@ -367,6 +378,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const handleSendSuggestion = (text: string) => {
     if (!text.trim() || effectiveIsLoading) return;
     setFirstTokenReceived(false);
+    setIsSubmitting(true);
 
     const newHumanMessage: Message = {
       id: uuidv4(),
@@ -449,37 +461,60 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
           </AnimatePresence>
 
           <div className="flex flex-col gap-4 pointer-events-auto">
-            {messages
-              .filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
-              // Filter out tool and system messages - they are not user-facing
-              .filter((m) => m.type !== 'tool' && m.type !== 'system')
-              // Filter out sub-agent intermediate AI messages that only contain tool calls
-              // (e.g., discover, resolve_pool from sub-agents) with no user-facing text
-              .filter((m) => {
-                if (m.type !== 'ai') return true;
-                const aiMsg = m as any;
-                const hasToolCallsOnly = aiMsg.tool_calls?.length > 0;
-                const content =
-                  typeof aiMsg.content === 'string'
-                    ? aiMsg.content.trim()
-                    : Array.isArray(aiMsg.content)
-                      ? aiMsg.content
-                          .filter((c: any) => c.type === 'text')
-                          .map((c: any) => c.text?.trim())
-                          .join('')
-                      : '';
-                // Hide AI messages that have tool calls for MCP tools (not supervisor calls) and no text
-                if (hasToolCallsOnly && !content) {
-                  const allAreMcpTools = aiMsg.tool_calls.every(
-                    (tc: any) =>
-                      !tc.name?.startsWith('call_') ||
-                      !tc.name?.endsWith('_agent')
-                  );
-                  if (allAreMcpTools) return false;
-                }
-                return true;
-              })
-              .map((message, index, arr) => {
+            {(() => {
+              const filtered = messages
+                .filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
+                // Filter out hidden messages (IDs starting with __hidden__)
+                .filter((m) => !m.id?.startsWith('__hidden__'))
+                // Filter out tool and system messages - they are not user-facing
+                .filter((m) => m.type !== 'tool' && m.type !== 'system')
+                // Filter out sub-agent intermediate AI messages that only contain tool calls
+                // (e.g., discover, resolve_pool from sub-agents) with no user-facing text
+                .filter((m, index, arr) => {
+                  if (m.type !== 'ai') return true;
+                  const aiMsg = m as any;
+                  const hasToolCallsOnly = aiMsg.tool_calls?.length > 0;
+                  const content =
+                    typeof aiMsg.content === 'string'
+                      ? aiMsg.content.trim()
+                      : Array.isArray(aiMsg.content)
+                        ? aiMsg.content
+                            .filter((c: any) => c.type === 'text')
+                            .map((c: any) => c.text?.trim())
+                            .join('')
+                        : '';
+
+                  // NEVER filter out the last AI message - it needs to render UI components
+                  const isLastAiMessage = index === arr.length - 1 && m.type === 'ai';
+                  if (isLastAiMessage) {
+                    console.log('[ChatClient] Keeping last AI message (will render UI):', m.id);
+                    return true;
+                  }
+
+                  // Hide AI messages that have tool calls for MCP tools (not supervisor calls) and no text
+                  if (hasToolCallsOnly && !content) {
+                    const allAreMcpTools = aiMsg.tool_calls.every(
+                      (tc: any) =>
+                        !tc.name?.startsWith('call_') ||
+                        !tc.name?.endsWith('_agent')
+                    );
+                    console.log('[ChatClient] AI message filter check:', {
+                      messageId: m.id,
+                      hasToolCallsOnly,
+                      content,
+                      contentLength: content.length,
+                      allAreMcpTools,
+                      toolCalls: aiMsg.tool_calls,
+                      willFilter: allAreMcpTools
+                    });
+                    if (allAreMcpTools) return false;
+                  }
+                  return true;
+                });
+
+              console.log('[ChatClient] Filtered messages:', filtered.length, 'from', messages.length);
+
+              return filtered.map((message, index, arr) => {
                 const prevMessage = index > 0 ? arr[index - 1] : undefined;
                 const isConsecutiveAi =
                   message.type !== 'human' &&
@@ -501,7 +536,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                     hideAvatar={isConsecutiveAi}
                   />
                 );
-              })}
+              });
+            })()}
 
             {/* Special rendering case for interrupt without messages */}
             {hasNoAIOrToolMessages && !!stream.interrupt && (

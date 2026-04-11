@@ -45,10 +45,36 @@ function CustomComponent({
 }) {
   const artifact = useArtifact();
   const { values } = useStreamContext();
+  
+  console.log('[CustomComponent] Called with:', {
+    messageId: message.id,
+    messageType: message.type,
+    filterType,
+    totalUICount: values?.ui?.length,
+    allUIMessageIds: values?.ui?.map((ui: any) => ui.metadata?.message_id),
+    allUIDetails: values?.ui?.map((ui: any) => ({
+      id: ui.id,
+      name: ui.name,
+      messageId: ui.metadata?.message_id,
+      operation: ui.props?.operation,
+      type: ui.props?.type,
+    })),
+  });
+  
   // @ts-ignore - ui may not be in type definition
   const allUIForMessage = values?.ui?.filter(
     (ui: any) => ui.metadata?.message_id === message.id
   );
+
+  // Debug logging for blend UI
+  if (message?.id && allUIForMessage?.length > 0) {
+    console.log('[AI Message] UI found for message:', {
+      messageId: message.id,
+      uiCount: allUIForMessage.length,
+      uiNames: allUIForMessage.map((ui: any) => ui.name),
+      uiProps: allUIForMessage.map((ui: any) => ui.props),
+    });
+  }
 
   // Filter by type if specified
   let filteredUI = allUIForMessage;
@@ -100,7 +126,28 @@ function CustomComponent({
     return acc;
   }, []);
 
-  if (!customComponents?.length) return null;
+  if (!customComponents?.length) {
+    console.log('[CustomComponent] No components to render', {
+      messageId: message.id,
+      filterType,
+      allUICount: allUIForMessage?.length,
+    });
+    return null;
+  }
+
+  console.log('[CustomComponent] Rendering components:', {
+    messageId: message.id,
+    filterType,
+    componentCount: customComponents.length,
+    components: customComponents.map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      operation: c.props?.operation,
+      status: c.props?.status,
+      hasXdr: !!c.props?.result?.xdr,
+    })),
+  });
+
   return (
     <Fragment key={message.id}>
       {customComponents.map((customComponent: any) => (
@@ -177,7 +224,7 @@ export function AssistantMessage({
 
   const thread = useStreamContext();
   const isLastMessage =
-    thread.messages[thread.messages.length - 1]!.id === message?.id;
+    thread.messages.length > 0 && thread.messages[thread.messages.length - 1]?.id === message?.id;
   const hasNoAIOrToolMessages = !thread.messages.find(
     (m) => m.type === 'ai' || m.type === 'tool'
   );
@@ -298,9 +345,17 @@ export function AssistantMessage({
               isLastMessage={isLastMessage}
               hasNoAIOrToolMessages={hasNoAIOrToolMessages}
             />
-            {/* Only show command bar on the final message, not intermediate AI messages */}
-            {!isIntermediateAiMessage &&
-              (contentString.length > 0 || isLastMessage) && (
+            
+            {/* Check if message has custom UI components */}
+            {(() => {
+              // @ts-ignore - ui may not be in type definition
+              const allUIForMessage = thread.values?.ui?.filter(
+                (ui: any) => ui.metadata?.message_id === message?.id
+              );
+              const hasCustomUI = allUIForMessage && allUIForMessage.length > 0;
+              
+              // Only show command bar if no custom UI and not intermediate AI message
+              return !hasCustomUI && !isIntermediateAiMessage && (contentString.length > 0 || isLastMessage) && (
                 <div className="mr-auto flex items-center gap-2">
                   <BranchSwitcher
                     branch={meta?.branch}
@@ -321,7 +376,8 @@ export function AssistantMessage({
                     }
                   />
                 </div>
-              )}
+              );
+            })()}
           </>
         )}
       </div>
