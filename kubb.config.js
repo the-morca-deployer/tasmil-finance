@@ -4,7 +4,7 @@ const { pluginOas } = require("@kubb/plugin-oas");
 const { pluginClient } = require("@kubb/plugin-client");
 const { pluginTs } = require("@kubb/plugin-ts");
 const { pluginReactQuery } = require("@kubb/plugin-react-query");
-const fs = require("fs");
+const fs = require("node:fs");
 
 /**
  * Helper function to convert camelCase to kebab-case

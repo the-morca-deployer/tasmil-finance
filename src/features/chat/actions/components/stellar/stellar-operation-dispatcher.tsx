@@ -1,8 +1,8 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { StellarExecuteCard } from "./execute-card";
 import { BlendExecuteCard } from "./blend-execute-card";
+import { StellarExecuteCard } from "./execute-card";
 import { TxSubmitCard } from "./tx-submit-card";
 
 /**
@@ -44,12 +44,12 @@ export function StellarOperationDispatcher({
   operation,
   ...props
 }: StellarOperationDispatcherProps) {
-  console.log('[StellarOperationDispatcher] Dispatching:', {
+  console.log("[StellarOperationDispatcher] Dispatching:", {
     operation,
     hasComponent: !!OperationComponentMap[operation ?? ""],
     componentName: OperationComponentMap[operation ?? ""]?.name,
   });
-  
+
   const Component = OperationComponentMap[operation ?? ""] ?? StellarExecuteCard;
   return <Component operation={operation} {...props} />;
 }

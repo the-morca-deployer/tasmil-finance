@@ -47,15 +47,9 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     (async () => {
       try {
-        const { StellarWalletsKit } = await import(
-          "@creit.tech/stellar-wallets-kit/sdk"
-        );
-        const { defaultModules } = await import(
-          "@creit.tech/stellar-wallets-kit/modules/utils"
-        );
-        const { Networks, KitEventType } = await import(
-          "@creit.tech/stellar-wallets-kit/types"
-        );
+        const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
+        const { defaultModules } = await import("@creit.tech/stellar-wallets-kit/modules/utils");
+        const { Networks, KitEventType } = await import("@creit.tech/stellar-wallets-kit/types");
 
         const network =
           (process.env["NEXT_PUBLIC_STELLAR_NETWORK"] as string) === "PUBLIC"
@@ -92,7 +86,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
     // Only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setWalletState]);
 
   // Auto-restore session after kit is ready
   useEffect(() => {
@@ -103,9 +97,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     (async () => {
       try {
-        const { StellarWalletsKit } = await import(
-          "@creit.tech/stellar-wallets-kit/sdk"
-        );
+        const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
         const { address: addr } = await StellarWalletsKit.getAddress();
         if (addr) {
           setAddress(addr);
@@ -120,7 +112,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kitReady]);
+  }, [kitReady, resetWallet, setWalletState]);
 
   // Check if current auth state is valid (token exists and user matches address)
   const isAuthValid = useCallback((walletAddress: string) => {
@@ -202,9 +194,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // Connect via StellarWalletsKit built-in modal
   const connect = useCallback(async () => {
     try {
-      const { StellarWalletsKit } = await import(
-        "@creit.tech/stellar-wallets-kit/sdk"
-      );
+      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
       const { address: addr } = await StellarWalletsKit.authModal();
       setAddress(addr);
       setIsConnected(true);
@@ -218,9 +208,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const disconnect = useCallback(async () => {
     try {
-      const { StellarWalletsKit } = await import(
-        "@creit.tech/stellar-wallets-kit/sdk"
-      );
+      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
       await StellarWalletsKit.disconnect();
     } catch {
       // ignore disconnect errors
@@ -236,9 +224,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const signTransaction = useCallback(
     async (xdr: string): Promise<string> => {
       if (!address) throw new Error("Wallet not connected");
-      const { StellarWalletsKit } = await import(
-        "@creit.tech/stellar-wallets-kit/sdk"
-      );
+      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
       const { signedTxXdr } = await StellarWalletsKit.signTransaction(xdr, {
         address,
       });

@@ -9,8 +9,8 @@
  * Validates: Requirements 1.1
  */
 
-import { existsSync, readdirSync, statSync } from "fs";
-import { join } from "path";
+import { existsSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 describe("Feature Module Organization Property Tests", () => {
   const FEATURES_DIR = join(__dirname, "..");
@@ -54,7 +54,7 @@ describe("Feature Module Organization Property Tests", () => {
         expect(existsSync(indexPath)).toBe(true);
 
         // Read the index file and verify it has exports
-        const fs = require("fs");
+        const fs = require("node:fs");
         const content = fs.readFileSync(indexPath, "utf8");
 
         // Should export types and constants
@@ -104,7 +104,7 @@ describe("Feature Module Organization Property Tests", () => {
    */
   describe("Property: Feature isolation", () => {
     test("features should not directly import from other features", () => {
-      const fs = require("fs");
+      const fs = require("node:fs");
 
       function checkFeatureIsolation(featureName: string) {
         const featurePath = join(FEATURES_DIR, featureName);

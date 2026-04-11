@@ -5,10 +5,10 @@
  * This script downloads the OpenAPI spec and fixes reference issues
  */
 
-const fs = require("fs");
-const path = require("path");
-const https = require("https");
-const http = require("http");
+const fs = require("node:fs");
+const path = require("node:path");
+const https = require("node:https");
+const http = require("node:http");
 
 const OPENAPI_URL = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/openapi.json`
@@ -45,7 +45,7 @@ function downloadOpenAPI() {
 
 function fixOpenAPISpec(spec) {
   // Move Interrupt from responses to schemas if it exists
-  if (spec.components && spec.components.responses && spec.components.responses.Interrupt) {
+  if (spec.components?.responses?.Interrupt) {
     if (!spec.components.schemas) {
       spec.components.schemas = {};
     }

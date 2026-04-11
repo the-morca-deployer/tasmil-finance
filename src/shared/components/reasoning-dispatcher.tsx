@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { AIReasoning } from '@/features/chat/components/ai/ai-reasoning';
-import { AITask } from '@/features/chat/components/ai/ai-task';
+import { AIReasoning } from "@/features/chat/components/ai/ai-reasoning";
+import { AITask } from "@/features/chat/components/ai/ai-task";
 
 /**
  * Dispatcher for reasoning UI messages from LangGraph.
@@ -16,7 +16,7 @@ export function ReasoningDispatcher({
   duration?: number;
   isStreaming?: boolean;
 }) {
-  console.log('[ReasoningDispatcher] Props received:', {
+  console.log("[ReasoningDispatcher] Props received:", {
     content: content?.substring?.(0, 100),
     duration,
     isStreaming,
@@ -24,7 +24,7 @@ export function ReasoningDispatcher({
 
   return (
     <AIReasoning duration={duration} isStreaming={isStreaming ?? false}>
-      {content || 'Thinking...'}
+      {content || "Thinking..."}
     </AIReasoning>
   );
 }
@@ -45,20 +45,20 @@ export function TaskDispatcher({
 }: {
   props?: {
     title?: string;
-    status?: 'pending' | 'in_progress' | 'completed' | 'failed';
+    status?: "pending" | "in_progress" | "completed" | "failed";
     toolName?: string;
     toolId?: string;
   };
   meta?: any;
 }) {
-  const title = props?.title || 'Processing...';
-  const status = props?.status || 'pending';
+  const title = props?.title || "Processing...";
+  const status = props?.status || "pending";
   const toolName = props?.toolName;
 
   return (
-    <AITask title={title} status={status} defaultOpen={status !== 'pending'}>
+    <AITask title={title} status={status} defaultOpen={status !== "pending"}>
       {toolName && (
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           Executing: <code>{toolName}</code>
         </div>
       )}

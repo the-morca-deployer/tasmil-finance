@@ -1,29 +1,25 @@
 "use client";
 
 import {
-  Check,
-  XCircle,
-  SkipForward,
-  Circle,
-  ChevronRight,
   ArrowRightLeft,
-  Wallet,
-  TrendingUp,
-  Search,
+  Check,
+  ChevronRight,
+  Circle,
   Info,
-  Repeat,
   Landmark,
+  Repeat,
+  Search,
+  SkipForward,
   Sparkles,
+  TrendingUp,
+  Wallet,
+  XCircle,
 } from "lucide-react";
 import { memo, useState } from "react";
-import { cn } from "@/lib/utils";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/shared/ui/collapsible";
-import { Loader } from "@/shared/ui/loader";
 import { Shimmer } from "@/features/chat/components/ai/shimmer";
+import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui/collapsible";
+import { Loader } from "@/shared/ui/loader";
 
 interface PlanStepData {
   step: number;
@@ -100,24 +96,17 @@ function getStepIcon(status: string, isCurrentStep: boolean) {
     case "completed":
       return <Check className="h-3.5 w-3.5 text-emerald-500" />;
     case "running":
-      return (
-        <Loader size={14} className="text-muted-foreground" />
-      );
+      return <Loader size={14} className="text-muted-foreground" />;
     case "failed":
       return <XCircle className="h-3.5 w-3.5 text-red-400" />;
     case "skipped":
-      return (
-        <SkipForward className="h-3.5 w-3.5 text-muted-foreground/40" />
-      );
-    case "pending":
+      return <SkipForward className="h-3.5 w-3.5 text-muted-foreground/40" />;
     default:
       return (
         <Circle
           className={cn(
             "h-3.5 w-3.5",
-            isCurrentStep
-              ? "text-muted-foreground"
-              : "text-muted-foreground/30",
+            isCurrentStep ? "text-muted-foreground" : "text-muted-foreground/30"
           )}
         />
       );
@@ -166,10 +155,7 @@ function SupervisorPlanCardComponent(props: SupervisorPlanCardProps) {
           </Shimmer>
         ) : (
           <span
-            className={cn(
-              "font-medium",
-              allDone ? "text-muted-foreground" : "text-foreground",
-            )}
+            className={cn("font-medium", allDone ? "text-muted-foreground" : "text-foreground")}
           >
             {allDone ? "Execution plan" : "Planning"}
           </span>
@@ -178,12 +164,12 @@ function SupervisorPlanCardComponent(props: SupervisorPlanCardProps) {
         {/* Step count badge */}
         <span
           className={cn(
-            "text-xs px-1.5 py-0.5 rounded-full",
+            "rounded-full px-1.5 py-0.5 text-xs",
             allDone
               ? "bg-emerald-500/10 text-emerald-500"
               : hasFailed
                 ? "bg-red-500/10 text-red-400"
-                : "bg-muted text-muted-foreground",
+                : "bg-muted text-muted-foreground"
           )}
         >
           {statusLabel}
@@ -193,7 +179,7 @@ function SupervisorPlanCardComponent(props: SupervisorPlanCardProps) {
         <ChevronRight
           className={cn(
             "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
-            isOpen && "rotate-90",
+            isOpen && "rotate-90"
           )}
         />
       </CollapsibleTrigger>
@@ -201,28 +187,23 @@ function SupervisorPlanCardComponent(props: SupervisorPlanCardProps) {
       <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
         <div
           className={cn(
-            "border-l-2 pl-4 py-2 ml-2 mt-1 space-y-0.5",
+            "mt-1 ml-2 space-y-0.5 border-l-2 py-2 pl-4",
             isRunning
               ? "border-primary/40"
               : allDone
                 ? "border-emerald-500/30"
                 : hasFailed
                   ? "border-red-500/30"
-                  : "border-border/40",
+                  : "border-border/40"
           )}
         >
           {/* Reasoning */}
-          {reasoning && (
-            <p className="text-sm text-muted-foreground/70 italic mb-2">
-              {reasoning}
-            </p>
-          )}
+          {reasoning && <p className="mb-2 text-muted-foreground/70 text-sm italic">{reasoning}</p>}
 
           {/* Steps */}
           {steps.map((step, idx) => {
             const isCurrentStepActive = idx === currentStep && !allDone;
-            const config =
-              AGENT_CONFIG[step.agent] || AGENT_CONFIG["info"]!;
+            const config = AGENT_CONFIG[step.agent] || AGENT_CONFIG.info!;
             const AgentIcon = config.icon;
 
             return (
@@ -231,7 +212,7 @@ function SupervisorPlanCardComponent(props: SupervisorPlanCardProps) {
                 className={cn(
                   "flex items-start gap-2.5 py-1.5 transition-all duration-200",
                   step.status === "completed" && "opacity-50",
-                  step.status === "skipped" && "opacity-30",
+                  step.status === "skipped" && "opacity-30"
                 )}
               >
                 {/* Status icon */}
@@ -240,34 +221,30 @@ function SupervisorPlanCardComponent(props: SupervisorPlanCardProps) {
                 </div>
 
                 {/* Step content */}
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
-                    <AgentIcon
-                      className={cn("h-3 w-3 shrink-0", config.color)}
-                    />
+                    <AgentIcon className={cn("h-3 w-3 shrink-0", config.color)} />
                     {step.status === "running" ? (
-                      <Shimmer className="text-sm font-medium" duration={2}>
+                      <Shimmer className="font-medium text-sm" duration={2}>
                         {config.label}
                       </Shimmer>
                     ) : (
                       <span
                         className={cn(
-                          "text-sm font-medium",
-                          isCurrentStepActive
-                            ? "text-foreground"
-                            : "text-muted-foreground",
+                          "font-medium text-sm",
+                          isCurrentStepActive ? "text-foreground" : "text-muted-foreground"
                         )}
                       >
                         {config.label}
                       </span>
                     )}
                     {step.needs_confirm && step.status === "pending" && (
-                      <span className="text-[10px] rounded-full bg-yellow-500/10 text-yellow-500 px-1.5 py-0.5 font-medium">
+                      <span className="rounded-full bg-yellow-500/10 px-1.5 py-0.5 font-medium text-[10px] text-yellow-500">
                         approval
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground/60 mt-0.5 leading-relaxed">
+                  <p className="mt-0.5 text-muted-foreground/60 text-xs leading-relaxed">
                     {step.action}
                   </p>
                 </div>

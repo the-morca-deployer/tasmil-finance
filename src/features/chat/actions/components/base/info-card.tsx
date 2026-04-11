@@ -39,7 +39,7 @@ export function BaseInfoCard({
             <Loader2 className={cn("h-4 w-4 animate-spin", iconColor)} />
           </div>
           <div className="space-y-1">
-            <h3 className="text-sm font-semibold">{title}</h3>
+            <h3 className="font-semibold text-sm">{title}</h3>
             <p className="text-muted-foreground text-xs">Loading...</p>
           </div>
         </div>
@@ -77,8 +77,8 @@ export function BaseInfoCard({
               <Icon className={cn("h-4 w-4", iconColor)} />
             </div>
           )}
-          <div className="space-y-0.5 min-w-0">
-            <h3 className="text-sm font-semibold">{title}</h3>
+          <div className="min-w-0 space-y-0.5">
+            <h3 className="font-semibold text-sm">{title}</h3>
             {subtitle && <p className="text-muted-foreground text-xs">{subtitle}</p>}
           </div>
         </div>

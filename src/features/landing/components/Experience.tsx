@@ -1,23 +1,13 @@
-'use client';
+"use client";
 
-import { Canvas, useThree } from '@react-three/fiber';
-import {
-  Environment,
-  PerspectiveCamera,
-  Cloud,
-  Clouds,
-} from '@react-three/drei';
-import {
-  EffectComposer,
-  Bloom,
-  Noise,
-  Vignette,
-} from '@react-three/postprocessing';
-import { useLayoutEffect } from 'react';
-import * as THREE from 'three';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { GlassHex } from './GlassHex';
+import { Cloud, Clouds, Environment, PerspectiveCamera } from "@react-three/drei";
+import { Canvas, useThree } from "@react-three/fiber";
+import { Bloom, EffectComposer, Noise, Vignette } from "@react-three/postprocessing";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLayoutEffect } from "react";
+import * as THREE from "three";
+import { GlassHex } from "./GlassHex";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,9 +20,9 @@ function SceneContent() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: '#landing-scroll-container',
-          start: 'top top',
-          end: 'bottom bottom',
+          trigger: "#landing-scroll-container",
+          start: "top top",
+          end: "bottom bottom",
           scrub: 1.5, // Smooth scrubbing
         },
       });
@@ -56,17 +46,11 @@ function SceneContent() {
   return (
     <>
       <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={35} />
-      <color attach="background" args={['#050812']} />
+      <color attach="background" args={["#050812"]} />
 
       {/* Ethereal Lighting */}
       <ambientLight intensity={0.5} color="#a0a0ff" />
-      <spotLight
-        position={[10, 10, 10]}
-        angle={0.5}
-        penumbra={1}
-        intensity={2}
-        color="#4a9eff"
-      />
+      <spotLight position={[10, 10, 10]} angle={0.5} penumbra={1} intensity={2} color="#4a9eff" />
       <spotLight
         position={[-10, -10, -10]}
         angle={0.5}
@@ -78,14 +62,7 @@ function SceneContent() {
       {/* Nebula Clouds - Restored Background Atmosphere */}
       <Clouds material={THREE.MeshBasicMaterial}>
         <Cloud seed={1} scale={2} volume={5} color="#001830" fade={100} />
-        <Cloud
-          seed={2}
-          scale={1}
-          volume={2}
-          color="#004060"
-          fade={100}
-          position={[0, -2, -5]}
-        />
+        <Cloud seed={2} scale={1} volume={2} color="#004060" fade={100} position={[0, -2, -5]} />
       </Clouds>
 
       {/* Clean Blurred Environment for Reflections */}
@@ -116,7 +93,7 @@ function SceneContent() {
 
 export function Experience() {
   return (
-    <div className="absolute inset-0 w-full h-full bg-[#050505]">
+    <div className="absolute inset-0 h-full w-full bg-[#050505]">
       <Canvas dpr={[1, 2]} gl={{ antialias: false }}>
         <SceneContent />
       </Canvas>

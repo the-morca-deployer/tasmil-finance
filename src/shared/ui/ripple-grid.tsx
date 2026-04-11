@@ -251,7 +251,20 @@ void main() {
       renderer.gl.getExtension("WEBGL_lose_context")?.loseContext();
       containerRef.current?.removeChild(gl.canvas);
     };
-  }, []);
+  }, [
+    enableRainbow,
+    fadeDistance,
+    glowIntensity,
+    gridColor,
+    gridRotation,
+    gridSize,
+    gridThickness,
+    mouseInteraction,
+    mouseInteractionRadius,
+    opacity,
+    rippleIntensity,
+    vignetteStrength,
+  ]);
 
   useEffect(() => {
     if (!uniformsRef.current) return;
@@ -296,7 +309,7 @@ void main() {
   ]);
 
   return (
-    <div ref={containerRef} className="w-full h-full relative overflow-hidden [&_canvas]:block" />
+    <div ref={containerRef} className="relative h-full w-full overflow-hidden [&_canvas]:block" />
   );
 };
 

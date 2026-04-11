@@ -1,29 +1,26 @@
-'use client';
+"use client";
 
-import { ArrowDown } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import dynamic from 'next/dynamic';
-import { useEffect, useRef } from 'react';
+import { ArrowDown } from "lucide-react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useRef } from "react";
 
-const AbstractCube = dynamic(
-  () => import('@/features/landing/components/3d/AbstractCube'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-full min-h-[500px] animate-pulse bg-white/5 rounded-xl" />
-    ),
-  }
-);
+const AbstractCube = dynamic(() => import("@/features/landing/components/3d/AbstractCube"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full min-h-[500px] w-full animate-pulse rounded-xl bg-white/5" />
+  ),
+});
 
-import { PATHS, SECTION_IDS } from '@/shared/constants/routes';
-import { useIsMobile } from '@/shared/hooks/use-mobile';
-import { Button } from '@/shared/ui/button-v2';
-import { Typography } from '@/shared/ui/typography';
+import { PATHS, SECTION_IDS } from "@/shared/constants/routes";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
+import { Button } from "@/shared/ui/button-v2";
+import { Typography } from "@/shared/ui/typography";
 
 const HERO_IMAGES = {
-  background: '/images/landing-v3/hero/bg.png',
-  chestAbstract: '/images/landing-v3/hero/chest_abstract.png',
+  background: "/images/landing-v3/hero/bg.png",
+  chestAbstract: "/images/landing-v3/hero/chest_abstract.png",
 } as const;
 
 export const HeroSection = () => {
@@ -37,7 +34,7 @@ export const HeroSection = () => {
       if (playPromise !== undefined) {
         playPromise.catch(() => {
           document.addEventListener(
-            'click',
+            "click",
             () => {
               videoRef.current?.play();
             },
@@ -50,18 +47,15 @@ export const HeroSection = () => {
 
   // Scroll to video section function
   const scrollToVideo = () => {
-    const videoSection = document.querySelector(
-      `[data-section-id="${SECTION_IDS.VIDEO}"]`
-    );
+    const videoSection = document.querySelector(`[data-section-id="${SECTION_IDS.VIDEO}"]`);
     if (videoSection) {
       const navbarHeight = 72;
       const elementPosition = videoSection.getBoundingClientRect().top;
-      const offsetPosition =
-        elementPosition + window.pageYOffset - navbarHeight;
+      const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth',
+        behavior: "smooth",
       });
     }
   };
@@ -86,7 +80,7 @@ export const HeroSection = () => {
                   quality={90}
                   src={HERO_IMAGES.chestAbstract}
                   style={{
-                    animation: 'bounce 3s ease-in-out infinite',
+                    animation: "bounce 3s ease-in-out infinite",
                   }}
                   width={250}
                 />
@@ -108,13 +102,9 @@ export const HeroSection = () => {
               </Typography>
 
               <div className="my-3 max-w-lg">
-                <Typography
-                  className="text-center text-gray-300 text-xl"
-                  variant="p"
-                >
-                  Experience seamless DeFi on U2U blockchain with AI agents,
-                  smart swaps, and real-time insights through conversational
-                  interactions.
+                <Typography className="text-center text-gray-300 text-xl" variant="p">
+                  Experience seamless DeFi on U2U blockchain with AI agents, smart swaps, and
+                  real-time insights through conversational interactions.
                 </Typography>
               </div>
 
@@ -184,9 +174,9 @@ export const HeroSection = () => {
                     className="text-center text-2xl text-gray-300 leading-relaxed"
                     variant="p"
                   >
-                    Experience seamless DeFi on U2U blockchain with AI agents,
-                    smart swaps, liquidity optimization, and real-time market
-                    insights through conversational interactions.
+                    Experience seamless DeFi on U2U blockchain with AI agents, smart swaps,
+                    liquidity optimization, and real-time market insights through conversational
+                    interactions.
                   </Typography>
                 </div>
 
@@ -211,7 +201,7 @@ export const HeroSection = () => {
               </div>
 
               {/* Right Column - Procedural 3D Scene */}
-              <div className="flex items-center justify-center w-full h-[500px]">
+              <div className="flex h-[500px] w-full items-center justify-center">
                 <AbstractCube />
               </div>
             </div>

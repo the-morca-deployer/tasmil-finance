@@ -3,11 +3,11 @@ import type { ToolCall } from "@langchain/core/messages/tool";
 import { motion } from "framer-motion";
 import { ChevronRight, ChevronsDownUp, ChevronsUpDown, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ToolCallTable } from "@/features/chat/thread/agent-inbox/components/tool-call-table";
+import { MarkdownText } from "@/features/chat/thread/components/markdown-text";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { baseMessageObject, isArrayOfMessages, prettifyText, unknownToPrettyDate } from "../utils";
-import { ToolCallTable } from "@/features/chat/thread/agent-inbox/components/tool-call-table";
-import { MarkdownText } from "@/features/chat/thread/components/markdown-text";
 
 interface StateViewRecursiveProps {
   value: unknown;
@@ -76,7 +76,7 @@ function StateViewRecursive(props: StateViewRecursiveProps) {
   }
 
   if (props.value == null) {
-    return <p className="font-light whitespace-pre-wrap text-gray-600">null</p>;
+    return <p className="whitespace-pre-wrap font-light text-gray-600">null</p>;
   }
 
   if (Array.isArray(props.value)) {
@@ -138,7 +138,7 @@ function HasContentsEllipsis({ onClick }: { onClick?: () => void }) {
         "rounded-md p-[2px] font-mono text-[10px] leading-3",
         "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800",
         "cursor-pointer transition-colors ease-in-out",
-        "inline-block -translate-y-[2px]"
+        "-translate-y-[2px] inline-block"
       )}
     >
       {"{...}"}
@@ -227,7 +227,7 @@ export function StateView({
     <div
       className={cn(
         "flex min-w-full flex-row gap-0",
-        view === "state" && "border-t-[1px] border-gray-100 lg:border-t-[0px] lg:border-l-[1px]"
+        view === "state" && "border-gray-100 border-t-[1px] lg:border-t-[0px] lg:border-l-[1px]"
       )}
     >
       {view === "description" && (

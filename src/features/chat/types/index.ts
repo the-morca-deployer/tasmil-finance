@@ -1,15 +1,15 @@
 // Export all types
-export * from "./message.types";
-export * from "./thread.types";
-export * from "./agent.types";
-export * from "./stream.types";
 
 // Re-export HITL types from agent-inbox
 export type {
+  ActionRequest,
   Decision,
+  DecisionType,
   DecisionWithEdits,
   HITLRequest,
-  ActionRequest,
   SubmitType,
-  DecisionType,
 } from "../thread/agent-inbox/types";
+export * from "./agent.types";
+export * from "./message.types";
+export * from "./stream.types";
+export * from "./thread.types";

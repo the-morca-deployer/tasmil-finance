@@ -2,11 +2,11 @@
 
 import { Database } from "lucide-react";
 import { memo } from "react";
-import { BaseInfoCard } from "../base/info-card";
-import { useResultData } from "../../hooks/use-result-data";
-import { ScrollableList, ProtocolBadge, APYDisplay, DetailRow } from "../base/indicators";
-import { formatNumber } from "../../lib/formatting";
 import { truncateAddress } from "@/shared/config/stellar";
+import { useResultData } from "../../hooks/use-result-data";
+import { formatNumber } from "../../lib/formatting";
+import { APYDisplay, DetailRow, ProtocolBadge, ScrollableList } from "../base/indicators";
+import { BaseInfoCard } from "../base/info-card";
 
 interface PoolInfoCardProps {
   type?: string;
@@ -19,7 +19,7 @@ interface PoolInfoCardProps {
 
 function PoolInfoCardComponent({ args, result, toolCallId, status }: PoolInfoCardProps) {
   const { data, isLoading, hasError, errorMessage } = useResultData(result, status);
-  const protocol = args?.["protocol"] ?? data?.protocol ?? "unknown";
+  const protocol = args?.protocol ?? data?.protocol ?? "unknown";
 
   // Single pool or list of pools
   const pools = data?.pools ?? (data?.poolAddress ? [data] : []);
@@ -40,9 +40,9 @@ function PoolInfoCardComponent({ args, result, toolCallId, status }: PoolInfoCar
       ) : pools.length > 0 ? (
         <ScrollableList id={`pools-${toolCallId}`} maxHeight={300}>
           {pools.map((pool: any, idx: number) => (
-            <div key={pool.poolAddress ?? idx} className="rounded-lg border p-3 space-y-2">
+            <div key={pool.poolAddress ?? idx} className="space-y-2 rounded-lg border p-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium truncate">{pool.name ?? "Pool"}</span>
+                <span className="truncate font-medium text-sm">{pool.name ?? "Pool"}</span>
                 <ProtocolBadge name={protocol} />
               </div>
               <SinglePoolView pool={pool} protocol={protocol} compact />
@@ -50,7 +50,7 @@ function PoolInfoCardComponent({ args, result, toolCallId, status }: PoolInfoCar
           ))}
         </ScrollableList>
       ) : (
-        <div className="text-sm text-muted-foreground">No pool data available.</div>
+        <div className="text-muted-foreground text-sm">No pool data available.</div>
       )}
     </BaseInfoCard>
   );
@@ -86,12 +86,12 @@ function SinglePoolView({ pool }: { pool: any; protocol?: string; compact?: bool
 
       {/* Token pair info */}
       {pool.tokenA && pool.tokenB && (
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          <div className="bg-muted/30 rounded p-2 text-xs">
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="rounded bg-muted/30 p-2 text-xs">
             <div className="text-muted-foreground">{pool.tokenA.symbol ?? "Token A"}</div>
             <div className="font-medium">{pool.tokenA.amount ?? "—"}</div>
           </div>
-          <div className="bg-muted/30 rounded p-2 text-xs">
+          <div className="rounded bg-muted/30 p-2 text-xs">
             <div className="text-muted-foreground">{pool.tokenB.symbol ?? "Token B"}</div>
             <div className="font-medium">{pool.tokenB.amount ?? "—"}</div>
           </div>
@@ -100,8 +100,8 @@ function SinglePoolView({ pool }: { pool: any; protocol?: string; compact?: bool
 
       {/* Lending pool reserves */}
       {pool.reserves && pool.reserves.length > 0 && (
-        <div className="border-t pt-2 mt-2 space-y-1">
-          <div className="text-xs text-muted-foreground">
+        <div className="mt-2 space-y-1 border-t pt-2">
+          <div className="text-muted-foreground text-xs">
             Reserves ({pool.reserveCount ?? pool.reserves.length})
           </div>
           {pool.reserves.map((r: any, i: number) => (
@@ -135,14 +135,14 @@ function SinglePoolView({ pool }: { pool: any; protocol?: string; compact?: bool
       )}
 
       {pool.canSupply != null && (
-        <div className="flex gap-2 mt-1">
+        <div className="mt-1 flex gap-2">
           {pool.canSupply && (
-            <span className="text-xs bg-green-500/10 text-green-500 rounded-full px-2 py-0.5">
+            <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-green-500 text-xs">
               Supply
             </span>
           )}
           {pool.canBorrow && (
-            <span className="text-xs bg-orange-500/10 text-orange-500 rounded-full px-2 py-0.5">
+            <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-orange-500 text-xs">
               Borrow
             </span>
           )}

@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { Button } from "@/shared/ui/button-v2";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { Typography } from "@/shared/ui/typography";
 
 /**

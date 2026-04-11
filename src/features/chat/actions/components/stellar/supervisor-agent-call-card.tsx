@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlertCircle,
   ArrowRightLeft,
   ChevronRight,
   Info,
@@ -9,17 +10,12 @@ import {
   Search,
   TrendingUp,
   Wallet,
-  AlertCircle,
 } from "lucide-react";
 import { memo, useState } from "react";
-import { cn } from "@/lib/utils";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/shared/ui/collapsible";
-import { Loader } from "@/shared/ui/loader";
 import { Shimmer } from "@/features/chat/components/ai/shimmer";
+import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui/collapsible";
+import { Loader } from "@/shared/ui/loader";
 
 interface SupervisorAgentCallCardProps {
   agent?: string;
@@ -76,15 +72,13 @@ const AGENT_CONFIG: Record<
   },
 };
 
-function SupervisorAgentCallCardComponent(
-  props: SupervisorAgentCallCardProps,
-) {
+function SupervisorAgentCallCardComponent(props: SupervisorAgentCallCardProps) {
   const agentName = props.agent || "unknown";
   const message = props.message || "";
   const status = props.status || "calling";
   const [isOpen, setIsOpen] = useState(status === "calling");
 
-  const config = AGENT_CONFIG[agentName] || AGENT_CONFIG["info"]!;
+  const config = AGENT_CONFIG[agentName] || AGENT_CONFIG.info!;
   const AgentIcon = config.icon;
 
   const isCalling = status === "calling";
@@ -119,17 +113,15 @@ function SupervisorAgentCallCardComponent(
         <ChevronRight
           className={cn(
             "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
-            isOpen && "rotate-90",
+            isOpen && "rotate-90"
           )}
         />
       </CollapsibleTrigger>
 
       <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
         {message && (
-          <div className="border-l-2 border-muted-foreground/20 pl-4 py-2 ml-2 mt-1">
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {message}
-            </p>
+          <div className="mt-1 ml-2 border-muted-foreground/20 border-l-2 py-2 pl-4">
+            <p className="text-muted-foreground text-sm leading-relaxed">{message}</p>
           </div>
         )}
       </CollapsibleContent>
@@ -137,6 +129,4 @@ function SupervisorAgentCallCardComponent(
   );
 }
 
-export const SupervisorAgentCallCard = memo(
-  SupervisorAgentCallCardComponent,
-);
+export const SupervisorAgentCallCard = memo(SupervisorAgentCallCardComponent);

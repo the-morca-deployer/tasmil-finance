@@ -1,8 +1,8 @@
 "use client";
 
-import { TrendingDown, TrendingUp, Shield, AlertTriangle, Zap } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { AlertTriangle, Shield, TrendingDown, TrendingUp, Zap } from "lucide-react";
 import { useScrollPreservation } from "@/features/chat/actions/hooks/use-scroll-preservation";
+import { cn } from "@/lib/utils";
 
 /** Status badge for protocol availability. */
 export function StatusBadge({ status }: { status: string | undefined | null }) {
@@ -10,7 +10,7 @@ export function StatusBadge({ status }: { status: string | undefined | null }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs",
         isOk
           ? "bg-green-500/10 text-green-600 dark:text-green-400"
           : "bg-red-500/10 text-red-600 dark:text-red-400"
@@ -41,13 +41,13 @@ export function RiskBadge({ risk }: { risk: string | undefined | null }) {
     high: { color: "bg-red-500/10 text-red-600 dark:text-red-400", icon: Zap },
   };
   const c = config[risk ?? ""] ?? config["medium"]!;
-  const Icon = c!.icon;
+  const Icon = c?.icon;
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
-        c!.color
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium text-xs",
+        c?.color
       )}
     >
       <Icon className="h-3 w-3" />
@@ -59,7 +59,7 @@ export function RiskBadge({ risk }: { risk: string | undefined | null }) {
 /** Protocol name badge. */
 export function ProtocolBadge({ name }: { name: string | undefined | null }) {
   return (
-    <span className="inline-flex items-center rounded-full bg-muted/50 px-2 py-0.5 text-xs font-medium text-muted-foreground">
+    <span className="inline-flex items-center rounded-full bg-muted/50 px-2 py-0.5 font-medium text-muted-foreground text-xs">
       {name ?? "unknown"}
     </span>
   );
@@ -107,7 +107,7 @@ export function ScrollableList({
     <div
       ref={scrollRef}
       onScroll={handleScroll}
-      className={cn("overflow-y-auto space-y-1", className)}
+      className={cn("space-y-1 overflow-y-auto", className)}
       style={{ maxHeight }}
       data-scrollable="true"
     >

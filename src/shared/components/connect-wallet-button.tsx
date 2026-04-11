@@ -1,8 +1,8 @@
 "use client";
 
 import { User, Wallet } from "lucide-react";
-import { useWallet } from "@/shared/context/wallet-context";
 import { cn } from "@/lib/utils";
+import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button-v2";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { Typography } from "@/shared/ui/typography";

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useRef, useMemo } from 'react';
-import * as THREE from 'three';
-import { useFrame } from '@react-three/fiber';
+import { useFrame } from "@react-three/fiber";
+import { useMemo, useRef } from "react";
+import * as THREE from "three";
 
-export function FloatingShapes({ count = 50, color = '#00D4FF' }) {
+export function FloatingShapes({ count = 50, color = "#00D4FF" }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
 
   // Generate random positions and rotation speeds
@@ -51,19 +51,17 @@ export function FloatingShapes({ count = 50, color = '#00D4FF' }) {
   });
 
   return (
-    <>
-      <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
-        {/* Abstract Shape: Octahedron for a "Tech" feel */}
-        <octahedronGeometry args={[0.5, 0]} />
-        <meshStandardMaterial
-          color={color}
-          transparent
-          opacity={0.2}
-          wireframe={true} // Abstract Wireframe look
-          roughness={0}
-          metalness={0.5}
-        />
-      </instancedMesh>
-    </>
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+      {/* Abstract Shape: Octahedron for a "Tech" feel */}
+      <octahedronGeometry args={[0.5, 0]} />
+      <meshStandardMaterial
+        color={color}
+        transparent
+        opacity={0.2}
+        wireframe={true} // Abstract Wireframe look
+        roughness={0}
+        metalness={0.5}
+      />
+    </instancedMesh>
   );
 }

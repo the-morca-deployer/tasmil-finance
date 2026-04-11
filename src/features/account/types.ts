@@ -1,4 +1,4 @@
-export type RiskPreset = 'Safe' | 'Balanced' | 'Aggressive';
+export type RiskPreset = "Safe" | "Balanced" | "Aggressive";
 
 export interface PresetCardData {
   name: RiskPreset;

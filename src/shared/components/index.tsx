@@ -10,8 +10,8 @@ import {
   StellarInfoDispatcher,
   StellarOperationDispatcher,
 } from "@/features/chat/actions/components/stellar";
-import { SupervisorPlanCard } from "@/features/chat/actions/components/stellar/supervisor-plan-card";
 import { SupervisorAgentCallCard } from "@/features/chat/actions/components/stellar/supervisor-agent-call-card";
+import { SupervisorPlanCard } from "@/features/chat/actions/components/stellar/supervisor-plan-card";
 import { ReasoningDispatcher, TaskDispatcher } from "@/shared/components/reasoning-dispatcher";
 import { ToolStatusDispatcher } from "@/shared/components/tool-status-dispatcher";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type { RebalanceStatus, DiscoveredPool } from "../types";
+import type { DiscoveredPool, RebalanceStatus } from "../types";
 
 const API_BASE = process.env["NEXT_PUBLIC_API_URL"] ?? "http://localhost:6756/api";
 

@@ -1,10 +1,10 @@
 import { Undo2 } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
-import { MarkdownText } from "../../components/markdown-text";
 import { Button } from "@/shared/ui/button";
 import { Separator } from "@/shared/ui/separator";
 import { Textarea } from "@/shared/ui/textarea";
+import { MarkdownText } from "../../components/markdown-text";
 import type { DecisionWithEdits, HITLRequest, SubmitType } from "../types";
 import { haveArgsChanged, prettifyText } from "../utils";
 
@@ -32,8 +32,8 @@ function ArgsRenderer({ args }: { args: Record<string, unknown> }) {
 
         return (
           <div key={`args-${key}`} className="flex flex-col items-start gap-1">
-            <p className="text-sm leading-[18px] text-wrap text-gray-600">{prettifyText(key)}</p>
-            <span className="w-full max-w-full rounded-xl bg-zinc-100 p-3 text-[13px] leading-[18px] text-black">
+            <p className="text-wrap text-gray-600 text-sm leading-[18px]">{prettifyText(key)}</p>
+            <span className="w-full max-w-full rounded-xl bg-zinc-100 p-3 text-[13px] text-black leading-[18px]">
               <MarkdownText>{stringValue}</MarkdownText>
             </span>
           </div>
@@ -164,7 +164,7 @@ function EditActionCard({
   return (
     <div className="flex w-full min-w-full flex-col items-start gap-4 rounded-lg border border-gray-300 p-6">
       <div className="flex w-full items-center justify-between">
-        <p className="text-base font-semibold text-black">{header}</p>
+        <p className="font-semibold text-base text-black">{header}</p>
         <ResetButton handleReset={handleReset} />
       </div>
 
@@ -184,7 +184,7 @@ function EditActionCard({
             key={`allow-edit-args--${key}-${idx}`}
           >
             <div className="flex w-full flex-col items-start gap-[6px]">
-              <p className="min-w-fit text-sm font-medium">{prettifyText(key)}</p>
+              <p className="min-w-fit font-medium text-sm">{prettifyText(key)}</p>
               <Textarea
                 disabled={isLoading}
                 className="h-full w-full max-w-full"
@@ -241,14 +241,14 @@ function RejectActionCard({
   return (
     <div className="flex w-full max-w-full flex-col items-start gap-4 rounded-xl border border-gray-300 p-6">
       <div className="flex w-full items-center justify-between">
-        <p className="text-base font-semibold text-black">Reject</p>
+        <p className="font-semibold text-base text-black">Reject</p>
         <ResetButton handleReset={() => onChange("", rejectResponse)} />
       </div>
 
       {showArgs && <ArgsRenderer args={actionArgs} />}
 
       <div className="flex w-full flex-col items-start gap-[6px]">
-        <p className="min-w-fit text-sm font-medium">Reason</p>
+        <p className="min-w-fit font-medium text-sm">Reason</p>
         <Textarea
           disabled={isLoading}
           className="w-full max-w-full"
@@ -429,7 +429,7 @@ export function InboxItemInput({
         {supportsMultipleMethods ? (
           <div className="mx-auto mt-3 flex items-center gap-3">
             <Separator className="w-full" />
-            <p className="text-sm text-gray-500">Or</p>
+            <p className="text-gray-500 text-sm">Or</p>
             <Separator className="w-full" />
           </div>
         ) : null}
@@ -443,9 +443,9 @@ export function InboxItemInput({
           handleSubmit={handleSubmit}
         />
 
-        {isLoading && <p className="text-sm text-gray-600">Submitting decision...</p>}
+        {isLoading && <p className="text-gray-600 text-sm">Submitting decision...</p>}
         {selectedSubmitType && supportsMultipleMethods && (
-          <p className="text-xs text-gray-500">
+          <p className="text-gray-500 text-xs">
             Currently selected: {prettifyText(selectedSubmitType)}
           </p>
         )}

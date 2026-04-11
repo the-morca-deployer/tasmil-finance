@@ -57,7 +57,7 @@ export function GenericInterruptView({
       if (isUrl(value)) {
         return value;
       }
-      return value.substring(0, 100) + "...";
+      return `${value.substring(0, 100)}...`;
     }
 
     if (Array.isArray(value) && !isExpanded) {
@@ -93,7 +93,7 @@ export function GenericInterruptView({
 
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200">
-      <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
+      <div className="border-gray-200 border-b bg-gray-50 px-4 py-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-medium text-gray-900">Human Interrupt</h3>
         </div>
@@ -125,10 +125,10 @@ export function GenericInterruptView({
                       : (item as [string, any]);
                     return (
                       <tr key={argIdx}>
-                        <td className="px-4 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
+                        <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-sm">
                           {key}
                         </td>
-                        <td className="px-4 py-2 text-sm text-gray-500">
+                        <td className="px-4 py-2 text-gray-500 text-sm">
                           {renderInterruptStateItem(value)}
                         </td>
                       </tr>
@@ -142,7 +142,7 @@ export function GenericInterruptView({
         {(shouldTruncate || (Array.isArray(interrupt) && interrupt.length > 5)) && (
           <motion.button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex w-full cursor-pointer items-center justify-center border-t-[1px] border-gray-200 py-2 text-gray-500 transition-all duration-200 ease-in-out hover:bg-gray-50 hover:text-gray-600"
+            className="flex w-full cursor-pointer items-center justify-center border-gray-200 border-t-[1px] py-2 text-gray-500 transition-all duration-200 ease-in-out hover:bg-gray-50 hover:text-gray-600"
             initial={{ scale: 1 }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}

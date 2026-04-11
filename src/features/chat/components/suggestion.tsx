@@ -3,7 +3,7 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button-v2";
-import { useRipple, RippleContainer } from "@/shared/ui/ripple-effect";
+import { RippleContainer, useRipple } from "@/shared/ui/ripple-effect";
 
 export type SuggestionProps = Omit<ComponentProps<typeof Button>, "onClick"> & {
   suggestion: string;
@@ -28,7 +28,7 @@ export const Suggestion = ({
   return (
     <Button
       className={cn(
-        "relative overflow-hidden cursor-pointer rounded-lg px-3 py-1.5 text-left text-xs h-auto whitespace-normal",
+        "relative h-auto cursor-pointer overflow-hidden whitespace-normal rounded-lg px-3 py-1.5 text-left text-xs",
         className
       )}
       onClick={handleClick}

@@ -1,4 +1,4 @@
-import type { Message } from '@langchain/langgraph-sdk';
+import type { Message } from "@langchain/langgraph-sdk";
 
 /**
  * Extracts a string summary from a message's content, supporting multimodal (text, image, file, etc.).
@@ -6,12 +6,12 @@ import type { Message } from '@langchain/langgraph-sdk';
  * - If not, returns a label for the first non-text modality (e.g., 'Image', 'Other').
  * - If unknown, returns 'Multimodal message'.
  */
-export function getContentString(content: Message['content']): string {
-  if (typeof content === 'string') return content;
+export function getContentString(content: Message["content"]): string {
+  if (typeof content === "string") return content;
   const texts = content
-    .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+    .filter((c): c is { type: "text"; text: string } => c.type === "text")
     .map((c) => c.text);
-  return texts.join(' ');
+  return texts.join(" ");
 }
 
 /**
@@ -49,18 +49,13 @@ export function hasIncompleteReasoningTags(content: string): boolean {
   const hasOpenThinking = /<thinking>/i.test(content);
   const hasCloseThinking = /<\/thinking>/i.test(content);
 
-  return (
-    (hasOpenReasoning && !hasCloseReasoning) ||
-    (hasOpenThinking && !hasCloseThinking)
-  );
+  return (hasOpenReasoning && !hasCloseReasoning) || (hasOpenThinking && !hasCloseThinking);
 }
 
 /**
  * Extract incomplete reasoning content (during streaming)
  */
-export function extractIncompleteReasoningContent(
-  content: string
-): string | null {
+export function extractIncompleteReasoningContent(content: string): string | null {
   if (!content) return null;
 
   // Try incomplete <reasoning> tag
@@ -94,20 +89,20 @@ export function stripReasoningSections(content: string): string {
   let result = content;
 
   // Remove complete <reasoning>...</reasoning> blocks
-  result = result.replace(/<reasoning>[\s\S]*?<\/reasoning>/gi, '');
+  result = result.replace(/<reasoning>[\s\S]*?<\/reasoning>/gi, "");
 
   // Remove incomplete <reasoning> tags during streaming (no closing tag yet)
   // This handles the case where streaming is in progress
-  result = result.replace(/<reasoning>[\s\S]*$/gi, '');
+  result = result.replace(/<reasoning>[\s\S]*$/gi, "");
 
   // Remove complete <thinking>...</thinking> blocks
-  result = result.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '');
+  result = result.replace(/<thinking>[\s\S]*?<\/thinking>/gi, "");
 
   // Remove incomplete <thinking> tags during streaming
-  result = result.replace(/<thinking>[\s\S]*$/gi, '');
+  result = result.replace(/<thinking>[\s\S]*$/gi, "");
 
   // Clean up multiple newlines left behind
-  result = result.replace(/\n{3,}/g, '\n\n').trim();
+  result = result.replace(/\n{3,}/g, "\n\n").trim();
 
   return result;
 }

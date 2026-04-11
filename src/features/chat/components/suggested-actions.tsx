@@ -3,8 +3,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronUp, RefreshCw, SparkleIcon } from "lucide-react";
 import { memo, useCallback, useEffect, useState } from "react";
-import { Suggestion } from "./suggestion";
 import { getAgentConfig, getAgentSuggestions } from "../config";
+import { Suggestion } from "./suggestion";
 
 type SuggestedActionsProps = {
   agentId: string;
@@ -35,17 +35,17 @@ function PureSuggestedActions({ agentId, onSendMessage }: SuggestedActionsProps)
   return (
     <div className="w-full pt-2">
       {/* Header with collapse/expand controls */}
-      <div className="flex flex-row items-center justify-between rounded-lg gap-1 px-2">
+      <div className="flex flex-row items-center justify-between gap-1 rounded-lg px-2">
         <div className="flex flex-row items-center gap-1">
           <SparkleIcon width={12} height={12} />
 
-          <span className="text-xs text-muted-foreground">Suggestions for {config.name}</span>
+          <span className="text-muted-foreground text-xs">Suggestions for {config.name}</span>
         </div>
         <div className="flex items-center gap-2">
           {!isCollapsed && (
             <button
               onClick={() => setSuggestedActions(getRandomSuggestions())}
-              className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded"
+              className="rounded p-1 text-muted-foreground transition-colors hover:text-foreground"
               type="button"
               title="Refresh suggestions"
             >
@@ -54,7 +54,7 @@ function PureSuggestedActions({ agentId, onSendMessage }: SuggestedActionsProps)
           )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded"
+            className="rounded p-1 text-muted-foreground transition-colors hover:text-foreground"
             type="button"
             title={isCollapsed ? "Show suggestions" : "Hide suggestions"}
           >
@@ -79,8 +79,8 @@ function PureSuggestedActions({ agentId, onSendMessage }: SuggestedActionsProps)
           >
             <div className="relative mt-3">
               {/* Gradient fade effects */}
-              <div className="absolute left-0 top-0 z-10 h-full w-[10%] bg-gradient-to-r from-background to-transparent pointer-events-none" />
-              <div className="absolute right-0 top-0 z-10 h-full w-[10%] bg-gradient-to-l from-background to-transparent pointer-events-none" />
+              <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-[10%] bg-gradient-to-r from-background to-transparent" />
+              <div className="pointer-events-none absolute top-0 right-0 z-10 h-full w-[10%] bg-gradient-to-l from-background to-transparent" />
 
               {/* Horizontal scrolling container */}
               <div

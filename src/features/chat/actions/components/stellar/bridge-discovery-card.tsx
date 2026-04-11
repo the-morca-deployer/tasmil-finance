@@ -2,10 +2,10 @@
 
 import { Crown, Globe } from "lucide-react";
 import { memo } from "react";
-import { BaseInfoCard } from "../base/info-card";
 import { useResultData } from "../../hooks/use-result-data";
-import { ScrollableList, StatusBadge, ProtocolBadge, DetailRow } from "../base/indicators";
 import { formatEstimatedTime } from "../../lib/formatting";
+import { DetailRow, ProtocolBadge, ScrollableList, StatusBadge } from "../base/indicators";
+import { BaseInfoCard } from "../base/info-card";
 
 interface BridgeQuote {
   provider: string;
@@ -43,9 +43,9 @@ function BridgeDiscoveryCardComponent({
 }: BridgeDiscoveryCardProps) {
   const { data, isLoading, hasError, errorMessage } = useResultData<BridgeData>(result, status);
 
-  const fromChain = args?.["fromChain"] ?? "?";
-  const toChain = args?.["toChain"] ?? "?";
-  const tokenIn = args?.["tokenIn"] ?? "";
+  const fromChain = args?.fromChain ?? "?";
+  const toChain = args?.toChain ?? "?";
+  const tokenIn = args?.tokenIn ?? "";
 
   return (
     <BaseInfoCard
@@ -66,7 +66,7 @@ function BridgeDiscoveryCardComponent({
             return (
               <div
                 key={`${quote.provider}-${idx}`}
-                className={`rounded-lg border p-3 space-y-2 ${
+                className={`space-y-2 rounded-lg border p-3 ${
                   isBest ? "border-green-500/40 bg-green-500/5" : "border-border"
                 } ${!isAvailable ? "opacity-50" : ""}`}
               >
@@ -74,12 +74,12 @@ function BridgeDiscoveryCardComponent({
                   <div className="flex items-center gap-2">
                     <ProtocolBadge name={quote.provider} />
                     {isBest && (
-                      <span className="flex items-center gap-1 text-xs text-green-500 font-medium">
+                      <span className="flex items-center gap-1 font-medium text-green-500 text-xs">
                         <Crown className="h-3 w-3" /> Best
                       </span>
                     )}
                     {quote.crossChainSwap && (
-                      <span className="text-xs bg-blue-500/10 text-blue-500 rounded-full px-1.5 py-0.5">
+                      <span className="rounded-full bg-blue-500/10 px-1.5 py-0.5 text-blue-500 text-xs">
                         cross-chain
                       </span>
                     )}
@@ -103,7 +103,7 @@ function BridgeDiscoveryCardComponent({
                     </div>
 
                     {quote.depositAddress && (
-                      <div className="text-xs text-muted-foreground border-t pt-2 mt-2">
+                      <div className="mt-2 border-t pt-2 text-muted-foreground text-xs">
                         Deposit to: <span className="font-mono">{quote.depositAddress}</span>
                         {quote.depositMemo && (
                           <>
@@ -117,14 +117,14 @@ function BridgeDiscoveryCardComponent({
                 )}
 
                 {!isAvailable && quote.error && (
-                  <div className="text-xs text-red-500">{quote.error}</div>
+                  <div className="text-red-500 text-xs">{quote.error}</div>
                 )}
               </div>
             );
           })}
         </ScrollableList>
       ) : (
-        <div className="text-sm text-muted-foreground">No bridge routes available.</div>
+        <div className="text-muted-foreground text-sm">No bridge routes available.</div>
       )}
     </BaseInfoCard>
   );

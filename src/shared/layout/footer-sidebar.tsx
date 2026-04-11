@@ -3,9 +3,9 @@
 import { Copy, User } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
-import { useWallet } from "@/shared/context/wallet-context";
-import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { cn } from "@/lib/utils";
+import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
+import { useWallet } from "@/shared/context/wallet-context";
 import Balatro from "../ui/balatro";
 import { Button } from "../ui/button-v2";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
@@ -65,11 +65,7 @@ export function FooterSidebarSection() {
     <div>
       {(() => {
         if (!isConnected) {
-          return isOpen ? (
-            <ConnectWalletButton />
-          ) : (
-            <ConnectWalletButton compact />
-          );
+          return isOpen ? <ConnectWalletButton /> : <ConnectWalletButton compact />;
         }
 
         return isOpen ? (
@@ -107,12 +103,7 @@ export function FooterSidebarSection() {
                     <Typography className="text-primary" size="sm" weight="semibold">
                       Start Now
                     </Typography>
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -159,11 +150,7 @@ export function FooterSidebarSection() {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <Typography
-                  className="text-gray-400 hover:text-white"
-                  size="xs"
-                  weight="bold"
-                >
+                <Typography className="text-gray-400 hover:text-white" size="xs" weight="bold">
                   DOCS
                 </Typography>
               </a>

@@ -6,16 +6,14 @@
  */
 
 export {
+  AccountInfoCard,
+  ActionSearchCard,
+  BridgeDiscoveryCard,
+  EarnDiscoveryCard,
+  PoolInfoCard,
+  StellarExecuteCard,
   StellarInfoDispatcher,
   StellarOperationDispatcher,
   SwapQuoteCard,
-  BridgeDiscoveryCard,
-  EarnDiscoveryCard,
-  AccountInfoCard,
-  PoolInfoCard,
-  ActionSearchCard,
-  StellarExecuteCard,
   TxSubmitCard,
 } from "./stellar";
-
-export { VaultOperationCard } from "./vault-operation-card";

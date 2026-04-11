@@ -1,37 +1,35 @@
-import type { AIMessage, Checkpoint, Message } from '@langchain/langgraph-sdk';
-import { LoadExternalComponent } from '@langchain/langgraph-sdk/react-ui';
-import { Loader } from '@/shared/ui/loader';
-import { Fragment } from 'react/jsx-runtime';
-import { ThreadView } from '@/features/chat/thread/agent-inbox';
-import { useArtifact } from '@/features/chat/thread/components/artifact';
-import { MarkdownText } from '@/features/chat/thread/components/markdown-text';
+import type { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
+import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
+import { Fragment } from "react/jsx-runtime";
+import { AgentAvatar } from "@/features/chat/components/agent-avatar";
+import { AIReasoning, Shimmer } from "@/features/chat/components/ai";
+import { useChatState, useStreamContext } from "@/features/chat/hooks";
 import {
-  getContentString,
-  stripReasoningSections,
-  extractReasoningContent,
-  hasIncompleteReasoningTags,
   extractIncompleteReasoningContent,
-} from '@/features/chat/lib/thread-utils';
-import { isAgentInboxInterruptSchema } from '@/lib/agent-inbox-interrupt';
-import { useChatState, useStreamContext } from '@/features/chat/hooks';
-import ComponentMap from '@/shared/components';
-import { AIReasoning, Shimmer } from '@/features/chat/components/ai';
-import { AgentAvatar } from '@/features/chat/components/agent-avatar';
-import { GenericInterruptView } from './generic-interrupt';
-import { BranchSwitcher, CommandBar } from './shared';
-import { ToolResult } from './tool-calls';
+  extractReasoningContent,
+  getContentString,
+  hasIncompleteReasoningTags,
+  stripReasoningSections,
+} from "@/features/chat/lib/thread-utils";
+import { ThreadView } from "@/features/chat/thread/agent-inbox";
+import { useArtifact } from "@/features/chat/thread/components/artifact";
+import { MarkdownText } from "@/features/chat/thread/components/markdown-text";
+import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
+import ComponentMap from "@/shared/components";
+import { Loader } from "@/shared/ui/loader";
+import { GenericInterruptView } from "./generic-interrupt";
+import { BranchSwitcher, CommandBar } from "./shared";
+import { ToolResult } from "./tool-calls";
 
 /** Check if a tool call is a supervisor-to-agent delegation */
 function isSupervisorAgentCall(name: string): boolean {
-  return name.startsWith('call_') && name.endsWith('_agent');
+  return name.startsWith("call_") && name.endsWith("_agent");
 }
 
 /** Check if any tool calls are supervisor agent delegations */
-function hasSupervisorAgentCalls(
-  toolCalls: AIMessage['tool_calls'] | undefined
-): boolean {
+function hasSupervisorAgentCalls(toolCalls: AIMessage["tool_calls"] | undefined): boolean {
   if (!toolCalls) return false;
-  return toolCalls.some((tc) => isSupervisorAgentCall(tc.name || ''));
+  return toolCalls.some((tc) => isSupervisorAgentCall(tc.name || ""));
 }
 
 function CustomComponent({
@@ -41,12 +39,12 @@ function CustomComponent({
 }: {
   message: Message;
   thread: ReturnType<typeof useStreamContext>;
-  filterType?: 'reasoning' | 'other';
+  filterType?: "reasoning" | "other";
 }) {
   const artifact = useArtifact();
   const { values } = useStreamContext();
-  
-  console.log('[CustomComponent] Called with:', {
+
+  console.log("[CustomComponent] Called with:", {
     messageId: message.id,
     messageType: message.type,
     filterType,
@@ -60,15 +58,13 @@ function CustomComponent({
       type: ui.props?.type,
     })),
   });
-  
-  // @ts-ignore - ui may not be in type definition
-  const allUIForMessage = values?.ui?.filter(
-    (ui: any) => ui.metadata?.message_id === message.id
-  );
+
+  // @ts-expect-error - ui may not be in type definition
+  const allUIForMessage = values?.ui?.filter((ui: any) => ui.metadata?.message_id === message.id);
 
   // Debug logging for blend UI
   if (message?.id && allUIForMessage?.length > 0) {
-    console.log('[AI Message] UI found for message:', {
+    console.log("[AI Message] UI found for message:", {
       messageId: message.id,
       uiCount: allUIForMessage.length,
       uiNames: allUIForMessage.map((ui: any) => ui.name),
@@ -78,17 +74,15 @@ function CustomComponent({
 
   // Filter by type if specified
   let filteredUI = allUIForMessage;
-  if (filterType === 'reasoning') {
+  if (filterType === "reasoning") {
     // Only reasoning UI components
     filteredUI = allUIForMessage?.filter(
-      (ui: any) =>
-        ui.name?.endsWith('-reasoning') || ui.metadata?.ui_type === 'reasoning'
+      (ui: any) => ui.name?.endsWith("-reasoning") || ui.metadata?.ui_type === "reasoning"
     );
-  } else if (filterType === 'other') {
+  } else if (filterType === "other") {
     // Everything except reasoning
     filteredUI = allUIForMessage?.filter(
-      (ui: any) =>
-        !ui.name?.endsWith('-reasoning') && ui.metadata?.ui_type !== 'reasoning'
+      (ui: any) => !ui.name?.endsWith("-reasoning") && ui.metadata?.ui_type !== "reasoning"
     );
   }
 
@@ -103,9 +97,7 @@ function CustomComponent({
     }
 
     // Find existing UI with same toolCallId
-    const existingIndex = acc.findIndex(
-      (item: any) => item.props?.toolCallId === toolCallId
-    );
+    const existingIndex = acc.findIndex((item: any) => item.props?.toolCallId === toolCallId);
 
     if (existingIndex >= 0) {
       // Replace with newer version (prefer "complete" over "executing")
@@ -114,7 +106,7 @@ function CustomComponent({
       const newStatus = ui.props?.status;
 
       // Replace if new status is "complete" or if both have same status (keep latest)
-      if (newStatus === 'complete' || existingStatus === newStatus) {
+      if (newStatus === "complete" || existingStatus === newStatus) {
         acc[existingIndex] = ui;
       }
       // Otherwise keep existing (e.g., don't replace "complete" with "executing")
@@ -127,7 +119,7 @@ function CustomComponent({
   }, []);
 
   if (!customComponents?.length) {
-    console.log('[CustomComponent] No components to render', {
+    console.log("[CustomComponent] No components to render", {
       messageId: message.id,
       filterType,
       allUICount: allUIForMessage?.length,
@@ -135,7 +127,7 @@ function CustomComponent({
     return null;
   }
 
-  console.log('[CustomComponent] Rendering components:', {
+  console.log("[CustomComponent] Rendering components:", {
     messageId: message.id,
     filterType,
     componentCount: customComponents.length,
@@ -169,22 +161,16 @@ interface InterruptProps {
   hasNoAIOrToolMessages: boolean;
 }
 
-function Interrupt({
-  interrupt,
-  isLastMessage,
-  hasNoAIOrToolMessages,
-}: InterruptProps) {
+function Interrupt({ interrupt, isLastMessage, hasNoAIOrToolMessages }: InterruptProps) {
   const fallbackValue = Array.isArray(interrupt)
     ? (interrupt as Record<string, any>[])
-    : (((interrupt as { value?: unknown } | undefined)?.value ??
-        interrupt) as Record<string, any>);
+    : (((interrupt as { value?: unknown } | undefined)?.value ?? interrupt) as Record<string, any>);
 
   return (
     <>
-      {isAgentInboxInterruptSchema(interrupt) &&
-        (isLastMessage || hasNoAIOrToolMessages) && (
-          <ThreadView interrupt={interrupt} />
-        )}
+      {isAgentInboxInterruptSchema(interrupt) && (isLastMessage || hasNoAIOrToolMessages) && (
+        <ThreadView interrupt={interrupt} />
+      )}
       {interrupt &&
       !isAgentInboxInterruptSchema(interrupt) &&
       (isLastMessage || hasNoAIOrToolMessages) ? (
@@ -227,43 +213,31 @@ export function AssistantMessage({
   const thread = useStreamContext();
   const isLastMessage =
     thread.messages.length > 0 && thread.messages[thread.messages.length - 1]?.id === message?.id;
-  const hasNoAIOrToolMessages = !thread.messages.find(
-    (m) => m.type === 'ai' || m.type === 'tool'
-  );
+  const hasNoAIOrToolMessages = !thread.messages.find((m) => m.type === "ai" || m.type === "tool");
   // Check if next non-tool message is also an AI message (i.e. this is an intermediate message)
-  const currentIdx = message
-    ? thread.messages.findIndex((m) => m.id === message.id)
-    : -1;
+  const currentIdx = message ? thread.messages.findIndex((m) => m.id === message.id) : -1;
   const nextVisibleMessage =
     currentIdx >= 0
-      ? thread.messages.slice(currentIdx + 1).find((m) => m.type !== 'tool')
+      ? thread.messages.slice(currentIdx + 1).find((m) => m.type !== "tool")
       : undefined;
-  const isIntermediateAiMessage =
-    !isLastMessage && nextVisibleMessage?.type === 'ai';
-  // @ts-ignore - getMessagesMetadata may not be in type definition
+  const isIntermediateAiMessage = !isLastMessage && nextVisibleMessage?.type === "ai";
+  // @ts-expect-error - getMessagesMetadata may not be in type definition
   const meta = message ? thread.getMessagesMetadata?.(message) : undefined;
   const threadInterrupt = thread.interrupt;
 
   const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint;
   // To get state BEFORE AI message for regeneration, we need messages up to (but not including) current AI message
   // Find the index of current message in thread.messages and get all messages before it
-  const currentMessageIndex = message
-    ? thread.messages.findIndex((m) => m.id === message.id)
-    : -1;
+  const currentMessageIndex = message ? thread.messages.findIndex((m) => m.id === message.id) : -1;
   const messagesBeforeCurrent =
-    currentMessageIndex > 0
-      ? thread.messages.slice(0, currentMessageIndex)
-      : [];
+    currentMessageIndex > 0 ? thread.messages.slice(0, currentMessageIndex) : [];
   const parentValues =
-    messagesBeforeCurrent.length > 0
-      ? { messages: messagesBeforeCurrent }
-      : undefined;
-  const allToolCalls =
-    message && 'tool_calls' in message ? message.tool_calls : undefined;
+    messagesBeforeCurrent.length > 0 ? { messages: messagesBeforeCurrent } : undefined;
+  const allToolCalls = message && "tool_calls" in message ? message.tool_calls : undefined;
 
   // Separate supervisor agent calls from regular tool calls
   const isSupervisorDelegating = hasSupervisorAgentCalls(allToolCalls);
-  const isToolResult = message?.type === 'tool';
+  const isToolResult = message?.type === "tool";
 
   if (isToolResult && hideToolCalls) {
     return null;
@@ -272,7 +246,7 @@ export function AssistantMessage({
   return (
     <div className="group mr-auto flex w-full items-start gap-3">
       {hideAvatar ? <div className="w-8 shrink-0" /> : <AgentAvatar />}
-      <div className="flex w-full flex-col gap-2 min-w-0">
+      <div className="flex w-full min-w-0 flex-col gap-2">
         {isToolResult ? (
           <>
             <ToolResult message={message} />
@@ -287,23 +261,17 @@ export function AssistantMessage({
             {/* 1. Reasoning UI - Show thinking/reasoning FIRST (before text) */}
             {/* 1a. Reasoning from middleware UI messages (preferred) */}
             {message && (
-              <CustomComponent
-                message={message}
-                thread={thread}
-                filterType="reasoning"
-              />
+              <CustomComponent message={message} thread={thread} filterType="reasoning" />
             )}
-            
+
             {/* 1b. Fallback: Reasoning extracted from message content */}
             {hasReasoning && (
-              <AIReasoning isStreaming={isReasoningStreaming}>
-                {reasoningContent}
-              </AIReasoning>
+              <AIReasoning isStreaming={isReasoningStreaming}>{reasoningContent}</AIReasoning>
             )}
 
             {/* 2a. Supervisor coordination indicator */}
             {isSupervisorDelegating && (
-              <div className="flex items-center gap-2 text-sm py-1.5">
+              <div className="flex items-center gap-2 py-1.5 text-sm">
                 <svg
                   className="h-4 w-4 text-muted-foreground"
                   viewBox="0 0 16 16"
@@ -317,7 +285,7 @@ export function AssistantMessage({
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span className="font-medium text-sm text-muted-foreground">
+                <span className="font-medium text-muted-foreground text-sm">
                   Coordinated agents
                 </span>
               </div>
@@ -328,60 +296,60 @@ export function AssistantMessage({
 
             {/* 3. AI Text Response */}
             {contentString.length > 0 && (
-              <div className="animate-in fade-in py-1 duration-200">
+              <div className="fade-in animate-in py-1 duration-200">
                 <MarkdownText>{contentString}</MarkdownText>
               </div>
             )}
 
             {/* 4. Custom UI Components (e.g., "Using Yield Agent", Staking card) */}
-            {message && (
-              <CustomComponent
-                message={message}
-                thread={thread}
-                filterType="other"
-              />
-            )}
+            {message && <CustomComponent message={message} thread={thread} filterType="other" />}
 
             <Interrupt
               interrupt={threadInterrupt}
               isLastMessage={isLastMessage}
               hasNoAIOrToolMessages={hasNoAIOrToolMessages}
             />
-            
+
             {/* Check if message has custom UI components */}
             {(() => {
-              // @ts-ignore - ui may not be in type definition
+              // @ts-expect-error - ui may not be in type definition
               const allUIForMessage = thread.values?.ui?.filter(
                 (ui: any) => ui.metadata?.message_id === message?.id
               );
               const hasCustomUI = allUIForMessage && allUIForMessage.length > 0;
-              
+
               // Only show command bar if:
               // - No custom UI
               // - Not intermediate AI message
               // - Not loading
               // - No new message is loading (hide command bar when new message is being generated)
-              return !hasCustomUI && !isIntermediateAiMessage && !isLoading && !isNewMessageLoading && (contentString.length > 0 || isLastMessage) && (
-                <div className="mr-auto flex items-center gap-2">
-                  <BranchSwitcher
-                    branch={meta?.branch}
-                    branchOptions={meta?.branchOptions}
-                    // @ts-ignore - setBranch may not be in type definition
-                    onSelect={(branch) => thread.setBranch?.(branch)}
-                    isLoading={isLoading}
-                  />
-                  <CommandBar
-                    content={contentString}
-                    isLoading={isLoading}
-                    isAiMessage={true}
-                    handleRegenerate={() =>
-                      handleRegenerate(
-                        parentCheckpoint,
-                        parentValues as { messages: Message[] } | undefined
-                      )
-                    }
-                  />
-                </div>
+              return (
+                !hasCustomUI &&
+                !isIntermediateAiMessage &&
+                !isLoading &&
+                !isNewMessageLoading &&
+                (contentString.length > 0 || isLastMessage) && (
+                  <div className="mr-auto flex items-center gap-2">
+                    <BranchSwitcher
+                      branch={meta?.branch}
+                      branchOptions={meta?.branchOptions}
+                      // @ts-expect-error - setBranch may not be in type definition
+                      onSelect={(branch) => thread.setBranch?.(branch)}
+                      isLoading={isLoading}
+                    />
+                    <CommandBar
+                      content={contentString}
+                      isLoading={isLoading}
+                      isAiMessage={true}
+                      handleRegenerate={() =>
+                        handleRegenerate(
+                          parentCheckpoint,
+                          parentValues as { messages: Message[] } | undefined
+                        )
+                      }
+                    />
+                  </div>
+                )
               );
             })()}
           </>
@@ -391,11 +359,7 @@ export function AssistantMessage({
   );
 }
 
-export function AssistantMessageLoading({
-  hideAvatar = false,
-}: {
-  hideAvatar?: boolean;
-}) {
+export function AssistantMessageLoading({ hideAvatar = false }: { hideAvatar?: boolean }) {
   return (
     <div className="mr-auto flex items-start gap-3">
       {!hideAvatar && <AgentAvatar />}

@@ -154,7 +154,7 @@ export default function Balatro({
 
       renderer.setSize(width, height);
       if (program) {
-        program.uniforms["iResolution"].value = [
+        program.uniforms.iResolution.value = [
           gl.canvas.width,
           gl.canvas.height,
           gl.canvas.width / gl.canvas.height,
@@ -212,7 +212,7 @@ export default function Balatro({
 
     function update(time: number) {
       animationFrameId = requestAnimationFrame(update);
-      program.uniforms["iTime"].value = time * 0.001;
+      program.uniforms.iTime.value = time * 0.001;
       renderer.render({ scene: mesh });
     }
     animationFrameId = requestAnimationFrame(update);
@@ -223,7 +223,7 @@ export default function Balatro({
       const rect = container.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
       const y = 1.0 - (e.clientY - rect.top) / rect.height;
-      program.uniforms["uMouse"].value = [x, y];
+      program.uniforms.uMouse.value = [x, y];
     }
     container.addEventListener("mousemove", handleMouseMove);
 

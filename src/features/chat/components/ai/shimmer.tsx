@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import type * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface ShimmerProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -37,9 +37,9 @@ export function Shimmer({
   return (
     <div
       className={cn(
-        "animate-shimmer bg-clip-text text-transparent bg-[length:200%_100%]",
+        "animate-shimmer bg-[length:200%_100%] bg-clip-text text-transparent",
         "bg-gradient-to-r from-muted-foreground via-foreground to-muted-foreground",
-        className,
+        className
       )}
       style={{
         animationDuration: `${duration}s`,

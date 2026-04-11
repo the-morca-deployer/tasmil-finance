@@ -22,7 +22,7 @@ interface MultiSidebarLayoutProps {
   showHeader?: boolean;
 }
 
-function Header({   title, showRightSidebar }: { title: string; showRightSidebar: boolean }) {
+function Header({ title, showRightSidebar }: { title: string; showRightSidebar: boolean }) {
   const { toggleSidebar } = useSidebar();
 
   return (
@@ -87,7 +87,7 @@ function MobileLayout({
 
       {/* Left sidebar sheet - no border, custom close button */}
       <Sheet open={leftSidebarOpen} onOpenChange={setLeftSidebarOpen}>
-        <SheetContent side="left" className="w-[280px] p-0 border-r-0" hideCloseButton>
+        <SheetContent side="left" className="w-[280px] border-r-0 p-0" hideCloseButton>
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation</SheetTitle>
           </SheetHeader>

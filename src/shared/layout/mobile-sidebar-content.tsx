@@ -5,9 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { useWallet } from "@/shared/context/wallet-context";
-import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { cn } from "@/lib/utils";
+import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
+import { useWallet } from "@/shared/context/wallet-context";
 import { sidebarData } from "@/shared/layout/sidebar-data";
 import { Badge } from "@/shared/ui/badge";
 import Balatro from "@/shared/ui/balatro";
@@ -223,11 +223,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
                     rel="noopener noreferrer"
                     target="_blank"
                   >
-                    <Typography
-                      className="text-gray-400 hover:text-white"
-                      size="xs"
-                      weight="bold"
-                    >
+                    <Typography className="text-gray-400 hover:text-white" size="xs" weight="bold">
                       DOCS
                     </Typography>
                   </a>

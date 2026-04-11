@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Copy, CopyCheck } from "lucide-react";
 import React from "react";
-import { TooltipIconButton } from "../../components/tooltip-icon-button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip";
+import { TooltipIconButton } from "../../components/tooltip-icon-button";
 
 export function ThreadIdTooltip({ threadId }: { threadId: string }) {
   const firstThreeChars = threadId.slice(0, 3);

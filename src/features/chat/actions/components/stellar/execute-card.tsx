@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowRightLeft, Globe, Coins, TrendingUp, FileCode } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { BaseOperationCard } from "../base/operation-card";
-import { DetailRow } from "../base/indicators";
+import { ArrowRightLeft, Coins, FileCode, Globe, TrendingUp } from "lucide-react";
 import { truncateAddress } from "@/shared/config/stellar";
+import { DetailRow } from "../base/indicators";
+import { BaseOperationCard } from "../base/operation-card";
 
 interface ExecuteResult {
   success: boolean;
@@ -159,11 +159,11 @@ export function StellarExecuteCard({
     }
   }
 
-  const xdr = execResult?.xdr ?? args?.["xdr"];
-  const protocol = execResult?.protocol ?? args?.["protocol"];
-  const estimatedFee = execResult?.estimatedFee ?? args?.["estimatedFee"];
-  const route = execResult?.route ?? args?.["route"];
-  const action = args?.["action"];
+  const xdr = execResult?.xdr ?? args?.xdr;
+  const protocol = execResult?.protocol ?? args?.protocol;
+  const estimatedFee = execResult?.estimatedFee ?? args?.estimatedFee;
+  const route = execResult?.route ?? args?.route;
+  const action = args?.action;
 
   const handleExecute = async (address: string) => {
     if (!xdr) {
@@ -172,7 +172,7 @@ export function StellarExecuteCard({
 
     try {
       // Sign XDR with Stellar wallet
-      const { StellarWalletsKit } = await import("@creit-tech/stellar-wallets-kit/sdk");
+      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
       const { signedTxXdr } = await StellarWalletsKit.signTransaction(xdr, {
         address,
         networkPassphrase: undefined,
@@ -193,7 +193,7 @@ export function StellarExecuteCard({
   };
 
   const renderDetails = () => (
-    <div className="space-y-2 mb-2">
+    <div className="mb-2 space-y-2">
       {action && (
         <DetailRow
           label="Action"
@@ -205,20 +205,18 @@ export function StellarExecuteCard({
       )}
       {estimatedFee && <DetailRow label="Est. Fee" value={estimatedFee} />}
       {route && route.length > 1 && <DetailRow label="Route" value={route.join(" → ")} />}
-      {args?.["tokenIn"] && args?.["tokenOut"] && (
-        <DetailRow label="Pair" value={`${args["tokenIn"]} → ${args["tokenOut"]}`} />
+      {args?.tokenIn && args?.tokenOut && (
+        <DetailRow label="Pair" value={`${args.tokenIn} → ${args.tokenOut}`} />
       )}
-      {args?.["amount"] && <DetailRow label="Amount" value={args["amount"] as string} />}
-      {args?.["from"] && (
-        <DetailRow label="From" value={truncateAddress(String(args["from"]))} mono />
-      )}
-      {args?.["poolAddress"] && (
-        <DetailRow label="Pool" value={truncateAddress(String(args["poolAddress"]))} mono />
+      {args?.amount && <DetailRow label="Amount" value={args.amount as string} />}
+      {args?.from && <DetailRow label="From" value={truncateAddress(String(args.from))} mono />}
+      {args?.poolAddress && (
+        <DetailRow label="Pool" value={truncateAddress(String(args.poolAddress))} mono />
       )}
       {xdr && (
-        <div className="border-t pt-2 mt-2">
-          <div className="text-xs text-muted-foreground mb-1">Transaction XDR</div>
-          <div className="font-mono text-[10px] text-muted-foreground bg-muted/30 rounded p-2 break-all max-h-[60px] overflow-y-auto">
+        <div className="mt-2 border-t pt-2">
+          <div className="mb-1 text-muted-foreground text-xs">Transaction XDR</div>
+          <div className="max-h-[60px] overflow-y-auto break-all rounded bg-muted/30 p-2 font-mono text-[10px] text-muted-foreground">
             {xdr.slice(0, 200)}
             {xdr.length > 200 ? "..." : ""}
           </div>

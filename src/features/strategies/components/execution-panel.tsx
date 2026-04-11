@@ -1,18 +1,14 @@
-'use client';
+"use client";
 
-import { ChevronDown, ChevronUp, Fuel, Zap } from 'lucide-react';
-import { useId, useState } from 'react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/shared/ui/button';
-import { Card, CardContent, CardHeader } from '@/shared/ui/card';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/shared/ui/collapsible';
-import { Input } from '@/shared/ui/input';
-import { Label } from '@/shared/ui/label';
-import type { ExecutionPanel } from '../types';
+import { ChevronDown, ChevronUp, Fuel, Zap } from "lucide-react";
+import { useId, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/shared/ui/button";
+import { Card, CardContent, CardHeader } from "@/shared/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui/collapsible";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import type { ExecutionPanel } from "../types";
 
 interface ExecutionPanelProps {
   executionPanel: ExecutionPanel;
@@ -26,9 +22,7 @@ export function ExecutionPanelComponent({
   className,
 }: ExecutionPanelProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [inputAmount, setInputAmount] = useState(
-    executionPanel.input_amount.toString()
-  );
+  const [inputAmount, setInputAmount] = useState(executionPanel.input_amount.toString());
   const amountInputId = useId();
   const tokenInputId = useId();
 
@@ -43,7 +37,7 @@ export function ExecutionPanelComponent({
   const handleZap = () => {};
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* APY Display */}
       <Card className="border-zinc-800 bg-zinc-900/50">
         <CardContent className="p-6">
@@ -63,8 +57,7 @@ export function ExecutionPanelComponent({
           {/* Available Balance */}
           <div className="flex items-center justify-between">
             <span className="text-sm text-zinc-500">
-              Available: {executionPanel.available_balance}{' '}
-              {executionPanel.input_token}
+              Available: {executionPanel.available_balance} {executionPanel.input_token}
             </span>
             <Button
               variant="ghost"
@@ -85,9 +78,7 @@ export function ExecutionPanelComponent({
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
                 <span className="font-semibold text-primary text-xs">$</span>
               </div>
-              <span className="font-medium text-white">
-                {executionPanel.input_token}
-              </span>
+              <span className="font-medium text-white">{executionPanel.input_token}</span>
             </div>
           </div>
 
@@ -108,9 +99,7 @@ export function ExecutionPanelComponent({
 
           {/* Status Message */}
           {executionPanel.status_message && (
-            <p className="text-red-400 text-sm">
-              {executionPanel.status_message}
-            </p>
+            <p className="text-red-400 text-sm">{executionPanel.status_message}</p>
           )}
 
           {/* Zap Section */}
@@ -144,9 +133,7 @@ export function ExecutionPanelComponent({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Fuel className="h-4 w-4 text-zinc-500" />
-                  <span className="text-sm text-zinc-500">
-                    Est. Network Cost
-                  </span>
+                  <span className="text-sm text-zinc-500">Est. Network Cost</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -165,9 +152,7 @@ export function ExecutionPanelComponent({
 
               {/* Slippage Tolerance */}
               <div className="flex items-center justify-between">
-                <span className="text-sm text-zinc-500">
-                  Slippage Tolerance
-                </span>
+                <span className="text-sm text-zinc-500">Slippage Tolerance</span>
                 <span className="font-medium text-white">
                   {executionPanel.network_details.slippage_tolerance}
                 </span>
@@ -184,11 +169,7 @@ export function ExecutionPanelComponent({
             >
               Simulate
             </Button>
-            <Button
-              variant="default"
-              className="flex-1"
-              onClick={handlePrepareGas}
-            >
+            <Button variant="default" className="flex-1" onClick={handlePrepareGas}>
               Prepare Gas
             </Button>
           </div>

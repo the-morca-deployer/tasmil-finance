@@ -2,16 +2,16 @@
 
 import { TrendingUp } from "lucide-react";
 import { memo } from "react";
-import { BaseInfoCard } from "../base/info-card";
 import { useResultData } from "../../hooks/use-result-data";
-import {
-  ScrollableList,
-  APYDisplay,
-  RiskBadge,
-  ProtocolBadge,
-  DetailRow,
-} from "../base/indicators";
 import { formatNumber } from "../../lib/formatting";
+import {
+  APYDisplay,
+  DetailRow,
+  ProtocolBadge,
+  RiskBadge,
+  ScrollableList,
+} from "../base/indicators";
+import { BaseInfoCard } from "../base/info-card";
 
 interface EarnOpportunity {
   protocol: string;
@@ -98,19 +98,19 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
     >
       {/* Stats overview */}
       {items.length > 0 && (
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          <div className="bg-muted/30 rounded p-2 text-center">
-            <div className="text-muted-foreground text-[10px]">Count</div>
+        <div className="mb-3 grid grid-cols-3 gap-2">
+          <div className="rounded bg-muted/30 p-2 text-center">
+            <div className="text-[10px] text-muted-foreground">Count</div>
             <div className="font-semibold text-sm">{items.length}</div>
           </div>
-          <div className="bg-muted/30 rounded p-2 text-center">
-            <div className="text-muted-foreground text-[10px]">Best APY</div>
-            <div className="font-semibold text-sm text-green-500">
+          <div className="rounded bg-muted/30 p-2 text-center">
+            <div className="text-[10px] text-muted-foreground">Best APY</div>
+            <div className="font-semibold text-green-500 text-sm">
               {Math.max(...items.map((o) => o.apy ?? 0)).toFixed(1)}%
             </div>
           </div>
-          <div className="bg-muted/30 rounded p-2 text-center">
-            <div className="text-muted-foreground text-[10px]">Protocols</div>
+          <div className="rounded bg-muted/30 p-2 text-center">
+            <div className="text-[10px] text-muted-foreground">Protocols</div>
             <div className="font-semibold text-sm">
               {new Set(items.map((o) => o.protocol)).size}
             </div>
@@ -126,23 +126,23 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
             .map((opp, idx) => (
               <div
                 key={`${opp.protocol}-${opp.name}-${idx}`}
-                className="rounded-lg border p-3 space-y-2"
+                className="space-y-2 rounded-lg border p-3"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex min-w-0 items-center gap-2">
                     <ProtocolBadge name={opp.protocol} />
-                    <span className="text-xs bg-muted/50 rounded-full px-1.5 py-0.5 text-muted-foreground">
+                    <span className="rounded-full bg-muted/50 px-1.5 py-0.5 text-muted-foreground text-xs">
                       {opp.type}
                     </span>
                   </div>
                   <RiskBadge risk={opp.risk} />
                 </div>
 
-                <div className="text-sm font-medium truncate">{opp.name}</div>
+                <div className="truncate font-medium text-sm">{opp.name}</div>
 
-                <div className="flex items-center gap-1 flex-wrap">
+                <div className="flex flex-wrap items-center gap-1">
                   {opp.assets.map((a) => (
-                    <span key={a} className="text-xs bg-muted/40 rounded px-1.5 py-0.5">
+                    <span key={a} className="rounded bg-muted/40 px-1.5 py-0.5 text-xs">
                       {a}
                     </span>
                   ))}
@@ -172,7 +172,7 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
                 </div>
 
                 {opp.reserves && opp.reserves.length > 0 && (
-                  <div className="text-xs text-muted-foreground border-t pt-1 mt-1">
+                  <div className="mt-1 border-t pt-1 text-muted-foreground text-xs">
                     Reserves: {opp.reserves.map((r) => `${r.amount} ${r.symbol}`).join(", ")}
                   </div>
                 )}
@@ -180,7 +180,7 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
             ))}
         </ScrollableList>
       ) : (
-        <div className="text-sm text-muted-foreground">No opportunities found.</div>
+        <div className="text-muted-foreground text-sm">No opportunities found.</div>
       )}
     </BaseInfoCard>
   );

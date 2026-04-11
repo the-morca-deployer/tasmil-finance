@@ -16,11 +16,11 @@
  */
 
 import type { Interrupt } from "@langchain/langgraph-sdk";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { StellarExecuteCard } from "../../actions/components/stellar/execute-card";
 import { useStreamContext } from "../../hooks";
-import { useCallback, useState, useEffect } from "react";
-import { toast } from "sonner";
 import type { HITLRequest } from "./types";
 
 const DO_NOT_RENDER_ID_PREFIX = "__do_not_render__";
@@ -142,7 +142,7 @@ export function StellarHITLHandler({ interrupt, operation }: StellarHITLHandlerP
   if (!actionRequest) {
     return (
       <div className="rounded-lg border bg-card p-6">
-        <p className="text-sm text-muted-foreground">Invalid HITL request format</p>
+        <p className="text-muted-foreground text-sm">Invalid HITL request format</p>
       </div>
     );
   }

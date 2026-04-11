@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { AGENTS } from '@/features/chat/config/agents.config';
+import Image from "next/image";
+import { AGENTS } from "@/features/chat/config/agents.config";
 
 interface HeroSectionProps {
   agentCount: number;
@@ -10,7 +10,7 @@ interface HeroSectionProps {
 export function HeroSection({ agentCount }: HeroSectionProps) {
   const allAgents = Object.values(AGENTS).map((agent) => ({
     name: agent.name,
-    icon: agent.icon || '/agents/supervisor-agent.png',
+    icon: agent.icon || "/agents/supervisor-agent.png",
   }));
   const visibleAgents = allAgents.slice(0, 4);
 
@@ -32,17 +32,17 @@ export function HeroSection({ agentCount }: HeroSectionProps) {
 
         {/* Content */}
         <div className="relative z-20 flex h-full flex-col justify-center px-8 md:px-16">
-          <h1 className="mb-4 font-bold text-4xl tracking-tight text-foreground md:text-5xl">
+          <h1 className="mb-4 font-bold text-4xl text-foreground tracking-tight md:text-5xl">
             Explore AI Tasmil Agents
           </h1>
 
-          <p className="mb-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Discover AI Tasmil Agents — specialized, collaborative AI Agents
-            that power Intelligence and Strategies
+          <p className="mb-8 max-w-xl text-lg text-muted-foreground leading-relaxed">
+            Discover AI Tasmil Agents — specialized, collaborative AI Agents that power Intelligence
+            and Strategies
           </p>
 
           <div className="flex items-center gap-4">
-            <div className="group/agents relative flex -space-x-2">
+            <div className="group/agents -space-x-2 relative flex">
               {visibleAgents.map((agent) => (
                 <div
                   key={agent.name}
@@ -63,22 +63,17 @@ export function HeroSection({ agentCount }: HeroSectionProps) {
                 {allAgents.map((agent) => (
                   <div
                     key={`${agent.name}-tooltip`}
-                    className="flex items-center gap-2 text-xs text-muted-foreground"
+                    className="flex items-center gap-2 text-muted-foreground text-xs"
                   >
                     <div className="relative h-5 w-5 overflow-hidden rounded-full">
-                      <Image
-                        src={agent.icon}
-                        alt={agent.name}
-                        fill
-                        className="object-cover"
-                      />
+                      <Image src={agent.icon} alt={agent.name} fill className="object-cover" />
                     </div>
                     <span>{agent.name}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <span className="ml-2 text-sm font-medium text-muted-foreground">
+            <span className="ml-2 font-medium text-muted-foreground text-sm">
               {agentCount}+ Agents
             </span>
           </div>

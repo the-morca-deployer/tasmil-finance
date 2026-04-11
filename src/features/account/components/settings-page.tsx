@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  AlertTriangle,
-  Check,
-  Copy,
-  Loader2,
-  Lock,
-  ShieldOff,
-  Wallet,
-} from "lucide-react";
+import { AlertTriangle, Check, Copy, Loader2, Lock, ShieldOff, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useId, useMemo, useState } from "react";
 
@@ -17,12 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Separator } from "@/shared/ui/separator";
 import { useWalletStore } from "@/store/use-wallet";
 
-import {
-  usePosition,
-  useRevoke,
-  useSubmitTx,
-  useWithdraw,
-} from "../hooks/use-account-api";
+import { usePosition, useRevoke, useSubmitTx, useWithdraw } from "../hooks/use-account-api";
 
 function formatUsd(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -94,7 +81,8 @@ export function SettingsPage() {
   }, [position]);
 
   const parsedAmount = Number.parseFloat(withdrawAmount);
-  const isValidWithdraw = !Number.isNaN(parsedAmount) && parsedAmount > 0 && parsedAmount <= availableUsd;
+  const isValidWithdraw =
+    !Number.isNaN(parsedAmount) && parsedAmount > 0 && parsedAmount <= availableUsd;
   const isProcessing = withdrawMutation.isPending || revokeMutation.isPending || submitTx.isPending;
 
   const handleSetMax = useCallback(() => {
@@ -297,9 +285,7 @@ export function SettingsPage() {
         <CardContent className="space-y-4">
           {/* Keeper-wallet address */}
           <div className="rounded-lg border border-border bg-muted/20 p-3">
-            <span className="mb-1 block text-muted-foreground text-xs">
-              Keeper-Wallet Address
-            </span>
+            <span className="mb-1 block text-muted-foreground text-xs">Keeper-Wallet Address</span>
             <div className="flex items-center gap-2">
               <code className="flex-1 truncate font-mono text-foreground text-xs">
                 {keeperAddress ?? publicKey}
@@ -324,8 +310,8 @@ export function SettingsPage() {
             <div className="text-xs">
               <p className="font-medium text-orange-300">Revoking bot access is irreversible.</p>
               <p className="text-orange-400/80">
-                After revoking, automated rebalancing and harvesting will stop.
-                You will need to manage your positions manually or re-create your account.
+                After revoking, automated rebalancing and harvesting will stop. You will need to
+                manage your positions manually or re-create your account.
               </p>
             </div>
           </div>
@@ -341,15 +327,11 @@ export function SettingsPage() {
             {(revokeMutation.isPending || submitTx.isPending) && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            {revokeMutation.isPending || submitTx.isPending
-              ? "Revoking..."
-              : "Revoke Bot Access"}
+            {revokeMutation.isPending || submitTx.isPending ? "Revoking..." : "Revoke Bot Access"}
           </Button>
 
           {revokeMutation.isError && (
-            <p className="text-center text-destructive text-sm">
-              Revoke failed. Please try again.
-            </p>
+            <p className="text-center text-destructive text-sm">Revoke failed. Please try again.</p>
           )}
         </CardContent>
       </Card>

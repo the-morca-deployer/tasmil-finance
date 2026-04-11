@@ -29,7 +29,7 @@ export default function AIDemoPage() {
   return (
     <div className="container mx-auto max-w-4xl space-y-8 p-8">
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold">AI Components Demo</h1>
+        <h1 className="font-bold text-3xl">AI Components Demo</h1>
         <p className="text-muted-foreground">
           Inspired by{" "}
           <a
@@ -46,8 +46,8 @@ export default function AIDemoPage() {
       <div className="space-y-6">
         <section className="space-y-4">
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold">AI Reasoning</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="font-semibold text-2xl">AI Reasoning</h2>
+            <p className="text-muted-foreground text-sm">
               Collapsible thinking blocks that show AI reasoning process
             </p>
           </div>
@@ -79,8 +79,8 @@ export default function AIDemoPage() {
 
         <section className="space-y-4">
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold">AI Task</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="font-semibold text-2xl">AI Task</h2>
+            <p className="text-muted-foreground text-sm">
               Task progress display with collapsible details
             </p>
           </div>
@@ -126,8 +126,8 @@ export default function AIDemoPage() {
 
         <section className="space-y-4">
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold">Combined Example</h2>
-            <p className="text-sm text-muted-foreground">Reasoning + Task working together</p>
+            <h2 className="font-semibold text-2xl">Combined Example</h2>
+            <p className="text-muted-foreground text-sm">Reasoning + Task working together</p>
           </div>
 
           <div className="space-y-4 rounded-lg border p-4">

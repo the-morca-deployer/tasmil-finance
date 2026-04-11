@@ -53,7 +53,7 @@ const RiskIndicator = ({ risk }: { risk: string | undefined }) => {
   };
 
   return (
-    <span className={cn("px-2 py-1 rounded text-xs font-medium", getRiskColor(risk))}>{risk}</span>
+    <span className={cn("rounded px-2 py-1 font-medium text-xs", getRiskColor(risk))}>{risk}</span>
   );
 };
 
@@ -93,24 +93,24 @@ const YieldPoolsResult = memo(({ data, scrollId }: { data: any; scrollId: string
 
   return (
     <div className="space-y-2">
-      <div className="text-sm text-muted-foreground mb-2">
+      <div className="mb-2 text-muted-foreground text-sm">
         Found {data.totalPools || pools.length} yield opportunities
       </div>
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="max-h-[400px] overflow-y-auto space-y-2"
+        className="max-h-[400px] space-y-2 overflow-y-auto"
         data-scrollable="true"
       >
         {pools.slice(0, 15).map((pool: any, index: number) => (
           <div
             key={`pool-${index}-${pool.symbol}`}
-            className="border border-border/50 rounded-lg p-3 space-y-2"
+            className="space-y-2 rounded-lg border border-border/50 p-3"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="font-medium">{pool.symbol}</span>
-                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                <span className="rounded bg-muted px-2 py-1 text-muted-foreground text-xs">
                   {pool.chain}
                 </span>
                 {pool.stablecoin && <Shield className="h-3 w-3 text-green-500" />}
@@ -131,15 +131,15 @@ const YieldPoolsResult = memo(({ data, scrollId }: { data: any; scrollId: string
 
             {(pool.apyBase !== undefined || pool.apyReward !== undefined || pool.ilRisk) && (
               <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className="bg-muted/30 rounded p-1.5 text-center">
+                <div className="rounded bg-muted/30 p-1.5 text-center">
                   <div className="text-muted-foreground">Base APY</div>
                   <div className="font-medium">{pool.apyBase?.toFixed(2) || "N/A"}%</div>
                 </div>
-                <div className="bg-muted/30 rounded p-1.5 text-center">
+                <div className="rounded bg-muted/30 p-1.5 text-center">
                   <div className="text-muted-foreground">Reward APY</div>
                   <div className="font-medium">{pool.apyReward?.toFixed(2) || "N/A"}%</div>
                 </div>
-                <div className="bg-muted/30 rounded p-1.5 text-center">
+                <div className="rounded bg-muted/30 p-1.5 text-center">
                   <div className="text-muted-foreground">IL Risk</div>
                   <RiskIndicator risk={pool.ilRisk} />
                 </div>
@@ -160,31 +160,31 @@ const TopYieldsByChainResult = memo(({ data, scrollId }: { data: any; scrollId: 
 
   return (
     <div className="space-y-2">
-      <div className="text-sm text-muted-foreground mb-2">
+      <div className="mb-2 text-muted-foreground text-sm">
         Top yields on {data.chain} ({data.totalPools || pools.length} pools found)
       </div>
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="max-h-[350px] overflow-y-auto space-y-1"
+        className="max-h-[350px] space-y-1 overflow-y-auto"
         data-scrollable="true"
       >
         {pools.map((pool: any, index: number) => (
           <div
             key={`chain-pool-${index}-${pool.symbol}`}
-            className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+            className="flex items-center justify-between border-border/50 border-b py-2 last:border-0"
           >
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground w-6 text-xs">#{pool.rank || index + 1}</span>
+              <span className="w-6 text-muted-foreground text-xs">#{pool.rank || index + 1}</span>
               <div>
                 <span className="font-medium">{pool.symbol}</span>
-                <div className="text-xs text-muted-foreground">{pool.project}</div>
+                <div className="text-muted-foreground text-xs">{pool.project}</div>
               </div>
               {pool.stablecoin && <Shield className="h-3 w-3 text-green-500" />}
             </div>
             <div className="text-right">
               <APYIndicator value={pool.apy} />
-              <div className="text-xs text-muted-foreground">TVL: ${formatNumber(pool.tvlUsd)}</div>
+              <div className="text-muted-foreground text-xs">TVL: ${formatNumber(pool.tvlUsd)}</div>
             </div>
           </div>
         ))}
@@ -201,20 +201,20 @@ const YieldStatsResult = memo(({ data }: { data: any }) => {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-        <div className="bg-muted/30 rounded p-3 text-center">
+      <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+        <div className="rounded bg-muted/30 p-3 text-center">
           <div className="text-muted-foreground text-xs">Total TVL</div>
           <div className="font-bold text-lg">${formatNumber(overview.totalTvl)}</div>
         </div>
-        <div className="bg-muted/30 rounded p-3 text-center">
+        <div className="rounded bg-muted/30 p-3 text-center">
           <div className="text-muted-foreground text-xs">Total Pools</div>
           <div className="font-bold text-lg">{overview.totalPools?.toLocaleString()}</div>
         </div>
-        <div className="bg-muted/30 rounded p-3 text-center">
+        <div className="rounded bg-muted/30 p-3 text-center">
           <div className="text-muted-foreground text-xs">Avg APY</div>
           <div className="font-bold text-lg">{overview.avgApy?.toFixed(1)}%</div>
         </div>
-        <div className="bg-muted/30 rounded p-3 text-center">
+        <div className="rounded bg-muted/30 p-3 text-center">
           <div className="text-muted-foreground text-xs">Chains</div>
           <div className="font-bold text-lg">{overview.chainsCount}</div>
         </div>
@@ -222,21 +222,21 @@ const YieldStatsResult = memo(({ data }: { data: any }) => {
 
       {topChains.length > 0 && (
         <div>
-          <div className="text-sm text-muted-foreground mb-2">Top Chains by TVL</div>
+          <div className="mb-2 text-muted-foreground text-sm">Top Chains by TVL</div>
           <div className="space-y-1">
             {topChains.slice(0, 8).map((chain: any, index: number) => (
               <div
                 key={`stats-chain-${index}-${chain.chain}`}
-                className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0"
+                className="flex items-center justify-between border-border/50 border-b py-1.5 last:border-0"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground w-6 text-xs">#{index + 1}</span>
+                  <span className="w-6 text-muted-foreground text-xs">#{index + 1}</span>
                   <span className="font-medium">{chain.chain}</span>
-                  <span className="text-xs text-muted-foreground">{chain.poolCount} pools</span>
+                  <span className="text-muted-foreground text-xs">{chain.poolCount} pools</span>
                 </div>
                 <div className="text-right text-sm">
                   <div className="font-medium">${formatNumber(chain.totalTvl)}</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-muted-foreground text-xs">
                     Avg: {chain.avgApy?.toFixed(1)}%
                   </div>
                 </div>
@@ -257,33 +257,33 @@ const StablecoinYieldsResult = memo(({ data, scrollId }: { data: any; scrollId: 
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+      <div className="mb-2 flex items-center gap-2 text-muted-foreground text-sm">
         <Shield className="h-4 w-4 text-green-500" />
         Safe stablecoin yields ({data.totalPools || pools.length} found)
       </div>
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="max-h-[350px] overflow-y-auto space-y-1"
+        className="max-h-[350px] space-y-1 overflow-y-auto"
         data-scrollable="true"
       >
         {pools.map((pool: any, index: number) => (
           <div
             key={`stable-${index}-${pool.symbol}`}
-            className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+            className="flex items-center justify-between border-border/50 border-b py-2 last:border-0"
           >
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground w-6 text-xs">#{pool.rank || index + 1}</span>
+              <span className="w-6 text-muted-foreground text-xs">#{pool.rank || index + 1}</span>
               <div>
                 <span className="font-medium">{pool.symbol}</span>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-muted-foreground text-xs">
                   {pool.project} • {pool.chain}
                 </div>
               </div>
             </div>
             <div className="text-right">
               <APYIndicator value={pool.apy} />
-              <div className="text-xs text-muted-foreground">TVL: ${formatNumber(pool.tvlUsd)}</div>
+              <div className="text-muted-foreground text-xs">TVL: ${formatNumber(pool.tvlUsd)}</div>
             </div>
           </div>
         ))}
@@ -317,14 +317,14 @@ const GenericResult = ({ data }: { data: any }) => {
         <span className={data.success ? "text-green-500" : "text-red-500"}>
           {data.success ? "✓ Success" : "✗ Failed"}
         </span>
-        {data.error && <span className="text-red-500 ml-2">{data.error}</span>}
+        {data.error && <span className="ml-2 text-red-500">{data.error}</span>}
       </div>
     ) : null;
 
   return (
     <div className="space-y-2">
       {summary}
-      <div className="text-xs text-muted-foreground">
+      <div className="text-muted-foreground text-xs">
         Yield data received. Check AI response for details.
       </div>
     </div>

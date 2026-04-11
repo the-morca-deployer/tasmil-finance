@@ -1,7 +1,7 @@
 "use client";
 
-import { ChatClient } from "./chat-client";
 import { ChatProvider } from "../providers";
+import { ChatClient } from "./chat-client";
 
 interface ChatPageWrapperProps {
   agentId: string;

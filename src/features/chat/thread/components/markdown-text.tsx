@@ -42,7 +42,7 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 rounded-t-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">
+    <div className="flex items-center justify-between gap-4 rounded-t-lg bg-zinc-900 px-4 py-2 font-semibold text-sm text-white">
       <span className="lowercase [&>span]:text-xs">{language}</span>
       <TooltipIconButton tooltip="Copy" onClick={onCopy}>
         {!isCopied && <CopyIcon />}
@@ -55,14 +55,14 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
 const defaultComponents: any = {
   h1: ({ className, ...props }: { className?: string }) => (
     <h1
-      className={cn("mb-8 scroll-m-20 text-4xl font-extrabold tracking-tight last:mb-0", className)}
+      className={cn("mb-8 scroll-m-20 font-extrabold text-4xl tracking-tight last:mb-0", className)}
       {...props}
     />
   ),
   h2: ({ className, ...props }: { className?: string }) => (
     <h2
       className={cn(
-        "mt-8 mb-4 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0 last:mb-0",
+        "mt-8 mb-4 scroll-m-20 font-semibold text-3xl tracking-tight first:mt-0 last:mb-0",
         className
       )}
       {...props}
@@ -71,7 +71,7 @@ const defaultComponents: any = {
   h3: ({ className, ...props }: { className?: string }) => (
     <h3
       className={cn(
-        "mt-6 mb-4 scroll-m-20 text-2xl font-semibold tracking-tight first:mt-0 last:mb-0",
+        "mt-6 mb-4 scroll-m-20 font-semibold text-2xl tracking-tight first:mt-0 last:mb-0",
         className
       )}
       {...props}
@@ -80,14 +80,14 @@ const defaultComponents: any = {
   h4: ({ className, ...props }: { className?: string }) => (
     <h4
       className={cn(
-        "mt-6 mb-4 scroll-m-20 text-xl font-semibold tracking-tight first:mt-0 last:mb-0",
+        "mt-6 mb-4 scroll-m-20 font-semibold text-xl tracking-tight first:mt-0 last:mb-0",
         className
       )}
       {...props}
     />
   ),
   h5: ({ className, ...props }: { className?: string }) => (
-    <h5 className={cn("my-4 text-lg font-semibold first:mt-0 last:mb-0", className)} {...props} />
+    <h5 className={cn("my-4 font-semibold text-lg first:mt-0 last:mb-0", className)} {...props} />
   ),
   h6: ({ className, ...props }: { className?: string }) => (
     <h6 className={cn("my-4 font-semibold first:mt-0 last:mb-0", className)} {...props} />
@@ -98,7 +98,7 @@ const defaultComponents: any = {
   a: ({ className, ...props }: { className?: string; href?: string }) => (
     <a
       className={cn(
-        "text-primary font-medium underline underline-offset-4 cursor-pointer hover:opacity-80",
+        "cursor-pointer font-medium text-primary underline underline-offset-4 hover:opacity-80",
         className
       )}
       target="_blank"

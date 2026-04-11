@@ -2,10 +2,10 @@
 
 import { ArrowRightLeft, Crown } from "lucide-react";
 import { memo } from "react";
-import { BaseInfoCard } from "../base/info-card";
 import { useResultData } from "../../hooks/use-result-data";
-import { ScrollableList, StatusBadge, ProtocolBadge } from "../base/indicators";
 import { formatEstimatedTime } from "../../lib/formatting";
+import { ProtocolBadge, ScrollableList, StatusBadge } from "../base/indicators";
+import { BaseInfoCard } from "../base/info-card";
 
 interface SwapQuote {
   protocol: string;
@@ -38,8 +38,8 @@ interface SwapQuoteCardProps {
 function SwapQuoteCardComponent({ args, result, toolCallId, status }: SwapQuoteCardProps) {
   const { data, isLoading, hasError, errorMessage } = useResultData<SwapQuoteData>(result, status);
 
-  const tokenIn = args?.["tokenIn"] ?? "?";
-  const tokenOut = args?.["tokenOut"] ?? "?";
+  const tokenIn = args?.tokenIn ?? "?";
+  const tokenOut = args?.tokenOut ?? "?";
 
   return (
     <BaseInfoCard
@@ -60,7 +60,7 @@ function SwapQuoteCardComponent({ args, result, toolCallId, status }: SwapQuoteC
               return (
                 <div
                   key={`${quote.protocol}-${idx}`}
-                  className={`rounded-lg border p-3 space-y-2 ${
+                  className={`space-y-2 rounded-lg border p-3 ${
                     isBest ? "border-green-500/40 bg-green-500/5" : "border-border"
                   }`}
                 >
@@ -68,7 +68,7 @@ function SwapQuoteCardComponent({ args, result, toolCallId, status }: SwapQuoteC
                     <div className="flex items-center gap-2">
                       <ProtocolBadge name={quote.protocol} />
                       {isBest && (
-                        <span className="flex items-center gap-1 text-xs text-green-500 font-medium">
+                        <span className="flex items-center gap-1 font-medium text-green-500 text-xs">
                           <Crown className="h-3 w-3" /> Best
                         </span>
                       )}
@@ -80,13 +80,13 @@ function SwapQuoteCardComponent({ args, result, toolCallId, status }: SwapQuoteC
                     <span className="text-muted-foreground">
                       {quote.amountIn} {tokenIn}
                     </span>
-                    <ArrowRightLeft className="h-3 w-3 text-muted-foreground mx-2" />
+                    <ArrowRightLeft className="mx-2 h-3 w-3 text-muted-foreground" />
                     <span className="font-semibold">
                       {quote.amountOut} {tokenOut}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                  <div className="grid grid-cols-3 gap-2 text-muted-foreground text-xs">
                     <div>
                       <div className="text-muted-foreground/70">Fee</div>
                       <div>{quote.feePercent}%</div>
@@ -106,7 +106,7 @@ function SwapQuoteCardComponent({ args, result, toolCallId, status }: SwapQuoteC
                   </div>
 
                   {quote.route && quote.route.length > 1 && (
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-muted-foreground text-xs">
                       Route: {quote.route.join(" → ")}
                     </div>
                   )}
@@ -115,13 +115,13 @@ function SwapQuoteCardComponent({ args, result, toolCallId, status }: SwapQuoteC
             })}
 
           {data.quotes.filter((q) => q.status !== "ok").length > 0 && (
-            <div className="text-xs text-muted-foreground pt-1">
+            <div className="pt-1 text-muted-foreground text-xs">
               {data.quotes.filter((q) => q.status !== "ok").length} protocol(s) unavailable
             </div>
           )}
         </ScrollableList>
       ) : (
-        <div className="text-sm text-muted-foreground">No swap quotes available.</div>
+        <div className="text-muted-foreground text-sm">No swap quotes available.</div>
       )}
     </BaseInfoCard>
   );

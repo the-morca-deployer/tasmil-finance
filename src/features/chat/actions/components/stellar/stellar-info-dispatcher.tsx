@@ -1,12 +1,12 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { SwapQuoteCard } from "./swap-quote-card";
+import { AccountInfoCard } from "./account-info-card";
+import { ActionSearchCard } from "./action-search-card";
 import { BridgeDiscoveryCard } from "./bridge-discovery-card";
 import { EarnDiscoveryCard } from "./earn-discovery-card";
-import { AccountInfoCard } from "./account-info-card";
 import { PoolInfoCard } from "./pool-info-card";
-import { ActionSearchCard } from "./action-search-card";
+import { SwapQuoteCard } from "./swap-quote-card";
 
 /**
  * Maps the `type` prop (from backend config.yaml info_tools) to the correct React component.

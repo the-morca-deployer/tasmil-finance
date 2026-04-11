@@ -32,7 +32,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
       <div className={cn("relative inline-block", className)}>
         <Image
           src={url}
-          alt={String(block.metadata?.["name"] || "uploaded image")}
+          alt={String(block.metadata?.name || "uploaded image")}
           className={imgClass}
           width={size === "sm" ? 16 : size === "md" ? 32 : 48}
           height={size === "sm" ? 16 : size === "md" ? 32 : 48}
@@ -53,7 +53,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
 
   // PDF block
   if (block.type === "file" && block.mimeType === "application/pdf") {
-    const filename = block.metadata?.["filename"] || block.metadata?.["name"] || "PDF file";
+    const filename = block.metadata?.filename || block.metadata?.name || "PDF file";
     return (
       <div
         className={cn(
@@ -65,7 +65,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
           <File className={cn("text-teal-700", size === "sm" ? "h-5 w-5" : "h-7 w-7")} />
         </div>
         <span
-          className={cn("min-w-0 flex-1 text-sm break-all text-gray-800")}
+          className={cn("min-w-0 flex-1 break-all text-gray-800 text-sm")}
           style={{ wordBreak: "break-all", whiteSpace: "pre-wrap" }}
         >
           {String(filename)}

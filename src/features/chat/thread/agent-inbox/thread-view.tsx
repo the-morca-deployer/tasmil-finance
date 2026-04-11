@@ -1,23 +1,23 @@
 import type { Interrupt } from "@langchain/langgraph-sdk";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import {
+  ArrowRightLeft,
+  CheckCircle2,
+  Info,
+  Landmark,
+  Repeat,
+  Search,
+  TrendingUp,
+  Wallet,
+  XCircle,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "../../hooks";
 import { StateView } from "./components/state-view";
 import { ThreadActionsView } from "./components/thread-actions-view";
 import { StellarHITLHandler } from "./stellar-hitl-handler";
 import type { HITLRequest } from "./types";
-import {
-  CheckCircle2,
-  XCircle,
-  ArrowRightLeft,
-  Wallet,
-  TrendingUp,
-  Repeat,
-  Landmark,
-  Search,
-  Info,
-} from "lucide-react";
-import { toast } from "sonner";
 
 interface ThreadViewProps {
   interrupt: Interrupt<HITLRequest> | Interrupt<HITLRequest>[];
@@ -109,8 +109,8 @@ function SupervisorApprovalCard({ interrupt }: { interrupt: Interrupt<any> }) {
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-yellow-500/10">
           <AgentIcon className="h-4 w-4 text-yellow-500" />
         </div>
-        <div className="space-y-0.5 min-w-0">
-          <h3 className="text-sm font-semibold">
+        <div className="min-w-0 space-y-0.5">
+          <h3 className="font-semibold text-sm">
             Step {stepIndex + 1}: {agentName.charAt(0).toUpperCase() + agentName.slice(1)}
           </h3>
           <p className="text-muted-foreground text-xs">Requires your approval to proceed</p>
@@ -122,7 +122,7 @@ function SupervisorApprovalCard({ interrupt }: { interrupt: Interrupt<any> }) {
       </div>
 
       {responded ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-muted-foreground text-sm">
           <CheckCircle2 className="h-4 w-4 text-green-500" />
           <span>Response submitted</span>
         </div>
@@ -131,7 +131,7 @@ function SupervisorApprovalCard({ interrupt }: { interrupt: Interrupt<any> }) {
           <button
             type="button"
             onClick={handleApprove}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-green-600 px-3 py-2 font-medium text-sm text-white transition-colors hover:bg-green-700"
           >
             <CheckCircle2 className="h-4 w-4" />
             Approve
@@ -139,7 +139,7 @@ function SupervisorApprovalCard({ interrupt }: { interrupt: Interrupt<any> }) {
           <button
             type="button"
             onClick={handleReject}
-            className="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 px-3 py-2 font-medium text-sm transition-colors hover:bg-muted dark:border-gray-600"
           >
             <XCircle className="h-4 w-4" />
             Skip
@@ -166,7 +166,7 @@ export function ThreadView({ interrupt }: ThreadViewProps) {
 
   useEffect(() => {
     setActiveInterruptIndex(0);
-  }, [interrupts.length]);
+  }, []);
 
   const activeInterrupt = interrupts[activeInterruptIndex];
   const activeDescription = activeInterrupt?.value?.action_requests?.[0]?.description ?? "";
@@ -229,7 +229,7 @@ export function ThreadView({ interrupt }: ThreadViewProps) {
                       "rounded-full border px-3 py-1 text-sm transition-colors",
                       idx === activeInterruptIndex
                         ? "border-primary bg-primary/10 text-primary"
-                        : "hover:border-primary hover:text-primary border-gray-300 bg-white text-gray-600"
+                        : "border-gray-300 bg-white text-gray-600 hover:border-primary hover:text-primary"
                     )}
                   >
                     {title}

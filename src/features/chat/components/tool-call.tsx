@@ -159,7 +159,7 @@ export function ToolCall({
   return (
     <Collapsible
       defaultOpen={defaultOpen}
-      className={cn("w-fit md:max-w-[80%] rounded-lg border border-border bg-card", className)}
+      className={cn("w-fit rounded-lg border border-border bg-card md:max-w-[80%]", className)}
     >
       <CollapsibleTrigger className="group flex w-full min-w-0 items-center justify-between gap-2 rounded-t-lg p-3 transition-colors hover:bg-muted/50">
         <div className="flex min-w-0 flex-1 items-center gap-2">

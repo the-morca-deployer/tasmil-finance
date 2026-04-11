@@ -2,9 +2,8 @@ import type { Interrupt } from "@langchain/langgraph-sdk";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useChatState, useStreamContext } from "../../../hooks";
 import { Button } from "@/shared/ui/button";
-import { useInterruptedActions } from "../../../hooks";
+import { useChatState, useInterruptedActions, useStreamContext } from "../../../hooks";
 import type { ActionRequest, Decision, DecisionType, HITLRequest } from "../types";
 import { buildDecisionFromState, constructOpenInStudioURL } from "../utils";
 import { InboxItemInput } from "./inbox-item-input";
@@ -33,7 +32,7 @@ function ButtonGroup({
       <Button
         variant="outline"
         className={cn(
-          "rounded-l-md rounded-r-none border-r-[0px]",
+          "rounded-r-none rounded-l-md border-r-[0px]",
           showingState ? "text-black" : "bg-white"
         )}
         size="sm"
@@ -44,7 +43,7 @@ function ButtonGroup({
       <Button
         variant="outline"
         className={cn(
-          "rounded-l-none rounded-r-md border-l-[0px]",
+          "rounded-r-md rounded-l-none border-l-[0px]",
           showingDescription ? "text-black" : "bg-white"
         )}
         size="sm"
@@ -141,7 +140,7 @@ export function ThreadActionsView({
   useEffect(() => {
     setCurrentIndex(0);
     setAddressedActions(new Map());
-  }, [interrupt]);
+  }, []);
 
   const handleOpenInStudio = () => {
     if (!apiUrl) {
@@ -284,7 +283,7 @@ export function ThreadActionsView({
   if (!isValidHitlRequest(interrupt)) {
     return (
       <div className="flex min-h-full w-full flex-col items-center justify-center rounded-2xl bg-gray-50/50 p-8">
-        <p className="text-sm text-gray-600">
+        <p className="text-gray-600 text-sm">
           Unable to render interrupt. The data provided is not in the expected HITL format.
         </p>
       </div>
@@ -296,7 +295,7 @@ export function ThreadActionsView({
     <div className="flex min-h-full w-full max-w-full flex-col gap-9">
       <div className="flex w-full flex-wrap items-center justify-between gap-3">
         <div className="flex items-center justify-start gap-3">
-          <p className="text-2xl tracking-tighter text-pretty">
+          <p className="text-pretty text-2xl tracking-tighter">
             {hasMultipleActions
               ? `${currentTitle} (${currentIndex + 1}/${actionRequests.length})`
               : currentTitle}
@@ -359,7 +358,7 @@ export function ThreadActionsView({
                   status === "approve" && "border-emerald-500 bg-emerald-200",
                   status === "reject" && "border-red-500 bg-red-200",
                   status === "edit" && "border-amber-500 bg-amber-200",
-                  index === currentIndex && "outline-primary outline-2 outline-offset-2"
+                  index === currentIndex && "outline-2 outline-primary outline-offset-2"
                 )}
               >
                 <span className="sr-only">Action {index + 1}</span>
@@ -419,7 +418,7 @@ export function ThreadActionsView({
       )}
 
       {!hasMultipleActions && streamFinished && (
-        <p className="text-base font-medium text-green-600">
+        <p className="font-medium text-base text-green-600">
           Successfully finished Graph invocation.
         </p>
       )}

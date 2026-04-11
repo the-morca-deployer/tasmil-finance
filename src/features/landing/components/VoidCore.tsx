@@ -1,9 +1,9 @@
 "use client";
 
+import { Float } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
-import * as THREE from "three";
-import { Float } from "@react-three/drei";
+import type * as THREE from "three";
 
 export function VoidCore() {
   const meshRef = useRef<THREE.Mesh>(null);

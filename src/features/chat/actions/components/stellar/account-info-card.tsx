@@ -1,12 +1,12 @@
 "use client";
 
-import { User, Wallet, History, Lock, Gift, BarChart3, Globe, Key } from "lucide-react";
+import { BarChart3, Gift, Globe, History, Key, Lock, User, Wallet } from "lucide-react";
 import { memo } from "react";
-import { BaseInfoCard } from "../base/info-card";
-import { useResultData } from "../../hooks/use-result-data";
-import { ScrollableList, DetailRow, ProtocolBadge } from "../base/indicators";
-import { formatNumber, formatPrice } from "../../lib/formatting";
 import { truncateAddress } from "@/shared/config/stellar";
+import { useResultData } from "../../hooks/use-result-data";
+import { formatNumber, formatPrice } from "../../lib/formatting";
+import { DetailRow, ProtocolBadge, ScrollableList } from "../base/indicators";
+import { BaseInfoCard } from "../base/info-card";
 
 interface AccountInfoCardProps {
   type?: string;
@@ -25,7 +25,7 @@ function AccountInfoCardComponent({
   status,
 }: AccountInfoCardProps) {
   const { data, isLoading, hasError, errorMessage } = useResultData(result, status);
-  const query = args?.["query"] ?? type ?? "info";
+  const query = args?.query ?? type ?? "info";
 
   const configMap: Record<string, { title: string; icon: typeof User }> = {
     info: { title: "Account Info", icon: User },
@@ -46,12 +46,12 @@ function AccountInfoCardComponent({
     discovery: { title: "Discovery", icon: BarChart3 },
   };
 
-  const cfg = configMap[query] ?? configMap["info"]!;
+  const cfg = configMap[query] ?? configMap.info!;
 
   return (
     <BaseInfoCard
-      title={cfg!.title}
-      icon={cfg!.icon}
+      title={cfg?.title}
+      icon={cfg?.icon}
       iconColor="text-blue-500"
       iconBg="bg-blue-500/10"
       isLoading={isLoading}
@@ -71,7 +71,7 @@ function QueryContent({
   data: any;
   toolCallId?: string;
 }) {
-  if (!data) return <div className="text-sm text-muted-foreground">No data available.</div>;
+  if (!data) return <div className="text-muted-foreground text-sm">No data available.</div>;
 
   switch (query) {
     case "info":
@@ -116,8 +116,8 @@ function AccountInfoView({ data }: { data: any }) {
         <DetailRow label="Subentries" value={account.subentry_count} />
       )}
       {balances.length > 0 && (
-        <div className="border-t pt-2 mt-2 space-y-1">
-          <div className="text-xs text-muted-foreground mb-1">Balances ({balances.length})</div>
+        <div className="mt-2 space-y-1 border-t pt-2">
+          <div className="mb-1 text-muted-foreground text-xs">Balances ({balances.length})</div>
           {balances.slice(0, 10).map((b: any, i: number) => (
             <DetailRow
               key={i}
@@ -154,7 +154,7 @@ function AssetsView({ data, toolCallId }: { data: any; toolCallId?: string }) {
         {assets.map((a: any, i: number) => (
           <div
             key={i}
-            className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0 text-sm"
+            className="flex items-center justify-between border-border/50 border-b py-1.5 text-sm last:border-0"
           >
             <span className="font-medium">{a.type === "native" ? "XLM" : (a.code ?? "?")}</span>
             <span>
@@ -174,7 +174,7 @@ function HistoryView({ data, toolCallId }: { data: any; toolCallId?: string }) {
       <DetailRow label="Operations" value={data.count ?? ops.length} />
       <ScrollableList id={`history-${toolCallId}`} maxHeight={280}>
         {ops.map((op: any, i: number) => (
-          <div key={op.id ?? i} className="rounded border p-2 space-y-1 text-xs">
+          <div key={op.id ?? i} className="space-y-1 rounded border p-2 text-xs">
             <div className="flex justify-between">
               <span className="font-medium capitalize">{op.type?.replace(/_/g, " ")}</span>
               <span className="text-muted-foreground">
@@ -202,10 +202,10 @@ function LockedView({ data }: { data: any }) {
       />
       <DetailRow
         label="Available"
-        value={<span className="text-green-500 font-semibold">{data.available} XLM</span>}
+        value={<span className="font-semibold text-green-500">{data.available} XLM</span>}
       />
-      <div className="border-t pt-2 mt-2 space-y-1">
-        <div className="text-xs text-muted-foreground mb-1">Locked Breakdown</div>
+      <div className="mt-2 space-y-1 border-t pt-2">
+        <div className="mb-1 text-muted-foreground text-xs">Locked Breakdown</div>
         <DetailRow label="Base Reserve" value={`${locked.baseReserve} XLM`} />
         <DetailRow
           label="Subentry Reserve"
@@ -230,7 +230,7 @@ function ClaimableView({ data, toolCallId }: { data: any; toolCallId?: string })
       <DetailRow label="Claimable" value={data.count ?? balances.length} />
       <ScrollableList id={`claimable-${toolCallId}`} maxHeight={250}>
         {balances.map((b: any, i: number) => (
-          <div key={b.id ?? i} className="rounded border p-2 space-y-1 text-xs">
+          <div key={b.id ?? i} className="space-y-1 rounded border p-2 text-xs">
             <DetailRow label="Asset" value={b.asset} />
             <DetailRow label="Amount" value={<span className="font-semibold">{b.amount}</span>} />
             <DetailRow label="Sponsor" value={truncateAddress(b.sponsor ?? "")} mono />
@@ -248,7 +248,7 @@ function OffersView({ data, toolCallId }: { data: any; toolCallId?: string }) {
       <DetailRow label="Open Orders" value={data.count ?? offers.length} />
       <ScrollableList id={`offers-${toolCallId}`} maxHeight={250}>
         {offers.map((o: any, i: number) => (
-          <div key={o.id ?? i} className="rounded border p-2 space-y-1 text-xs">
+          <div key={o.id ?? i} className="space-y-1 rounded border p-2 text-xs">
             <div className="flex justify-between">
               <span>
                 Sell <span className="font-medium">{o.selling}</span>
@@ -273,7 +273,7 @@ function TradesView({ data, toolCallId }: { data: any; toolCallId?: string }) {
       <DetailRow label="Trades" value={data.count ?? trades.length} />
       <ScrollableList id={`trades-${toolCallId}`} maxHeight={250}>
         {trades.map((t: any, i: number) => (
-          <div key={t.id ?? i} className="rounded border p-2 space-y-1 text-xs">
+          <div key={t.id ?? i} className="space-y-1 rounded border p-2 text-xs">
             <div className="flex justify-between">
               <span>
                 {t.baseAmount} {t.baseAsset}
@@ -302,7 +302,7 @@ function PriceView({ data }: { data: any }) {
       <DetailRow label="Asset" value={<span className="font-semibold">{data.asset ?? "?"}</span>} />
       <DetailRow
         label="Price"
-        value={<span className="text-lg font-bold">${formatPrice(data.price)}</span>}
+        value={<span className="font-bold text-lg">${formatPrice(data.price)}</span>}
       />
       <DetailRow label="Currency" value={data.currency ?? "USD"} />
       <DetailRow label="Source" value={<ProtocolBadge name={data.source} />} />
@@ -317,7 +317,7 @@ function PositionsView({ data, toolCallId }: { data: any; toolCallId?: string })
       <DetailRow label="Positions" value={data.count ?? positions.length} />
       <ScrollableList id={`positions-${toolCallId}`} maxHeight={250}>
         {positions.map((p: any, i: number) => (
-          <div key={i} className="rounded border p-2 space-y-1 text-xs">
+          <div key={i} className="space-y-1 rounded border p-2 text-xs">
             <div className="flex items-center gap-2">
               <ProtocolBadge name={p.protocol} />
               <span className="text-muted-foreground">{p.type}</span>
@@ -342,21 +342,21 @@ function SignersView({ data }: { data: any }) {
       <DetailRow label="Master Weight" value={data.masterWeight} />
       {data.thresholds && (
         <div className="grid grid-cols-3 gap-2 text-xs">
-          <div className="bg-muted/30 rounded p-2 text-center">
+          <div className="rounded bg-muted/30 p-2 text-center">
             <div className="text-muted-foreground">Low</div>
             <div className="font-semibold">{data.thresholds.low}</div>
           </div>
-          <div className="bg-muted/30 rounded p-2 text-center">
+          <div className="rounded bg-muted/30 p-2 text-center">
             <div className="text-muted-foreground">Med</div>
             <div className="font-semibold">{data.thresholds.med}</div>
           </div>
-          <div className="bg-muted/30 rounded p-2 text-center">
+          <div className="rounded bg-muted/30 p-2 text-center">
             <div className="text-muted-foreground">High</div>
             <div className="font-semibold">{data.thresholds.high}</div>
           </div>
         </div>
       )}
-      <div className="space-y-1 border-t pt-2 mt-2">
+      <div className="mt-2 space-y-1 border-t pt-2">
         {signers.map((s: any, i: number) => (
           <div key={i} className="flex justify-between text-xs">
             <span className="font-mono">{truncateAddress(s.key)}</span>
@@ -378,7 +378,7 @@ function NetworkView({ data }: { data: any }) {
       <DetailRow
         label="RPC URL"
         value={
-          <span className="font-mono text-xs truncate max-w-[200px] inline-block">
+          <span className="inline-block max-w-[200px] truncate font-mono text-xs">
             {data.rpcUrl}
           </span>
         }
@@ -386,7 +386,7 @@ function NetworkView({ data }: { data: any }) {
       <DetailRow
         label="Horizon"
         value={
-          <span className="font-mono text-xs truncate max-w-[200px] inline-block">
+          <span className="inline-block max-w-[200px] truncate font-mono text-xs">
             {data.horizonUrl}
           </span>
         }
@@ -402,12 +402,12 @@ function GenericView({ data }: { data: any }) {
         <span className={data.success ? "text-green-500" : "text-red-500"}>
           {data.success ? "Success" : "Failed"}
         </span>
-        {data.error && <span className="text-red-500 ml-2">{data.error}</span>}
+        {data.error && <span className="ml-2 text-red-500">{data.error}</span>}
       </div>
     );
   }
   return (
-    <div className="text-xs text-muted-foreground">
+    <div className="text-muted-foreground text-xs">
       Data received. Check AI response for details.
     </div>
   );

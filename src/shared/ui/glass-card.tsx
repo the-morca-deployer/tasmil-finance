@@ -25,7 +25,7 @@ const GlassCardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn("font-semibold text-2xl leading-none tracking-tight text-white", className)}
+    className={cn("font-semibold text-2xl text-white leading-none tracking-tight", className)}
     {...props}
   />
 ));
@@ -35,7 +35,7 @@ const GlassCardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p ref={ref} className={cn("text-zinc-400 text-sm", className)} {...props} />
+  <p ref={ref} className={cn("text-sm text-zinc-400", className)} {...props} />
 ));
 GlassCardDescription.displayName = "GlassCardDescription";
 

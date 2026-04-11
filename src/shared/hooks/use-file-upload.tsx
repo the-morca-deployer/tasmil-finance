@@ -27,12 +27,12 @@ export function useFileUpload({ initialBlocks = [] }: UseFileUploadOptions = {})
         (b) =>
           b.type === "file" &&
           b.mimeType === "application/pdf" &&
-          b.metadata?.["filename"] === file.name
+          b.metadata?.filename === file.name
       );
     }
     if (SUPPORTED_FILE_TYPES.includes(file.type)) {
       return blocks.some(
-        (b) => b.type === "image" && b.metadata?.["name"] === file.name && b.mimeType === file.type
+        (b) => b.type === "image" && b.metadata?.name === file.name && b.mimeType === file.type
       );
     }
     return false;
@@ -163,7 +163,7 @@ export function useFileUpload({ initialBlocks = [] }: UseFileUploadOptions = {})
       window.removeEventListener("dragover", handleWindowDragOver);
       dragCounter.current = 0;
     };
-  }, [contentBlocks]);
+  }, [contentBlocks, isDuplicate]);
 
   const removeBlock = (idx: number) => {
     setContentBlocks((prev) => prev.filter((_, i) => i !== idx));
@@ -198,13 +198,12 @@ export function useFileUpload({ initialBlocks = [] }: UseFileUploadOptions = {})
           (b) =>
             b.type === "file" &&
             b.mimeType === "application/pdf" &&
-            b.metadata?.["filename"] === file.name
+            b.metadata?.filename === file.name
         );
       }
       if (SUPPORTED_FILE_TYPES.includes(file.type)) {
         return contentBlocks.some(
-          (b) =>
-            b.type === "image" && b.metadata?.["name"] === file.name && b.mimeType === file.type
+          (b) => b.type === "image" && b.metadata?.name === file.name && b.mimeType === file.type
         );
       }
       return false;

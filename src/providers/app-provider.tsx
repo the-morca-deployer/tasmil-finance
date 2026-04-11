@@ -32,9 +32,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         enableSystem={false}
       >
         <TooltipProvider>
-          <WalletProvider>
-            {children}
-          </WalletProvider>
+          <WalletProvider>{children}</WalletProvider>
         </TooltipProvider>
         <Toaster position="top-right" richColors />
       </ThemeProvider>

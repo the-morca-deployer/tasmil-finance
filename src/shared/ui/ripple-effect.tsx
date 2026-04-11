@@ -1,7 +1,7 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface Ripple {
   id: number;
@@ -40,7 +40,7 @@ interface RippleContainerProps {
 
 export function RippleContainer({ ripples }: RippleContainerProps) {
   return (
-    <span className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+    <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-lg">
       <AnimatePresence>
         {ripples.map((ripple) => (
           <span key={ripple.id} className="absolute inset-0">
@@ -50,7 +50,8 @@ export function RippleContainer({ ripples }: RippleContainerProps) {
               style={{
                 left: ripple.x,
                 top: ripple.y,
-                background: "radial-gradient(circle, hsl(200 100% 75% / 0.08) 0%, hsl(210 100% 70% / 0.04) 40%, hsl(220 100% 65% / 0.02) 70%, transparent 90%)",
+                background:
+                  "radial-gradient(circle, hsl(200 100% 75% / 0.08) 0%, hsl(210 100% 70% / 0.04) 40%, hsl(220 100% 65% / 0.02) 70%, transparent 90%)",
                 mixBlendMode: "screen",
                 filter: "blur(16px)",
               }}
@@ -75,7 +76,8 @@ export function RippleContainer({ ripples }: RippleContainerProps) {
               style={{
                 left: ripple.x,
                 top: ripple.y,
-                background: "radial-gradient(circle, hsl(190 100% 78% / 0.2) 0%, hsl(200 100% 75% / 0.12) 25%, hsl(210 100% 72% / 0.06) 50%, hsl(220 100% 68% / 0.03) 75%, transparent 95%)",
+                background:
+                  "radial-gradient(circle, hsl(190 100% 78% / 0.2) 0%, hsl(200 100% 75% / 0.12) 25%, hsl(210 100% 72% / 0.06) 50%, hsl(220 100% 68% / 0.03) 75%, transparent 95%)",
                 mixBlendMode: "screen",
                 filter: "blur(14px)",
                 boxShadow: "0 0 40px hsl(200 100% 75% / 0.15), 0 0 80px hsl(210 100% 70% / 0.08)",
@@ -101,10 +103,12 @@ export function RippleContainer({ ripples }: RippleContainerProps) {
               style={{
                 left: ripple.x,
                 top: ripple.y,
-                background: "radial-gradient(circle, hsl(185 100% 80% / 0.35) 0%, hsl(190 100% 78% / 0.28) 20%, hsl(195 100% 76% / 0.22) 35%, hsl(200 100% 74% / 0.16) 50%, hsl(205 100% 72% / 0.1) 65%, hsl(210 100% 70% / 0.05) 80%, transparent 95%)",
+                background:
+                  "radial-gradient(circle, hsl(185 100% 80% / 0.35) 0%, hsl(190 100% 78% / 0.28) 20%, hsl(195 100% 76% / 0.22) 35%, hsl(200 100% 74% / 0.16) 50%, hsl(205 100% 72% / 0.1) 65%, hsl(210 100% 70% / 0.05) 80%, transparent 95%)",
                 mixBlendMode: "plus-lighter",
                 filter: "blur(8px)",
-                boxShadow: "0 0 30px hsl(190 100% 78% / 0.3), 0 0 60px hsl(195 100% 76% / 0.18), 0 0 90px hsl(200 100% 74% / 0.1)",
+                boxShadow:
+                  "0 0 30px hsl(190 100% 78% / 0.3), 0 0 60px hsl(195 100% 76% / 0.18), 0 0 90px hsl(200 100% 74% / 0.1)",
               }}
               initial={{ width: 0, height: 0, x: 0, y: 0, opacity: 0, scale: 0.9 }}
               animate={{
@@ -129,7 +133,8 @@ export function RippleContainer({ ripples }: RippleContainerProps) {
               style={{
                 left: ripple.x,
                 top: ripple.y,
-                background: "radial-gradient(circle, hsl(180 100% 82% / 0.5) 0%, hsl(185 100% 80% / 0.4) 18%, hsl(190 100% 78% / 0.32) 32%, hsl(195 100% 76% / 0.24) 46%, hsl(200 100% 74% / 0.16) 60%, hsl(205 100% 72% / 0.08) 75%, transparent 90%)",
+                background:
+                  "radial-gradient(circle, hsl(180 100% 82% / 0.5) 0%, hsl(185 100% 80% / 0.4) 18%, hsl(190 100% 78% / 0.32) 32%, hsl(195 100% 76% / 0.24) 46%, hsl(200 100% 74% / 0.16) 60%, hsl(205 100% 72% / 0.08) 75%, transparent 90%)",
                 mixBlendMode: "soft-light",
                 filter: "blur(5px)",
               }}
@@ -154,9 +159,11 @@ export function RippleContainer({ ripples }: RippleContainerProps) {
               style={{
                 left: ripple.x,
                 top: ripple.y,
-                background: "radial-gradient(circle, hsl(178 100% 85% / 0.55) 0%, hsl(182 100% 83% / 0.45) 16%, hsl(186 100% 81% / 0.36) 30%, hsl(190 100% 79% / 0.27) 44%, hsl(194 100% 77% / 0.18) 58%, hsl(198 100% 75% / 0.1) 72%, transparent 88%)",
+                background:
+                  "radial-gradient(circle, hsl(178 100% 85% / 0.55) 0%, hsl(182 100% 83% / 0.45) 16%, hsl(186 100% 81% / 0.36) 30%, hsl(190 100% 79% / 0.27) 44%, hsl(194 100% 77% / 0.18) 58%, hsl(198 100% 75% / 0.1) 72%, transparent 88%)",
                 filter: "blur(4px)",
-                boxShadow: "0 0 25px hsl(182 100% 83% / 0.35), 0 0 50px hsl(186 100% 81% / 0.22), inset 0 0 20px hsl(178 100% 87% / 0.18)",
+                boxShadow:
+                  "0 0 25px hsl(182 100% 83% / 0.35), 0 0 50px hsl(186 100% 81% / 0.22), inset 0 0 20px hsl(178 100% 87% / 0.18)",
               }}
               initial={{ width: 0, height: 0, x: 0, y: 0, opacity: 0 }}
               animate={{
@@ -179,9 +186,11 @@ export function RippleContainer({ ripples }: RippleContainerProps) {
               style={{
                 left: ripple.x,
                 top: ripple.y,
-                background: "radial-gradient(circle, transparent 0%, transparent 12%, hsl(175 100% 87% / 0.65) 18%, hsl(178 100% 85% / 0.52) 24%, hsl(182 100% 83% / 0.38) 32%, hsl(186 100% 81% / 0.22) 42%, transparent 56%)",
+                background:
+                  "radial-gradient(circle, transparent 0%, transparent 12%, hsl(175 100% 87% / 0.65) 18%, hsl(178 100% 85% / 0.52) 24%, hsl(182 100% 83% / 0.38) 32%, hsl(186 100% 81% / 0.22) 42%, transparent 56%)",
                 filter: "blur(2px)",
-                boxShadow: "0 0 18px hsl(175 100% 87% / 0.45), inset 0 0 14px hsl(175 100% 90% / 0.28)",
+                boxShadow:
+                  "0 0 18px hsl(175 100% 87% / 0.45), inset 0 0 14px hsl(175 100% 90% / 0.28)",
               }}
               initial={{ width: 0, height: 0, x: 0, y: 0, opacity: 0 }}
               animate={{
@@ -204,9 +213,11 @@ export function RippleContainer({ ripples }: RippleContainerProps) {
               style={{
                 left: ripple.x,
                 top: ripple.y,
-                background: "radial-gradient(circle, hsl(172 100% 90% / 0.8) 0%, hsl(175 100% 88% / 0.68) 12%, hsl(178 100% 86% / 0.54) 24%, hsl(182 100% 84% / 0.4) 36%, hsl(186 100% 82% / 0.26) 50%, hsl(190 100% 80% / 0.14) 66%, transparent 82%)",
+                background:
+                  "radial-gradient(circle, hsl(172 100% 90% / 0.8) 0%, hsl(175 100% 88% / 0.68) 12%, hsl(178 100% 86% / 0.54) 24%, hsl(182 100% 84% / 0.4) 36%, hsl(186 100% 82% / 0.26) 50%, hsl(190 100% 80% / 0.14) 66%, transparent 82%)",
                 filter: "blur(6px)",
-                boxShadow: "0 0 22px hsl(175 100% 88% / 0.6), 0 0 44px hsl(178 100% 86% / 0.42), 0 0 66px hsl(182 100% 84% / 0.24), inset 0 0 28px hsl(170 100% 92% / 0.32)",
+                boxShadow:
+                  "0 0 22px hsl(175 100% 88% / 0.6), 0 0 44px hsl(178 100% 86% / 0.42), 0 0 66px hsl(182 100% 84% / 0.24), inset 0 0 28px hsl(170 100% 92% / 0.32)",
               }}
               initial={{ width: 0, height: 0, x: 0, y: 0, opacity: 0, scale: 0.6 }}
               animate={{
@@ -231,9 +242,11 @@ export function RippleContainer({ ripples }: RippleContainerProps) {
               style={{
                 left: ripple.x,
                 top: ripple.y,
-                background: "radial-gradient(circle, hsl(168 100% 94% / 0.92) 0%, hsl(172 100% 92% / 0.78) 10%, hsl(175 100% 90% / 0.62) 20%, hsl(178 100% 88% / 0.46) 32%, hsl(182 100% 86% / 0.3) 46%, hsl(186 100% 84% / 0.16) 62%, transparent 78%)",
+                background:
+                  "radial-gradient(circle, hsl(168 100% 94% / 0.92) 0%, hsl(172 100% 92% / 0.78) 10%, hsl(175 100% 90% / 0.62) 20%, hsl(178 100% 88% / 0.46) 32%, hsl(182 100% 86% / 0.3) 46%, hsl(186 100% 84% / 0.16) 62%, transparent 78%)",
                 filter: "blur(7px)",
-                boxShadow: "0 0 20px hsl(168 100% 94% / 0.75), 0 0 40px hsl(172 100% 92% / 0.55), 0 0 60px hsl(175 100% 90% / 0.35), inset 0 0 35px hsl(165 100% 96% / 0.45)",
+                boxShadow:
+                  "0 0 20px hsl(168 100% 94% / 0.75), 0 0 40px hsl(172 100% 92% / 0.55), 0 0 60px hsl(175 100% 90% / 0.35), inset 0 0 35px hsl(165 100% 96% / 0.45)",
               }}
               initial={{ width: 0, height: 0, x: 0, y: 0, opacity: 0, scale: 0.4 }}
               animate={{
@@ -259,7 +272,8 @@ export function RippleContainer({ ripples }: RippleContainerProps) {
                 left: ripple.x,
                 top: ripple.y,
                 border: "2.5px solid hsl(175 100% 85% / 0.45)",
-                boxShadow: "0 0 14px hsl(175 100% 85% / 0.38), 0 0 28px hsl(178 100% 83% / 0.22), inset 0 0 14px hsl(172 100% 88% / 0.28)",
+                boxShadow:
+                  "0 0 14px hsl(175 100% 85% / 0.38), 0 0 28px hsl(178 100% 83% / 0.22), inset 0 0 14px hsl(172 100% 88% / 0.28)",
               }}
               initial={{ width: 0, height: 0, x: 0, y: 0, opacity: 0, borderWidth: 3.5 }}
               animate={{
@@ -318,7 +332,8 @@ export function RippleContainer({ ripples }: RippleContainerProps) {
               style={{
                 left: ripple.x,
                 top: ripple.y,
-                background: "conic-gradient(from 0deg, transparent 0%, hsl(175 100% 88% / 0.15) 10%, transparent 20%, hsl(180 100% 86% / 0.12) 30%, transparent 40%, hsl(175 100% 88% / 0.15) 50%, transparent 60%, hsl(180 100% 86% / 0.12) 70%, transparent 80%, hsl(175 100% 88% / 0.15) 90%, transparent 100%)",
+                background:
+                  "conic-gradient(from 0deg, transparent 0%, hsl(175 100% 88% / 0.15) 10%, transparent 20%, hsl(180 100% 86% / 0.12) 30%, transparent 40%, hsl(175 100% 88% / 0.15) 50%, transparent 60%, hsl(180 100% 86% / 0.12) 70%, transparent 80%, hsl(175 100% 88% / 0.15) 90%, transparent 100%)",
                 filter: "blur(3px)",
                 mixBlendMode: "overlay",
               }}

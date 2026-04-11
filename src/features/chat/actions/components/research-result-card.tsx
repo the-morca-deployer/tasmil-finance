@@ -76,21 +76,21 @@ const CryptoPriceResult = memo(({ data }: { data: any }) => {
       <div className="flex items-center justify-between">
         <div>
           <span className="font-semibold text-lg">{coin.name}</span>
-          <span className="text-muted-foreground ml-2">({coin.symbol})</span>
+          <span className="ml-2 text-muted-foreground">({coin.symbol})</span>
         </div>
-        <span className="text-xl font-bold">${coin.currentPrice?.toLocaleString()}</span>
+        <span className="font-bold text-xl">${coin.currentPrice?.toLocaleString()}</span>
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-sm">
-        <div className="bg-muted/30 rounded p-2">
+        <div className="rounded bg-muted/30 p-2">
           <div className="text-muted-foreground text-xs">24h</div>
           <PriceChange value={coin.priceChange24h} />
         </div>
-        <div className="bg-muted/30 rounded p-2">
+        <div className="rounded bg-muted/30 p-2">
           <div className="text-muted-foreground text-xs">7d</div>
           <PriceChange value={coin.priceChange7d} />
         </div>
-        <div className="bg-muted/30 rounded p-2">
+        <div className="rounded bg-muted/30 p-2">
           <div className="text-muted-foreground text-xs">30d</div>
           <PriceChange value={coin.priceChange30d} />
         </div>
@@ -115,7 +115,7 @@ CryptoPriceResult.displayName = "CryptoPriceResult";
 const formatPrice = (price: number | string | undefined | null): string => {
   if (price === undefined || price === null) return "N/A";
   const numPrice = typeof price === "string" ? parseFloat(price) : price;
-  if (isNaN(numPrice)) return "N/A";
+  if (Number.isNaN(numPrice)) return "N/A";
   if (numPrice < 0.01) return `${numPrice.toFixed(6)}`;
   if (numPrice < 1) return `${numPrice.toFixed(4)}`;
   return `${numPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -128,26 +128,26 @@ const TopCoinsResult = memo(({ data, scrollId }: { data: any; scrollId: string }
 
   return (
     <div className="space-y-2">
-      <div className="text-sm text-muted-foreground mb-2">
+      <div className="mb-2 text-muted-foreground text-sm">
         Showing top {coins.length} coins by market cap
       </div>
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="max-h-[300px] overflow-y-auto space-y-1"
+        className="max-h-[300px] space-y-1 overflow-y-auto"
         data-scrollable="true"
       >
         {coins.slice(0, 15).map((coin: any, index: number) => (
           <div
             key={`coin-${coin.id || index}-${coin.symbol}`}
-            className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0"
+            className="flex items-center justify-between border-border/50 border-b py-1.5 last:border-0"
           >
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground w-6 text-xs">
+              <span className="w-6 text-muted-foreground text-xs">
                 #{coin.rank || coin.marketCapRank || index + 1}
               </span>
               <span className="font-medium">{coin.symbol?.toUpperCase()}</span>
-              <span className="text-muted-foreground text-xs hidden sm:inline">{coin.name}</span>
+              <span className="hidden text-muted-foreground text-xs sm:inline">{coin.name}</span>
             </div>
             <div className="flex items-center gap-3">
               <span className="font-medium">
@@ -172,11 +172,11 @@ const GlobalMarketResult = memo(({ data }: { data: any }) => {
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2 text-sm">
-        <div className="bg-muted/30 rounded p-3">
+        <div className="rounded bg-muted/30 p-3">
           <div className="text-muted-foreground text-xs">Total Market Cap</div>
           <div className="font-bold text-lg">${formatNumber(market.totalMarketCap)}</div>
         </div>
-        <div className="bg-muted/30 rounded p-3">
+        <div className="rounded bg-muted/30 p-3">
           <div className="text-muted-foreground text-xs">24h Volume</div>
           <div className="font-bold text-lg">${formatNumber(market.totalVolume24h)}</div>
         </div>
@@ -216,14 +216,14 @@ const GenericResult = ({ data }: { data: any }) => {
         <span className={data.success ? "text-green-500" : "text-red-500"}>
           {data.success ? "✓ Success" : "✗ Failed"}
         </span>
-        {data.error && <span className="text-red-500 ml-2">{data.error}</span>}
+        {data.error && <span className="ml-2 text-red-500">{data.error}</span>}
       </div>
     ) : null;
 
   return (
     <div className="space-y-2">
       {summary}
-      <div className="text-xs text-muted-foreground">
+      <div className="text-muted-foreground text-xs">
         Data received. Check AI response for details.
       </div>
     </div>

@@ -1,20 +1,16 @@
-'use client';
+"use client";
 
-import { ChevronRight, AlertCircle, Check } from 'lucide-react';
-import { memo, useState } from 'react';
-import { cn } from '@/lib/utils';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/shared/ui/collapsible';
-import { Loader } from '@/shared/ui/loader';
-import { Shimmer } from '@/features/chat/components/ai/shimmer';
+import { AlertCircle, Check, ChevronRight } from "lucide-react";
+import { memo, useState } from "react";
+import { Shimmer } from "@/features/chat/components/ai/shimmer";
+import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui/collapsible";
+import { Loader } from "@/shared/ui/loader";
 
 interface ToolStatusDispatcherProps {
   toolName?: string;
   args?: Record<string, any>;
-  status?: 'calling' | 'complete' | 'error';
+  status?: "calling" | "complete" | "error";
   toolCallId?: string;
 }
 
@@ -24,9 +20,9 @@ interface ToolStatusDispatcherProps {
  */
 function formatToolName(toolName: string): string {
   return toolName
-    .split('_')
+    .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .join(" ");
 }
 
 /**
@@ -34,25 +30,25 @@ function formatToolName(toolName: string): string {
  */
 function formatArgs(args: Record<string, any>): string {
   const entries = Object.entries(args);
-  if (entries.length === 0) return '';
+  if (entries.length === 0) return "";
 
   // Show first 2 args
   const formatted = entries
     .slice(0, 2)
     .map(([key, value]) => {
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         // Truncate long strings (like contract addresses)
         if (value.length > 20) {
           return `${key}: ${value.substring(0, 8)}...${value.substring(value.length - 4)}`;
         }
         return `${key}: ${value}`;
       }
-      if (typeof value === 'object') {
+      if (typeof value === "object") {
         return `${key}: {...}`;
       }
       return `${key}: ${value}`;
     })
-    .join(', ');
+    .join(", ");
 
   if (entries.length > 2) {
     return `${formatted}, +${entries.length - 2} more`;
@@ -67,13 +63,13 @@ function formatArgs(args: Record<string, any>): string {
  * Styled similar to SupervisorAgentCallCard for consistency.
  */
 function ToolStatusDispatcherComponent(props: ToolStatusDispatcherProps) {
-  const toolName = props?.toolName || 'unknown';
-  const status = props?.status || 'calling';
+  const toolName = props?.toolName || "unknown";
+  const status = props?.status || "calling";
   const args = props?.args || {};
   const [isOpen, setIsOpen] = useState(false); // Default closed for cleaner UI
 
-  const isCalling = status === 'calling';
-  const isError = status === 'error';
+  const isCalling = status === "calling";
+  const isError = status === "error";
 
   const displayName = formatToolName(toolName);
   const displayArgs = formatArgs(args);
@@ -93,7 +89,7 @@ function ToolStatusDispatcherComponent(props: ToolStatusDispatcherProps) {
         </div>
 
         {/* Label with shimmer when calling */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {isCalling ? (
             <Shimmer className="font-medium text-sm" duration={2}>
               {displayName}
@@ -109,8 +105,8 @@ function ToolStatusDispatcherComponent(props: ToolStatusDispatcherProps) {
         {displayArgs && (
           <ChevronRight
             className={cn(
-              'h-3.5 w-3.5 text-muted-foreground transition-transform duration-200',
-              isOpen && 'rotate-90'
+              "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+              isOpen && "rotate-90"
             )}
           />
         )}
@@ -118,8 +114,8 @@ function ToolStatusDispatcherComponent(props: ToolStatusDispatcherProps) {
 
       {displayArgs && (
         <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-          <div className="border-l-2 border-muted-foreground/20 pl-4 py-2 ml-2 mt-1">
-            <p className="text-xs font-mono text-muted-foreground break-all">{displayArgs}</p>
+          <div className="mt-1 ml-2 border-muted-foreground/20 border-l-2 py-2 pl-4">
+            <p className="break-all font-mono text-muted-foreground text-xs">{displayArgs}</p>
           </div>
         </CollapsibleContent>
       )}

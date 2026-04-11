@@ -1,4 +1,4 @@
-import type { Thread, Checkpoint } from "@langchain/langgraph-sdk";
+import type { Checkpoint, Thread } from "@langchain/langgraph-sdk";
 
 // Re-export LangGraph types
 export type { Thread, Checkpoint };

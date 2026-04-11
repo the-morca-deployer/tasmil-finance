@@ -30,7 +30,7 @@ export default function Home() {
       </div>
 
       {/* Content Scroll Layer */}
-      <div className="relative z-10 pointer-events-none">
+      <div className="pointer-events-none relative z-10">
         <div className="pointer-events-auto">
           <LandingPage />
         </div>

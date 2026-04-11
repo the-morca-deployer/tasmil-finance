@@ -1,10 +1,9 @@
 "use client";
 
-import { useFrame } from "@react-three/fiber";
-import { useRef, useMemo } from "react";
+import { Environment, Float } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { useMemo, useRef } from "react";
 import * as THREE from "three";
-import { Float, Environment } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
 
 // Density: High
 const count = 600;
@@ -58,7 +57,7 @@ function CubeSwarm() {
       dummy.scale.set(particle.s, particle.s, particle.s);
 
       dummy.updateMatrix();
-      mesh.current!.setMatrixAt(i, dummy.matrix);
+      mesh.current?.setMatrixAt(i, dummy.matrix);
     });
     mesh.current.instanceMatrix.needsUpdate = true;
   });
@@ -98,7 +97,7 @@ function CanvasWrapper() {
 
 export default function AbstractCube() {
   return (
-    <div className="w-full h-full min-h-[500px]">
+    <div className="h-full min-h-[500px] w-full">
       <CanvasWrapper />
     </div>
   );

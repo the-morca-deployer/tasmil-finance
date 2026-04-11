@@ -1,10 +1,10 @@
 import type { Message } from "@langchain/langgraph-sdk";
 import { useState } from "react";
-import { MultimodalPreview } from "@/features/chat/thread/components/multimodal-preview";
+import { useStreamContext } from "@/features/chat/hooks";
 import { getContentString } from "@/features/chat/lib/thread-utils";
+import { MultimodalPreview } from "@/features/chat/thread/components/multimodal-preview";
 import { isBase64ContentBlock } from "@/lib/multimodal-utils";
 import { cn } from "@/lib/utils";
-import { useStreamContext } from "@/features/chat/hooks";
 import { Textarea } from "@/shared/ui/textarea";
 import { BranchSwitcher, CommandBar } from "./shared";
 
@@ -95,7 +95,7 @@ export function HumanMessage({ message, isLoading }: { message: Message; isLoadi
             )}
             {/* Render text if present, otherwise fallback to file/image name */}
             {contentString ? (
-              <p className="bg-muted ml-auto w-fit rounded-3xl px-4 py-2 text-right text-sm whitespace-pre-wrap">
+              <p className="ml-auto w-fit whitespace-pre-wrap rounded-3xl bg-muted px-4 py-2 text-right text-sm">
                 {contentString}
               </p>
             ) : null}

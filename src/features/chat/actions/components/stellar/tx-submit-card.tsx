@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowUpRight, CheckCircle, AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowUpRight, CheckCircle } from "lucide-react";
 import { memo } from "react";
-import { BaseInfoCard } from "../base/info-card";
-import { useResultData } from "../../hooks/use-result-data";
 import { getExplorerUrl, truncateAddress } from "@/shared/config/stellar";
+import { useResultData } from "../../hooks/use-result-data";
+import { BaseInfoCard } from "../base/info-card";
 
 interface TxSubmitCardProps {
   operation?: string;
@@ -51,7 +51,7 @@ function TxSubmitCardComponent({ result, status }: TxSubmitCardProps) {
           </div>
 
           <div className="rounded-md border border-green-500/30 bg-green-500/20 p-3">
-            <p className="text-green-700 dark:text-green-300 text-sm">
+            <p className="text-green-700 text-sm dark:text-green-300">
               Transaction submitted successfully!
             </p>
           </div>

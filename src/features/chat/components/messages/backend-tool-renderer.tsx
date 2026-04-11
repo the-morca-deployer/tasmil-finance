@@ -64,7 +64,7 @@ export function BackendToolRenderer({ messages, currentMessage }: BackendToolRen
   }, [messages, currentIndex]);
 
   return (
-    <div className="flex flex-col gap-2 w-full">
+    <div className="flex w-full flex-col gap-2">
       {toolCalls.map((toolCall) => {
         const toolCallId = toolCall.id;
         if (!toolCallId) return null;

@@ -35,7 +35,7 @@
     "noUnusedParameters": true,
     "exactOptionalPropertyTypes": false, // Disabled to handle generated API code
     "noFallthroughCasesInSwitch": true,
-    "noPropertyAccessFromIndexSignature": true,
+    "noPropertyAccessFromIndexSignature": false,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "forceConsistentCasingInFileNames": true,

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Search, Settings, Sparkles } from 'lucide-react';
+import { Search, Settings, Sparkles } from "lucide-react";
 
 interface FilterBarProps {
   activeFilter: string;
@@ -12,11 +12,11 @@ interface FilterBarProps {
 
 const getTypeIcon = (type: string) => {
   switch (type) {
-    case 'Execution':
+    case "Execution":
       return Settings;
-    case 'Discovery':
+    case "Discovery":
       return Sparkles;
-    case 'Assistant':
+    case "Assistant":
       return Sparkles;
     default:
       return null;
@@ -32,7 +32,7 @@ export function FilterBar({
 }: FilterBarProps) {
   // Create dynamic filters based on available categories
   const filters = [
-    { label: 'All', icon: null },
+    { label: "All", icon: null },
     ...availableFilters.map((filter) => ({
       label: filter,
       icon: getTypeIcon(filter),
@@ -51,10 +51,10 @@ export function FilterBar({
             type="button"
             key={filter.label}
             onClick={() => onFilterChange(filter.label)}
-            className={`duration-300 rounded-full px-6 py-2.5 text-sm font-semibold transition-all ${
+            className={`rounded-full px-6 py-2.5 font-semibold text-sm transition-all duration-300 ${
               activeFilter === filter.label
-                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                : 'border border-border bg-muted text-muted-foreground hover:border-accent-foreground/10 hover:bg-accent hover:text-foreground'
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                : "border border-border bg-muted text-muted-foreground hover:border-accent-foreground/10 hover:bg-accent hover:text-foreground"
             }`}
           >
             {filter.label}
@@ -65,7 +65,7 @@ export function FilterBar({
       <div className="order-1 flex w-full items-center justify-end md:order-2 md:w-auto">
         <div className="relative w-full md:w-[300px]">
           <Search
-            className="absolute top-1/2 left-4 -translate-y-1/2 text-muted-foreground"
+            className="-translate-y-1/2 absolute top-1/2 left-4 text-muted-foreground"
             size={18}
           />
           <input
@@ -73,7 +73,7 @@ export function FilterBar({
             placeholder="Search agent"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="h-12 w-full rounded-full border border-input bg-background/50 pl-11 pr-4 text-sm text-foreground placeholder-muted-foreground transition-all focus:border-primary/50 focus:bg-background focus:ring-1 focus:ring-primary/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+            className="h-12 w-full rounded-full border border-input bg-background/50 pr-4 pl-11 text-foreground text-sm placeholder-muted-foreground transition-all focus:border-primary/50 focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
         </div>
       </div>

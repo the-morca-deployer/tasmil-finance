@@ -1,20 +1,21 @@
 "use client";
 
-import React, { createContext, useContext, ReactNode, useEffect } from "react";
+import type { Message } from "@langchain/langgraph-sdk";
 import { useStream } from "@langchain/langgraph-sdk/react";
-import { type Message } from "@langchain/langgraph-sdk";
 import {
-  uiMessageReducer,
-  isUIMessage,
   isRemoveUIMessage,
-  type UIMessage,
+  isUIMessage,
   type RemoveUIMessage,
+  type UIMessage,
+  uiMessageReducer,
 } from "@langchain/langgraph-sdk/react-ui";
-import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
-import { getApiKey } from "@/lib/api-key";
-import { useThreads } from "./thread";
+import type React from "react";
+import { createContext, type ReactNode, useContext, useEffect } from "react";
 import { toast } from "sonner";
+import { getApiKey } from "@/lib/api-key";
+import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
 import { useChatState } from "./chat-state-provider";
+import { useThreads } from "./thread";
 
 export type StateType = { messages: Message[]; ui?: UIMessage[] };
 
@@ -129,10 +130,10 @@ export const StreamProvider: React.FC<{
   if (!apiUrl || !assistantId) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center p-4">
-        <div className="animate-in fade-in-0 zoom-in-95 bg-background flex max-w-3xl flex-col rounded-lg border shadow-lg p-6">
+        <div className="fade-in-0 zoom-in-95 flex max-w-3xl animate-in flex-col rounded-lg border bg-background p-6 shadow-lg">
           <div className="flex flex-col gap-2">
             <LangGraphLogoSVG className="h-7" />
-            <h1 className="text-xl font-semibold tracking-tight">Configuration Error</h1>
+            <h1 className="font-semibold text-xl tracking-tight">Configuration Error</h1>
             <p className="text-muted-foreground">
               Missing required configuration. Please ensure NEXT_PUBLIC_API_URL is set and agentId
               is provided.

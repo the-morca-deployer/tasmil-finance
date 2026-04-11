@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import type { HTMLAttributes } from "react"
-import { cn } from "@/lib/utils"
+import type { HTMLAttributes } from "react";
+import { cn } from "@/lib/utils";
 
 interface LoaderIconProps {
-  size?: number
+  size?: number;
 }
 
 const LoaderIcon = ({ size = 16 }: LoaderIconProps) => (
@@ -74,17 +74,17 @@ const LoaderIcon = ({ size = 16 }: LoaderIconProps) => (
       </clipPath>
     </defs>
   </svg>
-)
+);
 
 export type LoaderProps = HTMLAttributes<HTMLDivElement> & {
-  size?: number
-}
+  size?: number;
+};
 
 export const Loader = ({ className, size = 16, ...props }: LoaderProps) => (
   <div className={cn("inline-flex animate-spin items-center justify-center", className)} {...props}>
     <LoaderIcon size={size} />
   </div>
-)
+);
 
 /** Demo component for preview */
 export default function LoaderDemo() {
@@ -92,16 +92,16 @@ export default function LoaderDemo() {
     <div className="flex flex-col items-center justify-center gap-6 p-8">
       <div className="flex items-center gap-4">
         <Loader size={16} />
-        <span className="text-sm text-muted-foreground">Default (16px)</span>
+        <span className="text-muted-foreground text-sm">Default (16px)</span>
       </div>
       <div className="flex items-center gap-4">
         <Loader size={24} />
-        <span className="text-sm text-muted-foreground">Medium (24px)</span>
+        <span className="text-muted-foreground text-sm">Medium (24px)</span>
       </div>
       <div className="flex items-center gap-4">
         <Loader size={32} />
-        <span className="text-sm text-muted-foreground">Large (32px)</span>
+        <span className="text-muted-foreground text-sm">Large (32px)</span>
       </div>
     </div>
-  )
+  );
 }

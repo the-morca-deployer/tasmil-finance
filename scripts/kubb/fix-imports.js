@@ -9,8 +9,8 @@
  * - Fix all @/gen/ paths to use correct subdirectories
  */
 
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const GEN_DIR = path.join(__dirname, "../../src/gen");
 
@@ -84,7 +84,7 @@ function fixClientIndexFile(filePath) {
   }
 
   // Write the new index.ts content
-  const newContent = exports.join("\n") + "\n";
+  const newContent = `${exports.join("\n")}\n`;
   fs.writeFileSync(filePath, newContent, "utf8");
 
   console.log(`✅ Fixed client/index.ts with ${exports.length} exports using absolute paths`);
@@ -100,7 +100,7 @@ function fixRootIndexFile(filePath) {
 
   // Fix all relative paths to absolute paths and remove .ts extensions
   // Pattern: from "./types/..." -> from "@/gen/types/..."
-  fixedContent = fixedContent.replace(/from\s+["']\.\/([^"']+)["']/g, (match, relativePath) => {
+  fixedContent = fixedContent.replace(/from\s+["']\.\/([^"']+)["']/g, (_match, relativePath) => {
     // Remove .ts/.tsx extension if present
     const cleanPath = relativePath.replace(/\.(ts|tsx)$/, "");
     modified = true;
@@ -108,7 +108,7 @@ function fixRootIndexFile(filePath) {
   });
 
   // Pattern: from "../types/..." -> from "@/gen/types/..."
-  fixedContent = fixedContent.replace(/from\s+["']\.\.\/([^"']+)["']/g, (match, relativePath) => {
+  fixedContent = fixedContent.replace(/from\s+["']\.\.\/([^"']+)["']/g, (_match, relativePath) => {
     // Remove .ts/.tsx extension if present
     const cleanPath = relativePath.replace(/\.(ts|tsx)$/, "");
     modified = true;

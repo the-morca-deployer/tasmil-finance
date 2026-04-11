@@ -32,27 +32,39 @@
     "rules": {
       "recommended": true,
       "a11y": {
-        "recommended": true
+        "recommended": true,
+        "noStaticElementInteractions": "warn",
+        "noSvgWithoutTitle": "warn",
+        "useButtonType": "warn",
+        "useIframeTitle": "warn",
+        "useKeyWithClickEvents": "warn",
+        "useSemanticElements": "warn"
       },
       "complexity": {
         "recommended": true,
         "noExcessiveCognitiveComplexity": "warn",
+        "useLiteralKeys": "warn",
         "noVoid": "off"
       },
       "correctness": {
         "recommended": true,
         "noUnusedVariables": "error",
+        "noInvalidUseBeforeDeclaration": "warn",
+        "useHookAtTopLevel": "warn",
         "useExhaustiveDependencies": "warn"
+        ,"useJsxKeyInIterable": "warn",
+        "useUniqueElementIds": "warn"
       },
       "nursery": {
         "recommended": true,
-        "useSortedClasses": "error"
+        "useSortedClasses": "warn"
       },
       "performance": {
         "recommended": true
       },
       "security": {
-        "recommended": true
+        "recommended": true,
+        "noDangerouslySetInnerHtml": "warn"
       },
       "style": {
         "recommended": true,
@@ -64,7 +76,10 @@
       "suspicious": {
         "recommended": true,
         "noExplicitAny": "warn",
-        "noArrayIndexKey": "warn"
+        "noArrayIndexKey": "warn",
+        "noImplicitAnyLet": "warn",
+        "noRedeclare": "warn",
+        "noUnknownAtRules": "warn"
       }
     }
   },

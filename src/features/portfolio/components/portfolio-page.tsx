@@ -1,12 +1,10 @@
 "use client";
 
 import { Coins, Loader2, Wallet } from "lucide-react";
-
+import { useStellarBalances } from "@/features/account/hooks/use-stellar-balance";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/shared/ui/card";
 import { useWalletStore } from "@/store/use-wallet";
-
-import { useStellarBalances } from "@/features/account/hooks/use-stellar-balance";
 
 function formatBalance(value: number, decimals = 7): string {
   return new Intl.NumberFormat("en-US", {
@@ -36,9 +34,7 @@ export function PortfolioPage() {
           <Wallet className="h-8 w-8 text-muted-foreground" />
         </div>
         <h2 className="mb-2 font-bold text-2xl text-foreground">Connect Your Wallet</h2>
-        <p className="text-muted-foreground">
-          Connect your Stellar wallet to view your portfolio.
-        </p>
+        <p className="text-muted-foreground">Connect your Stellar wallet to view your portfolio.</p>
       </div>
     );
   }
@@ -75,9 +71,7 @@ export function PortfolioPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="mb-1 font-bold text-3xl text-foreground">Portfolio</h1>
-        <p className="text-muted-foreground text-sm">
-          Your assets on the Stellar network.
-        </p>
+        <p className="text-muted-foreground text-sm">Your assets on the Stellar network.</p>
       </div>
 
       {/* Wallet Address */}
@@ -122,7 +116,7 @@ function AssetRow({ asset }: { asset: AssetDisplay }) {
       <div
         className={cn(
           "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] font-bold text-sm",
-          asset.color,
+          asset.color
         )}
       >
         {asset.icon.slice(0, 2)}

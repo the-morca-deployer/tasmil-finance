@@ -58,7 +58,7 @@ export function FundForm({ onFund, isLoading }: FundFormProps) {
     <div className="space-y-5 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6">
       {/* Token selector */}
       <div>
-        <p className="mb-2 text-[11px] uppercase tracking-widest text-muted-foreground/50">
+        <p className="mb-2 text-[11px] text-muted-foreground/50 uppercase tracking-widest">
           Select token
         </p>
         <div className="flex gap-2">
@@ -78,13 +78,13 @@ export function FundForm({ onFund, isLoading }: FundFormProps) {
                   "disabled:opacity-50",
                   token === t
                     ? "border-primary/50 bg-primary/[0.08]"
-                    : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.04]",
+                    : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.04]"
                 )}
               >
                 <span
                   className={cn(
                     "font-semibold text-sm",
-                    token === t ? "text-foreground" : "text-muted-foreground",
+                    token === t ? "text-foreground" : "text-muted-foreground"
                   )}
                 >
                   {t}
@@ -103,7 +103,7 @@ export function FundForm({ onFund, isLoading }: FundFormProps) {
         <div className="mb-2 flex items-center justify-between">
           <label
             htmlFor={fundAmountId}
-            className="text-[11px] uppercase tracking-widest text-muted-foreground/50"
+            className="text-[11px] text-muted-foreground/50 uppercase tracking-widest"
           >
             Amount
           </label>
@@ -111,7 +111,7 @@ export function FundForm({ onFund, isLoading }: FundFormProps) {
             type="button"
             onClick={handleMax}
             disabled={isLoading || balance <= 0}
-            className="flex items-center gap-1 text-[11px] text-primary hover:text-primary/80 disabled:text-muted-foreground/30 transition-colors"
+            className="flex items-center gap-1 text-[11px] text-primary transition-colors hover:text-primary/80 disabled:text-muted-foreground/30"
           >
             <Wallet className="h-3 w-3" />
             {balancesLoading ? (
@@ -146,28 +146,29 @@ export function FundForm({ onFund, isLoading }: FundFormProps) {
             className={cn(
               "w-full rounded-xl border bg-white/[0.02] px-4 py-4 pr-16 font-mono text-2xl text-foreground",
               "placeholder:text-muted-foreground/20",
-              "focus:outline-none transition-colors duration-200",
+              "transition-colors duration-200 focus:outline-none",
               "disabled:opacity-50",
               exceedsBalance
                 ? "border-destructive/50 focus:border-destructive"
-                : "border-white/[0.08] focus:border-primary/50",
+                : "border-white/[0.08] focus:border-primary/50"
             )}
           />
-          <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 font-medium text-muted-foreground/40 text-sm">
+          <span className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-4 font-medium text-muted-foreground/40 text-sm">
             {token}
           </span>
         </div>
 
         {/* Validation messages */}
-        {amount !== "" && !Number.isNaN(parsedAmount) && parsedAmount > 0 && parsedAmount < minAmount && (
-          <p className="mt-1.5 text-[11px] text-muted-foreground/60">
-            Minimum {minAmount} {token}
-          </p>
-        )}
+        {amount !== "" &&
+          !Number.isNaN(parsedAmount) &&
+          parsedAmount > 0 &&
+          parsedAmount < minAmount && (
+            <p className="mt-1.5 text-[11px] text-muted-foreground/60">
+              Minimum {minAmount} {token}
+            </p>
+          )}
         {exceedsBalance && (
-          <p className="mt-1.5 text-[11px] text-destructive">
-            Insufficient balance
-          </p>
+          <p className="mt-1.5 text-[11px] text-destructive">Insufficient balance</p>
         )}
       </div>
 
@@ -189,8 +190,8 @@ export function FundForm({ onFund, isLoading }: FundFormProps) {
               className={cn(
                 "flex-1 rounded-lg border border-white/[0.06] bg-white/[0.02] py-1.5 text-xs transition-colors",
                 "hover:border-white/[0.12] hover:bg-white/[0.05] hover:text-foreground",
-                "disabled:opacity-30 disabled:cursor-not-allowed",
-                "text-muted-foreground/70",
+                "disabled:cursor-not-allowed disabled:opacity-30",
+                "text-muted-foreground/70"
               )}
             >
               {pct}%

@@ -1,9 +1,9 @@
 "use client";
 
+import { Float, MeshTransmissionMaterial, Text } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
-import * as THREE from "three";
-import { Text, Float, MeshTransmissionMaterial } from "@react-three/drei";
+import type * as THREE from "three";
 
 interface GlassHexProps {
   position: [number, number, number];

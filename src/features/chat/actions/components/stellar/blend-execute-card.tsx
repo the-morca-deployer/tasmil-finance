@@ -1,14 +1,13 @@
 "use client";
 
-import { ArrowRightLeft, Coins } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useState, useCallback } from "react";
+import { ArrowRightLeft, Coins } from "lucide-react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { BaseOperationCard } from "../base/operation-card";
-import { DetailRow } from "../base/indicators";
-import { truncateAddress } from "@/shared/config/stellar";
 import { useStreamContext } from "@/features/chat/hooks";
-import { activeNetwork } from "@/shared/config/stellar";
+import { activeNetwork, truncateAddress } from "@/shared/config/stellar";
+import { DetailRow } from "../base/indicators";
+import { BaseOperationCard } from "../base/operation-card";
 
 interface ExecuteResult {
   success: boolean;
@@ -120,9 +119,9 @@ export function BlendExecuteCard({
   toolCallId,
 }: BlendExecuteCardProps) {
   const stream = useStreamContext();
-  
+
   const storageKey = toolCallId ? `blend-tx-${toolCallId}` : null;
-  
+
   const [localStatus, setLocalStatus] = useState(() => {
     if (storageKey) {
       const stored = localStorage.getItem(storageKey);
@@ -137,7 +136,7 @@ export function BlendExecuteCard({
     }
     return initialStatus;
   });
-  
+
   const [localResult, setLocalResult] = useState<ExecuteResult | null>(() => {
     if (storageKey) {
       const stored = localStorage.getItem(storageKey);
@@ -152,15 +151,18 @@ export function BlendExecuteCard({
     }
     return null;
   });
-  
-  const updatePersisted = useCallback((status: string, result: ExecuteResult | null) => {
-    if (storageKey) {
-      localStorage.setItem(storageKey, JSON.stringify({ status, result }));
-    }
-    setLocalStatus(status as any);
-    setLocalResult(result);
-  }, [storageKey]);
-  
+
+  const updatePersisted = useCallback(
+    (status: string, result: ExecuteResult | null) => {
+      if (storageKey) {
+        localStorage.setItem(storageKey, JSON.stringify({ status, result }));
+      }
+      setLocalStatus(status as any);
+      setLocalResult(result);
+    },
+    [storageKey]
+  );
+
   const config = OPERATION_CONFIG[operation ?? ""] ?? DEFAULT_CONFIG;
 
   let execResult: ExecuteResult | null = null;
@@ -178,194 +180,197 @@ export function BlendExecuteCard({
   const estimatedFee = execResult?.estimatedFee ?? args?.["estimatedFee"];
   const action = args?.["action"];
 
-  const handleExecute = useCallback(async (address: string) => {
-    console.log('[BlendExecuteCard] handleExecute started:', {
-      address,
-      hasXdr: !!xdr,
-      operation,
-      toolCallId,
-      currentStreamMessages: stream.messages.length,
-      messageIds: stream.messages.map(m => m.id),
-    });
-    
-    if (!xdr) {
-      return { success: false, error: "No transaction XDR available" };
-    }
-
-    try {
-      updatePersisted("inProgress", null);
-      
-      const { StellarWalletsKit } = await import("@creit-tech/stellar-wallets-kit/sdk");
-      
-      try {
-        StellarWalletsKit.setWallet(address);
-      } catch (walletError) {
-        // Ignore
-      }
-      
-      const result = await StellarWalletsKit.signTransaction(xdr, {
+  const handleExecute = useCallback(
+    async (address: string) => {
+      console.log("[BlendExecuteCard] handleExecute started:", {
         address,
-        networkPassphrase: activeNetwork.networkPassphrase,
+        hasXdr: !!xdr,
+        operation,
+        toolCallId,
+        currentStreamMessages: stream.messages.length,
+        messageIds: stream.messages.map((m) => m.id),
       });
-      
-      const signedTxXdr = result.signedTxXdr || result;
-      
-      if (!signedTxXdr || typeof signedTxXdr !== 'string') {
-        throw new Error('Invalid signed transaction format');
+
+      if (!xdr) {
+        return { success: false, error: "No transaction XDR available" };
       }
 
-      updatePersisted("inProgress", null);
-      toast.info("Submitting to network...");
-      
-      const { TransactionBuilder } = await import("@stellar/stellar-sdk");
-      const { getSorobanClient } = await import("@/lib/stellar-client");
-      
-      const soroban = getSorobanClient();
-      const networkPassphrase = activeNetwork.networkPassphrase;
-      
-      const signedTx = TransactionBuilder.fromXDR(signedTxXdr, networkPassphrase);
-      const response = await soroban.sendTransaction(signedTx as any);
-      
-      if (response.status === 'PENDING') {
-        const hash = response.hash;
-        const explorerUrl = `https://stellar.expert/explorer/public/tx/${hash}`;
-        
-        const successResult = {
-          success: true,
-          hash,
-          signedXdr: signedTxXdr,
-        };
-        
-        updatePersisted("complete", successResult);
-        
-        toast.success("Transaction submitted successfully!", {
-          description: (
-            <div className="flex flex-col gap-1">
-              <div>Hash: {hash.slice(0, 8)}...</div>
-              <a 
-                href={explorerUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-xs underline"
-              >
-                View on Stellar Expert
-              </a>
-            </div>
-          ),
-          duration: 5000,
+      try {
+        updatePersisted("inProgress", null);
+
+        const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
+
+        try {
+          StellarWalletsKit.setWallet(address);
+        } catch {
+          // Ignore
+        }
+
+        const result = await StellarWalletsKit.signTransaction(xdr, {
+          address,
+          networkPassphrase: activeNetwork.networkPassphrase,
         });
-        
-        const successMessage = {
-          id: `__hidden__tx-success-${Date.now()}`,
+
+        const signedTxXdr = result.signedTxXdr || result;
+
+        if (!signedTxXdr || typeof signedTxXdr !== "string") {
+          throw new Error("Invalid signed transaction format");
+        }
+
+        updatePersisted("inProgress", null);
+        toast.info("Submitting to network...");
+
+        const { TransactionBuilder } = await import("@stellar/stellar-sdk");
+        const { getSorobanClient } = await import("@/lib/stellar-client");
+
+        const soroban = getSorobanClient();
+        const networkPassphrase = activeNetwork.networkPassphrase;
+
+        const signedTx = TransactionBuilder.fromXDR(signedTxXdr, networkPassphrase);
+        const response = await soroban.sendTransaction(signedTx as any);
+
+        if (response.status === "PENDING") {
+          const hash = response.hash;
+          const explorerUrl = `https://stellar.expert/explorer/public/tx/${hash}`;
+
+          const successResult = {
+            success: true,
+            hash,
+            signedXdr: signedTxXdr,
+          };
+
+          updatePersisted("complete", successResult);
+
+          toast.success("Transaction submitted successfully!", {
+            description: (
+              <div className="flex flex-col gap-1">
+                <div>Hash: {hash.slice(0, 8)}...</div>
+                <a
+                  href={explorerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs underline"
+                >
+                  View on Stellar Expert
+                </a>
+              </div>
+            ),
+            duration: 5000,
+          });
+
+          const successMessage = {
+            id: `__hidden__tx-success-${Date.now()}`,
+            type: "human" as const,
+            content: `Transaction ${hash} submitted successfully`,
+          };
+
+          console.log("[BlendExecuteCard] Submitting success message:", {
+            messageId: successMessage.id,
+            currentStreamMessages: stream.messages.length,
+            messageIds: stream.messages.map((m) => m.id),
+          });
+
+          await stream.submit(
+            { messages: [successMessage] },
+            {
+              // @ts-expect-error
+              streamMode: ["values"],
+              streamSubgraphs: false,
+              streamResumable: true,
+            }
+          );
+
+          console.log("[BlendExecuteCard] Success message submitted, stream state after:", {
+            streamMessages: stream.messages.length,
+            messageIds: stream.messages.map((m) => m.id),
+          });
+
+          return successResult;
+        } else {
+          throw new Error(`Transaction failed with status: ${response.status}`);
+        }
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : "Signing failed";
+        const errorResult = { success: false, error: msg };
+
+        updatePersisted("error", errorResult);
+
+        if (msg.includes("rejected") || msg.includes("denied") || msg.includes("cancel")) {
+          toast.error("Transaction rejected", {
+            description: "You cancelled the transaction",
+          });
+
+          const rejectionMessage = {
+            id: `__hidden__tx-reject-${Date.now()}`,
+            type: "human" as const,
+            content: "Transaction rejected by user",
+          };
+
+          console.log("[BlendExecuteCard] Submitting rejection message:", {
+            messageId: rejectionMessage.id,
+            currentStreamMessages: stream.messages.length,
+            messageIds: stream.messages.map((m) => m.id),
+            lastFewMessages: stream.messages.slice(-3).map((m) => ({
+              id: m.id,
+              type: m.type,
+              content: typeof m.content === "string" ? m.content.slice(0, 50) : "non-string",
+            })),
+          });
+
+          await stream.submit(
+            { messages: [rejectionMessage] },
+            {
+              // @ts-expect-error
+              streamMode: ["values"],
+              streamSubgraphs: false,
+              streamResumable: true,
+            }
+          );
+
+          console.log("[BlendExecuteCard] Rejection message submitted");
+
+          return { success: false, error: "Transaction rejected by user" };
+        }
+
+        toast.error("Transaction failed", {
+          description: msg,
+        });
+
+        // Send hidden error message to trigger AI response
+        const errorMessage = {
+          id: `__hidden__tx-error-${Date.now()}`,
           type: "human" as const,
-          content: `Transaction ${hash} submitted successfully`,
+          content: `Transaction failed: ${msg}`,
         };
-        
-        console.log('[BlendExecuteCard] Submitting success message:', {
-          messageId: successMessage.id,
+
+        console.log("[BlendExecuteCard] Submitting error message:", {
+          messageId: errorMessage.id,
           currentStreamMessages: stream.messages.length,
-          messageIds: stream.messages.map(m => m.id),
-        });
-        
-        await stream.submit(
-          { messages: [successMessage] },
-          {
-            // @ts-ignore
-            streamMode: ['values'],
-            streamSubgraphs: false,
-            streamResumable: true,
-          }
-        );
-        
-        console.log('[BlendExecuteCard] Success message submitted, stream state after:', {
-          streamMessages: stream.messages.length,
-          messageIds: stream.messages.map(m => m.id),
-        });
-        
-        return successResult;
-      } else {
-        throw new Error(`Transaction failed with status: ${response.status}`);
-      }
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : "Signing failed";
-      const errorResult = { success: false, error: msg };
-      
-      updatePersisted("error", errorResult);
-      
-      if (msg.includes("rejected") || msg.includes("denied") || msg.includes("cancel")) {
-        toast.error("Transaction rejected", {
-          description: "You cancelled the transaction",
-        });
-        
-        const rejectionMessage = {
-          id: `__hidden__tx-reject-${Date.now()}`,
-          type: "human" as const,
-          content: "Transaction rejected by user",
-        };
-        
-        console.log('[BlendExecuteCard] Submitting rejection message:', {
-          messageId: rejectionMessage.id,
-          currentStreamMessages: stream.messages.length,
-          messageIds: stream.messages.map(m => m.id),
-          lastFewMessages: stream.messages.slice(-3).map(m => ({
+          messageIds: stream.messages.map((m) => m.id),
+          lastFewMessages: stream.messages.slice(-3).map((m) => ({
             id: m.id,
             type: m.type,
-            content: typeof m.content === 'string' ? m.content.slice(0, 50) : 'non-string',
+            content: typeof m.content === "string" ? m.content.slice(0, 50) : "non-string",
           })),
         });
-        
+
         await stream.submit(
-          { messages: [rejectionMessage] },
+          { messages: [errorMessage] },
           {
-            // @ts-ignore
-            streamMode: ['values'],
+            // @ts-expect-error
+            streamMode: ["values"],
             streamSubgraphs: false,
             streamResumable: true,
           }
         );
-        
-        console.log('[BlendExecuteCard] Rejection message submitted');
-        
-        return { success: false, error: "Transaction rejected by user" };
+
+        console.log("[BlendExecuteCard] Error message submitted");
+
+        return errorResult;
       }
-      
-      toast.error("Transaction failed", {
-        description: msg,
-      });
-      
-      // Send hidden error message to trigger AI response
-      const errorMessage = {
-        id: `__hidden__tx-error-${Date.now()}`,
-        type: "human" as const,
-        content: `Transaction failed: ${msg}`,
-      };
-      
-      console.log('[BlendExecuteCard] Submitting error message:', {
-        messageId: errorMessage.id,
-        currentStreamMessages: stream.messages.length,
-        messageIds: stream.messages.map(m => m.id),
-        lastFewMessages: stream.messages.slice(-3).map(m => ({
-          id: m.id,
-          type: m.type,
-          content: typeof m.content === 'string' ? m.content.slice(0, 50) : 'non-string',
-        })),
-      });
-      
-      await stream.submit(
-        { messages: [errorMessage] },
-        {
-          // @ts-ignore
-          streamMode: ['values'],
-          streamSubgraphs: false,
-          streamResumable: true,
-        }
-      );
-      
-      console.log('[BlendExecuteCard] Error message submitted');
-      
-      return errorResult;
-    }
-  }, [xdr, stream, respond, updatePersisted]);
+    },
+    [xdr, stream, respond, updatePersisted]
+  );
 
   const renderDetails = () => (
     <div className="space-y-2 mb-2">

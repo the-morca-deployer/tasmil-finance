@@ -3,11 +3,10 @@
 import type { LucideIcon } from "lucide-react";
 import { AlertCircle, ArrowUpRight, CheckCircle, Loader2, Wallet } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/shared/ui/button";
-import { useWallet } from "@/shared/context/wallet-context";
-import { getExplorerUrl } from "@/shared/config/stellar";
-import { truncateAddress } from "@/shared/config/stellar";
 import { cn } from "@/lib/utils";
+import { getExplorerUrl, truncateAddress } from "@/shared/config/stellar";
+import { useWallet } from "@/shared/context/wallet-context";
+import { Button } from "@/shared/ui/button";
 
 export interface OperationCardProps {
   title: string;
@@ -55,11 +54,11 @@ export function BaseOperationCard({
     txResult ??
     (hasPersistedResult
       ? {
-          success: Boolean(persistedResult["success"]),
-          hash: persistedResult["hash"] as string | undefined,
+          success: Boolean(persistedResult?.["success"]),
+          hash: persistedResult?.["hash"] as string | undefined,
           message: String(
-            persistedResult["message"] ??
-              (persistedResult["success"] ? "Transaction successful!" : "Transaction failed")
+            persistedResult?.["message"] ??
+              (persistedResult?.["success"] ? "Transaction successful!" : "Transaction failed")
           ),
         }
       : null);
@@ -105,7 +104,7 @@ export function BaseOperationCard({
             <Loader2 className={cn("h-5 w-5 animate-spin", iconColor)} />
           </div>
           <div className="space-y-1">
-            <h3 className="text-base font-semibold">{title}</h3>
+            <h3 className="font-semibold text-base">{title}</h3>
             <p className="text-muted-foreground text-sm">Preparing transaction...</p>
           </div>
         </div>
@@ -124,15 +123,15 @@ export function BaseOperationCard({
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500/10">
             <CheckCircle className="h-5 w-5 text-green-600" />
           </div>
-          <div className="space-y-1 min-w-0">
-            <h3 className="text-base font-semibold">Transaction Completed</h3>
+          <div className="min-w-0 space-y-1">
+            <h3 className="font-semibold text-base">Transaction Completed</h3>
             <p className="text-muted-foreground text-sm">{title} was successful</p>
           </div>
         </div>
 
         {renderDetails?.()}
 
-        <div className="flex items-center justify-between text-sm mt-2 mb-4">
+        <div className="mt-2 mb-4 flex items-center justify-between text-sm">
           <span className="text-muted-foreground">TX Hash</span>
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs">{truncateAddress(hash)}</span>
@@ -149,7 +148,7 @@ export function BaseOperationCard({
         </div>
 
         <div className="rounded-md border border-green-500/30 bg-green-500/20 p-3">
-          <p className="text-green-700 dark:text-green-300 text-sm">{effectiveResult.message}</p>
+          <p className="text-green-700 text-sm dark:text-green-300">{effectiveResult.message}</p>
         </div>
       </div>
     );
@@ -163,8 +162,8 @@ export function BaseOperationCard({
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10">
             <AlertCircle className="h-5 w-5 text-destructive" />
           </div>
-          <div className="space-y-1 min-w-0">
-            <h3 className="text-base font-semibold">Transaction Failed</h3>
+          <div className="min-w-0 space-y-1">
+            <h3 className="font-semibold text-base">Transaction Failed</h3>
             <p className="text-muted-foreground text-sm">{title}</p>
           </div>
         </div>
@@ -187,8 +186,8 @@ export function BaseOperationCard({
         >
           <Icon className={cn("h-5 w-5", iconColor)} />
         </div>
-        <div className="space-y-1 min-w-0">
-          <h3 className="text-base font-semibold">{title}</h3>
+        <div className="min-w-0 space-y-1">
+          <h3 className="font-semibold text-base">{title}</h3>
           <p className="text-muted-foreground text-sm">
             {subtitle ?? "Review details and sign the transaction"}
           </p>
@@ -199,7 +198,7 @@ export function BaseOperationCard({
 
       {!isConnected && (
         <div className="my-3 rounded-md border border-yellow-500/30 bg-yellow-500/10 p-3">
-          <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400 text-sm">
+          <div className="flex items-center gap-2 text-sm text-yellow-600 dark:text-yellow-400">
             <AlertCircle className="h-4 w-4" />
             <span>Please connect your wallet to proceed.</span>
           </div>
@@ -209,7 +208,7 @@ export function BaseOperationCard({
       <Button
         onClick={handleExecute}
         disabled={!isConnected || isExecuting}
-        className="mt-3 w-full h-10 rounded-lg"
+        className="mt-3 h-10 w-full rounded-lg"
         variant="default"
       >
         {isExecuting ? (

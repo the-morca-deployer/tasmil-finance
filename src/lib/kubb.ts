@@ -1,8 +1,8 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 export const getApiBaseUrl = () => {
-  const url = process.env['NEXT_PUBLIC_API_URL'] || 'http://localhost:8001';
-  return url.replace(/\/$/, ''); // Remove trailing slash
+  const url = process.env["NEXT_PUBLIC_API_URL"] || "http://localhost:8001";
+  return url.replace(/\/$/, ""); // Remove trailing slash
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -11,8 +11,8 @@ const apiClient = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
   timeout: 30000,
 });
@@ -35,8 +35,8 @@ apiClient.interceptors.response.use(
 
     if (error.response?.status === 401 && !orig._retry) {
       orig._retry = true;
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('auth-token-expired'));
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("auth-token-expired"));
       }
     }
 
@@ -107,14 +107,14 @@ export const $background = {
 
 export async function testApiConnection() {
   try {
-    const response = await apiClient.get('/ok');
+    const response = await apiClient.get("/ok");
     return { success: true, data: response.data };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   (window as any).testApi = testApiConnection;
 }
 

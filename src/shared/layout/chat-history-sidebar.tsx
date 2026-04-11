@@ -17,7 +17,7 @@ export function ChatHistorySidebar() {
   const { rightSidebarOpen, setRightSidebarOpen } = useMultiSidebar();
 
   // Get current agent ID from URL
-  const currentAgentId = (params["agentId"] as string) || "staking";
+  const currentAgentId = (params.agentId as string) || "staking";
 
   // Use threads from provider
   const { getThreads, threads, setThreads, threadsLoading, setThreadsLoading } = useThreads();
@@ -31,7 +31,7 @@ export function ChatHistorySidebar() {
         .catch(console.error)
         .finally(() => setThreadsLoading(false));
     }
-  }, [rightSidebarOpen, currentAgentId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [rightSidebarOpen, currentAgentId, getThreads, setThreads, setThreadsLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Convert threads to chat history format
   const chatHistory = threads.map((t: Thread) => {
@@ -42,13 +42,13 @@ export function ChatHistorySidebar() {
       typeof t.values === "object" &&
       t.values &&
       "messages" in t.values &&
-      Array.isArray(t.values["messages"]) &&
-      t.values["messages"]?.length > 0
+      Array.isArray(t.values.messages) &&
+      t.values.messages?.length > 0
     ) {
-      const firstMessage = t.values["messages"][0];
+      const firstMessage = t.values.messages[0];
       title = getContentString(firstMessage.content);
 
-      const lastMsg = t.values["messages"][t.values["messages"].length - 1];
+      const lastMsg = t.values.messages[t.values.messages.length - 1];
       lastMessage = getContentString(lastMsg.content);
     }
 
@@ -85,7 +85,7 @@ export function ChatHistorySidebar() {
       if (!acc[group]) {
         acc[group] = [];
       }
-      acc[group]!.push(chat);
+      acc[group]?.push(chat);
       return acc;
     },
     {} as Record<string, typeof chatHistory>
@@ -152,7 +152,7 @@ export function ChatHistorySidebar() {
       <div className="flex-1 overflow-y-auto px-4">
         {threadsLoading ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-sidebar-foreground/30 mb-2"></div>
+            <div className="mb-2 h-6 w-6 animate-spin rounded-full border-sidebar-foreground/30 border-b-2"></div>
             <div className="text-sidebar-foreground/70 text-sm">Loading chats...</div>
           </div>
         ) : Object.keys(groupedChats).length > 0 ? (
@@ -169,8 +169,8 @@ export function ChatHistorySidebar() {
                       chat.id === selectedThreadId && "bg-sidebar-accent"
                     )}
                   >
-                    <div className="font-medium truncate">{chat.title}</div>
-                    <div className="text-xs text-sidebar-foreground/60 truncate mt-1">
+                    <div className="truncate font-medium">{chat.title}</div>
+                    <div className="mt-1 truncate text-sidebar-foreground/60 text-xs">
                       {chat.lastMessage}
                     </div>
                   </div>
@@ -184,7 +184,7 @@ export function ChatHistorySidebar() {
             <div className="text-sidebar-foreground/70 text-sm">
               {searchQuery ? "No chats found" : "No chats yet"}
             </div>
-            <div className="text-sidebar-foreground/50 text-xs mt-1">
+            <div className="mt-1 text-sidebar-foreground/50 text-xs">
               Start a new conversation to see your chat history
             </div>
           </div>

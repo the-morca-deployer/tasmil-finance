@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import type React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export const BackgroundRippleEffect = ({
@@ -23,26 +24,26 @@ export const BackgroundRippleEffect = ({
   // Auto-trigger random ripples
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    
+
     const triggerRipple = () => {
       const randomRow = Math.floor(Math.random() * rows);
       const randomCol = Math.floor(Math.random() * cols);
       setClickedCell({ row: randomRow, col: randomCol });
       setRippleKey((k) => k + 1);
       setCurrentWaveRadius(0);
-      
+
       // Animate wave radius
       const startTime = Date.now();
       const duration = 3000; // 3 seconds for wave to complete (slower)
       const maxRadius = 15; // Maximum wave radius
-      
+
       const animate = () => {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        
+
         // Linear progression for consistent wave speed
         setCurrentWaveRadius(progress * maxRadius);
-        
+
         if (progress < 1) {
           animationFrameRef.current = requestAnimationFrame(animate);
         } else {
@@ -50,14 +51,14 @@ export const BackgroundRippleEffect = ({
           setCurrentWaveRadius(0);
         }
       };
-      
+
       animationFrameRef.current = requestAnimationFrame(animate);
-      
+
       // Schedule next ripple after current one completes + random delay
       const randomDelay = 2000 + Math.random() * 3000;
       timeoutId = setTimeout(triggerRipple, duration + randomDelay);
     };
-    
+
     // Start first ripple after initial delay
     const initialDelay = 1000 + Math.random() * 2000;
     timeoutId = setTimeout(triggerRipple, initialDelay);
@@ -74,26 +75,18 @@ export const BackgroundRippleEffect = ({
     <div
       ref={ref}
       className={cn(
-        "absolute inset-0 h-full w-full pointer-events-none",
+        "pointer-events-none absolute inset-0 h-full w-full",
         "[--cell-border-color:rgba(63,63,70,0.4)] [--cell-fill-color:rgba(63,63,70,0.15)]",
-        "dark:[--cell-border-color:rgba(63,63,70,0.4)] dark:[--cell-fill-color:rgba(63,63,70,0.15)]",
+        "dark:[--cell-border-color:rgba(63,63,70,0.4)] dark:[--cell-fill-color:rgba(63,63,70,0.15)]"
       )}
     >
       <div className="relative h-full w-full overflow-hidden">
         {/* Gradient overlays for fade at all edges */}
-        <div 
-          className="absolute left-0 top-0 z-10 h-full w-[30%] bg-gradient-to-r from-background to-transparent pointer-events-none"
-        />
-        <div 
-          className="absolute right-0 top-0 z-10 h-full w-[30%] bg-gradient-to-l from-background to-transparent pointer-events-none"
-        />
-        <div 
-          className="absolute top-0 left-0 z-10 w-full h-[30%] bg-gradient-to-b from-background to-transparent pointer-events-none"
-        />
-        <div 
-          className="absolute bottom-0 left-0 z-10 w-full h-[40%] bg-gradient-to-t from-background via-background/70 to-transparent pointer-events-none"
-        />
-        
+        <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-[30%] bg-gradient-to-r from-background to-transparent" />
+        <div className="pointer-events-none absolute top-0 right-0 z-10 h-full w-[30%] bg-gradient-to-l from-background to-transparent" />
+        <div className="pointer-events-none absolute top-0 left-0 z-10 h-[30%] w-full bg-gradient-to-b from-background to-transparent" />
+        <div className="pointer-events-none absolute bottom-0 left-0 z-10 h-[40%] w-full bg-gradient-to-t from-background via-background/70 to-transparent" />
+
         <DivGrid
           key={`base-${rippleKey}`}
           className=""
@@ -126,8 +119,8 @@ type DivGridProps = {
 };
 
 type CellStyle = React.CSSProperties & {
-  ["--delay"]?: string;
-  ["--duration"]?: string;
+  "--delay"?: string;
+  "--duration"?: string;
 };
 
 const DivGrid = ({
@@ -142,10 +135,7 @@ const DivGrid = ({
   onCellClick = () => {},
   interactive = true,
 }: DivGridProps) => {
-  const cells = useMemo(
-    () => Array.from({ length: rows * cols }, (_, idx) => idx),
-    [rows, cols],
-  );
+  const cells = useMemo(() => Array.from({ length: rows * cols }, (_, idx) => idx), [rows, cols]);
 
   const gridStyle: React.CSSProperties = {
     display: "grid",
@@ -178,13 +168,13 @@ const DivGrid = ({
         const waveThickness = 2.5; // Narrower band for sharper wave
         const distanceFromWaveFront = Math.abs(distance - currentWaveRadius);
         const isOnWaveFront = clickedCell && distanceFromWaveFront < waveThickness;
-        
+
         // Calculate intensity with smooth gradient
         let waveIntensity = 0;
         if (isOnWaveFront) {
           const normalizedDistance = distanceFromWaveFront / waveThickness;
           // Smooth easing
-          waveIntensity = 1 - Math.pow(normalizedDistance, 1.2);
+          waveIntensity = 1 - normalizedDistance ** 1.2;
         }
 
         return (
@@ -192,23 +182,19 @@ const DivGrid = ({
             key={idx}
             className={cn(
               "cell relative border-[0.5px] opacity-40 will-change-transform hover:opacity-60",
-              !interactive && "pointer-events-none",
+              !interactive && "pointer-events-none"
             )}
             style={{
               backgroundColor: fillColor,
-              borderColor: isOnWaveFront
-                ? `rgba(82, 229, 255, ${waveIntensity})`
-                : borderColor,
-              borderWidth: isOnWaveFront ? '1px' : '0.5px',
+              borderColor: isOnWaveFront ? `rgba(82, 229, 255, ${waveIntensity})` : borderColor,
+              borderWidth: isOnWaveFront ? "1px" : "0.5px",
               boxShadow: isOnWaveFront
                 ? `0 0 ${waveIntensity * 30}px rgba(82, 229, 255, ${waveIntensity * 0.8}), 0 0 ${waveIntensity * 15}px rgba(82, 229, 255, ${waveIntensity * 0.6})`
                 : undefined,
-              transition: 'all 0.15s ease-out',
+              transition: "all 0.15s ease-out",
               ...style,
             }}
-            onClick={
-              interactive ? () => onCellClick?.(rowIdx, colIdx) : undefined
-            }
+            onClick={interactive ? () => onCellClick?.(rowIdx, colIdx) : undefined}
           />
         );
       })}

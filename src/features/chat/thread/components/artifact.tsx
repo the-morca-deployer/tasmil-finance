@@ -48,8 +48,8 @@ const ArtifactSlot = (props: { id: string; children?: ReactNode; title?: ReactNo
   if (!isMounted) return null;
   return (
     <>
-      {title != null ? createPortal(<>{props.title}</>, title) : null}
-      {content != null ? createPortal(<>{props.children}</>, content) : null}
+      {title != null ? createPortal(props.title, title) : null}
+      {content != null ? createPortal(props.children, content) : null}
     </>
   );
 };

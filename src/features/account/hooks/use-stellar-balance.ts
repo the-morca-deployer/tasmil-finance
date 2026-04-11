@@ -10,8 +10,7 @@ const HORIZON_URL =
 /** Known testnet USDC issuer (SDF test anchor / Circle faucet). */
 const USDC_ASSET_CODE = "USDC";
 const USDC_ISSUER =
-  process.env["NEXT_PUBLIC_USDC_ISSUER"] ??
-  "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
+  process.env["NEXT_PUBLIC_USDC_ISSUER"] ?? "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
 
 export interface StellarBalances {
   xlm: number;
