@@ -16,14 +16,6 @@ const AbstractCube = dynamic(
   }
 );
 
-// ... inside render ...
-
-{
-  /* Right Column - Procedural 3D Scene */
-}
-<div className="flex items-center justify-center w-full h-[500px]">
-  <AbstractCube />
-</div>;
 import { PATHS, SECTION_IDS } from '@/shared/constants/routes';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { Button } from '@/shared/ui/button-v2';
