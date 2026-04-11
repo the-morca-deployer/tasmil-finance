@@ -199,6 +199,7 @@ export function AssistantMessage({
   isLoading,
   handleRegenerate,
   hideAvatar = false,
+  isNewMessageLoading = false,
 }: {
   message: Message | undefined;
   isLoading: boolean;
@@ -207,6 +208,7 @@ export function AssistantMessage({
     parentValues?: { messages: Message[] }
   ) => void;
   hideAvatar?: boolean;
+  isNewMessageLoading?: boolean;
 }) {
   const content = message?.content ?? [];
   const rawContentString = getContentString(content);
@@ -354,8 +356,12 @@ export function AssistantMessage({
               );
               const hasCustomUI = allUIForMessage && allUIForMessage.length > 0;
               
-              // Only show command bar if no custom UI and not intermediate AI message
-              return !hasCustomUI && !isIntermediateAiMessage && (contentString.length > 0 || isLastMessage) && (
+              // Only show command bar if:
+              // - No custom UI
+              // - Not intermediate AI message
+              // - Not loading
+              // - No new message is loading (hide command bar when new message is being generated)
+              return !hasCustomUI && !isIntermediateAiMessage && !isLoading && !isNewMessageLoading && (contentString.length > 0 || isLastMessage) && (
                 <div className="mr-auto flex items-center gap-2">
                   <BranchSwitcher
                     branch={meta?.branch}

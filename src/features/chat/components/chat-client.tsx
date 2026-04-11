@@ -317,9 +317,14 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
 
+    // Optimistically add the message to display immediately
+    setDisplayMessages([...stream.messages, ...toolMessages, newHumanMessage]);
+
     stream.submit(
       {
-        messages: [...toolMessages, newHumanMessage],
+        // IMPORTANT: Send ALL existing messages + tool responses + new message
+        // This ensures LangGraph appends instead of overwrites
+        messages: [...stream.messages, ...toolMessages, newHumanMessage],
         ...(walletAddress && { wallet_address: walletAddress }),
       },
       {
@@ -388,9 +393,13 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
 
+    // Optimistically add the message to display immediately
+    setDisplayMessages([...stream.messages, ...toolMessages, newHumanMessage]);
+
     stream.submit(
       {
-        messages: [...toolMessages, newHumanMessage],
+        // IMPORTANT: Send ALL existing messages + tool responses + new message
+        messages: [...stream.messages, ...toolMessages, newHumanMessage],
         ...(walletAddress && { wallet_address: walletAddress }),
       },
       {
@@ -534,6 +543,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                     isLoading={isLoading && index === messages.length - 1}
                     handleRegenerate={handleRegenerate}
                     hideAvatar={isConsecutiveAi}
+                    isNewMessageLoading={effectiveIsLoading && !firstTokenReceived}
                   />
                 );
               });

@@ -179,6 +179,15 @@ export function BlendExecuteCard({
   const action = args?.["action"];
 
   const handleExecute = useCallback(async (address: string) => {
+    console.log('[BlendExecuteCard] handleExecute started:', {
+      address,
+      hasXdr: !!xdr,
+      operation,
+      toolCallId,
+      currentStreamMessages: stream.messages.length,
+      messageIds: stream.messages.map(m => m.id),
+    });
+    
     if (!xdr) {
       return { success: false, error: "No transaction XDR available" };
     }
@@ -252,8 +261,14 @@ export function BlendExecuteCard({
           content: `Transaction ${hash} submitted successfully`,
         };
         
+        console.log('[BlendExecuteCard] Submitting success message:', {
+          messageId: successMessage.id,
+          currentStreamMessages: stream.messages.length,
+          messageIds: stream.messages.map(m => m.id),
+        });
+        
         await stream.submit(
-          { messages: [...stream.messages, successMessage] },
+          { messages: [successMessage] },
           {
             // @ts-ignore
             streamMode: ['values'],
@@ -261,6 +276,11 @@ export function BlendExecuteCard({
             streamResumable: true,
           }
         );
+        
+        console.log('[BlendExecuteCard] Success message submitted, stream state after:', {
+          streamMessages: stream.messages.length,
+          messageIds: stream.messages.map(m => m.id),
+        });
         
         return successResult;
       } else {
@@ -283,8 +303,19 @@ export function BlendExecuteCard({
           content: "Transaction rejected by user",
         };
         
+        console.log('[BlendExecuteCard] Submitting rejection message:', {
+          messageId: rejectionMessage.id,
+          currentStreamMessages: stream.messages.length,
+          messageIds: stream.messages.map(m => m.id),
+          lastFewMessages: stream.messages.slice(-3).map(m => ({
+            id: m.id,
+            type: m.type,
+            content: typeof m.content === 'string' ? m.content.slice(0, 50) : 'non-string',
+          })),
+        });
+        
         await stream.submit(
-          { messages: [...stream.messages, rejectionMessage] },
+          { messages: [rejectionMessage] },
           {
             // @ts-ignore
             streamMode: ['values'],
@@ -292,6 +323,8 @@ export function BlendExecuteCard({
             streamResumable: true,
           }
         );
+        
+        console.log('[BlendExecuteCard] Rejection message submitted');
         
         return { success: false, error: "Transaction rejected by user" };
       }
@@ -307,8 +340,19 @@ export function BlendExecuteCard({
         content: `Transaction failed: ${msg}`,
       };
       
+      console.log('[BlendExecuteCard] Submitting error message:', {
+        messageId: errorMessage.id,
+        currentStreamMessages: stream.messages.length,
+        messageIds: stream.messages.map(m => m.id),
+        lastFewMessages: stream.messages.slice(-3).map(m => ({
+          id: m.id,
+          type: m.type,
+          content: typeof m.content === 'string' ? m.content.slice(0, 50) : 'non-string',
+        })),
+      });
+      
       await stream.submit(
-        { messages: [...stream.messages, errorMessage] },
+        { messages: [errorMessage] },
         {
           // @ts-ignore
           streamMode: ['values'],
@@ -316,6 +360,8 @@ export function BlendExecuteCard({
           streamResumable: true,
         }
       );
+      
+      console.log('[BlendExecuteCard] Error message submitted');
       
       return errorResult;
     }
