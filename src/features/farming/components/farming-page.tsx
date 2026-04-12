@@ -130,10 +130,18 @@ export function FarmingPage() {
   const [selectedPreset, setSelectedPreset] = useState<RiskPreset | null>(null);
   const withdrawAmountInputId = useId();
 
-  const { data: position, isLoading: positionLoading } = usePosition(publicKey);
+  const {
+    data: position,
+    isLoading: positionLoading,
+    refetch: refetchPosition,
+  } = usePosition(publicKey);
   const { data: status, isLoading: statusLoading } = useRebalanceStatus();
   const { data: registryPoolsData, isLoading: registryPoolsLoading } = usePools();
-  const { data: activities, isLoading: activitiesLoading } = useActivity(publicKey);
+  const {
+    data: activities,
+    isLoading: activitiesLoading,
+    refetch: refetchActivity,
+  } = useActivity(publicKey);
   const { data: presets, isLoading: presetsLoading } = usePresets();
   const fundAccount = useFundAccount();
   const withdrawMutation = useWithdraw();
@@ -144,6 +152,7 @@ export function FarmingPage() {
 
   const { availableUsd, lockedUsd } = useMemo(() => {
     const positions = position?.positions ?? [];
+    const isBalanceStale = Boolean(position?.balanceStale);
     let available = 0;
     let locked = 0;
     let positionsTotal = 0;
@@ -158,11 +167,93 @@ export function FarmingPage() {
 
     // Include unallocated keeper-wallet funds (not represented as strategy positions)
     // so users can still withdraw when funds are parked in the keeper wallet.
-    const walletAvailable = Math.max((position?.totalValueUsd ?? 0) - positionsTotal, 0);
+    const walletAvailable = isBalanceStale
+      ? 0
+      : Math.max((position?.totalValueUsd ?? 0) - positionsTotal, 0);
     available += walletAvailable;
 
     return { availableUsd: available, lockedUsd: locked };
-  }, [position?.positions, position?.totalValueUsd]);
+  }, [position?.positions, position?.totalValueUsd, position?.balanceStale]);
+
+  const deployedInPoolsUsd = useMemo(() => {
+    return (position?.positions ?? []).reduce((sum, pos) => sum + pos.valueUsd, 0);
+  }, [position?.positions]);
+
+  const unallocatedWalletUsd = useMemo(() => {
+    if (position?.balanceStale) return 0;
+    return Math.max((position?.totalValueUsd ?? 0) - deployedInPoolsUsd, 0);
+  }, [position?.totalValueUsd, deployedInPoolsUsd, position?.balanceStale]);
+
+  const cashflowSummary = useMemo(() => {
+    const totalValueUsd = position?.totalValueUsd ?? 0;
+    const totalDepositedUsd = position?.totalDepositedUsd ?? 0;
+    const totalWithdrawnFromApi = position?.totalWithdrawnUsd ?? 0;
+    const netDepositsFromApi = position?.netDepositsUsd ?? totalDepositedUsd - totalWithdrawnFromApi;
+    const profitUsd = position?.profitUsd ?? 0;
+    const profitPercent = position?.profitPercent ?? 0;
+
+    if (totalDepositedUsd > 0 || totalWithdrawnFromApi > 0) {
+      return {
+        totalFundedUsd: totalDepositedUsd,
+        totalWithdrawnUsd: totalWithdrawnFromApi,
+        netDepositsUsd: netDepositsFromApi,
+        allTimePnlUsd: profitUsd,
+        allTimePnlPercent: profitPercent,
+      };
+    }
+
+    let totalFundedUsd = 0;
+    let legacyStrategyDepositsUsd = 0;
+    let totalWithdrawnUsd = 0;
+    const seen = new Set<string>();
+
+    for (const item of activities ?? []) {
+      const dedupeKey = item.txHash ? `${item.type}:${item.txHash}` : `${item.type}:${item.id}`;
+      if (seen.has(dedupeKey)) continue;
+      seen.add(dedupeKey);
+
+      const amountUsd = typeof item.amountUsd === "number" ? item.amountUsd : 0;
+      if (amountUsd <= 0) continue;
+
+      if (item.type === "FUND") {
+        totalFundedUsd += amountUsd;
+      } else if (item.type === "DEPOSIT") {
+        legacyStrategyDepositsUsd += amountUsd;
+      } else if (item.type === "WITHDRAW") {
+        totalWithdrawnUsd += amountUsd;
+      }
+    }
+
+    // Backward compatibility for legacy activity data where FUND might be missing.
+    if (totalFundedUsd <= 0 && legacyStrategyDepositsUsd > 0) {
+      totalFundedUsd = legacyStrategyDepositsUsd;
+    }
+
+    const hasCashflowData = totalFundedUsd > 0 || totalWithdrawnUsd > 0;
+
+    if (!hasCashflowData) {
+      return {
+        totalFundedUsd: totalDepositedUsd,
+        totalWithdrawnUsd: 0,
+        netDepositsUsd: totalDepositedUsd,
+        allTimePnlUsd: profitUsd,
+        allTimePnlPercent: profitPercent,
+      };
+    }
+
+    const netDepositsUsd = totalFundedUsd - totalWithdrawnUsd;
+    const allTimePnlUsd = totalValueUsd + totalWithdrawnUsd - totalFundedUsd;
+    const allTimePnlPercent =
+      totalFundedUsd > 0 ? Math.round((allTimePnlUsd / totalFundedUsd) * 10000) / 100 : 0;
+
+    return {
+      totalFundedUsd,
+      totalWithdrawnUsd,
+      netDepositsUsd,
+      allTimePnlUsd,
+      allTimePnlPercent,
+    };
+  }, [activities, position?.totalDepositedUsd, position?.totalValueUsd, position?.profitUsd, position?.profitPercent]);
 
   if (!publicKey) {
     return (
@@ -192,7 +283,7 @@ export function FarmingPage() {
   }
 
   const registryPools = registryPoolsData ?? [];
-  const profitPositive = position.profitUsd >= 0;
+  const profitPositive = cashflowSummary.allTimePnlUsd >= 0;
   const accountActionPending =
     fundAccount.isPending ||
     withdrawMutation.isPending ||
@@ -243,6 +334,8 @@ export function FarmingPage() {
         amount,
         token,
       });
+
+      await Promise.all([refetchPosition(), refetchActivity()]);
       setAccountModalOpen(false);
     } catch (err) {
       console.error("Fund failed:", err);
@@ -257,33 +350,15 @@ export function FarmingPage() {
         amount: parsedWithdrawAmount,
       });
 
-      const signedXdrs: string[] = result?.signedXdrs ?? [];
-      if (signedXdrs.length > 0) {
-        for (const [i, signedXdr] of signedXdrs.entries()) {
-          const isLast = i === signedXdrs.length - 1;
-          await submitTx.mutateAsync({
-            signedXdr,
-            ...(isLast
-              ? {
-                  publicKey,
-                  txType: "withdraw" as const,
-                  amount: parsedWithdrawAmount,
-                }
-              : {}),
-          });
-        }
-
-        setWithdrawAmount("");
-        setAccountModalOpen(false);
-        return;
-      }
-
       const xdrs: string[] = result?.xdrs ?? (result?.xdr ? [result.xdr] : []);
-      if (xdrs.length === 0) throw new Error("No withdrawal transaction returned from server");
+      const signedXdrs: string[] = result?.signedXdrs ?? [];
+      if (xdrs.length === 0 && signedXdrs.length === 0)
+        throw new Error("No withdrawal transaction returned from server");
 
+      // 1) Submit owner-signed XDRs first
       for (const [i, xdr] of xdrs.entries()) {
         const signedXdr = await signXdr(xdr, publicKey);
-        const isLast = i === xdrs.length - 1;
+        const isLast = i === xdrs.length - 1 && signedXdrs.length === 0;
         await submitTx.mutateAsync({
           signedXdr,
           ...(isLast
@@ -294,6 +369,23 @@ export function FarmingPage() {
               }
             : {}),
         });
+      }
+
+      // 2) Submit backend pre-signed XDRs next
+      for (const [i, signedXdr] of signedXdrs.entries()) {
+        const isLast = i === signedXdrs.length - 1;
+        await submitTx.mutateAsync({
+          signedXdr,
+          ...(isLast
+            ? {
+                publicKey,
+                txType: "withdraw" as const,
+                amount: parsedWithdrawAmount,
+              }
+            : {}),
+        });
+
+          await Promise.all([refetchPosition(), refetchActivity()]);
       }
 
       setWithdrawAmount("");
@@ -315,6 +407,8 @@ export function FarmingPage() {
         publicKey,
         txType: "revoke",
       });
+
+      await Promise.all([refetchPosition(), refetchActivity()]);
       setAccountModalOpen(false);
     } catch (err) {
       console.error("Revoke failed:", err);
@@ -344,21 +438,31 @@ export function FarmingPage() {
       {/* Account Summary */}
       <Card className="mb-8 border-border bg-muted/10">
         <CardContent className="p-6">
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-5">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
             <div>
               <span className="text-muted-foreground text-xs">Total Value</span>
               <p className="font-bold font-mono text-2xl text-foreground">
                 {formatUsd(position.totalValueUsd)}
               </p>
-            </div>
-            <div>
-              <span className="text-muted-foreground text-xs">Amount Funded</span>
-              <p className="font-mono font-semibold text-foreground text-lg">
-                {formatUsd(position.totalDepositedUsd)}
+              <p className="text-[11px] text-muted-foreground/70">
+                In pools: {formatUsd(deployedInPoolsUsd)}
+              </p>
+              <p className="text-[11px] text-muted-foreground/70">
+                In wallet: {position.balanceStale ? "—" : formatUsd(unallocatedWalletUsd)}
               </p>
             </div>
             <div>
-              <span className="text-muted-foreground text-xs">Profit / Loss</span>
+              <span className="text-muted-foreground text-xs">Net Deposits</span>
+              <p className="font-mono font-semibold text-foreground text-lg">
+                {formatUsd(cashflowSummary.netDepositsUsd)}
+              </p>
+              <p className="text-[11px] text-muted-foreground/70">
+                +{formatUsd(cashflowSummary.totalFundedUsd)} / -
+                {formatUsd(cashflowSummary.totalWithdrawnUsd)}
+              </p>
+            </div>
+            <div>
+              <span className="text-muted-foreground text-xs">All-time P/L</span>
               <div className="flex items-center gap-1.5">
                 {profitPositive ? (
                   <ArrowUpRight className="h-4 w-4 text-emerald-400" />
@@ -371,7 +475,7 @@ export function FarmingPage() {
                     profitPositive ? "text-emerald-400" : "text-red-400"
                   )}
                 >
-                  {formatUsd(Math.abs(position.profitUsd))}
+                  {formatUsd(Math.abs(cashflowSummary.allTimePnlUsd))}
                 </p>
                 <span
                   className={cn(
@@ -380,7 +484,7 @@ export function FarmingPage() {
                   )}
                 >
                   ({profitPositive ? "+" : "-"}
-                  {Math.abs(position.profitPercent).toFixed(2)}%)
+                  {Math.abs(cashflowSummary.allTimePnlPercent).toFixed(2)}%)
                 </span>
               </div>
             </div>
@@ -391,23 +495,6 @@ export function FarmingPage() {
                 <p className="font-mono font-semibold text-emerald-400 text-lg">
                   {formatApyPercent(position.currentApy)}
                 </p>
-              </div>
-            </div>
-            <div>
-              <span className="text-muted-foreground text-xs">Strategy</span>
-              <div className="flex items-center gap-2">
-                <p className="font-medium text-foreground text-lg">{position.preset}</p>
-                {canChangeStrategy ? (
-                  <button
-                    type="button"
-                    className="text-primary text-xs underline underline-offset-2 hover:text-primary/80"
-                    onClick={() => openAccountModal("strategy")}
-                  >
-                    Change
-                  </button>
-                ) : (
-                  <span className="text-muted-foreground text-xs">Managed by admin</span>
-                )}
               </div>
             </div>
           </div>
@@ -422,7 +509,7 @@ export function FarmingPage() {
           icon={<TrendingUp className="h-4 w-4 text-emerald-400" />}
         />
         <StatCard
-          label="Pools In Your Allocation"
+          label="Active Positions"
           value={String(position.positions.length)}
           icon={<Activity className="h-4 w-4 text-blue-400" />}
         />
@@ -436,10 +523,9 @@ export function FarmingPage() {
       {/* Current Allocation */}
       {position.positions.length > 0 && (
         <div className="mb-8">
-          <h2 className="mb-1 font-semibold text-foreground text-lg">Your Current Allocation</h2>
-          <p className="mb-4 text-muted-foreground text-sm">
-            How your capital is currently distributed across active strategies.
-          </p>
+          <h2 className="mb-4 font-semibold text-foreground text-lg">
+            Your Current Allocation (Deployed in Pools)
+          </h2>
           <AllocationTable positions={position.positions} />
         </div>
       )}
@@ -798,7 +884,7 @@ function AllocationTable({
             <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs">Pool</th>
             <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs">Type</th>
             <th className="px-4 py-3 text-right font-medium text-muted-foreground text-xs">
-              Weight
+              Target Weight
             </th>
             <th className="px-4 py-3 text-right font-medium text-muted-foreground text-xs">
               Value

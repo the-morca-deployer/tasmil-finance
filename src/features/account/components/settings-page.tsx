@@ -59,6 +59,8 @@ export function SettingsPage() {
       return { availableUsd: 0, lockedUsd: 0, lockedCountdown: null, keeperAddress: null };
     }
 
+    const isBalanceStale = Boolean(position.balanceStale);
+
     let available = 0;
     let locked = 0;
     let countdown: string | null = null;
@@ -76,7 +78,9 @@ export function SettingsPage() {
 
     // Include unallocated keeper-wallet funds (not shown as positions)
     // so instant withdraw supports funds parked in keeper wallet.
-    const walletAvailable = Math.max((position.totalValueUsd ?? 0) - positionsTotal, 0);
+    const walletAvailable = isBalanceStale
+      ? 0
+      : Math.max((position.totalValueUsd ?? 0) - positionsTotal, 0);
     available += walletAvailable;
 
     return {
@@ -104,33 +108,29 @@ export function SettingsPage() {
         amount: parsedAmount,
       });
 
-      const signedXdrs: string[] = result?.signedXdrs ?? [];
-      if (signedXdrs.length > 0) {
-        for (const [i, signedXdr] of signedXdrs.entries()) {
-          const isLast = i === signedXdrs.length - 1;
-          await submitTx.mutateAsync({
-            signedXdr,
-            ...(isLast ? { publicKey, txType: "withdraw" as const, amount: parsedAmount } : {}),
-          });
-        }
-
-        setWithdrawAmount("");
-        router.push("/farming");
-        return;
-      }
-
       const xdrs: string[] = result?.xdrs ?? (result?.xdr ? [result.xdr] : []);
-      if (xdrs.length === 0) {
+      const signedXdrs: string[] = result?.signedXdrs ?? [];
+
+      if (xdrs.length === 0 && signedXdrs.length === 0) {
         throw new Error("No transaction returned from server");
       }
 
-      // Sign and submit each strategy withdrawal TX
+      // 1) Submit owner-signed XDRs first (e.g. keeper session config updates)
       for (const [i, xdr] of xdrs.entries()) {
         const signedXdr = await signXdr(xdr, publicKey);
-        const isLast = i === xdrs.length - 1;
+        const isLast = i === xdrs.length - 1 && signedXdrs.length === 0;
         await submitTx.mutateAsync({
           signedXdr,
           // Record activity only on the last TX
+          ...(isLast ? { publicKey, txType: "withdraw" as const, amount: parsedAmount } : {}),
+        });
+      }
+
+      // 2) Submit backend pre-signed XDRs next
+      for (const [i, signedXdr] of signedXdrs.entries()) {
+        const isLast = i === signedXdrs.length - 1;
+        await submitTx.mutateAsync({
+          signedXdr,
           ...(isLast ? { publicKey, txType: "withdraw" as const, amount: parsedAmount } : {}),
         });
       }
@@ -220,7 +220,11 @@ export function SettingsPage() {
               <p className="font-mono font-semibold text-foreground text-lg">
                 {formatUsd(availableUsd)}
               </p>
-              <span className="text-[10px] text-muted-foreground">Lending + LP positions</span>
+              <span className="text-[10px] text-muted-foreground">
+                {position?.balanceStale
+                  ? "Wallet balance unavailable; only deployed positions included"
+                  : "Lending + LP positions"}
+              </span>
             </div>
             <div className="rounded-lg border border-border bg-muted/20 p-3">
               <div className="flex items-center gap-1.5">

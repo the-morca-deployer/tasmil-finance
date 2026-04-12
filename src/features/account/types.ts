@@ -12,6 +12,8 @@ export interface PresetCardData {
 export interface PositionData {
   totalValueUsd: number;
   totalDepositedUsd: number;
+  totalWithdrawnUsd: number;
+  netDepositsUsd: number;
   profitUsd: number;
   profitPercent: number;
   currentApy: number;

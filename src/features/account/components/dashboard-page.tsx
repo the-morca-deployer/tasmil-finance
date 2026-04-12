@@ -98,6 +98,7 @@ export function DashboardPage() {
   }
 
   const profitPositive = position.profitUsd >= 0;
+  const showEstimatedOnly = Boolean(position.balanceStale);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -123,28 +124,34 @@ export function DashboardPage() {
             <div>
               <span className="text-muted-foreground text-xs">Profit / Loss</span>
               <div className="flex items-center gap-1.5">
-                {profitPositive ? (
-                  <ArrowUpRight className="h-4 w-4 text-emerald-400" />
+                {showEstimatedOnly ? (
+                  <p className="font-mono font-semibold text-lg text-muted-foreground">—</p>
                 ) : (
-                  <ArrowDownRight className="h-4 w-4 text-red-400" />
+                  <>
+                    {profitPositive ? (
+                      <ArrowUpRight className="h-4 w-4 text-emerald-400" />
+                    ) : (
+                      <ArrowDownRight className="h-4 w-4 text-red-400" />
+                    )}
+                    <p
+                      className={cn(
+                        "font-mono font-semibold text-lg",
+                        profitPositive ? "text-emerald-400" : "text-red-400"
+                      )}
+                    >
+                      {formatUsd(Math.abs(position.profitUsd))}
+                    </p>
+                    <span
+                      className={cn(
+                        "text-xs",
+                        profitPositive ? "text-emerald-400/70" : "text-red-400/70"
+                      )}
+                    >
+                      ({profitPositive ? "+" : "-"}
+                      {Math.abs(position.profitPercent).toFixed(2)}%)
+                    </span>
+                  </>
                 )}
-                <p
-                  className={cn(
-                    "font-mono font-semibold text-lg",
-                    profitPositive ? "text-emerald-400" : "text-red-400"
-                  )}
-                >
-                  {formatUsd(Math.abs(position.profitUsd))}
-                </p>
-                <span
-                  className={cn(
-                    "text-xs",
-                    profitPositive ? "text-emerald-400/70" : "text-red-400/70"
-                  )}
-                >
-                  ({profitPositive ? "+" : "-"}
-                  {Math.abs(position.profitPercent).toFixed(2)}%)
-                </span>
               </div>
             </div>
 
@@ -175,6 +182,12 @@ export function DashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      {position.balanceStale && (
+        <p className="mb-6 rounded-md border border-yellow-500/30 bg-yellow-500/10 px-3 py-2 text-yellow-200 text-xs">
+          Balance sync is delayed. Displayed total currently uses net cashflow estimate.
+        </p>
+      )}
 
       {/* Positions */}
       <div className="mb-8">
