@@ -23,7 +23,6 @@ const THEME_COLOR_SCRIPT = `\
   function updateThemeColor() {
     var isDark = html.classList.contains('dark');
     meta.setAttribute('content', isDark ? '${DARK_THEME_COLOR}' : '${LIGHT_THEME_COLOR}');
-    // Also set data-dark attribute for theme switching
     if (isDark) {
       html.setAttribute('data-dark', '');
     } else {
@@ -46,8 +45,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className={`${outfit.variable} dark`} lang="en" suppressHydrationWarning>
+    <html className={`${outfit.variable}`} lang="en" suppressHydrationWarning>
       <head>
+        <meta name="color-scheme" content="dark light" />
         <script
           dangerouslySetInnerHTML={{
             __html: THEME_COLOR_SCRIPT,

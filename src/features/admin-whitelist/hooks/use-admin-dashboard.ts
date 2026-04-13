@@ -5,6 +5,14 @@ import { useAdminAuthStore } from "@/features/admin-auth/store/use-admin-auth-st
 
 interface DashboardStats {
   waitlist: { last24h: number; last7d: number; allTime: number };
+  walletStats: {
+    totalWalletEntries: number;
+    contactableEntries: number;
+    last24h: number;
+    last7d: number;
+    totalSuccessfulReferrals: number;
+    topReferrers: { walletAddress: string; referralCount: number }[];
+  };
   emailDispatches: {
     confirmationSent: number;
     confirmationFailed: number;

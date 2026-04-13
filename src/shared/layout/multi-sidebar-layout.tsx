@@ -20,6 +20,7 @@ interface MultiSidebarLayoutProps {
   className?: string;
   showRightSidebar?: boolean;
   showHeader?: boolean;
+  sidebarData?: import("@/shared/layout/sidebar-data").SidebarData;
 }
 
 function Header({ title, showRightSidebar }: { title: string; showRightSidebar: boolean }) {
@@ -122,17 +123,19 @@ function DesktopLayout({
   showRightSidebar,
   showHeader,
   title,
+  sidebarData: customSidebarData,
 }: {
   children: React.ReactNode;
   showRightSidebar: boolean;
   showHeader: boolean;
   title: string;
+  sidebarData?: import("@/shared/layout/sidebar-data").SidebarData;
 }) {
   const { rightSidebarOpen } = useMultiSidebar();
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <AppSidebar />
+      <AppSidebar sidebarData={customSidebarData} />
 
       {/* Main Content Area - Header + Content */}
       <SidebarInset className="flex h-screen flex-col">
@@ -162,11 +165,13 @@ function LayoutContent({
   showRightSidebar,
   showHeader,
   title,
+  sidebarData: customSidebarData,
 }: {
   children: React.ReactNode;
   showRightSidebar: boolean;
   showHeader: boolean;
   title: string;
+  sidebarData?: import("@/shared/layout/sidebar-data").SidebarData;
 }) {
   const isMobile = useIsMobile();
   return isMobile ? (
@@ -174,7 +179,7 @@ function LayoutContent({
       {children}
     </MobileLayout>
   ) : (
-    <DesktopLayout showRightSidebar={showRightSidebar} showHeader={showHeader} title={title}>
+    <DesktopLayout showRightSidebar={showRightSidebar} showHeader={showHeader} title={title} sidebarData={customSidebarData}>
       {children}
     </DesktopLayout>
   );
@@ -186,10 +191,11 @@ export function MultiSidebarLayout({
   showRightSidebar = true,
   showHeader = true,
   title = "",
-}: MultiSidebarLayoutProps & { title?: string }) {
+  sidebarData: customSidebarData,
+}: MultiSidebarLayoutProps & { title?: string; sidebarData?: import("@/shared/layout/sidebar-data").SidebarData }) {
   return (
     <MultiSidebarProvider className={className || ""}>
-      <LayoutContent showRightSidebar={showRightSidebar} showHeader={showHeader} title={title}>
+      <LayoutContent showRightSidebar={showRightSidebar} showHeader={showHeader} title={title} sidebarData={customSidebarData}>
         {children}
       </LayoutContent>
     </MultiSidebarProvider>

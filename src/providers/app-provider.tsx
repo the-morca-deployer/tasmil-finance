@@ -7,17 +7,16 @@ import { useState } from "react";
 import { Toaster } from "sonner";
 import { WalletProvider } from "@/shared/context/wallet-context";
 import { TooltipProvider } from "@/shared/ui/tooltip";
+import { ThemeStorageMigration } from "./theme-storage-migration";
 
 export function AppProvider({ children }: PropsWithChildren) {
-  // CRITICAL: Use useState to ensure QueryClient is only created once
-  // Creating new QueryClient on every render causes all queries to re-run
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 1000 * 60 * 5, // 5 minutes
-            gcTime: 1000 * 60 * 10, // 10 minutes
+            staleTime: 1000 * 60 * 5,
+            gcTime: 1000 * 60 * 10,
           },
         },
       })
@@ -27,10 +26,12 @@ export function AppProvider({ children }: PropsWithChildren) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
         attribute="class"
-        defaultTheme="dark"
+        defaultTheme="system"
+        enableSystem={true}
         disableTransitionOnChange
-        enableSystem={false}
+        storageKey="tasmil-ui-theme"
       >
+        <ThemeStorageMigration />
         <TooltipProvider>
           <WalletProvider>{children}</WalletProvider>
         </TooltipProvider>

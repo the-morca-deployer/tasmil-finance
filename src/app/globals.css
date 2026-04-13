@@ -636,6 +636,45 @@
   .stepper-container {
     scroll-behavior: smooth;
   }
+
+  /* Waitlist email form animation keyframes */
+  @keyframes stepper-pop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes fade-slide-out {
+    0%   { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-8px); }
+  }
+
+  @keyframes banner-fade-in {
+    0%   { opacity: 0; transform: translateY(4px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 50%, 90% { transform: translateX(-4px); }
+    30%, 70% { transform: translateX(4px); }
+  }
+
+  .animate-stepper-pop {
+    animation: stepper-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .animate-fade-slide-out {
+    animation: fade-slide-out 0.2s ease-out forwards;
+  }
+
+  .animate-banner-fade-in {
+    animation: banner-fade-in 0.3s ease-out 0.1s both;
+  }
+
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
+  }
 }
 
 @layer base {

@@ -1,21 +1,43 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAdminAuthStore } from "@/features/admin-auth/store/use-admin-auth-store";
+import { Loader2 } from "lucide-react";
+
+function isAdminAuthenticated(): boolean {
+  try {
+    const raw = localStorage.getItem("admin-auth-storage");
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    return parsed.state?.isAuthenticated === true;
+  } catch {
+    return false;
+  }
+}
+
+function AdminLoadingState() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  );
+}
 
 export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated } = useAdminAuthStore();
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Read auth state directly from localStorage to avoid Zustand hydration timing issues
+    if (!isAdminAuthenticated()) {
       router.push("/admin/login");
+    } else {
+      setChecked(true);
     }
-  }, [isAuthenticated, router]);
+  }, [router]);
 
-  if (!isAuthenticated) {
-    return null;
+  if (!checked) {
+    return <AdminLoadingState />;
   }
 
   return <>{children}</>;

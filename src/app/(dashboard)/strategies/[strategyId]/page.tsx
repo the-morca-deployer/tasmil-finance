@@ -6,7 +6,7 @@ import { MultiSidebarLayout } from "@/shared/layout/multi-sidebar-layout";
 
 export default function StrategyDetailPageRoute() {
   const params = useParams();
-  const strategyId = params["strategyId"] as string;
+  const strategyId = params.strategyId as string;
 
   return (
     <MultiSidebarLayout showRightSidebar={false} showHeader={false}>

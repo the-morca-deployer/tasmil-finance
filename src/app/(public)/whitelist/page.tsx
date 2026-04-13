@@ -1,83 +1,154 @@
 "use client";
 
-import { Typography } from "@/shared/ui/typography";
-import { WhitelistForm } from "@/features/whitelist/components/whitelist-form";
+import { ShieldCheck, Sparkles, Waypoints } from "lucide-react";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { WaitlistPhaseBoard } from "@/features/whitelist/components/waitlist-phase-board";
 import { PATHS } from "@/shared/constants/routes";
+import { Typography } from "@/shared/ui/typography";
+
+const hybridSections = [
+  {
+    title: "AI portfolio management, built for real-world rails",
+    body:
+      "Tasmil Finance is designed for investors who want intelligent allocation, disciplined execution, and a cleaner path into onchain portfolio management without noisy interfaces or fragmented workflows.",
+    icon: Sparkles,
+  },
+  {
+    title: "Built on Stellar for fast, efficient access",
+    body:
+      "We are building on Stellar because it offers efficient settlement, dependable global payment rails, and an ecosystem that matches a more accessible, scalable portfolio experience.",
+    icon: Waypoints,
+  },
+  {
+    title: "Early access comes with priority onboarding",
+    body:
+      "Join the waitlist to receive product updates, launch access, and earlier onboarding opportunities as the first Tasmil Finance experience rolls out on Stellar.",
+    icon: ShieldCheck,
+  },
+] as const;
 
 export default function WhitelistPage() {
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-black overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+    <div className="bg-background text-foreground">
+      <section className="relative overflow-hidden border-b border-border">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(82,168,255,0.16),transparent_45%)]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center px-4 py-20 w-full">
-        {/* Badge */}
-        <div className="mb-8 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5">
-          <span className="font-mono text-xs uppercase tracking-widest text-primary">
-            Early Access
-          </span>
+        <div className="relative mx-auto flex min-h-[78vh] max-w-6xl flex-col items-center justify-center px-6 py-24 text-center sm:px-8 lg:px-12">
+          <div className="mb-6 inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5">
+            <span className="text-[11px] font-medium uppercase tracking-[0.24em] text-primary">
+              Early Access
+            </span>
+          </div>
+
+          <Typography
+            variant="h1"
+            className="max-w-4xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
+          >
+            Tasmil Finance
+          </Typography>
+
+          <Typography
+            variant="h2"
+            className="mt-3 max-w-3xl text-2xl font-medium tracking-tight text-foreground/90 sm:text-3xl lg:text-4xl"
+          >
+            AI-managed portfolios for the Stellar ecosystem
+          </Typography>
+
+          <Typography
+            variant="p"
+            className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg"
+          >
+            Join the waitlist for a more refined way to access automated portfolio
+            management on Stellar — designed for faster execution, cleaner workflows,
+            and smarter capital allocation from day one.
+          </Typography>
+
+          <div className="mt-10 w-full max-w-3xl">
+            <Suspense fallback={<div className="h-40 w-full rounded-2xl border border-border bg-card/80 animate-pulse" />}>
+              <WaitlistPhaseBoardWithRef />
+            </Suspense>
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+            <span>Institutional-grade UX</span>
+            <span className="hidden h-1 w-1 rounded-full bg-border sm:block" />
+            <span>Built for Stellar</span>
+            <span className="hidden h-1 w-1 rounded-full bg-border sm:block" />
+            <span>Priority early onboarding</span>
+          </div>
+
+          <div className="mt-14 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+            <a
+              className="transition-colors hover:text-foreground"
+              href={PATHS.TELEGRAM}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Telegram
+            </a>
+            <a
+              className="transition-colors hover:text-foreground"
+              href={PATHS.X}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              X / Twitter
+            </a>
+            <a
+              className="transition-colors hover:text-foreground"
+              href={PATHS.DOCS}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Docs
+            </a>
+          </div>
         </div>
+      </section>
 
-        {/* Headline */}
-        <Typography
-          variant="h1"
-          gradient={true}
-          className="text-center font-bold text-4xl md:text-5xl lg:text-6xl mb-4"
-        >
-          Tasmil Finance
-        </Typography>
-
-        <Typography
-          variant="h2"
-          gradient={true}
-          className="text-center font-bold text-3xl md:text-4xl lg:text-5xl mb-6"
-        >
-          Coming Soon
-        </Typography>
-
-        <div className="max-w-2xl text-center mb-10">
-          <Typography variant="p" className="text-gray-300 text-lg md:text-xl leading-relaxed">
-            AI-powered DeFi portfolio management on the U2U blockchain.
-            Get early access and be among the first to experience
-            intelligent yield optimization and automated strategy management.
+      <section className="mx-auto max-w-6xl px-6 py-20 sm:px-8 lg:px-12">
+        <div className="mb-10 max-w-2xl">
+          <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">
+            Why join now
+          </p>
+          <Typography
+            variant="h3"
+            className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl"
+          >
+            A sharper prelaunch story, without bloated marketing sections
           </Typography>
         </div>
 
-        {/* Form */}
-        <div className="w-full flex flex-col items-center">
-          <p className="mb-4 text-muted-foreground text-sm font-mono uppercase tracking-wider">
-            Join the Waitlist
-          </p>
-          <WhitelistForm />
+        <div className="grid gap-5 lg:grid-cols-3">
+          {hybridSections.map(({ title, body, icon: Icon }) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-border bg-card/60 p-6 shadow-sm backdrop-blur-sm"
+            >
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" />
+              </div>
+              <Typography variant="h4" className="text-lg font-semibold tracking-tight">
+                {title}
+              </Typography>
+              <Typography
+                variant="p"
+                className="mt-3 text-sm leading-7 text-muted-foreground"
+              >
+                {body}
+              </Typography>
+            </div>
+          ))}
         </div>
-
-        {/* Social proof */}
-        <div className="mt-12 flex items-center gap-2 text-muted-foreground text-sm">
-          <div className="flex -space-x-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="h-8 w-8 rounded-full border-2 border-black bg-gradient-to-br from-primary/40 to-accent/40"
-              />
-            ))}
-          </div>
-          <span>Join 1,000+ early adopters</span>
-        </div>
-
-        {/* Footer links */}
-        <div className="mt-16 flex gap-6 text-muted-foreground text-sm">
-          <a href={PATHS.TELEGRAM} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-            Telegram
-          </a>
-          <a href={PATHS.X} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-            X (Twitter)
-          </a>
-          <a href={PATHS.DOCS} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-            Docs
-          </a>
-        </div>
-      </div>
+      </section>
     </div>
   );
+}
+
+function WaitlistPhaseBoardWithRef() {
+  const searchParams = useSearchParams();
+  const referredByCode = searchParams.get("ref");
+  return <WaitlistPhaseBoard referredByCode={referredByCode} />;
 }
