@@ -22,12 +22,14 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-COPY --from=builder /app/apps/frontend/next.config.ts ./next.config.ts
-COPY --from=builder /app/apps/frontend/public ./public
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY apps/frontend ./apps/frontend
+COPY packages ./packages
+
+RUN pnpm install --frozen-lockfile --ignore-scripts
+
 COPY --from=builder /app/apps/frontend/.next ./.next
-COPY --from=builder /app/apps/frontend/package.json ./package.json
-COPY --from=builder /app/apps/frontend/node_modules ./node_modules
-COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/apps/frontend/public ./public
 
 EXPOSE 3000
 
