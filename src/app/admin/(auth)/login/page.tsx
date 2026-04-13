@@ -7,6 +7,7 @@ import { Button } from "@/shared/ui/button-v2";
 import { Input } from "@/shared/ui/input";
 import { Typography } from "@/shared/ui/typography";
 import { Loader2 } from "lucide-react";
+import { Bot } from "lucide-react";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -23,10 +24,20 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="w-full max-w-md p-8 rounded-2xl border border-border bg-card">
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      {/* Background with subtle gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+
+      <div className="relative w-full max-w-md p-8 rounded-2xl border border-border bg-card">
+        {/* Logo/Brand */}
+        <div className="flex items-center justify-center mb-6">
+          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent">
+            <Bot className="w-6 h-6 text-white" />
+          </div>
+        </div>
+
         <div className="mb-8 text-center">
-          <Typography variant="h2" className="font-bold text-2xl mb-2">
+          <Typography variant="h2" className="mb-2 font-bold text-2xl tracking-tight">
             Admin Portal
           </Typography>
           <Typography variant="p" className="text-muted-foreground text-sm">
@@ -36,9 +47,14 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1.5">Email</label>
+            <label htmlFor="admin-email" className="mb-1.5 block text-sm font-medium">
+              Email
+            </label>
             <Input
+              id="admin-email"
+              name="email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@zyf.ai"
@@ -48,9 +64,14 @@ export default function AdminLoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5">Password</label>
+            <label htmlFor="admin-password" className="mb-1.5 block text-sm font-medium">
+              Password
+            </label>
             <Input
+              id="admin-password"
+              name="password"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
@@ -60,8 +81,8 @@ export default function AdminLoginPage() {
           </div>
 
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-              <Typography variant="p" className="text-red-400 text-sm">
+            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3">
+              <Typography variant="p" className="text-destructive text-sm">
                 {error}
               </Typography>
             </div>

@@ -284,7 +284,7 @@ export default function AgentsPage() {
 
           {!searchAssistants.isPending && !searchAssistants.error && (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredAgents.map((assistant: any) => (
+            {filteredAgents.map((assistant: any) => (
                 <AgentCard
                   key={assistant.assistant_id}
                   assistant={assistant}

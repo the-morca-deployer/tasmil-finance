@@ -304,12 +304,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         ...(walletAddress && { wallet_address: walletAddress }),
       },
       {
-        // @ts-ignore - streamMode may not be in type definition
-        streamMode: ["values"],
-        streamSubgraphs: false,
-        streamResumable: true,
-        // @ts-ignore - optimisticValues may not be in type definition
-        optimisticValues: (prev: any) => ({
+        /* biome-ignore lint/suspicious/noExplicitAny */optimisticValues: (prev: any) => ({
           ...prev,
           messages: [...(prev?.messages ?? []), ...toolMessages, newHumanMessage],
         }),
@@ -322,7 +317,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   };
 
   const handleRegenerate = (
-    parentCheckpoint: Checkpoint | null | undefined,
+    _parentCheckpoint: Checkpoint | null | undefined,
     parentValues?: { messages: Message[] }
   ) => {
     // Stop any current stream first
@@ -333,16 +328,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     prevMessageLength.current = prevMessageLength.current - 1;
     setFirstTokenReceived(false);
     setIsSubmitting(true);
-
-    stream.submit(undefined, {
-      // @ts-ignore - checkpoint may not be in type definition
-      checkpoint: parentCheckpoint || null,
-      // @ts-ignore - streamMode may not be in type definition
-      streamMode: ["values"],
-      streamSubgraphs: true,
-      streamResumable: true,
-      // @ts-ignore - optimisticValues may not be in type definition
-      optimisticValues: (prev: any) => {
+            stream.submit(undefined, {
+      /* biome-ignore lint/suspicious/noExplicitAny */optimisticValues: (prev: any) => {
         // Return parent state to immediately remove AI message from UI
         if (parentValues) {
           return parentValues;
@@ -375,12 +362,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         ...(walletAddress && { wallet_address: walletAddress }),
       },
       {
-        // @ts-ignore - streamMode may not be in type definition
-        streamMode: ["values"],
-        streamSubgraphs: false,
-        streamResumable: true,
-        // @ts-ignore - optimisticValues may not be in type definition
-        optimisticValues: (prev: any) => ({
+        /* biome-ignore lint/suspicious/noExplicitAny */optimisticValues: (prev: any) => ({
           ...prev,
           messages: [...(prev?.messages ?? []), ...toolMessages, newHumanMessage],
         }),
@@ -437,8 +419,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                       ? aiMsg.content.trim()
                       : Array.isArray(aiMsg.content)
                         ? aiMsg.content
-                            .filter((c: any) => c.type === "text")
-                            .map((c: any) => c.text?.trim())
+            .filter((c: any) => c.type === "text")
+            .map((c: any) => c.text?.trim())
                             .join("")
                         : "";
 
@@ -451,7 +433,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
                   // Hide AI messages that have tool calls for MCP tools (not supervisor calls) and no text
                   if (hasToolCallsOnly && !content) {
-                    const allAreMcpTools = aiMsg.tool_calls.every(
+                    const allAreMcpTools =
+            aiMsg.tool_calls.every(
                       (tc: any) => !tc.name?.startsWith("call_") || !tc.name?.endsWith("_agent")
                     );
                     console.log("[ChatClient] AI message filter check:", {

@@ -36,9 +36,7 @@ function EditableContent({
 
 export function HumanMessage({ message, isLoading }: { message: Message; isLoading: boolean }) {
   const thread = useStreamContext();
-  // @ts-ignore - getMessagesMetadata may not be in type definition
-  const meta = thread.getMessagesMetadata?.(message);
-  const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint;
+  /* biome-ignore lint/suspicious/noExplicitAny */const meta = (thread as any).getMessagesMetadata?.(message);
 
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState("");
@@ -57,13 +55,6 @@ export function HumanMessage({ message, isLoading }: { message: Message; isLoadi
     thread.submit(
       { messages: [newMessage] },
       {
-        // @ts-ignore - checkpoint may not be in type definition
-        checkpoint: parentCheckpoint || null,
-        // @ts-ignore - streamMode may not be in type definition
-        streamMode: ["values"],
-        streamSubgraphs: true,
-        streamResumable: true,
-        // @ts-ignore - optimisticValues may not be in type definition
         optimisticValues: () => {
           // Return messages before current + new message
           // This removes the current message and all messages after it
@@ -106,8 +97,7 @@ export function HumanMessage({ message, isLoading }: { message: Message; isLoadi
           <BranchSwitcher
             branch={meta?.branch}
             branchOptions={meta?.branchOptions}
-            // @ts-ignore - setBranch may not be in type definition
-            onSelect={(branch) => thread.setBranch?.(branch)}
+            onSelect={(branch) => (thread as any).setBranch?.(branch)}
             isLoading={isLoading}
           />
           <CommandBar

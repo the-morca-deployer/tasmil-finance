@@ -72,3 +72,27 @@ export const sidebarData: SidebarData = {
     },
   ],
 };
+
+export const adminSidebarData: SidebarData = {
+  user: {
+    name: "Admin",
+    email: "admin@tasmil.finance",
+    avatar: "/avatars/default.svg",
+  },
+  header: {
+    logo_url: "/images/logo.png",
+    brand_name: "Tasmil",
+    tagline: "Admin Panel",
+  },
+  navGroups: [
+    {
+      items: [
+        {
+          title: "Dashboard",
+          url: "/admin/dashboard",
+          icon: Home,
+        },
+      ],
+    },
+  ],
+};

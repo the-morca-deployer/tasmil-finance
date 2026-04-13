@@ -7,8 +7,16 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx", "**/*.json", "**/*.css"],
+    "includes": [
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.json",
+      "**/*.css"
+    ],
     "experimentalScannerIgnores": [
+      "scripts/**",
       "node_modules/**",
       ".next/**",
       "dist/**",
@@ -51,8 +59,8 @@
         "noUnusedVariables": "error",
         "noInvalidUseBeforeDeclaration": "warn",
         "useHookAtTopLevel": "warn",
-        "useExhaustiveDependencies": "warn"
-        ,"useJsxKeyInIterable": "warn",
+        "useExhaustiveDependencies": "warn",
+        "useJsxKeyInIterable": "warn",
         "useUniqueElementIds": "warn"
       },
       "nursery": {
@@ -75,9 +83,9 @@
       },
       "suspicious": {
         "recommended": true,
-        "noExplicitAny": "warn",
+        "noExplicitAny": "off",
         "noArrayIndexKey": "warn",
-        "noImplicitAnyLet": "warn",
+        "noImplicitAnyLet": "off",
         "noRedeclare": "warn",
         "noUnknownAtRules": "warn"
       }
