@@ -31,4 +31,4 @@ export const SECTION_IDS = {
   FOOTER: "footer",
 };
 
-export const API_BASE_URL = process.env["NEXT_PUBLIC_API_URL"];
+export const API_BASE_URL = process.env["NEXT_PUBLIC_API_URL"] || "https://backend.tasmil-finance.xyz";

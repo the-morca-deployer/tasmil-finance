@@ -1,7 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 export const getApiBaseUrl = () => {
-  const url = process.env["NEXT_PUBLIC_API_URL"] || "http://localhost:8001";
+  const url = process.env["NEXT_PUBLIC_API_URL"] || "https://backend.tasmil-finance.xyz";
   return url.replace(/\/$/, ""); // Remove trailing slash
 };
 
