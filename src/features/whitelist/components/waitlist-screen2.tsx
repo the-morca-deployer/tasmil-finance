@@ -25,10 +25,10 @@ export function WaitlistScreen2({ onEmailSuccess, onSkip }: WaitlistScreen2Props
       <ProgressStepper steps={STEPS} />
 
       <div className="text-center">
-        <Typography variant="h4" className="font-bold tracking-wide uppercase">
+        <Typography variant="h4" className="text-center font-bold tracking-wide uppercase">
           One More Step
         </Typography>
-        <Typography variant="small" className="mt-1 text-muted-foreground">
+        <Typography variant="small" className="text-center mt-1 text-muted-foreground">
           Add your email to receive your access code when we launch.
         </Typography>
       </div>

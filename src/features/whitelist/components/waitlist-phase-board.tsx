@@ -14,16 +14,17 @@ interface WaitlistPhaseBoardProps {
 
 export function WaitlistPhaseBoard({ referredByCode }: WaitlistPhaseBoardProps) {
   const { isConnected, address } = useWallet();
-  const { data: walletStatus, isLoading: isStatusLoading } = useWalletStatus(address);
+  const { data: walletStatus, isLoading: isStatusLoading, isError: isStatusError } = useWalletStatus(address);
   const [skipped, setSkipped] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
   const isRegistered = !!walletStatus;
   const hasEmail = !!(walletStatus?.hasEmail || submittedEmail);
 
-  // Show spinner while checking if already-registered wallet's status is loading.
-  // Prevents Screen 1 flashing briefly for users who are already on the list.
-  const showLoadingSpinner = isConnected && !!address && isStatusLoading;
+  // Show spinner only while the initial status check is in flight (not on error).
+  // Prevents Screen 1 flashing briefly for already-registered wallets.
+  // If the backend errors (down / 5xx), fail fast and show Screen 1.
+  const showLoadingSpinner = isConnected && !!address && isStatusLoading && !isStatusError;
 
   const showScreen: 1 | 2 | 3 =
     !isConnected || !isRegistered ? 1
