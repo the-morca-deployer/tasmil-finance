@@ -44,6 +44,18 @@ function AccountInfoCardComponent({
     price_info: { title: "Price Info", icon: BarChart3 },
     market_discovery: { title: "Market Overview", icon: BarChart3 },
     discovery: { title: "Discovery", icon: BarChart3 },
+    // Blend-specific
+    blend_user_position: { title: "Blend Position", icon: BarChart3 },
+    blend_backstop_balance: { title: "Backstop Balance", icon: Wallet },
+    // Others
+    user_positions: { title: "User Positions", icon: BarChart3 },
+    liquidity_position: { title: "Liquidity Position", icon: BarChart3 },
+    stake_info: { title: "Stake Info", icon: BarChart3 },
+    borrow_health: { title: "Borrow Health", icon: BarChart3 },
+    pending_interest: { title: "Pending Interest", icon: BarChart3 },
+    pending_yield: { title: "Pending Yield", icon: BarChart3 },
+    user_portfolio: { title: "Portfolio", icon: BarChart3 },
+    user_shares: { title: "Vault Shares", icon: Wallet },
   };
 
   const cfg = configMap[query] ?? configMap.info!;
@@ -57,7 +69,7 @@ function AccountInfoCardComponent({
       isLoading={isLoading}
       error={hasError ? errorMessage : null}
     >
-      <QueryContent query={query} data={data} toolCallId={toolCallId} />
+      <QueryContent query={query} data={data} args={args} toolCallId={toolCallId} />
     </BaseInfoCard>
   );
 }
@@ -65,10 +77,12 @@ function AccountInfoCardComponent({
 function QueryContent({
   query,
   data,
+  args,
   toolCallId,
 }: {
   query: string;
   data: any;
+  args?: Record<string, any>;
   toolCallId?: string;
 }) {
   if (!data) return <div className="text-muted-foreground text-sm">No data available.</div>;
@@ -100,6 +114,8 @@ function QueryContent({
       return <SignersView data={data} />;
     case "network":
       return <NetworkView data={data} />;
+    case "blend_user_position":
+      return <BlendPositionView data={data} args={args} />;
     default:
       return <GenericView data={data} />;
   }
@@ -391,6 +407,43 @@ function NetworkView({ data }: { data: any }) {
           </span>
         }
       />
+    </div>
+  );
+}
+
+function BlendPositionView({ data, args }: { data: any; args?: Record<string, any> }) {
+  const poolAddress = args?.poolAddress ?? data?.poolAddress;
+  const position = data?.position ?? data;
+
+  const collateral = position?.collateral ?? {};
+  const liabilities = position?.liabilities ?? {};
+  const supply = position?.supply ?? {};
+
+  const collateralCount = Object.keys(collateral).length;
+  const liabilitiesCount = Object.keys(liabilities).length;
+  const supplyCount = Object.keys(supply).length;
+  const hasPosition = collateralCount + liabilitiesCount + supplyCount > 0;
+
+  return (
+    <div className="space-y-2">
+      {poolAddress && (
+        <DetailRow label="Pool" value={truncateAddress(String(poolAddress))} mono />
+      )}
+      {!hasPosition ? (
+        <div className="text-muted-foreground text-xs">No open position in this pool.</div>
+      ) : (
+        <>
+          {collateralCount > 0 && (
+            <DetailRow label="Collateral reserves" value={collateralCount} />
+          )}
+          {supplyCount > 0 && (
+            <DetailRow label="Supply reserves" value={supplyCount} />
+          )}
+          {liabilitiesCount > 0 && (
+            <DetailRow label="Borrow reserves" value={liabilitiesCount} />
+          )}
+        </>
+      )}
     </div>
   );
 }

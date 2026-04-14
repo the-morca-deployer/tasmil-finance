@@ -226,7 +226,24 @@ export function AssistantMessage({
               <AIReasoning isStreaming={isReasoningStreaming}>{reasoningContent}</AIReasoning>
             )}
 
-            {/* 2a. Supervisor coordination indicator */}
+            {/* AI text — rendered BEFORE tool calls so preamble text
+                ("I'll check your position…") appears above the tool cards,
+                matching the natural reading order of LangGraph agent messages. */}
+            {contentString.length > 0 && (
+              <div className="fade-in animate-in py-1 duration-200">
+                <MarkdownText>{contentString}</MarkdownText>
+              </div>
+            )}
+
+            {/* Tool calls rendered via CopilotKit's useRenderToolCall (genUI) */}
+            {allToolCalls && allToolCalls.length > 0 && message && (
+              <CopilotKitToolCallRenderer
+                message={message}
+                messages={thread.messages}
+              />
+            )}
+
+            {/* Supervisor coordination indicator (only for supervisor agent calls) */}
             {isSupervisorDelegating && (
               <div className="flex items-center gap-2 py-1.5 text-sm">
                 <svg
@@ -247,19 +264,6 @@ export function AssistantMessage({
                 </span>
               </div>
             )}
-
-            {/* 2b. Regular Tool Calls (non-supervisor) — Hidden, replaced by custom UI */}
-            {/* Tool calls are now shown via custom UI components like "Using Info Agent" */}
-
-            {/* 3. AI Text Response */}
-            {contentString.length > 0 && (
-              <div className="fade-in animate-in py-1 duration-200">
-                <MarkdownText>{contentString}</MarkdownText>
-              </div>
-            )}
-
-            {/* 4. Custom UI Components (e.g., "Using Yield Agent", Staking card) */}
-            {message && <CustomComponent message={message} thread={thread} filterType="other" />}
 
             <Interrupt
               interrupt={threadInterrupt}

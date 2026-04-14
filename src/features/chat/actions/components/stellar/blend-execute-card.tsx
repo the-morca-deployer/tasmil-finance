@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import { ArrowRightLeft, Coins } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { useStreamContext } from "@/features/chat/hooks";
 import { activeNetwork, truncateAddress } from "@/shared/config/stellar";
@@ -151,9 +151,42 @@ export function BlendExecuteCard({
     }
     return null;
   });
-
-  const updatePersisted = useCallback(
-    (status: string, result: ExecuteResult | null) => {
+  
+  // Check if there's a newer human message after this transaction
+  // If yes, this transaction should be considered cancelled
+  const [isTransactionCancelled, setIsTransactionCancelled] = useState(false);
+  
+  useEffect(() => {
+    // Find the AI message that created this transaction
+    const messages = stream.messages || [];
+    let transactionMessageIndex = -1;
+    
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const msg = messages[i];
+      if (msg && msg.type === 'ai' && 'tool_calls' in msg && msg.tool_calls) {
+        const hasMatchingToolCall = msg.tool_calls.some((tc: any) => {
+          const tcId = tc.id || tc.get?.('id');
+          return tcId === toolCallId;
+        });
+        if (hasMatchingToolCall) {
+          transactionMessageIndex = i;
+          break;
+        }
+      }
+    }
+    
+    if (transactionMessageIndex === -1) {
+      return;
+    }
+    
+    // Check if there's a human message after the transaction
+    const hasNewerHumanMessage = messages
+      .slice(transactionMessageIndex + 1)
+      .some(msg => msg.type === 'human' && !msg.id?.startsWith('__hidden__'));
+    
+    if (hasNewerHumanMessage && localStatus === 'executing') {
+      setIsTransactionCancelled(true);
+      // Update localStorage
       if (storageKey) {
         localStorage.setItem(storageKey, JSON.stringify({ status, result }));
       }
