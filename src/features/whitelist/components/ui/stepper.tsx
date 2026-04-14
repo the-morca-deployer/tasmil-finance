@@ -58,20 +58,23 @@ export function ProgressStepper({ steps, className }: ProgressStepperProps) {
         ))}
       </div>
 
-      {/* Row 2: labels aligned under their dots */}
-      <div className="mt-2 flex w-full justify-between">
-        {steps.map((step) => (
-          <span
-            key={step.id}
-            className={cn(
-              "text-xs font-medium leading-tight",
-              step.state === "done" && "text-green-600",
-              step.state === "active" && "text-primary",
-              step.state === "inactive" && "text-muted-foreground"
-            )}
-          >
-            {step.label}
-          </span>
+      {/* Row 2: labels mirror dot-row structure so each label centers under its dot */}
+      <div className="mt-2 flex w-full items-start">
+        {steps.map((step, i) => (
+          <React.Fragment key={step.id}>
+            <span
+              className={cn(
+                "w-9 shrink-0 text-center text-xs font-medium leading-tight",
+                step.state === "done" && "text-green-600",
+                step.state === "active" && "text-primary",
+                step.state === "inactive" && "text-muted-foreground"
+              )}
+            >
+              {step.label}
+            </span>
+            {/* spacer mirrors the connector flex-1 */}
+            {i < steps.length - 1 && <div className="flex-1" />}
+          </React.Fragment>
         ))}
       </div>
     </div>
