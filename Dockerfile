@@ -28,10 +28,10 @@ COPY packages ./packages
 
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
+WORKDIR /app/apps/frontend
+
 COPY --from=builder /app/apps/frontend/.next ./.next
 COPY --from=builder /app/apps/frontend/public ./public
-
-WORKDIR /app/apps/frontend
 
 EXPOSE 3000
 
