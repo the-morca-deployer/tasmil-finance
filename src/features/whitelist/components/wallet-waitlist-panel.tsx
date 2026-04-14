@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useWallet } from "@/shared/context/wallet-context";
@@ -23,43 +23,46 @@ export function WalletWaitlistPanel({ referredByCode }: WalletWaitlistPanelProps
   const queryClient = useQueryClient();
   const requestChallenge = useRequestChallenge();
   const registerWallet = useRegisterWallet();
-  const { data: walletStatus, isLoading: isWalletStatusLoading, isFetching: isWalletStatusFetching } = useWalletStatus(address);
-  const didInvalidateRef = useRef(false);
+  const { data: walletStatus, isLoading: isWalletStatusLoading } = useWalletStatus(address);
 
   // Reset mutation state when address changes (e.g., user switches wallet)
   useEffect(() => {
     registerWallet.reset();
-    didInvalidateRef.current = false;
   }, [address, registerWallet]);
-
-  // Invalidate status query after successful registration so WalletWaitlistStatusWithLoading refetches
-  useEffect(() => {
-    if (registerWallet.isSuccess && address && !didInvalidateRef.current) {
-      didInvalidateRef.current = true;
-      queryClient.invalidateQueries({ queryKey: ["waitlist", "status", address] });
-    }
-  }, [registerWallet.isSuccess, address, queryClient]);
 
   const handleRegister = useCallback(async () => {
     if (!address) return;
     const challengeResult = await requestChallenge.mutateAsync({ walletAddress: address });
-    console.log("[Panel] Challenge result:", challengeResult);
-    console.log("[Panel] Challenge challenge value:", challengeResult?.challenge);
 
-    const payload: Parameters<typeof registerWallet.mutate>[0] = {
+    const payload: Parameters<typeof registerWallet.mutateAsync>[0] = {
       walletAddress: address,
       walletProvider: "FREIGHTER",
       signedChallenge: challengeResult.challenge,
       source: "whitelist_page",
     };
     if (referredByCode) payload.referredByCode = referredByCode;
-    registerWallet.mutate(payload);
-  }, [address, requestChallenge, registerWallet, referredByCode]);
+
+    const result = await registerWallet.mutateAsync(payload);
+
+    // Prefill status cache with data we already have so the form shows instantly.
+    // invalidateQueries then fetches the full status (queue rank etc.) in the background.
+    queryClient.setQueryData(["waitlist", "status", address], {
+      id: result.id,
+      walletAddress: address,
+      referralCode: result.referralCode,
+      queueRank: null,
+      totalEntries: null,
+      successfulReferralCount: 0,
+      referredByCode: referredByCode ?? null,
+      createdAt: new Date().toISOString(),
+      hasEmail: false,
+      emailDeliveryEligible: false,
+    });
+    queryClient.invalidateQueries({ queryKey: ["waitlist", "status", address] });
+  }, [address, requestChallenge, registerWallet, referredByCode, queryClient]);
 
   const showRegisteredState = !!walletStatus || registerWallet.isSuccess;
-  const showStatusLoading =
-    registerWallet.isPending ||
-    (showRegisteredState && (isWalletStatusLoading || (isWalletStatusFetching && !walletStatus)));
+  const showStatusLoading = registerWallet.isPending || (showRegisteredState && isWalletStatusLoading);
 
   if (isConnected && address) {
     return (
