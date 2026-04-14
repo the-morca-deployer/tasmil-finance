@@ -73,22 +73,22 @@ export function WaitlistScreen1({ referredByCode }: WaitlistScreen1Props) {
         <ProgressStepper steps={STEPS} />
 
         <div className="text-center">
-          <Typography variant="h4" className="font-bold tracking-wide uppercase">
+          <Typography variant="h4" className="text-center font-bold tracking-wide uppercase">
             Join the Waitlist
           </Typography>
-          <Typography variant="small" className="mt-1 text-muted-foreground">
+          <Typography variant="small" className="text-center mt-1 text-muted-foreground">
             Connect your Stellar wallet to secure your spot.
           </Typography>
         </div>
 
-        <div className="rounded-xl border border-border bg-card/80 p-5">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
+        <div className="rounded-xl border border-border bg-card/80 p-5 text-center">
+          <div className="mb-3 mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
             <Wallet className="h-5 w-5 text-primary" />
           </div>
-          <Typography variant="p" className="text-sm font-medium text-foreground">
+          <Typography variant="p" className="text-center text-sm font-medium text-foreground">
             Connect your Stellar wallet
           </Typography>
-          <Typography variant="small" className="mt-1 text-muted-foreground">
+          <Typography variant="small" className="text-center mt-1 text-muted-foreground">
             Wallet-based verification. We&apos;ll ask for your email after registration.
           </Typography>
         </div>
@@ -123,10 +123,10 @@ export function WaitlistScreen1({ referredByCode }: WaitlistScreen1Props) {
       <ProgressStepper steps={STEPS} />
 
       <div className="text-center">
-        <Typography variant="h4" className="font-bold tracking-wide uppercase">
+        <Typography variant="h4" className="text-center font-bold tracking-wide uppercase">
           Join the Waitlist
         </Typography>
-        <Typography variant="small" className="mt-1 text-muted-foreground">
+        <Typography variant="small" className="text-center mt-1 text-muted-foreground">
           Your wallet is connected. Confirm to register.
         </Typography>
       </div>
