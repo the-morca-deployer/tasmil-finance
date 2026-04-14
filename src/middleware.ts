@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/whitelist", "/api", "/_next", "/favicon.ico", "/robots.txt", "/images"];
+const PUBLIC_PATHS = ["/waitlist", "/api", "/_next", "/favicon.ico", "/robots.txt", "/images"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -15,7 +15,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/images")
   ) {
     if (pathname === "/") {
-      return NextResponse.redirect(new URL("/whitelist", request.url));
+      return NextResponse.redirect(new URL("/waitlist", request.url));
     }
     return NextResponse.next();
   }
@@ -25,9 +25,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // All other paths redirect to whitelist during prelaunch
-  if (!pathname.startsWith("/whitelist")) {
-    return NextResponse.redirect(new URL("/whitelist", request.url));
+  // All other paths redirect to waitlist during prelaunch
+  if (!pathname.startsWith("/waitlist")) {
+    return NextResponse.redirect(new URL("/waitlist", request.url));
   }
 
   return NextResponse.next();

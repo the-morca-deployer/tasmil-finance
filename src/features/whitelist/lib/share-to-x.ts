@@ -6,7 +6,7 @@ export function buildReferralUrl(
 ): string | null {
   if (!referralCode) return null;
   const base = baseUrl ?? (typeof window !== "undefined" ? window.location.origin : "");
-  return `${base}/whitelist?ref=${encodeURIComponent(referralCode)}`;
+  return `${base}/waitlist?ref=${encodeURIComponent(referralCode)}`;
 }
 
 export function buildXShareText(referralUrl: string): string {
