@@ -1,13 +1,17 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://backend.tasmil-finance.xyz";
+// Server-side: use internal Docker URL if available, fallback to public URL
+const BACKEND_URL =
+  process.env.BACKEND_INTERNAL_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  'https://backend.tasmil-finance.xyz';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const response = await fetch(`${BACKEND_URL}/api/waitlist/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
 
@@ -15,7 +19,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
     return NextResponse.json(
-      { success: false, message: "Service unavailable" },
+      { success: false, message: 'Service unavailable' },
       { status: 503 }
     );
   }
