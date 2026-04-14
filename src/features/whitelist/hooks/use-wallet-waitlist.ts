@@ -132,6 +132,7 @@ export function useWalletStatus(walletAddress: string | null) {
     queryFn: () => fetchWalletStatus(walletAddress!),
     enabled: !!walletAddress,
     staleTime: 0,
+    retry: false,
   });
 }
 
