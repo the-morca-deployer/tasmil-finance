@@ -16,13 +16,20 @@ describe("Feature Module Organization Property Tests", () => {
   const FEATURES_DIR = join(__dirname, "..");
   const EXPECTED_FEATURES = [
     "account",
+    "admin",
+    "admin-auth",
+    "admin-whitelist",
     "agents",
     "chat",
     "farming",
     "landing",
     "portfolio",
     "strategies",
+    "whitelist",
   ];
+
+  // Hooks-only feature modules that don't expose UI components directly.
+  const HOOKS_ONLY_FEATURES = ["admin-whitelist"];
 
   /**
    * Property 1: Feature module organization
@@ -38,10 +45,14 @@ describe("Feature Module Organization Property Tests", () => {
         expect(existsSync(featurePath)).toBe(true);
         expect(statSync(featurePath).isDirectory()).toBe(true);
 
-        // At minimum each feature should expose UI components.
+        // At minimum each feature should expose UI components (unless it's hooks-only).
         const componentsPath = join(featurePath, "components");
-        expect(existsSync(componentsPath)).toBe(true);
-        expect(statSync(componentsPath).isDirectory()).toBe(true);
+        if (!HOOKS_ONLY_FEATURES.includes(featureName)) {
+          expect(existsSync(componentsPath)).toBe(true);
+          expect(statSync(componentsPath).isDirectory()).toBe(true);
+        } else if (existsSync(componentsPath)) {
+          expect(statSync(componentsPath).isDirectory()).toBe(true);
+        }
 
         // If hooks/api folders exist, they must be directories.
         ["hooks", "api"].forEach((subdir) => {
