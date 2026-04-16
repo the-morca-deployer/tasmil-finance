@@ -19,41 +19,6 @@ const SOCIAL_LINKS = {
   DISCORD: "#", // Discord link not provided
 } as const;
 
-// Component to generate abstract avatar from address
-const AddressAvatar = ({ address, size = "size-12" }: { address: string; size?: string }) => {
-  // Generate a simple hash from address for consistent colors
-  const hash = address.split("").reduce((acc, char) => {
-    const newAcc = (acc << 5) - acc + char.charCodeAt(0);
-    return newAcc & newAcc;
-  }, 0);
-
-  const colors = [
-    "bg-gradient-to-br from-blue-500 to-purple-600",
-    "bg-gradient-to-br from-green-500 to-blue-600",
-    "bg-gradient-to-br from-purple-500 to-pink-600",
-    "bg-gradient-to-br from-orange-500 to-red-600",
-    "bg-gradient-to-br from-cyan-500 to-blue-600",
-    "bg-gradient-to-br from-pink-500 to-purple-600",
-    "bg-gradient-to-br from-yellow-500 to-orange-600",
-    "bg-gradient-to-br from-indigo-500 to-purple-600",
-  ];
-
-  const colorIndex = Math.abs(hash) % colors.length;
-  const gradientClass = colors[colorIndex];
-
-  return (
-    <div
-      className={cn(
-        "flex items-center justify-center rounded-full border-2 border-white/20 font-bold text-sm text-white",
-        size,
-        gradientClass
-      )}
-    >
-      <User className="size-5" />
-    </div>
-  );
-};
-
 export function FooterSidebarSection() {
   const { state } = useSidebar();
   const isOpen = state === "expanded";

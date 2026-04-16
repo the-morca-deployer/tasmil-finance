@@ -20,6 +20,20 @@ function getAuthHeaders(): Record<string, string> {
   return headers;
 }
 
+function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const { accessToken, expiresAt } = useAuthStore.getState();
+  if (accessToken && expiresAt && Date.now() < expiresAt) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  } else if (accessToken) {
+    // Token expired — trigger re-auth
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("auth-token-expired"));
+    }
+  }
+  return headers;
+}
+
 export function usePresets() {
   return useQuery<PresetCardData[]>({
     queryKey: ["account", "presets"],
