@@ -6,7 +6,12 @@ import {
 import { LangGraphHttpAgent } from "@copilotkit/runtime/langgraph";
 import type { NextRequest } from "next/server";
 
-const LANGGRAPH_URL = process.env["NEXT_PUBLIC_API_URL"] || "http://localhost:8001";
+// Use AI_INTERNAL_URL for server-side calls (avoids Nginx round-trip in Docker).
+// Falls back to NEXT_PUBLIC_API_URL (for local dev) then localhost.
+const LANGGRAPH_URL =
+  process.env["AI_INTERNAL_URL"] ||
+  process.env["NEXT_PUBLIC_API_URL"] ||
+  "http://localhost:8001";
 
 // 1. Service adapter for multi-agent support
 const serviceAdapter = new ExperimentalEmptyAdapter();
