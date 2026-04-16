@@ -7,6 +7,7 @@ import { useStreamContext } from "@/features/chat/hooks";
 import type { SignedTxRecord } from "@/features/chat/types/stream.types";
 import { useWallet } from "@/shared/context/wallet-context";
 import { activeNetwork, truncateAddress } from "@/shared/config/stellar";
+import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { DetailRow } from "../base/indicators";
 import { BaseOperationCard } from "../base/operation-card";
 
@@ -111,6 +112,7 @@ export function TrustlineExecuteCard({
       if (!xdr) return { success: false, error: "No transaction XDR available" };
 
       try {
+        await checkWalletNetwork();
         const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
         try {
           StellarWalletsKit.setWallet(address);
@@ -184,9 +186,9 @@ export function TrustlineExecuteCard({
         respond?.({ success: true, hash });
         return { success: true, hash };
       } catch (error) {
-        const msg = error instanceof Error ? error.message : "Transaction failed";
+        const msg = parseSigningError(error);
         const isRejection =
-          msg.includes("rejected") || msg.includes("denied") || msg.includes("cancel");
+          msg.toLowerCase().includes("rejected") || msg.toLowerCase().includes("denied") || msg.toLowerCase().includes("cancel");
 
         const cardResult: TxCacheEntry = {
           success: false,

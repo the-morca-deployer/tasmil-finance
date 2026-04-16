@@ -39,7 +39,7 @@ function getThreadSearchMetadata(
 }
 
 export function ThreadProvider({ children, agentId }: { children: ReactNode; agentId?: string }) {
-  const apiUrl = process.env["NEXT_PUBLIC_API_URL"] || "";
+  const apiUrl = process.env["NEXT_PUBLIC_AI_URL"] || "";
   const { address: walletAddress } = useWallet();
 
   const [threads, setThreads] = useState<Thread[]>([]);
