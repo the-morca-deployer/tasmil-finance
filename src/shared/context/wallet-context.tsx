@@ -187,7 +187,11 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setLoading(true);
 
       try {
-        const API_BASE = process.env["NEXT_PUBLIC_API_URL"] ?? "http://127.0.0.1:6756";
+        // Auth endpoints live on the NestJS backend, not the AI server
+        const API_BASE =
+          process.env["NEXT_PUBLIC_BACKEND_URL"] != null
+            ? `${process.env["NEXT_PUBLIC_BACKEND_URL"]}/api`
+            : "http://127.0.0.1:6756/api";
 
         // Step 1: Request a challenge nonce from the server
         const challengeRes = await fetch(`${API_BASE}/api/auth/challenge`, {

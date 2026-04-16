@@ -191,11 +191,15 @@ export function useAggregator(): AggregatorState {
         if (cancelled) return;
         setChains(c);
         setTokens(t);
-        // Defaults
-        const xlm = t.find((tk) => tk.symbol === "XLM");
-        const usdc = t.find((tk) => tk.symbol === "USDC");
-        if (xlm) setTokenInState(xlm);
-        if (usdc) setTokenOutState(usdc);
+        // Validate current selections against new token list, reset if invalid
+        setTokenInState((prev) => {
+          const valid = prev && t.find((tk) => tk.symbol === prev.symbol);
+          return valid || t.find((tk) => tk.symbol === "XLM") || null;
+        });
+        setTokenOutState((prev) => {
+          const valid = prev && t.find((tk) => tk.symbol === prev.symbol);
+          return valid || t.find((tk) => tk.symbol === "USDC") || null;
+        });
       })
       .catch(() => {})
       .finally(() => {
@@ -505,7 +509,28 @@ export function useAggregator(): AggregatorState {
           throw new Error(submitData.detail || submitData.error || "Transaction submission failed");
         }
 
-        setExecuteSuccess(`Transaction submitted! Hash: ${submitData.hash}`);
+        // Verify TX actually succeeded on-chain (submitted != successful)
+        if (submitData.hash) {
+          const MCP2 = process.env["NEXT_PUBLIC_MCP_STELLAR_URL"] || "http://localhost:3009";
+          try {
+            const verifyRes = await fetch(`${MCP2}/api/aggregator/verify?hash=${submitData.hash}`);
+            const verifyData = await verifyRes.json();
+            if (verifyData.successful === false) {
+              throw new Error(verifyData.error || "Transaction failed on-chain");
+            }
+          } catch (verifyErr) {
+            // If verify fails but TX was submitted, show hash anyway with warning
+            if (verifyErr instanceof Error && verifyErr.message.includes("on-chain")) {
+              throw verifyErr;
+            }
+          }
+        }
+
+        // Clear form after success
+        setAmount("");
+        setQuotes([]);
+        setMode(null);
+        setExecuteSuccess(submitData.hash);
       } else if (result.depositAddress) {
         // Bridge flow — show deposit instructions
         setExecuteSuccess(`Send funds to: ${result.depositAddress}`);
