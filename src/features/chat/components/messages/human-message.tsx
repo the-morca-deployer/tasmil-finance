@@ -1,4 +1,4 @@
-import type { Message } from "@langchain/langgraph-sdk";
+import type { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { useState } from "react";
 import { useStreamContext } from "@/features/chat/hooks";
 import { getContentString } from "@/features/chat/lib/thread-utils";
@@ -34,7 +34,20 @@ function EditableContent({
   );
 }
 
-export function HumanMessage({ message, isLoading }: { message: Message; isLoading: boolean }) {
+export function HumanMessage({
+  message,
+  isLoading,
+  onEdit,
+}: {
+  message: Message;
+  isLoading: boolean;
+  onEdit?: (
+    message: Message,
+    newContent: string,
+    parentCheckpoint: Checkpoint | null | undefined,
+    messagesBeforeCurrent: Message[]
+  ) => void;
+}) {
   const thread = useStreamContext();
   /* biome-ignore lint/suspicious/noExplicitAny */const meta = (thread as any).getMessagesMetadata?.(message);
 
@@ -44,26 +57,16 @@ export function HumanMessage({ message, isLoading }: { message: Message; isLoadi
 
   const handleSubmitEdit = () => {
     setIsEditing(false);
+    if (!onEdit) return;
 
-    const newMessage: Message = { type: "human", content: value };
-
-    // Find messages before current human message
     const currentMessageIndex = thread.messages.findIndex((m) => m.id === message.id);
     const messagesBeforeCurrent =
       currentMessageIndex > 0 ? thread.messages.slice(0, currentMessageIndex) : [];
 
-    thread.submit(
-      { messages: [newMessage] },
-      {
-        optimisticValues: () => {
-          // Return messages before current + new message
-          // This removes the current message and all messages after it
-          return {
-            messages: [...messagesBeforeCurrent, newMessage],
-          };
-        },
-      }
-    );
+    // parent_checkpoint is the LangGraph checkpoint BEFORE this human message was added
+    const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint as Checkpoint | null | undefined;
+
+    onEdit(message, value, parentCheckpoint, messagesBeforeCurrent);
   };
 
   return (

@@ -17,17 +17,29 @@ interface PoolInfoCardProps {
   status?: string;
 }
 
-function PoolInfoCardComponent({ args, result, toolCallId, status }: PoolInfoCardProps) {
+function PoolInfoCardComponent({ args, result, toolCallId, status, type }: PoolInfoCardProps) {
   const { data, isLoading, hasError, errorMessage } = useResultData(result, status);
   const protocol = args?.protocol ?? data?.protocol ?? "unknown";
 
-  // Single pool or list of pools
-  const pools = data?.pools ?? (data?.poolAddress ? [data] : []);
-  const isSingle = data?.poolAddress && !data?.pools;
+  // Normalise various response shapes into a renderable state:
+  //   blend_get_reserve_info → { reserve: {...} }
+  //   blend_get_pool_info    → { pool: { address, reserves[], ... } }
+  //   resolve_pool           → { pools: [...] }   OR  { poolAddress, ... }
+  const reserve = data?.reserve ?? null;                           // single reserve
+  const pool = data?.pool                                          // single pool (nested)
+    ? { ...data.pool, poolAddress: data.pool.address ?? data.pool.poolAddress }
+    : null;
+  const pools = data?.pools ?? (pool ? null : (data?.poolAddress ? [data] : []));
+  const isSingle = !data?.pools && (data?.poolAddress || pool);
+
+  const cardTitle = reserve
+    ? `Reserve: ${reserve.symbol ?? "Asset"}`
+    : type === "blend_backstop_info" ? "Backstop Info"
+    : "Pool Info";
 
   return (
     <BaseInfoCard
-      title="Pool Info"
+      title={cardTitle}
       subtitle={protocol}
       icon={Database}
       iconColor="text-indigo-500"
@@ -35,17 +47,19 @@ function PoolInfoCardComponent({ args, result, toolCallId, status }: PoolInfoCar
       isLoading={isLoading}
       error={hasError ? errorMessage : null}
     >
-      {isSingle ? (
-        <SinglePoolView pool={data} protocol={protocol} />
-      ) : pools.length > 0 ? (
+      {reserve ? (
+        <ReserveInfoView reserve={reserve} />
+      ) : isSingle ? (
+        <SinglePoolView pool={pool ?? data} protocol={protocol} />
+      ) : pools && pools.length > 0 ? (
         <ScrollableList id={`pools-${toolCallId}`} maxHeight={300}>
-          {pools.map((pool: any, idx: number) => (
-            <div key={pool.poolAddress ?? idx} className="space-y-2 rounded-lg border p-3">
+          {pools.map((p: any, idx: number) => (
+            <div key={p.poolAddress ?? idx} className="space-y-2 rounded-lg border p-3">
               <div className="flex items-center justify-between">
-                <span className="truncate font-medium text-sm">{pool.name ?? "Pool"}</span>
+                <span className="truncate font-medium text-sm">{p.name ?? "Pool"}</span>
                 <ProtocolBadge name={protocol} />
               </div>
-              <SinglePoolView pool={pool} protocol={protocol} compact />
+              <SinglePoolView pool={p} protocol={protocol} compact />
             </div>
           ))}
         </ScrollableList>
@@ -53,6 +67,48 @@ function PoolInfoCardComponent({ args, result, toolCallId, status }: PoolInfoCar
         <div className="text-muted-foreground text-sm">No pool data available.</div>
       )}
     </BaseInfoCard>
+  );
+}
+
+function ReserveInfoView({ reserve }: { reserve: any }) {
+  return (
+    <div className="space-y-1.5">
+      {reserve.symbol && <DetailRow label="Asset" value={<span className="font-semibold">{reserve.symbol}</span>} />}
+      {reserve.supplyApy != null && (
+        <DetailRow label="Supply APY" value={<APYDisplay value={reserve.supplyApy} />} />
+      )}
+      {reserve.borrowApy != null && (
+        <DetailRow
+          label="Borrow APY"
+          value={<span className="text-orange-500">{Number(reserve.borrowApy).toFixed(2)}%</span>}
+        />
+      )}
+      {reserve.collateralFactor != null && (
+        <DetailRow label="Collateral Factor" value={`${(Number(reserve.collateralFactor) * 100).toFixed(0)}%`} />
+      )}
+      {reserve.utilization != null && (
+        <DetailRow label="Utilization" value={`${(Number(reserve.utilization) * 100).toFixed(2)}%`} />
+      )}
+      {reserve.totalSupply != null && (
+        <DetailRow label="Total Supply" value={`${formatNumber(Number(reserve.totalSupply))} ${reserve.symbol ?? ""}`} />
+      )}
+      {reserve.totalBorrow != null && (
+        <DetailRow label="Total Borrow" value={`${formatNumber(Number(reserve.totalBorrow))} ${reserve.symbol ?? ""}`} />
+      )}
+      {reserve.supplyCap != null && (
+        <DetailRow label="Supply Cap" value={`${formatNumber(Number(reserve.supplyCap))} ${reserve.symbol ?? ""}`} />
+      )}
+      {(reserve.supplyEmissionApy != null || reserve.borrowEmissionApy != null) && (
+        <div className="border-t pt-1.5 mt-1">
+          {reserve.supplyEmissionApy != null && (
+            <DetailRow label="Supply Emission" value={<APYDisplay value={reserve.supplyEmissionApy} />} />
+          )}
+          {reserve.borrowEmissionApy != null && (
+            <DetailRow label="Borrow Emission" value={<APYDisplay value={reserve.borrowEmissionApy} />} />
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

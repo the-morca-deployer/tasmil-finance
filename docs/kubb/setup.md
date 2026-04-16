@@ -109,7 +109,7 @@ Create `.env.local`:
 
 ```bash
 # API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:8001
+NEXT_PUBLIC_AI_URL=http://localhost:8001
 
 # Optional: Custom OpenAPI endpoint
 NEXT_PUBLIC_OPENAPI_URL=http://localhost:8001/openapi.json

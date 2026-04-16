@@ -2,12 +2,20 @@
 
 import type { LucideIcon } from "lucide-react";
 import { ArrowRightLeft, Coins } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useStreamContext } from "@/features/chat/hooks";
+import type { SignedTxRecord } from "@/features/chat/types/stream.types";
+import { useWallet } from "@/shared/context/wallet-context";
 import { activeNetwork, truncateAddress } from "@/shared/config/stellar";
+import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { DetailRow } from "../base/indicators";
 import { BaseOperationCard } from "../base/operation-card";
+
+// Module-level cache: survives component remounts within the same browser session.
+// LangGraph thread state (signed_txs) handles cross-session persistence (page refresh).
+type TxCacheEntry = { success: boolean; hash?: string; message: string };
+const sessionTxCache = new Map<string, TxCacheEntry>();
 
 interface ExecuteResult {
   success: boolean;
@@ -110,6 +118,14 @@ const DEFAULT_CONFIG = {
   iconBg: "bg-primary/10",
 };
 
+function toCardResult(rec: SignedTxRecord): { success: boolean; hash?: string; message: string } {
+  return {
+    success: rec.success,
+    hash: rec.hash,
+    message: rec.error ?? (rec.success ? "Transaction successful!" : "Transaction failed"),
+  };
+}
+
 export function BlendExecuteCard({
   operation,
   args,
@@ -119,58 +135,55 @@ export function BlendExecuteCard({
   toolCallId,
 }: BlendExecuteCardProps) {
   const stream = useStreamContext();
+  const { address: walletAddress } = useWallet();
 
-  const storageKey = toolCallId ? `blend-tx-${toolCallId}` : null;
+  // Persisted state from LangGraph thread (PostgreSQL checkpointer) — survives page refresh
+  const persistedTx = toolCallId
+    ? (stream.values as any)?.signed_txs?.[toolCallId] as SignedTxRecord | undefined
+    : undefined;
 
-  const [localStatus, setLocalStatus] = useState(() => {
-    if (storageKey) {
-      const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          return parsed.status || initialStatus;
-        } catch {
-          // Ignore
-        }
-      }
-    }
-    return initialStatus;
-  });
-
-  const [localResult, setLocalResult] = useState<ExecuteResult | null>(() => {
-    if (storageKey) {
-      const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          return parsed.result || null;
-        } catch {
-          // Ignore
-        }
-      }
+  // Local state — initialised from module-level session cache so it survives remounts.
+  // Priority on mount: session cache > LangGraph thread state > null
+  const [localTxResult, setLocalTxResult] = useState<TxCacheEntry | null>(() => {
+    if (toolCallId) {
+      const cached = sessionTxCache.get(toolCallId);
+      if (cached) return cached;
+      if (persistedTx) return toCardResult(persistedTx);
     }
     return null;
   });
 
-  const updatePersisted = useCallback(
-    (status: string, result: ExecuteResult | null) => {
-      if (storageKey) {
-        localStorage.setItem(storageKey, JSON.stringify({ status, result }));
-      }
-      setLocalStatus(status as any);
-      setLocalResult(result);
+  const cacheTxResult = useCallback(
+    (entry: TxCacheEntry) => {
+      if (toolCallId) sessionTxCache.set(toolCallId, entry);
+      setLocalTxResult(entry);
     },
-    [storageKey]
+    [toolCallId]
   );
 
   const config = OPERATION_CONFIG[operation ?? ""] ?? DEFAULT_CONFIG;
 
+  // Parse MCP result — tool results may arrive as [{type:"text",text:"..."}] arrays
+  const normalizedResult = Array.isArray(result)
+    ? (() => {
+        const block = (result as any[]).find(
+          (b) => b?.type === "text" && typeof b?.text === "string"
+        );
+        if (!block) return result;
+        try {
+          return JSON.parse(block.text);
+        } catch {
+          return block.text;
+        }
+      })()
+    : result;
+
   let execResult: ExecuteResult | null = null;
-  if (result && typeof result === "object") {
-    execResult = result as ExecuteResult;
-  } else if (typeof result === "string") {
+  if (normalizedResult && typeof normalizedResult === "object") {
+    execResult = normalizedResult as ExecuteResult;
+  } else if (typeof normalizedResult === "string") {
     try {
-      execResult = JSON.parse(result);
+      execResult = JSON.parse(normalizedResult);
     } catch {
       /* ignore */
     }
@@ -180,6 +193,17 @@ export function BlendExecuteCard({
   const estimatedFee = execResult?.estimatedFee ?? args?.["estimatedFee"];
   const action = args?.["action"];
 
+  // Effective result: local (just signed) > persisted (from DB) > null
+  const effectiveResult =
+    localTxResult ?? (persistedTx ? toCardResult(persistedTx) : null);
+
+  // Status derived from effective result; fall back to initialStatus while waiting
+  const cardStatus = effectiveResult
+    ? effectiveResult.success
+      ? "complete"
+      : "error"
+    : initialStatus;
+
   const handleExecute = useCallback(
     async (address: string) => {
       if (!xdr) {
@@ -187,50 +211,44 @@ export function BlendExecuteCard({
       }
 
       try {
-        updatePersisted("inProgress", null);
-
+        await checkWalletNetwork();
         const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
 
         try {
           StellarWalletsKit.setWallet(address);
         } catch {
-          // Ignore
+          // ignore
         }
 
-        const result = await StellarWalletsKit.signTransaction(xdr, {
+        const signingResult = await StellarWalletsKit.signTransaction(xdr, {
           address,
           networkPassphrase: activeNetwork.networkPassphrase,
         });
 
-        const signedTxXdr = result.signedTxXdr || result;
+        const signedTxXdr = signingResult.signedTxXdr || signingResult;
 
         if (!signedTxXdr || typeof signedTxXdr !== "string") {
           throw new Error("Invalid signed transaction format");
         }
 
-        updatePersisted("inProgress", null);
         toast.info("Submitting to network...");
 
         const { TransactionBuilder } = await import("@stellar/stellar-sdk");
         const { getSorobanClient } = await import("@/lib/stellar-client");
 
         const soroban = getSorobanClient();
-        const networkPassphrase = activeNetwork.networkPassphrase;
-
-        const signedTx = TransactionBuilder.fromXDR(signedTxXdr, networkPassphrase);
+        const signedTx = TransactionBuilder.fromXDR(
+          signedTxXdr,
+          activeNetwork.networkPassphrase
+        );
         const response = await soroban.sendTransaction(signedTx as any);
 
         if (response.status === "PENDING") {
-          const hash = response.hash;
+          const { hash } = response;
           const explorerUrl = `https://stellar.expert/explorer/public/tx/${hash}`;
 
-          const successResult = {
-            success: true,
-            hash,
-            signedXdr: signedTxXdr,
-          };
-
-          updatePersisted("complete", successResult);
+          const cardResult = { success: true, hash, message: "Transaction successful!" };
+          cacheTxResult(cardResult);
 
           toast.success("Transaction submitted successfully!", {
             description: (
@@ -255,39 +273,19 @@ export function BlendExecuteCard({
             content: `Transaction ${hash} submitted successfully`,
           };
 
-          await stream.submit(
-            { messages: [successMessage] },
-            {
-              // @ts-expect-error
-              streamMode: ["values"],
-              streamSubgraphs: false,
-              streamResumable: true,
-            }
-          );
-
-          return successResult;
-        } else {
-          throw new Error(`Transaction failed with status: ${response.status}`);
-        }
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : "Signing failed";
-        const errorResult = { success: false, error: msg };
-
-        updatePersisted("error", errorResult);
-
-        if (msg.includes("rejected") || msg.includes("denied") || msg.includes("cancel")) {
-          toast.error("Transaction rejected", {
-            description: "You cancelled the transaction",
-          });
-
-          const rejectionMessage = {
-            id: `__hidden__tx-reject-${Date.now()}`,
-            type: "human" as const,
-            content: "Transaction rejected by user",
+          const txRecord: SignedTxRecord = {
+            success: true,
+            hash,
+            operation,
+            timestamp: Date.now(),
           };
 
           await stream.submit(
-            { messages: [rejectionMessage] },
+            {
+              messages: [successMessage],
+              ...(walletAddress ? { wallet_address: walletAddress } : {}),
+              ...(toolCallId ? { signed_txs: { [toolCallId]: txRecord } } : {}),
+            },
             {
               // @ts-expect-error
               streamMode: ["values"],
@@ -296,22 +294,53 @@ export function BlendExecuteCard({
             }
           );
 
-          return { success: false, error: "Transaction rejected by user" };
+          respond?.({ success: true, hash });
+          return { success: true, hash };
         }
 
-        toast.error("Transaction failed", {
-          description: msg,
-        });
+        throw new Error(`Transaction failed with status: ${response.status}`);
+      } catch (error) {
+        const msg = parseSigningError(error);
+        const isRejection =
+          msg.toLowerCase().includes("rejected") || msg.toLowerCase().includes("denied") || msg.toLowerCase().includes("cancel");
 
-        // Send hidden error message to trigger AI response
-        const errorMessage = {
-          id: `__hidden__tx-error-${Date.now()}`,
-          type: "human" as const,
-          content: `Transaction failed: ${msg}`,
+        const cardResult = {
+          success: false,
+          message: isRejection ? "Transaction rejected by user" : msg,
+        };
+        cacheTxResult(cardResult);
+
+        const hiddenMsg = isRejection
+          ? {
+              id: `__hidden__tx-reject-${Date.now()}`,
+              type: "human" as const,
+              content: "Transaction rejected by user",
+            }
+          : {
+              id: `__hidden__tx-error-${Date.now()}`,
+              type: "human" as const,
+              content: `Transaction failed: ${msg}`,
+            };
+
+        if (isRejection) {
+          toast.error("Transaction rejected", { description: "You cancelled the transaction" });
+        } else {
+          toast.error("Transaction failed", { description: msg });
+        }
+
+        const txRecord: SignedTxRecord = {
+          success: false,
+          error: cardResult.message,
+          operation,
+          timestamp: Date.now(),
         };
 
         await stream.submit(
-          { messages: [errorMessage] },
+          {
+            messages: [hiddenMsg],
+            ...(walletAddress ? { wallet_address: walletAddress } : {}),
+            ...(toolCallId ? { signed_txs: { [toolCallId]: txRecord } } : {}),
+          },
           {
             // @ts-expect-error
             streamMode: ["values"],
@@ -320,14 +349,15 @@ export function BlendExecuteCard({
           }
         );
 
-        return errorResult;
+        respond?.({ success: false, error: cardResult.message });
+        return { success: false, error: cardResult.message };
       }
     },
-    [xdr, stream, respond, updatePersisted]
+    [xdr, stream, operation, toolCallId, respond, cacheTxResult]
   );
 
   const renderDetails = () => (
-    <div className="space-y-2 mb-2">
+    <div className="mb-2 space-y-2">
       {action && (
         <DetailRow
           label="Action"
@@ -346,9 +376,9 @@ export function BlendExecuteCard({
         <DetailRow label="Asset" value={truncateAddress(String(args["asset"]))} mono />
       )}
       {xdr && (
-        <div className="border-t pt-2 mt-2">
-          <div className="text-xs text-muted-foreground mb-1">Transaction XDR</div>
-          <div className="font-mono text-[10px] text-muted-foreground bg-muted/30 rounded p-2 break-all max-h-[60px] overflow-y-auto">
+        <div className="mt-2 border-t pt-2">
+          <div className="mb-1 text-muted-foreground text-xs">Transaction XDR</div>
+          <div className="max-h-[60px] overflow-y-auto break-all rounded bg-muted/30 p-2 font-mono text-[10px] text-muted-foreground">
             {xdr.slice(0, 200)}
             {xdr.length > 200 ? "..." : ""}
           </div>
@@ -364,8 +394,8 @@ export function BlendExecuteCard({
       iconColor={config.iconColor}
       iconBg={config.iconBg}
       buttonText={config.buttonText}
-      status={localStatus}
-      result={localResult || result}
+      status={cardStatus}
+      result={effectiveResult}
       onExecute={handleExecute}
       renderDetails={renderDetails}
     />

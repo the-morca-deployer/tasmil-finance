@@ -4,7 +4,21 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/use-auth";
 import type { ActivityItem, PositionData, PresetCardData } from "../types";
 
-const API_BASE = process.env["NEXT_PUBLIC_API_URL"] ?? "https://backend.tasmil-finance.xyz/api";
+const API_BASE = `${process.env["NEXT_PUBLIC_BACKEND_URL"] ?? "http://localhost:6756"}/api`;
+
+function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const { accessToken, expiresAt } = useAuthStore.getState();
+  if (accessToken && expiresAt && Date.now() < expiresAt) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  } else if (accessToken) {
+    // Token expired — trigger re-auth
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("auth-token-expired"));
+    }
+  }
+  return headers;
+}
 
 function getAuthHeaders(): Record<string, string> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };

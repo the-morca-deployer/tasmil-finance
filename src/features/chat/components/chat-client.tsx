@@ -1,29 +1,45 @@
 "use client";
 
-import type { Checkpoint, Message } from "@langchain/langgraph-sdk";
-import { AnimatePresence } from "framer-motion";
-import { ArrowDown, ArrowLeft, Clock, Paperclip, Send, Square, Wrench } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { type FormEvent, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import { v4 as uuidv4 } from "uuid";
-import { useSearchAssistantsAssistantsSearchPost } from "@/gen/hooks/use-search-assistants-assistants-search-post";
-import { DO_NOT_RENDER_ID_PREFIX, ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
-import { kubbClient } from "@/lib/kubb";
-import { cn } from "@/lib/utils";
-import { useWallet } from "@/shared/context/wallet-context";
-import { useFileUpload } from "@/shared/hooks/use-file-upload";
-import { useIsMobile } from "@/shared/hooks/use-mobile";
-import { BackgroundRippleEffect } from "@/shared/ui/background-ripple-effect";
-import { Button } from "@/shared/ui/button-v2";
-import { useMultiSidebar } from "@/shared/ui/multi-sidebar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
-import { AssistantMessage, AssistantMessageLoading } from "../components/messages/ai-message";
-import { HumanMessage } from "../components/messages/human-message";
-import { useChatState, useStreamContext } from "../hooks";
-import { ContentBlocksPreview } from "../thread/components/content-blocks-preview";
-import { Greeting } from "./greeting";
-import { SuggestedActions } from "./suggested-actions";
+import type { Checkpoint, Message } from '@langchain/langgraph-sdk';
+import { AnimatePresence } from 'framer-motion';
+import {
+  ArrowDown,
+  ArrowLeft,
+  Clock,
+  Paperclip,
+  Send,
+  Square,
+  Wrench,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { type FormEvent, useEffect, useRef, useState, useMemo } from 'react';
+import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
+import { ContentBlocksPreview } from '../thread/components/content-blocks-preview';
+import {
+  AssistantMessage,
+  AssistantMessageLoading,
+} from '../components/messages/ai-message';
+import { HumanMessage } from '../components/messages/human-message';
+import { useSearchAssistantsAssistantsSearchPost } from '@/gen/hooks/use-search-assistants-assistants-search-post';
+import { kubbClient } from '@/lib/kubb';
+import {
+  DO_NOT_RENDER_ID_PREFIX,
+  ensureToolCallsHaveResponses,
+} from '@/lib/ensure-tool-responses';
+import { cn } from '@/lib/utils';
+import { useChatState, useStreamContext } from '../hooks';
+import { useWallet } from '@/shared/context/wallet-context';
+import { useWalletStore } from '@/store/use-wallet';
+import { useFileUpload } from '@/shared/hooks/use-file-upload';
+import { useIsMobile } from '@/shared/hooks/use-mobile';
+import { Button } from '@/shared/ui/button-v2';
+import { useMultiSidebar } from '@/shared/ui/multi-sidebar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip';
+// import { BackgroundRippleEffect } from '@/shared/ui/background-ripple-effect';
+import { Greeting } from './greeting';
+import { SuggestedActions } from './suggested-actions';
+import { mergeMessagesWithCache, shouldFilterMessage } from './chat-client-helpers';
 
 // Agent configuration
 const AGENT_CONFIG: Record<string, { name: string }> = {
@@ -68,17 +84,48 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const stream = useStreamContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isLoading = stream.isLoading || isSubmitting;
-
-  // Preserve messages to avoid flicker when submitting new message
-  const [displayMessages, setDisplayMessages] = useState<Message[]>([]);
-
-  useEffect(() => {
-    // Only update display messages if we have messages from stream
-    // This prevents clearing messages during optimistic updates
-    if (stream.messages && stream.messages.length > 0) {
-      setDisplayMessages(stream.messages);
+  
+  // Cache messages to prevent content loss during streaming
+  const messagesCache = useRef<Message[]>([]);
+  // Cache UI to prevent UI loss during streaming
+  const uiCache = useRef<any[]>([]);
+  // Force re-render trigger for instant user message display
+  const [, forceUpdate] = useState({});
+  
+  const messages = useMemo(() => {
+    const incoming = stream.messages || [];
+    const merged = mergeMessagesWithCache(messagesCache.current, incoming);
+    messagesCache.current = merged;
+    return merged;
+  }, [stream.messages, forceUpdate]);
+  
+  const uiComponents = useMemo(() => {
+    const incoming = (stream.values?.['ui'] as any[] | undefined) || [];
+    
+    // If incoming is empty and we have cache, keep cache
+    if (incoming.length === 0 && uiCache.current.length > 0) {
+      return uiCache.current;
     }
-  }, [stream.messages]);
+    
+    // Merge incoming with cache - keep UI from both
+    if (incoming.length > 0) {
+      const merged = [...uiCache.current];
+      
+      incoming.forEach((newUI: any) => {
+        const existingIndex = merged.findIndex((ui: any) => ui.id === newUI.id);
+        if (existingIndex >= 0) {
+          merged[existingIndex] = newUI;
+        } else {
+          merged.push(newUI);
+        }
+      });
+      
+      uiCache.current = merged;
+      return merged;
+    }
+    
+    return uiCache.current;
+  }, [stream.values]);
 
   // Clear isSubmitting when stream actually starts loading
   useEffect(() => {
@@ -86,11 +133,13 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       setIsSubmitting(false);
     }
   }, [stream.isLoading]);
-
-  const messages = displayMessages;
-
+  
   const { hideToolCalls, setHideToolCalls, setAssistantInfo } = useChatState();
   const { address: walletAddress } = useWallet();
+  // Fallback: Zustand persists wallet address synchronously from previous session.
+  // The React state from useWallet() starts null on page load and is set after async kit init.
+  // Using the store as fallback ensures wallet_address is always included even before kit ready.
+  const effectiveWalletAddress = walletAddress ?? useWalletStore.getState().account;
 
   // Fetch assistant info for avatar
   const { mutate: searchAssistants } = useSearchAssistantsAssistantsSearchPost({
@@ -291,19 +340,25 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     };
 
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
-
-    // Optimistically add the message to display immediately
-    setDisplayMessages([...stream.messages, ...toolMessages, newHumanMessage]);
+    
+    // Add user message to cache immediately for instant display
+    messagesCache.current = [...messagesCache.current, newHumanMessage];
+    
+    // Force re-render to show user message immediately
+    forceUpdate({});
 
     stream.submit(
       {
-        // IMPORTANT: Send ALL existing messages + tool responses + new message
-        // This ensures LangGraph appends instead of overwrites
         messages: [...stream.messages, ...toolMessages, newHumanMessage],
-        ...(walletAddress && { wallet_address: walletAddress }),
+        ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
       },
       {
-        /* biome-ignore lint/suspicious/noExplicitAny */optimisticValues: (prev: any) => ({
+        // @ts-ignore
+        streamMode: ['values', 'custom'],
+        streamSubgraphs: false,
+        streamResumable: true,
+        // @ts-ignore
+        optimisticValues: (prev: any) => ({
           ...prev,
           messages: [...(prev?.messages ?? []), ...toolMessages, newHumanMessage],
         }),
@@ -315,8 +370,56 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     setUserScrolledUp(false); // Reset scroll state when sending new message
   };
 
+  const handleEdit = (
+    _message: Message,
+    newContent: string,
+    parentCheckpoint: Checkpoint | null | undefined,
+    messagesBeforeCurrent: Message[]
+  ) => {
+    if (stream.isLoading) {
+      stream.stop();
+    }
+
+    const newHumanMessage: Message = { type: "human", content: newContent };
+
+    // Ensure no dangling tool calls in the context before the edit point.
+    // If checkpoint fork works, this context isn't sent. If it falls back to append,
+    // this prevents the 400 "tool_calls must be followed by tool messages" error.
+    const toolCompletionMessages = ensureToolCallsHaveResponses(messagesBeforeCurrent);
+    const safeMessagesBeforeCurrent = [...messagesBeforeCurrent, ...toolCompletionMessages];
+
+    // Reset cache to only messages before the edit point + new message
+    // This prevents stale messages from bleeding through mergeMessagesWithCache
+    messagesCache.current = [...safeMessagesBeforeCurrent, newHumanMessage];
+    uiCache.current = [];
+
+    setFirstTokenReceived(false);
+    setIsSubmitting(true);
+    forceUpdate({});
+
+    stream.submit(
+      { messages: [newHumanMessage] },
+      {
+        // @ts-ignore
+        // Use parentCheckpoint directly (not ?? null). The SDK treats null as "no checkpoint"
+        // (same as undefined), but a valid checkpoint object triggers a branch fork.
+        // After onFinish fires and history.data is refreshed, getMessagesMetadata returns
+        // a valid parent_checkpoint for the fork to work correctly.
+        checkpoint: parentCheckpoint ?? undefined,
+        // @ts-ignore
+        streamMode: ['values', 'custom'],
+        streamSubgraphs: false,
+        streamResumable: true,
+        // @ts-ignore
+        optimisticValues: () => ({
+          messages: [...safeMessagesBeforeCurrent, newHumanMessage],
+        }),
+      }
+    );
+  };
+
   const handleRegenerate = (
-    _parentCheckpoint: Checkpoint | null | undefined,
+    parentCheckpoint: Checkpoint | null | undefined,
     parentValues?: { messages: Message[] }
   ) => {
     // Stop any current stream first
@@ -327,8 +430,16 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     prevMessageLength.current = prevMessageLength.current - 1;
     setFirstTokenReceived(false);
     setIsSubmitting(true);
-            stream.submit(undefined, {
-      /* biome-ignore lint/suspicious/noExplicitAny */optimisticValues: (prev: any) => {
+
+    stream.submit(undefined, {
+      // @ts-ignore - checkpoint may not be in type definition
+      checkpoint: parentCheckpoint || null,
+      // @ts-ignore - streamMode may not be in type definition
+      streamMode: ['values', 'custom'],
+      streamSubgraphs: true,
+      streamResumable: true,
+      // @ts-ignore - optimisticValues may not be in type definition
+      optimisticValues: (prev: any) => {
         // Return parent state to immediately remove AI message from UI
         if (parentValues) {
           return parentValues;
@@ -350,18 +461,26 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     };
 
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
-
-    // Optimistically add the message to display immediately
-    setDisplayMessages([...stream.messages, ...toolMessages, newHumanMessage]);
+    
+    // Add user message to cache immediately for instant display
+    messagesCache.current = [...messagesCache.current, newHumanMessage];
+    
+    // Force re-render to show user message immediately
+    forceUpdate({});
 
     stream.submit(
       {
         // IMPORTANT: Send ALL existing messages + tool responses + new message
         messages: [...stream.messages, ...toolMessages, newHumanMessage],
-        ...(walletAddress && { wallet_address: walletAddress }),
+        ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
       },
       {
-        /* biome-ignore lint/suspicious/noExplicitAny */optimisticValues: (prev: any) => ({
+        // @ts-ignore - streamMode may not be in type definition
+        streamMode: ['values', 'custom'],
+        streamSubgraphs: false,
+        streamResumable: true,
+        // @ts-ignore - optimisticValues may not be in type definition
+        optimisticValues: (prev: any) => ({
           ...prev,
           messages: [...(prev?.messages ?? []), ...toolMessages, newHumanMessage],
         }),
@@ -375,9 +494,13 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
       {/* Background Ripple Effect - z-0 behind content */}
-      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        <BackgroundRippleEffect rows={20} cols={15} cellSize={80} />
-      </div>
+      {/* <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <BackgroundRippleEffect
+          rows={20}
+          cols={15}
+          cellSize={80}
+        />
+      </div> */}
 
       {/* Header - no border */}
       <header className="relative z-10 flex shrink-0 items-center gap-3 px-4 py-3">
@@ -401,48 +524,35 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
           <div className="pointer-events-auto flex flex-col gap-4">
             {(() => {
-              const filtered = messages
+              // First pass: remove hidden/tool/system messages for rendering
+              const visible = messages
                 .filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
-                // Filter out hidden messages (IDs starting with __hidden__)
-                .filter((m) => !m.id?.startsWith("__hidden__"))
-                // Filter out tool and system messages - they are not user-facing
-                .filter((m) => m.type !== "tool" && m.type !== "system")
-                // Filter out sub-agent intermediate AI messages that only contain tool calls
-                // (e.g., discover, resolve_pool from sub-agents) with no user-facing text
-                .filter((m, index, arr) => {
-                  if (m.type !== "ai") return true;
-                  const aiMsg = m as any;
-                  const hasToolCallsOnly = aiMsg.tool_calls?.length > 0;
-                  const content =
-                    typeof aiMsg.content === "string"
-                      ? aiMsg.content.trim()
-                      : Array.isArray(aiMsg.content)
-                        ? aiMsg.content
-            .filter((c: any) => c.type === "text")
-            .map((c: any) => c.text?.trim())
-                            .join("")
-                        : "";
-
-                  // NEVER filter out the last AI message - it needs to render UI components
-                  const isLastAiMessage = index === arr.length - 1 && m.type === "ai";
-                  if (isLastAiMessage) {
-                    return true;
-                  }
-
-                  // Hide AI messages that have tool calls for MCP tools (not supervisor calls) and no text
-                  if (hasToolCallsOnly && !content) {
-                    const allAreMcpTools =
-            aiMsg.tool_calls.every(
-                      (tc: any) => !tc.name?.startsWith("call_") || !tc.name?.endsWith("_agent")
-                    );
-                    if (allAreMcpTools) return false;
-                  }
-                  return true;
-                });
+                .filter((m) => !m.id?.startsWith('__hidden__'))
+                .filter((m) => m.type !== 'tool' && m.type !== 'system');
+              // Second pass: filter intermediate AI messages.
+              // Pass full `messages` (not `visible`) so shouldFilterMessage
+              // can find tool result messages when deciding whether to keep
+              // AI messages that have tool_calls.
+              const filtered = visible
+                .filter((m, index, arr) => !shouldFilterMessage(m, index, arr, uiComponents, messages));
 
               return filtered.map((message, index, arr) => {
                 const prevMessage = index > 0 ? arr[index - 1] : undefined;
+                // Check if there's a hidden human message (e.g. __hidden__tx-success-*) between
+                // prevMessage and message in the unfiltered thread. If so, treat as new turn → show avatar.
+                const hasHiddenHumanBetween =
+                  prevMessage && message
+                    ? (() => {
+                        const prevIdx = messages.findIndex((m) => m.id === prevMessage.id);
+                        const currIdx = messages.findIndex((m) => m.id === message.id);
+                        if (prevIdx === -1 || currIdx === -1) return false;
+                        return messages
+                          .slice(prevIdx + 1, currIdx)
+                          .some((m) => m.type === "human" && !!m.id?.startsWith("__hidden__"));
+                      })()
+                    : false;
                 const isConsecutiveAi =
+                  !hasHiddenHumanBetween &&
                   message.type !== "human" && prevMessage?.type !== "human" && !!prevMessage;
 
                 return message.type === "human" ? (
@@ -450,6 +560,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                     key={message.id || `${message.type}-${index}`}
                     message={message}
                     isLoading={isLoading}
+                    onEdit={handleEdit}
                   />
                 ) : (
                   <AssistantMessage
@@ -459,6 +570,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                     handleRegenerate={handleRegenerate}
                     hideAvatar={isConsecutiveAi}
                     isNewMessageLoading={effectiveIsLoading && !firstTokenReceived}
+                    cachedUI={uiComponents}
+                    allMessages={messages}
                   />
                 );
               });
@@ -474,7 +587,26 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
               />
             )}
 
-            {effectiveIsLoading && !firstTokenReceived && <AssistantMessageLoading />}
+            {effectiveIsLoading && !firstTokenReceived && (() => {
+              // Check if there are any tool-status UI messages
+              // If yes, don't show "Thinking..." - the tool status UI is already showing
+              const hasToolStatusUI = (stream.values?.['ui'] as any[] | undefined)?.some(
+                (ui: any) => ui.name?.includes('-tool-status')
+              );
+              
+              if (hasToolStatusUI) {
+                return null;
+              }
+              
+              // Check if there's already an AI message being rendered
+              // If yes, don't show separate "Thinking..." - it's already in the AI message
+              const hasAIMessage = messages.some((m) => m.type === 'ai');
+              if (hasAIMessage) {
+                return null;
+              }
+              
+              return <AssistantMessageLoading />;
+            })()}
           </div>
 
           <div ref={messagesEndRef} />

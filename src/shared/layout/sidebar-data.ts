@@ -1,4 +1,4 @@
-import { Bot, Home, KeyRound, Mail, Tractor, Wallet } from "lucide-react";
+import { ArrowLeftRight, Bot, Home, Tractor, Wallet, KeyRound, Mail } from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -63,13 +63,26 @@ export const sidebarData: SidebarData = {
           url: "/portfolio",
           icon: Wallet,
         },
+      ],
+    },
+    {
+      items: [
         {
-          title: "Farming Agent",
+          title: "Farming",
           url: "/farming",
           icon: Tractor,
         },
       ],
     },
+    {
+      items: [
+        {
+          title: "Bridge",
+          url: "/bridge",
+          icon: ArrowLeftRight,
+        },
+      ],
+    }
   ],
 };
 

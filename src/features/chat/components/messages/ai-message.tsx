@@ -1,6 +1,4 @@
 import type { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
-import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
-import { Fragment } from "react/jsx-runtime";
 import { AgentAvatar } from "@/features/chat/components/agent-avatar";
 import { AIReasoning, Shimmer } from "@/features/chat/components/ai";
 import { useChatState, useStreamContext } from "@/features/chat/hooks";
@@ -12,11 +10,10 @@ import {
   stripReasoningSections,
 } from "@/features/chat/lib/thread-utils";
 import { ThreadView } from "@/features/chat/thread/agent-inbox";
-import { useArtifact } from "@/features/chat/thread/components/artifact";
 import { MarkdownText } from "@/features/chat/thread/components/markdown-text";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
-import ComponentMap from "@/shared/components";
 import { Loader } from "@/shared/ui/loader";
+import { CopilotKitToolCallRenderer } from "./copilotkit-tool-renderer";
 import { GenericInterruptView } from "./generic-interrupt";
 import { BranchSwitcher, CommandBar } from "./shared";
 import { ToolResult } from "./tool-calls";
@@ -32,85 +29,6 @@ function hasSupervisorAgentCalls(toolCalls: AIMessage["tool_calls"] | undefined)
   return toolCalls.some((tc) => isSupervisorAgentCall(tc.name || ""));
 }
 
-function CustomComponent({
-  message,
-  thread,
-  filterType,
-}: {
-  message: Message;
-  thread: ReturnType<typeof useStreamContext>;
-  filterType?: "reasoning" | "other";
-}) {
-  const artifact = useArtifact();
-  const { values } = useStreamContext();
-  const uiValues = Array.isArray((values as any)?.ui) ? ((values as any).ui as any[]) : [];
-
-  const allUIForMessage = uiValues.filter((ui: any) => ui.metadata?.message_id === message.id);
-
-  // Filter by type if specified
-  let filteredUI = allUIForMessage;
-  if (filterType === "reasoning") {
-    // Only reasoning UI components
-    filteredUI = allUIForMessage?.filter(
-      (ui: any) => ui.name?.endsWith("-reasoning") || ui.metadata?.ui_type === "reasoning"
-    );
-  } else if (filterType === "other") {
-    // Everything except reasoning
-    filteredUI = allUIForMessage?.filter(
-      (ui: any) => !ui.name?.endsWith("-reasoning") && ui.metadata?.ui_type !== "reasoning"
-    );
-  }
-
-  // Deduplicate UI items: keep only the LATEST version of each tool call
-  // Group by tool_call_id (from props.toolCallId), then keep the last one
-  const customComponents = filteredUI?.reduce((acc: any[], ui: any) => {
-    const toolCallId = ui.props?.toolCallId;
-    if (!toolCallId) {
-      // No toolCallId, just add it
-      acc.push(ui);
-      return acc;
-    }
-
-    // Find existing UI with same toolCallId
-    const existingIndex = acc.findIndex((item: any) => item.props?.toolCallId === toolCallId);
-
-    if (existingIndex >= 0) {
-      // Replace with newer version (prefer "complete" over "executing")
-      const existing = acc[existingIndex];
-      const existingStatus = existing?.props?.status;
-      const newStatus = ui.props?.status;
-
-      // Replace if new status is "complete" or if both have same status (keep latest)
-      if (newStatus === "complete" || existingStatus === newStatus) {
-        acc[existingIndex] = ui;
-      }
-      // Otherwise keep existing (e.g., don't replace "complete" with "executing")
-    } else {
-      // New toolCallId, add it
-      acc.push(ui);
-    }
-
-    return acc;
-  }, []);
-
-  if (!customComponents?.length) {
-    return null;
-  }
-
-  return (
-    <Fragment key={message.id}>
-      {customComponents.map((customComponent: any) => (
-        <LoadExternalComponent
-          key={customComponent.id}
-          stream={thread}
-          message={customComponent}
-          meta={{ ui: customComponent, artifact }}
-          components={ComponentMap as any}
-        />
-      ))}
-    </Fragment>
-  );
-}
 
 interface InterruptProps {
   interrupt?: unknown;
@@ -118,18 +36,31 @@ interface InterruptProps {
   hasNoAIOrToolMessages: boolean;
 }
 
+/** Returns true for bare LangGraph internal breakpoint interrupts that have no user-facing value */
+function isInternalBreakpoint(interrupt: unknown): boolean {
+  if (!interrupt || typeof interrupt !== "object") return false;
+  const obj = interrupt as Record<string, any>;
+  // LangGraph emits { when: "breakpoint" } or [{ when: "breakpoint" }] for node breakpoints
+  if (obj.when === "breakpoint") return true;
+  if (Array.isArray(interrupt)) {
+    return (interrupt as any[]).every((item) => item?.when === "breakpoint");
+  }
+  return false;
+}
+
 function Interrupt({ interrupt, isLastMessage, hasNoAIOrToolMessages }: InterruptProps) {
   const fallbackValue = Array.isArray(interrupt)
     ? (interrupt as Record<string, any>[])
     : (((interrupt as { value?: unknown } | undefined)?.value ?? interrupt) as Record<string, any>);
+
+  if (!interrupt || isInternalBreakpoint(interrupt)) return null;
 
   return (
     <>
       {isAgentInboxInterruptSchema(interrupt) && (isLastMessage || hasNoAIOrToolMessages) && (
         <ThreadView interrupt={interrupt} />
       )}
-      {interrupt &&
-      !isAgentInboxInterruptSchema(interrupt) &&
+      {!isAgentInboxInterruptSchema(interrupt) &&
       (isLastMessage || hasNoAIOrToolMessages) ? (
         <GenericInterruptView interrupt={fallbackValue} />
       ) : null}
@@ -143,6 +74,8 @@ export function AssistantMessage({
   handleRegenerate,
   hideAvatar = false,
   isNewMessageLoading = false,
+  cachedUI: _cachedUI,
+  allMessages,
 }: {
   message: Message | undefined;
   isLoading: boolean;
@@ -152,6 +85,9 @@ export function AssistantMessage({
   ) => void;
   hideAvatar?: boolean;
   isNewMessageLoading?: boolean;
+  cachedUI?: any[];
+  /** Merged/cached messages from chat-client — prevents flash when stream restarts */
+  allMessages?: Message[];
 }) {
   const content = message?.content ?? [];
   const rawContentString = getContentString(content);
@@ -200,9 +136,12 @@ export function AssistantMessage({
     return null;
   }
 
+  // Whether this message has tool calls that produce UI
+  const hasToolCalls = !!(allToolCalls && allToolCalls.length > 0);
+
   return (
     <div className="group mr-auto flex w-full items-start gap-3">
-      {hideAvatar ? <div className="w-8 shrink-0" /> : <AgentAvatar />}
+      {hideAvatar ? <div className="w-10 shrink-0" /> : <AgentAvatar />}
       <div className="flex w-full min-w-0 flex-col gap-2">
         {isToolResult ? (
           <>
@@ -215,19 +154,44 @@ export function AssistantMessage({
           </>
         ) : (
           <>
-            {/* 1. Reasoning UI - Show thinking/reasoning FIRST (before text) */}
-            {/* 1a. Reasoning from middleware UI messages (preferred) */}
-            {message && (
-              <CustomComponent message={message} thread={thread} filterType="reasoning" />
+            {/* Show "Thinking..." if loading and no content/tool calls yet */}
+            {isNewMessageLoading && !hasToolCalls && contentString.length === 0 && !hasReasoning && (() => {
+              // Don't show "Thinking..." if an earlier AI message in this turn already has tool calls
+              const prevHasToolCalls = currentIdx > 0 && thread.messages
+                .slice(0, currentIdx)
+                .some((m) => m.type === "ai" && "tool_calls" in m && (m as any).tool_calls?.length > 0);
+              return !prevHasToolCalls;
+            })() && (
+              <div className="flex items-center gap-2 py-1.5">
+                <Loader size={16} className="text-muted-foreground" />
+                <Shimmer className="font-medium text-sm" duration={2}>
+                  Thinking...
+                </Shimmer>
+              </div>
             )}
 
-            {/* 1b. Fallback: Reasoning extracted from message content */}
+            {/* 1. Reasoning extracted from message content */}
             {hasReasoning && (
               <AIReasoning isStreaming={isReasoningStreaming}>{reasoningContent}</AIReasoning>
             )}
 
-            {/* 2a. Supervisor coordination indicator */}
-            {isSupervisorDelegating && (
+            {/* 2. AI Text Response - Show BEFORE tool calls (text streams first, then tool is called) */}
+            {contentString.length > 0 && (
+              <div className="fade-in animate-in py-1 duration-200">
+                <MarkdownText>{contentString}</MarkdownText>
+              </div>
+            )}
+
+            {/* 3. Tool calls: status indicator + data cards (frontend-driven, no backend UI state needed) */}
+            {hasToolCalls && message && (
+              <CopilotKitToolCallRenderer
+                message={message}
+                messages={allMessages ?? thread.messages}
+              />
+            )}
+
+            {/* 4. Supervisor coordination indicator (only for supervisor agent calls without sub-cards) */}
+            {isSupervisorDelegating && !hasToolCalls && (
               <div className="flex items-center gap-2 py-1.5 text-sm">
                 <svg
                   className="h-4 w-4 text-muted-foreground"
@@ -248,67 +212,35 @@ export function AssistantMessage({
               </div>
             )}
 
-            {/* 2b. Regular Tool Calls (non-supervisor) — Hidden, replaced by custom UI */}
-            {/* Tool calls are now shown via custom UI components like "Using Info Agent" */}
-
-            {/* 3. AI Text Response */}
-            {contentString.length > 0 && (
-              <div className="fade-in animate-in py-1 duration-200">
-                <MarkdownText>{contentString}</MarkdownText>
-              </div>
-            )}
-
-            {/* 4. Custom UI Components (e.g., "Using Yield Agent", Staking card) */}
-            {message && <CustomComponent message={message} thread={thread} filterType="other" />}
-
             <Interrupt
               interrupt={threadInterrupt}
               isLastMessage={isLastMessage}
               hasNoAIOrToolMessages={hasNoAIOrToolMessages}
             />
 
-            {/* Check if message has custom UI components */}
-            {(() => {
-              // @ts-expect-error - ui may not be in type definition
-              const allUIForMessage = thread.values?.ui?.filter(
-                (ui: any) => ui.metadata?.message_id === message?.id
-              );
-              const hasCustomUI = allUIForMessage && allUIForMessage.length > 0;
-
-              // Only show command bar if:
-              // - No custom UI
-              // - Not intermediate AI message
-              // - Not loading
-              // - No new message is loading (hide command bar when new message is being generated)
-              return (
-                !hasCustomUI &&
-                !isIntermediateAiMessage &&
-                !isLoading &&
-                !isNewMessageLoading &&
-                (contentString.length > 0 || isLastMessage) && (
-                  <div className="mr-auto flex items-center gap-2">
-                    <BranchSwitcher
-                      branch={meta?.branch}
-                      branchOptions={meta?.branchOptions}
-                      // @ts-expect-error - setBranch may not be in type definition
-                      onSelect={(branch) => thread.setBranch?.(branch)}
-                      isLoading={isLoading}
-                    />
-                    <CommandBar
-                      content={contentString}
-                      isLoading={isLoading}
-                      isAiMessage={true}
-                      handleRegenerate={() =>
-                        handleRegenerate(
-                          parentCheckpoint,
-                          parentValues as { messages: Message[] } | undefined
-                        )
-                      }
-                    />
-                  </div>
-                )
-              );
-            })()}
+            {/* Command bar */}
+            {!hasToolCalls && !isIntermediateAiMessage && !isLoading && !isNewMessageLoading && (contentString.length > 0 || isLastMessage) && (
+              <div className="mr-auto flex items-center gap-2">
+                <BranchSwitcher
+                  branch={meta?.branch}
+                  branchOptions={meta?.branchOptions}
+                  // @ts-ignore - setBranch may not be in type definition
+                  onSelect={(branch) => thread.setBranch?.(branch)}
+                  isLoading={isLoading}
+                />
+                <CommandBar
+                  content={contentString}
+                  isLoading={isLoading}
+                  isAiMessage={true}
+                  handleRegenerate={() =>
+                    handleRegenerate(
+                      parentCheckpoint,
+                      parentValues as { messages: Message[] } | undefined
+                    )
+                  }
+                />
+              </div>
+            )}
           </>
         )}
       </div>

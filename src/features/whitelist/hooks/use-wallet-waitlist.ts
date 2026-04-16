@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend.tasmil-finance.xyz";
+const API_BASE = `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:6756"}/api`;
 
 /** Unwrap TransformInterceptor wrapper {success, data} → data */
 function unwrap<T>(raw: unknown): T {

@@ -16,8 +16,8 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 WORKDIR /app/apps/frontend
 
 # Set NEXT_PUBLIC_* env vars BEFORE build (they get baked into client JS)
-ARG NEXT_PUBLIC_API_URL=https://backend.tasmil-finance.xyz
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_AI_URL=https://backend.tasmil-finance.xyz
+ENV NEXT_PUBLIC_AI_URL=$NEXT_PUBLIC_AI_URL
 
 RUN pnpm run build
 
@@ -42,6 +42,6 @@ EXPOSE 3000
 
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV NEXT_PUBLIC_API_URL=https://backend.tasmil-finance.xyz
+ENV NEXT_PUBLIC_AI_URL=https://backend.tasmil-finance.xyz
 
 CMD ["pnpm", "exec", "next", "start"]

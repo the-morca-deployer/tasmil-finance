@@ -3,8 +3,8 @@ import { type NextRequest, NextResponse } from 'next/server';
 // Server-side: use internal Docker URL if available, fallback to public URL
 const BACKEND_URL =
   process.env.BACKEND_INTERNAL_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  'https://backend.tasmil-finance.xyz';
+  process.env.NEXT_PUBLIC_BACKEND_URL ??
+  'http://localhost:6756';
 
 export async function POST(request: NextRequest) {
   try {

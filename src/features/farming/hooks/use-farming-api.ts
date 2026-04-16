@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/use-auth";
 import type { DiscoveredPool, RebalanceStatus } from "../types";
 
-const API_BASE = process.env["NEXT_PUBLIC_API_URL"] ?? "https://backend.tasmil-finance.xyz/api";
+const API_BASE = `${process.env["NEXT_PUBLIC_BACKEND_URL"] ?? "http://localhost:6756"}/api`;
 
 export function useRebalanceStatus() {
   return useQuery<RebalanceStatus>({

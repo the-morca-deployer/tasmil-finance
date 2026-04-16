@@ -10,8 +10,8 @@ const path = require("node:path");
 const https = require("node:https");
 const http = require("node:http");
 
-const OPENAPI_URL = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")}/openapi.json`
+const OPENAPI_URL = process.env.NEXT_PUBLIC_AI_URL
+  ? `${process.env.NEXT_PUBLIC_AI_URL.replace(/\/$/, "")}/openapi.json`
   : "http://localhost:8001/openapi.json";
 
 const OUTPUT_PATH = path.join(__dirname, "../../temp-openapi.json");

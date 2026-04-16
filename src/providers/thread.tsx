@@ -8,11 +8,14 @@ import {
   type SetStateAction,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
 import { validate } from "uuid";
 import { getApiKey } from "@/lib/api-key";
+import { useWallet } from "@/shared/context/wallet-context";
+import { useWalletStore } from "@/store/use-wallet";
 import { createClient } from "@/providers/client";
 
 interface ThreadContextType {
@@ -36,10 +39,16 @@ function getThreadSearchMetadata(
 }
 
 export function ThreadProvider({ children, agentId }: { children: ReactNode; agentId?: string }) {
-  const apiUrl = process.env["NEXT_PUBLIC_API_URL"] || "";
+  const apiUrl = process.env["NEXT_PUBLIC_AI_URL"] || "";
+  const { address: walletAddress } = useWallet();
 
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
+
+  // Clear threads immediately when wallet changes to prevent showing another wallet's history
+  useEffect(() => {
+    setThreads([]);
+  }, [walletAddress]);
 
   const getThreads = useCallback(
     async (assistantId?: string): Promise<Thread[]> => {
@@ -48,16 +57,20 @@ export function ThreadProvider({ children, agentId }: { children: ReactNode; age
       if (!apiUrl || !finalAssistantId) return [];
       const client = createClient(apiUrl, getApiKey() ?? undefined);
 
+      // Filter by wallet address — fall back to persisted store value during kit init
+      const effectiveWallet = walletAddress ?? useWalletStore.getState().account;
+
       const threads = await client.threads.search({
         metadata: {
           ...getThreadSearchMetadata(finalAssistantId),
+          ...(effectiveWallet && { wallet_address: effectiveWallet }),
         },
         limit: 100,
       });
 
       return threads;
     },
-    [apiUrl, agentId]
+    [apiUrl, agentId, walletAddress]
   );
 
   const value = useMemo(

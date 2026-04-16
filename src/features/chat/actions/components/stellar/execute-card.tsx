@@ -3,6 +3,7 @@
 import type { LucideIcon } from "lucide-react";
 import { ArrowRightLeft, Coins, FileCode, Globe, TrendingUp } from "lucide-react";
 import { truncateAddress } from "@/shared/config/stellar";
+import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { DetailRow } from "../base/indicators";
 import { BaseOperationCard } from "../base/operation-card";
 
@@ -148,12 +149,20 @@ export function StellarExecuteCard({
   const config = OPERATION_CONFIG[operation ?? ""] ?? DEFAULT_CONFIG;
 
   // Parse the execute result for XDR
+  // MCP tool results may arrive as an array of content blocks [{type:"text",text:"..."}]
+  const normalizedResult = Array.isArray(result)
+    ? (() => {
+        const block = (result as any[]).find((b) => b?.type === "text" && typeof b?.text === "string");
+        if (!block) return result;
+        try { return JSON.parse(block.text); } catch { return block.text; }
+      })()
+    : result;
   let execResult: ExecuteResult | null = null;
-  if (result && typeof result === "object") {
-    execResult = result as ExecuteResult;
-  } else if (typeof result === "string") {
+  if (normalizedResult && typeof normalizedResult === "object") {
+    execResult = normalizedResult as ExecuteResult;
+  } else if (typeof normalizedResult === "string") {
     try {
-      execResult = JSON.parse(result);
+      execResult = JSON.parse(normalizedResult);
     } catch {
       /* ignore */
     }
@@ -172,6 +181,7 @@ export function StellarExecuteCard({
 
     try {
       // Sign XDR with Stellar wallet
+      await checkWalletNetwork();
       const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
       const { signedTxXdr } = await StellarWalletsKit.signTransaction(xdr, {
         address,
@@ -184,8 +194,8 @@ export function StellarExecuteCard({
         hash: signedTxXdr,
       };
     } catch (error) {
-      const msg = error instanceof Error ? error.message : "Signing failed";
-      if (msg.includes("rejected") || msg.includes("denied") || msg.includes("cancel")) {
+      const msg = parseSigningError(error);
+      if (msg.toLowerCase().includes("rejected") || msg.toLowerCase().includes("denied") || msg.toLowerCase().includes("cancel")) {
         return { success: false, error: "Transaction rejected by user" };
       }
       return { success: false, error: msg };
