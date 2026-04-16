@@ -56,9 +56,52 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             ? Networks.PUBLIC
             : Networks.TESTNET;
 
+        const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+
+        const darkTheme = {
+          "background": "#18181b",
+          "background-secondary": "#27272a",
+          "foreground-strong": "#fafafa",
+          "foreground": "#fafafa",
+          "foreground-secondary": "#a1a1aa",
+          "primary": "hsl(203, 100%, 73%)",
+          "primary-foreground": "#18181b",
+          "transparent": "rgba(0,0,0,0)",
+          "lighter": "#3f3f46",
+          "light": "#27272a",
+          "light-gray": "#71717a",
+          "gray": "#a1a1aa",
+          "danger": "#ef4444",
+          "border": "#27272a",
+          "shadow": "0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -4px rgba(0,0,0,0.4)",
+          "border-radius": "0.5rem",
+          "font-family": "Outfit, sans-serif",
+        };
+
+        const lightTheme = {
+          "background": "#ffffff",
+          "background-secondary": "#ffffff",
+          "foreground-strong": "hsl(222.2, 84%, 4.9%)",
+          "foreground": "hsl(222.2, 84%, 4.9%)",
+          "foreground-secondary": "hsl(215.4, 16.3%, 46.9%)",
+          "primary": "hsl(203, 100%, 61%)",
+          "primary-foreground": "hsl(210, 40%, 98%)",
+          "transparent": "rgba(0,0,0,0)",
+          "lighter": "hsl(214.3, 31.8%, 91.4%)",
+          "light": "hsl(210, 40%, 96.1%)",
+          "light-gray": "hsl(215.4, 16.3%, 46.9%)",
+          "gray": "hsl(215.4, 16.3%, 46.9%)",
+          "danger": "hsl(0, 84.2%, 60.2%)",
+          "border": "hsl(214.3, 31.8%, 91.4%)",
+          "shadow": "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.06)",
+          "border-radius": "0.5rem",
+          "font-family": "Outfit, sans-serif",
+        };
+
         StellarWalletsKit.init({
           network,
           modules: defaultModules(),
+          theme: isDark ? darkTheme : lightTheme,
         });
 
         // Listen for address / state changes
@@ -143,7 +186,11 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setLoading(true);
 
       try {
-        const API_BASE = process.env["NEXT_PUBLIC_API_URL"] ?? "http://127.0.0.1:6756/api";
+        // Auth endpoints live on the NestJS backend, not the AI server
+        const API_BASE =
+          process.env["NEXT_PUBLIC_BACKEND_URL"] != null
+            ? `${process.env["NEXT_PUBLIC_BACKEND_URL"]}/api`
+            : "http://127.0.0.1:6756/api";
 
         // Step 1: Request a challenge nonce from the server
         const challengeRes = await fetch(`${API_BASE}/auth/challenge`, {

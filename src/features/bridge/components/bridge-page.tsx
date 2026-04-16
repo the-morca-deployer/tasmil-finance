@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   ArrowUpDown,
   ArrowLeftRight,
@@ -13,8 +13,10 @@ import {
   X,
 } from "lucide-react";
 import { motion, useCycle, AnimatePresence } from "framer-motion";
+import { useAccount, useDisconnect } from "wagmi";
+import { useAppKit, useAppKitNetwork } from "@reown/appkit/react";
+import { solana, solanaTestnet } from "@reown/appkit/networks";
 import { useWallet } from "@/shared/context/wallet-context";
-import { useBridge } from "@/features/bridge/hooks/use-bridge";
 import { useAggregator } from "@/features/bridge/hooks/use-aggregator";
 import { RoutePicker, AggregatorTokenPicker } from "@/features/bridge/components/chain-token-selector";
 import { AggregatorRoutePanel, SlippageSettings } from "@/features/bridge/components/aggregator-routes";
@@ -52,30 +54,50 @@ function formatAmount(raw: string, decimals = 7): string {
 
 type TabMode = "bridge" | "exchange";
 
+const isTestnet = process.env.NEXT_PUBLIC_STELLAR_TESTNET === "true";
+
 export function BridgePage() {
-  const { connect: connectStellar, disconnect: disconnectStellar } = useWallet();
-  const b = useBridge();
+  const { connect: connectStellar, disconnect: disconnectStellar, address: stellarAddress } = useWallet();
   const agg = useAggregator();
   const addrStore = useAddressStore();
+
+  // EVM wallet via wagmi + Reown
+  const { address: evmAddressRaw, isConnected: isEvmConnected } = useAccount();
+  const { disconnectAsync } = useDisconnect();
+  const { open: openReownModal } = useAppKit();
+  const { switchNetwork } = useAppKitNetwork();
+  const evmAddress = isEvmConnected && evmAddressRaw ? evmAddressRaw : null;
+
+  const connectEvm = useCallback(async () => {
+    if (agg.chainIn === "solana") {
+      await switchNetwork(isTestnet ? solanaTestnet : solana);
+    }
+    openReownModal({ view: "Connect" });
+  }, [agg.chainIn, switchNetwork, openReownModal]);
+
+  const disconnectEvm = useCallback(async () => {
+    await disconnectAsync();
+  }, [disconnectAsync]);
   const [swapAnim, cycleSwap] = useCycle({ rotateX: 0 }, { rotateX: 180 });
   const [activeTab, setActiveTab] = useState<TabMode>("bridge");
   const [tabHovered, setTabHovered] = useState(false);
   const [selectedProtocol, setSelectedProtocol] = useState<string | null>(null);
+  const hasUserInteracted = useRef(false);
 
   // Sync connected wallets into address store
   useEffect(() => {
-    addrStore.syncConnectedWallet("stellar", b.stellarAddress, "Stellar Wallet");
-    addrStore.syncConnectedWallet("evm", b.evmAddress, "EVM Wallet");
+    addrStore.syncConnectedWallet("stellar", stellarAddress, "Stellar Wallet");
+    addrStore.syncConnectedWallet("evm", evmAddress, "EVM Wallet");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [b.stellarAddress, b.evmAddress]);
+  }, [stellarAddress, evmAddress]);
 
   const chainTypeIn = agg.chainIn === "stellar" ? "stellar" as const : agg.chainIn === "solana" ? "solana" as const : "evm" as const;
   const chainTypeOut = agg.chainOut === "stellar" ? "stellar" as const : agg.chainOut === "solana" ? "solana" as const : "evm" as const;
 
   // Source address — from store selection or auto from connected wallet
   const sourceAddress = addrStore.selectedSource || (
-    chainTypeIn === "stellar" ? b.stellarAddress :
-    chainTypeIn === "evm" ? b.evmAddress : null
+    chainTypeIn === "stellar" ? stellarAddress :
+    chainTypeIn === "evm" ? evmAddress : null
   ) || "";
 
   const isSourceStellar = agg.chainIn === "stellar";
@@ -124,18 +146,19 @@ export function BridgePage() {
 
     if (urlTokenIn) {
       const t = agg.tokens.find((tk) => tk.symbol.toUpperCase() === urlTokenIn.toUpperCase());
-      if (t) agg.setTokenIn(t, urlChainIn);
+      if (t) { agg.setTokenIn(t, urlChainIn); hasUserInteracted.current = true; }
     }
     if (urlTokenOut) {
       const t = agg.tokens.find((tk) => tk.symbol.toUpperCase() === urlTokenOut.toUpperCase());
-      if (t) agg.setTokenOut(t, urlChainOut);
+      if (t) { agg.setTokenOut(t, urlChainOut); hasUserInteracted.current = true; }
     }
-    if (urlAmount) agg.setAmount(urlAmount);
+    if (urlAmount) { agg.setAmount(urlAmount); hasUserInteracted.current = true; }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agg.tokens.length]);
 
-  // Sync state → URL (so user can share/bookmark)
+  // Sync state → URL only after user has interacted (prevents default tokens polluting URL)
   useEffect(() => {
+    if (!hasUserInteracted.current) return;
     if (!agg.tokenIn && !agg.tokenOut) return;
     const params = new URLSearchParams();
     if (agg.tokenIn) { params.set("tokenIn", agg.tokenIn.symbol); params.set("chainIn", agg.chainIn); }
@@ -156,8 +179,8 @@ export function BridgePage() {
       <BackgroundRippleEffect rows={10} cols={22} cellSize={72} />
 
       <div className="relative z-20 flex items-stretch gap-3">
-        {/* Left tabs */}
-        <motion.div
+        {/* Left tabs — commented out, swap-only mode */}
+        {/* <motion.div
           className="hidden sm:flex flex-col self-center mr-[-13px] z-10 overflow-hidden rounded-l-2xl"
           style={{ background: C.widgetBg, borderTop: `1px solid rgba(255,255,255,0.08)`, borderLeft: `1px solid rgba(255,255,255,0.08)`, borderBottom: `1px solid rgba(255,255,255,0.08)` }}
           initial={{ width: 52 }}
@@ -184,7 +207,7 @@ export function BridgePage() {
               </button>
             ))}
           </div>
-        </motion.div>
+        </motion.div> */}
 
         {/* ══════════════════════════════════════════════════════════ */}
         {/* Main card */}
@@ -220,12 +243,12 @@ export function BridgePage() {
             </div>
             <div className="flex items-center gap-1.5">
               <WalletHub
-                stellarAddress={b.stellarAddress}
-                evmAddress={b.evmAddress}
+                stellarAddress={stellarAddress}
+                evmAddress={evmAddress}
                 onConnectStellar={() => connectStellar?.()}
-                onConnectEvm={b.connectEvm}
+                onConnectEvm={connectEvm}
                 onDisconnectStellar={disconnectStellar}
-                onDisconnectEvm={b.disconnectEvm}
+                onDisconnectEvm={disconnectEvm}
               />
               <SlippageSettings
                 slippageBps={agg.slippageBps}
@@ -252,11 +275,11 @@ export function BridgePage() {
                         chainType={chainTypeIn}
                         selectedAddress={sourceAddress || null}
                         onSelect={(addr) => addrStore.setSelectedSource(addr)}
-                        stellarAddress={b.stellarAddress}
-                        evmAddress={b.evmAddress}
+                        stellarAddress={stellarAddress}
+                        evmAddress={evmAddress}
                         onConnectWallet={isSourceStellar ? () => connectStellar?.() : b.connectEvm}
                         onDisconnectStellar={disconnectStellar}
-                        onDisconnectEvm={b.disconnectEvm}
+                        onDisconnectEvm={disconnectEvm}
                       />
                     </div>
                   </div>
@@ -265,7 +288,7 @@ export function BridgePage() {
                       <input
                         type="text" inputMode="decimal" autoComplete="off" placeholder="0"
                         value={agg.amount}
-                        onChange={(e) => { if (/^[0-9]*[.,]?[0-9]*$/.test(e.target.value)) agg.setAmount(e.target.value); }}
+                        onChange={(e) => { if (/^[0-9]*[.,]?[0-9]*$/.test(e.target.value)) { hasUserInteracted.current = true; agg.setAmount(e.target.value); } }}
                         className="w-full bg-transparent text-[28px] leading-[34px] font-normal focus:outline-none truncate"
                         style={{ color: C.mainText }}
                       />
@@ -280,7 +303,7 @@ export function BridgePage() {
                         tokens={tokensForIn}
                         chains={chainsForIn}
                         allChains={agg.chains}
-                        onSelect={(token, chain) => agg.setTokenIn(token, chain)}
+                        onSelect={(token, chain) => { hasUserInteracted.current = true; agg.setTokenIn(token, chain); }}
                       />
                     </div>
                   </div>
@@ -290,7 +313,7 @@ export function BridgePage() {
                 <div className="flex justify-center -my-2 relative z-10">
                   <button
                     type="button"
-                    onClick={() => { agg.swapDirection(); cycleSwap(); }}
+                    onClick={() => { hasUserInteracted.current = true; agg.swapDirection(); cycleSwap(); }}
                     className="rounded-lg h-9 w-9 flex items-center justify-center transition-colors hover:brightness-125"
                     style={{ background: C.interactive }}
                   >
@@ -318,11 +341,11 @@ export function BridgePage() {
                           null
                         }
                         onSelect={(addr) => { addrStore.setSelectedDest(addr); agg.setDestAddress(addr); }}
-                        stellarAddress={b.stellarAddress}
-                        evmAddress={b.evmAddress}
+                        stellarAddress={stellarAddress}
+                        evmAddress={evmAddress}
                         onConnectWallet={chainTypeOut === "stellar" ? () => connectStellar?.() : b.connectEvm}
                         onDisconnectStellar={disconnectStellar}
-                        onDisconnectEvm={b.disconnectEvm}
+                        onDisconnectEvm={disconnectEvm}
                       />
                     </div>
                   </div>
@@ -351,7 +374,7 @@ export function BridgePage() {
                         tokens={tokensForOut}
                         chains={chainsForOut}
                         allChains={agg.chains}
-                        onSelect={(token, chain) => agg.setTokenOut(token, chain)}
+                        onSelect={(token, chain) => { hasUserInteracted.current = true; agg.setTokenOut(token, chain); }}
                       />
                     </div>
                   </div>
@@ -447,14 +470,24 @@ export function BridgePage() {
                   </button>
                 )}
 
-                {/* Success/Error messages */}
+                {/* Success: show tx link */}
                 {agg.executeSuccess && (
-                  <div className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm" style={{ background: "rgb(14,43,22)", color: "rgb(89,224,125)" }}>
-                    <span className="break-all">{agg.executeSuccess}</span>
+                  <div className="flex items-center justify-between rounded-xl px-4 py-3 text-sm" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)" }}>
+                    <span style={{ color: "#34D399" }}>Swap successful!</span>
+                    <a
+                      href={`https://stellar.expert/explorer/${agg.chainIn === "stellar" ? (process.env["NEXT_PUBLIC_STELLAR_NETWORK"] === "PUBLIC" ? "public" : "testnet") : "public"}/tx/${agg.executeSuccess}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-medium underline"
+                      style={{ color: "var(--primary)" }}
+                    >
+                      View transaction
+                    </a>
                   </div>
                 )}
+                {/* Error */}
                 {agg.executeError && (
-                  <div className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm" style={{ background: "rgb(46,27,27)", color: "rgb(255,97,97)" }}>
+                  <div className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#F87171" }}>
                     <span>{agg.executeError}</span>
                   </div>
                 )}
@@ -462,7 +495,7 @@ export function BridgePage() {
             </div>
           ) : (
             /* ── EXCHANGE TAB (Deposit from CEX) ── */
-            <ExchangeTab stellarAddress={b.stellarAddress} />
+            <ExchangeTab stellarAddress={stellarAddress} />
           )}
         </BorderGlow>
 

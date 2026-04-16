@@ -36,18 +36,31 @@ interface InterruptProps {
   hasNoAIOrToolMessages: boolean;
 }
 
+/** Returns true for bare LangGraph internal breakpoint interrupts that have no user-facing value */
+function isInternalBreakpoint(interrupt: unknown): boolean {
+  if (!interrupt || typeof interrupt !== "object") return false;
+  const obj = interrupt as Record<string, any>;
+  // LangGraph emits { when: "breakpoint" } or [{ when: "breakpoint" }] for node breakpoints
+  if (obj.when === "breakpoint") return true;
+  if (Array.isArray(interrupt)) {
+    return (interrupt as any[]).every((item) => item?.when === "breakpoint");
+  }
+  return false;
+}
+
 function Interrupt({ interrupt, isLastMessage, hasNoAIOrToolMessages }: InterruptProps) {
   const fallbackValue = Array.isArray(interrupt)
     ? (interrupt as Record<string, any>[])
     : (((interrupt as { value?: unknown } | undefined)?.value ?? interrupt) as Record<string, any>);
+
+  if (!interrupt || isInternalBreakpoint(interrupt)) return null;
 
   return (
     <>
       {isAgentInboxInterruptSchema(interrupt) && (isLastMessage || hasNoAIOrToolMessages) && (
         <ThreadView interrupt={interrupt} />
       )}
-      {interrupt &&
-      !isAgentInboxInterruptSchema(interrupt) &&
+      {!isAgentInboxInterruptSchema(interrupt) &&
       (isLastMessage || hasNoAIOrToolMessages) ? (
         <GenericInterruptView interrupt={fallbackValue} />
       ) : null}

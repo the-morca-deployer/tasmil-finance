@@ -370,6 +370,54 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     setUserScrolledUp(false); // Reset scroll state when sending new message
   };
 
+  const handleEdit = (
+    _message: Message,
+    newContent: string,
+    parentCheckpoint: Checkpoint | null | undefined,
+    messagesBeforeCurrent: Message[]
+  ) => {
+    if (stream.isLoading) {
+      stream.stop();
+    }
+
+    const newHumanMessage: Message = { type: "human", content: newContent };
+
+    // Ensure no dangling tool calls in the context before the edit point.
+    // If checkpoint fork works, this context isn't sent. If it falls back to append,
+    // this prevents the 400 "tool_calls must be followed by tool messages" error.
+    const toolCompletionMessages = ensureToolCallsHaveResponses(messagesBeforeCurrent);
+    const safeMessagesBeforeCurrent = [...messagesBeforeCurrent, ...toolCompletionMessages];
+
+    // Reset cache to only messages before the edit point + new message
+    // This prevents stale messages from bleeding through mergeMessagesWithCache
+    messagesCache.current = [...safeMessagesBeforeCurrent, newHumanMessage];
+    uiCache.current = [];
+
+    setFirstTokenReceived(false);
+    setIsSubmitting(true);
+    forceUpdate({});
+
+    stream.submit(
+      { messages: [newHumanMessage] },
+      {
+        // @ts-ignore
+        // Use parentCheckpoint directly (not ?? null). The SDK treats null as "no checkpoint"
+        // (same as undefined), but a valid checkpoint object triggers a branch fork.
+        // After onFinish fires and history.data is refreshed, getMessagesMetadata returns
+        // a valid parent_checkpoint for the fork to work correctly.
+        checkpoint: parentCheckpoint ?? undefined,
+        // @ts-ignore
+        streamMode: ['values', 'custom'],
+        streamSubgraphs: false,
+        streamResumable: true,
+        // @ts-ignore
+        optimisticValues: () => ({
+          messages: [...safeMessagesBeforeCurrent, newHumanMessage],
+        }),
+      }
+    );
+  };
+
   const handleRegenerate = (
     parentCheckpoint: Checkpoint | null | undefined,
     parentValues?: { messages: Message[] }
@@ -512,6 +560,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                     key={message.id || `${message.type}-${index}`}
                     message={message}
                     isLoading={isLoading}
+                    onEdit={handleEdit}
                   />
                 ) : (
                   <AssistantMessage
