@@ -3,6 +3,7 @@
 import type { LucideIcon } from "lucide-react";
 import { ArrowRightLeft, Coins, FileCode, Globe, TrendingUp } from "lucide-react";
 import { truncateAddress } from "@/shared/config/stellar";
+import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { DetailRow } from "../base/indicators";
 import { BaseOperationCard } from "../base/operation-card";
 
@@ -180,6 +181,7 @@ export function StellarExecuteCard({
 
     try {
       // Sign XDR with Stellar wallet
+      await checkWalletNetwork();
       const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
       const { signedTxXdr } = await StellarWalletsKit.signTransaction(xdr, {
         address,
@@ -192,8 +194,8 @@ export function StellarExecuteCard({
         hash: signedTxXdr,
       };
     } catch (error) {
-      const msg = error instanceof Error ? error.message : "Signing failed";
-      if (msg.includes("rejected") || msg.includes("denied") || msg.includes("cancel")) {
+      const msg = parseSigningError(error);
+      if (msg.toLowerCase().includes("rejected") || msg.toLowerCase().includes("denied") || msg.toLowerCase().includes("cancel")) {
         return { success: false, error: "Transaction rejected by user" };
       }
       return { success: false, error: msg };

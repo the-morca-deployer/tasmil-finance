@@ -6,7 +6,7 @@ import {
 import { LangGraphHttpAgent } from "@copilotkit/runtime/langgraph";
 import type { NextRequest } from "next/server";
 
-const LANGGRAPH_URL = process.env["NEXT_PUBLIC_API_URL"] || "http://localhost:8001";
+const LANGGRAPH_URL = process.env["NEXT_PUBLIC_AI_URL"] || "http://localhost:8001";
 
 // 1. Service adapter for multi-agent support
 const serviceAdapter = new ExperimentalEmptyAdapter();

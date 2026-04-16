@@ -84,7 +84,7 @@ export function ThreadActionsView({
 }: ThreadActionsViewProps) {
   const stream = useStreamContext();
   const { threadId } = useChatState();
-  const apiUrl = process.env["NEXT_PUBLIC_API_URL"] || "";
+  const apiUrl = process.env["NEXT_PUBLIC_AI_URL"] || "";
   const [currentIndex, setCurrentIndex] = useState(0);
   const [addressedActions, setAddressedActions] = useState<Map<number, Decision>>(new Map());
   const [submittingAll, setSubmittingAll] = useState(false);

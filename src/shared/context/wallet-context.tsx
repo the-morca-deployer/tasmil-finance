@@ -5,6 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { toast } from "sonner";
 import { type AuthUser, useAuthStore } from "@/store/use-auth";
 import { useWalletStore } from "@/store/use-wallet";
+import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 
 interface WalletContextType {
   isConnected: boolean;
@@ -188,9 +189,9 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       try {
         // Auth endpoints live on the NestJS backend, not the AI server
         const API_BASE =
-          process.env["NEXT_PUBLIC_BACKEND_URL"] != null
+          process.env["NEXT_PUBLIC_BACKEND_URL"]
             ? `${process.env["NEXT_PUBLIC_BACKEND_URL"]}/api`
-            : "http://127.0.0.1:6756/api";
+            : "http://localhost:6756/api";
 
         // Step 1: Request a challenge nonce from the server
         const challengeRes = await fetch(`${API_BASE}/auth/challenge`, {
@@ -224,6 +225,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         // Step 3: Sign with wallet
         setSigning(true);
+        await checkWalletNetwork();
         const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
         const { signedTxXdr } = await StellarWalletsKit.signTransaction(tx.toXDR(), {
           address: walletAddress,
@@ -274,8 +276,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           return;
         }
 
-        const errorMessage =
-          error instanceof Error ? error.message : "Authentication failed. Please try again.";
+        const errorMessage = parseSigningError(error) || "Authentication failed. Please try again.";
         toast.error(errorMessage);
       }
     },

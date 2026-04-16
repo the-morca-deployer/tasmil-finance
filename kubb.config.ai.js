@@ -28,8 +28,8 @@ const config = defineConfig({
         return fixedSpecPath;
       }
 
-      if (process.env.NEXT_PUBLIC_API_URL) {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "");
+      if (process.env.NEXT_PUBLIC_AI_URL) {
+        const baseUrl = process.env.NEXT_PUBLIC_AI_URL.replace(/\/$/, "");
         return `${baseUrl}/openapi.json`;
       }
       return "http://localhost:8001/openapi.json";

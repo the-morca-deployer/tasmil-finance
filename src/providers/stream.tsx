@@ -117,7 +117,7 @@ export const StreamProvider: React.FC<{
   chatId?: string;
 }> = ({ children, agentId }) => {
   // Get environment variables
-  const envApiUrl: string | undefined = process.env["NEXT_PUBLIC_API_URL"];
+  const envApiUrl: string | undefined = process.env["NEXT_PUBLIC_AI_URL"];
 
   // Use agentId from props as assistantId
   const assistantId = agentId || "";
@@ -135,7 +135,7 @@ export const StreamProvider: React.FC<{
             <LangGraphLogoSVG className="h-7" />
             <h1 className="font-semibold text-xl tracking-tight">Configuration Error</h1>
             <p className="text-muted-foreground">
-              Missing required configuration. Please ensure NEXT_PUBLIC_API_URL is set and agentId
+              Missing required configuration. Please ensure NEXT_PUBLIC_AI_URL is set and agentId
               is provided.
             </p>
           </div>
