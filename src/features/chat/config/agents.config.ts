@@ -16,7 +16,7 @@ export const AGENTS: Record<string, AgentConfig> = {
     id: "supervisor",
     name: "Tasmil Assistant",
     description: "AI DeFi assistant for the Stellar ecosystem — orchestrates all agents",
-    icon: "/agents/supervisor-agent.png",
+    icon: "/agents/supervisor-agent.svg",
     supportedChains: ["Stellar"],
     suggestions: [
       "I have USDC on ETH and I wanna supply on Backstop",

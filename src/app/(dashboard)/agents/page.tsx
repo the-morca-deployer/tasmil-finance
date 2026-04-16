@@ -120,7 +120,7 @@ const VALID_AGENT_IDS = [
 const normalizeIconPath = (icon: string | undefined, graphId: string): string => {
   // Force use of local high-quality 3D icons for known agents
   const defaultIcons: Record<string, string> = {
-    supervisor: "/agents/supervisor-agent.png",
+    supervisor: "/agents/supervisor-agent.svg",
     info_agent: "/agents/info-agent.png",
     blend_agent: "/agents/blend-agent.svg",
     soroswap_agent: "/agents/soroswap-agent.svg",

@@ -10,7 +10,7 @@ interface HeroSectionProps {
 export function HeroSection({ agentCount }: HeroSectionProps) {
   const allAgents = Object.values(AGENTS).map((agent) => ({
     name: agent.name,
-    icon: agent.icon || "/agents/supervisor-agent.png",
+    icon: agent.icon || "/agents/supervisor-agent.svg",
   }));
   const visibleAgents = allAgents.slice(0, 4);
 

@@ -166,7 +166,7 @@ export const Greeting = ({ agentId }: GreetingProps) => {
   const config = getAgentConfig(agentId);
   const content =
     AGENT_GREETING_CONTENT[config.id] ?? AGENT_GREETING_CONTENT.default ?? DEFAULT_GREETING;
-  const logo = config.icon || "/agents/supervisor-agent.png";
+  const logo = config.icon || "/agents/supervisor-agent.svg";
 
   return (
     <motion.div
