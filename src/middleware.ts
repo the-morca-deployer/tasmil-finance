@@ -14,20 +14,12 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/api") ||
     pathname.startsWith("/images")
   ) {
-    if (pathname === "/") {
-      return NextResponse.redirect(new URL("/waitlist", request.url));
-    }
-    return NextResponse.next();
+      return NextResponse.next();
   }
 
   // Admin paths are handled client-side by AdminAuthGuard — no server redirect needed
   if (pathname.startsWith("/admin")) {
     return NextResponse.next();
-  }
-
-  // All other paths redirect to waitlist during prelaunch
-  if (!pathname.startsWith("/waitlist")) {
-    return NextResponse.redirect(new URL("/waitlist", request.url));
   }
 
   return NextResponse.next();
