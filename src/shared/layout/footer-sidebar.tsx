@@ -1,9 +1,7 @@
 "use client";
 
-import { User } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
+import { AddressAvatar, ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useStellarBalance } from "@/shared/hooks/use-stellar-balance";
 import Balatro from "../ui/balatro";
