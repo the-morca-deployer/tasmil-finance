@@ -65,7 +65,12 @@ function NavMenuItem({
             <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? "text-black" : ""}`} />
           )}
           {!isCollapsed && (
-            <span className={isActive ? "font-medium text-black" : ""}>{item.title}</span>
+            <span className={cn("flex-1", isActive ? "font-medium text-black" : "")}>{item.title}</span>
+          )}
+          {!isCollapsed && item.badge && (
+            <span className="ml-auto rounded-full bg-sky-500/20 px-1.5 py-0.5 text-[10px] font-medium text-sky-400">
+              {item.badge}
+            </span>
           )}
         </Link>
       </SidebarMenuButton>

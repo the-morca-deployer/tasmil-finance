@@ -10,7 +10,7 @@ export function buildReferralUrl(
 }
 
 export function buildXShareText(referralUrl: string): string {
-  return `I just joined the @TasmilFinance waitlist — get priority access by connecting your Stellar wallet! 🎯 Use my referral link to climb the queue: ${referralUrl}`;
+  return `I just joined the @TasmilFinance waitlist — get priority access by connecting your Stellar wallet! Use my referral link to climb the queue: ${referralUrl}`;
 }
 
 export function openXShare(text: string): void {

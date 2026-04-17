@@ -146,8 +146,8 @@ export function FooterSidebarSection() {
         ) : (
           <TooltipProvider>
             <div className="flex w-full flex-col items-center gap-2">
-              {/* Quest Card - Collapsed */}
-              <a
+              {/* Quest Card - Collapsed - Commented out */}
+              {/* <a
                 href="https://quest.tasmil-finance.xyz"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -171,7 +171,7 @@ export function FooterSidebarSection() {
                     </Typography>
                   </div>
                 </div>
-              </a>
+              </a> */}
 
               {/* Balance - Collapsed */}
               <div className="flex h-14 w-full flex-col items-center justify-center gap-1 rounded-xl border border-zinc-700/50 bg-zinc-800/30 backdrop-blur-sm">

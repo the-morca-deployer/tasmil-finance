@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Bot, Home, Tractor, Wallet, KeyRound, Mail } from "lucide-react";
+import { ArrowLeftRight, Bot, Droplets, Home, Tractor, Wallet, KeyRound, Mail } from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -38,12 +38,21 @@ export const sidebarData: SidebarData = {
     tagline: "Your supreme agent",
   },
   navGroups: [
+    // {
+    //   items: [
+    //     {
+    //       title: "Dashboard",
+    //       url: "/dashboard",
+    //       icon: Home,
+    //     },
+    //   ],
+    // },
     {
       items: [
         {
-          title: "Dashboard",
-          url: "/dashboard",
-          icon: Home,
+          title: "Faucet",
+          url: "/faucet",
+          icon: Droplets,
         },
       ],
     },
@@ -53,15 +62,6 @@ export const sidebarData: SidebarData = {
           title: "Agents",
           url: "/agents",
           icon: Bot,
-        },
-      ],
-    },
-    {
-      items: [
-        {
-          title: "Portfolio",
-          url: "/portfolio",
-          icon: Wallet,
         },
       ],
     },
@@ -82,7 +82,17 @@ export const sidebarData: SidebarData = {
           icon: ArrowLeftRight,
         },
       ],
-    }
+    },
+    {
+      items: [
+        {
+          title: "Portfolio",
+          url: "/portfolio",
+          icon: Wallet,
+        },
+      ],
+    },
+    
   ],
 };
 

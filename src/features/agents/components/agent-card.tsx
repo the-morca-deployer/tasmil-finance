@@ -94,6 +94,7 @@ export function AgentCard({ assistant, onClick }: AgentCardProps) {
   return (
     <button onClick={onClick} className="h-full cursor-pointer text-left" type="button">
       <BorderGlow
+        animated
         className="group relative flex h-full flex-col overflow-hidden"
         backgroundColor="#18181b"
         borderRadius={8}

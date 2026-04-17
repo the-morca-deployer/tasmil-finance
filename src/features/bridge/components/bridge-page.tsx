@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { toast } from "sonner";
 import {
   ArrowUpDown,
   ArrowLeftRight,
@@ -78,6 +79,31 @@ export function BridgePage() {
   const activeTab = "bridge" as const;
   const [selectedProtocol, setSelectedProtocol] = useState<string | null>(null);
   const hasUserInteracted = useRef(false);
+
+  // Toast notifications for swap result
+  const network = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] === "PUBLIC" ? "public" : "testnet";
+  useEffect(() => {
+    if (agg.executeSuccess) {
+      toast.success("Swap successful!", {
+        description: (
+          <a
+            href={`https://stellar.expert/explorer/${agg.chainIn === "stellar" ? network : "public"}/tx/${agg.executeSuccess}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            View transaction ↗
+          </a>
+        ),
+      });
+    }
+  }, [agg.executeSuccess]);
+
+  useEffect(() => {
+    if (agg.executeError) {
+      toast.error("Swap failed", { description: agg.executeError });
+    }
+  }, [agg.executeError]);
 
   // Sync connected wallets into address store
   useEffect(() => {
@@ -208,6 +234,7 @@ export function BridgePage() {
         {/* Main card */}
         {/* ══════════════════════════════════════════════════════════ */}
         <BorderGlow
+          animated
           className="w-full sm:w-[480px] max-w-[480px]"
           backgroundColor="var(--card)"
           borderRadius={24}
@@ -465,27 +492,6 @@ export function BridgePage() {
                   </button>
                 )}
 
-                {/* Success: show tx link */}
-                {agg.executeSuccess && (
-                  <div className="flex items-center justify-between rounded-xl px-4 py-3 text-sm" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)" }}>
-                    <span style={{ color: "#34D399" }}>Swap successful!</span>
-                    <a
-                      href={`https://stellar.expert/explorer/${agg.chainIn === "stellar" ? (process.env["NEXT_PUBLIC_STELLAR_NETWORK"] === "PUBLIC" ? "public" : "testnet") : "public"}/tx/${agg.executeSuccess}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs font-medium underline"
-                      style={{ color: "var(--primary)" }}
-                    >
-                      View transaction
-                    </a>
-                  </div>
-                )}
-                {/* Error */}
-                {agg.executeError && (
-                  <div className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#F87171" }}>
-                    <span>{agg.executeError}</span>
-                  </div>
-                )}
               </div>
             </div>
           ) : (
