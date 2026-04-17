@@ -1,37 +1,45 @@
+# syntax=docker/dockerfile:1
 # Build stage
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Install Python and build dependencies for native modules (usb, tiny-secp256k1)
 RUN apk add --no-cache python3 make g++ git
 
-RUN npm install -g pnpm
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g pnpm
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY apps/frontend ./apps/frontend
 COPY packages ./packages
 
-RUN pnpm install --frozen-lockfile --ignore-scripts
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --ignore-scripts
 
 WORKDIR /app/apps/frontend
 
-# Set NEXT_PUBLIC_* env vars BEFORE build (they get baked into client JS)
-ARG NEXT_PUBLIC_AI_URL=https://backend.tasmil-finance.xyz
+ARG NEXT_PUBLIC_AI_URL
+ARG NEXT_PUBLIC_BACKEND_URL
 ENV NEXT_PUBLIC_AI_URL=$NEXT_PUBLIC_AI_URL
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+# Allow Next.js compiler to use up to 4 GB RAM
+ENV NODE_OPTIONS=--max-old-space-size=4096
 
-RUN pnpm run build
+RUN --mount=type=cache,target=/app/apps/frontend/.next/cache \
+    pnpm run build
 
 # Runtime stage
 FROM node:22-alpine
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g pnpm
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 COPY apps/frontend ./apps/frontend
 COPY packages ./packages
 
-RUN pnpm install --frozen-lockfile --ignore-scripts
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --ignore-scripts
 
 WORKDIR /app/apps/frontend
 
@@ -42,6 +50,5 @@ EXPOSE 3000
 
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV NEXT_PUBLIC_AI_URL=https://backend.tasmil-finance.xyz
 
 CMD ["pnpm", "exec", "next", "start"]

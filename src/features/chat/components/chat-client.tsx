@@ -41,6 +41,33 @@ import { Greeting } from './greeting';
 import { SuggestedActions } from './suggested-actions';
 import { mergeMessagesWithCache, shouldFilterMessage } from './chat-client-helpers';
 
+// Mapping from short agent IDs to API graph_ids
+const AGENT_TO_GRAPH_ID: Record<string, string> = {
+  supervisor: "supervisor",
+  info_agent: "info_agent",
+  blend_agent: "blend_agent",
+  soroswap_agent: "soroswap_agent",
+  phoenix_agent: "phoenix_agent",
+  aquarius_agent: "aquarius_agent",
+  defindex_agent: "defindex_agent",
+  templar_agent: "templar_agent",
+  allbridge_agent: "allbridge_agent",
+  sdex_agent: "sdex_agent",
+  lumenswap_agent: "lumenswap_agent",
+  bridge_agent: "bridge_agent",
+  yield_agent: "yield_agent",
+  research_agent: "research_agent",
+  // Short aliases used in URLs
+  staking: "supervisor",
+  research: "research_agent",
+  yield: "yield_agent",
+  bridge: "bridge_agent",
+};
+
+function toGraphId(agentId: string): string {
+  return AGENT_TO_GRAPH_ID[agentId] ?? agentId;
+}
+
 // Agent configuration
 const AGENT_CONFIG: Record<string, { name: string }> = {
   staking: { name: "Staking Agent" },
@@ -148,7 +175,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
   useEffect(() => {
     searchAssistants(
-      { data: { graph_id: agentId as any } },
+      { data: { graph_id: toGraphId(agentId) as any } },
       {
         onSuccess: (data) => {
           if (data && data.length > 0) {
