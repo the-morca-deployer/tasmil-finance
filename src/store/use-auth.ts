@@ -22,6 +22,25 @@ interface AuthState {
   isTokenExpired: () => boolean;
 }
 
+// Parse the `exp` claim (seconds since epoch) out of a JWT, returning a ms timestamp.
+// Returns null if the token is malformed or carries no exp claim.
+function parseJwtExp(token: string): number | null {
+  try {
+    const [, payload] = token.split(".");
+    if (!payload) return null;
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
+    const json = JSON.parse(
+      typeof atob !== "undefined"
+        ? atob(padded)
+        : Buffer.from(padded, "base64").toString("utf8")
+    );
+    return typeof json.exp === "number" ? json.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -31,8 +50,10 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       expiresAt: null,
       setAuthState: ({ accessToken, user }) => {
-        // JWT expires in 24h — store the deadline so we can detect stale tokens
-        const expiresAt = Date.now() + 23 * 60 * 60 * 1000; // 23h (1h safety margin)
+        const jwtExp = parseJwtExp(accessToken);
+        // Fallback: 23h after now if the JWT has no parseable exp claim.
+        const fallback = Date.now() + 23 * 60 * 60 * 1000;
+        const expiresAt = jwtExp ?? fallback;
         set({
           isAuthenticated: true,
           accessToken,
