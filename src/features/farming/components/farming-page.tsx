@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangle, Loader2, Pause, ShieldOff, Wallet, XCircle } from "lucide-react";
+import { Info, Loader2, Shield, ShieldOff, Wallet, XCircle } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useId, useMemo, useState } from "react";
 import { FundForm } from "@/features/account/components/fund-form";
@@ -12,9 +12,8 @@ import {
   useFundAccount,
   usePosition,
   usePresets,
-  useResumeAccount,
+  useReactivate,
   useRevoke,
-  useSetupAccount,
   useSubmitTx,
   useUpdatePreset,
   useWithdraw,
@@ -32,7 +31,7 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { useWalletStore } from "@/store/use-wallet";
-import { usePools, useRebalanceStatus } from "../hooks/use-farming-api";
+import { usePools } from "../hooks/use-farming-api";
 import { FarmingActivity, FarmingActivitySidebar } from "./farming-activity";
 import { FarmingAllocation } from "./farming-allocation";
 import { FarmingHeader } from "./farming-header";
@@ -122,13 +121,12 @@ function FarmingContent() {
   // Modal state
   const [accountModalOpen, setAccountModalOpen] = useState(false);
   const [accountModalTab, setAccountModalTab] = useState<
-    "fund" | "strategy" | "withdraw" | "security"
+    "fund" | "strategy" | "withdraw" | "security" | "activate"
   >("fund");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [selectedPreset, setSelectedPreset] = useState<RiskPreset | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const withdrawAmountInputId = useId();
-  const [isReconfiguring, setIsReconfiguring] = useState(false);
   const canChangeStrategy = false;
 
   // Data hooks
@@ -137,7 +135,6 @@ function FarmingContent() {
     isLoading: positionLoading,
     refetch: refetchPosition,
   } = usePosition(publicKey);
-  const { data: status, isLoading: statusLoading } = useRebalanceStatus();
   const { data: registryPoolsData, isLoading: registryPoolsLoading } = usePools();
   const {
     data: activities,
@@ -150,10 +147,9 @@ function FarmingContent() {
   const fundAccount = useFundAccount();
   const withdrawMutation = useWithdraw();
   const revokeMutation = useRevoke();
+  const reactivateMutation = useReactivate();
   const submitTx = useSubmitTx();
   const updatePreset = useUpdatePreset();
-  const setupAccount = useSetupAccount();
-  const resumeAccount = useResumeAccount();
 
   // Computed values
   const { availableUsd, lockedUsd } = useMemo(() => {
@@ -254,7 +250,9 @@ function FarmingContent() {
 
   // ─── Action handlers ──────────────────────────────────────────────────────
 
-  const openAccountModal = (tab: "fund" | "strategy" | "withdraw" | "security") => {
+  const openAccountModal = (
+    tab: "fund" | "strategy" | "withdraw" | "security" | "activate",
+  ) => {
     setActionError(null);
     if (tab === "strategy") {
       const normalized = position?.preset?.toLowerCase();
@@ -337,25 +335,28 @@ function FarmingContent() {
     }
   };
 
-  const handleReconfigure = async () => {
+  const handleReactivate = async () => {
     if (!publicKey) return;
     try {
-      setIsReconfiguring(true);
       setActionError(null);
-      const setupResult = await setupAccount.mutateAsync(publicKey);
-      const setupXdrs = setupResult?.setupTxs ?? [];
-      if (setupXdrs.length === 0 || !setupXdrs[0]) {
-        throw new Error("No setup transaction returned from server");
+      const result = await reactivateMutation.mutateAsync(publicKey);
+      const setupXdrs = result?.setupTxs ?? [];
+      if (setupXdrs.length === 0) {
+        throw new Error("No reactivation transaction returned from server");
       }
-      const signedXdr = await signXdr(setupXdrs[0], publicKey);
-      await submitTx.mutateAsync({ signedXdr });
-      await resumeAccount.mutateAsync(publicKey);
+      for (const [i, xdr] of setupXdrs.entries()) {
+        const signedXdr = await signXdr(xdr, publicKey);
+        const isLast = i === setupXdrs.length - 1;
+        await submitTx.mutateAsync({
+          signedXdr,
+          ...(isLast ? { publicKey, txType: "reactivate" as const } : {}),
+        });
+      }
       await Promise.all([refetchPosition(), refetchActivity()]);
+      setAccountModalOpen(false);
     } catch (err) {
-      console.warn("Reconfigure failed:", err);
-      setActionError(err instanceof Error ? err.message : "Reconfigure failed. Please try again.");
-    } finally {
-      setIsReconfiguring(false);
+      console.warn("Reactivate failed:", err);
+      setActionError(err instanceof Error ? err.message : "Operation failed. Please try again.");
     }
   };
 
@@ -379,7 +380,7 @@ function FarmingContent() {
 
   if (!publicKey) return <ConnectPrompt />;
 
-  if (statusLoading || registryPoolsLoading || positionLoading) {
+  if (registryPoolsLoading || positionLoading) {
     return (
       <div className="flex items-center justify-center py-24">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -392,10 +393,13 @@ function FarmingContent() {
   // ─── Derived ──────────────────────────────────────────────────────────────
 
   const registryPools = registryPoolsData ?? [];
+  const accountStatus = position?.status ?? "ACTIVE";
+  const isRevoked = accountStatus === "REVOKED";
   const accountActionPending =
     fundAccount.isPending ||
     withdrawMutation.isPending ||
     revokeMutation.isPending ||
+    reactivateMutation.isPending ||
     submitTx.isPending;
 
   const parsedWithdrawAmount = Number.parseFloat(withdrawAmount);
@@ -416,7 +420,7 @@ function FarmingContent() {
             allTimePnlUsd={cashflowSummary.allTimePnlUsd}
             allTimePnlPercent={cashflowSummary.allTimePnlPercent}
             currentApy={position.currentApy}
-            status={status}
+            status={undefined}
             isLoading={false}
           />
 
@@ -444,15 +448,27 @@ function FarmingContent() {
             >
               Withdraw
             </Button>
-            <Button
-              variant="ghost"
-              size="default"
-              className="text-muted-foreground hover:text-destructive"
-              onClick={() => openAccountModal("security")}
-            >
-              <ShieldOff className="mr-1.5 h-3.5 w-3.5" />
-              Revoke
-            </Button>
+            {isRevoked ? (
+              <Button
+                variant="gradient"
+                size="default"
+                className="px-6"
+                onClick={() => openAccountModal("activate")}
+              >
+                <Shield className="mr-1.5 h-3.5 w-3.5" />
+                Activate Session Key
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="default"
+                className="text-muted-foreground hover:text-destructive"
+                onClick={() => openAccountModal("security")}
+              >
+                <ShieldOff className="mr-1.5 h-3.5 w-3.5" />
+                Revoke
+              </Button>
+            )}
           </motion.div>
 
           {/* Tab bar — like portfolio tab bar */}
@@ -497,21 +513,22 @@ function FarmingContent() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.25 }}
               >
-                {/* Halted banner */}
-                {status?.halted && (
-                  <div className="flex items-center gap-3 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3">
-                    <Pause className="h-4 w-4 shrink-0 text-destructive" />
+                {/* Paused (REVOKED) strip — neutral styling, always reversible */}
+                {isRevoked && (
+                  <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/10 px-4 py-3">
+                    <Info className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <span className="flex-1 text-sm text-muted-foreground">
-                      {status.haltReason ?? "Agent halted"}
+                      <strong className="text-foreground">Agent paused.</strong>{" "}
+                      You can deposit and withdraw anytime. Activate the session key to resume automation.
                     </span>
                     <Button
                       size="sm"
-                      variant="outline"
-                      className="shrink-0 border-destructive/30 text-destructive hover:bg-destructive/10"
-                      onClick={handleReconfigure}
-                      disabled={isReconfiguring}
+                      variant="gradient"
+                      className="shrink-0"
+                      onClick={() => openAccountModal("activate")}
+                      disabled={accountActionPending}
                     >
-                      {isReconfiguring ? "Reconfiguring..." : "Reconfigure"}
+                      Activate Session Key
                     </Button>
                   </div>
                 )}
@@ -587,7 +604,9 @@ function FarmingContent() {
                   ? "Change Strategy"
                   : accountModalTab === "withdraw"
                     ? "Withdraw"
-                    : "Revoke Session Key"}
+                    : accountModalTab === "activate"
+                      ? "Activate Session Key"
+                      : "Revoke Session Key"}
             </DialogTitle>
             <DialogDescription>
               {accountModalTab === "fund"
@@ -596,7 +615,9 @@ function FarmingContent() {
                   ? "Choose your risk profile for future allocations."
                   : accountModalTab === "withdraw"
                     ? "Withdraw from available positions."
-                    : "Disable automation by revoking the active session key."}
+                    : accountModalTab === "activate"
+                      ? "Re-register a session key so the agent can resume automation."
+                      : "Pause bot automation — reversible any time."}
             </DialogDescription>
           </DialogHeader>
 
@@ -712,14 +733,12 @@ function FarmingContent() {
 
           {accountModalTab === "security" && (
             <div className="space-y-4 pt-3">
-              <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+              <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/10 p-3">
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                 <div className="text-xs">
-                  <p className="font-medium text-destructive">
-                    Revoke session key is irreversible.
-                  </p>
-                  <p className="text-destructive/80">
-                    Bot automation stops immediately. Account status becomes REVOKED.
+                  <p className="font-medium text-foreground">This stops bot automation.</p>
+                  <p className="text-muted-foreground">
+                    You can still deposit and withdraw. Activate a new session key any time to resume.
                   </p>
                 </div>
               </div>
@@ -735,6 +754,34 @@ function FarmingContent() {
                 )}
                 <ShieldOff className="mr-2 h-4 w-4" />
                 Revoke Session Key
+              </Button>
+            </div>
+          )}
+
+          {accountModalTab === "activate" && (
+            <div className="space-y-4 pt-3">
+              <div className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                <Shield className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <div className="text-xs">
+                  <p className="font-medium text-foreground">Sign to register a new session key.</p>
+                  <p className="text-muted-foreground">
+                    This allows the bot to rebalance on your behalf. Your funds remain
+                    in the keeper wallet — the session key only grants scoped permissions.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="gradient"
+                size="lg"
+                className="h-12 w-full"
+                onClick={handleReactivate}
+                disabled={accountActionPending}
+              >
+                {(reactivateMutation.isPending || submitTx.isPending) && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                <Shield className="mr-2 h-4 w-4" />
+                Activate Session Key
               </Button>
             </div>
           )}
