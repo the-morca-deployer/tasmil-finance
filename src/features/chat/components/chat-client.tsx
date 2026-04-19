@@ -53,7 +53,6 @@ const AGENT_TO_GRAPH_ID: Record<string, string> = {
   templar_agent: "templar_agent",
   allbridge_agent: "allbridge_agent",
   sdex_agent: "sdex_agent",
-  lumenswap_agent: "lumenswap_agent",
   bridge_agent: "bridge_agent",
   yield_agent: "yield_agent",
   research_agent: "research_agent",

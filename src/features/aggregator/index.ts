@@ -1,4 +1,4 @@
-export { BridgePage } from "./components/bridge-page";
+export { AggregatorPage } from "./components/aggregator-page";
 export { AddressPicker } from "./components/address-picker";
 export { RoutePicker, AggregatorTokenPicker } from "./components/chain-token-selector";
 export { SlippageSettings, AggregatorRoutePanel } from "./components/aggregator-routes";

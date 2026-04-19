@@ -21,7 +21,6 @@ const PROTOCOL_ICONS: Record<string, string> = {
   sdex:       "/protocols/sdex.svg",
   templar:    "/protocols/templar.svg",
   allbridge:  "/protocols/allbridge.svg",
-  lumenswap:  "/protocols/lumenswap.svg",
 };
 
 function getProtocolIcon(protocol: string): string | null {
@@ -73,6 +72,104 @@ function TypeBadge({ type }: { type: PositionItem["type"] }) {
   );
 }
 
+// ─── Token pair icon (two overlapping circles for LP) ────────────────────────
+
+function TokenPairIcon({
+  token0,
+  token1,
+  size = "h-7 w-7",
+}: {
+  token0: string;
+  token1: string;
+  size?: string;
+}) {
+  return (
+    <div className="relative flex shrink-0" style={{ width: 44, height: 28 }}>
+      <TokenImage
+        alt={token0}
+        className={cn(size, "absolute left-0 bottom-0 rounded-full ring-2 ring-card text-[9px]")}
+      />
+      <TokenImage
+        alt={token1}
+        className={cn(size, "absolute left-[18px] top-0 z-[1] rounded-full ring-2 ring-card text-[9px]")}
+      />
+    </div>
+  );
+}
+
+// ─── Position row content (handles single token + LP pair) ──────────────────
+
+function PositionAssetCell({ pos }: { pos: PositionItem }) {
+  const pair = pos.pair;
+
+  if (pair) {
+    return (
+      <div className="flex items-center gap-3">
+        <TokenPairIcon token0={pair.token0} token1={pair.token1} />
+        <div className="flex flex-col">
+          <span className="text-base font-medium text-foreground">
+            {pair.token0}/{pair.token1}
+          </span>
+          {(pair.poolType || pair.fee) && (
+            <div className="flex items-center gap-1.5">
+              {pair.poolType && (
+                <span className="text-[11px] font-medium text-muted-foreground/70">
+                  {pair.poolType}
+                </span>
+              )}
+              {pair.fee && (
+                <span className="text-[11px] text-muted-foreground/50">
+                  {pair.fee}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <TokenImage
+        alt={pos.asset}
+        className="h-7 w-7 shrink-0 rounded-full text-[10px]"
+      />
+      <span className="text-base font-medium text-foreground">
+        {pos.name}
+      </span>
+    </div>
+  );
+}
+
+function PositionAmountCell({ pos }: { pos: PositionItem }) {
+  const pair = pos.pair;
+
+  if (pair && pair.pooled0 && pair.pooled1) {
+    return (
+      <div className="flex flex-col">
+        <span className="text-sm text-foreground">
+          {pair.pooled0} {pair.token0}
+        </span>
+        <span className="text-sm text-foreground">
+          {pair.pooled1} {pair.token1}
+        </span>
+        {pair.shares && (
+          <span className="text-xs text-muted-foreground">
+            {pair.shares} shares ({pair.sharePct}%)
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <span className="text-base text-foreground">
+      {pos.extra ?? pos.asset}
+    </span>
+  );
+}
+
 // ─── Formatters ──────────────────────────────────────────────────────────────
 
 function formatUsd(value: number): string {
@@ -104,7 +201,7 @@ const PIE_COLORS = [
 
 // ─── Grid layout ─────────────────────────────────────────────────────────────
 
-const POS_GRID = "grid grid-cols-[2fr_90px_1.2fr_1fr] items-center gap-x-3";
+const POS_GRID = "grid grid-cols-[2fr_80px_80px_1.2fr_1fr] items-center gap-x-3";
 
 // ─── Group by protocol ───────────────────────────────────────────────────────
 
@@ -114,6 +211,7 @@ interface ProtocolCard {
   totalPositions: number;
   totalValueUsd: number;
   pools: ProtocolPositionGroup[];
+  pnl?: { profitUsd: number; profitPercent: number; currentApy: number };
 }
 
 function groupByProtocol(groups: ProtocolPositionGroup[]): ProtocolCard[] {
@@ -131,6 +229,7 @@ function groupByProtocol(groups: ProtocolPositionGroup[]): ProtocolCard[] {
       protocol.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
     totalPositions: pools.reduce((s, p) => s + p.positions.length, 0),
     totalValueUsd: pools.reduce((s, p) => s + p.totalValueUsd, 0),
+    pnl: pools.find((p) => p.pnl)?.pnl,
     pools,
   }));
 }
@@ -396,9 +495,22 @@ export function ProtocolPositions({
                 {card.totalPositions} position
                 {card.totalPositions !== 1 ? "s" : ""}
               </span>
-              <span className="ml-auto text-base font-medium text-foreground">
-                {card.totalValueUsd > 0 ? formatUsd(card.totalValueUsd) : "—"}
-              </span>
+              <div className="ml-auto flex items-center gap-2">
+                {card.pnl && card.pnl.profitUsd !== 0 && (
+                  <span
+                    className={cn(
+                      "text-xs font-medium",
+                      card.pnl.profitUsd >= 0 ? "text-emerald-400" : "text-destructive",
+                    )}
+                  >
+                    {card.pnl.profitUsd >= 0 ? "+" : ""}
+                    {formatUsd(card.pnl.profitUsd)} ({card.pnl.profitPercent.toFixed(1)}%)
+                  </span>
+                )}
+                <span className="text-base font-medium text-foreground">
+                  {card.totalValueUsd > 0 ? formatUsd(card.totalValueUsd) : "—"}
+                </span>
+              </div>
               <ChevronDown
                 className={cn(
                   "h-4 w-4 text-muted-foreground transition-transform duration-200",
@@ -433,6 +545,9 @@ export function ProtocolPositions({
                         Type
                       </span>
                       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        APY
+                      </span>
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         Amount
                       </span>
                       <span className="text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -448,28 +563,14 @@ export function ProtocolPositions({
                           "border-t border-border/60 px-6 py-3.5 transition-colors hover:bg-muted/20",
                         )}
                       >
-                        <div className="flex items-center gap-3">
-                          <TokenImage
-                            alt={pos.asset}
-                            className="h-7 w-7 shrink-0 rounded-full text-[10px]"
-                          />
-                          <div className="flex flex-col">
-                            <span className="text-base font-medium text-foreground">
-                              {pos.name}
-                            </span>
-                            {pos.apy != null && (
-                              <span className="text-sm text-muted-foreground">
-                                APY {pos.apy.toFixed(2)}%
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                        <PositionAssetCell pos={pos} />
                         <div>
                           <TypeBadge type={pos.type} />
                         </div>
-                        <span className="text-base text-foreground">
-                          {pos.extra ?? pos.asset}
+                        <span className="text-sm font-medium text-emerald-400">
+                          {pos.apy != null ? `${pos.apy.toFixed(2)}%` : "—"}
                         </span>
+                        <PositionAmountCell pos={pos} />
                         <span className="text-right text-base font-medium text-foreground">
                           {pos.valueUsd > 0 ? formatUsd(pos.valueUsd) : "—"}
                         </span>
@@ -533,6 +634,9 @@ export function ProtocolPositions({
                                 Type
                               </span>
                               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                APY
+                              </span>
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                 Amount
                               </span>
                               <span className="text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -549,28 +653,14 @@ export function ProtocolPositions({
                                   "border-t border-border/40 px-4 py-3 transition-colors hover:bg-muted/20",
                                 )}
                               >
-                                <div className="flex items-center gap-3">
-                                  <TokenImage
-                                    alt={pos.asset}
-                                    className="h-7 w-7 shrink-0 rounded-full text-[10px]"
-                                  />
-                                  <div className="flex flex-col">
-                                    <span className="text-base font-medium text-foreground">
-                                      {pos.name}
-                                    </span>
-                                    {pos.apy != null && (
-                                      <span className="text-sm text-muted-foreground">
-                                        APY {pos.apy.toFixed(2)}%
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
+                                <PositionAssetCell pos={pos} />
                                 <div>
                                   <TypeBadge type={pos.type} />
                                 </div>
-                                <span className="text-base text-foreground">
-                                  {pos.extra ?? pos.asset}
+                                <span className="text-sm font-medium text-emerald-400">
+                                  {pos.apy != null ? `${pos.apy.toFixed(2)}%` : "—"}
                                 </span>
+                                <PositionAmountCell pos={pos} />
                                 <span className="text-right text-base font-medium text-foreground">
                                   {pos.valueUsd > 0
                                     ? formatUsd(pos.valueUsd)

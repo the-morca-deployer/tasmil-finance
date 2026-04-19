@@ -20,7 +20,6 @@ const AGENT_NAMES = [
   "templar_agent",
   "allbridge_agent",
   "sdex_agent",
-  "lumenswap_agent",
   "bridge_agent",
   "info_agent",
   "research_agent",

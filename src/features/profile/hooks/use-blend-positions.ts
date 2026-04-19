@@ -36,7 +36,8 @@ const POOL_NAMES: Record<string, string> = {
   CAPBMXIQTICKWFPWFDJWMAKBXBPJZUKLNONQH3MLPLLBKQ643CYN5PRW: "RegionalStarterPack",
 };
 
-const SCALAR_7 = 10_000_000n;
+const SCALAR_7 = 10_000_000;
+const SCALAR_12 = BigInt("1000000000000");
 
 // ─── SDK loader + Soroban helpers ────────────────────────────────────────────
 
@@ -140,14 +141,14 @@ async function fetchBlendPositions(
     const result = await viewCall<string[]>(bundle, BACKSTOP_ADDRESS, fn);
     if (result && Array.isArray(result) && result.length > 0) {
       poolAddresses = result;
-      console.warn(`[blend] Discovered ${result.length} pools via backstop.${fn}`);
+      // Discovered pools via backstop
     }
   }
 
   // Fallback to static list
   if (poolAddresses.length === 0) {
     poolAddresses = FALLBACK_POOLS;
-    console.warn("[blend] Backstop discovery failed, using fallback pools:", poolAddresses);
+    // Backstop discovery failed, using fallback pools
   }
 
   const groups: ProtocolPositionGroup[] = [];
@@ -164,12 +165,7 @@ async function fetchBlendPositions(
       );
       if (!rawPos) continue;
 
-      // Debug: log raw positions to understand format
-      console.warn(`[blend] Pool ${poolAddr.slice(0, 8)} raw positions:`, rawPos);
-      try {
-        const keys = rawPos instanceof Map ? [...rawPos.keys()] : Object.keys(rawPos);
-        console.warn(`[blend] Position fields:`, keys);
-      } catch { /* ignore */ }
+      // Parse position struct fields
 
       // Handle both plain object and Map for the struct
       const getField = (obj: unknown, field: string): unknown => {
@@ -181,12 +177,12 @@ async function fetchBlendPositions(
       const rawSupply = getField(rawPos, "supply");
       const rawCollateral = getField(rawPos, "collateral");
       const rawLiabilities = getField(rawPos, "liabilities");
-      console.warn(`[blend] Raw supply:`, rawSupply, `collateral:`, rawCollateral, `liabilities:`, rawLiabilities);
+      // Extract position entries
 
       const supplyEntries = posEntries(rawSupply);
       const collateralEntries = posEntries(rawCollateral);
       const liabilityEntries = posEntries(rawLiabilities);
-      console.warn(`[blend] Parsed — supply:${supplyEntries.length} collateral:${collateralEntries.length} liabilities:${liabilityEntries.length}`);
+      // Skip pools with no positions
 
       if (
         supplyEntries.length === 0 &&
@@ -211,7 +207,7 @@ async function fetchBlendPositions(
 
       const reserveInfo = new Map<
         number,
-        { symbol: string; bRate: bigint; dRate: bigint }
+        { symbol: string; bRate: bigint; dRate: bigint; supplyApy: number; borrowApy: number }
       >();
 
       for (const idx of activeIndices) {
@@ -224,35 +220,86 @@ async function fetchBlendPositions(
             ? "XLM"
             : (rawSymbol ?? `${assetAddr.slice(0, 6)}…`);
 
-        // Reserve data for rate conversion (shares → underlying)
+        // Reserve data — pass asset Address (not u32 index)
         const reserveData = await viewCall<Record<string, unknown>>(
           bundle,
           poolAddr,
           "get_reserve",
-          [sdk.nativeToScVal(idx, { type: "u32" })],
+          [new sdk.Address(assetAddr).toScVal()],
         );
 
-        let bRate = SCALAR_7;
-        let dRate = SCALAR_7;
+        let bRate = SCALAR_12;
+        let dRate = SCALAR_12;
+        let supplyApy = 0;
+        let borrowApy = 0;
+
         if (reserveData) {
-          const bRaw = getField(reserveData, "b_rate");
-          const dRaw = getField(reserveData, "d_rate");
+          // Extract nested data/config structs
+          const dataObj = getField(reserveData, "data");
+          const configObj = getField(reserveData, "config");
+
+          const bRaw = dataObj ? getField(dataObj, "b_rate") : getField(reserveData, "b_rate");
+          const dRaw = dataObj ? getField(dataObj, "d_rate") : getField(reserveData, "d_rate");
           try {
             if (bRaw != null) bRate = typeof bRaw === "bigint" ? bRaw : BigInt(String(bRaw));
           } catch { /* keep default */ }
           try {
             if (dRaw != null) dRate = typeof dRaw === "bigint" ? dRaw : BigInt(String(dRaw));
           } catch { /* keep default */ }
+
+          // Compute APY from utilization + 3-tier interest rate model
+          try {
+            const bSupply = BigInt(String(dataObj ? getField(dataObj, "b_supply") ?? 0 : 0));
+            const dSupply = BigInt(String(dataObj ? getField(dataObj, "d_supply") ?? 0 : 0));
+            const irModRaw = Number(String(dataObj ? getField(dataObj, "ir_mod") ?? SCALAR_7 : SCALAR_7));
+            const irMod = irModRaw / SCALAR_7;
+
+            // Rates use SCALAR_12, amounts use token decimals (7 for Stellar)
+            const totalSupplyUnderlying = Number(bSupply * bRate / SCALAR_12) / 1e7;
+            const totalBorrowUnderlying = Number(dSupply * dRate / SCALAR_12) / 1e7;
+            const u = totalSupplyUnderlying > 0 ? totalBorrowUnderlying / totalSupplyUnderlying : 0;
+
+            if (configObj) {
+              const S7 = SCALAR_7;
+              const rBase = Number(getField(configObj, "r_base") ?? 0) / S7;
+              const rOne = Number(getField(configObj, "r_one") ?? 0) / S7;
+              const rTwo = Number(getField(configObj, "r_two") ?? 0) / S7;
+              const rThree = Number(getField(configObj, "r_three") ?? 0) / S7;
+              const uTarget = Number(getField(configObj, "util") ?? 5_000_000) / S7;
+
+              // 3-tier piecewise interest rate
+              let baseRate: number;
+              if (u <= uTarget) {
+                baseRate = rBase + (uTarget > 0 ? (u / uTarget) * rOne : 0);
+              } else if (u <= 0.95) {
+                const denom = 0.95 - uTarget;
+                baseRate = rBase + rOne + (denom > 0 ? ((u - uTarget) / denom) * rTwo : 0);
+              } else {
+                baseRate = rBase + rOne + rTwo + ((u - 0.95) / 0.05) * rThree;
+              }
+
+              // Apply dynamic rate modifier
+              const borrowRate = baseRate * irMod;
+
+              // Continuous compounding → APY as percentage
+              const BACKSTOP_TAKE_RATE = 0.2;
+              borrowApy = Math.round((Math.exp(borrowRate) - 1) * 100 * 100) / 100;
+              const supplyRate = borrowRate * u * (1 - BACKSTOP_TAKE_RATE);
+              supplyApy = Math.round((Math.exp(supplyRate) - 1) * 100 * 100) / 100;
+            }
+          } catch { /* APY calc failed, leave as 0 */ }
         }
 
-        reserveInfo.set(idx, { symbol, bRate, dRate });
+        reserveInfo.set(idx, { symbol, bRate, dRate, supplyApy, borrowApy });
       }
 
       // ── Build PositionItems ────────────────────────────────────────────
       const items: PositionItem[] = [];
 
       const toHuman = (shares: bigint, rate: bigint): string => {
-        const underlying = Number((shares * rate) / SCALAR_7) / 1e7;
+        // shares × rate / SCALAR_12 = underlying in smallest unit
+        // then / 1e7 for Stellar's 7-decimal tokens
+        const underlying = Number((shares * rate) / SCALAR_12) / 1e7;
         return underlying.toLocaleString("en-US", {
           maximumFractionDigits: 4,
         });
@@ -266,6 +313,7 @@ async function fetchBlendPositions(
           type: "supply",
           asset: info.symbol,
           valueUsd: 0,
+          apy: info.supplyApy > 0 ? info.supplyApy : undefined,
           extra: `${toHuman(shares, info.bRate)} ${info.symbol}`,
         });
       }
@@ -278,6 +326,7 @@ async function fetchBlendPositions(
           type: "supply",
           asset: info.symbol,
           valueUsd: 0,
+          apy: info.supplyApy > 0 ? info.supplyApy : undefined,
           extra: `${toHuman(shares, info.bRate)} ${info.symbol}`,
         });
       }
@@ -290,6 +339,7 @@ async function fetchBlendPositions(
           type: "borrow",
           asset: info.symbol,
           valueUsd: 0,
+          apy: info.borrowApy > 0 ? info.borrowApy : undefined,
           extra: `${toHuman(shares, info.dRate)} ${info.symbol}`,
         });
       }

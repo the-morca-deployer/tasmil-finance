@@ -93,15 +93,6 @@ const AGENT_GREETING_CONTENT: Record<string, GreetingContent> = {
       "Build SDEX swap transaction XDR safely",
     ],
   },
-  lumenswap_agent: {
-    title: "Your Lumenswap Routing Assistant",
-    subtitle: "Lumenswap execution is pending integration in this deployment.",
-    bullets: [
-      "Confirm Lumenswap availability status clearly",
-      "Route to Soroswap for AMM execution",
-      "Route to SDEX for classic orderbook swaps",
-    ],
-  },
   bridge_agent: {
     title: "Your Bridge Execution Specialist",
     subtitle: "Move assets between Stellar and external chains confidently.",

@@ -1,12 +1,14 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { AgentCard } from "@/features/agents/components/agent-card";
 import { FilterBar } from "@/features/agents/components/filter-bar";
 import { HeroSection } from "@/features/agents/components/hero-section";
 import { AGENTS } from "@/features/chat/config/agents.config";
+import { TOUR_NAMES } from "@/features/onboarding/config/tour-steps";
+import { usePageTour } from "@/features/onboarding/hooks/use-onboarding";
 import { useSearchAssistantsAssistantsSearchPost } from "@/gen-ai";
 import type { Assistant } from "@/gen-ai/types/assistant";
 import { $ } from "@/lib/kubb";
@@ -38,7 +40,6 @@ const AGENT_GROUPS: Record<string, "Protocol Agents" | "Common Agents"> = {
   templar_agent: "Protocol Agents",
   allbridge_agent: "Protocol Agents",
   sdex_agent: "Protocol Agents",
-  lumenswap_agent: "Protocol Agents",
   bridge_agent: "Common Agents",
   yield_agent: "Common Agents",
   research_agent: "Common Agents",
@@ -55,7 +56,6 @@ const AGENT_PROTOCOLS: Record<string, string[]> = {
   templar_agent: ["Templar"],
   allbridge_agent: ["Allbridge"],
   sdex_agent: ["SDEX"],
-  lumenswap_agent: ["Lumenswap"],
   bridge_agent: ["Allbridge", "NEAR Intents"],
   yield_agent: ["Blend", "Soroswap", "Phoenix", "Aquarius", "DeFindex", "Templar"],
 };
@@ -68,7 +68,6 @@ const AGENT_TYPE_FALLBACK: Record<string, "Execution" | "Discovery" | "Assistant
   bridge_agent: "Execution",
   allbridge_agent: "Execution",
   sdex_agent: "Execution",
-  lumenswap_agent: "Discovery",
   blend_agent: "Execution",
   soroswap_agent: "Execution",
   phoenix_agent: "Execution",
@@ -100,7 +99,7 @@ function toDescriptionBullets(items: string[]): string[] {
 }
 
 // Valid agent graph_ids to display (filter out legacy/test agents)
-const VALID_AGENT_IDS = [
+const ALL_AGENT_IDS = [
   "supervisor",
   "info_agent",
   "blend_agent",
@@ -111,11 +110,17 @@ const VALID_AGENT_IDS = [
   "templar_agent",
   "allbridge_agent",
   "sdex_agent",
-  "lumenswap_agent",
   "bridge_agent",
   "research_agent",
   "yield_agent",
 ];
+
+const isTestnet = process.env["NEXT_PUBLIC_STELLAR_TESTNET"] === "true";
+
+// When on testnet, only show agents that support testnet
+const VALID_AGENT_IDS = isTestnet
+  ? ALL_AGENT_IDS.filter((id) => AGENTS[id]?.testnetAvailable !== false)
+  : ALL_AGENT_IDS;
 
 // Map icon paths from /sidebar/ to /agents/ and ensure correct format
 const normalizeIconPath = (icon: string | undefined, graphId: string): string => {
@@ -131,7 +136,6 @@ const normalizeIconPath = (icon: string | undefined, graphId: string): string =>
     templar_agent: "/agents/templar-agent.svg",
     allbridge_agent: "/agents/allbridge-agent.svg",
     sdex_agent: "/agents/sdex-agent.svg",
-    lumenswap_agent: "/agents/lumenswap-agent.svg",
     bridge_agent: "/agents/bridge-agent-v6.png",
     research_agent: "/agents/research-agent-v6.png",
     yield_agent: "/agents/yield-agent-v6.png",
@@ -152,6 +156,7 @@ const normalizeIconPath = (icon: string | undefined, graphId: string): string =>
 };
 
 export default function AgentsPage() {
+  usePageTour(TOUR_NAMES.agents);
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -268,7 +273,7 @@ export default function AgentsPage() {
           availableFilters={availableFilters}
         />
 
-        <section className="py-8">
+        <section data-onborda="agents-grid" className="py-8">
           {searchAssistants.isPending && (
             <motion.div
               className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
@@ -318,10 +323,7 @@ export default function AgentsPage() {
                       ease: "easeOut",
                     }}
                   >
-                    <AgentCard
-                      assistant={assistant}
-                      onClick={() => handleAgentClick(assistant)}
-                    />
+                    <AgentCard assistant={assistant} onClick={() => handleAgentClick(assistant)} />
                   </motion.div>
                 ))}
               </motion.div>

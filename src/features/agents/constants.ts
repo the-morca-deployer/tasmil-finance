@@ -10,7 +10,6 @@ export const AGENT_TYPES = {
   TEMPLAR: "templar",
   ALLBRIDGE: "allbridge",
   SDEX: "sdex",
-  LUMENSWAP: "lumenswap",
   BRIDGE: "bridge",
   YIELD: "yield",
   RESEARCH: "research",

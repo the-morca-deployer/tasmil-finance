@@ -31,6 +31,9 @@ const TOKEN_IMAGES: Record<string, string> = {
   ARB:    "/token/arb.png",
   DAI:    "/token/dai.png",
   ICE:    "/token/ice.svg",
+  WETH:   "/token/eth.png",
+  WBTC:   "/token/btc.png",
+  PHO:    "/token/plasma.svg",
 };
 
 // Local chain logos in /public/chains/

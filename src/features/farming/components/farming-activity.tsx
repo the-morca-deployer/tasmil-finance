@@ -25,18 +25,18 @@ import { cn } from "@/lib/utils";
 import type { ActivityItem } from "@/features/account/types";
 
 const OP_ICONS: Record<string, { icon: LucideIcon; bg: string; fg: string }> = {
-  DEPLOY:         { icon: Layers,         bg: "bg-blue-500/10",    fg: "text-blue-400" },
-  FUND:           { icon: ArrowDownLeft,   bg: "bg-emerald-500/10", fg: "text-emerald-400" },
-  DEPOSIT:        { icon: ArrowDownLeft,   bg: "bg-emerald-500/10", fg: "text-emerald-400" },
-  REBALANCE:      { icon: RefreshCw,       bg: "bg-violet-500/10",  fg: "text-violet-400" },
-  HARVEST:        { icon: Zap,             bg: "bg-amber-500/10",   fg: "text-amber-400" },
-  WITHDRAW:       { icon: ArrowUpRight,    bg: "bg-destructive/10", fg: "text-destructive" },
-  HALT:           { icon: XCircle,         bg: "bg-red-500/10",     fg: "text-red-400" },
-  RESUME:         { icon: CheckCircle2,    bg: "bg-emerald-500/10", fg: "text-emerald-400" },
-  PRESET_CHANGE:  { icon: Settings,        bg: "bg-cyan-500/10",    fg: "text-cyan-400" },
-  REVOKE:         { icon: ShieldOff,       bg: "bg-orange-500/10",  fg: "text-orange-400" },
-  BACKSTOP_QUEUE: { icon: Pause,           bg: "bg-purple-500/10",  fg: "text-purple-400" },
-  BACKSTOP_EXIT:  { icon: CheckCircle2,    bg: "bg-emerald-500/10", fg: "text-emerald-400" },
+  DEPLOY:         { icon: Layers,         bg: "bg-primary/10",      fg: "text-primary" },
+  FUND:           { icon: ArrowDownLeft,   bg: "bg-primary/10",      fg: "text-primary" },
+  DEPOSIT:        { icon: ArrowDownLeft,   bg: "bg-primary/10",      fg: "text-primary" },
+  REBALANCE:      { icon: RefreshCw,       bg: "bg-muted/30",        fg: "text-muted-foreground" },
+  HARVEST:        { icon: Zap,             bg: "bg-primary/10",      fg: "text-primary" },
+  WITHDRAW:       { icon: ArrowUpRight,    bg: "bg-destructive/10",  fg: "text-destructive" },
+  HALT:           { icon: XCircle,         bg: "bg-destructive/10",  fg: "text-destructive" },
+  RESUME:         { icon: CheckCircle2,    bg: "bg-primary/10",      fg: "text-primary" },
+  PRESET_CHANGE:  { icon: Settings,        bg: "bg-muted/30",        fg: "text-muted-foreground" },
+  REVOKE:         { icon: ShieldOff,       bg: "bg-destructive/10",  fg: "text-destructive" },
+  BACKSTOP_QUEUE: { icon: Pause,           bg: "bg-muted/30",        fg: "text-muted-foreground" },
+  BACKSTOP_EXIT:  { icon: CheckCircle2,    bg: "bg-primary/10",      fg: "text-primary" },
 };
 
 // Sub-type icons for REBALANCE based on detail text
@@ -47,11 +47,11 @@ const REBALANCE_SUB: {
   fg: string;
   label: string;
 }[] = [
-  { match: /initial allocation/i,   icon: Crosshair,      bg: "bg-blue-500/10",    fg: "text-blue-400",    label: "Initial Allocation" },
-  { match: /drift/i,                icon: TrendingUp,      bg: "bg-amber-500/10",   fg: "text-amber-400",   label: "Drift Rebalance" },
-  { match: /swap|liquidity/i,       icon: ArrowLeftRight,  bg: "bg-violet-500/10",  fg: "text-violet-400",  label: "Swap Rebalance" },
-  { match: /withdraw|exit/i,        icon: ArrowUpRight,    bg: "bg-orange-500/10",  fg: "text-orange-400",  label: "Exit Rebalance" },
-  { match: /deposit|supply/i,       icon: Droplets,        bg: "bg-teal-500/10",    fg: "text-teal-400",    label: "Supply Rebalance" },
+  { match: /initial allocation/i,   icon: Crosshair,      bg: "bg-primary/10",      fg: "text-primary",           label: "Initial Allocation" },
+  { match: /drift/i,                icon: TrendingUp,      bg: "bg-muted/30",        fg: "text-muted-foreground",  label: "Drift Rebalance" },
+  { match: /swap|liquidity/i,       icon: ArrowLeftRight,  bg: "bg-muted/30",        fg: "text-muted-foreground",  label: "Swap Rebalance" },
+  { match: /withdraw|exit/i,        icon: ArrowUpRight,    bg: "bg-destructive/10",  fg: "text-destructive",       label: "Exit Rebalance" },
+  { match: /deposit|supply/i,       icon: Droplets,        bg: "bg-primary/10",      fg: "text-primary",           label: "Supply Rebalance" },
 ];
 
 function getActivityIcon(activity: ActivityItem): { icon: LucideIcon; bg: string; fg: string } {

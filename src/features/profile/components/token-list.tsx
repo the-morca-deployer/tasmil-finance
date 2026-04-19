@@ -1,12 +1,12 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { ExternalLink, Plus, Wallet } from "lucide-react";
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Skeleton } from "@/shared/ui/skeleton";
-import { Button } from "@/shared/ui/button-v2";
 import { TokenImage } from "@/shared/components/token-image";
 import { getExplorerUrl } from "@/shared/config/stellar";
+import { Button } from "@/shared/ui/button-v2";
+import { Skeleton } from "@/shared/ui/skeleton";
 import type { WalletToken } from "../hooks/use-wallet-tokens";
 import { AddTrustlineDialog } from "./add-trustline-dialog";
 
@@ -47,8 +47,7 @@ function assetExplorerSlug(code: string, issuer: string | null): string {
   return `${code}-${issuer}`;
 }
 
-const ROW_GRID =
-  "grid grid-cols-[2fr_1fr_1.2fr_1fr_20px] items-center gap-x-4";
+const ROW_GRID = "grid grid-cols-[2fr_1fr_1.2fr_1fr_20px] items-center gap-x-4";
 
 interface TokenListProps {
   tokens: WalletToken[];
@@ -126,10 +125,7 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
         <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground">
           <p className="text-sm">No token balances found</p>
         </div>
-        <AddTrustlineDialog
-          open={trustlineOpen}
-          onOpenChange={setTrustlineOpen}
-        />
+        <AddTrustlineDialog open={trustlineOpen} onOpenChange={setTrustlineOpen} />
       </div>
     );
   }
@@ -154,7 +150,7 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div data-onborda="portfolio-assets" className="overflow-hidden rounded-xl border border-border bg-card">
         {/* Wallet summary */}
         <div className="flex items-center gap-3 px-6 py-4">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
@@ -163,9 +159,7 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
           <span className="text-lg font-medium text-foreground">
             Wallet · {formatUsd(totalUsd)}
           </span>
-          <span className="text-base text-muted-foreground">
-            {tokens.length} assets
-          </span>
+          <span className="text-base text-muted-foreground">{tokens.length} assets</span>
         </div>
 
         <div className="h-px bg-border" />
@@ -211,9 +205,7 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
                   className="h-8 w-8 shrink-0 rounded-full text-[11px]"
                 />
                 <div className="flex flex-col">
-                  <span className="text-base font-medium text-foreground">
-                    {token.assetCode}
-                  </span>
+                  <span className="text-base font-medium text-foreground">{token.assetCode}</span>
                   {token.assetIssuer && (
                     <span className="text-sm text-muted-foreground">
                       {shortenIssuer(token.assetIssuer)}
@@ -223,9 +215,7 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
               </div>
 
               {/* Price */}
-              <span className="text-base text-foreground">
-                {formatPrice(token.price)}
-              </span>
+              <span className="text-base text-foreground">{formatPrice(token.price)}</span>
 
               {/* Balance */}
               <span className="text-base text-foreground">
@@ -244,10 +234,7 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
         })}
       </div>
 
-      <AddTrustlineDialog
-        open={trustlineOpen}
-        onOpenChange={setTrustlineOpen}
-      />
+      <AddTrustlineDialog open={trustlineOpen} onOpenChange={setTrustlineOpen} />
     </motion.div>
   );
 }

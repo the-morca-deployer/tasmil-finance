@@ -21,6 +21,12 @@ export async function GET(req: NextRequest) {
       address: r.assetAddress,
       asset: r.assetAddress,
       symbol: r.symbol,
+      totalSupply: r.totalSupplied,
+      totalBorrow: r.totalBorrowed,
+      supplyApy: r.supplyApy,
+      borrowApy: r.borrowApy,
+      utilization: r.utilization,
+      collateralFactor: r.collateralFactor,
       explorerUrl: getExplorerUrl(network, r.assetAddress),
       emissionTokenIds: { borrow: i * 2, supply: i * 2 + 1 },
     }));
@@ -36,10 +42,18 @@ export async function GET(req: NextRequest) {
       totalAssets: reserves.length,
       assets: reserves,
     });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Failed to load assets" },
-      { status: 500 },
-    );
-  }
+  } catch { /* SDK failed, try MCP */ }
+
+  // Fallback: MCP-stellar
+  const MCP_URL = process.env["NEXT_PUBLIC_MCP_STELLAR_URL"] ?? "http://localhost:3009";
+  try {
+    const r = await fetch(`${MCP_URL}/blend-v2/query/assets?pool=${pool}`);
+    const d = await r.json();
+    if (d.success) return NextResponse.json(d);
+  } catch { /* ignore */ }
+
+  return NextResponse.json(
+    { success: false, error: "Failed to load assets from both SDK and MCP" },
+    { status: 500 },
+  );
 }

@@ -120,17 +120,6 @@ function CopilotKitStreamSession({ children, agentId, threadId }: { children: Re
       onMessagesChanged: ({ messages: msgs }: any) => {
         const incoming = [...msgs];
 
-        // DEBUG: log tool messages content to see when data arrives
-        const toolMsgs = incoming.filter((m: any) => m.role === "tool");
-        if (toolMsgs.length > 0) {
-          console.log("[CK-Stream] Tool msgs:", toolMsgs.map((m: any) => ({
-            id: m.id?.slice(0, 8),
-            tcId: m.toolCallId?.slice(0, 8),
-            contentLen: (m.content ?? "").length,
-            hasContent: !!(m.content && m.content.length > 2),
-          })));
-        }
-
         // Detect completed tool cycles (AI with toolCalls + matching tool result)
         // and save them before AG-UI replaces them on the next step.
         const toolResultIds = new Set(

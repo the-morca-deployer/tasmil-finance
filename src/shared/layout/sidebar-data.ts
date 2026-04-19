@@ -77,8 +77,8 @@ export const sidebarData: SidebarData = {
     {
       items: [
         {
-          title: "Bridge",
-          url: "/bridge",
+          title: "Aggregator",
+          url: "/aggregator",
           icon: ArrowLeftRight,
         },
       ],

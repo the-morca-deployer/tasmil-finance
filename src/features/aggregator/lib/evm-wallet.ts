@@ -45,18 +45,9 @@ export async function connectEvmWallet(): Promise<string | null> {
     throw new Error("No EVM wallet found. Please install MetaMask.");
   }
 
-  console.log("[EVM] window.ethereum detected:", {
-    isMetaMask: window.ethereum.isMetaMask,
-    isBraveWallet: (window.ethereum as any).isBraveWallet,
-    isPhantom: (window.ethereum as any).isPhantom,
-    isRabby: (window.ethereum as any).isRabby,
-  });
-
   const accounts: string[] = await window.ethereum.request({
     method: "eth_requestAccounts",
   });
-
-  console.log("[EVM] Connected accounts:", accounts);
   return accounts[0] ?? null;
 }
 

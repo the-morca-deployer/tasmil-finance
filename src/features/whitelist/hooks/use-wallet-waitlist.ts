@@ -23,7 +23,6 @@ async function requestChallenge(walletAddress: string) {
     body: JSON.stringify({ walletAddress }),
   });
   const raw = await res.json();
-  console.log("[API] POST /challenge", { status: res.status, ok: res.ok, raw });
   if (!res.ok) throw new Error(raw.message ?? "Failed to request challenge");
   return unwrap(raw) as Promise<{ challenge: string; nonce: string; expiresAt: string }>;
 }
@@ -41,7 +40,6 @@ async function registerWallet(payload: {
     body: JSON.stringify(payload),
   });
   const raw = await res.json();
-  console.log("[API] POST /register-wallet", { status: res.status, ok: res.ok, raw });
   if (!res.ok) throw new Error(raw.message ?? "Registration failed");
   return unwrap(raw) as Promise<{
     id: string;
@@ -56,7 +54,6 @@ async function fetchWalletStatus(walletAddress: string) {
     `${API_BASE}/api/waitlist/status?walletAddress=${encodeURIComponent(walletAddress)}`,
   );
   const raw = await res.json();
-  console.log("[API] GET /status", { status: res.status, ok: res.ok, walletAddress, raw });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error("Failed to fetch status");
   return unwrap(raw) as Promise<{
@@ -89,7 +86,6 @@ async function attachWaitlistContact(payload: { walletAddress: string; email: st
     body: JSON.stringify(payload),
   });
   const raw = await res.json();
-  console.log("[API] PATCH /contact", { status: res.status, ok: res.ok, raw });
   if (!res.ok) throw new Error(raw.message ?? "Failed to attach email");
   return unwrap(raw) as Promise<{
     success: boolean;

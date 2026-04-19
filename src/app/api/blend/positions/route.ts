@@ -112,10 +112,18 @@ export async function GET(req: NextRequest) {
         netApy: pos.netApy != null ? (pos.netApy * 100).toFixed(2) : null,
       },
     });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Failed to load positions" },
-      { status: 500 },
-    );
-  }
+  } catch { /* SDK failed, try MCP */ }
+
+  // Fallback: MCP-stellar
+  const MCP_URL = process.env["NEXT_PUBLIC_MCP_STELLAR_URL"] ?? "http://localhost:3009";
+  try {
+    const r = await fetch(`${MCP_URL}/blend-v2/query/positions?pool=${pool}&user=${user}`);
+    const d = await r.json();
+    if (d.success) return NextResponse.json(d);
+  } catch { /* ignore */ }
+
+  return NextResponse.json(
+    { success: false, error: "Failed to load positions from both SDK and MCP" },
+    { status: 500 },
+  );
 }

@@ -9,6 +9,8 @@ export interface AgentConfig {
   suggestions: string[];
   capabilities?: string[];
   supportedChains?: string[];
+  /** Whether this agent works on Stellar testnet. Agents without testnet support are hidden in testnet mode. */
+  testnetAvailable?: boolean;
 }
 
 export const AGENTS: Record<string, AgentConfig> = {
@@ -18,6 +20,7 @@ export const AGENTS: Record<string, AgentConfig> = {
     description: "AI DeFi assistant for the Stellar ecosystem. Orchestrates all specialized agents. Routes your requests to the best agent automatically",
     icon: "/agents/supervisor-agent.svg",
     supportedChains: ["Stellar"],
+    testnetAvailable: true,
     suggestions: [
       "I have USDC on ETH and I wanna supply on Backstop",
       "Swap 100 XLM to USDC and stake it",
@@ -49,6 +52,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Blend specialist for lending and credit loops on Stellar. Supply collateral, borrow against positions, manage backstop participation, and monitor reserve-level risk metrics before every transaction.",
     icon: "/agents/blend-agent.svg",
     supportedChains: ["Stellar"],
+    testnetAvailable: true,
     suggestions: [
       "Supply 100 USDC to Blend",
       "What's the USDC lending rate on Blend?",
@@ -73,6 +77,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Soroswap execution agent for swap routing and LP management. Compares Soroswap and SDEX paths, highlights slippage and pool depth, then builds transactions for the route you approve.",
     icon: "/agents/soroswap-agent.svg",
     supportedChains: ["Stellar"],
+    testnetAvailable: true,
     suggestions: [
       "Swap 100 XLM to USDC",
       "Get a quote for USDC to XLM",
@@ -97,6 +102,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Phoenix-focused trading and LP staking assistant. Simulates swaps, manages liquidity positions, and handles bond/unbond reward flows with clear risk and fee context.",
     icon: "/agents/phoenix-agent.svg",
     supportedChains: ["Stellar"],
+    testnetAvailable: false,
     suggestions: [
       "Swap XLM to USDC on Phoenix",
       "Show Phoenix pool list",
@@ -121,6 +127,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Aquarius specialist for AMM liquidity, swap routing, and AQUA incentive flows. Tracks pool quality, reward eligibility, and lock mechanics for ICE-oriented strategies.",
     icon: "/agents/aquarius-agent.svg",
     supportedChains: ["Stellar"],
+    testnetAvailable: true,
     suggestions: [
       "List Aquarius pools",
       "Swap via Aquarius routing",
@@ -145,6 +152,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "DeFindex vault manager for passive yield strategies. Reviews vault composition and share mechanics, then executes deposit and withdrawal actions with strategy-aware guidance.",
     icon: "/agents/defindex-agent.svg",
     supportedChains: ["Stellar"],
+    testnetAvailable: true,
     suggestions: [
       "Show available vaults",
       "Deposit 100 USDC into a vault",
@@ -169,6 +177,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Templar specialist for cross-chain lending and swap intents. Monitors borrow health, pending interest, and route status across bridge-connected markets before execution.",
     icon: "/agents/templar-agent.svg",
     supportedChains: ["Stellar", "Ethereum", "Bitcoin", "NEAR", "Solana"],
+    testnetAvailable: false,
     suggestions: [
       "Show Templar lending markets",
       "Supply XLM to Templar",
@@ -192,6 +201,7 @@ export const AGENTS: Record<string, AgentConfig> = {
     description:
       "Allbridge-only bridge agent for Stellar cross-chain transfers with route, fee, and ETA visibility before transaction build.",
     icon: "/agents/allbridge-agent.svg",
+    testnetAvailable: false,
     supportedChains: [
       "Stellar",
       "Ethereum",
@@ -223,6 +233,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Stellar Classic DEX specialist for orderbook path discovery and path-payment swap transaction building.",
     icon: "/agents/sdex-agent.svg",
     supportedChains: ["Stellar"],
+    testnetAvailable: true,
     suggestions: [
       "Find SDEX paths from XLM to USDC",
       "Show SDEX orderbook for XLM/USDC",
@@ -236,26 +247,6 @@ export const AGENTS: Record<string, AgentConfig> = {
     capabilities: ["sdex_paths", "sdex_orderbook", "sdex_swap"],
   },
 
-  lumenswap_agent: {
-    id: "lumenswap_agent",
-    name: "Lumenswap Agent",
-    description:
-      "Lumenswap support and routing assistant. Direct Lumenswap execution is pending integration, with guided fallback to Soroswap or SDEX.",
-    icon: "/agents/lumenswap-agent.svg",
-    supportedChains: ["Stellar"],
-    suggestions: [
-      "Is Lumenswap execution available right now?",
-      "Route me to Soroswap for Lumenswap alternative",
-      "Route me to SDEX for Lumenswap alternative",
-      "What is the closest alternative to Lumenswap?",
-      "Can I swap XLM to USDC with Lumenswap fallback?",
-      "Compare Soroswap and SDEX alternatives",
-      "Show actions equivalent to Lumenswap",
-      "Switch me to the best available swap agent",
-    ],
-    capabilities: ["routing", "fallback", "agent_switch"],
-  },
-
   info_agent: {
     id: "info_agent",
     name: "Info Agent",
@@ -263,6 +254,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Fast read-only account intelligence for Stellar wallets. Pulls balances, trustlines, reserve status, and transaction history to support safer execution decisions.",
     icon: "/agents/info-agent.png",
     supportedChains: ["Stellar"],
+    testnetAvailable: true,
     suggestions: [
       "What's the price of XLM?",
       "Check my Stellar account balance",
@@ -287,6 +279,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Market research copilot for narrative and trend analysis. Synthesizes pricing, volatility, and ecosystem developments into concise strategy-level insights.",
     icon: "/agents/research-agent-v6.png",
     supportedChains: [],
+    testnetAvailable: true,
     suggestions: [
       "What's the current price of Bitcoin?",
       "Analyze Ethereum's market trends",
@@ -311,6 +304,7 @@ export const AGENTS: Record<string, AgentConfig> = {
       "Yield discovery engine that compares APY, TVL, and risk across Stellar DeFi protocols. Surfaces ranked opportunities and hands execution to the right protocol agent.",
     icon: "/agents/yield-agent-v6.png",
     supportedChains: ["Stellar", "Ethereum", "Arbitrum", "BSC", "Polygon", "Avalanche", "Optimism"],
+    testnetAvailable: true,
     suggestions: [
       "What are the best yields on Stellar?",
       "Show stablecoin yields",
@@ -334,6 +328,7 @@ export const AGENTS: Record<string, AgentConfig> = {
     description:
       "Cross-chain bridge planner for moving assets into and out of Stellar. Compares routes across providers like Allbridge and NEAR Intents with fee, ETA, and execution trade-offs.",
     icon: "/agents/bridge-agent-v6.png",
+    testnetAvailable: false,
     supportedChains: [
       "Stellar",
       "Ethereum",

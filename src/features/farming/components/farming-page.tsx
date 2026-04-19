@@ -1,16 +1,9 @@
 "use client";
 
-import {
-  AlertTriangle,
-  Loader2,
-  Pause,
-  ShieldOff,
-  Wallet,
-  XCircle,
-} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertTriangle, Loader2, Pause, ShieldOff, Wallet, XCircle } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useId, useMemo, useState } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import { FundForm } from "@/features/account/components/fund-form";
 import { OnboardingPage } from "@/features/account/components/onboarding-page";
 import { PresetCard } from "@/features/account/components/preset-card";
@@ -27,6 +20,8 @@ import {
   useWithdraw,
 } from "@/features/account/hooks/use-account-api";
 import type { RiskPreset } from "@/features/account/types";
+import { TOUR_NAMES } from "@/features/onboarding/config/tour-steps";
+import { usePageTour } from "@/features/onboarding/hooks/use-onboarding";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button-v2";
 import {
@@ -38,10 +33,10 @@ import {
 } from "@/shared/ui/dialog";
 import { useWalletStore } from "@/store/use-wallet";
 import { usePools, useRebalanceStatus } from "../hooks/use-farming-api";
-import { FarmingHeader } from "./farming-header";
-import { FarmingAllocation } from "./farming-allocation";
-import { FarmingPools } from "./farming-pools";
 import { FarmingActivity, FarmingActivitySidebar } from "./farming-activity";
+import { FarmingAllocation } from "./farming-allocation";
+import { FarmingHeader } from "./farming-header";
+import { FarmingPools } from "./farming-pools";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -99,6 +94,7 @@ function ConnectPrompt() {
 // ─── Main content ───────────────────────────────────────────────────────────
 
 function FarmingContent() {
+  usePageTour(TOUR_NAMES.farming);
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -120,7 +116,7 @@ function FarmingContent() {
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname);
     },
-    [router, searchParams, pathname],
+    [router, searchParams, pathname]
   );
 
   // Modal state
@@ -302,7 +298,10 @@ function FarmingContent() {
     if (!publicKey || !canWithdraw) return;
     try {
       setActionError(null);
-      const result = await withdrawMutation.mutateAsync({ publicKey, amount: parsedWithdrawAmount });
+      const result = await withdrawMutation.mutateAsync({
+        publicKey,
+        amount: parsedWithdrawAmount,
+      });
       const xdrs: string[] = result?.xdrs ?? (result?.xdr ? [result.xdr] : []);
       const signedXdrs: string[] = result?.signedXdrs ?? [];
       if (xdrs.length === 0 && signedXdrs.length === 0)
@@ -313,7 +312,9 @@ function FarmingContent() {
         const isLast = i === xdrs.length - 1 && signedXdrs.length === 0;
         await submitTx.mutateAsync({
           signedXdr,
-          ...(isLast ? { publicKey, txType: "withdraw" as const, amount: parsedWithdrawAmount } : {}),
+          ...(isLast
+            ? { publicKey, txType: "withdraw" as const, amount: parsedWithdrawAmount }
+            : {}),
         });
       }
 
@@ -321,7 +322,9 @@ function FarmingContent() {
         const isLast = i === signedXdrs.length - 1;
         await submitTx.mutateAsync({
           signedXdr,
-          ...(isLast ? { publicKey, txType: "withdraw" as const, amount: parsedWithdrawAmount } : {}),
+          ...(isLast
+            ? { publicKey, txType: "withdraw" as const, amount: parsedWithdrawAmount }
+            : {}),
         });
       }
 
@@ -419,6 +422,7 @@ function FarmingContent() {
 
           {/* Action buttons — visible right under header */}
           <motion.div
+            data-onborda="farming-actions"
             className="flex items-center gap-3"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
@@ -443,7 +447,7 @@ function FarmingContent() {
             <Button
               variant="ghost"
               size="default"
-              className="text-muted-foreground hover:text-orange-400"
+              className="text-muted-foreground hover:text-destructive"
               onClick={() => openAccountModal("security")}
             >
               <ShieldOff className="mr-1.5 h-3.5 w-3.5" />
@@ -453,6 +457,7 @@ function FarmingContent() {
 
           {/* Tab bar — like portfolio tab bar */}
           <motion.div
+            data-onborda="farming-tabs"
             className="flex items-center gap-4 border-b border-border pb-0"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
@@ -466,7 +471,7 @@ function FarmingContent() {
                   "relative pb-3 text-base font-medium transition-colors",
                   activeTab === tab.value
                     ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground",
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {tab.label}
@@ -494,15 +499,15 @@ function FarmingContent() {
               >
                 {/* Halted banner */}
                 {status?.halted && (
-                  <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3">
-                    <Pause className="h-4 w-4 shrink-0 text-red-400" />
+                  <div className="flex items-center gap-3 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3">
+                    <Pause className="h-4 w-4 shrink-0 text-destructive" />
                     <span className="flex-1 text-sm text-muted-foreground">
                       {status.haltReason ?? "Agent halted"}
                     </span>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="shrink-0 border-red-500/30 text-red-400 hover:bg-red-500/10"
+                      className="shrink-0 border-destructive/30 text-destructive hover:bg-destructive/10"
                       onClick={handleReconfigure}
                       disabled={isReconfiguring}
                     >
@@ -529,7 +534,6 @@ function FarmingContent() {
 
                 {/* Pools table below — like Assets table in portfolio */}
                 <FarmingPools pools={registryPools} isLoading={registryPoolsLoading} />
-
               </motion.div>
             )}
 
@@ -572,7 +576,7 @@ function FarmingContent() {
         <DialogContent
           className={cn(
             "max-h-[90vh] overflow-y-auto",
-            accountModalTab === "strategy" ? "max-w-5xl" : "max-w-2xl",
+            accountModalTab === "strategy" ? "max-w-5xl" : "max-w-2xl"
           )}
         >
           <DialogHeader>
@@ -597,7 +601,7 @@ function FarmingContent() {
           </DialogHeader>
 
           {actionError && (
-            <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
               <XCircle className="h-4 w-4 shrink-0" />
               <span>{actionError}</span>
             </div>
@@ -612,7 +616,7 @@ function FarmingContent() {
           {accountModalTab === "strategy" && (
             <div className="space-y-4 pt-3">
               {!canChangeStrategy && (
-                <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3 text-sm text-yellow-300">
+                <div className="rounded-lg border border-border bg-muted/20 p-3 text-sm text-muted-foreground">
                   Strategy changes are admin-protected in this environment.
                 </div>
               )}
@@ -661,7 +665,10 @@ function FarmingContent() {
                 </div>
               </div>
               <div className="space-y-2">
-                <label htmlFor={withdrawAmountInputId} className="block text-xs text-muted-foreground">
+                <label
+                  htmlFor={withdrawAmountInputId}
+                  className="block text-xs text-muted-foreground"
+                >
                   Withdraw amount (USD)
                 </label>
                 <div className="flex gap-2">
@@ -705,13 +712,13 @@ function FarmingContent() {
 
           {accountModalTab === "security" && (
             <div className="space-y-4 pt-3">
-              <div className="flex items-start gap-3 rounded-lg border border-orange-500/30 bg-orange-500/10 p-3">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" />
+              <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
                 <div className="text-xs">
-                  <p className="font-medium text-orange-300">
+                  <p className="font-medium text-destructive">
                     Revoke session key is irreversible.
                   </p>
-                  <p className="text-orange-400/80">
+                  <p className="text-destructive/80">
                     Bot automation stops immediately. Account status becomes REVOKED.
                   </p>
                 </div>

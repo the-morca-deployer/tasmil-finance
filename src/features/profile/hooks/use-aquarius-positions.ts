@@ -6,7 +6,6 @@ import type { ProtocolPositionGroup, PositionItem } from "./use-defi-positions";
 
 // ─── API config ──────────────────────────────────────────────────────────────
 
-const API_BASE = "/api/aquarius";
 const SCALAR_7 = 10_000_000;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -45,7 +44,7 @@ async function fetchPoolList(): Promise<ApiPool[]> {
   const pools: ApiPool[] = [];
   for (let page = 1; page <= 10; page++) {
     try {
-      const url = `${API_BASE}/pools/?page=${page}&page_size=50&ordering=-total_value_locked`;
+      const url = `/api/aquarius-proxy?path=pools/&page=${page}&page_size=50&ordering=-total_value_locked`;
       const res = await fetch(url);
       if (!res.ok) break;
       const data = await res.json();
@@ -170,7 +169,6 @@ async function discoverTickRanges(userAddress: string): Promise<TickRange[]> {
       `${activeNetwork.horizonUrl}/accounts/${userAddress}/operations?limit=200&order=desc&include_failed=false`,
     );
     if (!res.ok) {
-      console.warn("[aquarius] Horizon operations fetch failed:", res.status);
       return ranges;
     }
     const data = await res.json();
@@ -195,14 +193,11 @@ async function discoverTickRanges(userAddress: string): Promise<TickRange[]> {
       if (!seen.has(key)) {
         seen.add(key);
         ranges.push({ tickLower, tickUpper });
-        console.warn(`[aquarius] Found deposit_position ticks=[${tickLower}, ${tickUpper}]`);
       }
     }
   } catch (e) {
-    console.warn("[aquarius] Failed to scan Horizon operations:", e);
   }
 
-  console.warn(`[aquarius] Discovered ${ranges.length} tick ranges`);
   return ranges;
 }
 
@@ -216,7 +211,6 @@ async function fetchAquariusPositions(
 
   // 1. Fetch all pools from Aquarius API
   const pools = await fetchPoolList();
-  console.warn(`[aquarius] Fetched ${pools.length} pools from API`);
   if (pools.length === 0) return null;
 
   const userScVal = new sdk.Address(userAddress).toScVal();
@@ -236,7 +230,6 @@ async function fetchAquariusPositions(
       classicPools.push(pool);
     }
   }
-  console.warn(`[aquarius] Classic: ${classicPools.length}, Concentrated: ${concentratedPools.length}`);
 
   // ── 2a. Classic pools: share_id → balance on LP token ───────────────────
   const BATCH = 8;
@@ -301,7 +294,6 @@ async function fetchAquariusPositions(
           });
         }
       }
-      console.warn(`[aquarius] Checking ${checks.length} concentrated position combos`);
 
       const concResults = await Promise.allSettled(
         checks.map(async (check) => {
@@ -317,36 +309,96 @@ async function fetchAquariusPositions(
             "get_position",
             [userScVal, tickLowerVal, tickUpperVal],
           );
-          return { check, posData };
+          if (!posData) return null;
+
+          const liquidity =
+            typeof posData.liquidity === "bigint"
+              ? posData.liquidity
+              : BigInt(String(posData.liquidity ?? "0"));
+          if (liquidity <= 0n) return null;
+
+          // Fetch pool details for richer display
+          const [reserves, totalShares, tokens, info] = await Promise.all([
+            viewCall<string[]>(bundle, check.pool.address, "get_reserves"),
+            viewCall<unknown>(bundle, check.pool.address, "get_total_shares"),
+            viewCall<string[]>(bundle, check.pool.address, "get_tokens"),
+            viewCall<Record<string, unknown>>(bundle, check.pool.address, "get_info"),
+          ]);
+
+          // Resolve token symbols
+          let sym0 = "Token0";
+          let sym1 = "Token1";
+          if (tokens && tokens.length >= 2) {
+            const [s0, s1] = await Promise.all([
+              viewCall<string>(bundle, tokens[0]!, "symbol"),
+              viewCall<string>(bundle, tokens[1]!, "symbol"),
+            ]);
+            sym0 = s0 === "native" ? "XLM" : (s0 ?? sym0);
+            sym1 = s1 === "native" ? "XLM" : (s1 ?? sym1);
+          }
+
+          // Compute pooled amounts
+          const total = totalShares != null
+            ? typeof totalShares === "bigint" ? totalShares : BigInt(String(totalShares))
+            : 0n;
+          let pooled0 = 0;
+          let pooled1 = 0;
+          let sharePct = 0;
+          if (total > 0n && reserves && reserves.length >= 2) {
+            const r0 = BigInt(reserves[0]!);
+            const r1 = BigInt(reserves[1]!);
+            pooled0 = Number((r0 * liquidity) / total) / SCALAR_7;
+            pooled1 = Number((r1 * liquidity) / total) / SCALAR_7;
+            sharePct = Number(liquidity) / Number(total) * 100;
+          }
+
+          const fee = info?.fee != null ? Number(info.fee) / 100 : 0;
+          const poolType = typeof info?.pool_type === "string" ? info.pool_type : "concentrated";
+
+          return {
+            check,
+            liquidity,
+            sym0,
+            sym1,
+            pooled0,
+            pooled1,
+            sharePct,
+            fee,
+            poolType,
+          };
         }),
       );
 
       for (const r of concResults) {
-        if (r.status !== "fulfilled" || !r.value.posData) continue;
-        const { check, posData } = r.value;
+        if (r.status !== "fulfilled" || !r.value) continue;
+        const { sym0, sym1, pooled0, pooled1, sharePct, fee, poolType } =
+          r.value;
 
-        const liquidity =
-          typeof posData.liquidity === "bigint"
-            ? posData.liquidity
-            : BigInt(String(posData.liquidity ?? "0"));
-        if (liquidity <= 0n) continue;
-
-        const name = poolPairName(check.pool);
-        const humanLiq = Number(liquidity) / SCALAR_7;
-        console.warn(`[aquarius] Found concentrated position: ${name} liq=${humanLiq}`);
+        const name = `${sym0}/${sym1}`;
+        const shares = r.value.liquidity;
+        const humanShares = Number(shares) / SCALAR_7;
 
         items.push({
           name: `${name} LP`,
           type: "lp",
           asset: name,
           valueUsd: 0,
-          extra: `${humanLiq.toLocaleString("en-US", { maximumFractionDigits: 4 })} liq`,
+          extra: `${humanShares.toLocaleString("en-US", { maximumFractionDigits: 2 })} shares`,
+          pair: {
+            token0: sym0,
+            token1: sym1,
+            pooled0: pooled0.toLocaleString("en-US", { maximumFractionDigits: 4 }),
+            pooled1: pooled1.toLocaleString("en-US", { maximumFractionDigits: 1 }),
+            shares: humanShares.toLocaleString("en-US", { maximumFractionDigits: 2 }),
+            sharePct: sharePct.toFixed(2),
+            poolType: poolType === "concentrated" ? "Concentrated" : poolType,
+            fee: fee > 0 ? `${fee.toFixed(2)}%` : undefined,
+          },
         });
       }
     }
   }
 
-  console.warn(`[aquarius] Total positions found: ${items.length}`);
   if (items.length === 0) return null;
 
   return {

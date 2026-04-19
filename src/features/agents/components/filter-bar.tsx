@@ -1,7 +1,7 @@
 "use client";
 
-import { Search, Settings, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import { Search, Settings, Sparkles } from "lucide-react";
 
 interface FilterBarProps {
   activeFilter: string;
@@ -42,6 +42,7 @@ export function FilterBar({
 
   return (
     <motion.div
+      data-onborda="agents-filter"
       className="flex flex-col justify-between gap-4 py-8 md:flex-row md:items-center"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}

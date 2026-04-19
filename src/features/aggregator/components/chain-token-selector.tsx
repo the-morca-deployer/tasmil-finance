@@ -14,8 +14,8 @@ import {
   SUPPORTED_CHAINS,
   TOKEN_LOGOS,
   getChain,
-} from "@/features/bridge/lib/constants";
-import type { TokenInfo, ChainInfo } from "@/features/bridge/hooks/use-aggregator";
+} from "@/features/aggregator/lib/constants";
+import type { TokenInfo, ChainInfo } from "@/features/aggregator/hooks/use-aggregator";
 import { TokenImage } from "@/shared/components/token-image";
 
 /* Colors from globals.css theme */

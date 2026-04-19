@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { TourTriggerButton } from "@/features/onboarding/components/tour-trigger-button";
 import { AddressAvatar, ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useStellarBalance } from "@/shared/hooks/use-stellar-balance";
@@ -31,7 +32,7 @@ export function FooterSidebarSection() {
         }
 
         return isOpen ? (
-          <div className="flex w-full flex-col gap-2 px-2">
+          <div data-onborda="wallet-info" className="flex w-full flex-col gap-2 px-2">
             <a
               href="https://quest.tasmil-finance.xyz"
               target="_blank"
@@ -106,7 +107,7 @@ export function FooterSidebarSection() {
                     <Typography className="font-mono text-white" size="sm" weight="medium">
                       {displayAddress}
                     </Typography>
-                    <CopyButton text={address || ""}/>
+                    <CopyButton text={address || ""} />
                   </div>
                   <button
                     className="w-fit mt-0.5 text-left text-xs text-red-400 transition-colors hover:text-red-500"
@@ -142,6 +143,8 @@ export function FooterSidebarSection() {
                 </Typography>
               </a>
             </div>
+
+            <TourTriggerButton />
           </div>
         ) : (
           <TooltipProvider>

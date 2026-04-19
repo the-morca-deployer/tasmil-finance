@@ -19,7 +19,7 @@ function formatApyPercent(apyDecimal: number): string {
 }
 
 const PIE_COLORS = [
-  "#8b5cf6", "#3b82f6", "#f59e0b", "#10b981", "#ec4899", "#06b6d4", "#f97316", "#6366f1",
+  "#00bfff", "#36b1ff", "#5eadd6", "#7faabe", "#a0a0a0", "#b0b0b0", "#c0c0c0", "#d0d0d0",
 ];
 
 interface Position {
@@ -177,7 +177,7 @@ export function FarmingAllocation({
                   {formatUsd(entry.value)}
                 </span>
                 {entry.apy > 0 && (
-                  <span className="text-xs text-emerald-400">{formatApyPercent(entry.apy)}</span>
+                  <span className="text-xs text-primary">{formatApyPercent(entry.apy)}</span>
                 )}
               </div>
             </div>

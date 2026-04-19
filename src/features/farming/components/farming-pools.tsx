@@ -3,6 +3,7 @@
 import { TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { TokenImage } from "@/shared/components/token-image";
 import { cn } from "@/lib/utils";
 import type { DiscoveredPool } from "../types";
 
@@ -21,16 +22,16 @@ function formatApyPercent(apyDecimal: number): string {
 }
 
 function riskBadge(score: number): { label: string; className: string } {
-  if (score <= 3) return { label: "Low", className: "bg-emerald-500/10 text-emerald-400" };
-  if (score <= 6) return { label: "Medium", className: "bg-yellow-500/10 text-yellow-400" };
-  if (score <= 8) return { label: "High", className: "bg-orange-500/10 text-orange-400" };
-  return { label: "Critical", className: "bg-red-500/10 text-red-400" };
+  if (score <= 3) return { label: "Low", className: "bg-primary/10 text-primary" };
+  if (score <= 6) return { label: "Medium", className: "bg-muted/30 text-muted-foreground" };
+  if (score <= 8) return { label: "High", className: "bg-destructive/10 text-destructive" };
+  return { label: "Critical", className: "bg-destructive/15 text-destructive" };
 }
 
 const TYPE_BADGE: Record<string, string> = {
-  lending: "bg-blue-500/10 text-blue-400",
-  backstop: "bg-purple-500/10 text-purple-400",
-  lp: "bg-teal-500/10 text-teal-400",
+  lending: "bg-primary/10 text-primary",
+  backstop: "bg-muted/30 text-muted-foreground",
+  lp: "bg-primary/10 text-primary",
 };
 
 const ROW_GRID = "grid grid-cols-[2fr_1fr_1.2fr_1fr_20px] items-center gap-x-4";
@@ -67,6 +68,7 @@ export function FarmingPools({ pools, isLoading }: FarmingPoolsProps) {
               transition={{ delay: i * 0.06 }}
             >
               <div className="flex items-center gap-3">
+                <Skeleton className="h-7 w-7 rounded-full" />
                 <Skeleton className="h-4 w-20" />
               </div>
               <Skeleton className="h-4 w-14" />
@@ -98,8 +100,8 @@ export function FarmingPools({ pools, isLoading }: FarmingPoolsProps) {
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         {/* Summary header — like TokenList's "Wallet · $3,556.77 10 assets" */}
         <div className="flex items-center gap-3 px-6 py-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
-            <TrendingUp className="h-4 w-4 text-emerald-400" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+            <TrendingUp className="h-4 w-4 text-primary" />
           </div>
           <span className="text-base font-medium text-foreground">
             Available · {sorted.length} pool{sorted.length !== 1 ? "s" : ""}
@@ -137,13 +139,27 @@ export function FarmingPools({ pools, isLoading }: FarmingPoolsProps) {
               key={`${pool.id}-${idx}`}
               className="grid grid-cols-[2fr_1fr_1fr_1fr_80px] items-center gap-x-4 border-t border-border px-6 py-3.5 transition-colors hover:bg-muted/20"
             >
-              {/* Pool name + protocol */}
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">
-                  {pool.assetSymbol}
-                  {pool.pairedAssetSymbol ? `/${pool.pairedAssetSymbol}` : ""}
-                </span>
-                <span className="text-sm capitalize text-muted-foreground">{pool.protocol}</span>
+              {/* Pool name + token pair images */}
+              <div className="flex items-center gap-3">
+                <div className="relative flex shrink-0">
+                  <TokenImage
+                    alt={pool.assetSymbol}
+                    className="h-7 w-7 rounded-full"
+                  />
+                  {pool.pairedAssetSymbol && (
+                    <TokenImage
+                      alt={pool.pairedAssetSymbol}
+                      className="-ml-2 h-7 w-7 rounded-full ring-2 ring-card"
+                    />
+                  )}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-foreground">
+                    {pool.assetSymbol}
+                    {pool.pairedAssetSymbol ? `/${pool.pairedAssetSymbol}` : ""}
+                  </span>
+                  <span className="text-xs capitalize text-muted-foreground">{pool.protocol}</span>
+                </div>
               </div>
 
               {/* Type badge */}
@@ -159,7 +175,7 @@ export function FarmingPools({ pools, isLoading }: FarmingPoolsProps) {
               </div>
 
               {/* APY */}
-              <span className="text-sm font-medium text-emerald-400">
+              <span className="text-sm font-medium text-primary">
                 {formatApyPercent(pool.currentApy)}
               </span>
 

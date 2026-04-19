@@ -77,18 +77,6 @@ export function CopilotKitToolCallRenderer({
       if (m.type === "human" || (m.type === "ai" && i !== msgIdx)) break;
     }
 
-    // DEBUG: log what resultMap found
-    if (map.size > 0) {
-      console.log("[CK-ToolRenderer] resultMap for", message?.id?.toString().slice(0, 12), ":",
-        Array.from(map.entries()).map(([k, v]) => ({
-          tcId: k.slice(0, 12),
-          contentType: typeof v.content,
-          contentLen: typeof v.content === 'string' ? v.content.length : JSON.stringify(v.content ?? '').length,
-          hasData: v.content != null && v.content !== '',
-        }))
-      );
-    }
-
     return map;
   }, [messages, message?.id]);
 

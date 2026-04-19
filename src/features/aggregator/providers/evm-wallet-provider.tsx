@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { WagmiProvider } from "wagmi";
 // Importing reown-config triggers createAppKit() at module level (client-only)
-import { wagmiConfig } from "@/features/bridge/lib/reown-config";
+import { wagmiConfig } from "@/features/aggregator/lib/reown-config";
 
 interface Props {
   children: ReactNode;

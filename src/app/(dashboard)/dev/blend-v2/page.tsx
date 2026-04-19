@@ -9,11 +9,12 @@
  * StellarInfoDispatcher for queries, StellarOperationDispatcher for operations.
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Loader2, RefreshCw, Zap, ChevronDown } from "lucide-react";
 import { StellarInfoDispatcher } from "@/features/chat/actions/components/stellar/stellar-info-dispatcher";
-import { StellarOperationDispatcher } from "@/features/chat/actions/components/stellar/stellar-operation-dispatcher";
 import { StreamContext, type StreamContextType } from "@/features/chat/providers/stream-provider";
+import { BlendPoolsCard, BlendPoolDetailCard, BlendReserveCard, BlendPositionsCard } from "@/features/dev-playground/components/blend-cards";
+import { BlendTxCard } from "@/features/dev-playground/components/blend-tx-card";
 import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
@@ -36,13 +37,14 @@ const SDK_QUERY_URL = "/api/blend";
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const inputCls =
-  "w-full rounded bg-zinc-800 border border-zinc-600 px-3 py-1.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-cyan-500/60";
-const labelCls = "block text-zinc-400 text-[11px] mb-0.5 font-medium";
+  "w-full rounded-lg bg-secondary border border-border px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20";
+const labelCls = "block text-muted-foreground text-[11px] mb-0.5 font-medium";
 const panelCls =
-  "rounded-xl border border-zinc-700/50 bg-zinc-900/80 p-4 space-y-3 flex flex-col";
+  "rounded-xl border border-border bg-card/80 p-4 space-y-3 flex flex-col";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
-interface KnownPool { name: string; address: string }
+interface PoolReserve { symbol: string; asset: string }
+interface KnownPool { name: string; address: string; reserves?: PoolReserve[] }
 interface Field { key: string; label: string; placeholder?: string }
 
 // ── QueryPanel ────────────────────────────────────────────────────────────────
@@ -50,18 +52,23 @@ interface Field { key: string; label: string; placeholder?: string }
 interface QueryPanelProps {
   title: string;
   endpoint: string;
-  infoType: string;              // passed to StellarInfoDispatcher as `type`
+  infoType: string;
   fields: Field[];
   defaults?: Record<string, string>;
   /** Base URL for query — defaults to SDK route (/api/blend), falls back to MCP for unsupported endpoints */
   baseUrl?: string;
+  /** Auto-fetch on mount (no manual click needed) */
+  autoFetch?: boolean;
+  /** Custom renderer — replaces StellarInfoDispatcher for portfolio-style cards */
+  renderResult?: (data: any) => React.ReactNode;
 }
 
-function QueryPanel({ title, endpoint, infoType, fields, defaults = {}, baseUrl = SDK_QUERY_URL }: QueryPanelProps) {
+function QueryPanel({ title, endpoint, infoType: _infoType, fields, defaults = {}, baseUrl = SDK_QUERY_URL, autoFetch = false, renderResult }: QueryPanelProps) {
   const [form, setForm] = useState<Record<string, string>>(defaults);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const autoFetched = useRef(false);
 
   useEffect(() => {
     setForm((prev) => ({ ...defaults, ...prev }));
@@ -91,11 +98,22 @@ function QueryPanel({ title, endpoint, infoType, fields, defaults = {}, baseUrl 
     }
   }, [form, endpoint, baseUrl, isSdk]);
 
+  // Auto-fetch on mount if enabled and all required fields are filled
+  useEffect(() => {
+    if (!autoFetch || autoFetched.current) return;
+    const allFieldsFilled = fields.length === 0 || fields.every((f) => (form[f.key] ?? "").trim());
+    if (allFieldsFilled) {
+      autoFetched.current = true;
+      run();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoFetch, form]);
+
   return (
     <div className={panelCls}>
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-semibold text-cyan-400 uppercase tracking-wider">{title}</span>
-        <span className="text-[10px] text-zinc-500 font-mono">{isSdk ? "SDK" : "MCP"} GET /{endpoint}</span>
+        <span className="text-[10px] text-muted-foreground/60 font-mono">{isSdk ? "SDK" : "MCP"} GET /{endpoint}</span>
       </div>
 
       {fields.map((f) => (
@@ -123,14 +141,14 @@ function QueryPanel({ title, endpoint, infoType, fields, defaults = {}, baseUrl 
 
       {error && <Typography variant="small" className="text-red-400 text-xs bg-red-500/10 rounded p-2">{error}</Typography>}
 
-      {/* Render using the EXACT same dispatcher the AI chat uses */}
+      {/* Render result — custom portfolio-style card or fallback to raw JSON */}
       {result && (
         <div className="mt-1">
-          <StellarInfoDispatcher
-            type={infoType}
-            result={result}
-            args={{ protocol: "blend", query: infoType, poolAddress: form["pool"] }}
-          />
+          {renderResult ? renderResult(result) : (
+            <pre className="max-h-[300px] overflow-auto rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground font-mono">
+              {JSON.stringify(result, null, 2)}
+            </pre>
+          )}
         </div>
       )}
     </div>
@@ -150,19 +168,32 @@ interface OpPanelProps {
 
 function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelProps) {
   const { address } = useWallet();
-  const [form, setForm] = useState<Record<string, string>>({ from: address ?? "", ...defaults });
+  const [form, setForm] = useState<Record<string, string>>({ ...defaults, from: address ?? "" });
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Keep from synced with wallet
   useEffect(() => {
     if (address) setForm((prev) => ({ ...prev, from: address }));
   }, [address]);
 
+  // Keep pool and asset synced with defaults (pool selector, dynamic asset)
   useEffect(() => {
-    setForm((prev) => ({ from: address ?? "", ...defaults, ...prev }));
+    setForm((prev) => {
+      const next = { ...prev };
+      for (const [k, v] of Object.entries(defaults)) {
+        // Only overwrite if the field hasn't been manually edited
+        // OR if it's pool/from/asset which should auto-update
+        if (k === "pool" || k === "from" || !prev[k]) {
+          next[k] = v;
+        }
+      }
+      if (address) next.from = address;
+      return next;
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(defaults)]);
+  }, [JSON.stringify(defaults), address]);
 
   const build = useCallback(async () => {
     setLoading(true);
@@ -188,7 +219,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
     <div className={panelCls}>
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">{title}</span>
-        <span className="text-[10px] text-zinc-500 font-mono">POST /op/{endpoint}</span>
+        <span className="text-[10px] text-muted-foreground/60 font-mono">POST /op/{endpoint}</span>
       </div>
 
       {fields.map((f) => (
@@ -216,14 +247,13 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
 
       {error && <Typography variant="small" className="text-red-400 text-xs bg-red-500/10 rounded p-2">{error}</Typography>}
 
-      {/* Render using the EXACT same dispatcher the AI chat uses */}
+      {/* Transaction overview card with before/after position changes */}
       {result?.xdr && (
         <div className="mt-1">
-          <StellarOperationDispatcher
-            operation={result.operation ?? operation}
-            result={result}
-            args={{ ...form, ...result }}
-            status="executing"
+          <BlendTxCard
+            operation={String(result.operation ?? operation)}
+            result={result as Record<string, unknown>}
+            form={form}
           />
         </div>
       )}
@@ -243,10 +273,10 @@ function PoolSelector({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <label className="text-zinc-400 text-xs font-medium whitespace-nowrap">Active Pool:</label>
+      <label className="text-muted-foreground text-xs font-medium whitespace-nowrap">Active Pool:</label>
       <div className="relative">
         <select
-          className="appearance-none bg-zinc-800 border border-zinc-600 rounded px-3 py-1.5 pr-7 text-sm text-white focus:outline-none focus:border-cyan-500/60 cursor-pointer"
+          className="appearance-none bg-secondary border border-border rounded px-3 py-1.5 pr-7 text-sm text-foreground focus:outline-none focus:border-primary/50 cursor-pointer"
           value={selected}
           onChange={(e) => onSelect(e.target.value)}
         >
@@ -256,9 +286,9 @@ function PoolSelector({
             </option>
           ))}
         </select>
-        <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
+        <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
       </div>
-      <span className="text-[10px] text-zinc-500 font-mono hidden sm:block">{selected}</span>
+      <span className="text-[10px] text-muted-foreground/60 font-mono hidden sm:block">{selected}</span>
     </div>
   );
 }
@@ -276,8 +306,13 @@ export default function BlendV2PlaygroundPage() {
       .then((r) => r.json())
       .then((d) => {
         if (d.success && d.pools?.length) {
-          setPools(d.pools);
-          setSelectedPool(d.pools[0].address);
+          const mapped: KnownPool[] = d.pools.map((p: any) => ({
+            name: p.name,
+            address: p.address ?? p.poolAddress,
+            reserves: (p.reserves ?? []).map((r: any) => ({ symbol: r.symbol ?? "?", asset: r.asset ?? r.assetAddress ?? "" })),
+          }));
+          setPools(mapped);
+          setSelectedPool(mapped[0]!.address);
           setNetworkInfo(d.network ?? "");
         }
       })
@@ -292,20 +327,25 @@ export default function BlendV2PlaygroundPage() {
   const userDefaults: Record<string, string> = { pool, user: walletAddress ?? "" };
   const fromDefaults: Record<string, string> = { pool, from: walletAddress ?? "" };
 
-  // Known testnet assets
-  const XLM_SAC = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
-  const USDC    = "CAQCFVLOBK5GIULPNZRGATJJMIZL5BSP7X5YJVMGCPTUEPFM4AVSRCJU";
+  // Derive asset defaults from selected pool's reserves
+  const selectedPoolData = pools.find((p) => p.address === selectedPool);
+  const poolReserves = selectedPoolData?.reserves ?? [];
+  const xlmReserve = poolReserves.find((r) => r.symbol === "XLM");
+  // Prefer USDC for borrow/repay defaults, fallback to first non-XLM reserve
+  const usdcReserve = poolReserves.find((r) => r.symbol === "USDC") ?? poolReserves.find((r) => r.symbol !== "XLM");
+  const XLM_SAC = xlmReserve?.asset ?? "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
+  const BLEND_USDC = usdcReserve?.asset ?? "CAQCFVLOBK5GIULPNZRGATJJMIZL5BSP7X5YJVMGCPTUEPFM4AVSRCJU";
 
   return (
     <StreamContext.Provider value={MOCK_STREAM}>
-      <div className="min-h-screen bg-zinc-950 text-white p-6 space-y-6">
+      <div className="min-h-screen bg-background text-foreground p-6 space-y-6">
 
         {/* ── Header ── */}
         <div className="space-y-3">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <Typography as="h1" variant="h3" weight="bold" className="text-white">Blend v2 Playground</Typography>
-              <Typography variant="p" className="text-zinc-400 text-sm mt-1">
+              <Typography as="h1" variant="h3" weight="bold" className="text-foreground">Blend v2 Playground</Typography>
+              <Typography variant="p" className="text-muted-foreground text-sm mt-1">
                 Direct SDK — no AI, no MCP server needed for queries. Operations still use MCP.{" "}
                 <span className="font-mono text-cyan-400 text-xs">/api/blend/…</span>
               </Typography>
@@ -330,14 +370,14 @@ export default function BlendV2PlaygroundPage() {
         </div>
 
         {/* ── Tabs ── */}
-        <div className="flex gap-1 bg-zinc-900 rounded-lg p-1 w-fit border border-zinc-800">
+        <div className="flex gap-1 bg-card rounded-lg p-1 w-fit border border-border">
           {(["queries", "operations"] as const).map((t) => (
             <Button
               key={t}
               variant="ghost"
               onClick={() => setTab(t)}
               className={`px-5 py-1.5 rounded-md text-sm font-medium transition-colors capitalize h-auto ${
-                tab === t ? "bg-zinc-700 text-white shadow hover:bg-zinc-700" : "text-zinc-400 hover:text-zinc-200"
+                tab === t ? "bg-accent text-foreground shadow hover:bg-accent" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {t === "queries" ? "Queries (7)" : "Operations (10)"}
@@ -351,33 +391,39 @@ export default function BlendV2PlaygroundPage() {
         {tab === "queries" && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
 
-            {/* 1. List Pools — blend_pool_info → PoolInfoCard → pools list view */}
+            {/* 1. List Pools */}
             <QueryPanel
               title="List Pools"
               endpoint="pools"
               infoType="blend_pool_info"
               fields={[]}
+              autoFetch
+              renderResult={(d) => <BlendPoolsCard data={d} />}
             />
 
-            {/* 2. Pool Info — blend_pool_info → PoolInfoCard → SinglePoolView */}
+            {/* 2. Pool Info */}
             <QueryPanel
               title="Pool Info"
               endpoint="pool-info"
               infoType="blend_pool_info"
               fields={[{ key: "pool", label: "Pool Address", placeholder: "C..." }]}
               defaults={poolDefaults}
+              autoFetch
+              renderResult={(d) => <BlendPoolDetailCard data={d} />}
             />
 
-            {/* 3. Assets — blend_pool_info → PoolInfoCard → SinglePoolView (reserves list) */}
+            {/* 3. Assets List */}
             <QueryPanel
               title="Assets List"
               endpoint="assets"
               infoType="blend_pool_info"
               fields={[{ key: "pool", label: "Pool Address", placeholder: "C..." }]}
               defaults={poolDefaults}
+              autoFetch
+              renderResult={(d) => <BlendPoolDetailCard data={d} />}
             />
 
-            {/* 4. Reserve Detail — blend_reserve_info → PoolInfoCard → ReserveInfoView */}
+            {/* 4. Reserve Detail */}
             <QueryPanel
               title="Reserve Detail"
               endpoint="reserve"
@@ -387,9 +433,11 @@ export default function BlendV2PlaygroundPage() {
                 { key: "asset", label: "Asset Contract", placeholder: "C..." },
               ]}
               defaults={{ ...poolDefaults, asset: XLM_SAC }}
+              autoFetch
+              renderResult={(d) => <BlendReserveCard data={d} />}
             />
 
-            {/* 5. User Positions — blend_user_position → AccountInfoCard → BlendPositionView */}
+            {/* 5. User Positions */}
             <QueryPanel
               title="User Positions"
               endpoint="positions"
@@ -399,6 +447,8 @@ export default function BlendV2PlaygroundPage() {
                 { key: "user", label: "User Address", placeholder: "G..." },
               ]}
               defaults={userDefaults}
+              autoFetch
+              renderResult={(d) => <BlendPositionsCard data={d} />}
             />
 
             {/* 6. Backstop — blend_backstop_info → PoolInfoCard → BackstopInfoView (MCP only) */}
@@ -409,9 +459,13 @@ export default function BlendV2PlaygroundPage() {
               fields={[{ key: "pool", label: "Pool Address", placeholder: "C..." }]}
               defaults={poolDefaults}
               baseUrl={MCP_URL}
+              autoFetch
+              renderResult={(d) => (
+                <StellarInfoDispatcher type="blend_backstop_info" result={d} args={{ protocol: "blend" }} />
+              )}
             />
 
-            {/* 7. Q4W Balance — blend_backstop_balance → AccountInfoCard → BlendBackstopBalanceView (MCP only) */}
+            {/* 7. Q4W Balance (MCP only) */}
             <QueryPanel
               title="Q4W Balance"
               endpoint="q4w"
@@ -422,6 +476,10 @@ export default function BlendV2PlaygroundPage() {
               ]}
               defaults={userDefaults}
               baseUrl={MCP_URL}
+              autoFetch
+              renderResult={(d) => (
+                <StellarInfoDispatcher type="blend_backstop_balance" result={d} args={{ protocol: "blend" }} />
+              )}
             />
           </div>
         )}
@@ -471,7 +529,7 @@ export default function BlendV2PlaygroundPage() {
                 { key: "amount", label: "Amount (stroops)", placeholder: "1000000 = 0.1 USDC" },
                 { key: "from",   label: "From Address",  placeholder: "G..." },
               ]}
-              defaults={{ ...fromDefaults, asset: USDC, amount: "1000000" }}
+              defaults={{ ...fromDefaults, asset: BLEND_USDC, amount: "1000000" }}
             />
 
             {/* 4. Repay → blend_repay → BlendExecuteCard */}
@@ -485,7 +543,7 @@ export default function BlendV2PlaygroundPage() {
                 { key: "amount", label: "Amount (stroops)", placeholder: "500000" },
                 { key: "from",   label: "From Address",  placeholder: "G..." },
               ]}
-              defaults={{ ...fromDefaults, asset: USDC, amount: "500000" }}
+              defaults={{ ...fromDefaults, asset: BLEND_USDC, amount: "500000" }}
             />
 
             {/* 5. Enable/Disable Collateral → blend_toggle_collateral → BlendExecuteCard */}
@@ -514,7 +572,7 @@ export default function BlendV2PlaygroundPage() {
                 { key: "minLpOut", label: "Min LP Out (0 = no slippage check)", placeholder: "0" },
                 { key: "from",     label: "From Address",  placeholder: "G..." },
               ]}
-              defaults={{ asset: USDC, amount: "10000000", minLpOut: "0", from: walletAddress ?? "" }}
+              defaults={{ asset: BLEND_USDC, amount: "10000000", minLpOut: "0", from: walletAddress ?? "" }}
             />
 
             {/* 7. Exit Pool (Comet LP) → backstop_withdraw → BlendExecuteCard */}
@@ -573,10 +631,10 @@ export default function BlendV2PlaygroundPage() {
         )}
 
         {/* ── Footer ── */}
-        <div className="border-t border-zinc-800 pt-4 text-center">
-          <Typography variant="small" className="text-zinc-600 text-xs">
+        <div className="border-t border-border pt-4 text-center">
+          <Typography variant="small" className="text-muted-foreground/40 text-xs">
             Blend v2 Playground · mcp-stellar{" "}
-            <span className="font-mono text-zinc-500">{MCP_URL}</span>
+            <span className="font-mono text-muted-foreground/60">{MCP_URL}</span>
             {" · "}Operations build XDR only — wallet signing required to submit on-chain
           </Typography>
         </div>

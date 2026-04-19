@@ -119,7 +119,7 @@ export function AgentCard({ assistant, onClick }: AgentCardProps) {
   return (
     <button 
       onClick={onClick} 
-      className="h-full cursor-pointer text-left" 
+      className="h-full w-full cursor-pointer text-left"
       type="button"
       data-testid={`agent-card-${agentId}`}
     >
@@ -176,7 +176,7 @@ export function AgentCard({ assistant, onClick }: AgentCardProps) {
               {agentName}
             </h3>
 
-            <ul className="mb-6 space-y-2">
+            <ul className="mb-6 min-h-[5.5rem] space-y-2">
               {agentDescription.slice(0, 3).map((feature, index) => (
                 <li key={index} className="flex items-start gap-2 text-muted-foreground text-sm">
                   <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground transition-colors group-hover:bg-primary/50" />

@@ -140,7 +140,7 @@ function DesktopLayout({
       {/* Main Content Area - Header + Content */}
       <SidebarInset className="flex h-screen flex-col">
         {showHeader && <Header title={title} showRightSidebar={showRightSidebar} />}
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main data-onborda="main-content" className="flex-1 overflow-y-auto">{children}</main>
       </SidebarInset>
 
       {/* Right Sidebar - Separate, full height with animation */}

@@ -3,9 +3,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Clock, Info, Settings2, RefreshCw, AlertTriangle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import type { RouteQuote } from "@/features/bridge/hooks/use-aggregator";
+import type { RouteQuote } from "@/features/aggregator/hooks/use-aggregator";
 import BorderGlow from "@/shared/ui/border-glow";
 import { TokenImage } from "@/shared/components/token-image";
+import { cn } from "@/lib/utils";
 
 // ─── Protocol branding ──────────────────────────────────────────
 
@@ -20,7 +21,7 @@ const PROTOCOL_META: Record<string, { label: string; icon: string; color: string
 
 function getProto(quote: RouteQuote) {
   const id = quote.protocol || quote.provider || "unknown";
-  return { id, ...(PROTOCOL_META[id] || { label: id, icon: "", color: "var(--muted-foreground)" }) };
+  return { id, ...(PROTOCOL_META[id] || { label: id, icon: "", color: "#a1a1aa" }) };
 }
 
 function formatAmount(raw: string, decimals = 7): string {
@@ -30,7 +31,6 @@ function formatAmount(raw: string, decimals = 7): string {
   return num.toLocaleString(undefined, { maximumFractionDigits: 6 });
 }
 
-/** Compute exchange rate: how many tokenOut per 1 tokenIn */
 function computeRate(amountIn: string, amountOut: string, decimalsIn: number, decimalsOut: number): number {
   const numIn = Number(amountIn) / 10 ** decimalsIn;
   const numOut = Number(amountOut) / 10 ** decimalsOut;
@@ -65,74 +65,85 @@ function RouteCard({
   tokenOutSymbol: string;
   decimalsIn: number;
   decimalsOut: number;
-  /** How much worse this rate is vs best, as a percentage (0 = best, 50 = 50% worse) */
   rateDiffPct: number;
   onClick: () => void;
 }) {
   const proto = getProto(quote);
   const rate = computeRate(quote.amountIn, quote.amountOut, decimalsIn, decimalsOut);
-  const showRateWarning = rateDiffPct > 50;
+  const showRateWarning = rateDiffPct > 5;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="w-full text-left rounded-xl p-4 transition-colors relative"
-      style={{
-        background: isSelected ? "var(--accent)" : "var(--secondary)",
-        border: showRateWarning
-          ? "1px solid rgba(234,179,8,0.4)"
-          : isBest
-            ? "1px solid rgba(89,224,125,0.5)"
-            : isSelected
-              ? "1px solid var(--primary)"
-              : "1px solid transparent",
-      }}
+      className={cn(
+        "w-full text-left rounded-2xl p-4 transition-all duration-200 relative border",
+        "active:scale-[0.98]",
+        isSelected
+          ? "bg-secondary border-primary/30"
+          : "bg-secondary border-border hover:border-primary/20",
+      )}
     >
-      <div className="flex items-center justify-between">
-        <span className="text-lg font-bold" style={{ color: "var(--foreground)" }}>
-          {formatAmount(quote.amountOut, decimalsOut)} {tokenOutSymbol}
-        </span>
+      {/* Row 1: Protocol + badges */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2.5">
+          <TokenImage src={proto.icon} alt={proto.label} className="h-7 w-7 rounded-lg shrink-0" />
+          <span className="text-sm font-semibold text-foreground">
+            {proto.label}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           {isBest && (
-            <span
-              className="px-2.5 py-1 text-[11px] font-bold rounded-full uppercase tracking-wide"
-              style={{ background: "rgba(16,185,129,0.15)", color: "#10B981" }}
-            >
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+              <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
               Best
             </span>
           )}
-          {isSelected && <Check className="h-5 w-5" style={{ color: "var(--primary)" }} />}
+          {isSelected && (
+            <div className="h-5 w-5 rounded-full flex items-center justify-center bg-primary">
+              <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} />
+            </div>
+          )}
         </div>
       </div>
-      {/* Exchange rate */}
-      <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)", opacity: 0.7 }}>
-        1 {tokenInSymbol} ≈ {formatRate(rate)} {tokenOutSymbol}
+
+      {/* Row 2: Amount output */}
+      <div className="flex items-baseline gap-1.5 mb-0.5">
+        <span className="text-[22px] font-bold tabular-nums tracking-tight text-foreground">
+          {formatAmount(quote.amountOut, decimalsOut)}
+        </span>
+        <span className="text-sm font-medium text-muted-foreground">
+          {tokenOutSymbol}
+        </span>
+      </div>
+
+      {/* Row 3: Exchange rate */}
+      <p className="text-xs text-muted-foreground/60 mb-2.5">
+        1 {tokenInSymbol} = {formatRate(rate)} {tokenOutSymbol}
       </p>
+
       {/* Rate warning */}
       {showRateWarning && (
-        <div
-          className="flex items-center gap-1.5 mt-1.5 px-2 py-1 rounded-lg text-[11px] font-medium"
-          style={{ background: "rgba(234,179,8,0.1)", color: "#EAB308" }}
-        >
-          <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+        <div className={cn(
+          "flex items-center gap-1.5 mb-2.5 text-[11px] font-medium",
+          rateDiffPct > 50 ? "text-red-400" : "text-amber-400",
+        )}>
+          <AlertTriangle className="h-3 w-3 shrink-0" />
           {rateDiffPct.toFixed(0)}% worse rate than best
         </div>
       )}
-      <div className="flex items-center justify-between mt-2">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 text-sm" style={{ color: "var(--muted-foreground)" }}>
-            <Info className="h-3.5 w-3.5" />
-            Fee: {quote.feePercent}
-          </span>
-          <span className="flex items-center gap-1 text-sm" style={{ color: "var(--muted-foreground)" }}>
-            <Clock className="h-3.5 w-3.5" />
-            {quote.estimatedTime}
-          </span>
-        </div>
-        <span className="flex items-center gap-1.5 text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
-          <TokenImage src={proto.icon} alt={proto.label} className="h-5 w-5 rounded-sm" />
-          {proto.label}
+
+      {/* Row 4: Fee & time */}
+      <div className="flex items-center gap-3 pt-2.5">
+        <span className="flex items-center gap-1 text-[11px] text-muted-foreground/70">
+          <Info className="h-3 w-3" />
+          {quote.feePercent}
+        </span>
+        <span className="flex items-center gap-1 text-[11px] text-muted-foreground/70">
+          <Clock className="h-3 w-3" />
+          {quote.estimatedTime}
         </span>
       </div>
     </button>
@@ -162,7 +173,6 @@ export function SlippageSettings({
     { label: "3.0%", value: 300 },
   ];
 
-  // Click outside to close
   useEffect(() => {
     if (!open) return;
     function handler(e: MouseEvent) {
@@ -179,11 +189,7 @@ export function SlippageSettings({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-xl transition-colors"
-        style={{
-          color: "var(--muted-foreground)",
-          background: "var(--secondary)",
-        }}
+        className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-xl transition-colors bg-secondary text-muted-foreground"
       >
         <Settings2 className="h-3.5 w-3.5" />
         <span>{isAuto ? "Auto" : `${(slippageBps / 100).toFixed(1)}%`}</span>
@@ -196,11 +202,10 @@ export function SlippageSettings({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -5, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-10 z-50 w-72 rounded-2xl p-4 space-y-4 shadow-xl"
-            style={{ background: "var(--popover)", border: "1px solid var(--border)" }}
+            className="absolute right-0 top-10 z-50 w-72 rounded-2xl p-4 space-y-4 shadow-xl bg-popover border border-border"
           >
             <div>
-              <p className="text-xs font-medium mb-2.5" style={{ color: "var(--muted-foreground)" }}>
+              <p className="text-xs font-medium mb-2.5 text-muted-foreground">
                 Slippage Tolerance
               </p>
               <div className="flex gap-1.5">
@@ -211,11 +216,12 @@ export function SlippageSettings({
                       key={label}
                       type="button"
                       onClick={() => setSlippageBps(value)}
-                      className="flex-1 py-2 text-xs font-medium rounded-xl transition-all"
-                      style={{
-                        background: active ? "var(--primary)" : "var(--secondary)",
-                        color: active ? "var(--primary-foreground)" : "var(--muted-foreground)",
-                      }}
+                      className={cn(
+                        "flex-1 py-2 text-xs font-medium rounded-xl transition-all",
+                        active
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-muted-foreground",
+                      )}
                     >
                       {label}
                     </button>
@@ -225,7 +231,7 @@ export function SlippageSettings({
             </div>
 
             <div>
-              <p className="text-xs font-medium mb-2.5" style={{ color: "var(--muted-foreground)" }}>
+              <p className="text-xs font-medium mb-2.5 text-muted-foreground">
                 Protocols
               </p>
               <div className="flex flex-wrap gap-2">
@@ -236,12 +242,12 @@ export function SlippageSettings({
                       key={id}
                       type="button"
                       onClick={() => toggleProtocol(id)}
-                      className="flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-xl transition-all"
-                      style={{
-                        background: active ? "var(--accent)" : "var(--secondary)",
-                        color: active ? "var(--foreground)" : "var(--ring)",
-                        opacity: active ? 1 : 0.5,
-                      }}
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-xl transition-all",
+                        active
+                          ? "bg-accent text-foreground"
+                          : "bg-secondary text-ring opacity-50",
+                      )}
                     >
                       <TokenImage src={icon} alt={label} className="h-5 w-5 rounded-sm" />
                       {label}
@@ -284,7 +290,6 @@ export function AggregatorRoutePanel({
 }) {
   const okQuotes = quotes.filter((q) => q.status === "ok");
 
-  // Compute best rate for comparison
   const bestRate = okQuotes.reduce((best, q) => {
     const r = computeRate(q.amountIn, q.amountOut, decimalsIn, decimals);
     return r > best ? r : best;
@@ -301,21 +306,32 @@ export function AggregatorRoutePanel({
       colors={["hsl(203 100% 73%)", "hsl(195 90% 55%)", "hsl(210 80% 50%)"]}
       fillOpacity={0.15}
     >
-      <div className="p-5 flex flex-col h-full">{children}</div>
+      <div className="p-4 flex flex-col h-full">{children}</div>
     </BorderGlow>
   );
 
   if (isLoading && quotes.length === 0) {
     return inner(
       <>
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-base font-semibold" style={{ color: "var(--foreground)" }}>Select a route</p>
-          <RefreshCw className="h-4 w-4 animate-spin" style={{ color: "var(--muted-foreground)" }} />
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-sm font-semibold text-foreground">Finding routes</p>
+            <p className="text-[11px] mt-0.5 text-muted-foreground/50">Comparing protocols...</p>
+          </div>
+          <div className="h-8 w-8 rounded-xl flex items-center justify-center bg-secondary">
+            <RefreshCw className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+          </div>
         </div>
-        <p className="text-sm mb-4" style={{ color: "var(--muted-foreground)" }}>Finding best routes...</p>
-        <div className="flex flex-col gap-2 flex-1">
+        <div className="flex flex-col gap-2.5 flex-1">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-[80px] rounded-xl animate-pulse" style={{ background: "var(--secondary)", opacity: 0.4 }} />
+            <div key={i} className="rounded-2xl p-4 bg-secondary/50 space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-xl animate-pulse bg-input/30" />
+                <div className="h-4 w-16 rounded-lg animate-pulse bg-input/30" />
+              </div>
+              <div className="h-6 w-28 rounded-lg animate-pulse bg-input/20" />
+              <div className="h-3 w-36 rounded animate-pulse bg-input/15" />
+            </div>
           ))}
         </div>
       </>
@@ -324,11 +340,20 @@ export function AggregatorRoutePanel({
 
   if (okQuotes.length === 0) {
     return inner(
-      <div className="flex flex-col items-center justify-center flex-1 gap-3">
-        <p className="text-base font-semibold" style={{ color: "var(--foreground)" }}>No routes available</p>
-        <p className="text-sm text-center" style={{ color: "var(--muted-foreground)" }}>Try a different token pair or amount</p>
-        <button type="button" onClick={onRefresh} className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg transition-colors mt-2" style={{ background: "var(--secondary)", color: "var(--muted-foreground)" }}>
-          <RefreshCw className="h-3.5 w-3.5" /> Retry
+      <div className="flex flex-col items-center justify-center flex-1 gap-3 py-8">
+        <div className="h-12 w-12 rounded-2xl flex items-center justify-center bg-secondary">
+          <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+        </div>
+        <p className="text-sm font-semibold text-foreground">No routes found</p>
+        <p className="text-xs text-center max-w-[200px] text-muted-foreground/60">
+          Try a different pair or amount
+        </p>
+        <button
+          type="button"
+          onClick={onRefresh}
+          className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-xl transition-all hover:brightness-110 mt-1 bg-secondary text-muted-foreground"
+        >
+          <RefreshCw className="h-3 w-3" /> Retry
         </button>
       </div>
     );
@@ -336,21 +361,25 @@ export function AggregatorRoutePanel({
 
   return inner(
     <>
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-base font-semibold" style={{ color: "var(--foreground)" }}>Select a route</p>
-        <div className="flex items-center gap-2">
-          <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>
-            {okQuotes.length} route{okQuotes.length !== 1 ? "s" : ""}
-          </span>
-          <button type="button" onClick={onRefresh} className="p-1.5 rounded-full transition-colors hover:bg-[var(--secondary)] active:scale-90" title="Refresh">
-            <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} style={{ color: "var(--muted-foreground)" }} />
-          </button>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-sm font-semibold text-foreground">Select a route</p>
+          <p className="text-[11px] mt-0.5 text-muted-foreground/50">
+            {okQuotes.length} route{okQuotes.length !== 1 ? "s" : ""} found
+          </p>
         </div>
+        <button
+          type="button"
+          onClick={onRefresh}
+          className="h-8 w-8 rounded-xl flex items-center justify-center transition-all bg-secondary hover:bg-accent active:scale-90"
+          title="Refresh quotes"
+        >
+          <RefreshCw
+            className={cn("h-3.5 w-3.5 text-muted-foreground", isLoading && "animate-spin")}
+          />
+        </button>
       </div>
-      <p className="text-xs mb-4" style={{ color: "var(--muted-foreground)", opacity: 0.6 }}>
-        Best route is selected based on net output after fees.
-      </p>
-      <div className="flex flex-col gap-2 overflow-y-auto flex-1 pr-1">
+      <div className="flex flex-col gap-2.5 overflow-y-auto flex-1">
         {okQuotes.map((quote, i) => {
           const id = quote.protocol || quote.provider || `route-${i}`;
           const isBest = bestQuote != null && (quote.protocol || quote.provider) === (bestQuote.protocol || bestQuote.provider);

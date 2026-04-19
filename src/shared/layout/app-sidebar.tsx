@@ -3,7 +3,7 @@
 import { FooterSidebarSection } from "@/shared/layout/footer-sidebar";
 import { HeaderSidebar } from "@/shared/layout/header-sidebar";
 import { NavGroup } from "@/shared/layout/nav-group";
-import { sidebarData, type SidebarData } from "@/shared/layout/sidebar-data";
+import { type SidebarData, sidebarData } from "@/shared/layout/sidebar-data";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from "@/shared/ui/sidebar";
 
 export function AppSidebar({
@@ -16,7 +16,7 @@ export function AppSidebar({
       <SidebarHeader>
         <HeaderSidebar header={data.header} />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent data-onborda="sidebar-nav">
         {data.navGroups.map((navGroup, index) => (
           <NavGroup key={index} {...navGroup} />
         ))}

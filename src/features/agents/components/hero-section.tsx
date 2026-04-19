@@ -1,12 +1,22 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { Bot } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { Bot } from "lucide-react";
-import { motion } from "framer-motion";
 import { AGENTS } from "@/features/chat/config/agents.config";
 
-function AgentIcon({ src, name, fill, size }: { src: string; name: string; fill?: boolean; size?: number }) {
+function AgentIcon({
+  src,
+  name,
+  fill,
+  size,
+}: {
+  src: string;
+  name: string;
+  fill?: boolean;
+  size?: number;
+}) {
   const [error, setError] = useState(false);
   if (error) {
     return (
@@ -16,7 +26,9 @@ function AgentIcon({ src, name, fill, size }: { src: string; name: string; fill?
     );
   }
   if (fill) {
-    return <Image src={src} alt={name} fill className="object-cover" onError={() => setError(true)} />;
+    return (
+      <Image src={src} alt={name} fill className="object-cover" onError={() => setError(true)} />
+    );
   }
   return (
     <Image
@@ -42,7 +54,7 @@ export function HeroSection({ agentCount }: HeroSectionProps) {
   const visibleAgents = allAgents.slice(0, 4);
 
   return (
-    <section className="py-6">
+    <section data-onborda="agents-hero" className="py-6">
       <motion.div
         className="relative h-[360px] w-full overflow-hidden rounded-3xl border border-border bg-background shadow-2xl"
         initial={{ opacity: 0, y: 20 }}
@@ -97,7 +109,12 @@ export function HeroSection({ agentCount }: HeroSectionProps) {
                   title={agent.name}
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.55 + i * 0.08, type: "spring", stiffness: 300 }}
+                  transition={{
+                    duration: 0.3,
+                    delay: 0.55 + i * 0.08,
+                    type: "spring",
+                    stiffness: 300,
+                  }}
                 >
                   <AgentIcon src={agent.icon} name={agent.name} size={36} />
                 </motion.div>

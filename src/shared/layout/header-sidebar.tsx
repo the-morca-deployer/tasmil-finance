@@ -27,6 +27,7 @@ export function HeaderSidebar({
     <div className="relative">
       <Link
         href="/agents"
+        data-onborda="sidebar-header"
         className={`flex h-12 w-full items-center gap-2 p-3 ${isCollapsed ? "justify-center" : ""}`}
       >
         <Image

@@ -1,12 +1,14 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
 import { Toaster } from "sonner";
 import { WalletProvider } from "@/shared/context/wallet-context";
 import { TooltipProvider } from "@/shared/ui/tooltip";
+import { OnboardingProvider } from "./onboarding-provider";
 import { ThemeStorageMigration } from "./theme-storage-migration";
 
 export function AppProvider({ children }: PropsWithChildren) {
@@ -33,10 +35,13 @@ export function AppProvider({ children }: PropsWithChildren) {
       >
         <ThemeStorageMigration />
         <TooltipProvider>
-          <WalletProvider>{children}</WalletProvider>
+          <WalletProvider>
+            <OnboardingProvider>{children}</OnboardingProvider>
+          </WalletProvider>
         </TooltipProvider>
         <Toaster position="top-right" richColors />
       </ThemeProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

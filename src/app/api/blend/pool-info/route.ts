@@ -7,46 +7,53 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: "pool parameter required" }, { status: 400 });
   }
 
+  const network = getNetwork();
+  const MCP_URL = process.env["NEXT_PUBLIC_MCP_STELLAR_URL"] ?? "http://localhost:3009";
+
+  // Try SDK first
   try {
     const sdk = getBlendClient();
-    const network = getNetwork();
     const info = await sdk.blend.getPool(pool);
-
-    if (!info) {
-      return NextResponse.json({ success: false, error: `Pool not found: ${pool}` }, { status: 404 });
+    if (info && info.reserves.length > 0) {
+      return NextResponse.json({
+        success: true,
+        pool: {
+          address: info.address,
+          poolAddress: info.address,
+          name: info.name,
+          status: info.status,
+          backstopRate: info.backstopRate,
+          poolExplorerUrl: getExplorerUrl(network, info.address),
+          blendUrl: `https://app.blend.capital/#/pool/${info.address}`,
+          reserveList: info.reserves.map((r) => r.assetAddress),
+          reserves: info.reserves.map((r) => ({
+            address: r.assetAddress,
+            asset: r.assetAddress,
+            symbol: r.symbol,
+            explorerUrl: getExplorerUrl(network, r.assetAddress),
+            totalSupply: r.totalSupplied,
+            totalBorrow: r.totalBorrowed,
+            supplyApy: r.supplyApy,
+            borrowApy: r.borrowApy,
+            utilization: r.utilization,
+            collateralFactor: r.collateralFactor,
+            liabilityFactor: r.liabilityFactor,
+            decimals: r.decimals,
+          })),
+        },
+      });
     }
+  } catch { /* fall through to MCP */ }
 
-    return NextResponse.json({
-      success: true,
-      pool: {
-        address: info.address,
-        poolAddress: info.address,
-        name: info.name,
-        status: info.status,
-        backstopRate: info.backstopRate,
-        poolExplorerUrl: getExplorerUrl(network, info.address),
-        blendUrl: `https://app.blend.capital/#/pool/${info.address}`,
-        reserveList: info.reserves.map((r) => r.assetAddress),
-        reserves: info.reserves.map((r) => ({
-          address: r.assetAddress,
-          asset: r.assetAddress,
-          symbol: r.symbol,
-          explorerUrl: getExplorerUrl(network, r.assetAddress),
-          totalSupply: r.totalSupplied,
-          totalBorrow: r.totalBorrowed,
-          supplyApy: r.supplyApy,
-          borrowApy: r.borrowApy,
-          utilization: r.utilization,
-          collateralFactor: r.collateralFactor,
-          liabilityFactor: r.liabilityFactor,
-          decimals: r.decimals,
-        })),
-      },
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Failed to load pool info" },
-      { status: 500 },
-    );
-  }
+  // Fallback: MCP-stellar
+  try {
+    const r = await fetch(`${MCP_URL}/blend-v2/query/pool-info?pool=${pool}`);
+    const d = await r.json();
+    if (d.success) return NextResponse.json(d);
+  } catch { /* ignore */ }
+
+  return NextResponse.json(
+    { success: false, error: `Pool not found: ${pool}` },
+    { status: 404 },
+  );
 }

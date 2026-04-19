@@ -459,45 +459,24 @@
     @apply after:pointer-events-none after:absolute after:bottom-0 after:left-0 after:hidden after:h-32 after:w-full after:bg-[linear-gradient(180deg,_transparent_10%,_hsl(var(--background))_70%)] after:md:block;
   }
 
-  /* Active sidebar item styling */
+  /* Active sidebar item styling — !important needed to override
+     Tailwind's data-[active=true]:bg-sidebar-accent (higher specificity
+     from attribute selector) */
   .sidebar-item-active {
-    background: linear-gradient(to bottom, #b5eaff, #00bfff);
-    color: #000000;
+    background: linear-gradient(to bottom, #b5eaff, #00bfff) !important;
+    color: #000000 !important;
     transition: all 0.3s ease;
   }
 
   .sidebar-item-active:hover {
-    background: linear-gradient(to bottom, #c5f0ff, #1ccfff);
+    background: linear-gradient(to bottom, #c5f0ff, #1ccfff) !important;
     transform: scale(1.05);
   }
 
-  /* Sub items active styling */
-  .sidebar-item-active span {
-    color: hsl(var(--primary-foreground));
-  }
-
-  /* Ensure sub button and dropdown items follow active styling */
-  .sidebar-item-active[data-state="active"] {
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-  }
-
-  /* Force active styling for sub items */
-  [data-state="active"] .sidebar-item-active,
-  .sidebar-item-active[data-state="active"] {
-    background: linear-gradient(to bottom, #b5eaff, #00bfff);
-    color: #000000;
-  }
-
-  /* Override any component styling for active sub items */
+  .sidebar-item-active span,
+  .sidebar-item-active svg,
   .sidebar-item-active * {
-    color: #000000;
-  }
-
-  /* Specific styling for dropdown menu items */
-  .sidebar-item-active[role="menuitem"] {
-    background: linear-gradient(to bottom, #b5eaff, #00bfff);
-    color: #000000;
+    color: #000000 !important;
   }
 
   /* Line clamp utilities */
@@ -695,6 +674,26 @@
 
   button:disabled {
     cursor: not-allowed;
+  }
+
+  /* Onborda tour overlay — prevent clipping of the large box-shadow overlay */
+  [data-radix-portal]:has([data-name="onborda-overlay"]) {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    pointer-events: none;
+  }
+  [data-name="onborda-overlay"] {
+    position: fixed !important;
+    inset: 0 !important;
+    pointer-events: none;
+    overflow: visible !important;
+  }
+  [data-name="onborda-pointer"] {
+    pointer-events: auto;
+  }
+  [data-name="onborda-card"] {
+    pointer-events: auto;
   }
 
   /* Custom Scrollbar Styles */

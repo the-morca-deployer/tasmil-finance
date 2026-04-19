@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Outfit } from "next/font/google";
 import { AppProvider } from "@/providers/app-provider";
 import "./globals.css";
@@ -56,6 +57,9 @@ export default function RootLayout({
       </head>
       <body className={`${outfit.className} antialiased`}>
         <AppProvider>{children}</AppProvider>
+        {process.env["NEXT_PUBLIC_GA_MEASUREMENT_ID"] && (
+          <GoogleAnalytics gaId={process.env["NEXT_PUBLIC_GA_MEASUREMENT_ID"]} />
+        )}
       </body>
     </html>
   );

@@ -1,21 +1,22 @@
 "use client";
 
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Suspense, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Wallet } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useWalletStore } from "@/store/use-wallet";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useCallback } from "react";
+import { TOUR_NAMES } from "@/features/onboarding/config/tour-steps";
+import { usePageTour } from "@/features/onboarding/hooks/use-onboarding";
 import { cn } from "@/lib/utils";
-import { WalletHeader } from "./wallet-header";
-import { TokenList } from "./token-list";
-import { PerformanceChart } from "./performance-chart";
-import { HistorySidebar } from "./history-sidebar";
-import { ProtocolPositions } from "./protocol-positions";
-import { TransactionList } from "./transaction-list";
-import { NftPlaceholder } from "./nft-placeholder";
-import { useWalletTokens } from "../hooks/use-wallet-tokens";
+import { useWalletStore } from "@/store/use-wallet";
 import { useDefiPositions } from "../hooks/use-defi-positions";
-import { usePortfolioHistory } from "../hooks/use-portfolio-history";
+import { useWalletTokens } from "../hooks/use-wallet-tokens";
+import { HistorySidebar } from "./history-sidebar";
+import { NftPlaceholder } from "./nft-placeholder";
+import { PerformanceChart } from "./performance-chart";
+import { ProtocolPositions } from "./protocol-positions";
+import { TokenList } from "./token-list";
+import { TransactionList } from "./transaction-list";
+import { WalletHeader } from "./wallet-header";
 
 type TabValue = "tokens" | "positions" | "nfts" | "history";
 const VALID_TABS: TabValue[] = ["tokens", "positions", "nfts", "history"];
@@ -39,22 +40,20 @@ function ConnectPrompt() {
         <Wallet className="h-8 w-8 text-muted-foreground" />
       </div>
       <h2 className="mb-2 text-2xl font-bold text-foreground">Connect Your Wallet</h2>
-      <p className="text-muted-foreground">
-        Connect your Stellar wallet to view your profile.
-      </p>
+      <p className="text-muted-foreground">Connect your Stellar wallet to view your profile.</p>
     </motion.div>
   );
 }
 
 function ProfileContent() {
+  usePageTour(TOUR_NAMES.portfolio);
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { account } = useWalletStore();
 
   const tabParam = searchParams.get("tab") as TabValue | null;
-  const activeTab: TabValue =
-    tabParam && VALID_TABS.includes(tabParam) ? tabParam : "tokens";
+  const activeTab: TabValue = tabParam && VALID_TABS.includes(tabParam) ? tabParam : "tokens";
 
   const setActiveTab = useCallback(
     (tab: TabValue) => {
@@ -71,19 +70,18 @@ function ProfileContent() {
   );
 
   const { data: walletData, isLoading: tokensLoading } = useWalletTokens(account);
-  const { groups, isLoading: positionsLoading, totalValueUsd: positionsTotalUsd } =
-    useDefiPositions(account);
+  const {
+    groups,
+    isLoading: positionsLoading,
+    totalValueUsd: positionsTotalUsd,
+  } = useDefiPositions(account);
 
-  // Compute P&L from portfolio history (7-day default)
-  const totalUsd = walletData?.totalUsd ?? 0;
-  const { data: historyData } = usePortfolioHistory(
-    walletData?.tokens ?? [],
-    totalUsd,
-    7,
-  );
-  const firstValue = historyData[0]?.value ?? totalUsd;
-  const pnlUsd = totalUsd - firstValue;
-  const pnlPercent = firstValue > 0 ? (pnlUsd / firstValue) * 100 : 0;
+  // Total portfolio = wallet tokens + DeFi positions
+  const walletUsd = walletData?.totalUsd ?? 0;
+  const totalUsd = walletUsd + positionsTotalUsd;
+
+  // P&L is shown per-protocol on each position card (e.g. Tasmil Vault P&L from backend).
+  // No portfolio-wide P&L without historical snapshot infrastructure.
 
   if (!account) {
     return <ConnectPrompt />;
@@ -97,13 +95,14 @@ function ProfileContent() {
           <WalletHeader
             address={account}
             totalUsd={totalUsd}
+            walletUsd={walletUsd}
+            positionsUsd={positionsTotalUsd}
             isLoading={tokensLoading}
-            pnlUsd={totalUsd > 0 ? pnlUsd : undefined}
-            pnlPercent={totalUsd > 0 ? pnlPercent : undefined}
           />
 
           {/* Tab bar */}
           <motion.div
+            data-onborda="portfolio-tabs"
             className="flex items-center gap-4 border-b border-border pb-0"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
@@ -150,10 +149,7 @@ function ProfileContent() {
                     totalUsd={totalUsd}
                     isLoadingTokens={tokensLoading}
                   />
-                  <HistorySidebar
-                    address={account}
-                    onSeeAll={() => setActiveTab("history")}
-                  />
+                  <HistorySidebar address={account} onSeeAll={() => setActiveTab("history")} />
                 </div>
 
                 {/* Assets table */}

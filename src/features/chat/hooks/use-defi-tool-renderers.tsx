@@ -169,7 +169,7 @@ export const OPERATION_TOOL_RENDERERS: Array<{
 
 export const SUPERVISOR_AGENTS = [
   "info", "blend", "soroswap", "phoenix", "aquarius", "defindex",
-  "templar", "allbridge", "sdex", "lumenswap", "bridge", "yield", "research",
+  "templar", "allbridge", "sdex", "bridge", "yield", "research",
 ];
 
 // ---------------------------------------------------------------------------

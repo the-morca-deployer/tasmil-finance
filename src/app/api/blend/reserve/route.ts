@@ -12,17 +12,24 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  const network = getNetwork();
+  const MCP_URL = process.env["NEXT_PUBLIC_MCP_STELLAR_URL"] ?? "http://localhost:3009";
+
   try {
     const sdk = getBlendClient();
-    const network = getNetwork();
     const info = await sdk.blend.getPool(pool);
 
     if (!info) {
       return NextResponse.json({ success: false, error: `Pool not found: ${pool}` }, { status: 404 });
     }
 
+    const assetLower = asset.toLowerCase();
     const reserveIndex = info.reserves.findIndex(
-      (r) => r.assetAddress === asset || r.symbol === asset,
+      (r) =>
+        r.assetAddress === asset ||
+        r.symbol === asset ||
+        r.symbol.toLowerCase() === assetLower ||
+        r.assetAddress.toLowerCase() === assetLower,
     );
     const reserve = reserveIndex >= 0 ? info.reserves[reserveIndex] : undefined;
 
@@ -59,10 +66,17 @@ export async function GET(req: NextRequest) {
         blendUrl: `https://app.blend.capital/#/pool/${pool}`,
       },
     });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Failed to load reserve" },
-      { status: 500 },
-    );
-  }
+  } catch { /* SDK failed, try MCP */ }
+
+  // Fallback: MCP-stellar
+  try {
+    const r = await fetch(`${MCP_URL}/blend-v2/query/reserve?pool=${pool}&asset=${asset}`);
+    const d = await r.json();
+    if (d.success) return NextResponse.json(d);
+  } catch { /* ignore */ }
+
+  return NextResponse.json(
+    { success: false, error: `Reserve not found for asset ${asset}` },
+    { status: 404 },
+  );
 }

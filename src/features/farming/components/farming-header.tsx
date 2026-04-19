@@ -1,9 +1,9 @@
 "use client";
 
-import { TrendingUp, TrendingDown, Tractor } from "lucide-react";
 import { motion } from "framer-motion";
-import { Skeleton } from "@/shared/ui/skeleton";
+import { Tractor, TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/shared/ui/skeleton";
 import type { RebalanceStatus } from "../types";
 
 function formatUsd(value: number): string {
@@ -41,27 +41,26 @@ export function FarmingHeader({
   const isActive = status?.ready && !status?.halted;
   const isHalted = status?.halted;
 
-  const bgColor = isActive
-    ? "bg-emerald-500/15"
-    : isHalted
-      ? "bg-red-500/15"
-      : "bg-muted/20";
+  const bgColor = isActive ? "bg-primary/15" : isHalted ? "bg-destructive/15" : "bg-muted/20";
 
   const iconColor = isActive
-    ? "text-emerald-400"
+    ? "text-primary"
     : isHalted
-      ? "text-red-400"
+      ? "text-destructive"
       : "text-muted-foreground";
 
   return (
     <motion.div
+      data-onborda="farming-header"
       className="flex items-center gap-4"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       {/* Icon — same size as AddressAvatar (size-20) */}
-      <div className={cn("flex size-20 shrink-0 items-center justify-center rounded-full", bgColor)}>
+      <div
+        className={cn("flex size-20 shrink-0 items-center justify-center rounded-full", bgColor)}
+      >
         <Tractor className={cn("size-9", iconColor)} />
       </div>
 
@@ -97,12 +96,12 @@ export function FarmingHeader({
                 {isPositive ? (
                   <TrendingUp className="h-4 w-4 text-emerald-400" />
                 ) : (
-                  <TrendingDown className="h-4 w-4 text-destructive" />
+                  <TrendingDown className="h-4 w-4 text-red-400" />
                 )}
                 <span
                   className={cn(
                     "text-base font-medium",
-                    isPositive ? "text-emerald-400" : "text-destructive",
+                    isPositive ? "text-emerald-400" : "text-red-400"
                   )}
                 >
                   {isPositive ? "+" : ""}
@@ -111,9 +110,7 @@ export function FarmingHeader({
                 <span
                   className={cn(
                     "rounded-md px-2 py-0.5 text-sm font-semibold",
-                    isPositive
-                      ? "bg-emerald-500/10 text-emerald-400"
-                      : "bg-destructive/10 text-destructive",
+                    isPositive ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
                   )}
                 >
                   {isPositive ? "+" : ""}
