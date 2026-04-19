@@ -1,7 +1,7 @@
 /**
  * Axios client for NestJS backend (port 6756).
  * - Automatically attaches JWT Bearer token from auth store
- * - Fires auth-token-expired event on 401
+ * - Fires auth:session-invalid event on 401 (with token freshness + URL)
  *
  * baseURL is the host only (no /api suffix) because OpenAPI paths
  * from NestJS already include the /api global prefix.
@@ -40,7 +40,8 @@ backendAxios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle 401 globally
+// Handle 401 globally — dispatch a typed event with token freshness so the
+// auth handler can decide whether to force-sign or surface a reconnect prompt.
 backendAxios.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -48,7 +49,12 @@ backendAxios.interceptors.response.use(
     if (error.response?.status === 401 && !orig._retry) {
       orig._retry = true;
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("auth-token-expired"));
+        const fresh = !useAuthStore.getState().isTokenExpired();
+        const url = orig?.url ?? "unknown";
+        console.warn(`[auth] 401 from ${url} (token fresh=${fresh})`);
+        window.dispatchEvent(
+          new CustomEvent("auth:session-invalid", { detail: { fresh, url } }),
+        );
       }
     }
     return Promise.reject(error);

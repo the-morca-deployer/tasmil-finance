@@ -36,7 +36,14 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !orig._retry) {
       orig._retry = true;
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("auth-token-expired"));
+        // Lazy-import the auth store to avoid circular deps at module load.
+        const { useAuthStore } = await import("@/store/use-auth");
+        const fresh = !useAuthStore.getState().isTokenExpired();
+        const url = orig?.url ?? "unknown";
+        console.warn(`[auth:ai] 401 from ${url} (token fresh=${fresh})`);
+        window.dispatchEvent(
+          new CustomEvent("auth:session-invalid", { detail: { fresh, url } }),
+        );
       }
     }
 
