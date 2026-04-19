@@ -22,6 +22,9 @@ interface WalletContextType {
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
+// Throttle for auto-reauth triggered by 401 events. Prevents sign-prompt storms.
+const AUTO_REAUTH_THROTTLE_MS = 30_000;
+
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [address, setAddress] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -41,6 +44,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const authAttemptedRef = useRef<string | null>(null);
   // Track if authentication is currently in progress
   const authInProgressRef = useRef(false);
+  // Timestamp of the most recent auto-reauth attempt (for throttling).
+  const lastAutoReauthRef = useRef<number>(0);
 
   // Initialize StellarWalletsKit on mount (client-side only)
   useEffect(() => {
@@ -224,6 +229,11 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           .build();
 
         // Step 3: Sign with wallet
+        if (!forceReauth) {
+          toast.info("Sign to verify your wallet. This is free — no XLM is charged.", {
+            duration: 4000,
+          });
+        }
         setSigning(true);
         await checkWalletNetwork();
         const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
@@ -283,17 +293,51 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     [setAuthState, setLoading, setSigning, isAuthValid, isAuthenticated]
   );
 
-  // Listen for auth token expiration and trigger re-authentication
-  useEffect(() => {
-    const handler = () => {
-      if (address) {
-        authAttemptedRef.current = null;
-        authenticateWithWallet(address, true);
-      }
-    };
-    window.addEventListener("auth-token-expired", handler);
-    return () => window.removeEventListener("auth-token-expired", handler);
+  const forceReauth = useCallback(async () => {
+    if (address) {
+      authAttemptedRef.current = null;
+      authInProgressRef.current = false;
+      lastAutoReauthRef.current = Date.now();
+      await authenticateWithWallet(address, true);
+    }
   }, [address, authenticateWithWallet]);
+
+  // Listen for 401s and react based on whether the JWT is actually expired.
+  // - Fresh JWT + 401: server-side problem. Clear auth, show reconnect toast.
+  //   DO NOT force a signature — that causes surprise sign prompts on every page nav.
+  // - Expired JWT + 401: legitimate re-auth. Sign silently, throttled to 1/30s.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      if (!address) return;
+      const detail = (e as CustomEvent<{ fresh: boolean; url: string } | undefined>).detail;
+      const now = Date.now();
+
+      if (detail?.fresh) {
+        authLogout();
+        authAttemptedRef.current = null;
+        toast.error("Session issue. Please reconnect.", {
+          action: {
+            label: "Reconnect",
+            onClick: () => {
+              void forceReauth();
+            },
+          },
+          duration: 8000,
+        });
+        return;
+      }
+
+      if (now - lastAutoReauthRef.current < AUTO_REAUTH_THROTTLE_MS) {
+        return;
+      }
+      lastAutoReauthRef.current = now;
+      authAttemptedRef.current = null;
+      void authenticateWithWallet(address, true);
+    };
+
+    window.addEventListener("auth:session-invalid", handler);
+    return () => window.removeEventListener("auth:session-invalid", handler);
+  }, [address, authenticateWithWallet, authLogout, forceReauth]);
 
   // Connect via StellarWalletsKit built-in modal
   const connect = useCallback(async () => {
@@ -336,14 +380,6 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     },
     [address]
   );
-
-  const forceReauth = useCallback(async () => {
-    if (address) {
-      authAttemptedRef.current = null;
-      authInProgressRef.current = false;
-      await authenticateWithWallet(address, true);
-    }
-  }, [address, authenticateWithWallet]);
 
   // Format display address: GABC...WXYZ
   const displayAddress = address ? `${address.slice(0, 4)}...${address.slice(-4)}` : null;
