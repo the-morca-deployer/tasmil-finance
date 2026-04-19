@@ -39,15 +39,9 @@ export function FarmingHeader({
   const isPositive = allTimePnlUsd >= 0;
   const hasPnl = allTimePnlUsd !== 0 || allTimePnlPercent !== 0;
   const isActive = status?.ready && !status?.halted;
-  const isHalted = status?.halted;
 
-  const bgColor = isActive ? "bg-primary/15" : isHalted ? "bg-destructive/15" : "bg-muted/20";
-
-  const iconColor = isActive
-    ? "text-primary"
-    : isHalted
-      ? "text-destructive"
-      : "text-muted-foreground";
+  const bgColor = isActive ? "bg-primary/15" : "bg-muted/20";
+  const iconColor = isActive ? "text-primary" : "text-muted-foreground";
 
   return (
     <motion.div
