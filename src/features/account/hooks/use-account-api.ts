@@ -110,7 +110,7 @@ export function useResumeAccount() {
 export interface SubmitTxParams {
   signedXdr: string;
   publicKey?: string;
-  txType?: "deploy" | "fund" | "withdraw" | "revoke";
+  txType?: "deploy" | "fund" | "withdraw" | "revoke" | "reactivate";
   amount?: number;
   token?: string;
 }
@@ -143,6 +143,18 @@ export function useRevoke() {
     mutationFn: async (publicKey: string) => {
       const { data } = await backendAxios.post<{ data: { xdr: string } }>(
         "/api/account/revoke",
+        { publicKey }
+      );
+      return data.data;
+    },
+  });
+}
+
+export function useReactivate() {
+  return useMutation({
+    mutationFn: async (publicKey: string) => {
+      const { data } = await backendAxios.post<{ data: { setupTxs: string[] } }>(
+        "/api/account/reactivate",
         { publicKey }
       );
       return data.data;
