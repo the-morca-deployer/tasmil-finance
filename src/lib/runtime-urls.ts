@@ -13,7 +13,7 @@ export function getPublicAiBaseUrl(env: NodeJS.ProcessEnv = process.env): string
 }
 
 export function getServerAiBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
-  const url = env["AI_INTERNAL_URL"] ?? env["NEXT_PUBLIC_AI_URL"] ?? "http://localhost:8001";
+  const url = env["AI_INTERNAL_URL"] ?? "http://localhost:8001";
   return trimTrailingSlash(url);
 }
 

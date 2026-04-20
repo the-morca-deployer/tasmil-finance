@@ -31,6 +31,14 @@ describe("runtime URL helpers", () => {
     expect(getServerAiBaseUrl()).toBe("http://ai:8001");
   });
 
+  it("falls back to the local AI service instead of the public frontend origin", async () => {
+    process.env.NEXT_PUBLIC_AI_URL = "http://localhost:3000/";
+
+    const { getServerAiBaseUrl } = await import("./runtime-urls");
+
+    expect(getServerAiBaseUrl()).toBe("http://localhost:8001");
+  });
+
   it("prefers BACKEND_INTERNAL_URL for server-side backend traffic", async () => {
     process.env.BACKEND_INTERNAL_URL = "http://backend:6756/";
     process.env.NEXT_PUBLIC_BACKEND_URL = "http://localhost:6756/";
