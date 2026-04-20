@@ -6,7 +6,7 @@ import type { CardMode } from "../../schemas/common.schema";
 import type { ReserveCardProps } from "../../schemas/blend.schema";
 import { ProtocolCard } from "../base/protocol-card";
 import { Bar, MetricBox, Row, APYDisplay } from "../base/indicators";
-import { formatPercent, fmt, formatNumber } from "../../lib/formatting";
+import { pct, fmt, formatNumber } from "../../lib/formatting";
 
 interface BlendReserveCardComponentProps {
   reserve: ReserveCardProps;
@@ -24,13 +24,13 @@ export function BlendReserveCard({ reserve, mode = "playground" }: BlendReserveC
           {reserve.supplyApy != null && (
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Supply APY</span>
-              <span className="text-foreground font-semibold">{formatPercent(reserve.supplyApy)}</span>
+              <APYDisplay value={reserve.supplyApy} />
             </div>
           )}
           {reserve.borrowApy != null && (
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Borrow APY</span>
-              <span className="text-orange-500">{formatPercent(reserve.borrowApy)}</span>
+              <span className="text-orange-500">{Number(reserve.borrowApy).toFixed(2)}%</span>
             </div>
           )}
           {reserve.collateralFactor != null && (
@@ -90,21 +90,21 @@ export function BlendReserveCard({ reserve, mode = "playground" }: BlendReserveC
       </div>
       <div className="p-4 space-y-3">
         <div className="grid grid-cols-2 gap-2">
-          <MetricBox label="Supply APY" value={formatPercent(reserve.supplyApy)} />
-          <MetricBox label="Borrow APY" value={formatPercent(reserve.borrowApy)} />
+          <MetricBox label="Supply APY" value={pct(reserve.supplyApy)} />
+          <MetricBox label="Borrow APY" value={pct(reserve.borrowApy)} />
         </div>
         <div>
           <div className="flex justify-between text-[10px] mb-1">
             <span className="text-muted-foreground">Utilization</span>
-            <span className="text-foreground tabular-nums">{formatPercent(reserve.utilization)}</span>
+            <span className="text-foreground tabular-nums">{pct(reserve.utilization)}</span>
           </div>
           <Bar value={reserve.utilization} />
         </div>
         <div className="space-y-1.5 text-xs">
           <Row label="Total Supply" value={`${fmt(reserve.totalSupplied)} ${sym}`} />
           <Row label="Total Borrow" value={`${fmt(reserve.totalBorrowed)} ${sym}`} />
-          <Row label="C-Factor" value={formatPercent(reserve.collateralFactor)} />
-          <Row label="L-Factor" value={formatPercent(reserve.liabilityFactor)} />
+          <Row label="C-Factor" value={pct(reserve.collateralFactor)} />
+          <Row label="L-Factor" value={pct(reserve.liabilityFactor)} />
         </div>
       </div>
     </ProtocolCard>

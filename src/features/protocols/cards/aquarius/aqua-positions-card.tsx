@@ -5,7 +5,7 @@ import type { CardMode } from "../../schemas/common.schema";
 import type { AquaPositionsCardProps, AquaPositionItem } from "../../schemas/aquarius.schema";
 import { ProtocolCard, EmptyState } from "../base/protocol-card";
 import { APYDisplay, CardHeader } from "../base/indicators";
-import { fmt, formatPercent } from "../../lib/formatting";
+import { fmt, pct } from "../../lib/formatting";
 
 interface AquaPositionsCardComponentProps {
   data: AquaPositionsCardProps;
@@ -104,11 +104,11 @@ export function AquaPositionsCard({ data, mode = "playground" }: AquaPositionsCa
               </div>
               <div>
                 <p className="text-muted-foreground/60">Fee APY</p>
-                <p className="text-foreground tabular-nums">{formatPercent(pos.feeApy)}</p>
+                <p className="text-foreground tabular-nums">{pct(pos.feeApy)}</p>
               </div>
               <div>
                 <p className="text-muted-foreground/60">Reward APY</p>
-                <p className="text-emerald-400 tabular-nums">{formatPercent(pos.rewardApy)}</p>
+                <p className="text-emerald-400 tabular-nums">{pct(pos.rewardApy)}</p>
               </div>
             </div>
           </div>

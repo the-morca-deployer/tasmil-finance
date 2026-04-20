@@ -71,6 +71,7 @@ export function unwrapMcpResult<T = Record<string, unknown>>(
 
 // ─── MCP APY conversion ────────────────────────────────────────
 // MCP returns APY as percentages (0.16 = 0.16%) but SDK normalizers
+// + pct() display expect raw decimals (0.001 = 0.10%).
 // Convert: if all APY values in a reserve are < 50, they're already
 // percentage format → divide by 100 to get decimal.
 

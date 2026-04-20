@@ -1,6 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { STELLAR_NETWORK } from "@/shared/config/stellar-server";
 import { getTokenPoolRegistry } from "@tasmil/adapter-sdk";
+
+function getNetwork(): "mainnet" | "testnet" {
+  const raw = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] ?? process.env["STELLAR_NETWORK"] ?? "mainnet";
+  return raw.toLowerCase().includes("test") ? "testnet" : "mainnet";
+}
 
 /**
  * GET /api/aquarius/registry?action=resolve-pool&pair=XLM/USDC&protocol=aquarius
@@ -13,7 +17,7 @@ import { getTokenPoolRegistry } from "@tasmil/adapter-sdk";
  * Exposes the TokenPoolRegistry for AI agent and test usage.
  */
 export async function GET(req: NextRequest) {
-  const network = STELLAR_NETWORK;
+  const network = getNetwork();
   const registry = getTokenPoolRegistry(network);
   const action = req.nextUrl.searchParams.get("action") ?? "list-pools";
 

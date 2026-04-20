@@ -12,7 +12,6 @@ const VALID_OPERATIONS = [
   "backstop-deposit",
   "queue-withdrawal",
   "dequeue-withdrawal",
-  "backstop-withdraw",
 ] as const;
 type OpName = (typeof VALID_OPERATIONS)[number];
 
@@ -48,8 +47,50 @@ export async function POST(
 
   try {
     const txResult = await buildTx(sdk, operation as OpName, body);
-    const { xdr, estimatedFee, context } = txResult;
+    const { xdr, estimatedFee } = txResult;
     const opName = getOperationName(operation as OpName);
+
+    // Pool operations: enrich with APY + position context
+    const pool = body.pool;
+    const asset = body.asset;
+    const from = body.from;
+    const isPoolOp = pool && asset && from && isPoolOperation(operation as OpName);
+
+    let context: Record<string, unknown> | undefined;
+    if (isPoolOp) {
+      const [poolData, positions] = await Promise.allSettled([
+        sdk.blend.getPool(pool),
+        sdk.blend.getUserPositions(pool, from),
+      ]);
+
+      const reserve =
+        poolData.status === "fulfilled" && poolData.value
+          ? poolData.value.reserves.find((r) => r.assetAddress === asset)
+          : null;
+
+      let currentSupplied: number | null = null;
+      let currentBorrowed: number | null = null;
+      if (positions.status === "fulfilled" && positions.value) {
+        const pos = positions.value;
+        const supplyPos = [...(pos.collateral ?? []), ...(pos.supply ?? [])].find(
+          (p) => p.assetAddress === asset,
+        );
+        if (supplyPos) currentSupplied = supplyPos.amount;
+        const borrowPos = (pos.liabilities ?? []).find((p) => p.assetAddress === asset);
+        if (borrowPos) currentBorrowed = borrowPos.amount;
+      }
+
+      context = {
+        symbol: reserve?.symbol,
+        reserveApy: reserve
+          ? { supplyApy: reserve.supplyApy, borrowApy: reserve.borrowApy }
+          : undefined,
+        currentPosition:
+          currentSupplied != null || currentBorrowed != null
+            ? { suppliedAmount: currentSupplied, borrowedAmount: currentBorrowed }
+            : undefined,
+      };
+    }
 
     return NextResponse.json({
       success: true,
@@ -69,86 +110,41 @@ export async function POST(
 
 // ─── Helpers ──────────────────────────────────────────────────────
 
+function isPoolOperation(op: OpName): boolean {
+  return ["deposit", "withdraw", "borrow", "repay", "toggle-collateral"].includes(op);
+}
+
 async function buildTx(
   sdk: ReturnType<typeof getBlendClient>,
   operation: OpName,
   body: Record<string, string>,
 ) {
-  const required = (field: string): string => {
-    const value = body[field];
-    if (!value) {
-      throw new Error(`Missing required field: ${field}`);
-    }
-    return value as string;
-  };
+  const { pool, asset, amount, from, enable, lpAmount, minLpOut, minBlndOut, minUsdcOut } = body;
 
   switch (operation) {
     case "deposit":
-      return sdk.blend.buildDeposit({
-        pool: required("pool"),
-        asset: required("asset"),
-        amount: required("amount"),
-        from: required("from"),
-      });
+      return sdk.blend.buildDeposit({ pool, asset, amount, from });
     case "withdraw":
-      return sdk.blend.buildWithdraw({
-        pool: required("pool"),
-        asset: required("asset"),
-        amount: required("amount"),
-        from: required("from"),
-      });
+      return sdk.blend.buildWithdraw({ pool, asset, amount, from });
     case "borrow":
-      return sdk.blend.buildBorrow({
-        pool: required("pool"),
-        asset: required("asset"),
-        amount: required("amount"),
-        from: required("from"),
-      });
+      return sdk.blend.buildBorrow({ pool, asset, amount, from });
     case "repay":
-      return sdk.blend.buildRepay({
-        pool: required("pool"),
-        asset: required("asset"),
-        amount: required("amount"),
-        from: required("from"),
-      });
+      return sdk.blend.buildRepay({ pool, asset, amount, from });
     case "toggle-collateral":
       return sdk.blend.buildToggleCollateral({
-        pool: required("pool"),
-        asset: required("asset"),
-        amount: required("amount"),
-        from: required("from"),
-        enable: body.enable !== "false" && body.enable !== undefined,
+        pool, asset, amount, from,
+        enable: enable !== "false" && enable !== undefined,
       });
     case "join-pool":
-      return sdk.blend.buildCometJoinPool({
-        asset: required("asset"),
-        amount: required("amount"),
-        from: required("from"),
-        minLpOut: required("minLpOut"),
-      });
+      return sdk.blend.buildCometJoinPool({ asset, amount, from, minLpOut });
     case "exit-pool":
-      return sdk.blend.buildCometExitPool({
-        lpAmount: required("lpAmount"),
-        from: required("from"),
-        minBlndOut: required("minBlndOut"),
-        minUsdcOut: required("minUsdcOut"),
-      });
+      return sdk.blend.buildCometExitPool({ lpAmount, from, minBlndOut, minUsdcOut });
     case "backstop-deposit":
-      return sdk.blend.buildBackstopDeposit({
-        pool: required("pool"),
-        amount: required("amount"),
-        from: required("from"),
-      });
+      return sdk.blend.buildBackstopDeposit({ pool, amount, from });
     case "queue-withdrawal":
-      return sdk.blend.buildBackstopQueueWithdrawal({
-        pool: required("pool"),
-        amount: required("amount"),
-        from: required("from"),
-      });
+      return sdk.blend.buildBackstopQueueWithdrawal({ pool, amount, from });
     case "dequeue-withdrawal":
       return sdk.blend.buildBackstopDequeueWithdrawal({ pool, amount, from });
-    case "backstop-withdraw":
-      return sdk.blend.buildBackstopWithdraw({ pool, amount, from });
   }
 }
 
@@ -164,7 +160,6 @@ function getOperationName(op: OpName): string {
     "backstop-deposit": "backstop_deposit",
     "queue-withdrawal": "backstop_queue",
     "dequeue-withdrawal": "backstop_dequeue",
-    "backstop-withdraw": "backstop_withdraw",
   };
   return map[op];
 }

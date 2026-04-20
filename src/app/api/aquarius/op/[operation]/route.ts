@@ -1,9 +1,17 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createTasmilClient } from "@tasmil/adapter-sdk";
-import { STELLAR_NETWORK } from "@/shared/config/stellar-server";
+
+function getNetwork(): "mainnet" | "testnet" {
+  const raw = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] ?? process.env["STELLAR_NETWORK"] ?? "mainnet";
+  return raw.toLowerCase().includes("test") ? "testnet" : "mainnet";
+}
 
 function getSdk() {
-  return createTasmilClient({ network: STELLAR_NETWORK });
+  return createTasmilClient({
+    network: getNetwork(),
+    rpcUrl: process.env["STELLAR_RPC_URL"],
+    horizonUrl: process.env["STELLAR_HORIZON_URL"],
+  });
 }
 
 const VALID_OPERATIONS = [
@@ -175,9 +183,8 @@ export async function POST(
         return NextResponse.json({ success: false, error: `Unhandled: ${operation}` }, { status: 400 });
     }
   } catch (e) {
-    const rawError = e instanceof Error ? e.message : "Operation failed";
     return NextResponse.json(
-      { success: false, error: humanizeAquariusError(rawError) },
+      { success: false, error: e instanceof Error ? e.message : "Operation failed" },
       { status: 400 },
     );
   }

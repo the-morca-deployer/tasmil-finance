@@ -30,6 +30,7 @@ import {
   normalizeAquaPositionsFromSdk,
 } from "@/features/protocols/adapters/aquarius-from-sdk";
 import { TokenImage } from "@/shared/components/token-image";
+import { useMultiTrustlineCheck } from "@/features/protocols/hooks/use-multi-trustline-check";
 import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
@@ -509,6 +510,12 @@ function DepositPanel({ poolAddress, walletAddress: userAddr }: { poolAddress: s
   const tickSpacing = pool?.tick_spacing;
   const rate = reserveA > 0 && reserveB > 0 ? reserveB / reserveA : null;
 
+  // Inline trustline check for deposit
+  const depTokens = [tokenA, tokenB];
+  if (pool?.gauge_enabled && !depTokens.includes("ICE")) depTokens.push("ICE");
+  const depTokenList = depTokens.map((s) => ({ contract: TOKEN_CONTRACTS[s] ?? s, symbol: s }));
+  const depTlCheck = useMultiTrustlineCheck(from || undefined, depTokenList);
+
   // Auto-calculate paired amount
   const onChangeA = (val: string) => {
     setAmountA(val);
@@ -639,9 +646,26 @@ function DepositPanel({ poolAddress, walletAddress: userAddr }: { poolAddress: s
       <div><label className={labelCls}>From Address</label>
         <input className={inputCls} value={from} readOnly /></div>
 
+      {/* Trustline precheck — blocks Deposit button */}
+      {depTlCheck.checking && (
+        <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Checking trustlines...</p>
+      )}
+      {depTlCheck.hasMissing && !depTlCheck.checking && (
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 space-y-2">
+          <p className="text-xs text-amber-400 font-medium">Missing trustlines: {depTlCheck.missing.map((t) => t.symbol).join(", ")}</p>
+          <p className="text-[10px] text-muted-foreground">Add trustlines before depositing.</p>
+          {depTlCheck.missing.map((t) => (
+            <button key={t.contract} type="button" onClick={() => depTlCheck.addTrustline(t.contract, t.symbol)} disabled={depTlCheck.adding}
+              className="w-full rounded-lg py-1.5 text-xs font-semibold bg-amber-500/20 border border-amber-500/30 text-amber-400 hover:bg-amber-500/30 transition-all disabled:opacity-40 flex items-center justify-center gap-1.5">
+              {depTlCheck.adding ? <><Loader2 className="h-3 w-3 animate-spin" /> Adding...</> : `Add ${t.symbol} Trustline`}
+            </button>
+          ))}
+        </div>
+      )}
+
       <Button variant="ghost" size="sm"
         className="border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 gap-1.5"
-        onClick={build} disabled={loading || !amountA || !amountB || !pool}>
+        onClick={build} disabled={loading || !amountA || !amountB || !pool || depTlCheck.hasMissing || depTlCheck.checking}>
         {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />} Deposit
       </Button>
 
@@ -680,9 +704,6 @@ function WithdrawPanel({ poolAddress, walletAddress: userAddr }: { poolAddress: 
   const [withdrawPct, setWithdrawPct] = useState(100);
   // Standard pool
   const [shares, setShares] = useState("");
-  const [standardShares, setStandardShares] = useState<string | null>(null);
-  const [sharesLoading, setSharesLoading] = useState(false);
-  const [sharesError, setSharesError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!poolAddr) return;
@@ -710,47 +731,7 @@ function WithdrawPanel({ poolAddress, walletAddress: userAddr }: { poolAddress: 
       .finally(() => setPosLoading(false));
   }, [isConcentrated, poolAddr, from]);
 
-  // Fetch standard (non-concentrated) LP shares for current pool/user.
-  useEffect(() => {
-    if (isConcentrated || !poolAddr || !from) {
-      setStandardShares(null);
-      setSharesError(null);
-      return;
-    }
-    let cancelled = false;
-    setSharesLoading(true);
-    setSharesError(null);
-    fetch(`${SDK_QUERY_URL}/my-liquidity?pool=${poolAddr}&user=${from}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (cancelled) return;
-        if (!d?.success) {
-          setStandardShares(null);
-          setSharesError(typeof d?.error === "string" ? d.error : "Failed to load LP position");
-          return;
-        }
-        const nextShares = d?.positions?.[0]?.shares;
-        if (typeof nextShares === "string") {
-          setStandardShares(nextShares);
-          // Prefill only when empty to avoid overwriting user's manual input.
-          setShares((prev) => prev || nextShares);
-        } else {
-          setStandardShares(null);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setStandardShares(null);
-          setSharesError("Failed to load LP position");
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setSharesLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, [isConcentrated, poolAddr, from]);
-
-  const liquidity = position ? BigInt(String(position.liquidity ?? "0").split(".")[0]) : 0n;
+  const liquidity = position ? BigInt(position.liquidity ?? "0") : 0n;
   const withdrawLiquidity = liquidity > 0n ? (liquidity * BigInt(withdrawPct) / 100n).toString() : "0";
 
   // Estimate receive amounts (proportional from reserves)
@@ -762,6 +743,12 @@ function WithdrawPanel({ poolAddress, walletAddress: userAddr }: { poolAddress: 
   const estReceiveB = liquidity > 0n && totalShare > 0 && reserves[1]
     ? (Number(reserves[1]) * Number(withdrawLiquidity) / totalShare / 1e7).toFixed(7)
     : null;
+
+  // Trustline check
+  const wdTokens = [tokenA, tokenB];
+  if (pool?.gauge_enabled && !wdTokens.includes("ICE")) wdTokens.push("ICE");
+  const wdTokenList = wdTokens.map((s) => ({ contract: TOKEN_CONTRACTS[s] ?? s, symbol: s }));
+  const tlCheck = useMultiTrustlineCheck(from || undefined, wdTokenList);
 
   const build = useCallback(async () => {
     setLoading(true); setError(null); setResult(null);
@@ -854,46 +841,30 @@ function WithdrawPanel({ poolAddress, walletAddress: userAddr }: { poolAddress: 
           )}
         </>
       ) : (
-        <div className="space-y-2">
-          <div><label className={labelCls}>Shares</label>
-            <input className={inputCls} value={shares} onChange={(e) => setShares(e.target.value)} placeholder="100" type="number" step="any" /></div>
-          <div className="rounded-lg border border-border bg-secondary/30 p-2.5 text-[11px]">
-            {sharesLoading ? (
-              <p className="text-muted-foreground flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Loading your position...</p>
-            ) : sharesError ? (
-              <p className="text-red-400">{sharesError}</p>
-            ) : standardShares && Number(standardShares) > 0 ? (
-              <div className="space-y-1.5">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Your LP shares</span>
-                  <span className="text-foreground tabular-nums">{Number(standardShares).toLocaleString(undefined, { maximumFractionDigits: 7 })}</span>
-                </div>
-                <div className="flex gap-1.5 pt-0.5">
-                  {[25, 50, 75, 100].map((pct) => (
-                    <button
-                      key={pct}
-                      type="button"
-                      onClick={() => setShares((Number(standardShares) * pct / 100).toFixed(7))}
-                      className="text-[10px] px-2 py-1 rounded bg-secondary/60 text-muted-foreground hover:text-foreground"
-                    >
-                      {pct}%
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <p className="text-muted-foreground">No LP position found for this pool and wallet.</p>
-            )}
-          </div>
-        </div>
+        <div><label className={labelCls}>Shares</label>
+          <input className={inputCls} value={shares} onChange={(e) => setShares(e.target.value)} placeholder="100" type="number" step="any" /></div>
       )}
 
       <div><label className={labelCls}>From Address</label>
         <input className={inputCls} value={from} readOnly /></div>
 
+      {/* Trustline precheck */}
+      {tlCheck.checking && <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Checking trustlines...</p>}
+      {tlCheck.hasMissing && !tlCheck.checking && (
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 space-y-2">
+          <p className="text-xs text-amber-400 font-medium">Missing trustlines: {tlCheck.missing.map((t) => t.symbol).join(", ")}</p>
+          {tlCheck.missing.map((t) => (
+            <button key={t.contract} type="button" onClick={() => tlCheck.addTrustline(t.contract, t.symbol)} disabled={tlCheck.adding}
+              className="w-full rounded-lg py-1.5 text-xs font-semibold bg-amber-500/20 border border-amber-500/30 text-amber-400 hover:bg-amber-500/30 transition-all disabled:opacity-40 flex items-center justify-center gap-1.5">
+              {tlCheck.adding ? <><Loader2 className="h-3 w-3 animate-spin" /> Adding...</> : `Add ${t.symbol} Trustline`}
+            </button>
+          ))}
+        </div>
+      )}
+
       <Button variant="ghost" size="sm"
         className="border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 gap-1.5"
-        onClick={build} disabled={loading || !pool || !canBuild}>
+        onClick={build} disabled={loading || !pool || !canBuild || tlCheck.hasMissing || tlCheck.checking}>
         {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />} Withdraw
       </Button>
 
@@ -921,8 +892,48 @@ const TOKEN_CONTRACTS: Record<string, string> = {
   ICE: "CCQZWA6GDCNLEMNUYTCMYGIXLX3ECAXW7RICSUZWWXM5AMDWAANC4SZK",
 };
 
+// ── TrustlinePrecheck ───────────────────────────────────────────
+// Shows warning + add buttons for missing trustlines before Build TX
+function TrustlinePrecheck({ walletAddress, tokens, poolAddress, gaugeEnabled }: {
+  walletAddress: string; tokens: string[]; poolAddress: string; gaugeEnabled?: boolean;
+}) {
+  // Build list: pool tokens + ICE if gauge enabled
+  const allTokens = [...tokens];
+  if (gaugeEnabled && !allTokens.includes("ICE")) allTokens.push("ICE");
+
+  const tokenList = allTokens.map((sym) => ({
+    contract: TOKEN_CONTRACTS[sym] ?? sym,
+    symbol: sym,
+  }));
+
+  const { missing, hasMissing, checking, addTrustline, adding } = useMultiTrustlineCheck(
+    walletAddress || undefined,
+    tokenList,
+  );
+
+  if (checking) {
+    return <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Checking trustlines...</p>;
+  }
+
+  if (!hasMissing) return null;
+
+  return (
+    <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 space-y-2">
+      <p className="text-xs text-amber-400 font-medium">Missing trustlines: {missing.map((t) => t.symbol).join(", ")}</p>
+      <p className="text-[10px] text-muted-foreground">You need trustlines for all pool tokens before deposit/withdraw.</p>
+      {missing.map((t) => (
+        <button key={t.contract} type="button" onClick={() => addTrustline(t.contract, t.symbol)} disabled={adding}
+          className="w-full rounded-lg py-1.5 text-xs font-semibold bg-amber-500/20 border border-amber-500/30 text-amber-400 hover:bg-amber-500/30 transition-all disabled:opacity-40 flex items-center justify-center gap-1.5">
+          {adding ? <><Loader2 className="h-3 w-3 animate-spin" /> Adding...</> : `Add ${t.symbol} Trustline`}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ── Default pools ───────────────────────────────────────────────
 const DEFAULT_LP_POOL = "CD3LFMMLBQ6RBJUD3Z2LFDFE6544WDRMWHEZYPI5YDVESYRSO2TT32BX"; // XLM/USDC constant_product
+const DEFAULT_CL_POOL = "CAD5TBS4NKO35YDYZN3ULQFXDXVL7BPK4Q2RUG7N4DVPYNNOEAUAQJ6F"; // USDC/XLM concentrated
 
 // ── Main playground ─────────────────────────────────────────────
 export default function AquariusPlaygroundPage() {
@@ -971,6 +982,11 @@ export default function AquariusPlaygroundPage() {
   const poolAddress = selectedPool ?? "";
   const poolDefaults: Record<string, string> = { pool: poolAddress };
   const userDefaults: Record<string, string> = { pool: poolAddress, user: walletAddress ?? "" };
+
+  // Known token addresses
+  const XLM = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
+  const USDC = "CAQCFVLOBK5GIULPNZRGATJJMIZL5BSP7X5YJVMGCPTUEPFM4AVSRCJU";
+  // Known token addresses (moved from below)
 
   const tabs = [
     { key: "queries" as const, label: "Queries (17)" },
@@ -1469,13 +1485,13 @@ export default function AquariusPlaygroundPage() {
                   endpoint="swap"
                   operation="swap"
                   fields={[
-                    { key: "tokenIn", label: "Token In (symbol or contract)", placeholder: "XLM or C..." },
-                    { key: "tokenOut", label: "Token Out (symbol or contract)", placeholder: "USDC or C..." },
+                    { key: "tokenIn", label: "Token In (contract)", placeholder: "C..." },
+                    { key: "tokenOut", label: "Token Out (contract)", placeholder: "C..." },
                     { key: "amount", label: "Amount", placeholder: "12" },
                     { key: "from", label: "From Address", placeholder: "G..." },
                     { key: "slippageBps", label: "Slippage (bps)", placeholder: "100 = 1%" },
                   ]}
-                  defaults={{ tokenIn: "XLM", tokenOut: "USDC", amount: "12", from: walletAddress ?? "", slippageBps: "100" }}
+                  defaults={{ tokenIn: XLM, tokenOut: USDC, amount: "12", from: walletAddress ?? "", slippageBps: "100" }}
                 />
               </div>
             </div>

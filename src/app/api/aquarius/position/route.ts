@@ -1,6 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createTasmilClient } from "@tasmil/adapter-sdk";
-import { STELLAR_NETWORK } from "@/shared/config/stellar-server";
+
+function getNetwork(): "mainnet" | "testnet" {
+  const raw = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] ?? process.env["STELLAR_NETWORK"] ?? "mainnet";
+  return raw.toLowerCase().includes("test") ? "testnet" : "mainnet";
+}
 
 /**
  * GET /api/aquarius/position?pool=C...&user=G...&tickLower=-887200&tickUpper=887200
@@ -18,7 +22,11 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const sdk = createTasmilClient({ network: STELLAR_NETWORK });
+    const sdk = createTasmilClient({
+      network: getNetwork(),
+      rpcUrl: process.env["STELLAR_RPC_URL"],
+      horizonUrl: process.env["STELLAR_HORIZON_URL"],
+    });
 
     const position = await sdk.aquarius.getPosition({
       poolAddress: pool,
@@ -30,7 +38,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       success: true,
       position,
-      hasPosition: position != null && BigInt(String(position.liquidity).split(".")[0]) > 0n,
+      hasPosition: position != null && BigInt(position.liquidity) > 0n,
     });
   } catch (e) {
     return NextResponse.json(

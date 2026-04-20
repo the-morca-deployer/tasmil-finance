@@ -4,11 +4,12 @@ import { cn } from "@/lib/utils";
 
 // ─── Playground-style micro components ──────────────────────────
 
-/** APY display - value is decimal from SDK (e.g. 1.7922 = 179.22%). */
+/** APY display - auto-detects 0-1 range vs 0-100. */
 export function Apy({ value }: { value: unknown }) {
   const n = Number(value);
   if (!Number.isFinite(n)) return <span className="text-muted-foreground">{"\u2014"}</span>;
-  return <span className="text-foreground tabular-nums text-xs">{(n * 100).toFixed(2)}%</span>;
+  const p = n < 1 ? n * 100 : n;
+  return <span className="text-foreground tabular-nums text-xs">{p.toFixed(2)}%</span>;
 }
 
 /** Badge tag for type (supply, collateral, borrow, active, setup). */
@@ -29,16 +30,21 @@ export function Tag({ type }: { type: string }) {
   );
 }
 
-/** Utilization progress bar - value is 0-1 ratio. */
+/** Utilization progress bar. */
 export function Bar({ value }: { value: unknown }) {
   const n = Number(value);
-  const p = Number.isFinite(n) ? n * 100 : 0;
+  const p = Number.isFinite(n) ? (n < 1 ? n * 100 : n) : 0;
   return (
-    <div className="h-1 w-full rounded-full bg-border overflow-hidden">
-      <div
-        className="h-full rounded-full bg-primary/60"
-        style={{ width: `${Math.min(p, 100)}%` }}
-      />
+    <div className="flex items-center gap-1.5 w-full">
+      <div className="h-1 flex-1 rounded-full bg-border overflow-hidden">
+        <div
+          className="h-full rounded-full bg-primary/60"
+          style={{ width: `${Math.min(p, 100)}%` }}
+        />
+      </div>
+      <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+        {p.toFixed(0)}%
+      </span>
     </div>
   );
 }
