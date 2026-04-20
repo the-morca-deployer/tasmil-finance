@@ -445,6 +445,7 @@ function FarmingContent() {
               size="default"
               className="px-6"
               onClick={() => openAccountModal("withdraw")}
+              disabled={isRevoked}
             >
               Withdraw
             </Button>
@@ -519,7 +520,7 @@ function FarmingContent() {
                     <Info className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <span className="flex-1 text-sm text-muted-foreground">
                       <strong className="text-foreground">Agent paused.</strong>{" "}
-                      You can deposit and withdraw anytime. Activate the session key to resume automation.
+                      Deposits are available, but withdrawals require reactivating the session key first.
                     </span>
                     <Button
                       size="sm"
