@@ -1,10 +1,13 @@
 "use client";
 
-import { useOnborda } from "onborda";
 import { useEffect, useRef } from "react";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { useOnboardingStore } from "@/store/use-onboarding";
+
+// Onborda disabled — mock hook to avoid provider errors
+// import { useOnborda } from "onborda";
+const useOnborda = () => ({ startOnborda: () => {} });
 
 /**
  * Triggers the welcome modal on first authentication.

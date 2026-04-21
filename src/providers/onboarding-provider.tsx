@@ -30,14 +30,15 @@ function ScrollBridge() {
 }
 
 export function OnboardingProvider({ children }: PropsWithChildren) {
-  return (
-    <OnbordaContextProvider>
-      <Onborda steps={tours} shadowRgb="0,0,0" shadowOpacity="0.7" cardComponent={TourCard}>
-        <OnboardingTrigger />
-        <ScrollBridge />
-        {children}
-        <WelcomeModal />
-      </Onborda>
-    </OnbordaContextProvider>
-  );
+  // return (
+  //   <OnbordaContextProvider>
+  //     <Onborda steps={tours} shadowRgb="0,0,0" shadowOpacity="0.7" cardComponent={TourCard}>
+  //       <OnboardingTrigger />
+  //       <ScrollBridge />
+  //       {children}
+  //       <WelcomeModal />
+  //     </Onborda>
+  //   </OnbordaContextProvider>
+  // );
+  return <>{children}</>;
 }

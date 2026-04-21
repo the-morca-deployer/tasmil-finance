@@ -41,7 +41,7 @@ export function AppProvider({ children }: PropsWithChildren) {
         </TooltipProvider>
         <Toaster position="top-right" richColors />
       </ThemeProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {process.env["NEXT_PUBLIC_APP_ENV"] === "development" && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 }

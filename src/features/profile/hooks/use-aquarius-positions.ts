@@ -42,7 +42,7 @@ function poolPairName(pool: ApiPool): string {
 
 async function fetchPoolList(): Promise<ApiPool[]> {
   const pools: ApiPool[] = [];
-  for (let page = 1; page <= 10; page++) {
+  for (let page = 1; page <= 3; page++) {
     try {
       const url = `/api/aquarius-proxy?path=pools/&page=${page}&page_size=50&ordering=-total_value_locked`;
       const res = await fetch(url);
@@ -95,7 +95,12 @@ async function viewCall<T = unknown>(
       .setTimeout(30)
       .build();
 
-    const sim = await server.simulateTransaction(tx);
+    const sim = await Promise.race([
+      server.simulateTransaction(tx),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("timeout")), 5000),
+      ),
+    ]);
     if (sdk.rpc.Api.isSimulationSuccess(sim) && sim.result?.retval) {
       return sdk.scValToNative(sim.result.retval) as T;
     }
@@ -232,7 +237,7 @@ async function fetchAquariusPositions(
   }
 
   // ── 2a. Classic pools: share_id → balance on LP token ───────────────────
-  const BATCH = 8;
+  const BATCH = 20;
   for (let i = 0; i < classicPools.length; i += BATCH) {
     const batch = classicPools.slice(i, i + BATCH);
     const results = await Promise.allSettled(

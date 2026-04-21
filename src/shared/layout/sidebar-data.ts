@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Bot, Droplets, Home, Tractor, Wallet, KeyRound, Mail } from "lucide-react";
+import { ArrowLeftRight, Bot, Droplets, FlaskConical, Home, Tractor, Wallet, KeyRound, Mail } from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -6,6 +6,7 @@ export interface NavItem {
   icon?: any;
   badge?: string;
   testnetOnly?: boolean;
+  devOnly?: boolean;
 }
 
 export interface NavGroup {
@@ -27,13 +28,18 @@ export interface SidebarData {
   navGroups: NavGroup[];
 }
 
-const isTestnet = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] !== "mainnet";
+const isTestnet = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] === "testnet";
+const isDev = process.env["NEXT_PUBLIC_APP_ENV"] === "development";
 
 function filterNavGroups(groups: NavGroup[]): NavGroup[] {
   return groups
     .map((group) => ({
       ...group,
-      items: group.items.filter((item) => !item.testnetOnly || isTestnet),
+      items: group.items.filter(
+        (item) =>
+          (!item.testnetOnly || isTestnet) &&
+          (!item.devOnly || isDev),
+      ),
     }))
     .filter((group) => group.items.length > 0);
 }
@@ -93,6 +99,13 @@ const _sidebarData: SidebarData = {
           title: "Aggregator",
           url: "/aggregator",
           icon: ArrowLeftRight,
+          devOnly: true,
+        },
+        {
+          title: "Playground",
+          url: "/playground",
+          icon: FlaskConical,
+          devOnly: true,
         },
       ],
     },

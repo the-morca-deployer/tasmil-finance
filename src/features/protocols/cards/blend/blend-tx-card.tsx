@@ -118,6 +118,14 @@ export function BlendTxCard({
 
   const handleSign = () => sign(xdr);
 
+  const handleCancel = () => {
+    respond?.({ success: false, cancelled: true, reason: "User cancelled the operation" });
+    stream?.submit(
+      { messages: [{ id: `__hidden__tx-cancel-${Date.now()}`, type: "human", content: "Transaction cancelled by user" }] },
+      { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true }
+    );
+  };
+
   // ─── Chat mode ────────────────────────────────────────────────
   if (mode === "chat") {
     const effectiveResult = txResult;
@@ -154,15 +162,63 @@ export function BlendTxCard({
           <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3">
             <p className="text-destructive text-sm">{effectiveResult.message}</p>
           </div>
+        ) : cancelled ? (
+          <div className="rounded-md border border-border bg-muted/30 p-3 text-center text-xs text-muted-foreground">
+            Transaction cancelled
+          </div>
         ) : (
-          <button
-            type="button"
-            onClick={handleSign}
-            disabled={signing || !xdr}
-            className="mt-2 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
-          >
-            {signing ? <><Loader2 className="h-4 w-4 animate-spin" /> Signing...</> : cfg.buttonText}
-          </button>
+          <div className="relative">
+            <div className="mt-2 flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (cfg.cancel) {
+                    setCancelled(true);
+                    handleCancel();
+                  } else {
+                    setShowCancelWarning(true);
+                  }
+                }}
+                disabled={signing}
+                className="flex-1 rounded-lg border border-border py-2.5 text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (cfg.sign) {
+                    handleSign();
+                  } else {
+                    setShowCancelWarning(true);
+                  }
+                }}
+                disabled={signing || !xdr}
+                className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+              >
+                {signing ? <><Loader2 className="h-4 w-4 animate-spin" /> Signing...</> : cfg.buttonText}
+              </button>
+            </div>
+            <CancelWarningPopup
+              visible={showCancelWarning}
+              onKeepEarning={() => setShowCancelWarning(false)}
+              onConfirm={() => {
+                setShowCancelWarning(false);
+                if (!cfg.sign) {
+                  handleSign();
+                } else {
+                  setCancelled(true);
+                  handleCancel();
+                }
+              }}
+              symbol={symbol}
+              amount={fmtAmount(amount)}
+              operation={tx.operation}
+              apy={apy}
+              estimatedYearlyEarnings={estimatedYearlyEarnings}
+              signSafe={cfg.sign}
+            />
+          </div>
         )}
       </ProtocolCard>
     );
@@ -267,11 +323,7 @@ export function BlendTxCard({
               onClick={() => {
                 if (cfg.cancel) {
                   setCancelled(true);
-                  respond?.({ success: false, cancelled: true, reason: "User cancelled the operation" });
-                  stream?.submit(
-                    { messages: [{ id: `__hidden__tx-cancel-${Date.now()}`, type: "human", content: "Transaction cancelled by user" }] },
-                    { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true }
-                  );
+                  handleCancel();
                 } else {
                   setShowCancelWarning(true);
                 }
@@ -308,11 +360,7 @@ export function BlendTxCard({
             handleSign();
           } else {
             setCancelled(true);
-            respond?.({ success: false, cancelled: true, reason: "User cancelled the operation" });
-            stream?.submit(
-              { messages: [{ id: `__hidden__tx-cancel-${Date.now()}`, type: "human", content: "Transaction cancelled by user" }] },
-              { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true }
-            );
+            handleCancel();
           }
         }}
         symbol={symbol}

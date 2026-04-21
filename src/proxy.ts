@@ -14,12 +14,29 @@ export function proxy(request: NextRequest) {
     pathname.startsWith("/api") ||
     pathname.startsWith("/images")
   ) {
-      return NextResponse.next();
+    return NextResponse.next();
   }
 
   // Admin paths are handled client-side by AdminAuthGuard — no server redirect needed
   if (pathname.startsWith("/admin")) {
     return NextResponse.next();
+  }
+
+  // Faucet: testnet only
+  const isTestnet = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] === "testnet";
+  if ((pathname === "/faucet" || pathname.startsWith("/faucet/")) && !isTestnet) {
+    return NextResponse.redirect(new URL("/agents", request.url));
+  }
+
+  // Playground, aggregator, dev: development only
+  const isDev = process.env["NEXT_PUBLIC_APP_ENV"] === "development";
+  const isDevOnly =
+    pathname === "/playground" || pathname.startsWith("/playground/") ||
+    pathname === "/aggregator" || pathname.startsWith("/aggregator/") ||
+    pathname === "/dev" || pathname.startsWith("/dev/");
+
+  if (isDevOnly && !isDev) {
+    return NextResponse.redirect(new URL("/agents", request.url));
   }
 
   return NextResponse.next();
