@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sdk } from "../_sdk";
+import { createTasmilClient } from "@tasmil/adapter-sdk";
+import { STELLAR_NETWORK } from "@/shared/config/stellar-server";
+
+function getClient() {
+  return createTasmilClient({ network: STELLAR_NETWORK });
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,6 +20,7 @@ export async function POST(req: NextRequest) {
 
     const { tokenIn, tokenOut, amount, fromChain = "stellar", toChain = "stellar", from, protocols } = body;
     const isCrossChain = fromChain !== toChain;
+    const sdk = getClient();
 
     if (isCrossChain) {
       // ── Cross-chain bridge ──────────────────────────────────
@@ -34,8 +40,6 @@ export async function POST(req: NextRequest) {
         amountOut:     q.amountOut,
         fee:           q.fee,
         feePercent:    q.feePercent,
-        gasFee:        q.gasFee,
-        gasFeeToken:   q.gasFeeToken,
         estimatedTime: q.estimatedTime,
         route:         [] as string[],
         status:        q.status,

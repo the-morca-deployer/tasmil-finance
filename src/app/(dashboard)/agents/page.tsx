@@ -99,7 +99,28 @@ function toDescriptionBullets(items: string[]): string[] {
 }
 
 // Valid agent graph_ids to display (filter out legacy/test agents)
+const ALL_AGENT_IDS = [
+  "supervisor",
+  "info_agent",
+  "blend_agent",
+  "soroswap_agent",
+  "phoenix_agent",
+  "aquarius_agent",
+  "defindex_agent",
+  "templar_agent",
+  "allbridge_agent",
+  "sdex_agent",
+  "bridge_agent",
+  "research_agent",
+  "yield_agent",
+];
+
 const isTestnet = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] !== "mainnet";
+
+// When on testnet, only show agents that support testnet
+const VALID_AGENT_IDS = isTestnet
+  ? ALL_AGENT_IDS.filter((id) => AGENTS[id]?.testnetAvailable !== false)
+  : ALL_AGENT_IDS;
 
 // Map icon paths from /sidebar/ to /agents/ and ensure correct format
 const normalizeIconPath = (icon: string | undefined, graphId: string): string => {
@@ -152,36 +173,51 @@ export default function AgentsPage() {
 
   // Get unique types from API data for filter bar (only from valid agents)
   const validAgents = useMemo(() => {
-    const apiAgents = searchAssistants.data || [];
-
-    // Deduplicate by graph_id, filter testnet-unavailable agents when on testnet
     const byGraphId = new Map<string, Assistant>();
-    for (const assistant of apiAgents) {
-      const graphId = assistant.graph_id || "";
-      if (!graphId) continue;
-      if (isTestnet && AGENTS[graphId]?.testnetAvailable === false) continue;
-      if (!byGraphId.has(graphId)) {
-        byGraphId.set(graphId, assistant as Assistant);
-      }
-    }
 
-    return Array.from(byGraphId.entries()).map(([graphId, assistant]) => {
+    (searchAssistants.data || [])
+      .filter((assistant) => VALID_AGENT_IDS.includes(assistant.graph_id || ""))
+      .forEach((assistant) => {
+        if (!byGraphId.has(assistant.graph_id || "")) {
+          byGraphId.set(assistant.graph_id || "", assistant as Assistant);
+        }
+      });
+
+    return VALID_AGENT_IDS.map((graphId) => {
+      const assistant = byGraphId.get(graphId);
       const metadata = (assistant?.metadata as AssistantMetadata) || {};
       const config = AGENTS[graphId];
-      const fallbackDescription = config?.description ? [config.description] : ["No description available"];
-      const rawDescription = metadata?.description?.length ? metadata.description : fallbackDescription;
+      const fallbackDescription = config?.description
+        ? [config.description]
+        : ["No description available"];
+      const rawDescription =
+        metadata?.description && metadata.description.length > 0
+          ? metadata.description
+          : fallbackDescription;
       const fallbackChains = config?.supportedChains?.length ? config.supportedChains : ["Stellar"];
 
       return {
-        ...assistant,
+        ...(assistant || {
+          assistant_id: graphId,
+          graph_id: graphId,
+          name: config?.name || graphId,
+          metadata: {},
+        }),
         metadata: {
           ...metadata,
           icon: normalizeIconPath(metadata?.icon, graphId),
-          name: metadata?.name && metadata.name !== "Untitled" ? metadata.name : config?.name || assistant?.name || graphId,
+          name:
+            metadata?.name && metadata.name !== "Untitled"
+              ? metadata.name
+              : config?.name || assistant?.name || graphId,
           type: metadata?.type || AGENT_TYPE_FALLBACK[graphId] || "Discovery",
           description: toDescriptionBullets(rawDescription),
-          supportedChains: metadata?.supportedChains?.length ? metadata.supportedChains : fallbackChains,
-          supportedProtocols: metadata?.supportedProtocols?.length ? metadata.supportedProtocols : AGENT_PROTOCOLS[graphId] || [],
+          supportedChains: metadata?.supportedChains?.length
+            ? metadata.supportedChains
+            : fallbackChains,
+          supportedProtocols: metadata?.supportedProtocols?.length
+            ? metadata.supportedProtocols
+            : AGENT_PROTOCOLS[graphId] || [],
           agentGroup: metadata?.agentGroup || AGENT_GROUPS[graphId],
         },
       } as Assistant;
@@ -227,13 +263,7 @@ export default function AgentsPage() {
   return (
     <main className="h-full bg-background">
       <div className="container mx-auto px-4 md:px-6">
-        <HeroSection
-          agentCount={validAgents.length}
-          agents={validAgents.map((a) => ({
-            name: (a.metadata as AssistantMetadata)?.name || a.name || a.graph_id || "",
-            icon: (a.metadata as AssistantMetadata)?.icon || "/agents/supervisor-agent.svg",
-          }))}
-        />
+        <HeroSection agentCount={validAgents.length} />
 
         <FilterBar
           activeFilter={activeFilter}
