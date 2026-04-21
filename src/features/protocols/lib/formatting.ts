@@ -37,12 +37,6 @@ export function fmt(v: unknown, d = 2): string {
   return n.toFixed(d);
 }
 
-/** Format as percentage. Auto-detects 0-1 range vs 0-100 range. */
-export function pct(v: unknown): string {
-  const n = Number(v);
-  if (!Number.isFinite(n)) return "\u2014";
-  return `${(n < 1 ? n * 100 : n).toFixed(2)}%`;
-}
 
 /** Truncate a long string (address) to first+last chars. */
 export function trunc(s: string, head = 6, tail = 4): string {
@@ -83,10 +77,10 @@ export function formatPrice(price: number | string | undefined | null): string {
 
 /** Format percentage value. */
 export function formatPercent(value: number | string | undefined | null, decimals = 2): string {
-  if (value === undefined || value === null) return "N/A";
+  if (value === undefined || value === null) return "\u2014";
   const n = typeof value === "string" ? Number.parseFloat(value) : value;
-  if (Number.isNaN(n)) return "N/A";
-  return `${n.toFixed(decimals)}%`;
+  if (!Number.isFinite(n)) return "\u2014";
+  return `${(n * 100).toFixed(decimals)}%`;
 }
 
 /** Format raw token amount (BigInt string) to human-readable. */

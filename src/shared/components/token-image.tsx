@@ -35,6 +35,15 @@ const TOKEN_IMAGES: Record<string, string> = {
   WBTC:   "/token/btc.png",
   PHO:    "/token/plasma.svg",
   BLNDUSDCLP: "/token/blndusdclp.svg",
+  // Blend pool tokens
+  USDX:    "/token/usdx.png",
+  EURX:    "/token/eurx.png",
+  GBPX:    "/token/gbpx.png",
+  USTRY:   "/token/ustry.png",
+  TESOURO: "/token/tesouro.png",
+  OUSD:    "/token/ousd.png",
+  RLUSD:   "/token/rlusd.png",
+  KALE:    "/token/kale.png",
 };
 
 // Local chain logos in /public/chains/

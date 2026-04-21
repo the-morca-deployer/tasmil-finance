@@ -8,8 +8,8 @@ import { TokenImage } from "@/shared/components/token-image";
 import type { CardMode } from "../../schemas/common.schema";
 import type { PoolCardProps } from "../../schemas/blend.schema";
 import { ProtocolCard, EmptyState } from "../base/protocol-card";
-import { Apy, Tag, CardHeader } from "../base/indicators";
-import { fmt } from "../../lib/formatting";
+import { Tag, CardHeader } from "../base/indicators";
+import { fmt,  formatPercent } from "../../lib/formatting";
 
 interface BlendPoolsCardProps {
   pools: PoolCardProps[];
@@ -97,11 +97,11 @@ function ReserveList({ reserves }: { reserves: PoolCardProps["reserves"] }) {
           <div className="flex-1 grid grid-cols-3 gap-1 text-[11px]">
             <span className="text-muted-foreground">
               <span className="text-muted-foreground/50">S </span>
-              <Apy value={r.supplyApy} />
+              <span className="text-foreground tabular-nums text-xs">{formatPercent(r.supplyApy)}</span>
             </span>
             <span className="text-muted-foreground">
               <span className="text-muted-foreground/50">B </span>
-              <Apy value={r.borrowApy} />
+              <span className="text-foreground tabular-nums text-xs">{formatPercent(r.borrowApy)}</span>
             </span>
             <span className="text-muted-foreground tabular-nums">
               {fmt(r.totalSupplied)}

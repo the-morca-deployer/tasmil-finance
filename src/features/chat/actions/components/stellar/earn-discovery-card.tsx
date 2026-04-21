@@ -3,7 +3,7 @@
 import { TrendingUp } from "lucide-react";
 import { memo } from "react";
 import { useResultData } from "../../hooks/use-result-data";
-import { formatNumber } from "../../lib/formatting";
+import { formatNumber, formatPercent } from "../../lib/formatting";
 import {
   APYDisplay,
   DetailRow,
@@ -149,15 +149,15 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                  <DetailRow label="APY" value={<APYDisplay value={opp.apy} />} />
+                  <DetailRow label="APY" value={<span className="font-semibold"><APYDisplay value={opp.apy} /></span>} />
                   {opp.tvl && <DetailRow label="TVL" value={`$${formatNumber(opp.tvl)}`} />}
                   {opp.supplyApy != null && (
-                    <DetailRow label="Supply" value={<APYDisplay value={opp.supplyApy} />} />
+                    <DetailRow label="Supply" value={<span className="font-semibold">{formatPercent(opp.supplyApy)}</span>} />
                   )}
                   {opp.borrowApy != null && (
                     <DetailRow
                       label="Borrow"
-                      value={<span className="text-orange-500">{opp.borrowApy?.toFixed(2)}%</span>}
+                      value={<span className="text-orange-500">{formatPercent(opp.borrowApy)}</span>}
                     />
                   )}
                   {opp.utilization != null && (

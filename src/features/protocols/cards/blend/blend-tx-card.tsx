@@ -99,9 +99,10 @@ export function BlendTxCard({
   // ─── Derive APY + position from enriched context (no extra API calls) ───
   const ctx = tx.context;
   const isBorrowOp = tx.operation === "blend_borrow" || tx.operation === "blend_repay";
-  const apy = ctx?.reserveApy
+  const apyNum = ctx?.reserveApy
     ? (isBorrowOp ? ctx.reserveApy.borrowApy : ctx.reserveApy.supplyApy)
     : null;
+  const apy = apyNum != null ? (apyNum < 1 ? apyNum * 100 : apyNum) : null;
   const current = ctx?.currentPosition
     ? (isBorrowOp ? ctx.currentPosition.borrowedAmount : ctx.currentPosition.suppliedAmount)
     : null;
@@ -192,7 +193,7 @@ export function BlendTxCard({
         {apy != null && apy > 0 && (
           <div className="flex justify-between py-2.5 border-b border-border/30">
             <span className="text-sm text-muted-foreground">APY</span>
-            <span className="text-sm font-medium text-emerald-400 tabular-nums">{apy.toFixed(2)}%</span>
+            <span className="text-sm font-medium text-emerald-400 tabular-nums">{`${apy?.toFixed(2)}%`}</span>
           </div>
         )}
 
@@ -262,6 +263,10 @@ export function BlendTxCard({
                 if (cfg.cancel) {
                   setCancelled(true);
                   respond?.({ success: false, cancelled: true, reason: "User cancelled the operation" });
+                  stream?.submit(
+                    { messages: [{ id: `__hidden__tx-cancel-${Date.now()}`, type: "human", content: "Transaction cancelled by user" }] },
+                    { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true }
+                  );
                 } else {
                   setShowCancelWarning(true);
                 }
@@ -299,6 +304,10 @@ export function BlendTxCard({
           } else {
             setCancelled(true);
             respond?.({ success: false, cancelled: true, reason: "User cancelled the operation" });
+            stream?.submit(
+              { messages: [{ id: `__hidden__tx-cancel-${Date.now()}`, type: "human", content: "Transaction cancelled by user" }] },
+              { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true }
+            );
           }
         }}
         symbol={symbol}
@@ -373,7 +382,7 @@ function CancelWarningPopup({
                 <div className="rounded-lg bg-secondary/50 border border-border p-3 space-y-1.5">
                   <p className="text-xs text-muted-foreground">Amount: <span className="text-foreground font-medium">{amount} {symbol}</span></p>
                   {apy != null && apy > 0 && (
-                    <p className="text-xs text-muted-foreground">Current APY: <span className="text-emerald-400 font-medium">{apy.toFixed(2)}%</span></p>
+                    <p className="text-xs text-muted-foreground">Current APY: <span className="text-emerald-400 font-medium">{`${apy?.toFixed(2)}%`}</span></p>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -385,7 +394,7 @@ function CancelWarningPopup({
               <>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   By cancelling, you're giving up earning{" "}
-                  <span className="text-emerald-400 font-medium">{apy.toFixed(2)}% APY</span> on your{" "}
+                  <span className="text-emerald-400 font-medium">{`${apy?.toFixed(2)}%`} APY</span> on your{" "}
                   <span className="font-medium text-foreground">{amount} {symbol}</span>.
                 </p>
                 {estimatedYearlyEarnings != null && (

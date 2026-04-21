@@ -1,3 +1,4 @@
+import { formatPercent } from "@/features/protocols/lib/formatting";
 "use client";
 
 import { useState } from "react";
@@ -16,11 +17,6 @@ function fmt(v: unknown, d = 2): string {
   return n.toFixed(d);
 }
 
-function pct(v: unknown): string {
-  const n = Number(v);
-  if (!isFinite(n)) return "—";
-  return `${(n < 1 ? n * 100 : n).toFixed(2)}%`;
-}
 
 function trunc(s: string): string {
   return s.length <= 10 ? s : `${s.slice(0, 4)}…${s.slice(-4)}`;
@@ -136,8 +132,8 @@ export function BlendPoolDetailCard({ data }: { data: Record<string, unknown> })
                 <div className="w-20"><Bar value={r.utilization} /></div>
               </div>
               <div className="grid grid-cols-4 gap-3 pl-8">
-                <Stat label="Supply APY" value={pct(r.supplyApy)} />
-                <Stat label="Borrow APY" value={pct(r.borrowApy)} />
+                <Stat label="Supply APY" value={formatPercent(r.supplyApy)} />
+                <Stat label="Borrow APY" value={formatPercent(r.borrowApy)} />
                 <Stat label="Supplied" value={fmt(r.totalSupply ?? r.totalSupplied)} />
                 <Stat label="Borrowed" value={fmt(r.totalBorrow ?? r.totalBorrowed)} />
               </div>
@@ -166,21 +162,21 @@ export function BlendReserveCard({ data }: { data: Record<string, unknown> }) {
       </div>
       <div className="p-4 space-y-3">
         <div className="grid grid-cols-2 gap-2">
-          <MetricBox label="Supply APY" value={pct(r.supplyApy)} />
-          <MetricBox label="Borrow APY" value={pct(r.borrowApy)} />
+          <MetricBox label="Supply APY" value={formatPercent(r.supplyApy)} />
+          <MetricBox label="Borrow APY" value={formatPercent(r.borrowApy)} />
         </div>
         <div>
           <div className="flex justify-between text-[10px] mb-1">
             <span className="text-muted-foreground">Utilization</span>
-            <span className="text-foreground tabular-nums">{pct(r.utilization)}</span>
+            <span className="text-foreground tabular-nums">{formatPercent(r.utilization)}</span>
           </div>
           <Bar value={r.utilization} />
         </div>
         <div className="grid grid-cols-2 gap-y-1.5 text-xs">
           <Row label="Total Supply" value={`${fmt(r.totalSupply)} ${sym}`} />
           <Row label="Total Borrow" value={`${fmt(r.totalBorrow)} ${sym}`} />
-          <Row label="C-Factor" value={pct(r.collateralFactor)} />
-          <Row label="L-Factor" value={pct(r.liabilityFactor)} />
+          <Row label="C-Factor" value={formatPercent(r.collateralFactor)} />
+          <Row label="L-Factor" value={formatPercent(r.liabilityFactor)} />
         </div>
       </div>
     </Card>

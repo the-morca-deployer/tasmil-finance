@@ -6,7 +6,7 @@ import type { CardMode } from "../../schemas/common.schema";
 import type { PoolCardProps } from "../../schemas/blend.schema";
 import { ProtocolCard, EmptyState } from "../base/protocol-card";
 import { Tag, Bar, Stat } from "../base/indicators";
-import { pct, fmt, trunc } from "../../lib/formatting";
+import { formatPercent, fmt, trunc } from "../../lib/formatting";
 
 interface BlendPoolDetailCardProps {
   pool: PoolCardProps;
@@ -74,8 +74,8 @@ export function BlendPoolDetailCard({ pool, mode = "playground" }: BlendPoolDeta
                   </div>
                 </div>
                 <div className="grid grid-cols-4 gap-3 pl-8">
-                  <Stat label="Supply APY" value={pct(r.supplyApy)} />
-                  <Stat label="Borrow APY" value={pct(r.borrowApy)} />
+                  <Stat label="Supply APY" value={formatPercent(r.supplyApy)} />
+                  <Stat label="Borrow APY" value={formatPercent(r.borrowApy)} />
                   <Stat label="Supplied" value={fmt(r.totalSupplied)} />
                   <Stat label="Borrowed" value={fmt(r.totalBorrowed)} />
                 </div>

@@ -4,7 +4,7 @@ import { Database } from "lucide-react";
 import { memo } from "react";
 import { truncateAddress } from "@/shared/config/stellar";
 import { useResultData } from "../../hooks/use-result-data";
-import { formatNumber } from "../../lib/formatting";
+import { formatNumber, formatPercent } from "../../lib/formatting";
 import { APYDisplay, DetailRow, ProtocolBadge, ScrollableList } from "../base/indicators";
 import { BaseInfoCard } from "../base/info-card";
 
@@ -79,12 +79,12 @@ function ReserveInfoView({ reserve }: { reserve: any }) {
     <div className="space-y-1.5">
       {reserve.symbol && <DetailRow label="Asset" value={<span className="font-semibold">{reserve.symbol}</span>} />}
       {reserve.supplyApy != null && (
-        <DetailRow label="Supply APY" value={<APYDisplay value={reserve.supplyApy} />} />
+        <DetailRow label="Supply APY" value={<span className="text-foreground font-semibold">{formatPercent(reserve.supplyApy)}</span>} />
       )}
       {reserve.borrowApy != null && (
         <DetailRow
           label="Borrow APY"
-          value={<span className="text-orange-500">{Number(reserve.borrowApy).toFixed(2)}%</span>}
+          value={<span className="text-orange-500">{formatPercent(reserve.borrowApy)}</span>}
         />
       )}
       {reserve.collateralFactor != null && (
@@ -207,12 +207,12 @@ function SinglePoolView({ pool }: { pool: any; protocol?: string; compact?: bool
 
       {/* Supply/borrow info */}
       {pool.supplyApy != null && (
-        <DetailRow label="Supply APY" value={<APYDisplay value={pool.supplyApy} />} />
+        <DetailRow label="Supply APY" value={<span className="text-foreground font-semibold">{formatPercent(pool.supplyApy)}</span>} />
       )}
       {pool.borrowApy != null && (
         <DetailRow
           label="Borrow APY"
-          value={<span className="text-orange-500">{pool.borrowApy?.toFixed(2)}%</span>}
+          value={<span className="text-orange-500">{formatPercent(pool.borrowApy)}</span>}
         />
       )}
       {pool.utilization != null && (

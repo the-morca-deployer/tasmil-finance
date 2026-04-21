@@ -56,12 +56,12 @@ export function formatPrice(price: number | string | undefined | null): string {
   return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-/** Format percentage value. */
+/** Format percentage value. Input is a fraction (0–1), output is x.xx%. */
 export function formatPercent(value: number | string | undefined | null, decimals = 2): string {
   if (value === undefined || value === null) return "N/A";
   const n = typeof value === "string" ? Number.parseFloat(value) : value;
   if (Number.isNaN(n)) return "N/A";
-  return `${n.toFixed(decimals)}%`;
+  return `${(n * 100).toFixed(decimals)}%`;
 }
 
 /** Format estimated time from seconds string. */

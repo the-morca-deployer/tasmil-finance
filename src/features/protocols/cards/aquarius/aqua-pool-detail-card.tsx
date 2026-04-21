@@ -6,7 +6,7 @@ import type { CardMode } from "../../schemas/common.schema";
 import type { AquaPoolCardProps } from "../../schemas/aquarius.schema";
 import { ProtocolCard } from "../base/protocol-card";
 import { MetricBox, Row, APYDisplay } from "../base/indicators";
-import { pct, fmt } from "../../lib/formatting";
+import { formatPercent, fmt } from "../../lib/formatting";
 
 interface AquaPoolDetailCardProps {
   pool: AquaPoolCardProps;
@@ -99,9 +99,9 @@ export function AquaPoolDetailCard({ pool, mode = "playground" }: AquaPoolDetail
       </div>
       <div className="p-4 space-y-3">
         <div className="grid grid-cols-3 gap-2">
-          <MetricBox label="Fee APY" value={pct(pool.feeApy)} />
-          <MetricBox label="Reward APY" value={pct(pool.rewardApy)} />
-          <MetricBox label="Total APY" value={pct(pool.totalApy)} />
+          <MetricBox label="Fee APY" value={formatPercent(pool.feeApy)} />
+          <MetricBox label="Reward APY" value={formatPercent(pool.rewardApy)} />
+          <MetricBox label="Total APY" value={formatPercent(pool.totalApy)} />
         </div>
         <div className="grid grid-cols-2 gap-y-1.5 text-xs">
           <Row label="TVL" value={`$${fmt(pool.tvl)}`} />

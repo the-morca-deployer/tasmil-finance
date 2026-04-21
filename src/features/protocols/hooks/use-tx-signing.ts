@@ -148,7 +148,7 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
                 ...(walletAddress ? { wallet_address: walletAddress } : {}),
                 signed_txs: { [toolCallId]: { success: true, hash, operation, timestamp: Date.now() } },
               },
-              { streamMode: ["values"], streamSubgraphs: false, streamResumable: true },
+            { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true },
             );
           }
 
@@ -186,14 +186,14 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
           await stream.submit(
             {
               messages: [{
-                id: `__hidden__tx-${isRejection ? "reject" : "error"}-${Date.now()}`,
+                id: `__hidden__tx-${isRejection ? "cancel" : "error"}-${Date.now()}`,
                 type: "human" as const,
                 content: isRejection ? "Transaction rejected by user" : `Transaction failed: ${msg}`,
               }],
               ...(walletAddress ? { wallet_address: walletAddress } : {}),
               signed_txs: { [toolCallId]: { success: false, error: cardResult.message, operation, timestamp: Date.now() } },
             },
-            { streamMode: ["values"], streamSubgraphs: false, streamResumable: true },
+            { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true },
           );
         }
 

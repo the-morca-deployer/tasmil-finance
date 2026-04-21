@@ -4,7 +4,7 @@ import { BarChart3, Gift, Globe, History, Key, Lock, User, Wallet } from "lucide
 import { memo } from "react";
 import { truncateAddress } from "@/shared/config/stellar";
 import { useResultData } from "../../hooks/use-result-data";
-import { formatNumber, formatPrice } from "../../lib/formatting";
+import { formatNumber, formatPercent, formatPrice } from "../../lib/formatting";
 import { DetailRow, ProtocolBadge, ScrollableList } from "../base/indicators";
 import { BaseInfoCard } from "../base/info-card";
 
@@ -501,14 +501,14 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
                       <>
                         <span>Net APY</span>
                         <span className={`font-semibold ${Number(p.netApy) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                          {Number(p.netApy) >= 0 ? '+' : ''}{Number(p.netApy).toFixed(2)}%
+                          {Number(p.netApy) >= 0 ? '+' : ''}{formatPercent(p.netApy)}
                         </span>
                       </>
                     )}
                     {p.supplyApy != null && (
                       <>
                         <span>Supply APY</span>
-                        <span className="text-green-400">{Number(p.supplyApy).toFixed(2)}%</span>
+                        <span className="text-green-400">{formatPercent(p.supplyApy)}</span>
                       </>
                     )}
                     {p.supplyEmissionApy != null && Number(p.supplyEmissionApy) > 0 && (
@@ -552,7 +552,7 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
                     {p.borrowApy != null && (
                       <>
                         <span>Borrow APY</span>
-                        <span className="text-orange-400">{Number(p.borrowApy).toFixed(2)}%</span>
+                        <span className="text-orange-400">{formatPercent(p.borrowApy)}</span>
                       </>
                     )}
                     {p.borrowEmissionApy != null && Number(p.borrowEmissionApy) > 0 && (
