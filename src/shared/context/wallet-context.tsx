@@ -57,10 +57,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const { defaultModules } = await import("@creit.tech/stellar-wallets-kit/modules/utils");
         const { Networks, KitEventType } = await import("@creit.tech/stellar-wallets-kit/types");
 
-        const network =
-          (process.env["NEXT_PUBLIC_STELLAR_NETWORK"] as string) === "PUBLIC"
-            ? Networks.PUBLIC
-            : Networks.TESTNET;
+        const isMainnet = (process.env["NEXT_PUBLIC_STELLAR_NETWORK"] ?? "").toLowerCase() === "mainnet";
+        const network = isMainnet ? Networks.PUBLIC : Networks.TESTNET;
 
         const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
@@ -211,25 +209,22 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
         const { data: challengeData } = await challengeRes.json();
 
-        const requestChallenge = async (publicKey: string) => {
-          const res = await fetch(`${API_BASE}/auth/challenge`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ publicKey }),
-          });
-          if (!res.ok) {
-            throw new Error("Failed to get auth challenge");
-          }
-          const { data } = await res.json();
-          return data as { challenge: string; message?: string; expiresAt: number };
-        };
-
-        // Step 2: Get current network passphrase for wallet signing
-        const { Networks } = await import("@stellar/stellar-sdk");
-        const network =
-          (process.env["NEXT_PUBLIC_STELLAR_NETWORK"] as string) === "PUBLIC"
-            ? Networks.PUBLIC
-            : Networks.TESTNET;
+        // Step 2: Build a TX for the user to sign (proves private key ownership)
+        const { TransactionBuilder, Operation, Account, Networks } = await import(
+          "@stellar/stellar-sdk"
+        );
+        const isMainnet = (process.env["NEXT_PUBLIC_STELLAR_NETWORK"] ?? "").toLowerCase() === "mainnet";
+        const network = isMainnet ? Networks.PUBLIC : Networks.TESTNET;
+        const account = new Account(walletAddress, "0");
+        const tx = new TransactionBuilder(account, {
+          fee: "100",
+          networkPassphrase: network,
+        })
+          .addOperation(
+            Operation.manageData({ name: "tasmil auth", value: challengeData.challenge })
+          )
+          .setTimeout(300)
+          .build();
 
         // Step 3: Sign with wallet
         if (!isForced) {
@@ -240,192 +235,20 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setSigning(true);
         await checkWalletNetwork();
         const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-
-        const withReconnect = async <T,>(
-          signFn: (signerAddress: string) => Promise<T>,
-        ): Promise<{ value: T; signerAddress: string }> => {
-          try {
-            const value = await signFn(walletAddress);
-            return { value, signerAddress: walletAddress };
-          } catch (error) {
-            const rawMessage = error instanceof Error ? error.message : String(error);
-            const needsReconnect =
-              rawMessage.toLowerCase().includes("not currently connected to freighter") ||
-              rawMessage.toLowerCase().includes("not connected to freighter");
-
-            if (!needsReconnect) throw error;
-
-            toast.info("Wallet permission expired. Please reconnect to continue.");
-            const { address: reconnectedAddress } = await StellarWalletsKit.authModal();
-
-            if (!reconnectedAddress) {
-              throw new Error("Wallet reconnection was cancelled.");
-            }
-
-            setAddress(reconnectedAddress);
-            setIsConnected(true);
-            setWalletState({ connected: true, account: reconnectedAddress });
-
-            await checkWalletNetwork();
-            const value = await signFn(reconnectedAddress);
-            return { value, signerAddress: reconnectedAddress };
-          }
-        };
-
-        type SignedAuthResult = {
-          signed: string;
-          signerAddress: string;
-        };
-
-        const isMessageSigningUnsupported = (error: unknown): boolean => {
-          const msg = (error instanceof Error ? error.message : String(error)).toLowerCase();
-          return (
-            msg.includes('does not support the "signmessage" function') ||
-            (msg.includes("signmessage") && msg.includes("not support")) ||
-            (msg.includes("signmessage") && msg.includes("not a function"))
-          );
-        };
-
-        const signAuthMessage = async (
-          signerAddress: string,
-          activeChallenge: { challenge: string; message?: string }
-        ): Promise<SignedAuthResult> => {
-          try {
-            StellarWalletsKit.setWallet(signerAddress);
-          } catch {
-            // ignore
-          }
-
-          const authMessage =
-            typeof activeChallenge.message === "string" && activeChallenge.message.trim().length > 0
-              ? activeChallenge.message
-              : activeChallenge.challenge;
-
-          const signingResult = await StellarWalletsKit.signMessage(authMessage, {
-            address: signerAddress,
-            networkPassphrase: network,
-          });
-
-          const signed =
-            typeof signingResult === "string" ? signingResult : signingResult?.signedMessage;
-          const actualSignerAddress =
-            (typeof signingResult === "object" && signingResult?.signerAddress) || signerAddress;
-
-          if (!signed || typeof signed !== "string") {
-            throw new Error("Wallet returned an invalid signed message");
-          }
-
-          return {
-            signed,
-            signerAddress: actualSignerAddress,
-          };
-        };
-
-        let verifyPublicKey = walletAddress;
-        let verifyPayload: { publicKey: string; signedMessage?: string };
-        let activeChallengeData = challengeData;
-
-        try {
-          let signedMessageResult = await withReconnect((signerAddress) =>
-            signAuthMessage(signerAddress, activeChallengeData)
-          );
-
-          const initialSignerAddress = signedMessageResult.value.signerAddress;
-          if (initialSignerAddress !== verifyPublicKey) {
-            verifyPublicKey = initialSignerAddress;
-            activeChallengeData = await requestChallenge(verifyPublicKey);
-            signedMessageResult = await withReconnect((signerAddress) =>
-              signAuthMessage(signerAddress, activeChallengeData)
-            );
-
-            if (signedMessageResult.value.signerAddress !== verifyPublicKey) {
-              throw new Error("Wallet account changed during signing. Please reconnect and try again.");
-            }
-          }
-
-          verifyPublicKey = signedMessageResult.value.signerAddress;
-          verifyPayload = {
-            publicKey: verifyPublicKey,
-            signedMessage: signedMessageResult.value.signed,
-          };
-        } catch (error) {
-          if (isMessageSigningUnsupported(error)) {
-            throw new Error("This wallet does not support fee-free message signing. Please use Freighter or another compatible wallet.");
-          }
-          throw error;
-        }
+        const { signedTxXdr } = await StellarWalletsKit.signTransaction(tx.toXDR(), {
+          address: walletAddress,
+          networkPassphrase: network,
+        });
 
         // Step 4: Verify signature and get JWT
         setSigning(false);
-
-        const extractBackendMessage = async (res: Response): Promise<string> => {
-          let backendMessage = "Authentication verification failed";
-          try {
-            const errorJson = await res.json();
-            const message =
-              errorJson?.message || errorJson?.error || errorJson?.data?.message || undefined;
-            if (typeof message === "string" && message.trim().length > 0) {
-              backendMessage = message;
-            }
-          } catch {
-            // ignore
-          }
-          return backendMessage;
-        };
-
-        const verifyWithPayload = async (payload: { publicKey: string; signedMessage?: string }) =>
-          fetch(`${API_BASE}/auth/verify`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-        let response = await verifyWithPayload(verifyPayload);
+        const response = await fetch(`${API_BASE}/auth/verify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ publicKey: walletAddress, signedXdr: signedTxXdr }),
+        });
         if (!response.ok) {
-          let backendMessage = await extractBackendMessage(response);
-
-          const shouldFallbackToTx =
-            !!verifyPayload.signedMessage &&
-            /invalid message signature|signed message payload mismatch|unsupported signed message format|missing signature value/i.test(
-              backendMessage
-            );
-
-          if (shouldFallbackToTx) {
-            activeChallengeData = await requestChallenge(verifyPublicKey);
-            const signedMessageRetry = await withReconnect((signerAddress) =>
-              signAuthMessage(signerAddress, activeChallengeData)
-            );
-
-            if (signedMessageRetry.value.signerAddress !== verifyPublicKey) {
-              verifyPublicKey = signedMessageRetry.value.signerAddress;
-              activeChallengeData = await requestChallenge(verifyPublicKey);
-              const signedMessageRetryWithCorrectSigner = await withReconnect((signerAddress) =>
-                signAuthMessage(signerAddress, activeChallengeData)
-              );
-
-              if (signedMessageRetryWithCorrectSigner.value.signerAddress !== verifyPublicKey) {
-                throw new Error("Wallet account changed during signing. Please reconnect and try again.");
-              }
-
-              verifyPayload = {
-                publicKey: verifyPublicKey,
-                signedMessage: signedMessageRetryWithCorrectSigner.value.signed,
-              };
-            } else {
-              verifyPayload = {
-                publicKey: verifyPublicKey,
-                signedMessage: signedMessageRetry.value.signed,
-              };
-            }
-
-            response = await verifyWithPayload(verifyPayload);
-            if (!response.ok) {
-              backendMessage = await extractBackendMessage(response);
-              throw new Error(backendMessage);
-            }
-          } else {
-            throw new Error(backendMessage);
-          }
+          throw new Error("Authentication verification failed");
         }
         const result = await response.json();
         const { accessToken, user: userData } = result.data;
@@ -433,8 +256,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setAuthState({
           accessToken,
           user: {
-            id: userData.id || `user_${verifyPublicKey.slice(0, 8)}`,
-            walletAddress: verifyPublicKey,
+            id: userData.id || `user_${walletAddress.slice(0, 8)}`,
+            walletAddress,
             type: "regular",
             createdAt: userData.createdAt || new Date().toISOString(),
             updatedAt: userData.updatedAt || new Date().toISOString(),
@@ -465,7 +288,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         toast.error(errorMessage);
       }
     },
-    [setAuthState, setLoading, setSigning, setWalletState, isAuthValid, isAuthenticated]
+    [setAuthState, setLoading, setSigning, isAuthValid, isAuthenticated]
   );
 
   const forceReauth = useCallback(async () => {
@@ -547,64 +370,13 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const signTransaction = useCallback(
     async (xdr: string): Promise<string> => {
       if (!address) throw new Error("Wallet not connected");
-
       const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-      const networkPassphrase =
-        process.env["NEXT_PUBLIC_STELLAR_PASSPHRASE"] ?? "Test SDF Network ; September 2015";
-
-      const signWithAddress = async (signerAddress: string) => {
-        try {
-          StellarWalletsKit.setWallet(signerAddress);
-        } catch {
-          // ignore
-        }
-
-        const result = await StellarWalletsKit.signTransaction(xdr, {
-          address: signerAddress,
-          networkPassphrase,
-        });
-
-        const signedXdr = result?.signedTxXdr;
-        if (!signedXdr || typeof signedXdr !== "string") {
-          throw new Error("Invalid signed transaction returned by wallet");
-        }
-        return signedXdr;
-      };
-
-      setSigning(true);
-      try {
-        await checkWalletNetwork();
-        return await signWithAddress(address);
-      } catch (error) {
-        const rawMessage = error instanceof Error ? error.message : String(error);
-        const needsReconnect =
-          rawMessage.toLowerCase().includes("not currently connected to freighter") ||
-          rawMessage.toLowerCase().includes("not connected to freighter");
-
-        if (needsReconnect) {
-          toast.info("Wallet permission expired. Please reconnect to continue signing.");
-          const { address: reconnectedAddress } = await StellarWalletsKit.authModal();
-
-          if (!reconnectedAddress) {
-            throw new Error("Wallet reconnection was cancelled.");
-          }
-
-          if (reconnectedAddress !== address) {
-            setAddress(reconnectedAddress);
-            setIsConnected(true);
-            setWalletState({ connected: true, account: reconnectedAddress });
-          }
-
-          await checkWalletNetwork();
-          return await signWithAddress(reconnectedAddress);
-        }
-
-        throw new Error(parseSigningError(error));
-      } finally {
-        setSigning(false);
-      }
+      const { signedTxXdr } = await StellarWalletsKit.signTransaction(xdr, {
+        address,
+      });
+      return signedTxXdr;
     },
-    [address, setSigning, setWalletState]
+    [address]
   );
 
   // Format display address: GABC...WXYZ

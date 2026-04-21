@@ -8,9 +8,10 @@
 
 import { Networks } from "@stellar/stellar-sdk";
 
-const IS_MAINNET = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] === "mainnet";
-const APP_NETWORK_PASSPHRASE = IS_MAINNET ? Networks.PUBLIC : Networks.TESTNET;
-const APP_NETWORK_NAME = IS_MAINNET ? "Mainnet" : "Testnet";
+const _isMainnet = (process.env["NEXT_PUBLIC_STELLAR_NETWORK"] ?? "").toLowerCase() === "mainnet";
+
+const APP_NETWORK_PASSPHRASE = _isMainnet ? Networks.PUBLIC : Networks.TESTNET;
+const APP_NETWORK_NAME = _isMainnet ? "Mainnet" : "Testnet";
 
 /**
  * Proactively checks if the wallet's current network matches the app config.
