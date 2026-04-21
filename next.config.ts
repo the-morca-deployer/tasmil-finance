@@ -1,9 +1,12 @@
 import type { NextConfig } from "next";
+import { getAiProxyRewrites } from "./src/lib/runtime-urls";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@copilotkit/runtime", "@blend-capital/blend-sdk", "@stellar/stellar-sdk"],
   reactStrictMode: false,
-  // Aquarius proxy rewrite removed — using dedicated API routes at /api/aquarius/* instead.
+  async rewrites() {
+    return getAiProxyRewrites();
+  },
   typescript: {
     ignoreBuildErrors: false,
     tsconfigPath: "./tsconfig.json",

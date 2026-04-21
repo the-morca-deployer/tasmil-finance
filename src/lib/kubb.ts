@@ -1,8 +1,8 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { getPublicAiBaseUrl } from "@/lib/runtime-urls";
 
 export const getApiBaseUrl = () => {
-  const url = process.env["NEXT_PUBLIC_AI_URL"] || "";
-  return url.replace(/\/$/, ""); // Remove trailing slash
+  return getPublicAiBaseUrl();
 };
 
 const API_BASE_URL = getApiBaseUrl();

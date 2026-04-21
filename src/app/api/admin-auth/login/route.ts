@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { getServerBackendBaseUrl } from "@/lib/runtime-urls";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:6756";
+const BACKEND_URL = getServerBackendBaseUrl();
 
 export async function POST(request: NextRequest) {
   try {
