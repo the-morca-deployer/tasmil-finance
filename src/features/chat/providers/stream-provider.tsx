@@ -13,10 +13,13 @@ import type React from "react";
 import { createContext, type ReactNode, useContext, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { getApiKey } from "@/lib/api-key";
+import { buildAiAuthHeaders } from "@/lib/ai-auth";
 import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
 import { useWallet } from "@/shared/context/wallet-context";
+import { useAuthStore } from "@/store/use-auth";
 import { useWalletStore } from "@/store/use-wallet";
 import { createClient } from "../lib/client";
+import { classifyChatProductError } from "../lib/chat-product-error";
 import type { StateType } from "../types";
 import { useChatState } from "./chat-state-provider";
 import { useThreads } from "./thread-provider";
@@ -72,38 +75,36 @@ const StreamSession = ({
   const { threadId, setThreadId } = useChatState();
   const { getThreads, setThreads } = useThreads();
   const { address: walletAddress } = useWallet();
-  // Capture the initial threadId at mount — non-null means user came via direct URL
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const defaultHeaders = buildAiAuthHeaders(accessToken);
   const initialThreadId = useRef(threadId);
 
-  // Verify ownership when loading a pre-existing thread directly via URL
   useEffect(() => {
     const preExistingThreadId = initialThreadId.current;
-    if (!preExistingThreadId) return; // New chat — skip check
+    if (!preExistingThreadId) return;
 
-    const effectiveWallet = walletAddress ?? useWalletStore.getState().account;
-    if (!effectiveWallet) return; // No wallet connected — can't verify, skip
+    const client = createClient(apiUrl, {
+      apiKey: apiKey ?? undefined,
+      accessToken,
+    });
 
-    const client = createClient(apiUrl, apiKey ?? undefined);
-    client.threads.get(preExistingThreadId).then((thread) => {
-      const threadWallet = (thread.metadata as Record<string, unknown> | undefined)?.wallet_address as string | undefined;
-      // Only block if thread has a wallet tag that differs from current wallet
-      if (threadWallet && threadWallet !== effectiveWallet) {
-        setThreadId(null);
-        window.history.replaceState(null, "", `/chat/${assistantId}/new`);
+    client.threads.get(preExistingThreadId).catch((error) => {
+      if (classifyChatProductError(error) === "SESSION_INVALID") {
+        return;
       }
-    }).catch(console.error);
-  // Re-run once wallet becomes available (async kit init)
-  }, [walletAddress]); // eslint-disable-line react-hooks/exhaustive-deps
+
+      setThreadId(null);
+      window.history.replaceState(null, "", `/chat/${assistantId}/new`);
+    });
+  }, [accessToken, apiKey, apiUrl, assistantId, setThreadId]);
 
   const streamValue = useTypedStream({
     apiUrl,
     apiKey: apiKey ?? undefined,
     assistantId,
     threadId: threadId ?? null,
+    defaultHeaders,
     fetchStateHistory: true,
-    // onFinish enables shouldRefetch=true in the SDK, which causes history.data to be
-    // refreshed after each stream completes. This is required so that getMessagesMetadata()
-    // can return a valid parent_checkpoint for message editing/regeneration.
     onFinish: () => {},
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
@@ -115,16 +116,15 @@ const StreamSession = ({
     },
     onThreadId: (id) => {
       setThreadId(id);
-      // Update URL to reflect the new thread ID without triggering a Next.js re-navigation
-      // (which would remount the page and lose the in-flight stream)
       window.history.replaceState(null, "", `/chat/${assistantId}/${id}`);
-      // Tag thread metadata with wallet_address for per-wallet isolation
       const effectiveWallet = walletAddress ?? useWalletStore.getState().account;
       if (effectiveWallet) {
-        const client = createClient(apiUrl, apiKey ?? undefined);
+        const client = createClient(apiUrl, {
+          apiKey: apiKey ?? undefined,
+          accessToken,
+        });
         client.threads.update(id, { metadata: { wallet_address: effectiveWallet } }).catch(console.error);
       }
-      // Refetch threads list when thread ID changes.
       sleep().then(() => getThreads(assistantId).then(setThreads).catch(console.error));
     },
   });
@@ -154,17 +154,13 @@ export const StreamProvider: React.FC<{
   children: ReactNode;
   agentId?: string;
 }> = ({ children, agentId }) => {
-  // Get environment variables
   const envApiUrl: string | undefined = process.env["NEXT_PUBLIC_AI_URL"];
 
-  // Use agentId from props as assistantId
   const assistantId = agentId || "";
   const apiUrl = envApiUrl || "";
 
-  // For API key, use localStorage with env var fallback
   const apiKey = typeof window !== "undefined" ? getApiKey() : null;
 
-  // Show error if we don't have required values
   if (!apiUrl || !assistantId) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center p-4">
@@ -189,7 +185,6 @@ export const StreamProvider: React.FC<{
   );
 };
 
-// Create a custom hook to use the context
 export const useStreamContext = (): StreamContextType => {
   const context = useContext(StreamContext);
   if (context === undefined) {

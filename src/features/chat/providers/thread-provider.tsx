@@ -13,8 +13,7 @@ import {
 } from "react";
 import { validate } from "uuid";
 import { getApiKey } from "@/lib/api-key";
-import { useWallet } from "@/shared/context/wallet-context";
-import { useWalletStore } from "@/store/use-wallet";
+import { useAuthStore } from "@/store/use-auth";
 import { createClient } from "../lib/client";
 
 interface ThreadContextType {
@@ -32,39 +31,35 @@ function getThreadSearchMetadata(
 ): { graph_id: string } | { assistant_id: string } {
   if (validate(assistantId)) {
     return { assistant_id: assistantId };
-  } else {
-    return { graph_id: assistantId };
   }
+  return { graph_id: assistantId };
 }
 
 export function ThreadProvider({ children, agentId }: { children: ReactNode; agentId?: string }) {
   const apiUrl = process.env["NEXT_PUBLIC_AI_URL"] || "";
-  const { address: walletAddress } = useWallet();
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
 
   const getThreads = useCallback(
     async (assistantId?: string): Promise<Thread[]> => {
-      // Use agentId from props if assistantId not provided
       const finalAssistantId = assistantId || agentId;
       if (!apiUrl || !finalAssistantId) return [];
-      const client = createClient(apiUrl, getApiKey() ?? undefined);
 
-      // Filter by wallet address for per-wallet isolation
-      const effectiveWallet = walletAddress ?? useWalletStore.getState().account;
+      const client = createClient(apiUrl, {
+        apiKey: getApiKey() ?? undefined,
+        accessToken,
+      });
 
       const threads = await client.threads.search({
-        metadata: {
-          ...getThreadSearchMetadata(finalAssistantId),
-          ...(effectiveWallet && { wallet_address: effectiveWallet }),
-        },
+        metadata: getThreadSearchMetadata(finalAssistantId),
         limit: 100,
       });
 
       return threads;
     },
-    [apiUrl, agentId, walletAddress]
+    [accessToken, apiUrl, agentId]
   );
 
   const value = useMemo(

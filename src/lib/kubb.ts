@@ -1,5 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { getPublicAiBaseUrl } from "@/lib/runtime-urls";
+import { useAuthStore } from "@/store/use-auth";
 
 export const getApiBaseUrl = () => {
   return getPublicAiBaseUrl();
@@ -19,6 +20,10 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    const token = useAuthStore.getState().accessToken;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -32,15 +37,24 @@ apiClient.interceptors.response.use(
     const orig = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
+    const detail =
+      typeof error.response?.data === "object" &&
+      error.response?.data &&
+      "detail" in error.response.data
+        ? String((error.response.data as { detail?: unknown }).detail)
+        : "";
+    const isSessionInvalid =
+      error.response?.status === 401 ||
+      (error.response?.status === 403 && detail === "SESSION_INVALID");
 
-    if (error.response?.status === 401 && !orig._retry) {
+    if (isSessionInvalid && !orig._retry) {
       orig._retry = true;
       if (typeof window !== "undefined") {
-        // Lazy-import the auth store to avoid circular deps at module load.
-        const { useAuthStore } = await import("@/store/use-auth");
         const fresh = !useAuthStore.getState().isTokenExpired();
         const url = orig?.url ?? "unknown";
-        console.warn(`[auth:ai] 401 from ${url} (token fresh=${fresh})`);
+        console.warn(
+          `[auth:ai] ${error.response?.status} from ${url} (token fresh=${fresh}, detail=${detail || "n/a"})`
+        );
         window.dispatchEvent(
           new CustomEvent("auth:session-invalid", { detail: { fresh, url } }),
         );
