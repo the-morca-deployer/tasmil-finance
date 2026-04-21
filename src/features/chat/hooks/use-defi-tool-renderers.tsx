@@ -317,7 +317,11 @@ export function DefiToolRenderers() {
           return <div className="text-xs text-muted-foreground">Failed to parse transaction data</div>;
         }
         const txWithOp = { ...tx, operation: tx.operation || operation };
-        return <div className="max-w-[360px]"><BlendTxCard tx={txWithOp} mode="playground" respond={props.respond} /></div>;
+        return (
+          <div className="max-w-[360px]">
+            <BlendTxCard tx={txWithOp} mode="chat" respond={props.respond} />
+          </div>
+        );
       },
     });
   }

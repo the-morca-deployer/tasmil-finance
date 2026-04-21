@@ -16,6 +16,7 @@ import { ProtocolCard } from "../base/protocol-card";
 import { DetailRow } from "../base/indicators";
 import { resolveSymbol, fmtAmount, fmtGas, trunc } from "../../lib/formatting";
 import { useTxSigning } from "../../hooks/use-tx-signing";
+import { useStreamContext } from "@/features/chat/hooks/use-stream";
 
 // ─── Operation config ───────────────────────────────────────────
 // cancel / sign: true = beneficial or neutral -> no popup
@@ -69,7 +70,7 @@ interface BlendTxCardComponentProps {
 export function BlendTxCard({
   tx,
   mode = "playground",
-  stream,
+  stream: streamProp,
   toolCallId,
   respond,
 }: BlendTxCardComponentProps) {
@@ -82,6 +83,10 @@ export function BlendTxCard({
   const xdr = tx.xdr;
   const pool = tx.pool ?? "";
   const from = tx.from ?? "";
+
+  // In chat mode, always use the real stream context (not the mock from playground)
+  const chatStream = useStreamContext();
+  const stream = mode === "chat" ? chatStream : streamProp;
 
   const { sign, signing, txResult, txError } = useTxSigning({
     mode,

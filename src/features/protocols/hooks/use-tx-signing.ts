@@ -141,12 +141,12 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
           });
 
           // Persist to LangGraph thread state
-          if (stream && toolCallId) {
+          if (stream) {
             await stream.submit(
               {
                 messages: [{ id: `__hidden__tx-success-${Date.now()}`, type: "human" as const, content: `Transaction ${hash} submitted successfully` }],
                 ...(walletAddress ? { wallet_address: walletAddress } : {}),
-                signed_txs: { [toolCallId]: { success: true, hash, operation, timestamp: Date.now() } },
+                ...(toolCallId ? { signed_txs: { [toolCallId]: { success: true, hash, operation, timestamp: Date.now() } } } : {}),
               },
             { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true },
             );
@@ -182,7 +182,7 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
         }
 
         // Persist error to LangGraph
-        if (mode === "chat" && stream && toolCallId) {
+        if (mode === "chat" && stream) {
           await stream.submit(
             {
               messages: [{
@@ -191,7 +191,7 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
                 content: isRejection ? "Transaction rejected by user" : `Transaction failed: ${msg}`,
               }],
               ...(walletAddress ? { wallet_address: walletAddress } : {}),
-              signed_txs: { [toolCallId]: { success: false, error: cardResult.message, operation, timestamp: Date.now() } },
+              ...(toolCallId ? { signed_txs: { [toolCallId]: { success: false, error: cardResult.message, operation, timestamp: Date.now() } } } : {}),
             },
             { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true },
           );
