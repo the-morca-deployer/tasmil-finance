@@ -892,48 +892,8 @@ const TOKEN_CONTRACTS: Record<string, string> = {
   ICE: "CCQZWA6GDCNLEMNUYTCMYGIXLX3ECAXW7RICSUZWWXM5AMDWAANC4SZK",
 };
 
-// ── TrustlinePrecheck ───────────────────────────────────────────
-// Shows warning + add buttons for missing trustlines before Build TX
-function TrustlinePrecheck({ walletAddress, tokens, poolAddress, gaugeEnabled }: {
-  walletAddress: string; tokens: string[]; poolAddress: string; gaugeEnabled?: boolean;
-}) {
-  // Build list: pool tokens + ICE if gauge enabled
-  const allTokens = [...tokens];
-  if (gaugeEnabled && !allTokens.includes("ICE")) allTokens.push("ICE");
-
-  const tokenList = allTokens.map((sym) => ({
-    contract: TOKEN_CONTRACTS[sym] ?? sym,
-    symbol: sym,
-  }));
-
-  const { missing, hasMissing, checking, addTrustline, adding } = useMultiTrustlineCheck(
-    walletAddress || undefined,
-    tokenList,
-  );
-
-  if (checking) {
-    return <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Checking trustlines...</p>;
-  }
-
-  if (!hasMissing) return null;
-
-  return (
-    <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 space-y-2">
-      <p className="text-xs text-amber-400 font-medium">Missing trustlines: {missing.map((t) => t.symbol).join(", ")}</p>
-      <p className="text-[10px] text-muted-foreground">You need trustlines for all pool tokens before deposit/withdraw.</p>
-      {missing.map((t) => (
-        <button key={t.contract} type="button" onClick={() => addTrustline(t.contract, t.symbol)} disabled={adding}
-          className="w-full rounded-lg py-1.5 text-xs font-semibold bg-amber-500/20 border border-amber-500/30 text-amber-400 hover:bg-amber-500/30 transition-all disabled:opacity-40 flex items-center justify-center gap-1.5">
-          {adding ? <><Loader2 className="h-3 w-3 animate-spin" /> Adding...</> : `Add ${t.symbol} Trustline`}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 // ── Default pools ───────────────────────────────────────────────
 const DEFAULT_LP_POOL = "CD3LFMMLBQ6RBJUD3Z2LFDFE6544WDRMWHEZYPI5YDVESYRSO2TT32BX"; // XLM/USDC constant_product
-const DEFAULT_CL_POOL = "CAD5TBS4NKO35YDYZN3ULQFXDXVL7BPK4Q2RUG7N4DVPYNNOEAUAQJ6F"; // USDC/XLM concentrated
 
 // ── Main playground ─────────────────────────────────────────────
 export default function AquariusPlaygroundPage() {

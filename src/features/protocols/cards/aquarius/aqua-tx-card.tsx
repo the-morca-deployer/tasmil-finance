@@ -5,7 +5,6 @@ import type { LucideIcon } from "lucide-react";
 import {
   ArrowRightLeft,
   Droplets,
-  Fuel,
   Loader2,
   Coins,
   Lock,
@@ -166,7 +165,6 @@ export function AquaTxCard({
 
   // For liquidity ops: check all tokens in the route (pool tokens)
   const isLiquidityOp = tx.operation === "add_liquidity" || tx.operation === "withdraw_liquidity";
-  const routeTokenAddrs = (tx.route?.pools ?? []) as string[]; // not actual, need token addresses
   // Build token list from route tokens + any known addresses
   const poolTokens = (tx.route?.tokens ?? []).map((sym: string) => {
     // Try to find contract address from known symbols
@@ -313,20 +311,20 @@ export function AquaTxCard({
           </div>
 
           {/* Concentrated range info */}
-          {ctxAny?.range && (
+          {ctxAny?.range != null ? (
             <>
               <div className="flex justify-between py-2.5 border-b border-border/30">
                 <span className="text-sm text-muted-foreground">Selected range ({firstToken}/{lastToken})</span>
                 <span className="text-sm text-foreground tabular-nums">{String(ctxAny.range)}</span>
               </div>
-              {ctxAny.ticks && (
+              {ctxAny.ticks != null ? (
                 <div className="flex justify-between py-2.5 border-b border-border/30">
                   <span className="text-sm text-muted-foreground">Current tick</span>
                   <span className="text-sm text-foreground tabular-nums">{String(ctxAny.ticks)}</span>
                 </div>
-              )}
+              ) : null}
             </>
-          )}
+          ) : null}
 
           {/* Pool APY */}
           {tx.context?.poolApy && (

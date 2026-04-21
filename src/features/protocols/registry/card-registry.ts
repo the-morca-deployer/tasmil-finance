@@ -28,13 +28,11 @@ import {
 import {
   normalizeAquaPoolFromSdk,
   normalizeAquaPoolsFromSdk,
-  normalizeAquaQuoteFromSdk,
   normalizeAquaPositionsFromSdk,
 } from "../adapters/aquarius-from-sdk";
 import {
   normalizeSoroswapPoolFromSdk,
   normalizeSoroswapPoolsFromSdk,
-  normalizeSoroswapQuoteFromSdk,
   normalizeSoroswapPositionsFromSdk,
 } from "../adapters/soroswap-from-sdk";
 import {
@@ -46,7 +44,6 @@ import {
 import {
   normalizeAquaPoolFromMcp,
   normalizeAquaPoolsFromMcp,
-  normalizeAquaQuoteFromMcp,
   normalizeAquaPositionsFromMcp,
   normalizeAquaTxFromMcp,
 } from "../adapters/aquarius-from-mcp";
@@ -150,7 +147,6 @@ function getBlendBackstopBalanceCard() {
 let _AquaPoolsCard: ComponentType<any> | null = null;
 let _AquaPoolDetailCard: ComponentType<any> | null = null;
 let _AquaPositionsCard: ComponentType<any> | null = null;
-let _AquaQuoteCard: ComponentType<any> | null = null;
 let _AquaTxCard: ComponentType<any> | null = null;
 
 function getAquaPoolsCard() {
@@ -174,12 +170,6 @@ function getAquaPositionsCard() {
   return _AquaPositionsCard!;
 }
 
-function getAquaQuoteCard() {
-  if (!_AquaQuoteCard) {
-    _AquaQuoteCard = require("../cards/aquarius/aqua-quote-card").AquaQuoteCard;
-  }
-  return _AquaQuoteCard!;
-}
 
 function getAquaTxCard() {
   if (!_AquaTxCard) {

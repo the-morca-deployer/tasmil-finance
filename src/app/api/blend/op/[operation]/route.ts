@@ -119,32 +119,83 @@ async function buildTx(
   operation: OpName,
   body: Record<string, string>,
 ) {
-  const { pool, asset, amount, from, enable, lpAmount, minLpOut, minBlndOut, minUsdcOut } = body;
+  const required = (field: string): string => {
+    const value = body[field];
+    if (!value) {
+      throw new Error(`Missing required field: ${field}`);
+    }
+    return value as string;
+  };
 
   switch (operation) {
     case "deposit":
-      return sdk.blend.buildDeposit({ pool, asset, amount, from });
+      return sdk.blend.buildDeposit({
+        pool: required("pool"),
+        asset: required("asset"),
+        amount: required("amount"),
+        from: required("from"),
+      });
     case "withdraw":
-      return sdk.blend.buildWithdraw({ pool, asset, amount, from });
+      return sdk.blend.buildWithdraw({
+        pool: required("pool"),
+        asset: required("asset"),
+        amount: required("amount"),
+        from: required("from"),
+      });
     case "borrow":
-      return sdk.blend.buildBorrow({ pool, asset, amount, from });
+      return sdk.blend.buildBorrow({
+        pool: required("pool"),
+        asset: required("asset"),
+        amount: required("amount"),
+        from: required("from"),
+      });
     case "repay":
-      return sdk.blend.buildRepay({ pool, asset, amount, from });
+      return sdk.blend.buildRepay({
+        pool: required("pool"),
+        asset: required("asset"),
+        amount: required("amount"),
+        from: required("from"),
+      });
     case "toggle-collateral":
       return sdk.blend.buildToggleCollateral({
-        pool, asset, amount, from,
-        enable: enable !== "false" && enable !== undefined,
+        pool: required("pool"),
+        asset: required("asset"),
+        amount: required("amount"),
+        from: required("from"),
+        enable: body.enable !== "false" && body.enable !== undefined,
       });
     case "join-pool":
-      return sdk.blend.buildCometJoinPool({ asset, amount, from, minLpOut });
+      return sdk.blend.buildCometJoinPool({
+        asset: required("asset"),
+        amount: required("amount"),
+        from: required("from"),
+        minLpOut: required("minLpOut"),
+      });
     case "exit-pool":
-      return sdk.blend.buildCometExitPool({ lpAmount, from, minBlndOut, minUsdcOut });
+      return sdk.blend.buildCometExitPool({
+        lpAmount: required("lpAmount"),
+        from: required("from"),
+        minBlndOut: required("minBlndOut"),
+        minUsdcOut: required("minUsdcOut"),
+      });
     case "backstop-deposit":
-      return sdk.blend.buildBackstopDeposit({ pool, amount, from });
+      return sdk.blend.buildBackstopDeposit({
+        pool: required("pool"),
+        amount: required("amount"),
+        from: required("from"),
+      });
     case "queue-withdrawal":
-      return sdk.blend.buildBackstopQueueWithdrawal({ pool, amount, from });
+      return sdk.blend.buildBackstopQueueWithdrawal({
+        pool: required("pool"),
+        amount: required("amount"),
+        from: required("from"),
+      });
     case "dequeue-withdrawal":
-      return sdk.blend.buildBackstopDequeueWithdrawal({ pool, amount, from });
+      return sdk.blend.buildBackstopDequeueWithdrawal({
+        pool: required("pool"),
+        amount: required("amount"),
+        from: required("from"),
+      });
   }
 }
 
