@@ -20,6 +20,7 @@ export interface PositionData {
   preset: string;
   status: string;
   baseAsset?: string;
+  activeAssets?: string[];
   positions: {
     poolName: string;
     poolType: string;

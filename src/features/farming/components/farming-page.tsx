@@ -679,8 +679,13 @@ function FarmingContent() {
                     </span>
                     {(["USDC", "XLM"] as const).map((asset) => {
                       const isActive = strategyPreviewAsset === asset;
-                      const isCurrentBase =
-                        position?.baseAsset?.toUpperCase() === asset;
+                      // "Active" = user has positions or keeper balance in
+                      // this asset. Backend fills activeAssets from both
+                      // strategy positions AND keeper-wallet balances so a
+                      // user who funds both USDC and XLM sees both badges.
+                      const activeAssetsUpper = (position?.activeAssets ?? [])
+                        .map((a) => a.toUpperCase());
+                      const isCurrentBase = activeAssetsUpper.includes(asset);
                       return (
                         <button
                           type="button"
