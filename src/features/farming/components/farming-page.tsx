@@ -430,6 +430,36 @@ function FarmingContent() {
             isLoading={false}
           />
 
+          {/* Stale session-key banner — prompts user to re-sign after the
+              operator deploys a new strategy post-signup. */}
+          {position?.sessionKeyStale && (
+            <motion.div
+              className="flex items-start gap-3 rounded-lg border border-yellow-500/40 bg-yellow-500/10 p-3 text-xs"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Shield className="mt-0.5 h-4 w-4 shrink-0 text-yellow-500" />
+              <div className="flex-1">
+                <p className="font-medium text-foreground">
+                  New yield strategies available
+                </p>
+                <p className="text-muted-foreground">
+                  Your session key was registered before we launched some pools. Refresh it
+                  to let the bot access the latest opportunities. Your funds stay in your
+                  keeper wallet — this just updates the bot's scope.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => openAccountModal("security")}
+              >
+                Refresh
+              </Button>
+            </motion.div>
+          )}
+
           {/* Action buttons — visible right under header */}
           <motion.div
             data-onborda="farming-actions"

@@ -30,6 +30,9 @@ export interface PositionData {
   }[];
   gasReserveUsd: number;
   balanceStale?: boolean;
+  /** True when the keeper's on-chain session-key whitelist is missing a
+   *  currently-deployed strategy. UI prompts the user to Refresh Session Key. */
+  sessionKeyStale?: boolean;
 }
 
 export interface ActivityItem {
