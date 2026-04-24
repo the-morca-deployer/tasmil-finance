@@ -69,9 +69,9 @@ export function PresetCard({ preset, selected, onSelect }: PresetCardProps) {
       type="button"
       onClick={onSelect}
       className={cn(
-        "group relative w-full cursor-pointer rounded-2xl border border-white/6 bg-white/3 p-6 text-left",
+        "group relative w-full cursor-pointer rounded-2xl border border-white/6 bg-white/3 p-4 text-left",
         "transition-all duration-300 ease-out",
-        "hover:scale-[1.02] hover:border-white/12 hover:bg-white/5",
+        "hover:border-white/12 hover:bg-white/5",
         selected && cn("ring-2", config.ringColor, config.glowColor, "shadow-lg")
       )}
     >
@@ -86,62 +86,64 @@ export function PresetCard({ preset, selected, onSelect }: PresetCardProps) {
       />
 
       <div className="relative">
-        {/* Icon + Name row */}
-        <div className="mb-4 flex items-center gap-3">
-          <div
-            className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-xl border border-white/8 bg-white/4",
-              "transition-colors duration-300 group-hover:bg-white/8"
-            )}
-          >
-            <Icon className={cn("h-5 w-5", config.accentText)} />
+        {/* Top row: icon + name + APY */}
+        <div className="mb-3 flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <div
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-xl border border-white/8 bg-white/4",
+                "transition-colors duration-300 group-hover:bg-white/8"
+              )}
+            >
+              <Icon className={cn("h-4 w-4", config.accentText)} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-[15px] text-foreground tracking-tight">
+                {preset.name}
+              </h3>
+              <p className="text-[11px] text-muted-foreground/70 leading-tight">
+                {config.description}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-[15px] text-foreground tracking-tight">
-              {preset.name}
-            </h3>
-            <p className="text-[11px] text-muted-foreground/70">{config.description}</p>
-          </div>
-        </div>
-
-        {/* APY display */}
-        <div className="mb-5">
-          <p className="mb-1 text-[11px] text-muted-foreground/50 uppercase tracking-widest">
-            Est. APY
-          </p>
-          <div className="flex items-baseline gap-1">
-            <span className={cn("font-bold text-3xl tracking-tight", config.accentText)}>
-              {formatApyPercent(preset.estimatedApy)}
-            </span>
-            <span className={cn("font-semibold text-lg", config.accentText)}>%</span>
+          <div className="text-right">
+            <div className="flex items-baseline gap-0.5">
+              <span className={cn("font-bold text-2xl tracking-tight", config.accentText)}>
+                {formatApyPercent(preset.estimatedApy)}
+              </span>
+              <span className={cn("font-semibold text-sm", config.accentText)}>%</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground/50 uppercase tracking-widest">
+              Est. APY
+            </p>
           </div>
         </div>
 
         {/* Pool allocation bars */}
-        <div className="space-y-2.5">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <p className="text-[11px] text-muted-foreground/50 uppercase tracking-widest">
+            <p className="text-[10px] text-muted-foreground/50 uppercase tracking-widest">
               Allocation
             </p>
-            <p className="text-[11px] text-muted-foreground/50">
+            <p className="text-[10px] text-muted-foreground/50">
               {preset.poolCount} pool{preset.poolCount !== 1 ? "s" : ""}
             </p>
           </div>
 
           {preset.topPools.slice(0, 3).map((pool) => (
-            <div key={pool.name} className="space-y-1">
+            <div key={pool.name} className="space-y-0.5">
               <div className="flex items-center justify-between">
-                <span className="text-foreground/80 text-xs">{pool.name}</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[11px] text-muted-foreground/60">
+                <span className="truncate text-foreground/80 text-[11px]">{pool.name}</span>
+                <div className="flex items-center gap-1.5 pl-2">
+                  <span className="font-mono text-[10px] text-muted-foreground/60">
                     {formatApyPercent(pool.apy)}%
                   </span>
-                  <span className="w-10 text-right font-mono text-[11px] text-foreground/60">
+                  <span className="w-9 text-right font-mono text-[10px] text-foreground/60">
                     {pool.weight.toFixed(0)}%
                   </span>
                 </div>
               </div>
-              <div className="h-1 w-full overflow-hidden rounded-full bg-white/4">
+              <div className="h-0.5 w-full overflow-hidden rounded-full bg-white/4">
                 <div
                   className={cn("h-full rounded-full transition-all duration-500", config.barColor)}
                   style={{
@@ -155,11 +157,11 @@ export function PresetCard({ preset, selected, onSelect }: PresetCardProps) {
         </div>
 
         {/* Risk tags */}
-        <div className="mt-4 flex flex-wrap gap-1.5">
+        <div className="mt-3 flex flex-wrap gap-1">
           {preset.risks.map((risk) => (
             <span
               key={risk}
-              className={cn("rounded-full border px-2 py-0.5 text-[10px]", config.badgeBg)}
+              className={cn("rounded-full border px-1.5 py-0.5 text-[10px]", config.badgeBg)}
             >
               {risk}
             </span>

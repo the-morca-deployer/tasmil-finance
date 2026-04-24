@@ -7,7 +7,6 @@ import {
   Info,
   Loader2,
   ShieldCheck,
-  Sparkles,
   Wallet,
   Zap,
 } from "lucide-react";
@@ -303,50 +302,24 @@ export function OnboardingPage() {
       (p) => p.name === selectedPreset && p.estimatedApy < LOW_APY_THRESHOLD_PCT,
     ) ?? false;
 
+  const selectedApy =
+    presets?.find((p) => p.name === selectedPreset)?.estimatedApy?.toFixed(2) ?? "—";
+
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div className="mb-10">
-        <div className="relative overflow-hidden rounded-3xl border border-white/8 bg-gradient-to-br from-primary/8 via-white/3 to-transparent p-8 text-center md:p-10">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(56,139,253,0.12),transparent_60%)]" />
-          <div className="relative mx-auto max-w-2xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-primary text-xs">
-              <Sparkles className="h-3 w-3" />
-              <span className="font-medium">Automated yield on Stellar</span>
-            </div>
-            <h1 className="mb-3 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
-              Set Up Your Smart Account
-            </h1>
-            <p className="text-muted-foreground">
-              Pick a deposit asset and strategy. Your funds stay self-custody — we handle
-              rebalancing, harvesting, and compounding automatically.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Step 1 — Deposit asset ───────────────────────────────────────── */}
-      <section className="mb-8">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 font-semibold text-primary text-xs">
+    <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4">
+      {/* ── Row 1: asset picker (compact inline) ─────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-widest">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-[10px] text-primary">
             1
-          </div>
-          <h2 className="font-semibold text-foreground text-lg">Choose deposit asset</h2>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 md:max-w-md">
+          </span>
+          Deposit asset
+        </span>
+        <div className="flex gap-2">
           {(
             [
-              {
-                id: "USDC" as const,
-                label: "USDC",
-                subtitle: "Stablecoin · highest APY",
-              },
-              {
-                id: "XLM" as const,
-                label: "XLM",
-                subtitle: "Native asset",
-              },
+              { id: "USDC" as const, label: "USDC", hint: "stablecoin" },
+              { id: "XLM" as const, label: "XLM", hint: "native" },
             ]
           ).map((asset) => {
             const isActive = selectedBaseAsset === asset.id;
@@ -355,203 +328,153 @@ export function OnboardingPage() {
                 type="button"
                 key={asset.id}
                 disabled={isDeploying}
-                onClick={() => {
-                  if (!isDeploying) setSelectedBaseAsset(asset.id);
-                }}
+                onClick={() => !isDeploying && setSelectedBaseAsset(asset.id)}
                 className={cn(
-                  "rounded-2xl border px-4 py-3 text-left transition-all",
+                  "rounded-xl border px-3.5 py-1.5 text-sm transition-all",
                   "disabled:cursor-not-allowed disabled:opacity-60",
                   isActive
-                    ? "border-primary/50 bg-primary/10 ring-2 ring-primary/40"
-                    : "border-white/8 bg-white/3 hover:border-white/12 hover:bg-white/5",
+                    ? "border-primary/50 bg-primary/10 text-foreground ring-1 ring-primary/40"
+                    : "border-white/8 bg-white/3 text-muted-foreground hover:border-white/12 hover:text-foreground",
                 )}
               >
-                <div className="font-semibold text-foreground">{asset.label}</div>
-                <div className="mt-0.5 text-muted-foreground text-xs">{asset.subtitle}</div>
+                <span className="font-semibold">{asset.label}</span>
+                <span className="ml-1.5 text-muted-foreground/60 text-xs">· {asset.hint}</span>
               </button>
             );
           })}
         </div>
-      </section>
+      </div>
 
-      {/* ── Step 2 — Strategy picker ─────────────────────────────────────── */}
-      <section className="mb-8">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 font-semibold text-primary text-xs">
-            2
+      {/* ── Row 2: strategy cards ────────────────────────────────────────── */}
+      <div className="flex items-center gap-2">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-[10px] text-primary">
+          2
+        </span>
+        <span className="text-muted-foreground text-xs uppercase tracking-widest">
+          Strategy
+        </span>
+        <span className="text-muted-foreground/60 text-xs">
+          · change any time
+        </span>
+      </div>
+      {presetsLoading ? (
+        <div className="flex items-center justify-center rounded-2xl border border-white/6 bg-white/3 py-10">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : presets && presets.length > 0 ? (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {presets.map((preset) => (
+            <PresetCard
+              key={preset.name}
+              preset={preset}
+              selected={selectedPreset === preset.name}
+              onSelect={() => !isDeploying && setSelectedPreset(preset.name)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-border bg-muted/10 p-4 text-center text-muted-foreground text-sm">
+          Strategy options are loading — refresh the page if this persists.
+        </div>
+      )}
+
+      {/* Low-APY banner (only when relevant) */}
+      {showLowApyWarning && (
+        <div className="flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+          <p className="text-amber-200/90">
+            <span className="font-medium text-amber-200">{selectedPreset} with {selectedBaseAsset} pays &lt;1% right now.</span>{" "}
+            {selectedBaseAsset === "XLM"
+              ? "Mainnet XLM lending demand is low. Try Balanced/Aggressive or switch to USDC for 5–9% APY."
+              : "Pool yields fluctuate — you can change strategy any time."}
+          </p>
+        </div>
+      )}
+
+      {/* ── Row 3: CTA bar (summary + create button + guarantees) ────────── */}
+      <div className="mt-1 rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-white/3 to-transparent p-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+          {/* Selection summary */}
+          <div className="flex flex-1 items-center gap-6 text-sm">
+            <div>
+              <p className="text-muted-foreground/60 text-[10px] uppercase tracking-widest">
+                Asset
+              </p>
+              <p className="font-semibold text-foreground">{selectedBaseAsset}</p>
+            </div>
+            <div className="h-6 w-px bg-white/8" />
+            <div>
+              <p className="text-muted-foreground/60 text-[10px] uppercase tracking-widest">
+                Strategy
+              </p>
+              <p className="font-semibold text-foreground">{selectedPreset}</p>
+            </div>
+            <div className="h-6 w-px bg-white/8" />
+            <div>
+              <p className="text-muted-foreground/60 text-[10px] uppercase tracking-widest">
+                Est. APY
+              </p>
+              <p className="font-mono font-semibold text-primary">{selectedApy}%</p>
+            </div>
           </div>
-          <h2 className="font-semibold text-foreground text-lg">Choose your strategy</h2>
-          <span className="text-muted-foreground text-xs">
-            Change any time from the dashboard
+
+          {/* CTA */}
+          <div className="flex flex-col items-stretch gap-1 md:w-[260px]">
+            <Button
+              variant="gradient"
+              size="lg"
+              className="h-11 w-full"
+              onClick={handleDeploy}
+              disabled={isDeploying || presetsLoading}
+            >
+              {isDeploying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {getDeployButtonLabel()}
+            </Button>
+            <p className="text-center text-muted-foreground/70 text-[11px]">
+              2 wallet signatures · ~30s
+            </p>
+          </div>
+        </div>
+
+        {/* Inline trust chips */}
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-white/6 border-t pt-3 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <ShieldCheck className="h-3 w-3 text-emerald-400" />
+            Self-custody — your keys, your funds
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Zap className="h-3 w-3 text-emerald-400" />
+            Session-key automation (scoped permissions)
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <CheckCircle className="h-3 w-3 text-emerald-400" />
+            Revokable any time
           </span>
         </div>
 
-        {presetsLoading ? (
-          <div className="flex items-center justify-center rounded-2xl border border-white/6 bg-white/3 py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
-        ) : presets && presets.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {presets.map((preset) => (
-              <PresetCard
-                key={preset.name}
-                preset={preset}
-                selected={selectedPreset === preset.name}
-                onSelect={() => {
-                  if (!isDeploying) setSelectedPreset(preset.name);
-                }}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-border bg-muted/10 p-6 text-center text-muted-foreground text-sm">
-            Strategy options are loading. If this persists, please refresh the page.
+        {/* Progress / retry / error banners (inline, below CTA row) */}
+        {isDeploying && (
+          <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs">
+            <Loader2 className="h-3 w-3 animate-spin text-primary" />
+            <p className="font-medium text-primary">
+              {getDeployStatusLabel(deploySubStep)}
+            </p>
+            <p className="text-muted-foreground">· keep Freighter open</p>
           </div>
         )}
-
-        {/* Low-APY heads-up — context depends on base asset */}
-        {showLowApyWarning && (
-          <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-            <div className="text-sm">
-              <p className="font-medium text-amber-200">
-                This preset currently earns less than 1% APY
-              </p>
-              <p className="mt-1 text-muted-foreground text-xs">
-                {selectedBaseAsset === "XLM"
-                  ? "Mainnet XLM lending demand is low, so blend/XLM pays near-zero. Consider Balanced or Aggressive for meaningful yield with XLM, or switch the deposit asset to USDC for ~5–9% APY."
-                  : "Pool yields can fluctuate with on-chain activity. You can change strategy any time."}
-              </p>
-            </div>
+        {deployCompleted && !setupCompleted && deploySubStep === "idle" && (
+          <div className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs">
+            <span className="font-medium text-amber-300">Deploy ✓ — one signature left.</span>{" "}
+            <span className="text-muted-foreground">Click the button to finish setup.</span>
           </div>
         )}
-      </section>
-
-      {/* ── Step 3 — Account creation ────────────────────────────────────── */}
-      <section>
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 font-semibold text-primary text-xs">
-            3
+        {deployError && (
+          <div className="mt-3 flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-xs">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+            <p className="text-destructive">{deployError}</p>
           </div>
-          <h2 className="font-semibold text-foreground text-lg">Create your smart account</h2>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-[1.2fr_1fr]">
-          {/* Left: guarantees / trust column */}
-          <div className="rounded-2xl border border-white/8 bg-white/3 p-6">
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              A Tasmil smart account is a self-custody Stellar contract with scoped session
-              keys. You stay in control — the keeper bot can only execute pre-approved
-              actions like rebalancing between the pools you see above.
-            </p>
-            <ul className="mt-5 space-y-3">
-              {[
-                {
-                  icon: ShieldCheck,
-                  title: "Self-custody",
-                  body: "Your keys, your funds. We never touch principal.",
-                },
-                {
-                  icon: Zap,
-                  title: "Session-key automation",
-                  body: "Scoped permissions sign rebalances without your wallet.",
-                },
-                {
-                  icon: CheckCircle,
-                  title: "Revokable anytime",
-                  body: "One-click revoke returns full control to your wallet.",
-                },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <li key={item.title} className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground text-sm">{item.title}</p>
-                      <p className="text-muted-foreground text-xs">{item.body}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          {/* Right: summary + CTA column */}
-          <div className="flex flex-col rounded-2xl border border-primary/25 bg-gradient-to-b from-primary/8 via-white/3 to-transparent p-6">
-            <p className="text-muted-foreground text-xs uppercase tracking-widest">
-              Your selection
-            </p>
-            <div className="mt-3 space-y-2.5 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Deposit asset</span>
-                <span className="font-semibold text-foreground">{selectedBaseAsset}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Strategy</span>
-                <span className="font-semibold text-foreground">{selectedPreset}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Est. APY</span>
-                <span className="font-mono font-semibold text-primary">
-                  {presets?.find((p) => p.name === selectedPreset)?.estimatedApy?.toFixed(2) ?? "—"}
-                  %
-                </span>
-              </div>
-            </div>
-
-            {/* Progress / retry banners */}
-            {isDeploying && (
-              <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                  <p className="font-medium text-primary text-xs">
-                    {getDeployStatusLabel(deploySubStep)}
-                  </p>
-                </div>
-                <p className="mt-1 text-muted-foreground text-xs">
-                  2 signatures total — keep Freighter open.
-                </p>
-              </div>
-            )}
-
-            {deployCompleted && !setupCompleted && deploySubStep === "idle" && (
-              <div className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
-                <p className="font-medium text-amber-300 text-xs">
-                  Deploy ✓ — one signature left
-                </p>
-                <p className="mt-1 text-muted-foreground text-xs">
-                  Session key not configured. Click retry to finish.
-                </p>
-              </div>
-            )}
-
-            {deployError && (
-              <div className="mt-4 flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
-                <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
-                <p className="text-destructive text-xs leading-relaxed">{deployError}</p>
-              </div>
-            )}
-
-            <div className="mt-auto pt-5">
-              <Button
-                variant="gradient"
-                size="lg"
-                className="h-12 w-full"
-                onClick={handleDeploy}
-                disabled={isDeploying || presetsLoading}
-              >
-                {isDeploying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {getDeployButtonLabel()}
-              </Button>
-              <p className="mt-2 text-center text-muted-foreground text-xs">
-                You'll sign 2 transactions (~30 seconds) in your Stellar wallet.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+        )}
+      </div>
     </div>
   );
 }
