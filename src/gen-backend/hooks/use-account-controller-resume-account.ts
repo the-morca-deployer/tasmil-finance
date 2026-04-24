@@ -25,7 +25,7 @@ export function accountControllerResumeAccountMutationOptions(config: Partial<Re
 }
 
 /**
- * @summary Resume a halted managed account
+ * @summary Reset failure counters on a managed account
  * {@link /api/account/resume/:publicKey}
  */
 export function useAccountControllerResumeAccount<TContext>(options: 

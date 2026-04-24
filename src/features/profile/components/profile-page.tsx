@@ -9,7 +9,6 @@ import { usePageTour } from "@/features/onboarding/hooks/use-onboarding";
 import { cn } from "@/lib/utils";
 import { useWalletStore } from "@/store/use-wallet";
 import { useDefiPositions } from "../hooks/use-defi-positions";
-import { useSnapshotSubmitter } from "../hooks/use-snapshot-submitter";
 import { useWalletTokens } from "../hooks/use-wallet-tokens";
 import { HistorySidebar } from "./history-sidebar";
 import { NftPlaceholder } from "./nft-placeholder";
@@ -81,8 +80,8 @@ function ProfileContent() {
   const walletUsd = walletData?.totalUsd ?? 0;
   const totalUsd = walletUsd + positionsTotalUsd;
 
-  // Submit periodic portfolio snapshots — backend fetches values via SDK
-  useSnapshotSubmitter(account);
+  // P&L is shown per-protocol on each position card (e.g. Tasmil Vault P&L from backend).
+  // No portfolio-wide P&L without historical snapshot infrastructure.
 
   if (!account) {
     return <ConnectPrompt />;
@@ -147,9 +146,7 @@ function ProfileContent() {
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
                   <PerformanceChart
                     address={account}
-                    totalUsd={totalUsd}
-                    walletUsd={walletUsd}
-                    defiUsd={positionsTotalUsd}
+                    liveTotalUsd={totalUsd}
                     isLoadingTokens={tokensLoading}
                   />
                   <HistorySidebar address={account} onSeeAll={() => setActiveTab("history")} />

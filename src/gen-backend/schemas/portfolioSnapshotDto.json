@@ -1,0 +1,1 @@
+{"type":"object","properties":{"takenAt":{"type":"string"},"walletUsd":{"type":"number","nullable":true},"positionsUsd":{"type":"number","nullable":true},"totalUsd":{"type":"number"},"partial":{"type":"boolean"}},"required":["takenAt","walletUsd","positionsUsd","totalUsd","partial"],"x-readme-ref-name":"PortfolioSnapshotDto"}

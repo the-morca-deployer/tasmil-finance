@@ -13,7 +13,7 @@ function getAccountControllerResumeAccountUrl(publicKey: AccountControllerResume
 }
 
 /**
- * @summary Resume a halted managed account
+ * @summary Reset failure counters on a managed account
  * {@link /api/account/resume/:publicKey}
  */
 export async function accountControllerResumeAccount(publicKey: AccountControllerResumeAccountPathParams["publicKey"], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {

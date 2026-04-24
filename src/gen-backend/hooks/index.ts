@@ -1,5 +1,6 @@
 export type { AccountControllerBuildDeployTxMutationKey } from "@/gen-backend/hooks/use-account-controller-build-deploy-tx";
 export type { AccountControllerBuildFundTxMutationKey } from "@/gen-backend/hooks/use-account-controller-build-fund-tx";
+export type { AccountControllerBuildReactivateTxsMutationKey } from "@/gen-backend/hooks/use-account-controller-build-reactivate-txs";
 export type { AccountControllerBuildRevokeTxMutationKey } from "@/gen-backend/hooks/use-account-controller-build-revoke-tx";
 export type { AccountControllerBuildSetupTxsMutationKey } from "@/gen-backend/hooks/use-account-controller-build-setup-txs";
 export type { AccountControllerBuildWithdrawTxMutationKey } from "@/gen-backend/hooks/use-account-controller-build-withdraw-tx";
@@ -40,6 +41,8 @@ export type { PoolsControllerGetPoolHistorySuspenseQueryKey } from "@/gen-backen
 export type { PoolsControllerGetPoolHistoryQueryKey } from "@/gen-backend/hooks/use-pools-controller-get-pool-history";
 export type { PoolsControllerGetPoolsSuspenseQueryKey } from "@/gen-backend/hooks/use-pools-controller-get-pools-suspense";
 export type { PoolsControllerGetPoolsQueryKey } from "@/gen-backend/hooks/use-pools-controller-get-pools";
+export type { PortfolioControllerGetHistorySuspenseQueryKey } from "@/gen-backend/hooks/use-portfolio-controller-get-history-suspense";
+export type { PortfolioControllerGetHistoryQueryKey } from "@/gen-backend/hooks/use-portfolio-controller-get-history";
 export type { ProtocolControllerGetAllApysSuspenseQueryKey } from "@/gen-backend/hooks/use-protocol-controller-get-all-apys-suspense";
 export type { ProtocolControllerGetAllApysQueryKey } from "@/gen-backend/hooks/use-protocol-controller-get-all-apys";
 export type { ProtocolControllerGetAllProtocolsSuspenseQueryKey } from "@/gen-backend/hooks/use-protocol-controller-get-all-protocols-suspense";
@@ -74,6 +77,9 @@ export { useAccountControllerBuildDeployTx } from "@/gen-backend/hooks/use-accou
 export { accountControllerBuildFundTxMutationKey } from "@/gen-backend/hooks/use-account-controller-build-fund-tx";
 export { accountControllerBuildFundTxMutationOptions } from "@/gen-backend/hooks/use-account-controller-build-fund-tx";
 export { useAccountControllerBuildFundTx } from "@/gen-backend/hooks/use-account-controller-build-fund-tx";
+export { accountControllerBuildReactivateTxsMutationKey } from "@/gen-backend/hooks/use-account-controller-build-reactivate-txs";
+export { accountControllerBuildReactivateTxsMutationOptions } from "@/gen-backend/hooks/use-account-controller-build-reactivate-txs";
+export { useAccountControllerBuildReactivateTxs } from "@/gen-backend/hooks/use-account-controller-build-reactivate-txs";
 export { accountControllerBuildRevokeTxMutationKey } from "@/gen-backend/hooks/use-account-controller-build-revoke-tx";
 export { accountControllerBuildRevokeTxMutationOptions } from "@/gen-backend/hooks/use-account-controller-build-revoke-tx";
 export { useAccountControllerBuildRevokeTx } from "@/gen-backend/hooks/use-account-controller-build-revoke-tx";
@@ -194,6 +200,12 @@ export { usePoolsControllerGetPoolsSuspense } from "@/gen-backend/hooks/use-pool
 export { poolsControllerGetPoolsQueryKey } from "@/gen-backend/hooks/use-pools-controller-get-pools";
 export { poolsControllerGetPoolsQueryOptions } from "@/gen-backend/hooks/use-pools-controller-get-pools";
 export { usePoolsControllerGetPools } from "@/gen-backend/hooks/use-pools-controller-get-pools";
+export { portfolioControllerGetHistorySuspenseQueryKey } from "@/gen-backend/hooks/use-portfolio-controller-get-history-suspense";
+export { portfolioControllerGetHistorySuspenseQueryOptions } from "@/gen-backend/hooks/use-portfolio-controller-get-history-suspense";
+export { usePortfolioControllerGetHistorySuspense } from "@/gen-backend/hooks/use-portfolio-controller-get-history-suspense";
+export { portfolioControllerGetHistoryQueryKey } from "@/gen-backend/hooks/use-portfolio-controller-get-history";
+export { portfolioControllerGetHistoryQueryOptions } from "@/gen-backend/hooks/use-portfolio-controller-get-history";
+export { usePortfolioControllerGetHistory } from "@/gen-backend/hooks/use-portfolio-controller-get-history";
 export { protocolControllerGetAllApysSuspenseQueryKey } from "@/gen-backend/hooks/use-protocol-controller-get-all-apys-suspense";
 export { protocolControllerGetAllApysSuspenseQueryOptions } from "@/gen-backend/hooks/use-protocol-controller-get-all-apys-suspense";
 export { useProtocolControllerGetAllApysSuspense } from "@/gen-backend/hooks/use-protocol-controller-get-all-apys-suspense";

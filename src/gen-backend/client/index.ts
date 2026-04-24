@@ -1,5 +1,6 @@
 export { accountControllerBuildDeployTx } from "@/gen-backend/client/account-controller-build-deploy-tx";
 export { accountControllerBuildFundTx } from "@/gen-backend/client/account-controller-build-fund-tx";
+export { accountControllerBuildReactivateTxs } from "@/gen-backend/client/account-controller-build-reactivate-txs";
 export { accountControllerBuildRevokeTx } from "@/gen-backend/client/account-controller-build-revoke-tx";
 export { accountControllerBuildSetupTxs } from "@/gen-backend/client/account-controller-build-setup-txs";
 export { accountControllerBuildWithdrawTx } from "@/gen-backend/client/account-controller-build-withdraw-tx";
@@ -28,6 +29,7 @@ export { emailControllerSendTestEmail } from "@/gen-backend/client/email-control
 export { healthControllerCheck } from "@/gen-backend/client/health-controller-check";
 export { poolsControllerGetPoolHistory } from "@/gen-backend/client/pools-controller-get-pool-history";
 export { poolsControllerGetPools } from "@/gen-backend/client/pools-controller-get-pools";
+export { portfolioControllerGetHistory } from "@/gen-backend/client/portfolio-controller-get-history";
 export { protocolControllerGetAllApys } from "@/gen-backend/client/protocol-controller-get-all-apys";
 export { protocolControllerGetAllProtocols } from "@/gen-backend/client/protocol-controller-get-all-protocols";
 export { protocolControllerGetApyByChain } from "@/gen-backend/client/protocol-controller-get-apy-by-chain";
