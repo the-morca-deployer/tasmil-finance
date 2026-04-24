@@ -1,8 +1,7 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  useAccountControllerGetPresets,
   useAccountControllerGetPosition,
   useAccountControllerGetActivity,
 } from "@/gen-backend/hooks";
@@ -12,13 +11,19 @@ import type { ActivityItem, PositionData, PresetCardData } from "../types";
 
 // ─── Query hooks (generated + config preset + select to unwrap NestJS envelope) ───
 
-export function usePresets() {
-  return useAccountControllerGetPresets({
-    query: {
-      ...$b.query,
-      refetchInterval: 60_000,
-      select: (res: unknown): PresetCardData[] =>
-        (res as { data?: PresetCardData[] }).data ?? [],
+export function usePresets(baseAsset?: string) {
+  // Backend supports ?baseAsset=USDC|XLM — different pool universes per
+  // deposit asset. Keep the query key distinct so switching the toggle
+  // invalidates the cache cleanly.
+  const normalized = (baseAsset ?? "USDC").toUpperCase();
+  return useQuery({
+    queryKey: ["/api/account/presets", normalized] as const,
+    refetchInterval: 60_000,
+    queryFn: async (): Promise<PresetCardData[]> => {
+      const { data } = await backendAxios.get<{ data: PresetCardData[] }>(
+        `/api/account/presets?baseAsset=${encodeURIComponent(normalized)}`
+      );
+      return data.data ?? [];
     },
   });
 }

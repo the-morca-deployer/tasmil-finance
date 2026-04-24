@@ -1,11 +1,21 @@
 "use client";
 import { activeNetwork } from "@/shared/config/stellar";
 
-import { AlertCircle, CheckCircle, Loader2, Wallet } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle,
+  Info,
+  Loader2,
+  ShieldCheck,
+  Sparkles,
+  Wallet,
+  Zap,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { Button } from "@/shared/ui/button-v2";
+import { cn } from "@/lib/utils";
 import { useWalletStore } from "@/store/use-wallet";
 
 import {
@@ -62,20 +72,23 @@ export function OnboardingPage() {
   const publicKey = account ?? null;
 
   // User's preset pick. Defaults to Balanced (most users should start here).
-  // Persisted in local state only until account is created; then pushed to
-  // the backend via updatePreset.
   const [selectedPreset, setSelectedPreset] = useState<RiskPreset>(DEFAULT_PRESET);
+
+  // Base asset the user plans to deposit. Presets API returns different
+  // pool universes per asset; the UI toggle lets the user preview both
+  // before they fund.
+  const [selectedBaseAsset, setSelectedBaseAsset] = useState<"USDC" | "XLM">("USDC");
 
   // Deploy sub-step tracking
   const [deploySubStep, setDeploySubStep] = useState<DeploySubStep>("idle");
-  const [deployCompleted, setDeployCompleted] = useState(false); // TX 1 confirmed; setup retriable
-  const [setupCompleted, setSetupCompleted] = useState(false); // TX 2 confirmed; preset apply next
+  const [deployCompleted, setDeployCompleted] = useState(false);
+  const [setupCompleted, setSetupCompleted] = useState(false);
   const [deployError, setDeployError] = useState<string | null>(null);
 
   // Guard: prevent double-click while flow is in progress
   const flowInProgressRef = useRef(false);
 
-  const { data: presets, isLoading: presetsLoading } = usePresets();
+  const { data: presets, isLoading: presetsLoading } = usePresets(selectedBaseAsset);
   const deployAccount = useDeployAccount();
   const setupAccount = useSetupAccount();
   const submitTx = useSubmitTx();
@@ -282,27 +295,99 @@ export function OnboardingPage() {
     return "Create Smart Account";
   };
 
+  // Warning shown below any preset whose effective APY is below this floor.
+  // Users deserve a heads-up before picking an allocation that pays ~nothing.
+  const LOW_APY_THRESHOLD_PCT = 1;
+  const showLowApyWarning =
+    presets?.some(
+      (p) => p.name === selectedPreset && p.estimatedApy < LOW_APY_THRESHOLD_PCT,
+    ) ?? false;
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <h1 className="mb-2 font-bold text-3xl text-foreground">Set Up Your Account</h1>
-        <p className="text-muted-foreground">
-          Pick a strategy, then create your self-custody smart account to start earning.
-        </p>
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <div className="mb-10">
+        <div className="relative overflow-hidden rounded-3xl border border-white/8 bg-gradient-to-br from-primary/8 via-white/3 to-transparent p-8 text-center md:p-10">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(56,139,253,0.12),transparent_60%)]" />
+          <div className="relative mx-auto max-w-2xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-primary text-xs">
+              <Sparkles className="h-3 w-3" />
+              <span className="font-medium">Automated yield on Stellar</span>
+            </div>
+            <h1 className="mb-3 font-bold text-3xl text-foreground tracking-tight md:text-4xl">
+              Set Up Your Smart Account
+            </h1>
+            <p className="text-muted-foreground">
+              Pick a deposit asset and strategy. Your funds stay self-custody — we handle
+              rebalancing, harvesting, and compounding automatically.
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Section 1 — Strategy picker */}
-      <section className="mb-10">
-        <div className="mb-4 text-center">
-          <h2 className="font-semibold text-foreground text-xl">Choose Your Strategy</h2>
-          <p className="mt-1 text-muted-foreground text-sm">
-            You can change this any time from the dashboard.
-          </p>
+      {/* ── Step 1 — Deposit asset ───────────────────────────────────────── */}
+      <section className="mb-8">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 font-semibold text-primary text-xs">
+            1
+          </div>
+          <h2 className="font-semibold text-foreground text-lg">Choose deposit asset</h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 md:max-w-md">
+          {(
+            [
+              {
+                id: "USDC" as const,
+                label: "USDC",
+                subtitle: "Stablecoin · highest APY",
+              },
+              {
+                id: "XLM" as const,
+                label: "XLM",
+                subtitle: "Native asset",
+              },
+            ]
+          ).map((asset) => {
+            const isActive = selectedBaseAsset === asset.id;
+            return (
+              <button
+                type="button"
+                key={asset.id}
+                disabled={isDeploying}
+                onClick={() => {
+                  if (!isDeploying) setSelectedBaseAsset(asset.id);
+                }}
+                className={cn(
+                  "rounded-2xl border px-4 py-3 text-left transition-all",
+                  "disabled:cursor-not-allowed disabled:opacity-60",
+                  isActive
+                    ? "border-primary/50 bg-primary/10 ring-2 ring-primary/40"
+                    : "border-white/8 bg-white/3 hover:border-white/12 hover:bg-white/5",
+                )}
+              >
+                <div className="font-semibold text-foreground">{asset.label}</div>
+                <div className="mt-0.5 text-muted-foreground text-xs">{asset.subtitle}</div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Step 2 — Strategy picker ─────────────────────────────────────── */}
+      <section className="mb-8">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 font-semibold text-primary text-xs">
+            2
+          </div>
+          <h2 className="font-semibold text-foreground text-lg">Choose your strategy</h2>
+          <span className="text-muted-foreground text-xs">
+            Change any time from the dashboard
+          </span>
         </div>
 
         {presetsLoading ? (
-          <div className="flex items-center justify-center py-10">
+          <div className="flex items-center justify-center rounded-2xl border border-white/6 bg-white/3 py-12">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : presets && presets.length > 0 ? (
@@ -313,97 +398,159 @@ export function OnboardingPage() {
                 preset={preset}
                 selected={selectedPreset === preset.name}
                 onSelect={() => {
-                  // Block changing strategy mid-flow — the selection is
-                  // locked in once signing starts.
                   if (!isDeploying) setSelectedPreset(preset.name);
                 }}
               />
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-border bg-muted/10 p-6 text-center text-muted-foreground text-sm">
+          <div className="rounded-2xl border border-border bg-muted/10 p-6 text-center text-muted-foreground text-sm">
             Strategy options are loading. If this persists, please refresh the page.
+          </div>
+        )}
+
+        {/* Low-APY heads-up — context depends on base asset */}
+        {showLowApyWarning && (
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+            <div className="text-sm">
+              <p className="font-medium text-amber-200">
+                This preset currently earns less than 1% APY
+              </p>
+              <p className="mt-1 text-muted-foreground text-xs">
+                {selectedBaseAsset === "XLM"
+                  ? "Mainnet XLM lending demand is low, so blend/XLM pays near-zero. Consider Balanced or Aggressive for meaningful yield with XLM, or switch the deposit asset to USDC for ~5–9% APY."
+                  : "Pool yields can fluctuate with on-chain activity. You can change strategy any time."}
+              </p>
+            </div>
           </div>
         )}
       </section>
 
-      {/* Section 2 — Account creation */}
-      <section className="mx-auto max-w-lg space-y-6 text-center">
-        <div className="space-y-3 rounded-xl border border-border bg-muted/10 p-6">
-          <h2 className="font-semibold text-foreground text-xl">Create Smart Account</h2>
-          <p className="text-muted-foreground text-sm">
-            Your smart account is a self-custody Stellar account with session keys for automated
-            rebalancing. You keep full control — only pre-approved actions can be executed by the
-            keeper bot.
-          </p>
-          <ul className="mx-auto max-w-xs space-y-2 text-left text-muted-foreground text-sm">
-            <li className="flex items-start gap-2">
-              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-              Self-custody — your keys, your funds
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-              Session keys for automated yield
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-              Revokable at any time
-            </li>
-          </ul>
-
-          {/* Selected preset summary — confirms user's choice before signing */}
-          {!isDeploying && !deployCompleted && (
-            <div className="mt-4 rounded-lg border border-primary/30 bg-primary/5 p-3 text-left">
-              <p className="font-medium text-foreground text-sm">
-                Strategy: <span className="text-primary">{selectedPreset}</span>
-              </p>
-              <p className="mt-1 text-muted-foreground text-xs">
-                You can change this from the Strategy tab after your account is created.
-              </p>
-            </div>
-          )}
-
-          {/* Progress info when deploying */}
-          {isDeploying && (
-            <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3">
-              <p className="font-medium text-primary text-sm">{getDeployStatusLabel(deploySubStep)}</p>
-              <p className="mt-1 text-muted-foreground text-xs">
-                You will need to sign 2 transactions total to create your account.
-              </p>
-            </div>
-          )}
-
-          {/* Deploy completed but setup pending (retry scenario) */}
-          {deployCompleted && !setupCompleted && deploySubStep === "idle" && (
-            <div className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
-              <p className="font-medium text-amber-400 text-sm">
-                Deploy confirmed ✓ — Setup still needed
-              </p>
-              <p className="mt-1 text-muted-foreground text-xs">
-                Your account was deployed but session key setup didn&apos;t complete. Click below to
-                sign the setup transaction (1 signature needed).
-              </p>
-            </div>
-          )}
+      {/* ── Step 3 — Account creation ────────────────────────────────────── */}
+      <section>
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 font-semibold text-primary text-xs">
+            3
+          </div>
+          <h2 className="font-semibold text-foreground text-lg">Create your smart account</h2>
         </div>
 
-        <Button
-          variant="gradient"
-          size="lg"
-          className="h-12 w-full"
-          onClick={handleDeploy}
-          disabled={isDeploying || presetsLoading}
-        >
-          {isDeploying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {getDeployButtonLabel()}
-        </Button>
-
-        {deployError && (
-          <div className="flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-left">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-            <p className="text-destructive text-sm">{deployError}</p>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-[1.2fr_1fr]">
+          {/* Left: guarantees / trust column */}
+          <div className="rounded-2xl border border-white/8 bg-white/3 p-6">
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              A Tasmil smart account is a self-custody Stellar contract with scoped session
+              keys. You stay in control — the keeper bot can only execute pre-approved
+              actions like rebalancing between the pools you see above.
+            </p>
+            <ul className="mt-5 space-y-3">
+              {[
+                {
+                  icon: ShieldCheck,
+                  title: "Self-custody",
+                  body: "Your keys, your funds. We never touch principal.",
+                },
+                {
+                  icon: Zap,
+                  title: "Session-key automation",
+                  body: "Scoped permissions sign rebalances without your wallet.",
+                },
+                {
+                  icon: CheckCircle,
+                  title: "Revokable anytime",
+                  body: "One-click revoke returns full control to your wallet.",
+                },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li key={item.title} className="flex items-start gap-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground text-sm">{item.title}</p>
+                      <p className="text-muted-foreground text-xs">{item.body}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-        )}
+
+          {/* Right: summary + CTA column */}
+          <div className="flex flex-col rounded-2xl border border-primary/25 bg-gradient-to-b from-primary/8 via-white/3 to-transparent p-6">
+            <p className="text-muted-foreground text-xs uppercase tracking-widest">
+              Your selection
+            </p>
+            <div className="mt-3 space-y-2.5 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Deposit asset</span>
+                <span className="font-semibold text-foreground">{selectedBaseAsset}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Strategy</span>
+                <span className="font-semibold text-foreground">{selectedPreset}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Est. APY</span>
+                <span className="font-mono font-semibold text-primary">
+                  {presets?.find((p) => p.name === selectedPreset)?.estimatedApy?.toFixed(2) ?? "—"}
+                  %
+                </span>
+              </div>
+            </div>
+
+            {/* Progress / retry banners */}
+            {isDeploying && (
+              <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                  <p className="font-medium text-primary text-xs">
+                    {getDeployStatusLabel(deploySubStep)}
+                  </p>
+                </div>
+                <p className="mt-1 text-muted-foreground text-xs">
+                  2 signatures total — keep Freighter open.
+                </p>
+              </div>
+            )}
+
+            {deployCompleted && !setupCompleted && deploySubStep === "idle" && (
+              <div className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
+                <p className="font-medium text-amber-300 text-xs">
+                  Deploy ✓ — one signature left
+                </p>
+                <p className="mt-1 text-muted-foreground text-xs">
+                  Session key not configured. Click retry to finish.
+                </p>
+              </div>
+            )}
+
+            {deployError && (
+              <div className="mt-4 flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
+                <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+                <p className="text-destructive text-xs leading-relaxed">{deployError}</p>
+              </div>
+            )}
+
+            <div className="mt-auto pt-5">
+              <Button
+                variant="gradient"
+                size="lg"
+                className="h-12 w-full"
+                onClick={handleDeploy}
+                disabled={isDeploying || presetsLoading}
+              >
+                {isDeploying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {getDeployButtonLabel()}
+              </Button>
+              <p className="mt-2 text-center text-muted-foreground text-xs">
+                You'll sign 2 transactions (~30 seconds) in your Stellar wallet.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   );
