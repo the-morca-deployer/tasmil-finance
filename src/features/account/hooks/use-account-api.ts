@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   useAccountControllerGetPresets,
   useAccountControllerGetPosition,
@@ -116,6 +116,7 @@ export interface SubmitTxParams {
 }
 
 export function useSubmitTx() {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (params: SubmitTxParams) => {
       const { data } = await backendAxios.post<{ data: unknown }>(
@@ -123,6 +124,22 @@ export function useSubmitTx() {
         params
       );
       return data.data;
+    },
+    // On success, invalidate account-scoped queries so the UI immediately
+    // reflects the new account state (e.g. status DEPLOYING → AWAITING_FUND
+    // after the setup TX confirms). Without this, React Query serves stale
+    // cached data until the next 30-sec poll fires, and the user stays on
+    // the OnboardingPage long after the flow is complete.
+    onSuccess: () => {
+      qc.invalidateQueries({ predicate: (q) => {
+        const k = q.queryKey[0];
+        return typeof k === "string" && (
+          k.includes("getPosition") ||
+          k.includes("getActivity") ||
+          k === "/api/account/position" ||
+          k === "/api/account/activity"
+        );
+      }});
     },
   });
 }
