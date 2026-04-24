@@ -4,7 +4,7 @@ import { activeNetwork } from "@/shared/config/stellar";
 import { AnimatePresence, motion } from "framer-motion";
 import { Info, Loader2, Shield, ShieldOff, Wallet, XCircle } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useId, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useId, useMemo, useState } from "react";
 import { FundForm } from "@/features/account/components/fund-form";
 import { OnboardingPage } from "@/features/account/components/onboarding-page";
 import { PresetCard } from "@/features/account/components/preset-card";
@@ -61,12 +61,13 @@ function formatUsd(value: number): string {
 
 // ─── Tabs ───────────────────────────────────────────────────────────────────
 
-type TabValue = "overview" | "pools" | "activity";
-const VALID_TABS: TabValue[] = ["overview", "pools", "activity"];
+type TabValue = "overview" | "pools" | "strategy" | "activity";
+const VALID_TABS: TabValue[] = ["overview", "pools", "strategy", "activity"];
 
 const TABS: { value: TabValue; label: string }[] = [
   { value: "overview", label: "Overview" },
   { value: "pools", label: "Pools" },
+  { value: "strategy", label: "Strategy" },
   { value: "activity", label: "Activity" },
 ];
 
@@ -146,6 +147,26 @@ function FarmingContent() {
     refetch: refetchActivity,
   } = useActivity(publicKey);
   const { data: presets, isLoading: presetsLoading } = usePresets();
+
+  // Keep selectedPreset in sync with the account's active preset so the
+  // Strategy tab visually highlights the current selection on first render.
+  // Only runs when the backend preset changes — doesn't override in-flight
+  // user selections on the tab.
+  useEffect(() => {
+    const normalized = position?.preset?.toLowerCase();
+    const mapped: RiskPreset | null =
+      normalized === "safe"
+        ? "Safe"
+        : normalized === "aggressive"
+          ? "Aggressive"
+          : normalized === "balanced"
+            ? "Balanced"
+            : null;
+    if (mapped && selectedPreset === null) {
+      setSelectedPreset(mapped);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [position?.preset]);
 
   // Mutations
   const fundAccount = useFundAccount();
@@ -273,6 +294,8 @@ function FarmingContent() {
     try {
       setActionError(null);
       await updatePreset.mutateAsync({ publicKey, preset: selectedPreset });
+      // Refresh state immediately so the dashboard reflects the new preset.
+      await refetchPosition();
       setAccountModalOpen(false);
     } catch (err) {
       console.warn("Update preset failed:", err);
@@ -603,6 +626,110 @@ function FarmingContent() {
                 transition={{ duration: 0.25 }}
               >
                 <FarmingPools pools={registryPools} isLoading={registryPoolsLoading} />
+              </motion.div>
+            )}
+
+            {activeTab === "strategy" && (
+              <motion.div
+                key="strategy"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25 }}
+                className="space-y-6"
+              >
+                <div className="space-y-1">
+                  <h2 className="font-semibold text-foreground text-xl">Choose Your Strategy</h2>
+                  <p className="text-muted-foreground text-sm">
+                    Your current preset is{" "}
+                    <span className="font-medium text-foreground">
+                      {position?.preset
+                        ? position.preset.charAt(0) +
+                          position.preset.slice(1).toLowerCase()
+                        : "Balanced"}
+                    </span>
+                    . Changes apply on the next allocation cycle (within 10 min).
+                  </p>
+                </div>
+
+                {isRevoked && (
+                  <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/20 p-3 text-sm">
+                    <ShieldOff className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                    <p className="text-muted-foreground">
+                      Session key is revoked. Reactivate from the Security action before
+                      changing your strategy.
+                    </p>
+                  </div>
+                )}
+
+                {presetsLoading ? (
+                  <div className="flex items-center justify-center py-10">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : presets && presets.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                      {presets.map((preset) => (
+                        <PresetCard
+                          key={preset.name}
+                          preset={preset}
+                          selected={selectedPreset === preset.name}
+                          onSelect={() => {
+                            if (!isRevoked && !updatePreset.isPending) {
+                              setSelectedPreset(preset.name);
+                            }
+                          }}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3">
+                      {actionError && (
+                        <p className="text-destructive text-sm">{actionError}</p>
+                      )}
+                      <Button
+                        variant="gradient"
+                        size="lg"
+                        className="h-11 px-6"
+                        onClick={async () => {
+                          if (!publicKey || !selectedPreset) return;
+                          try {
+                            setActionError(null);
+                            await updatePreset.mutateAsync({
+                              publicKey,
+                              preset: selectedPreset,
+                            });
+                            await refetchPosition();
+                          } catch (err) {
+                            console.warn("Update preset failed:", err);
+                            setActionError(
+                              err instanceof Error
+                                ? err.message
+                                : "Strategy update failed. Please try again.",
+                            );
+                          }
+                        }}
+                        disabled={
+                          isRevoked ||
+                          !selectedPreset ||
+                          // Disable when already on the selected preset
+                          selectedPreset?.toUpperCase() ===
+                            position?.preset?.toUpperCase() ||
+                          updatePreset.isPending
+                        }
+                      >
+                        {updatePreset.isPending && (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
+                        Apply Strategy
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="rounded-lg border border-border bg-muted/10 p-6 text-center text-muted-foreground text-sm">
+                    Strategy options are loading. If this persists, please refresh the page.
+                  </div>
+                )}
               </motion.div>
             )}
 
