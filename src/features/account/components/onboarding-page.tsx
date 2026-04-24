@@ -68,6 +68,24 @@ export function OnboardingPage() {
     return { StellarWalletsKit, passphrase };
   };
 
+  /**
+   * Normalise wallet-signing result: some Stellar wallet adapters RESOLVE
+   * with an empty / undefined signedTxXdr on user rejection instead of
+   * throwing. Treat any non-string / empty result as an explicit cancel so
+   * we never submit garbage to the backend or navigate past a rejected step.
+   */
+  const assertSigned = (
+    signResult: { signedTxXdr?: string } | null | undefined,
+  ): string => {
+    const xdr = signResult?.signedTxXdr;
+    if (typeof xdr !== "string" || xdr.length === 0) {
+      const err = new Error("User rejected transaction signing");
+      (err as Error & { userRejected?: boolean }).userRejected = true;
+      throw err;
+    }
+    return xdr;
+  };
+
   // ---- Step 1a: Deploy keeper wallet contract (TX 1/2) ----
   const handleDeployTx = async (): Promise<boolean> => {
     if (!publicKey) return false;
@@ -81,10 +99,11 @@ export function OnboardingPage() {
 
     setDeploySubStep("signing_deploy");
     const { StellarWalletsKit, passphrase } = await getStellarKit();
-    const { signedTxXdr } = await StellarWalletsKit.signTransaction(result.xdr, {
+    const signed = await StellarWalletsKit.signTransaction(result.xdr, {
       address: publicKey,
       networkPassphrase: passphrase,
     });
+    const signedTxXdr = assertSigned(signed);
 
     setDeploySubStep("submitting_deploy");
     await submitTx.mutateAsync({
@@ -121,9 +140,10 @@ export function OnboardingPage() {
       address: publicKey,
       networkPassphrase: passphrase,
     });
+    const signedTxXdr = assertSigned(signed);
 
     setDeploySubStep("submitting_setup");
-    await submitTx.mutateAsync({ signedXdr: signed.signedTxXdr });
+    await submitTx.mutateAsync({ signedXdr: signedTxXdr });
 
     setDeploySubStep("done");
     return true;
@@ -136,6 +156,7 @@ export function OnboardingPage() {
     flowInProgressRef.current = true;
     setDeployError(null);
 
+    let setupDidComplete = false;
     try {
       // If deploy already confirmed (e.g., retry after setup failure), skip to setup
       if (!deployCompleted) {
@@ -143,18 +164,28 @@ export function OnboardingPage() {
       }
 
       await handleSetupTx();
-      router.push("/farming");
+      // Only mark setup success AFTER submitTx resolves (step `done`).
+      setupDidComplete = true;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Unknown error";
       console.error("Account creation failed:", message);
 
       // User-friendly error messages
-      if (
+      const rejected =
+        (err as { userRejected?: boolean })?.userRejected === true ||
         message.includes("User rejected") ||
         message.includes("user rejected") ||
-        message.includes("User denied")
-      ) {
-        setDeployError("Transaction signing was cancelled. Please try again.");
+        message.includes("User denied") ||
+        message.includes("declined") ||
+        message.includes("cancelled");
+      if (rejected) {
+        const step = deployCompleted ? "session-key setup" : "deploy";
+        setDeployError(
+          `Transaction signing was cancelled at the ${step} step. ` +
+            (deployCompleted
+              ? "Your account exists but is not yet usable — click retry to sign the remaining transaction."
+              : "Please try again."),
+        );
       } else if (message.includes("insufficient") || message.includes("Insufficient")) {
         setDeployError("Insufficient XLM balance. Please fund your wallet and try again.");
       } else if (message.includes("timed out")) {
@@ -168,6 +199,13 @@ export function OnboardingPage() {
       setDeploySubStep("idle");
     } finally {
       flowInProgressRef.current = false;
+      // SAFETY: only navigate on full 2-of-2 success. Any earlier exit
+      // (rejected, error, timeout) keeps the user on onboarding so they
+      // can retry. Prevents the observed bug where rejecting TX2 still
+      // pushed to /farming.
+      if (setupDidComplete) {
+        router.push("/farming");
+      }
     }
   };
 
