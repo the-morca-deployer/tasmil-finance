@@ -306,7 +306,7 @@ export function OnboardingPage() {
     presets?.find((p) => p.name === selectedPreset)?.estimatedApy?.toFixed(2) ?? "—";
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4">
+    <div className="mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-7xl flex-col justify-center gap-5 px-6 py-6">
       {/* ── Row 1: asset picker (compact inline) ─────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3">
         <span className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-widest">
