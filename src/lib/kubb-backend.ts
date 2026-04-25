@@ -18,6 +18,10 @@ export const getBackendBaseUrl = () => {
   return url.replace(/\/$/, "");
 };
 
+// Bumped from 30s → 90s. Withdraw/deposit endpoints chain multiple Soroban
+// RPC simulations (read shares, build strategy withdraw, read keeper
+// balances, build keeper transfer, simulate each) and routinely take
+// 20–40s on mainnet, especially under RPC 429 backoff.
 const backendAxios = axios.create({
   baseURL: getBackendBaseUrl(),
   withCredentials: true,
@@ -25,7 +29,7 @@ const backendAxios = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  timeout: 30000,
+  timeout: 90000,
 });
 
 // Attach JWT from auth store on every request

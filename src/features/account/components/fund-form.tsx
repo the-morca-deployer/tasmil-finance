@@ -17,9 +17,13 @@ interface FundFormProps {
 const TOKENS = ["USDC", "XLM"] as const;
 type Token = (typeof TOKENS)[number];
 
+// Minimum deposit amounts. XLM minimum aligns with the backend's
+// MIN_REBALANCE_XLM (10 XLM) so any accepted deposit is large enough to
+// trigger an allocation cycle. USDC minimum (1) similarly mirrors
+// MIN_REBALANCE_USDC.
 const MIN_AMOUNTS: Record<Token, number> = {
-  USDC: 10,
-  XLM: 50,
+  USDC: 1,
+  XLM: 10,
 };
 
 export function FundForm({ onFund, isLoading }: FundFormProps) {

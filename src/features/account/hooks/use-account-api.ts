@@ -140,11 +140,26 @@ export function useSubmitTx() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (params: SubmitTxParams) => {
-      const { data } = await backendAxios.post<{ data: unknown }>(
-        "/api/account/submit",
-        params
-      );
-      return data.data;
+      try {
+        const { data } = await backendAxios.post<{ data: unknown }>(
+          "/api/account/submit",
+          params
+        );
+        return data.data;
+      } catch (err: unknown) {
+        // Surface backend's specific message (e.g. "txInsufficientFee",
+        // "Transaction rejected due to sequence number collision",
+        // "Withdraw temporarily blocked by keeper cooldown") instead of
+        // axios's generic "Request failed with status code 400".
+        const axiosErr = err as {
+          response?: { data?: { message?: string | string[] } };
+          message?: string;
+        };
+        const detail = axiosErr.response?.data?.message;
+        const text = Array.isArray(detail) ? detail.join("; ") : detail;
+        if (text) throw new Error(text);
+        throw err;
+      }
     },
     // On success, invalidate account-scoped queries so the UI immediately
     // reflects the new account state (e.g. status DEPLOYING → AWAITING_FUND
@@ -166,12 +181,51 @@ export function useSubmitTx() {
 }
 
 export function useWithdraw() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (dto: { publicKey: string; amount: number }) => {
-      const { data } = await backendAxios.post<{
-        data: { xdr?: string; xdrs?: string[]; signedXdrs?: string[] };
-      }>("/api/account/withdraw", dto);
-      return data.data;
+      try {
+        const { data } = await backendAxios.post<{
+          data: {
+            xdr?: string;
+            xdrs?: string[];
+            signedXdrs?: string[];
+            // Server-side bot-signed submissions: hashes of TXs already
+            // confirmed on-chain. No client-side submit needed for these.
+            submittedTxHashes?: string[];
+          };
+        }>("/api/account/withdraw", dto);
+        return data.data;
+      } catch (err: unknown) {
+        // Surface backend's actual message instead of axios's "Request failed
+        // with status code 400". Backend includes a specific reason in
+        // response.data.message (e.g. "Insufficient withdrawable balance.
+        // Unfilled amount: $4.19" or "Transaction rejected due to sequence
+        // number collision").
+        const axiosErr = err as {
+          response?: { data?: { message?: string | string[] } };
+          message?: string;
+        };
+        const detail = axiosErr.response?.data?.message;
+        const text = Array.isArray(detail) ? detail.join("; ") : detail;
+        if (text) throw new Error(text);
+        throw err;
+      }
+    },
+    // Withdraw outcome (success OR failure from a stale cache hit) means our
+    // cached position/balance is suspect — invalidate so the dashboard
+    // refetches actual on-chain state on next render.
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        predicate: (q) => {
+          const k = q.queryKey?.[0];
+          return (
+            k === "/api/account/me" ||
+            k === "/api/account/position" ||
+            k === "/api/account/activity"
+          );
+        },
+      });
     },
   });
 }

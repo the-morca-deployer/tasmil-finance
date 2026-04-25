@@ -113,8 +113,9 @@ export function SettingsPage() {
 
       const xdrs: string[] = result?.xdrs ?? (result?.xdr ? [result.xdr] : []);
       const signedXdrs: string[] = result?.signedXdrs ?? [];
+      const serverSubmitted = (result?.submittedTxHashes ?? []) as string[];
 
-      if (xdrs.length === 0 && signedXdrs.length === 0) {
+      if (xdrs.length === 0 && signedXdrs.length === 0 && serverSubmitted.length === 0) {
         throw new Error("No transaction returned from server");
       }
 

@@ -345,7 +345,11 @@ function FarmingContent() {
       });
       const xdrs: string[] = result?.xdrs ?? (result?.xdr ? [result.xdr] : []);
       const signedXdrs: string[] = result?.signedXdrs ?? [];
-      if (xdrs.length === 0 && signedXdrs.length === 0)
+      // Server-side bot-signed submissions are already on-chain by the
+      // time the response lands. Only client-signed XDRs need browser
+      // wallet roundtrips.
+      const serverSubmitted = (result?.submittedTxHashes ?? []) as string[];
+      if (xdrs.length === 0 && signedXdrs.length === 0 && serverSubmitted.length === 0)
         throw new Error("No withdrawal transaction returned from server");
 
       for (const [i, xdr] of xdrs.entries()) {
