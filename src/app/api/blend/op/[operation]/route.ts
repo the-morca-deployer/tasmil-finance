@@ -146,9 +146,9 @@ async function buildTx(
         from: required("from"),
       });
     case "dequeue-withdrawal":
-      return sdk.blend.buildBackstopDequeueWithdrawal({ pool, amount, from });
+      return sdk.blend.buildBackstopDequeueWithdrawal({ pool: required("pool"), amount: required("amount"), from: required("from") });
     case "backstop-withdraw":
-      return sdk.blend.buildBackstopWithdraw({ pool, amount, from });
+      return sdk.blend.buildBackstopWithdraw({ pool: required("pool"), amount: required("amount"), from: required("from") });
   }
 }
 

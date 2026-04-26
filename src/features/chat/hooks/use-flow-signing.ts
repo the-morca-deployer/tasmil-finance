@@ -142,7 +142,7 @@ export function useFlowSigning(): UseFlowSigningReturn {
         // Sign phase
         let signedXdr: string;
         try {
-          signedXdr = await signStepXdr(xdrs[i], signTransaction);
+          signedXdr = await signStepXdr(xdrs[i]!, signTransaction);
         } catch (err) {
           const result = handleSignError(i, err, results);
           setStepResults([...results]);

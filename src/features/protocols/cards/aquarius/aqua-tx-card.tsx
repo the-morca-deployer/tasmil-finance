@@ -138,7 +138,8 @@ export function AquaTxCard({
     respond,
   });
 
-  const isLiquidityOp = tx.operation === "add_liquidity" || tx.operation === "withdraw_liquidity";
+  const _isLiquidityOp = tx.operation === "add_liquidity" || tx.operation === "withdraw_liquidity";
+  void _isLiquidityOp;
 
   const [showXdr, setShowXdr] = useState(false);
   const [cancelled, setCancelled] = useState(false);

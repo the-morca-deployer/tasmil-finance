@@ -12,6 +12,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Loader2, RefreshCw, Zap, ChevronDown } from "lucide-react";
+import { useMultiTrustlineCheck } from "@/features/protocols/hooks/use-multi-trustline-check";
 import { StreamContext, type StreamContextType } from "@/features/chat/providers/stream-provider";
 import {
   AquaPoolsCard,
@@ -750,7 +751,7 @@ function WithdrawPanel({ poolAddress, walletAddress: userAddr }: { poolAddress: 
     return () => { cancelled = true; };
   }, [isConcentrated, poolAddr, from]);
 
-  const liquidity = position ? BigInt(String(position.liquidity ?? "0").split(".")[0]) : 0n;
+  const liquidity = position ? BigInt(String(position.liquidity ?? "0").split(".")[0] ?? "0") : 0n;
   const withdrawLiquidity = liquidity > 0n ? (liquidity * BigInt(withdrawPct) / 100n).toString() : "0";
 
   // Estimate receive amounts (proportional from reserves)
@@ -923,7 +924,7 @@ const TOKEN_CONTRACTS: Record<string, string> = {
 
 // ── TrustlinePrecheck ───────────────────────────────────────────
 // Shows warning + add buttons for missing trustlines before Build TX
-function TrustlinePrecheck({ walletAddress, tokens, poolAddress, gaugeEnabled }: {
+export function TrustlinePrecheck({ walletAddress, tokens, poolAddress: _poolAddress, gaugeEnabled }: {
   walletAddress: string; tokens: string[]; poolAddress: string; gaugeEnabled?: boolean;
 }) {
   // Build list: pool tokens + ICE if gauge enabled
@@ -962,7 +963,8 @@ function TrustlinePrecheck({ walletAddress, tokens, poolAddress, gaugeEnabled }:
 
 // ── Default pools ───────────────────────────────────────────────
 const DEFAULT_LP_POOL = "CD3LFMMLBQ6RBJUD3Z2LFDFE6544WDRMWHEZYPI5YDVESYRSO2TT32BX"; // XLM/USDC constant_product
-const DEFAULT_CL_POOL = "CAD5TBS4NKO35YDYZN3ULQFXDXVL7BPK4Q2RUG7N4DVPYNNOEAUAQJ6F"; // USDC/XLM concentrated
+// Reserved for concentrated pool support:
+// const DEFAULT_CL_POOL = "CAD5TBS4NKO35YDYZN3ULQFXDXVL7BPK4Q2RUG7N4DVPYNNOEAUAQJ6F"; // USDC/XLM concentrated
 
 // ── Main playground ─────────────────────────────────────────────
 export default function AquariusPlaygroundPage() {

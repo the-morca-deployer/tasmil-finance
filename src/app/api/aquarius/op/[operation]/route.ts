@@ -177,7 +177,7 @@ export async function POST(
   } catch (e) {
     const rawError = e instanceof Error ? e.message : "Operation failed";
     return NextResponse.json(
-      { success: false, error: humanizeAquariusError(rawError) },
+      { success: false, error: rawError },
       { status: 400 },
     );
   }

@@ -121,16 +121,16 @@ export function BlendPoolDetailCard({ data }: { data: Record<string, unknown> })
       </div>
       {res.length > 0 ? (
         <div className="divide-y divide-border/50">
-          {res.map((r, i) => (
+          {res.map((r: Record<string, unknown>, i: number) => (
             <div key={i} className="px-4 py-3 hover:bg-muted/20 transition-colors">
               <div className="flex items-center gap-2.5 mb-2">
                 <TokenImage src={null} alt={String(r.symbol ?? "?")} className="h-6 w-6 rounded-full" />
                 <span className="text-sm font-medium text-foreground flex-1">{String(r.symbol ?? "?")}</span>
-                <div className="w-20"><Bar value={r.utilization} /></div>
+                <div className="w-20"><Bar value={r.utilization as number} /></div>
               </div>
               <div className="grid grid-cols-4 gap-3 pl-8">
-                <Stat label="Supply APY" value={formatPercent(r.supplyApy)} />
-                <Stat label="Borrow APY" value={formatPercent(r.borrowApy)} />
+                <Stat label="Supply APY" value={formatPercent(r.supplyApy as number)} />
+                <Stat label="Borrow APY" value={formatPercent(r.borrowApy as number)} />
                 <Stat label="Supplied" value={fmt(r.totalSupply ?? r.totalSupplied)} />
                 <Stat label="Borrowed" value={fmt(r.totalBorrow ?? r.totalBorrowed)} />
               </div>
@@ -159,21 +159,21 @@ export function BlendReserveCard({ data }: { data: Record<string, unknown> }) {
       </div>
       <div className="p-4 space-y-3">
         <div className="grid grid-cols-2 gap-2">
-          <MetricBox label="Supply APY" value={formatPercent(r.supplyApy)} />
-          <MetricBox label="Borrow APY" value={formatPercent(r.borrowApy)} />
+          <MetricBox label="Supply APY" value={formatPercent(r.supplyApy as number)} />
+          <MetricBox label="Borrow APY" value={formatPercent(r.borrowApy as number)} />
         </div>
         <div>
           <div className="flex justify-between text-[10px] mb-1">
             <span className="text-muted-foreground">Utilization</span>
-            <span className="text-foreground tabular-nums">{formatPercent(r.utilization)}</span>
+            <span className="text-foreground tabular-nums">{formatPercent(r.utilization as number)}</span>
           </div>
-          <Bar value={r.utilization} />
+          <Bar value={r.utilization as number} />
         </div>
         <div className="grid grid-cols-2 gap-y-1.5 text-xs">
           <Row label="Total Supply" value={`${fmt(r.totalSupply)} ${sym}`} />
           <Row label="Total Borrow" value={`${fmt(r.totalBorrow)} ${sym}`} />
-          <Row label="C-Factor" value={formatPercent(r.collateralFactor)} />
-          <Row label="L-Factor" value={formatPercent(r.liabilityFactor)} />
+          <Row label="C-Factor" value={formatPercent(r.collateralFactor as number)} />
+          <Row label="L-Factor" value={formatPercent(r.liabilityFactor as number)} />
         </div>
       </div>
     </Card>

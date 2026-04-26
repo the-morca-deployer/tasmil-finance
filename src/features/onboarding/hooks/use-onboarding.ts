@@ -7,7 +7,7 @@ import { useOnboardingStore } from "@/store/use-onboarding";
 
 // Onborda disabled — mock hook to avoid provider errors
 // import { useOnborda } from "onborda";
-const useOnborda = () => ({ startOnborda: () => {} });
+const useOnborda = () => ({ startOnborda: (_tourName?: string) => {} });
 
 /**
  * Triggers the welcome modal on first authentication.

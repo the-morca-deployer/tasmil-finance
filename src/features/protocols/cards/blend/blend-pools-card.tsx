@@ -8,8 +8,8 @@ import { TokenImage } from "@/shared/components/token-image";
 import type { CardMode } from "../../schemas/common.schema";
 import type { PoolCardProps } from "../../schemas/blend.schema";
 import { ProtocolCard, EmptyState } from "../base/protocol-card";
-import { Tag, CardHeader } from "../base/indicators";
-import { fmt,  formatPercent } from "../../lib/formatting";
+import { Tag, CardHeader, Apy } from "../base/indicators";
+// import { fmt, formatPercent } from "../../lib/formatting";
 
 interface BlendPoolsCardProps {
   pools: PoolCardProps[];

@@ -2,6 +2,7 @@
 
 import { useRenderToolCall } from "@copilotkit/react-core";
 import { useCallback, useState } from "react";
+import type { TxStatus } from "@/features/chat/types/flow-messages";
 import { AccountInfoCard } from "@/features/chat/actions/components/stellar/account-info-card";
 import { ActionSearchCard } from "@/features/chat/actions/components/stellar/action-search-card";
 import { BridgeDiscoveryCard } from "@/features/chat/actions/components/stellar/bridge-discovery-card";
@@ -418,7 +419,7 @@ function parseFlowResult(result: unknown): Record<string, unknown> | null {
     const textBlock = (result as { type?: string; text?: string }[]).find(
       (b) => b?.type === "text" && typeof b?.text === "string"
     );
-    if (textBlock) raw = textBlock.text;
+    if (textBlock?.text) raw = textBlock.text;
   }
 
   // String — parse JSON
@@ -483,7 +484,7 @@ export const FLOW_TOOL_RENDERERS: Array<{
         <ExecutionCard
           step={(data.step as number) ?? 0}
           totalSteps={(data.total_steps as number) ?? 1}
-          status={(data.status as string) ?? "submitting"}
+          status={((data.status as string) ?? "submitting") as TxStatus}
           txHash={data.tx_hash as string}
           description={data.description as string}
           error={data.error as string}

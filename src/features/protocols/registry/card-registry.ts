@@ -28,13 +28,11 @@ import {
 import {
   normalizeAquaPoolFromSdk,
   normalizeAquaPoolsFromSdk,
-  normalizeAquaQuoteFromSdk,
   normalizeAquaPositionsFromSdk,
 } from "../adapters/aquarius-from-sdk";
 import {
   normalizeSoroswapPoolFromSdk,
   normalizeSoroswapPoolsFromSdk,
-  normalizeSoroswapQuoteFromSdk,
   normalizeSoroswapPositionsFromSdk,
 } from "../adapters/soroswap-from-sdk";
 import {
@@ -46,7 +44,6 @@ import {
 import {
   normalizeAquaPoolFromMcp,
   normalizeAquaPoolsFromMcp,
-  normalizeAquaQuoteFromMcp,
   normalizeAquaPositionsFromMcp,
   normalizeAquaTxFromMcp,
 } from "../adapters/aquarius-from-mcp";
@@ -174,7 +171,7 @@ function getAquaPositionsCard() {
   return _AquaPositionsCard!;
 }
 
-function getAquaQuoteCard() {
+export function getAquaQuoteCard() {
   if (!_AquaQuoteCard) {
     _AquaQuoteCard = require("../cards/aquarius/aqua-quote-card").AquaQuoteCard;
   }

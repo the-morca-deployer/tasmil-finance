@@ -210,7 +210,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const { data: challengeData } = await challengeRes.json();
 
         // Step 2: Build a TX for the user to sign (proves private key ownership)
-        const { TransactionBuilder, Operation, Account, Networks } = await import(
+        const { TransactionBuilder, Operation, Account } = await import(
           "@stellar/stellar-sdk"
         );
         const network = activeNetwork.networkPassphrase;

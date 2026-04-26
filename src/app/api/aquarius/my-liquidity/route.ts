@@ -69,11 +69,11 @@ export async function GET(req: NextRequest) {
 
     const pooled0 =
       hasPosition && totalSharesBig > 0n && reserves[0] != null
-        ? Number((BigInt(String(reserves[0]).split(".")[0]) * sharesBig) / totalSharesBig) / 1e7
+        ? Number((BigInt(String(reserves[0]).split(".")[0] ?? "0") * sharesBig) / totalSharesBig) / 1e7
         : 0;
     const pooled1 =
       hasPosition && totalSharesBig > 0n && reserves[1] != null
-        ? Number((BigInt(String(reserves[1]).split(".")[0]) * sharesBig) / totalSharesBig) / 1e7
+        ? Number((BigInt(String(reserves[1]).split(".")[0] ?? "0") * sharesBig) / totalSharesBig) / 1e7
         : 0;
 
     return NextResponse.json({

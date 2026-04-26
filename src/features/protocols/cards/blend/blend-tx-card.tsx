@@ -64,8 +64,8 @@ export function BlendTxCard({
   const amount = tx.amount ?? "0";
   const fee = tx.estimatedFee ?? "0";
   const xdr = tx.xdr;
-  const pool = tx.pool ?? "";
-  const from = tx.from ?? "";
+  const _pool = tx.pool ?? ""; void _pool;
+  const _from = tx.from ?? ""; void _from;
 
   const chatStream = useStreamContext();
   const stream = mode === "chat" ? chatStream : streamProp;

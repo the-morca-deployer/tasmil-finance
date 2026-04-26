@@ -112,7 +112,7 @@ function QueryPanel({ title, protocol, endpoint, fields, defaults = {}, autoFetc
 
       {error && <Typography variant="small" className="text-red-400 text-xs bg-red-500/10 rounded p-2">{error}</Typography>}
 
-      {result && (
+      {result != null && (
         <pre className="max-h-[400px] overflow-auto rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground font-mono">
           {JSON.stringify(result, null, 2)}
         </pre>
