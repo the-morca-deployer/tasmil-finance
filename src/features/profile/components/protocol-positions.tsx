@@ -180,6 +180,29 @@ function formatUsd(value: number): string {
   }).format(value);
 }
 
+function formatRewardAmount(amount: number): string {
+  if (amount >= 1) return amount.toLocaleString("en-US", { maximumFractionDigits: 4 });
+  return amount.toLocaleString("en-US", { maximumFractionDigits: 7 });
+}
+
+function PositionRewardsCell({ pos, groupRewards }: { pos: PositionItem; groupRewards?: { amount: number; token: string } }) {
+  const rewards = pos.rewards ?? groupRewards;
+  if (!rewards || rewards.amount <= 0) return <span className="text-sm text-muted-foreground">—</span>;
+
+  return (
+    <div className="flex flex-col">
+      <span className="text-sm font-medium text-amber-400">
+        {formatRewardAmount(rewards.amount)} {rewards.token}
+      </span>
+      {pos.rewards?.daily != null && pos.rewards.daily > 0 && (
+        <span className="text-xs text-muted-foreground">
+          +{formatRewardAmount(pos.rewards.daily)}/day
+        </span>
+      )}
+    </div>
+  );
+}
+
 /** Extract pool name from group displayName: "Blend · TestnetV2" → "TestnetV2" */
 function extractPoolName(displayName: string): string {
   const parts = displayName.split(" · ");
@@ -201,7 +224,7 @@ const PIE_COLORS = [
 
 // ─── Grid layout ─────────────────────────────────────────────────────────────
 
-const POS_GRID = "grid grid-cols-[2fr_80px_80px_1.2fr_1fr] items-center gap-x-3";
+const POS_GRID = "grid grid-cols-[2fr_80px_80px_1fr_1.2fr_1fr] items-center gap-x-3";
 
 // ─── Group by protocol ───────────────────────────────────────────────────────
 
@@ -460,7 +483,8 @@ export function ProtocolPositions({
       {cards.map((card, cardIdx) => {
         const isCollapsed = collapsed.has(card.protocol);
         const iconSrc = getProtocolIcon(card.protocol);
-        const hasPools = card.pools.length > 1;
+        // Use tree layout when pools have distinct sub-names (e.g. "Blend · Etherfuse Pool")
+        const useTree = card.pools.some((p) => p.displayName.includes(" · "));
 
         return (
           <motion.div
@@ -521,7 +545,8 @@ export function ProtocolPositions({
 
             {/* Expanded content */}
             <AnimatePresence initial={false}>
-              {!isCollapsed && !hasPools &&
+              {/* Flat layout — no tree (e.g. Aquarius) */}
+              {!isCollapsed && !useTree &&
                 card.pools.map((pool) => (
                   <motion.div
                     key={pool.displayName}
@@ -548,6 +573,9 @@ export function ProtocolPositions({
                         APY
                       </span>
                       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Rewards
+                      </span>
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         Amount
                       </span>
                       <span className="text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -570,6 +598,7 @@ export function ProtocolPositions({
                         <span className="text-sm font-medium text-emerald-400">
                           {pos.apy != null ? `${pos.apy.toFixed(2)}%` : "—"}
                         </span>
+                        <PositionRewardsCell pos={pos} groupRewards={pool.rewards} />
                         <PositionAmountCell pos={pos} />
                         <span className="text-right text-base font-medium text-foreground">
                           {pos.valueUsd > 0 ? formatUsd(pos.valueUsd) : "—"}
@@ -579,8 +608,8 @@ export function ProtocolPositions({
                   </motion.div>
                 ))}
 
-              {/* Multi-pool tree layout */}
-              {!isCollapsed && hasPools && (
+              {/* Tree layout — pools with distinct names (e.g. Blend) */}
+              {!isCollapsed && useTree && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
@@ -637,6 +666,9 @@ export function ProtocolPositions({
                                 APY
                               </span>
                               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                Rewards
+                              </span>
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                 Amount
                               </span>
                               <span className="text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -660,6 +692,7 @@ export function ProtocolPositions({
                                 <span className="text-sm font-medium text-emerald-400">
                                   {pos.apy != null ? `${pos.apy.toFixed(2)}%` : "—"}
                                 </span>
+                                <PositionRewardsCell pos={pos} groupRewards={pool.rewards} />
                                 <PositionAmountCell pos={pos} />
                                 <span className="text-right text-base font-medium text-foreground">
                                   {pos.valueUsd > 0

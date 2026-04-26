@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { SUPPORTED_CHAINS, getActiveRegistry } from "../aggregator/_registry";
+import { sdk, ensureBridgeTokens } from "../aggregator/_sdk";
 
 export async function GET() {
-  return NextResponse.json({
-    chains: SUPPORTED_CHAINS,
-    tokens: getActiveRegistry(),
-  });
+  await ensureBridgeTokens();
+  return NextResponse.json(sdk.tokens.getRegistry());
 }

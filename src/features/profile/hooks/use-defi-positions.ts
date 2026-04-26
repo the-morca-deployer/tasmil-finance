@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { usePosition } from "@/features/account/hooks/use-account-api";
 import { useBlendPositions } from "./use-blend-positions";
 import { useAquariusPositions } from "./use-aquarius-positions";
@@ -13,6 +14,8 @@ export interface PositionItem {
   apy?: number;
   allocationPercent?: number;
   extra?: string;
+  /** Claimable rewards for this position */
+  rewards?: { amount: number; token: string; daily?: number };
   /** LP pair info — if set, the UI shows two overlapping token icons */
   pair?: {
     token0: string;
@@ -23,7 +26,6 @@ export interface PositionItem {
     sharePct?: string;
     poolType?: string;
     fee?: string;
-    rewards?: string;
   };
 }
 
@@ -33,6 +35,8 @@ export interface ProtocolPositionGroup {
   icon: string | null;
   totalValueUsd: number;
   positions: PositionItem[];
+  /** Group-level claimable rewards (e.g. BLND emissions per pool) */
+  rewards?: { amount: number; token: string };
   pnl?: {
     profitUsd: number;
     profitPercent: number;
@@ -158,8 +162,19 @@ function enrichWithPrices(
 export function useDefiPositions(address: string | null | undefined) {
   const { group: tasmilGroup, vaultPnl, isLoading: tasmilLoading } = useTasmilGroup(address);
   const { data: blendGroups, isLoading: blendLoading } = useBlendPositions(address);
-  const { data: aquaGroup, isLoading: aquaLoading } = useAquariusPositions(address);
+  const { data: aquaGroups, isLoading: aquaLoading } = useAquariusPositions(address);
   const { data: walletData } = useWalletTokens(address);
+
+  // Keep last successful data so positions never disappear on transient failures
+  // blendGroups can be [] (empty array = truthy) when RPC fails, so check .length
+  const lastBlendRef = useRef<ProtocolPositionGroup[]>([]);
+  const lastAquaRef = useRef<ProtocolPositionGroup[]>([]);
+
+  if (blendGroups && blendGroups.length > 0) lastBlendRef.current = blendGroups;
+  if (aquaGroups && aquaGroups.length > 0) lastAquaRef.current = aquaGroups;
+
+  const stableBlend = blendGroups && blendGroups.length > 0 ? blendGroups : lastBlendRef.current;
+  const stableAqua = aquaGroups && aquaGroups.length > 0 ? aquaGroups : lastAquaRef.current;
 
   // Build price map: CoinGecko cache first, then wallet token prices
   const priceMap: Record<string, number> = { ...getCachedPrices() };
@@ -169,8 +184,8 @@ export function useDefiPositions(address: string | null | undefined) {
 
   const rawGroups: ProtocolPositionGroup[] = [];
   if (tasmilGroup) rawGroups.push(tasmilGroup);
-  if (blendGroups) rawGroups.push(...blendGroups);
-  if (aquaGroup) rawGroups.push(aquaGroup);
+  if (stableBlend.length > 0) rawGroups.push(...stableBlend);
+  if (stableAqua.length > 0) rawGroups.push(...stableAqua);
 
   const groups = enrichWithPrices(rawGroups, priceMap);
 

@@ -1,0 +1,11 @@
+import { NextRequest, NextResponse } from "next/server";
+import { sdk } from "../_sdk";
+
+export async function GET(req: NextRequest) {
+  const hash = req.nextUrl.searchParams.get("hash");
+  if (!hash) {
+    return NextResponse.json({ error: "hash is required" }, { status: 400 });
+  }
+  const result = await sdk.stellar.verifyTransaction(hash);
+  return NextResponse.json(result);
+}

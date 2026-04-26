@@ -1,7 +1,12 @@
 "use client";
 
 import { solana, solanaTestnet } from "@reown/appkit/networks";
-import { useAppKit, useAppKitNetwork } from "@reown/appkit/react";
+import {
+  useAppKit,
+  useAppKitAccount,
+  useAppKitNetwork,
+  useAppKitProvider,
+} from "@reown/appkit/react";
 import { AnimatePresence, motion, useCycle } from "framer-motion";
 import {
   ArrowLeftRight,
@@ -15,7 +20,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useAccount, useDisconnect } from "wagmi";
+import { useAccount, useDisconnect, useSendTransaction } from "wagmi";
 import { AddressPicker } from "@/features/aggregator/components/address-picker";
 import {
   AggregatorRoutePanel,
@@ -23,6 +28,9 @@ import {
 } from "@/features/aggregator/components/aggregator-routes";
 import { AggregatorTokenPicker } from "@/features/aggregator/components/chain-token-selector";
 import { useAggregator } from "@/features/aggregator/hooks/use-aggregator";
+import { useAllbridgeExecute } from "@/features/aggregator/hooks/use-allbridge-execute";
+import { useEvmTokenBalance } from "@/features/aggregator/hooks/use-evm-balance";
+import { useSolanaTokenBalance } from "@/features/aggregator/hooks/use-solana-balance";
 import { TOUR_NAMES } from "@/features/onboarding/config/tour-steps";
 import { usePageTour } from "@/features/onboarding/hooks/use-onboarding";
 import { useWalletTokens } from "@/features/profile/hooks/use-wallet-tokens";
@@ -93,6 +101,7 @@ export function AggregatorPage() {
     address: stellarAddress,
   } = useWallet();
   const agg = useAggregator();
+  const { execute: allbridgeExecute } = useAllbridgeExecute();
   const addrStore = useAddressStore();
 
   // EVM wallet via wagmi + Reown
@@ -102,12 +111,49 @@ export function AggregatorPage() {
   const { switchNetwork } = useAppKitNetwork();
   const evmAddress = isEvmConnected && evmAddressRaw ? evmAddressRaw : null;
 
+  // Solana wallet via Reown AppKit
+  const { address: solanaAddressRaw, isConnected: isSolanaConnected } = useAppKitAccount({
+    namespace: "solana",
+  });
+  const solanaAddress = isSolanaConnected && solanaAddressRaw ? solanaAddressRaw : null;
+  const { walletProvider: solanaProvider } = useAppKitProvider<{
+    signAndSendTransaction: (tx: unknown) => Promise<{ signature: string }>;
+  }>("solana");
+
+  // Sign and send a Solana transaction via Reown wallet (receives raw TX object from SDK)
+  const signSolanaTransaction = useCallback(
+    async (tx: unknown): Promise<string> => {
+      if (!solanaProvider?.signAndSendTransaction) {
+        throw new Error("Solana wallet not available");
+      }
+      const result = await solanaProvider.signAndSendTransaction(tx);
+      return result.signature;
+    },
+    [solanaProvider],
+  );
+
+  // Sign and send an EVM transaction via wagmi
+  const { sendTransactionAsync } = useSendTransaction();
+  const signEvmTransaction = useCallback(
+    async (tx: { to: string; data: string; value?: string }): Promise<string> => {
+      const hash = await sendTransactionAsync({
+        to: tx.to as `0x${string}`,
+        data: tx.data as `0x${string}`,
+        value: tx.value ? BigInt(tx.value) : undefined,
+      });
+      return hash;
+    },
+    [sendTransactionAsync],
+  );
+
   const connectEvm = useCallback(async () => {
-    if (agg.chainIn === "solana") {
-      await switchNetwork(isTestnet ? solanaTestnet : solana);
-    }
     openReownModal({ view: "Connect" });
-  }, [agg.chainIn, switchNetwork, openReownModal]);
+  }, [openReownModal]);
+
+  const connectSolana = useCallback(async () => {
+    await switchNetwork(isTestnet ? solanaTestnet : solana);
+    openReownModal({ view: "Connect" });
+  }, [switchNetwork, openReownModal]);
 
   const disconnectEvm = useCallback(async () => {
     await disconnectAsync();
@@ -116,6 +162,18 @@ export function AggregatorPage() {
   const activeTab = "bridge" as const;
   const [selectedProtocol, setSelectedProtocol] = useState<string | null>(null);
   const hasUserInteracted = useRef(false);
+  const swapPanelRef = useRef<HTMLDivElement>(null);
+  const [swapPanelHeight, setSwapPanelHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const el = swapPanelRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      setSwapPanelHeight(el.offsetHeight);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // Toast notifications for swap result
   const network = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] === "mainnet" ? "public" : "testnet";
@@ -146,8 +204,9 @@ export function AggregatorPage() {
   useEffect(() => {
     addrStore.syncConnectedWallet("stellar", stellarAddress, "Stellar Wallet");
     addrStore.syncConnectedWallet("evm", evmAddress, "EVM Wallet");
+    addrStore.syncConnectedWallet("solana", solanaAddress, "Solana Wallet");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stellarAddress, evmAddress]);
+  }, [stellarAddress, evmAddress, solanaAddress]);
 
   const chainTypeIn =
     agg.chainIn === "stellar"
@@ -163,16 +222,33 @@ export function AggregatorPage() {
         : ("evm" as const);
 
   // Source address — from store selection or auto from connected wallet
-  const sourceAddress =
-    addrStore.selectedSource ||
-    (chainTypeIn === "stellar" ? stellarAddress : chainTypeIn === "evm" ? evmAddress : null) ||
-    "";
-
   const isSourceStellar = agg.chainIn === "stellar";
   const isSourceEvm = EVM_CHAINS.has(agg.chainIn);
-  const srcConnected = !!sourceAddress;
+  const isSourceSolana = agg.chainIn === "solana";
 
-  const needsWallet = !srcConnected && (isSourceStellar || isSourceEvm);
+  // Validate selectedSource matches the current chain type
+  const selectedSourceValid = (() => {
+    const sel = addrStore.selectedSource;
+    if (!sel) return null;
+    if (isSourceStellar && sel.startsWith("G") && sel.length === 56) return sel;
+    if (isSourceEvm && sel.startsWith("0x") && sel.length === 42) return sel;
+    if (isSourceSolana && !sel.startsWith("G") && !sel.startsWith("0x")) return sel;
+    return null;
+  })();
+
+  const sourceAddress =
+    selectedSourceValid ||
+    (isSourceStellar
+      ? stellarAddress
+      : isSourceEvm
+        ? evmAddress
+        : isSourceSolana
+          ? solanaAddress
+          : null) ||
+    "";
+
+  const srcConnected = !!sourceAddress;
+  const needsWallet = !srcConnected && (isSourceStellar || isSourceEvm || isSourceSolana);
   const aggHasBothTokens = !!agg.tokenIn && !!agg.tokenOut;
   const aggHasAmount = !!agg.amount && Number.parseFloat(agg.amount) > 0;
   const showRoutePanel = aggHasBothTokens && aggHasAmount;
@@ -181,16 +257,40 @@ export function AggregatorPage() {
   const { data: walletData } = useWalletTokens(stellarAddress);
   const walletTokens = walletData?.tokens ?? [];
 
+  // Solana SPL token balance
+  const solMintAddress = isSourceSolana ? agg.tokenIn?.addresses?.["solana"] : null;
+  const { data: solanaTokenBal } = useSolanaTokenBalance(
+    isSourceSolana ? solanaAddress : null,
+    solMintAddress,
+  );
+
+  // EVM ERC-20 token balance via RPC (works regardless of connected chain)
+  const evmTokenAddress = isSourceEvm ? agg.tokenIn?.addresses?.[agg.chainIn] : null;
+  const { data: evmTokenBal } = useEvmTokenBalance(
+    isSourceEvm ? evmAddress : null,
+    evmTokenAddress,
+    isSourceEvm ? agg.chainIn : null,
+    agg.tokenIn?.decimals ?? 18,
+  );
+
   // Build price map from wallet tokens
   const priceMap: Record<string, number> = {};
   for (const t of walletTokens) {
     if (t.price > 0) priceMap[t.assetCode.toUpperCase()] = t.price;
   }
 
-  // Find balance for selected tokenIn
-  const tokenInBalance = agg.tokenIn
-    ? walletTokens.find((t) => t.assetCode.toUpperCase() === agg.tokenIn!.symbol.toUpperCase())
-    : null;
+  // Find balance for selected tokenIn (chain-aware)
+  const tokenInBalance: { balance: number } | null = isSourceSolana
+    ? solanaTokenBal != null
+      ? { balance: solanaTokenBal }
+      : null
+    : isSourceEvm && evmTokenBal != null
+      ? { balance: evmTokenBal }
+      : isSourceStellar && agg.tokenIn
+        ? walletTokens.find(
+            (t) => t.assetCode.toUpperCase() === agg.tokenIn!.symbol.toUpperCase(),
+          ) ?? null
+        : null;
 
   // Prices — use wallet price map (works even if user doesn't hold the token,
   // as long as another token with that symbol exists in the wallet)
@@ -209,6 +309,16 @@ export function AggregatorPage() {
   useEffect(() => {
     setSelectedProtocol(null);
   }, [agg.tokenIn, agg.tokenOut]);
+
+  // Clear selected source/dest when chain changes (prevents cross-chain address mismatch)
+  useEffect(() => {
+    addrStore.setSelectedSource(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agg.chainIn]);
+  useEffect(() => {
+    addrStore.setSelectedDest(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agg.chainOut]);
 
   // Selected route quote — either user-selected or best
   const selectedQuote =
@@ -315,9 +425,10 @@ export function AggregatorPage() {
       </div>
 
       <div className="relative z-20 flex items-start gap-3" data-onborda="aggregator-card">
+        <div ref={swapPanelRef} className="w-full sm:w-[480px] max-w-[480px]">
         <BorderGlow
           animated
-          className="w-full sm:w-[480px] max-w-[480px]"
+          className="w-full"
           backgroundColor="var(--card)"
           borderRadius={24}
           glowColor="203 100 73"
@@ -340,10 +451,13 @@ export function AggregatorPage() {
               <WalletHub
                 stellarAddress={stellarAddress}
                 evmAddress={evmAddress}
+                solanaAddress={solanaAddress}
                 onConnectStellar={() => connectStellar?.()}
                 onConnectEvm={connectEvm}
+                onConnectSolana={connectSolana}
                 onDisconnectStellar={disconnectStellar}
                 onDisconnectEvm={disconnectEvm}
+                onDisconnectSolana={disconnectEvm}
               />
               <SlippageSettings
                 slippageBps={agg.slippageBps}
@@ -378,7 +492,14 @@ export function AggregatorPage() {
                         onSelect={(addr) => addrStore.setSelectedSource(addr)}
                         stellarAddress={stellarAddress}
                         evmAddress={evmAddress}
-                        onConnectWallet={isSourceStellar ? () => connectStellar?.() : connectEvm}
+                        solanaAddress={solanaAddress}
+                        onConnectWallet={
+                          isSourceStellar
+                            ? () => connectStellar?.()
+                            : isSourceSolana
+                              ? connectSolana
+                              : connectEvm
+                        }
                         onDisconnectStellar={disconnectStellar}
                         onDisconnectEvm={disconnectEvm}
                       />
@@ -401,7 +522,7 @@ export function AggregatorPage() {
                         className="w-full bg-transparent text-[28px] leading-[34px] font-normal focus:outline-none truncate"
                         style={{ color: C.mainText }}
                       />
-                      <div className="flex items-center justify-between mt-0.5 h-5">
+                      <div className="flex items-center mt-0.5 h-5 gap-1.5">
                         <span
                           className="text-sm font-medium leading-5"
                           style={{ color: C.mutedText }}
@@ -409,12 +530,15 @@ export function AggregatorPage() {
                           {inputAmount > 0 && tokenInPrice > 0 ? formatUsdCompact(inputUsd) : "$0"}
                         </span>
                         {tokenInBalance != null && (
-                          <span
-                            className="text-xs leading-5"
-                            style={{ color: insufficientBalance ? "#ef4444" : C.dimText }}
-                          >
-                            {formatBalanceShort(tokenInBalance.balance)} {agg.tokenIn?.symbol ?? ""}
-                          </span>
+                          <>
+                            <span className="text-sm leading-5" style={{ color: C.dimText }}>|</span>
+                            <span
+                              className="text-sm font-medium leading-5"
+                              style={{ color: C.dimText }}
+                            >
+                              Balance: {formatBalanceShort(tokenInBalance.balance)} {agg.tokenIn?.symbol ?? ""}
+                            </span>
+                          </>
                         )}
                       </div>
                     </div>
@@ -488,15 +612,20 @@ export function AggregatorPage() {
                         }}
                         stellarAddress={stellarAddress}
                         evmAddress={evmAddress}
+                        solanaAddress={solanaAddress}
                         onConnectWallet={
-                          chainTypeOut === "stellar" ? () => connectStellar?.() : connectEvm
+                          chainTypeOut === "stellar"
+                            ? () => connectStellar?.()
+                            : chainTypeOut === "solana"
+                              ? connectSolana
+                              : connectEvm
                         }
                         onDisconnectStellar={disconnectStellar}
                         onDisconnectEvm={disconnectEvm}
                       />
                     </div>
                   </div>
-                  <div className="mt-[27px] grid grid-cols-[1fr_auto] gap-1 w-full">
+                  <div className="mt-[10px] grid grid-cols-[1fr_auto] gap-1 w-full">
                     <div className="min-w-0 overflow-hidden">
                       {agg.isLoadingQuotes ? (
                         <div className="space-y-2 pt-1">
@@ -558,9 +687,19 @@ export function AggregatorPage() {
                       <Info className="h-3.5 w-3.5" /> Fee
                     </span>
                     <span style={{ color: C.mutedText }}>
-                      {selectedQuote.fee} ({selectedQuote.feePercent})
+                      {formatAmount(selectedQuote.fee, agg.tokenIn?.decimals ?? 7)} {agg.tokenIn?.symbol ?? ""} ({selectedQuote.feePercent})
                     </span>
                   </div>
+                  {selectedQuote.gasFee && (
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="flex items-center gap-1.5" style={{ color: C.dimText }}>
+                        <Info className="h-3.5 w-3.5" /> Gas fee
+                      </span>
+                      <span style={{ color: C.mutedText }}>
+                        {selectedQuote.gasFee} {selectedQuote.gasFeeToken ?? ""}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between mt-1.5">
                     <span className="flex items-center gap-1.5" style={{ color: C.dimText }}>
                       <Clock className="h-3.5 w-3.5" /> Estimated time
@@ -649,7 +788,13 @@ export function AggregatorPage() {
                 {needsWallet ? (
                   <button
                     type="button"
-                    onClick={isSourceStellar ? () => connectStellar?.() : connectEvm}
+                    onClick={
+                      isSourceStellar
+                        ? () => connectStellar?.()
+                        : isSourceSolana
+                          ? connectSolana
+                          : connectEvm
+                    }
                     className="w-full rounded-2xl font-bold py-4 text-base transition-all flex items-center justify-center gap-2 active:scale-[0.98] hover:scale-[1.02] relative overflow-hidden bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black"
                   >
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 h-4 w-[50%] rounded-full bg-white/80 blur-xl" />
@@ -667,7 +812,15 @@ export function AggregatorPage() {
                       agg.needsTrustline ||
                       insufficientBalance
                     }
-                    onClick={() => selectedProtocol && agg.executeSwap(selectedProtocol)}
+                    onClick={() =>
+                      selectedProtocol &&
+                      agg.executeSwap(selectedProtocol, {
+                        sourceAddress: sourceAddress || undefined,
+                        signSolana: isSourceSolana ? signSolanaTransaction : undefined,
+                        signEvm: isSourceEvm ? signEvmTransaction : undefined,
+                        allbridgeExecute: selectedProtocol === "allbridge" ? allbridgeExecute : undefined,
+                      })
+                    }
                     className={`w-full rounded-2xl font-bold py-3.5 text-[15px] transition-all flex items-center justify-center gap-2 active:scale-[0.98] relative overflow-hidden ${
                       aggHasAmount &&
                       selectedProtocol &&
@@ -717,6 +870,7 @@ export function AggregatorPage() {
             <ExchangeTab stellarAddress={stellarAddress} />
           )}
         </BorderGlow>
+        </div>
 
         {/* ══════════════════════════════════════════════════════════ */}
         {/* Right side: Route Panel (expands when both tokens + amount) */}
@@ -729,7 +883,7 @@ export function AggregatorPage() {
               animate={{ opacity: 1, width: 360 }}
               exit={{ opacity: 0, width: 0 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
-              style={{ overflow: "hidden" }}
+              style={{ overflow: "hidden", height: swapPanelHeight }}
             >
               <AggregatorRoutePanel
                 quotes={agg.quotes}
@@ -755,17 +909,23 @@ export function AggregatorPage() {
 function WalletHub({
   stellarAddress,
   evmAddress,
+  solanaAddress,
   onConnectStellar,
   onConnectEvm,
+  onConnectSolana,
   onDisconnectStellar,
   onDisconnectEvm,
+  onDisconnectSolana,
 }: {
   stellarAddress: string | null;
   evmAddress: string | null;
+  solanaAddress: string | null;
   onConnectStellar: () => void;
   onConnectEvm: () => void;
+  onConnectSolana: () => void;
   onDisconnectStellar: () => void;
   onDisconnectEvm: () => void;
+  onDisconnectSolana: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -794,6 +954,14 @@ function WalletHub({
           addr: evmAddress,
           logo: "/chains/ethereum.png",
           onDisconnect: onDisconnectEvm,
+        }
+      : null,
+    solanaAddress
+      ? {
+          chain: "Solana",
+          addr: solanaAddress,
+          logo: "/chains/solana.png",
+          onDisconnect: onDisconnectSolana,
         }
       : null,
   ].filter(Boolean) as { chain: string; addr: string; logo: string; onDisconnect: () => void }[];
@@ -846,22 +1014,22 @@ function WalletHub({
             </div>
 
             {/* Connect new wallet */}
-            <div className="flex gap-2 mb-3">
+            <div className="flex justify-center gap-3 mb-3">
               <button
                 type="button"
                 onClick={() => {
                   setOpen(false);
                   setTimeout(onConnectStellar, 200);
                 }}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium rounded-xl transition-colors"
-                style={{ background: "var(--secondary)", color: "var(--muted-foreground)" }}
+                className="h-10 w-10 flex items-center justify-center rounded-xl transition-colors hover:brightness-125"
+                style={{ background: "var(--secondary)" }}
+                title="Stellar"
               >
                 <TokenImage
                   src="/chains/stellar.png"
                   alt="Stellar"
-                  className="h-4 w-4 rounded-full"
+                  className="h-6 w-6 rounded-full"
                 />
-                {stellarAddress ? "Switch Stellar" : "+ Stellar"}
               </button>
               <button
                 type="button"
@@ -869,15 +1037,31 @@ function WalletHub({
                   setOpen(false);
                   setTimeout(onConnectEvm, 200);
                 }}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium rounded-xl transition-colors"
-                style={{ background: "var(--secondary)", color: "var(--muted-foreground)" }}
+                className="h-10 w-10 flex items-center justify-center rounded-xl transition-colors hover:brightness-125"
+                style={{ background: "var(--secondary)" }}
+                title="EVM"
               >
                 <TokenImage
                   src="/chains/ethereum.png"
                   alt="Ethereum"
-                  className="h-4 w-4 rounded-full"
+                  className="h-6 w-6 rounded-full"
                 />
-                {evmAddress ? "Switch EVM" : "+ EVM"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  setTimeout(onConnectSolana, 200);
+                }}
+                className="h-10 w-10 flex items-center justify-center rounded-xl transition-colors hover:brightness-125"
+                style={{ background: "var(--secondary)" }}
+                title="Solana"
+              >
+                <TokenImage
+                  src="/chains/solana.png"
+                  alt="Solana"
+                  className="h-6 w-6 rounded-full"
+                />
               </button>
             </div>
 

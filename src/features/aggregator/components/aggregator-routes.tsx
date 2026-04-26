@@ -135,16 +135,40 @@ function RouteCard({
         </div>
       )}
 
-      {/* Row 4: Fee & time */}
-      <div className="flex items-center gap-3 pt-2.5">
-        <span className="flex items-center gap-1 text-[11px] text-muted-foreground/70">
-          <Info className="h-3 w-3" />
-          {quote.feePercent}
-        </span>
-        <span className="flex items-center gap-1 text-[11px] text-muted-foreground/70">
-          <Clock className="h-3 w-3" />
-          {quote.estimatedTime}
-        </span>
+      {/* Divider */}
+      <div className="my-2.5 h-px bg-border/40" />
+
+      {/* Row 4: Fee details */}
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-1 text-[11px] text-muted-foreground/70">
+            <Info className="h-3 w-3" />
+            Fee
+          </span>
+          <span className="text-[11px] text-muted-foreground/70">
+            {formatAmount(quote.fee, decimalsIn)} {tokenInSymbol} ({quote.feePercent})
+          </span>
+        </div>
+        {quote.gasFee && (
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1 text-[11px] text-muted-foreground/70">
+              <Info className="h-3 w-3" />
+              Gas fee
+            </span>
+            <span className="text-[11px] text-muted-foreground/70">
+              {quote.gasFee} {quote.gasFeeToken ?? ""}
+            </span>
+          </div>
+        )}
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-1 text-[11px] text-muted-foreground/70">
+            <Clock className="h-3 w-3" />
+            Est. time
+          </span>
+          <span className="text-[11px] text-muted-foreground/70">
+            {quote.estimatedTime}
+          </span>
+        </div>
       </div>
     </button>
   );
@@ -306,7 +330,7 @@ export function AggregatorRoutePanel({
       colors={["hsl(203 100% 73%)", "hsl(195 90% 55%)", "hsl(210 80% 50%)"]}
       fillOpacity={0.15}
     >
-      <div className="p-4 flex flex-col h-full">{children}</div>
+      <div className="p-4 flex flex-col h-full min-h-0">{children}</div>
     </BorderGlow>
   );
 
@@ -379,7 +403,7 @@ export function AggregatorRoutePanel({
           />
         </button>
       </div>
-      <div className="flex flex-col gap-2.5 overflow-y-auto flex-1">
+      <div className="flex flex-col gap-2.5 overflow-y-auto flex-1 min-h-0">
         {okQuotes.map((quote, i) => {
           const id = quote.protocol || quote.provider || `route-${i}`;
           const isBest = bestQuote != null && (quote.protocol || quote.provider) === (bestQuote.protocol || bestQuote.provider);
