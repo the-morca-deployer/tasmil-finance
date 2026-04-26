@@ -13,6 +13,7 @@ import type React from "react";
 import { createContext, type ReactNode, useContext, useEffect } from "react";
 import { toast } from "sonner";
 import { getApiKey } from "@/lib/api-key";
+import { getBrowserAiBaseUrl } from "@/lib/runtime-urls";
 import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
 import { useChatState } from "./chat-state-provider";
 import { useThreads } from "./thread";
@@ -38,9 +39,9 @@ async function sleep(ms = 4000) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function checkGraphStatus(apiUrl: string, apiKey: string | null): Promise<boolean> {
+async function checkGraphStatus(apiKey: string | null): Promise<boolean> {
   try {
-    const res = await fetch(`${apiUrl}/info`, {
+    const res = await fetch("/info", {
       ...(apiKey && {
         headers: {
           "X-Api-Key": apiKey,
@@ -91,7 +92,7 @@ const StreamSession = ({
   });
 
   useEffect(() => {
-    checkGraphStatus(apiUrl, apiKey).then((ok) => {
+    checkGraphStatus(apiKey).then((ok) => {
       if (!ok) {
         toast.error("Failed to connect to LangGraph server", {
           description: () => (
@@ -116,12 +117,9 @@ export const StreamProvider: React.FC<{
   agentId?: string;
   chatId?: string;
 }> = ({ children, agentId }) => {
-  // Get environment variables
-  const envApiUrl: string | undefined = process.env["NEXT_PUBLIC_AI_URL"];
-
   // Use agentId from props as assistantId
   const assistantId = agentId || "";
-  const apiUrl = envApiUrl || "";
+  const apiUrl = getBrowserAiBaseUrl();
 
   // For API key, use localStorage with env var fallback
   const apiKey = typeof window !== "undefined" ? getApiKey() : null;

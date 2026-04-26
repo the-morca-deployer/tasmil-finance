@@ -1,6 +1,7 @@
 import type { Interrupt } from "@langchain/langgraph-sdk";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { getBrowserAiBaseUrl } from "@/lib/runtime-urls";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { useChatState, useInterruptedActions, useStreamContext } from "../../../hooks";
@@ -84,7 +85,7 @@ export function ThreadActionsView({
 }: ThreadActionsViewProps) {
   const stream = useStreamContext();
   const { threadId } = useChatState();
-  const apiUrl = process.env["NEXT_PUBLIC_AI_URL"] || "";
+  const apiUrl = getBrowserAiBaseUrl();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [addressedActions, setAddressedActions] = useState<Map<number, Decision>>(new Map());
   const [submittingAll, setSubmittingAll] = useState(false);

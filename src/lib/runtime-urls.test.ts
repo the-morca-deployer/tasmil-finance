@@ -22,6 +22,22 @@ describe("runtime URL helpers", () => {
     expect(getPublicAiBaseUrl()).toBe("http://localhost:3000");
   });
 
+  it("prefers the current browser origin for browser-side AI traffic", async () => {
+    const { getBrowserAiBaseUrl } = await import("./runtime-urls");
+
+    expect(getBrowserAiBaseUrl(process.env, "https://app.tasmil.ai/")).toBe(
+      "https://app.tasmil.ai"
+    );
+  });
+
+  it("prefers the current browser origin for browser-side backend traffic", async () => {
+    const { getBrowserBackendBaseUrl } = await import("./runtime-urls");
+
+    expect(getBrowserBackendBaseUrl(process.env, "https://app.tasmil.ai/")).toBe(
+      "https://app.tasmil.ai"
+    );
+  });
+
   it("prefers AI_INTERNAL_URL for server-side AI traffic", async () => {
     process.env.AI_INTERNAL_URL = "http://ai:8001/";
     process.env.NEXT_PUBLIC_AI_URL = "http://localhost:3000/";
@@ -73,6 +89,47 @@ describe("runtime URL helpers", () => {
       {
         source: "/ok",
         destination: "http://ai:8001/ok",
+      },
+    ]);
+  });
+
+  it("builds backend proxy rewrites for browser-facing routes", async () => {
+    process.env.BACKEND_INTERNAL_URL = "http://backend:6756/";
+
+    const { getBackendProxyRewrites } = await import("./runtime-urls");
+
+    expect(getBackendProxyRewrites()).toEqual([
+      {
+        source: "/api/account/:path*",
+        destination: "http://backend:6756/api/account/:path*",
+      },
+      {
+        source: "/api/auth/:path*",
+        destination: "http://backend:6756/api/auth/:path*",
+      },
+      {
+        source: "/api/email/:path*",
+        destination: "http://backend:6756/api/email/:path*",
+      },
+      {
+        source: "/api/health",
+        destination: "http://backend:6756/api/health",
+      },
+      {
+        source: "/api/pools/:path*",
+        destination: "http://backend:6756/api/pools/:path*",
+      },
+      {
+        source: "/api/protocol/:path*",
+        destination: "http://backend:6756/api/protocol/:path*",
+      },
+      {
+        source: "/api/rebalance/:path*",
+        destination: "http://backend:6756/api/rebalance/:path*",
+      },
+      {
+        source: "/api/users/:path*",
+        destination: "http://backend:6756/api/users/:path*",
       },
     ]);
   });

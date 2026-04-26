@@ -3,6 +3,7 @@
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { getBrowserBackendBaseUrl } from "@/lib/runtime-urls";
 import { type AuthUser, useAuthStore } from "@/store/use-auth";
 import { useWalletStore } from "@/store/use-wallet";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
@@ -16,6 +17,7 @@ interface WalletContextType {
   displayAddress: string | null;
   user: AuthUser | null;
   connect: () => Promise<void>;
+  connectWalletOnly: () => Promise<void>;
   disconnect: () => Promise<void>;
   signTransaction: (xdr: string) => Promise<string>;
   forceReauth: () => Promise<void>;
@@ -152,7 +154,6 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           setAddress(addr);
           setIsConnected(true);
           setWalletState({ connected: true, account: addr });
-          await authenticateWithWallet(addr);
         } else {
           resetWallet();
         }
@@ -192,14 +193,10 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setLoading(true);
 
       try {
-        // Auth endpoints live on the NestJS backend, not the AI server
-        const API_BASE =
-          process.env["NEXT_PUBLIC_BACKEND_URL"]
-            ? `${process.env["NEXT_PUBLIC_BACKEND_URL"]}/api`
-            : "http://localhost:6756/api";
+        const apiBaseUrl = getBrowserBackendBaseUrl();
 
         // Step 1: Request a challenge nonce from the server
-        const challengeRes = await fetch(`${API_BASE}/auth/challenge`, {
+        const challengeRes = await fetch(`${apiBaseUrl}/api/auth/challenge`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ publicKey: walletAddress }),
@@ -241,7 +238,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         // Step 4: Verify signature and get JWT
         setSigning(false);
-        const response = await fetch(`${API_BASE}/auth/verify`, {
+        const response = await fetch(`${apiBaseUrl}/api/auth/verify`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ publicKey: walletAddress, signedXdr: signedTxXdr }),
@@ -299,6 +296,15 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [address, authenticateWithWallet]);
 
+  const openWalletModal = useCallback(async () => {
+    const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
+    const { address: addr } = await StellarWalletsKit.authModal();
+    setAddress(addr);
+    setIsConnected(true);
+    setWalletState({ connected: true, account: addr });
+    return addr;
+  }, [setWalletState]);
+
   // Listen for 401s and react based on whether the JWT is actually expired.
   // - Fresh JWT + 401: server-side problem. Clear auth, show reconnect toast.
   //   DO NOT force a signature — that causes surprise sign prompts on every page nav.
@@ -337,19 +343,28 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [address, authenticateWithWallet, authLogout, forceReauth]);
 
   // Connect via StellarWalletsKit built-in modal
+  const connectWalletOnly = useCallback(async () => {
+    try {
+      await openWalletModal();
+    } catch (err) {
+      console.error("Failed to connect wallet:", err);
+      toast.error("Failed to connect wallet.", {
+        description: parseSigningError(err),
+      });
+    }
+  }, [openWalletModal]);
+
   const connect = useCallback(async () => {
     try {
-      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-      const { address: addr } = await StellarWalletsKit.authModal();
-      setAddress(addr);
-      setIsConnected(true);
-      setWalletState({ connected: true, account: addr });
+      const addr = await openWalletModal();
       await authenticateWithWallet(addr);
     } catch (err) {
       console.error("Failed to connect wallet:", err);
-      toast.error("Failed to connect wallet.");
+      toast.error("Failed to connect wallet.", {
+        description: parseSigningError(err),
+      });
     }
-  }, [setWalletState, authenticateWithWallet]);
+  }, [authenticateWithWallet, openWalletModal]);
 
   const disconnect = useCallback(async () => {
     try {
@@ -391,6 +406,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     displayAddress,
     user,
     connect,
+    connectWalletOnly,
     disconnect,
     signTransaction,
     forceReauth,

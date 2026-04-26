@@ -229,7 +229,19 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     const kind = classifyChatProductError(stream.error);
     setProductError(kind);
 
-    if (kind === "SESSION_INVALID") {
+    if (kind === "INVALID_CHAT_WALLET_ADDRESS") {
+      toast.error("Connected wallet address is invalid for chat.");
+      return;
+    }
+
+    if (kind === "CHAT_IDENTITY_RESOLUTION_FAILED") {
+      toast.error("Chat is temporarily unavailable.", {
+        description: "We could not resolve your wallet identity. Please retry shortly.",
+      });
+      return;
+    }
+
+    if (kind === "SESSION_INVALID" && !effectiveWalletAddress) {
       toast.error("Wallet session expired.", {
         description: "Reconnect your wallet to continue chatting.",
         action: {
@@ -239,6 +251,11 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
           },
         },
       });
+      return;
+    }
+
+    if (kind === "SESSION_INVALID") {
+      toast.error("Chat request was missing a usable wallet identity.");
       return;
     }
 
@@ -259,7 +276,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       richColors: true,
       closeButton: true,
     });
-  }, [forceReauth, stream.error]);
+  }, [effectiveWalletAddress, forceReauth, stream.error]);
 
   // Track first token received for CURRENT response
   const prevMessageLength = useRef(0);
@@ -361,7 +378,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   }, []);
 
   const composerBlocked =
-    productError === "SESSION_INVALID" || productError === "CHAT_USAGE_LIMIT_REACHED";
+    productError === "CHAT_USAGE_LIMIT_REACHED" ||
+    productError === "INVALID_CHAT_WALLET_ADDRESS";
 
   const scrollToBottom = () => {
     setUserScrolledUp(false);
@@ -693,16 +711,9 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
             </div>
           )}
 
-          {productError === "SESSION_INVALID" ? (
+          {productError === "INVALID_CHAT_WALLET_ADDRESS" ? (
             <div className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
-              Your wallet session is no longer valid for chat.
-              <button
-                type="button"
-                onClick={() => void forceReauth()}
-                className="ml-3 font-semibold text-primary"
-              >
-                Reconnect wallet
-              </button>
+              The connected wallet address could not be used for chat. Reconnect and try again.
             </div>
           ) : null}
 

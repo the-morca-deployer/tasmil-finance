@@ -13,7 +13,8 @@ import type React from "react";
 import { createContext, type ReactNode, useContext, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { getApiKey } from "@/lib/api-key";
-import { buildAiAuthHeaders } from "@/lib/ai-auth";
+import { buildAiIdentityHeaders } from "@/lib/ai-auth";
+import { getBrowserAiBaseUrl } from "@/lib/runtime-urls";
 import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useAuthStore } from "@/store/use-auth";
@@ -44,9 +45,9 @@ async function sleep(ms = 4000) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function checkGraphStatus(apiUrl: string, apiKey: string | null): Promise<boolean> {
+async function checkGraphStatus(apiKey: string | null): Promise<boolean> {
   try {
-    const res = await fetch(`${apiUrl}/info`, {
+    const res = await fetch("/info", {
       ...(apiKey && {
         headers: {
           "X-Api-Key": apiKey,
@@ -76,7 +77,11 @@ const StreamSession = ({
   const { getThreads, setThreads } = useThreads();
   const { address: walletAddress } = useWallet();
   const accessToken = useAuthStore((state) => state.accessToken);
-  const defaultHeaders = buildAiAuthHeaders(accessToken);
+  const effectiveWallet = walletAddress ?? useWalletStore.getState().account;
+  const defaultHeaders = buildAiIdentityHeaders({
+    accessToken,
+    walletAddress: effectiveWallet,
+  });
   const initialThreadId = useRef(threadId);
 
   useEffect(() => {
@@ -86,6 +91,7 @@ const StreamSession = ({
     const client = createClient(apiUrl, {
       apiKey: apiKey ?? undefined,
       accessToken,
+      walletAddress: effectiveWallet,
     });
 
     client.threads.get(preExistingThreadId).catch((error) => {
@@ -96,7 +102,7 @@ const StreamSession = ({
       setThreadId(null);
       window.history.replaceState(null, "", `/chat/${assistantId}/new`);
     });
-  }, [accessToken, apiKey, apiUrl, assistantId, setThreadId]);
+  }, [accessToken, apiKey, apiUrl, assistantId, effectiveWallet, setThreadId]);
 
   const streamValue = useTypedStream({
     apiUrl,
@@ -117,11 +123,11 @@ const StreamSession = ({
     onThreadId: (id) => {
       setThreadId(id);
       window.history.replaceState(null, "", `/chat/${assistantId}/${id}`);
-      const effectiveWallet = walletAddress ?? useWalletStore.getState().account;
       if (effectiveWallet) {
         const client = createClient(apiUrl, {
           apiKey: apiKey ?? undefined,
           accessToken,
+          walletAddress: effectiveWallet,
         });
         client.threads.update(id, { metadata: { wallet_address: effectiveWallet } }).catch(console.error);
       }
@@ -130,7 +136,7 @@ const StreamSession = ({
   });
 
   useEffect(() => {
-    checkGraphStatus(apiUrl, apiKey).then((ok) => {
+    checkGraphStatus(apiKey).then((ok) => {
       if (!ok) {
         toast.error("Failed to connect to LangGraph server", {
           description: () => (
@@ -154,10 +160,8 @@ export const StreamProvider: React.FC<{
   children: ReactNode;
   agentId?: string;
 }> = ({ children, agentId }) => {
-  const envApiUrl: string | undefined = process.env["NEXT_PUBLIC_AI_URL"];
-
   const assistantId = agentId || "";
-  const apiUrl = envApiUrl || "";
+  const apiUrl = getBrowserAiBaseUrl();
 
   const apiKey = typeof window !== "undefined" ? getApiKey() : null;
 

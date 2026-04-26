@@ -59,8 +59,7 @@ function CopilotKitStreamSession({ children, agentId, threadId }: { children: Re
   useEffect(() => {
     if (!threadId || historyLoaded || !agent) return;
 
-    const apiUrl = process.env["NEXT_PUBLIC_AI_URL"] || "http://localhost:8001";
-    fetch(`${apiUrl}/threads/${threadId}/state`)
+    fetch(`/threads/${threadId}/state`)
       .then((res) => {
         if (!res.ok) return null;
         return res.json();

@@ -30,6 +30,7 @@ jest.mock("@/shared/context/wallet-context", () => ({
     displayAddress: "GABC...CDEF",
     user: null,
     connect: jest.fn(),
+    connectWalletOnly: jest.fn(),
     disconnect: jest.fn(),
     signTransaction: jest.fn(),
     forceReauth: jest.fn(),

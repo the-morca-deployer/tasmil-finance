@@ -1,5 +1,7 @@
 export type ChatProductError =
   | "SESSION_INVALID"
+  | "INVALID_CHAT_WALLET_ADDRESS"
+  | "CHAT_IDENTITY_RESOLUTION_FAILED"
   | "CHAT_USAGE_LIMIT_REACHED"
   | "GENERIC_AI_ERROR";
 
@@ -39,6 +41,14 @@ function extractDetail(error: unknown): string {
 export function classifyChatProductError(error: unknown): ChatProductError {
   const status = extractStatus(error);
   const detail = extractDetail(error);
+
+  if (status === 400 && detail.includes("INVALID_CHAT_WALLET_ADDRESS")) {
+    return "INVALID_CHAT_WALLET_ADDRESS";
+  }
+
+  if (status === 503 || detail.includes("CHAT_IDENTITY_RESOLUTION_FAILED")) {
+    return "CHAT_IDENTITY_RESOLUTION_FAILED";
+  }
 
   if (status === 401 || (status === 403 && detail.includes("SESSION_INVALID"))) {
     return "SESSION_INVALID";

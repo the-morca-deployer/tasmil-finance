@@ -22,63 +22,27 @@ const { useWallet } = jest.requireMock("@/shared/context/wallet-context") as {
 };
 
 describe("ChatPageWrapper", () => {
-  it("shows connect state when the wallet is disconnected", () => {
+  it("uses wallet-only connect when chat is disconnected", async () => {
+    const user = userEvent.setup();
+    const connectWalletOnly = jest.fn();
+
     useWallet.mockReturnValue({
       isConnected: false,
-      isAuthenticated: false,
-      isAuthenticating: false,
-      connect: jest.fn(),
-      forceReauth: jest.fn(),
+      connectWalletOnly,
     });
 
     render(<ChatPageWrapper agentId="supervisor" chatId="new" />);
 
-    expect(screen.getByText("Connect your wallet")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /connect wallet/i }));
+
+    expect(connectWalletOnly).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("chat-provider")).not.toBeInTheDocument();
   });
 
-  it("shows verifying state while wallet auth is in progress", () => {
+  it("mounts chat as soon as the wallet is connected, even without backend auth", () => {
     useWallet.mockReturnValue({
       isConnected: true,
-      isAuthenticated: false,
-      isAuthenticating: true,
-      connect: jest.fn(),
-      forceReauth: jest.fn(),
-    });
-
-    render(<ChatPageWrapper agentId="supervisor" chatId="new" />);
-
-    expect(screen.getByText("Verifying wallet session...")).toBeInTheDocument();
-    expect(screen.queryByTestId("chat-provider")).not.toBeInTheDocument();
-  });
-
-  it("shows reconnect state after auth failure", async () => {
-    const user = userEvent.setup();
-    const forceReauth = jest.fn();
-
-    useWallet.mockReturnValue({
-      isConnected: true,
-      isAuthenticated: false,
-      isAuthenticating: false,
-      connect: jest.fn(),
-      forceReauth,
-    });
-
-    render(<ChatPageWrapper agentId="supervisor" chatId="new" />);
-
-    await user.click(screen.getByRole("button", { name: /reconnect wallet/i }));
-
-    expect(forceReauth).toHaveBeenCalledTimes(1);
-    expect(screen.queryByTestId("chat-provider")).not.toBeInTheDocument();
-  });
-
-  it("mounts chat only for authenticated users", () => {
-    useWallet.mockReturnValue({
-      isConnected: true,
-      isAuthenticated: true,
-      isAuthenticating: false,
-      connect: jest.fn(),
-      forceReauth: jest.fn(),
+      connectWalletOnly: jest.fn(),
     });
 
     render(<ChatPageWrapper agentId="supervisor" chatId="new" />);

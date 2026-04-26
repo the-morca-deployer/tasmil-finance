@@ -11,11 +11,11 @@
  */
 
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { getBrowserBackendBaseUrl } from "@/lib/runtime-urls";
 import { useAuthStore } from "@/store/use-auth";
 
 export const getBackendBaseUrl = () => {
-  const url = process.env["NEXT_PUBLIC_BACKEND_URL"] || "http://localhost:6756";
-  return url.replace(/\/$/, "");
+  return getBrowserBackendBaseUrl();
 };
 
 // Bumped from 30s → 90s. Withdraw/deposit endpoints chain multiple Soroban

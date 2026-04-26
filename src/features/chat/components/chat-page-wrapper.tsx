@@ -11,18 +11,10 @@ interface ChatPageWrapperProps {
 }
 
 export function ChatPageWrapper({ agentId, chatId }: ChatPageWrapperProps) {
-  const { isConnected, isAuthenticated, isAuthenticating, connect, forceReauth } = useWallet();
+  const { isConnected, connectWalletOnly } = useWallet();
 
   if (!isConnected) {
-    return <ChatAuthState mode="disconnected" onConnect={() => void connect?.()} />;
-  }
-
-  if (isAuthenticating) {
-    return <ChatAuthState mode="authenticating" />;
-  }
-
-  if (!isAuthenticated) {
-    return <ChatAuthState mode="session-invalid" onReconnect={() => void forceReauth()} />;
+    return <ChatAuthState mode="disconnected" onConnect={() => void connectWalletOnly()} />;
   }
 
   const initialThreadId = chatId === "new" ? undefined : chatId;

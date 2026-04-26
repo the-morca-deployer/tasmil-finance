@@ -12,6 +12,17 @@ const IS_MAINNET = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] === "mainnet";
 const APP_NETWORK_PASSPHRASE = IS_MAINNET ? Networks.PUBLIC : Networks.TESTNET;
 const APP_NETWORK_NAME = IS_MAINNET ? "Mainnet" : "Testnet";
 
+function stringifyError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+}
+
 /**
  * Proactively checks if the wallet's current network matches the app config.
  * Currently supports Freighter via @stellar/freighter-api.
@@ -60,7 +71,11 @@ export class NetworkMismatchError extends Error {
  * a clean, user-facing message. Falls back to the original message.
  */
 export function parseSigningError(error: unknown): string {
-  const msg = error instanceof Error ? error.message : String(error);
+  const msg = stringifyError(error);
+
+  if (msg.includes("horizon-errors/not_found") || msg.includes("Resource Missing")) {
+    return `Stellar account was not found on ${APP_NETWORK_NAME}. Fund or activate this address on ${APP_NETWORK_NAME}, then try again.`;
+  }
 
   // Freighter network mismatch pattern
   if (msg.includes("is set to Main Net") || msg.includes("is set to Test")) {

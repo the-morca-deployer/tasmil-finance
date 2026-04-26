@@ -101,11 +101,11 @@ export function formatPrice(price: number | string | undefined | null): string {
 }
 
 /** Format percentage value. */
-export function formatPercent(value: number | string | undefined | null, decimals = 2): string {
-  if (value === undefined || value === null) return "N/A";
-  const n = typeof value === "string" ? Number.parseFloat(value) : value;
-  if (Number.isNaN(n)) return "N/A";
-  return `${n.toFixed(decimals)}%`;
+export function formatPercent(value: unknown, decimals = 2): string {
+  if (value === undefined || value === null) return "\u2014";
+  const n = typeof value === "string" ? Number.parseFloat(value) : typeof value === "number" ? value : NaN;
+  if (!Number.isFinite(n)) return "\u2014";
+  return `${(n * 100).toFixed(decimals)}%`;
 }
 
 /** Format raw token amount (BigInt string) to human-readable. */

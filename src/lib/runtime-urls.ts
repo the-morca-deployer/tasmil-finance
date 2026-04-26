@@ -12,6 +12,16 @@ export function getPublicAiBaseUrl(env: NodeJS.ProcessEnv = process.env): string
   return url ? trimTrailingSlash(url) : "";
 }
 
+export function getBrowserAiBaseUrl(
+  env: NodeJS.ProcessEnv = process.env,
+  locationOrigin: string | null | undefined = typeof window !== "undefined"
+    ? window.location.origin
+    : undefined
+): string {
+  const url = locationOrigin ?? env["NEXT_PUBLIC_AI_URL"] ?? "";
+  return url ? trimTrailingSlash(url) : "";
+}
+
 export function getServerAiBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
   const url = env["AI_INTERNAL_URL"] ?? "http://localhost:8001";
   return trimTrailingSlash(url);
@@ -21,6 +31,16 @@ export function getServerBackendBaseUrl(env: NodeJS.ProcessEnv = process.env): s
   const url =
     env["BACKEND_INTERNAL_URL"] ?? env["NEXT_PUBLIC_BACKEND_URL"] ?? "http://localhost:6756";
   return trimTrailingSlash(url);
+}
+
+export function getBrowserBackendBaseUrl(
+  _env: NodeJS.ProcessEnv = process.env,
+  locationOrigin: string | null | undefined = typeof window !== "undefined"
+    ? window.location.origin
+    : undefined
+): string {
+  const url = locationOrigin ?? "";
+  return url ? trimTrailingSlash(url) : "";
 }
 
 export function getAiProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyRewrite[] {
@@ -46,6 +66,45 @@ export function getAiProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyR
     {
       source: "/ok",
       destination: `${aiBaseUrl}/ok`,
+    },
+  ];
+}
+
+export function getBackendProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyRewrite[] {
+  const backendBaseUrl = getServerBackendBaseUrl(env);
+
+  return [
+    {
+      source: "/api/account/:path*",
+      destination: `${backendBaseUrl}/api/account/:path*`,
+    },
+    {
+      source: "/api/auth/:path*",
+      destination: `${backendBaseUrl}/api/auth/:path*`,
+    },
+    {
+      source: "/api/email/:path*",
+      destination: `${backendBaseUrl}/api/email/:path*`,
+    },
+    {
+      source: "/api/health",
+      destination: `${backendBaseUrl}/api/health`,
+    },
+    {
+      source: "/api/pools/:path*",
+      destination: `${backendBaseUrl}/api/pools/:path*`,
+    },
+    {
+      source: "/api/protocol/:path*",
+      destination: `${backendBaseUrl}/api/protocol/:path*`,
+    },
+    {
+      source: "/api/rebalance/:path*",
+      destination: `${backendBaseUrl}/api/rebalance/:path*`,
+    },
+    {
+      source: "/api/users/:path*",
+      destination: `${backendBaseUrl}/api/users/:path*`,
     },
   ];
 }

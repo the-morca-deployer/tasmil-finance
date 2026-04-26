@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AgentCard } from "@/features/agents/components/agent-card";
 import { FilterBar } from "@/features/agents/components/filter-bar";
 import { HeroSection } from "@/features/agents/components/hero-section";
@@ -160,16 +160,18 @@ export default function AgentsPage() {
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const hasRequestedAssistants = useRef(false);
 
   // Call hook to get agents with empty body
   const searchAssistants = useSearchAssistantsAssistantsSearchPost($ as any);
 
   // Load agents when component mounts
   useEffect(() => {
-    if (!searchAssistants.data && !searchAssistants.isPending) {
-      searchAssistants.mutate({ data: {} });
-    }
-  }, [searchAssistants.data, searchAssistants.isPending, searchAssistants.mutate]);
+    if (hasRequestedAssistants.current) return;
+
+    hasRequestedAssistants.current = true;
+    searchAssistants.mutate({ data: {} });
+  }, [searchAssistants.mutate]);
 
   // Get unique types from API data for filter bar (only from valid agents)
   const validAgents = useMemo(() => {

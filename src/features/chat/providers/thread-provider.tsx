@@ -13,7 +13,10 @@ import {
 } from "react";
 import { validate } from "uuid";
 import { getApiKey } from "@/lib/api-key";
+import { getBrowserAiBaseUrl } from "@/lib/runtime-urls";
+import { useWallet } from "@/shared/context/wallet-context";
 import { useAuthStore } from "@/store/use-auth";
+import { useWalletStore } from "@/store/use-wallet";
 import { createClient } from "../lib/client";
 
 interface ThreadContextType {
@@ -36,8 +39,10 @@ function getThreadSearchMetadata(
 }
 
 export function ThreadProvider({ children, agentId }: { children: ReactNode; agentId?: string }) {
-  const apiUrl = process.env["NEXT_PUBLIC_AI_URL"] || "";
+  const apiUrl = getBrowserAiBaseUrl();
+  const { address: walletAddress } = useWallet();
   const accessToken = useAuthStore((state) => state.accessToken);
+  const effectiveWallet = walletAddress ?? useWalletStore.getState().account;
 
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
@@ -50,6 +55,7 @@ export function ThreadProvider({ children, agentId }: { children: ReactNode; age
       const client = createClient(apiUrl, {
         apiKey: getApiKey() ?? undefined,
         accessToken,
+        walletAddress: effectiveWallet,
       });
 
       const threads = await client.threads.search({
@@ -59,7 +65,7 @@ export function ThreadProvider({ children, agentId }: { children: ReactNode; age
 
       return threads;
     },
-    [accessToken, apiUrl, agentId]
+    [accessToken, apiUrl, agentId, effectiveWallet]
   );
 
   const value = useMemo(

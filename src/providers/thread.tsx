@@ -14,6 +14,7 @@ import {
 } from "react";
 import { validate } from "uuid";
 import { getApiKey } from "@/lib/api-key";
+import { getBrowserAiBaseUrl } from "@/lib/runtime-urls";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useWalletStore } from "@/store/use-wallet";
 import { createClient } from "@/providers/client";
@@ -39,7 +40,7 @@ function getThreadSearchMetadata(
 }
 
 export function ThreadProvider({ children, agentId }: { children: ReactNode; agentId?: string }) {
-  const apiUrl = process.env["NEXT_PUBLIC_AI_URL"] || "";
+  const apiUrl = getBrowserAiBaseUrl();
   const { address: walletAddress } = useWallet();
 
   const [threads, setThreads] = useState<Thread[]>([]);

@@ -1,14 +1,25 @@
-import { buildAiAuthHeaders } from "./ai-auth";
+import { buildAiIdentityHeaders } from "./ai-auth";
 
-describe("buildAiAuthHeaders", () => {
-  it("returns Authorization when a backend JWT exists", () => {
-    expect(buildAiAuthHeaders("jwt-token-123")).toEqual({
-      Authorization: "Bearer jwt-token-123",
+describe("buildAiIdentityHeaders", () => {
+  it("returns the wallet header when only a wallet address exists", () => {
+    expect(
+      buildAiIdentityHeaders({
+        walletAddress: "GABC123",
+      })
+    ).toEqual({
+      "X-Chat-Wallet-Address": "GABC123",
     });
   });
 
-  it("returns an empty object when there is no backend JWT", () => {
-    expect(buildAiAuthHeaders(null)).toEqual({});
-    expect(buildAiAuthHeaders(undefined)).toEqual({});
+  it("merges JWT and wallet headers when both exist", () => {
+    expect(
+      buildAiIdentityHeaders({
+        accessToken: "jwt-token-123",
+        walletAddress: "GABC123",
+      })
+    ).toEqual({
+      Authorization: "Bearer jwt-token-123",
+      "X-Chat-Wallet-Address": "GABC123",
+    });
   });
 });
