@@ -1,24 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { BarChart3, Info } from "lucide-react";
+import { useMemo, useState } from "react";
+import { BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
-  Area,
   AreaChart,
-  ResponsiveContainer,
-  Tooltip,
+  Area,
   XAxis,
   YAxis,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { cn } from "@/lib/utils";
-import {
-  usePortfolioHistory,
-  type PortfolioHistoryRange,
-} from "../hooks/use-portfolio-history";
+import { usePortfolioHistory } from "../hooks/use-portfolio-history";
+import type { HistoryPoint } from "../hooks/use-portfolio-history";
 
-const RANGES: PortfolioHistoryRange[] = [7, 30, 90];
+// ─── Formatters ──────────────────────────────────────────────────────────────
 
 function formatUsd(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -28,113 +26,112 @@ function formatUsd(value: number): string {
   }).format(value);
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+function formatUsdCompact(value: number): string {
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}K`;
+  if (value < 10) return `$${value.toFixed(2)}`;
+  return `$${value.toFixed(0)}`;
 }
 
+const RANGE_OPTIONS = [
+  { label: "1D", days: 1 },
+  { label: "7D", days: 7 },
+  { label: "30D", days: 30 },
+  { label: "90D", days: 90 },
+] as const;
+
+function formatDateForRange(ts: number, days: number): string {
+  const d = new Date(ts);
+  if (days <= 1) return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  if (days <= 7) return d.toLocaleDateString("en-US", { weekday: "short", hour: "numeric" });
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+// ─── Custom Tooltip ──────────────────────────────────────────────────────────
+
+function ChartTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: HistoryPoint }>;
+}) {
+  if (!active || !payload?.length) return null;
+  const p = payload[0]!.payload;
+  return (
+    <div className="rounded-lg border border-border bg-popover px-3 py-2 shadow-md">
+      <p className="text-xs text-muted-foreground">
+        {new Date(p.timestamp).toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        })}
+      </p>
+      <p className="text-sm font-semibold text-foreground">{formatUsd(p.totalValueUsd)}</p>
+      <div className="mt-1 flex gap-3 text-xs text-muted-foreground">
+        <span>Wallet: {formatUsd(p.walletUsd)}</span>
+        <span>DeFi: {formatUsd(p.defiUsd)}</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
 interface PerformanceChartProps {
-  address: string;
-  liveTotalUsd: number;
+  address: string | null | undefined;
+  totalUsd: number;
+  walletUsd: number;
+  defiUsd: number;
   isLoadingTokens: boolean;
 }
 
 export function PerformanceChart({
   address,
-  liveTotalUsd,
+  totalUsd,
+  walletUsd,
+  defiUsd,
   isLoadingTokens,
 }: PerformanceChartProps) {
-  const [days, setDays] = useState<PortfolioHistoryRange>(30);
-  const { data, isLoading, isError } = usePortfolioHistory(address, days);
+  const [days, setDays] = useState(30);
+  const { data: history, isLoading: historyLoading } = usePortfolioHistory(address, days);
 
-  const snapshots = data?.snapshots ?? [];
-  const latest = data?.latestTotalUsd ?? (liveTotalUsd > 0 ? liveTotalUsd : null);
-  const deltaUsd = data?.deltaUsd ?? 0;
-  const deltaPercent = data?.deltaPercent ?? 0;
-  const deltaPositive = deltaUsd > 0;
-  const deltaZero = deltaUsd === 0;
+  // Append current live point so chart always ends at latest value
+  const chartData = useMemo(() => {
+    const pts = [...(history ?? [])];
+    if (totalUsd > 0) {
+      pts.push({
+        timestamp: Date.now(),
+        totalValueUsd: totalUsd,
+        walletUsd,
+        defiUsd,
+      });
+    }
+    return pts;
+  }, [history, totalUsd, walletUsd, defiUsd]);
 
-  const chartData = snapshots.map((s) => ({
-    takenAt: s.takenAt,
-    totalUsd: s.totalUsd,
-  }));
+  // Change indicator — hide when change is negligible (rounds to $0.00)
+  const change = useMemo(() => {
+    if (chartData.length < 2) return null;
+    const first = chartData[0]!.totalValueUsd;
+    const last = chartData[chartData.length - 1]!.totalValueUsd;
+    const abs = last - first;
+    if (Math.abs(abs) < 0.005) return null;
+    const pct = first > 0 ? (abs / first) * 100 : 0;
+    return { abs, pct, positive: abs >= 0 };
+  }, [chartData]);
 
-  const renderBody = () => {
-    if (isLoadingTokens || isLoading) {
-      return <Skeleton className="h-[200px] w-full rounded-lg" />;
-    }
-    if (isError) {
-      return (
-        <div className="flex h-[200px] flex-col items-center justify-center gap-2 rounded-lg bg-muted/5">
-          <Info className="h-6 w-6 text-muted-foreground/40" />
-          <p className="text-sm text-muted-foreground">
-            Couldn't load history. Try again shortly.
-          </p>
-        </div>
-      );
-    }
-    if (snapshots.length === 0) {
-      return (
-        <div className="flex h-[200px] flex-col items-center justify-center gap-3 rounded-lg bg-muted/5">
-          <BarChart3 className="h-8 w-8 text-muted-foreground/30" />
-          <div className="text-center">
-            <p className="text-sm font-medium text-muted-foreground">
-              We're building your history
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground/60">
-              Snapshots run every 8 hours; check back shortly.
-            </p>
-          </div>
-        </div>
-      );
-    }
-    return (
-      <div className="h-[200px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={chartData}
-            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-          >
-            <defs>
-              <linearGradient id="portfolio-area" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(203, 100%, 73%)" stopOpacity={0.4} />
-                <stop offset="100%" stopColor="hsl(203, 100%, 73%)" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              dataKey="takenAt"
-              tickFormatter={formatDate}
-              tick={{ fill: "hsl(215.4, 16.3%, 46.9%)", fontSize: 11 }}
-              minTickGap={32}
-            />
-            <YAxis
-              tickFormatter={(v) => formatUsd(Number(v))}
-              tick={{ fill: "hsl(215.4, 16.3%, 46.9%)", fontSize: 11 }}
-              width={70}
-            />
-            <Tooltip
-              labelFormatter={(v) => formatDate(String(v))}
-              formatter={(v) => [formatUsd(Number(v)), "Total"]}
-              contentStyle={{
-                background: "hsl(222.2, 84%, 4.9%)",
-                border: "1px solid hsl(214.3, 31.8%, 21.4%)",
-                borderRadius: 8,
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="totalUsd"
-              stroke="hsl(203, 100%, 73%)"
-              strokeWidth={2}
-              fill="url(#portfolio-area)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-    );
-  };
+  // Actual time span of data (for X-axis formatting)
+  const dataSpanDays = useMemo(() => {
+    if (chartData.length < 2) return 0;
+    const first = chartData[0]!.timestamp;
+    const last = chartData[chartData.length - 1]!.timestamp;
+    return (last - first) / 86_400_000;
+  }, [chartData]);
+
+  // Need at least 3 real data points for a meaningful chart
+  const hasHistory = chartData.length >= 3;
 
   return (
     <motion.div
@@ -143,57 +140,117 @@ export function PerformanceChart({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.05 }}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      {/* Header row */}
+      <div className="flex items-start justify-between">
         <div>
           <h2 className="text-xl font-semibold text-foreground">Portfolio Value</h2>
-          {isLoadingTokens || isLoading ? (
-            <Skeleton className="mt-2 h-10 w-40 rounded-lg" />
+          {isLoadingTokens ? (
+            <Skeleton className="mt-1 h-10 w-40 rounded-lg" />
           ) : (
-            <div className="mt-1 flex items-baseline gap-2">
+            <motion.div
+              className="flex items-baseline gap-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+            >
               <span className="text-[32px] font-bold tracking-tight text-foreground">
-                {latest !== null ? formatUsd(latest) : formatUsd(liveTotalUsd)}
+                {formatUsd(totalUsd)}
               </span>
-              {snapshots.length > 1 && (
+              {change && (
                 <span
                   className={cn(
-                    "rounded-md px-2 py-0.5 text-xs font-semibold",
-                    deltaZero && "bg-muted/30 text-muted-foreground",
-                    deltaPositive && !deltaZero && "bg-emerald-500/15 text-emerald-400",
-                    !deltaPositive && !deltaZero && "bg-destructive/15 text-destructive",
+                    "text-sm font-medium",
+                    change.positive ? "text-emerald-400" : "text-destructive",
                   )}
                 >
-                  {deltaPositive ? "+" : ""}
-                  {deltaPercent.toFixed(2)}% ({formatUsd(deltaUsd)})
+                  {change.positive ? "+" : ""}
+                  {formatUsd(change.abs)} ({change.pct.toFixed(2)}%)
                 </span>
               )}
-            </div>
+            </motion.div>
           )}
         </div>
-        <div className="flex gap-1 rounded-lg bg-muted/10 p-1">
-          {RANGES.map((r) => (
+
+        {/* Time range selector */}
+        <div className="flex gap-1 rounded-lg border border-border p-0.5">
+          {RANGE_OPTIONS.map((opt) => (
             <button
-              type="button"
-              key={r}
-              onClick={() => setDays(r)}
+              key={opt.days}
+              onClick={() => setDays(opt.days)}
               className={cn(
-                "rounded px-2.5 py-1 text-xs font-medium transition-colors",
-                days === r
-                  ? "bg-background text-foreground shadow-sm"
+                "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+                days === opt.days
+                  ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {r}D
+              {opt.label}
             </button>
           ))}
         </div>
       </div>
 
-      {renderBody()}
-
-      <p className="text-xs text-muted-foreground/70">
-        Chart reflects your wallet + Tasmil vault. Blend and Aquarius positions shown
-        below aren't yet included in history.
-      </p>
+      {/* Chart area */}
+      {historyLoading || isLoadingTokens ? (
+        <Skeleton className="min-h-[120px] w-full flex-1 rounded-lg" />
+      ) : hasHistory ? (
+        <div className="min-h-[120px] flex-1">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+              {(() => {
+                const isPositive = !change || change.positive;
+                const color = isPositive ? "#34d399" : "#f87171";
+                return (
+                  <defs>
+                    <linearGradient id="portfolioGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+                      <stop offset="100%" stopColor={color} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                );
+              })()}
+              <XAxis
+                dataKey="timestamp"
+                tickFormatter={(ts: number) => formatDateForRange(ts, dataSpanDays)}
+                tick={{ fontSize: 11, fill: "rgba(255,255,255,0.7)" }}
+                axisLine={false}
+                tickLine={false}
+                minTickGap={40}
+              />
+              <YAxis
+                domain={[(min: number) => Math.floor(min * 0.9 * 100) / 100, (max: number) => Math.ceil(max * 1.1 * 100) / 100]}
+                tickFormatter={formatUsdCompact}
+                tick={{ fontSize: 11, fill: "rgba(255,255,255,0.7)" }}
+                axisLine={false}
+                tickLine={false}
+                width={55}
+              />
+              <Tooltip content={<ChartTooltip />} />
+              <Area
+                type="monotone"
+                dataKey="totalValueUsd"
+                stroke={!change || change.positive ? "#34d399" : "#f87171"}
+                fill="url(#portfolioGrad)"
+                strokeWidth={2}
+                dot={false}
+                animationDuration={600}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        <div className="flex min-h-[120px] flex-1 flex-col items-center justify-center gap-3 rounded-lg bg-muted/5">
+          <BarChart3 className="h-8 w-8 text-muted-foreground/30" />
+          <div className="text-center">
+            <p className="text-sm font-medium text-muted-foreground">
+              Tracking started
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground/60">
+              Your portfolio history will appear here within a few hours
+            </p>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
