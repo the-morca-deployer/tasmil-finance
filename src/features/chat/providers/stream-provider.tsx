@@ -33,6 +33,7 @@ const useTypedStream = useStream<
       ui?: (UIMessage | RemoveUIMessage)[] | UIMessage | RemoveUIMessage;
       context?: Record<string, unknown>;
       signed_txs?: Record<string, unknown>;
+      charge_usage?: boolean;
     };
     CustomEventType: UIMessage | RemoveUIMessage;
   }

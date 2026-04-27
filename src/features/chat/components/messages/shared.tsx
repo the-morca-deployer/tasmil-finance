@@ -1,18 +1,13 @@
-import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronLeft,
   ChevronRight,
-  Copy,
-  CopyCheck,
-  Pencil,
-  RefreshCcw,
   SendHorizontal,
   XIcon,
 } from "lucide-react";
-import { useState } from "react";
 import { TooltipIconButton } from "@/features/chat/thread/components/tooltip-icon-button";
 import { Button } from "@/shared/ui/button";
 
+/* Temporarily hidden — ContentCopyable
 function ContentCopyable({ content, disabled }: { content: string; disabled: boolean }) {
   const [copied, setCopied] = useState(false);
 
@@ -56,6 +51,7 @@ function ContentCopyable({ content, disabled }: { content: string; disabled: boo
     </TooltipIconButton>
   );
 }
+*/
 
 export function BranchSwitcher({
   branch,
@@ -107,13 +103,13 @@ export function BranchSwitcher({
 }
 
 export function CommandBar({
-  content,
+  content: _content,
   isHumanMessage,
   isAiMessage,
   isEditing,
   setIsEditing,
   handleSubmitEdit,
-  handleRegenerate,
+  handleRegenerate: _handleRegenerate,
   isLoading,
 }: {
   content: string;
@@ -141,9 +137,6 @@ export function CommandBar({
       "If isHumanMessage is true, all of isEditing, setIsEditing, and handleSubmitEdit must be set."
     );
   }
-
-  const showEdit =
-    isHumanMessage && isEditing !== undefined && !!setIsEditing && !!handleSubmitEdit;
 
   if (isHumanMessage && isEditing && !!setIsEditing && !!handleSubmitEdit) {
     return (

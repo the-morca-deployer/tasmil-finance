@@ -23,4 +23,5 @@ export interface StreamUpdateType {
   ui?: UIMessage | UIMessage[];
   context?: Record<string, unknown>;
   signed_txs?: Record<string, unknown>;
+  charge_usage?: boolean;
 }

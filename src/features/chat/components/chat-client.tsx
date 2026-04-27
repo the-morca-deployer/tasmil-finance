@@ -2,7 +2,7 @@
 
 import type { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { AnimatePresence } from "framer-motion";
-import { ArrowDown, ArrowLeft, Clock, Coins, Paperclip, Send, Square, Wrench } from "lucide-react";
+import { ArrowDown, ArrowLeft, Clock, Coins, Send, Square } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -91,11 +91,9 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const {
     contentBlocks,
     setContentBlocks,
-    handleFileUpload,
     dropRef,
     removeBlock,
     dragOver,
-    handlePaste,
   } = useFileUpload();
 
   // Stream context from provider
@@ -184,14 +182,14 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     }
   }, [stream.messages]);
 
-  const { hideToolCalls, setHideToolCalls, setAssistantInfo } = useChatState();
+  const { setAssistantInfo } = useChatState();
   const { address: walletAddress, forceReauth } = useWallet();
   // Fallback: Zustand persists wallet address synchronously from previous session.
   // The React state from useWallet() starts null on page load and is set after async kit init.
   // Using the store as fallback ensures wallet_address is always included even before kit ready.
   const effectiveWalletAddress = walletAddress ?? useWalletStore.getState().account;
   const { status: welcomeRewardStatus, openRewardPage, markSeen } = useWelcomeReward();
-  const { status: userStatus } = useUserStatus();
+  const { status: _userStatus } = useUserStatus();
 
   // Fetch assistant info for avatar
   const { mutate: searchAssistants } = useSearchAssistantsAssistantsSearchPost({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import backendAxios, { $b } from "@/lib/kubb-backend";
+import backendAxios from "@/lib/kubb-backend";
 import { useAuthStore } from "@/store/use-auth";
 
 export interface ChatCreditInfo {
