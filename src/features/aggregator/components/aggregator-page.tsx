@@ -235,11 +235,12 @@ export function AggregatorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stellarAddress, evmAddress, solanaAddress]);
 
-  const resolveChainType = (chain: string) =>
-    chain === "stellar" ? ("stellar" as const)
-    : chain === "solana" ? ("solana" as const)
-    : EVM_CHAINS.has(chain) ? ("evm" as const)
-    : ("unsupported" as const);
+  const resolveChainType = (chain: string): "stellar" | "evm" | "solana" =>
+    chain === "stellar" ? "stellar"
+    : chain === "solana" ? "solana"
+    : "evm";
+  const isChainSupported = (chain: string) =>
+    chain === "stellar" || chain === "solana" || EVM_CHAINS.has(chain);
   const chainTypeIn = resolveChainType(agg.chainIn);
   const chainTypeOut = resolveChainType(agg.chainOut);
 
@@ -270,7 +271,7 @@ export function AggregatorPage() {
     "";
 
   const srcConnected = !!sourceAddress;
-  const isUnsupportedChain = chainTypeIn === "unsupported" || chainTypeOut === "unsupported";
+  const isUnsupportedChain = !isChainSupported(agg.chainIn) || !isChainSupported(agg.chainOut);
   const isCrossChain = agg.chainIn !== agg.chainOut;
   const destWalletAddress =
     chainTypeOut === "stellar" ? stellarAddress
@@ -278,7 +279,7 @@ export function AggregatorPage() {
     : evmAddress;
   const destConnected = !!agg.destAddress || !!destWalletAddress;
   const needsSrcWallet = !srcConnected && (isSourceStellar || isSourceEvm || isSourceSolana);
-  const needsDestWallet = isCrossChain && !destConnected && chainTypeOut !== "unsupported";
+  const needsDestWallet = isCrossChain && !destConnected && isChainSupported(agg.chainOut);
   const needsWallet = isUnsupportedChain || needsSrcWallet || needsDestWallet;
   const aggHasBothTokens = !!agg.tokenIn && !!agg.tokenOut;
   const aggHasAmount = !!agg.amount && Number.parseFloat(agg.amount) > 0;
