@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import backendAxios from "@/lib/kubb-backend";
-import { useWalletStore } from "@/store/use-wallet";
+import { useAuthStore } from "@/store/use-auth";
 
 export type CreditReason =
   | "TOPUP_CRYPTO"
@@ -61,20 +61,24 @@ export function creditQueryKey(walletAddress: string | null) {
 }
 
 export function useCredits() {
-  const wallet = useWalletStore((state) => state.account);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const isExpired = useAuthStore((state) => state.isTokenExpired());
+  const wallet = useAuthStore((state) => state.user?.walletAddress ?? null);
   return useQuery({
     queryKey: creditQueryKey(wallet),
     queryFn: fetchSnapshot,
     staleTime: 15_000,
-    enabled: !!wallet,
+    enabled: !!accessToken && !isExpired,
   });
 }
 
 export function useCreditsLedger(cursor?: string, limit = 50) {
-  const wallet = useWalletStore((state) => state.account);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const isExpired = useAuthStore((state) => state.isTokenExpired());
+  const wallet = useAuthStore((state) => state.user?.walletAddress ?? null);
   return useQuery({
     queryKey: [...creditQueryKey(wallet), "ledger", cursor ?? "first", limit] as const,
     queryFn: () => fetchLedger(cursor, limit),
-    enabled: !!wallet,
+    enabled: !!accessToken && !isExpired,
   });
 }
