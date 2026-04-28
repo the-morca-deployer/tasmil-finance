@@ -24,9 +24,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { useWalletStore } from "@/store/use-wallet";
 import { AssistantMessage, AssistantMessageLoading } from "../components/messages/ai-message";
 import { HumanMessage } from "../components/messages/human-message";
-import { useChatState, useStreamContext } from "../hooks";
+import { useChatState, useChatUsage, useStreamContext } from "../hooks";
 import { classifyChatProductError, type ChatProductError } from "../lib/chat-product-error";
 import { ContentBlocksPreview } from "../thread/components/content-blocks-preview";
+import { ChatUsageBadge } from "./chat-usage-badge";
 import { mergeMessagesWithCache, shouldFilterMessage } from "./chat-client-helpers";
 // import { BackgroundRippleEffect } from '@/shared/ui/background-ripple-effect';
 import { Greeting } from "./greeting";
@@ -101,6 +102,9 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   type StreamSubmitOptions = Parameters<typeof stream.submit>[1];
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isLoading = stream.isLoading || isSubmitting;
+
+  // Live chat-usage snapshot (daily turns + credits pool)
+  const chatUsage = useChatUsage();
 
   // Cache messages to prevent content loss during streaming
   const messagesCache = useRef<Message[]>([]);
@@ -412,7 +416,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
   const composerBlocked =
     productError === "CHAT_USAGE_LIMIT_REACHED" ||
-    productError === "INVALID_CHAT_WALLET_ADDRESS";
+    productError === "INVALID_CHAT_WALLET_ADDRESS" ||
+    chatUsage.data?.bothExhausted === true;
 
   const scrollToBottom = () => {
     setUserScrolledUp(false);
@@ -768,7 +773,9 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
             </div>
           ) : null}
 
-          {productError === "CHAT_USAGE_LIMIT_REACHED" ? (
+          <ChatUsageBadge data={chatUsage.data} />
+
+          {productError === "CHAT_USAGE_LIMIT_REACHED" && !chatUsage.data?.bothExhausted ? (
             <div className="mb-4 rounded-2xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
               You have used all available AI responses. Trade on any supported protocol to
               earn more credits.
