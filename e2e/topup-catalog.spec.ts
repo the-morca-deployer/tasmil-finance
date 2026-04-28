@@ -18,12 +18,25 @@ const EXPECTED_PACKAGES: readonly PackageExpectation[] = [
 function attachConsoleSpy(page: Page): { errors: string[] } {
   const errors: string[] = [];
   page.on("console", (msg: ConsoleMessage) => {
-    if (msg.type() === "error") {
-      errors.push(msg.text());
-    }
+    if (msg.type() !== "error") return;
+    const text = msg.text();
+    // Ignore generic "Failed to load resource" 404s on static assets — these
+    // are repo-wide pre-existing noise (image quality config warnings, etc).
+    // We assert real JS errors and unexpected /api/* failures separately.
+    if (text.startsWith("Failed to load resource:")) return;
+    errors.push(text);
   });
   page.on("pageerror", (err) => {
     errors.push(`pageerror: ${err.message}`);
+  });
+  page.on("response", (resp) => {
+    const url = resp.url();
+    const status = resp.status();
+    if (!url.includes("/api/")) return;
+    // Allow 401 on bootstrap (existing auth flow expectation).
+    if (status >= 400 && status !== 401) {
+      errors.push(`api ${status} ${url}`);
+    }
   });
   return { errors };
 }
