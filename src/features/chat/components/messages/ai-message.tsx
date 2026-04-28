@@ -95,12 +95,20 @@ export function AssistantMessage({
   const contentString = stripReasoningSections(rawContentString);
   const { hideToolCalls } = useChatState();
 
-  // Extract reasoning content directly from the raw message content
-  // This handles both complete and incomplete (streaming) reasoning blocks
+  // Extract reasoning content from two sources:
+  // 1. DeepSeek native reasoning_content (in additional_kwargs)
+  // 2. Explicit <reasoning>/<thinking> tags in message content (streaming-aware)
+  const nativeReasoning =
+    message && "additional_kwargs" in message
+      ? (message.additional_kwargs as Record<string, unknown>)?.reasoning_content
+      : undefined;
   const isReasoningStreaming = hasIncompleteReasoningTags(rawContentString);
-  const reasoningContent = isReasoningStreaming
+  const tagReasoning = isReasoningStreaming
     ? extractIncompleteReasoningContent(rawContentString)
     : extractReasoningContent(rawContentString);
+  const reasoningContent = (typeof nativeReasoning === "string" && nativeReasoning.trim())
+    ? nativeReasoning.trim()
+    : tagReasoning;
   const hasReasoning = !!reasoningContent;
 
   const thread = useStreamContext();

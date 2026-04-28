@@ -18,6 +18,7 @@ import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
 import { ClarifyCard } from "@/features/chat/components/flow/clarify-card";
 import { PlanPreviewCard } from "@/features/chat/components/flow/plan-preview-card";
 import { useStreamContext } from "@/features/chat/hooks/use-stream";
+import { useFlowSigning } from "@/features/chat/hooks/use-flow-signing";
 import { useWalletStore } from "@/store/use-wallet";
 import {
   normalizeBackstopBalanceFromMcp,
@@ -38,6 +39,19 @@ import {
   BlendReserveCard,
   BlendTxCard,
 } from "@/features/protocols/cards/blend";
+// Shared Aquarius protocol cards
+import {
+  AquaPoolsCard,
+  AquaPoolDetailCard,
+  AquaPositionsCard,
+  AquaTxCard,
+} from "@/features/protocols/cards/aquarius";
+import {
+  normalizeAquaPoolsFromMcp,
+  normalizeAquaPoolFromMcp,
+  normalizeAquaPositionsFromMcp,
+  normalizeAquaTxFromMcp,
+} from "@/features/protocols/adapters/aquarius-from-mcp";
 
 /**
  * Registers CopilotKit tool renderers for all MCP tools.
@@ -93,10 +107,7 @@ export const INFO_TOOL_RENDERERS: Array<{
   { toolName: "phoenix_query_share", type: "share_info", component: AccountInfoCard },
   { toolName: "phoenix_stake_query", type: "stake_info", component: AccountInfoCard },
 
-  // Aquarius
-  { toolName: "aquarius_list_pools", type: "pool_list", component: PoolInfoCard },
-  { toolName: "aquarius_get_pool_info", type: "pool_info", component: PoolInfoCard },
-  { toolName: "aquarius_track_liquidity", type: "liquidity_position", component: AccountInfoCard },
+  // Aquarius — uses shared protocol cards (see AQUARIUS_SHARED_INFO below)
 
   // Bridge
   { toolName: "bridge_get_routes", type: "bridge_routes", component: BridgeDiscoveryCard },
@@ -172,16 +183,7 @@ export const OPERATION_TOOL_RENDERERS: Array<{
     component: StellarExecuteCard,
   },
 
-  // Aquarius
-  { toolName: "aquarius_add_liquidity", operation: "add_liquidity", component: StellarExecuteCard },
-  {
-    toolName: "aquarius_withdraw_liquidity",
-    operation: "withdraw_liquidity",
-    component: StellarExecuteCard,
-  },
-  { toolName: "aquarius_swap", operation: "swap_execute", component: StellarExecuteCard },
-  { toolName: "aquarius_claim_rewards", operation: "claim_rewards", component: StellarExecuteCard },
-  { toolName: "aquarius_lock_aqua", operation: "lock_aqua", component: StellarExecuteCard },
+  // Aquarius — uses shared protocol cards (see AQUARIUS_SHARED_OPERATIONS below)
 
   // Bridge
   {
@@ -348,6 +350,82 @@ export const BLEND_SHARED_OPERATIONS = BLEND_OPS_RAW.map((op) => ({
 }));
 
 // ---------------------------------------------------------------------------
+// Shared Aquarius info card registrations (tool name → shared component + adapter)
+// ---------------------------------------------------------------------------
+
+export const AQUARIUS_SHARED_INFO: Array<{
+  toolName: string;
+  type: string;
+  render: (props: RenderProps) => React.ReactElement;
+}> = [
+  {
+    toolName: "aquarius_list_pools",
+    type: "aquarius_pools",
+    render: (props) => {
+      const pools = normalizeAquaPoolsFromMcp(props.result);
+      if (pools && pools.length > 0) return <AquaPoolsCard pools={pools} mode="playground" />;
+      return <PoolInfoCard type="aquarius_pools" result={props.result} status={props.status} />;
+    },
+  },
+  {
+    toolName: "aquarius_get_pool_info",
+    type: "aquarius_pool_info",
+    render: (props) => {
+      const pool = normalizeAquaPoolFromMcp(props.result);
+      if (!pool)
+        return <PoolInfoCard type="aquarius_pool_info" result={props.result} status={props.status} />;
+      return <AquaPoolDetailCard pool={pool} mode="playground" />;
+    },
+  },
+  {
+    toolName: "aquarius_track_liquidity",
+    type: "aquarius_positions",
+    render: (props) => {
+      const data = normalizeAquaPositionsFromMcp(props.result);
+      if (!data)
+        return (
+          <AccountInfoCard type="aquarius_positions" result={props.result} status={props.status} />
+        );
+      return <AquaPositionsCard data={data} mode="playground" />;
+    },
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Shared Aquarius operation card registrations
+// ---------------------------------------------------------------------------
+
+function makeAquaOpRenderer(operation: string) {
+  return (props: RenderProps) => {
+    const tx = normalizeAquaTxFromMcp(props.result, props.args);
+    if (!tx)
+      return <div className="text-muted-foreground text-xs">Failed to parse transaction data</div>;
+    const txWithOp = { ...tx, operation: tx.operation || operation };
+    return (
+      <AquaTxCard
+        tx={txWithOp}
+        mode="chat"
+        toolCallId={props.toolCallId}
+        respond={props.respond}
+      />
+    );
+  };
+}
+
+const AQUA_OPS_RAW = [
+  { toolName: "aquarius_add_liquidity", operation: "add_liquidity" },
+  { toolName: "aquarius_withdraw_liquidity", operation: "withdraw_liquidity" },
+  { toolName: "aquarius_swap", operation: "swap" },
+  { toolName: "aquarius_claim_rewards", operation: "claim_rewards" },
+  { toolName: "aquarius_lock_aqua", operation: "lock_aqua" },
+] as const;
+
+export const AQUARIUS_SHARED_OPERATIONS = AQUA_OPS_RAW.map((op) => ({
+  ...op,
+  render: makeAquaOpRenderer(op.operation),
+}));
+
+// ---------------------------------------------------------------------------
 // Flow tool renderers (option-select cards)
 //
 // Unlike Blend HITL cards that resume a paused graph via `respond`,
@@ -358,6 +436,7 @@ export const BLEND_SHARED_OPERATIONS = BLEND_OPS_RAW.map((op) => ({
 /** Unified ClarifyCard wrapper — handles both single and multi-question flows. */
 function FlowClarifyCardWithStream({
   questions,
+  context,
 }: {
   questions: {
     field_name: string;
@@ -366,6 +445,7 @@ function FlowClarifyCardWithStream({
     suggestions?: { label: string; value: Record<string, unknown>; tags?: string[]; description?: string }[];
     placeholder?: string;
   }[];
+  context?: Record<string, unknown>;
 }) {
   const stream = useStreamContext();
   const walletAddress = useWalletStore((s) => s.account);
@@ -376,22 +456,30 @@ function FlowClarifyCardWithStream({
       if (sent) return;
       setSent(true);
 
-      // Build a natural-language message from the collected answers
-      const parts: string[] = [];
+      // Build structured JSON payload from answers + context
+      // Backend detects {"type":"clarify_response"} and skips regex parsing
+      const payload: Record<string, unknown> = { type: "clarify_response" };
 
       for (const q of questions) {
         const answer = answers[q.field_name];
-        if (q.input_type === "select" && answer) {
-          const suggestion = q.suggestions?.find(
-            (s) => JSON.stringify(s.value) === JSON.stringify(answer),
-          );
-          if (suggestion) parts.push(suggestion.label);
+        if (q.input_type === "select" && answer && typeof answer === "object") {
+          // answer IS the suggestion.value object: {protocol, pool_address, asset, ...}
+          Object.assign(payload, answer);
         } else if (q.input_type === "text" && typeof answer === "string" && answer.trim()) {
-          parts.push(answer.trim());
+          payload[q.field_name] = answer.trim();
         }
       }
 
-      const message = parts.join(", ");
+      // Include carried context (source_chain, source_asset, etc.)
+      if (context) {
+        for (const [k, v] of Object.entries(context)) {
+          if (v !== undefined && v !== null && !(k in payload)) {
+            payload[k] = v;
+          }
+        }
+      }
+
+      const message = JSON.stringify(payload);
 
       try {
         await stream.submit({
@@ -403,7 +491,7 @@ function FlowClarifyCardWithStream({
         setSent(false);
       }
     },
-    [stream, questions, sent, walletAddress],
+    [stream, questions, context, sent, walletAddress],
   );
 
   return (
@@ -448,6 +536,66 @@ function parseFlowResult(result: unknown): Record<string, unknown> | null {
   return null;
 }
 
+/** PlanPreviewCard wired to useFlowSigning — handles confirm → sign → execute inline. */
+function FlowPlanWithSigning({
+  plan,
+  simulationReport,
+}: {
+  plan: Record<string, unknown>;
+  simulationReport?: Record<string, unknown>;
+}) {
+  const { signFlow, isSubmitting, stepResults, currentStep, totalSteps } = useFlowSigning();
+  const [phase, setPhase] = useState<"preview" | "signing" | "done" | "error">("preview");
+  const [error, setError] = useState<string | undefined>();
+
+  const xdrs = (simulationReport?.xdrs as string[]) || [];
+
+  const handleConfirm = useCallback(async () => {
+    if (xdrs.length === 0) return;
+    setPhase("signing");
+    const result = await signFlow(xdrs);
+    if (result.success) {
+      setPhase("done");
+    } else {
+      setPhase("error");
+      setError(result.error || "Transaction failed");
+    }
+  }, [xdrs, signFlow]);
+
+  // Show ExecutionCard during/after signing
+  if (phase === "signing" || phase === "done" || phase === "error") {
+    const latestResult = stepResults[currentStep] || stepResults[stepResults.length - 1];
+    return (
+      <ExecutionCard
+        step={currentStep}
+        totalSteps={totalSteps || xdrs.length}
+        status={
+          phase === "done"
+            ? "confirmed"
+            : phase === "error"
+              ? "failed"
+              : isSubmitting
+                ? "submitting"
+                : ("submitting" as TxStatus)
+        }
+        txHash={latestResult?.txHash}
+        error={error}
+      />
+    );
+  }
+
+  // Show PlanPreviewCard
+  return (
+    <PlanPreviewCard
+      plan={plan as any}
+      simulationReport={simulationReport as any}
+      onConfirm={handleConfirm}
+      onCancel={() => {}}
+    />
+  );
+}
+
+
 export const FLOW_TOOL_RENDERERS: Array<{
   toolName: string;
   render: (props: RenderProps) => React.ReactElement;
@@ -480,7 +628,8 @@ export const FLOW_TOOL_RENDERERS: Array<{
         return <div className="text-muted-foreground text-xs">No questions</div>;
       }
 
-      return <FlowClarifyCardWithStream questions={questions} />;
+      const context = (data._context ?? {}) as Record<string, unknown>;
+      return <FlowClarifyCardWithStream questions={questions} context={context} />;
     },
   },
   {
@@ -496,6 +645,30 @@ export const FLOW_TOOL_RENDERERS: Array<{
           simulationReport={data.simulation_report as any}
           onConfirm={() => props.respond?.({ kind: "plan_confirm", action: "confirm" })}
           onCancel={() => props.respond?.({ kind: "plan_cancel", action: "cancel" })}
+        />
+      );
+    },
+  },
+  {
+    toolName: "flow_compose_and_execute",
+    render: (props) => {
+      const data = parseFlowResult(props.result);
+      if (!data) {
+        return <div className="text-muted-foreground text-xs">No plan data</div>;
+      }
+      // Error response
+      if (data.kind === "error") {
+        return (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            {(data.message as string) || "Transaction failed"}
+          </div>
+        );
+      }
+      // Plan preview with signing integration
+      return (
+        <FlowPlanWithSigning
+          plan={(data.plan as Record<string, unknown>) || {}}
+          simulationReport={data.simulation_report as Record<string, unknown>}
         />
       );
     },
@@ -524,7 +697,7 @@ export const FLOW_TOOL_RENDERERS: Array<{
 // ---------------------------------------------------------------------------
 
 export function DefiToolRenderers() {
-  // Info tools (non-Blend)
+  // Info tools (non-Blend, non-Aquarius)
   for (const { toolName, type, component: Component } of INFO_TOOL_RENDERERS) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useRenderToolCall({
@@ -552,7 +725,17 @@ export function DefiToolRenderers() {
     });
   }
 
-  // Operation tools (non-Blend)
+  // Aquarius shared info cards (using protocol card components)
+  for (const { toolName, type, render: sharedRender } of AQUARIUS_SHARED_INFO) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useRenderToolCall({
+      name: toolName,
+      description: `Render ${type} info card (shared)`,
+      render: (props: RenderProps) => <div className="max-w-[360px]">{sharedRender(props)}</div>,
+    });
+  }
+
+  // Operation tools (non-Blend, non-Aquarius)
   for (const { toolName, operation, component: Component } of OPERATION_TOOL_RENDERERS) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useRenderToolCall({
@@ -587,6 +770,29 @@ export function DefiToolRenderers() {
         return (
           <div className="max-w-[360px]">
             <BlendTxCard tx={txWithOp} mode="playground" respond={props.respond} />
+          </div>
+        );
+      },
+    });
+  }
+
+  // Aquarius shared operation cards (using shared AquaTxCard)
+  for (const { toolName, operation } of AQUARIUS_SHARED_OPERATIONS) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useRenderToolCall({
+      name: toolName,
+      description: `Render ${operation} operation card (shared)`,
+      render: (props: RenderProps) => {
+        const tx = normalizeAquaTxFromMcp(props.result, props.args);
+        if (!tx) {
+          return (
+            <div className="text-muted-foreground text-xs">Failed to parse transaction data</div>
+          );
+        }
+        const txWithOp = { ...tx, operation: tx.operation || operation };
+        return (
+          <div className="max-w-[360px]">
+            <AquaTxCard tx={txWithOp} mode="playground" respond={props.respond} />
           </div>
         );
       },

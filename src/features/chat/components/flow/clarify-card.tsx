@@ -80,56 +80,6 @@ function OptionRow({
   );
 }
 
-// ─── Single-question mode ────────────────────────────────────
-
-function SingleClarifyCard({
-  question,
-  onSubmit,
-  disabled,
-}: {
-  question: ClarifyQuestion;
-  onSubmit: (answers: Record<string, unknown>) => void;
-  disabled: boolean;
-}) {
-  const [selected, setSelected] = useState<Record<string, unknown> | undefined>(undefined);
-  const [sent, setSent] = useState(false);
-
-  const handleSelect = (value: Record<string, unknown>) => {
-    if (sent || disabled) return;
-    setSelected(value);
-    setSent(true);
-    onSubmit({ [question.field_name]: value });
-  };
-
-  return (
-    <div className="w-full max-w-[460px] overflow-hidden rounded-xl border border-border bg-card">
-      <div className="px-4 pt-3.5 pb-2.5">
-        <p className="text-[14px] font-semibold text-foreground leading-snug">
-          {question.question}
-        </p>
-      </div>
-
-      {question.input_type === "select" && question.suggestions ? (
-        <div className="flex flex-col">
-          {question.suggestions.map((s, i) => (
-            <OptionRow
-              key={i}
-              suggestion={s}
-              index={i}
-              isSelected={
-                selected !== undefined &&
-                JSON.stringify(s.value) === JSON.stringify(selected)
-              }
-              disabled={disabled || sent}
-              onClick={() => handleSelect(s.value)}
-            />
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
 // ─── Multi-question stepper mode ─────────────────────────────
 
 function MultiClarifyCardStepper({
@@ -189,6 +139,8 @@ function MultiClarifyCardStepper({
     }
   };
 
+  const isSingle = total === 1;
+
   if (!current) return null;
 
   return (
@@ -218,7 +170,11 @@ function MultiClarifyCardStepper({
                     JSON.stringify(s.value) === JSON.stringify(currentAnswer)
                   }
                   disabled={disabled}
-                  onClick={() => handleSelect(current.field_name, s.value)}
+                  onClick={() =>
+                    isSingle
+                      ? setAnswer(current.field_name, s.value)
+                      : handleSelect(current.field_name, s.value)
+                  }
                 />
               ))}
             </div>
@@ -232,7 +188,13 @@ function MultiClarifyCardStepper({
                   onChange={(e) => setAnswer(current.field_name, e.target.value)}
                   disabled={disabled}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && currentAnswered) goNext();
+                    if (e.key === "Enter" && currentAnswered) {
+                      if (isSingle) {
+                        onSubmit(answers);
+                      } else {
+                        goNext();
+                      }
+                    }
                   }}
                   className="min-w-0 flex-1 bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted-foreground/40"
                 />
@@ -244,39 +206,43 @@ function MultiClarifyCardStepper({
 
       {/* Footer */}
       <div className="flex items-center justify-between border-t border-border px-4 py-2.5">
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            disabled={step === 0 || disabled}
-            onClick={goPrev}
-            className={cn(
-              "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
-              step === 0 || disabled
-                ? "cursor-default opacity-30 text-muted-foreground"
-                : "hover:bg-muted/40 text-muted-foreground hover:text-foreground cursor-pointer",
-            )}
-            aria-label="Previous question"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="font-mono text-[12px] text-muted-foreground/60 tabular-nums">
-            {step + 1} / {total}
-          </span>
-          <button
-            type="button"
-            disabled={!currentAnswered || isLast || disabled}
-            onClick={goNext}
-            className={cn(
-              "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
-              !currentAnswered || isLast || disabled
-                ? "cursor-default opacity-30 text-muted-foreground"
-                : "hover:bg-muted/40 text-muted-foreground hover:text-foreground cursor-pointer",
-            )}
-            aria-label="Next question"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
+        {isSingle ? (
+          <div />
+        ) : (
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              disabled={step === 0 || disabled}
+              onClick={goPrev}
+              className={cn(
+                "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
+                step === 0 || disabled
+                  ? "cursor-default opacity-30 text-muted-foreground"
+                  : "hover:bg-muted/40 text-muted-foreground hover:text-foreground cursor-pointer",
+              )}
+              aria-label="Previous question"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="font-mono text-[12px] text-muted-foreground/60 tabular-nums">
+              {step + 1} / {total}
+            </span>
+            <button
+              type="button"
+              disabled={!currentAnswered || isLast || disabled}
+              onClick={goNext}
+              className={cn(
+                "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
+                !currentAnswered || isLast || disabled
+                  ? "cursor-default opacity-30 text-muted-foreground"
+                  : "hover:bg-muted/40 text-muted-foreground hover:text-foreground cursor-pointer",
+              )}
+              aria-label="Next question"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         {isLast && currentAnswered && (
           <button
@@ -302,8 +268,5 @@ function MultiClarifyCardStepper({
 // ─── Unified ClarifyCard ─────────────────────────────────────
 
 export function ClarifyCard({ questions, onSubmit, disabled = false }: ClarifyCardProps) {
-  if (questions.length === 1 && questions[0]) {
-    return <SingleClarifyCard question={questions[0]} onSubmit={onSubmit} disabled={disabled} />;
-  }
   return <MultiClarifyCardStepper questions={questions} onSubmit={onSubmit} disabled={disabled} />;
 }

@@ -454,7 +454,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         charge_usage: true,
       },
       {
-        streamMode: ["values", "custom"],
+        streamMode: ["messages-tuple", "values", "custom"],
         streamSubgraphs: false,
         streamResumable: true,
         optimisticValues: (prev: any) => ({
@@ -519,7 +519,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         // After onFinish fires and history.data is refreshed, getMessagesMetadata returns
         // a valid parent_checkpoint for the fork to work correctly.
         checkpoint: parentCheckpoint ?? undefined,
-        streamMode: ["values", "custom"],
+        streamMode: ["messages-tuple", "values", "custom"],
         streamSubgraphs: false,
         streamResumable: true,
         optimisticValues: () => ({
@@ -544,7 +544,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
     stream.submit(undefined, {
       checkpoint: parentCheckpoint || null,
-      streamMode: ["values", "custom"],
+      streamMode: ["messages-tuple", "values", "custom"],
       streamSubgraphs: true,
       streamResumable: true,
       optimisticValues: (prev: any) => {
@@ -584,7 +584,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         charge_usage: true,
       },
       {
-        streamMode: ["values", "custom"],
+        streamMode: ["messages-tuple", "values", "custom"],
         streamSubgraphs: false,
         streamResumable: true,
         optimisticValues: (prev: any) => ({

@@ -112,6 +112,7 @@ const StreamSession = ({
     threadId: threadId ?? null,
     defaultHeaders,
     fetchStateHistory: true,
+    throttle: 0,
     onFinish: () => {},
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
