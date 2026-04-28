@@ -1,0 +1,107 @@
+import Link from "next/link";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button-v2";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/shared/ui/card";
+import type { CreditPackage } from "../types";
+
+const PACKAGE_TITLE: Record<string, string> = {
+  starter: "Starter",
+  plus: "Plus",
+  pro: "Pro",
+  whale: "Whale",
+};
+
+interface PackageCardProps {
+  pkg: CreditPackage;
+}
+
+function formatUsd(n: number): string {
+  return `$${n.toFixed(0)}`;
+}
+
+function formatNumber(n: number): string {
+  return n.toLocaleString("en-US");
+}
+
+export function PackageCard({ pkg }: PackageCardProps) {
+  const title = PACKAGE_TITLE[pkg.id] ?? pkg.id;
+  const cryptoHref = `/topup/${pkg.id}/quote/crypto`;
+  const fiatHref = `/topup/${pkg.id}/quote/fiat`;
+
+  return (
+    <Card
+      className="flex h-full flex-col border-border bg-card shadow-sm"
+      data-testid={`package-card-${pkg.id}`}
+    >
+      <CardHeader className="space-y-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-2xl">{title}</CardTitle>
+          {pkg.bonusPercent > 0 ? (
+            <Badge
+              variant="secondary"
+              className="border border-primary/20 bg-primary/10 text-[11px] uppercase tracking-[0.16em] text-primary"
+              data-testid={`package-card-${pkg.id}-bonus`}
+            >
+              +{pkg.bonusPercent}% bonus
+            </Badge>
+          ) : null}
+        </div>
+        <CardDescription>
+          <span
+            className="font-semibold text-3xl text-foreground"
+            data-testid={`package-card-${pkg.id}-usd`}
+          >
+            {formatUsd(pkg.usd)}
+          </span>
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="flex-1 space-y-2">
+        <div
+          className="flex justify-between text-sm"
+          data-testid={`package-card-${pkg.id}-credits`}
+        >
+          <span className="text-muted-foreground">Credits</span>
+          <span className="font-medium text-foreground">
+            {formatNumber(pkg.credits)}
+          </span>
+        </div>
+        <div
+          className="flex justify-between text-sm"
+          data-testid={`package-card-${pkg.id}-points`}
+        >
+          <span className="text-muted-foreground">Points</span>
+          <span className="font-medium text-foreground">
+            {formatNumber(pkg.points)}
+          </span>
+        </div>
+      </CardContent>
+
+      <CardFooter className="flex flex-col gap-2 pt-0">
+        <Button
+          asChild
+          variant="gradient"
+          className="w-full"
+          data-testid={`package-card-${pkg.id}-buy-crypto`}
+        >
+          <Link href={cryptoHref}>Buy with crypto</Link>
+        </Button>
+        <Button
+          asChild
+          variant="outline"
+          className="w-full"
+          data-testid={`package-card-${pkg.id}-buy-fiat`}
+        >
+          <Link href={fiatHref}>Buy with bank transfer</Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
