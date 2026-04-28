@@ -4,6 +4,10 @@
 */
 
 
+export interface AccountControllerGetPresetsQueryParams {
+  baseAsset: string
+}
+
 export interface AccountControllerGetPresets200 {
 }
 

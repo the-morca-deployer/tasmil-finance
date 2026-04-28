@@ -4,7 +4,7 @@
 */
 
 import fetch from "@/lib/kubb-backend-client";
-import type { AccountControllerGetPresetsQueryResponse } from "@/gen-backend/types/account-controller-get-presets";
+import type { AccountControllerGetPresetsQueryResponse, AccountControllerGetPresetsQueryParams } from "@/gen-backend/types/account-controller-get-presets";
 import type { RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
 
 function getAccountControllerGetPresetsUrl() {
@@ -16,9 +16,9 @@ function getAccountControllerGetPresetsUrl() {
  * @summary Get preset card data with live APY estimates
  * {@link /api/account/presets}
  */
-export async function accountControllerGetPresets(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function accountControllerGetPresets(params: AccountControllerGetPresetsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config  
   
-  const res = await request<AccountControllerGetPresetsQueryResponse, ResponseErrorConfig<Error>, unknown>({ method : "GET", url : getAccountControllerGetPresetsUrl().url.toString(), ... requestConfig })  
+  const res = await request<AccountControllerGetPresetsQueryResponse, ResponseErrorConfig<Error>, unknown>({ method : "GET", url : getAccountControllerGetPresetsUrl().url.toString(), params, ... requestConfig })  
   return res.data
 }

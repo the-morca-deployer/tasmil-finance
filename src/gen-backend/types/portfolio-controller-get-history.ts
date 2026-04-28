@@ -4,13 +4,11 @@
 */
 
 
-;
-
-export interface PortfolioControllerGetHistoryQueryParamsDaysEnumKey {
+export interface PortfolioControllerGetHistoryPathParams {
+  address: string
 }
 
 export interface PortfolioControllerGetHistoryQueryParams {
-  publicKey: string
   days?: number
 }
 

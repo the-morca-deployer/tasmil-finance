@@ -4,5 +4,5 @@
 */
 
 
-export interface PortfolioSnapshotDto {
+export interface WalletTestLoginDto {
 }

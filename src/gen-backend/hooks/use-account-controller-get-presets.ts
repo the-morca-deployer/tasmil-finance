@@ -4,24 +4,24 @@
 */
 
 import fetch from "@kubb/plugin-client/clients/axios";
-import type { AccountControllerGetPresetsQueryResponse } from "@/gen-backend/types/account-controller-get-presets";
+import type { AccountControllerGetPresetsQueryResponse, AccountControllerGetPresetsQueryParams } from "@/gen-backend/types/account-controller-get-presets";
 import type { RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from "@tanstack/react-query";
 import { accountControllerGetPresets } from "@/gen-backend/client/account-controller-get-presets";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
-export const accountControllerGetPresetsQueryKey = () => [{ url: '/api/account/presets' }] as const
+export const accountControllerGetPresetsQueryKey = (params: AccountControllerGetPresetsQueryParams) => [{ url: '/api/account/presets' }, ...(params ? [params] : [])] as const
 
 export type AccountControllerGetPresetsQueryKey = ReturnType<typeof accountControllerGetPresetsQueryKey>
 
-export function accountControllerGetPresetsQueryOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-  const queryKey = accountControllerGetPresetsQueryKey()
+export function accountControllerGetPresetsQueryOptions(params: AccountControllerGetPresetsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const queryKey = accountControllerGetPresetsQueryKey(params)
   return queryOptions<AccountControllerGetPresetsQueryResponse, ResponseErrorConfig<Error>, AccountControllerGetPresetsQueryResponse, typeof queryKey>({
- 
+   enabled: !!(params),
    queryKey,
    queryFn: async ({ signal }) => {
       config.signal = signal
-      return accountControllerGetPresets(config)
+      return accountControllerGetPresets(params, config)
    },
   })
 }
@@ -30,7 +30,7 @@ export function accountControllerGetPresetsQueryOptions(config: Partial<RequestC
  * @summary Get preset card data with live APY estimates
  * {@link /api/account/presets}
  */
-export function useAccountControllerGetPresets<TData = AccountControllerGetPresetsQueryResponse, TQueryData = AccountControllerGetPresetsQueryResponse, TQueryKey extends QueryKey = AccountControllerGetPresetsQueryKey>(options: 
+export function useAccountControllerGetPresets<TData = AccountControllerGetPresetsQueryResponse, TQueryData = AccountControllerGetPresetsQueryResponse, TQueryKey extends QueryKey = AccountControllerGetPresetsQueryKey>(params: AccountControllerGetPresetsQueryParams, options: 
 {
   query?: Partial<QueryObserverOptions<AccountControllerGetPresetsQueryResponse, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -38,10 +38,10 @@ export function useAccountControllerGetPresets<TData = AccountControllerGetPrese
  = {}) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? accountControllerGetPresetsQueryKey()
+  const queryKey = queryOptions?.queryKey ?? accountControllerGetPresetsQueryKey(params)
 
   const query = useQuery({
-   ...accountControllerGetPresetsQueryOptions(config),
+   ...accountControllerGetPresetsQueryOptions(params, config),
    queryKey,
    ...queryOptions
   } as unknown as QueryObserverOptions, queryClient) as UseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }

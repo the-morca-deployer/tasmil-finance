@@ -4,24 +4,24 @@
 */
 
 import fetch from "@kubb/plugin-client/clients/axios";
-import type { AccountControllerGetPresetsQueryResponse } from "@/gen-backend/types/account-controller-get-presets";
+import type { AccountControllerGetPresetsQueryResponse, AccountControllerGetPresetsQueryParams } from "@/gen-backend/types/account-controller-get-presets";
 import type { RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from "@tanstack/react-query";
 import { accountControllerGetPresets } from "@/gen-backend/client/account-controller-get-presets";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
-export const accountControllerGetPresetsSuspenseQueryKey = () => [{ url: '/api/account/presets' }] as const
+export const accountControllerGetPresetsSuspenseQueryKey = (params: AccountControllerGetPresetsQueryParams) => [{ url: '/api/account/presets' }, ...(params ? [params] : [])] as const
 
 export type AccountControllerGetPresetsSuspenseQueryKey = ReturnType<typeof accountControllerGetPresetsSuspenseQueryKey>
 
-export function accountControllerGetPresetsSuspenseQueryOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-  const queryKey = accountControllerGetPresetsSuspenseQueryKey()
+export function accountControllerGetPresetsSuspenseQueryOptions(params: AccountControllerGetPresetsQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const queryKey = accountControllerGetPresetsSuspenseQueryKey(params)
   return queryOptions<AccountControllerGetPresetsQueryResponse, ResponseErrorConfig<Error>, AccountControllerGetPresetsQueryResponse, typeof queryKey>({
- 
+   enabled: !!(params),
    queryKey,
    queryFn: async ({ signal }) => {
       config.signal = signal
-      return accountControllerGetPresets(config)
+      return accountControllerGetPresets(params, config)
    },
   })
 }
@@ -30,7 +30,7 @@ export function accountControllerGetPresetsSuspenseQueryOptions(config: Partial<
  * @summary Get preset card data with live APY estimates
  * {@link /api/account/presets}
  */
-export function useAccountControllerGetPresetsSuspense<TData = AccountControllerGetPresetsQueryResponse, TQueryKey extends QueryKey = AccountControllerGetPresetsSuspenseQueryKey>(options: 
+export function useAccountControllerGetPresetsSuspense<TData = AccountControllerGetPresetsQueryResponse, TQueryKey extends QueryKey = AccountControllerGetPresetsSuspenseQueryKey>(params: AccountControllerGetPresetsQueryParams, options: 
 {
   query?: Partial<UseSuspenseQueryOptions<AccountControllerGetPresetsQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -38,10 +38,10 @@ export function useAccountControllerGetPresetsSuspense<TData = AccountController
  = {}) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? accountControllerGetPresetsSuspenseQueryKey()
+  const queryKey = queryOptions?.queryKey ?? accountControllerGetPresetsSuspenseQueryKey(params)
 
   const query = useSuspenseQuery({
-   ...accountControllerGetPresetsSuspenseQueryOptions(config),
+   ...accountControllerGetPresetsSuspenseQueryOptions(params, config),
    queryKey,
    ...queryOptions
   } as unknown as UseSuspenseQueryOptions, queryClient) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }

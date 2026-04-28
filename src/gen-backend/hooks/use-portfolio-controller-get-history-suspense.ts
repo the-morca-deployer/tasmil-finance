@@ -4,33 +4,33 @@
 */
 
 import fetch from "@kubb/plugin-client/clients/axios";
-import type { PortfolioControllerGetHistoryQueryResponse, PortfolioControllerGetHistoryQueryParams } from "@/gen-backend/types/portfolio-controller-get-history";
+import type { PortfolioControllerGetHistoryQueryResponse, PortfolioControllerGetHistoryPathParams, PortfolioControllerGetHistoryQueryParams } from "@/gen-backend/types/portfolio-controller-get-history";
 import type { RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from "@tanstack/react-query";
 import { portfolioControllerGetHistory } from "@/gen-backend/client/portfolio-controller-get-history";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
-export const portfolioControllerGetHistorySuspenseQueryKey = (params: PortfolioControllerGetHistoryQueryParams) => [{ url: '/api/portfolio/history' }, ...(params ? [params] : [])] as const
+export const portfolioControllerGetHistorySuspenseQueryKey = (address: PortfolioControllerGetHistoryPathParams["address"], params?: PortfolioControllerGetHistoryQueryParams) => [{ url: '/api/portfolio/history/:address', params: {address:address} }, ...(params ? [params] : [])] as const
 
 export type PortfolioControllerGetHistorySuspenseQueryKey = ReturnType<typeof portfolioControllerGetHistorySuspenseQueryKey>
 
-export function portfolioControllerGetHistorySuspenseQueryOptions(params: PortfolioControllerGetHistoryQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-  const queryKey = portfolioControllerGetHistorySuspenseQueryKey(params)
+export function portfolioControllerGetHistorySuspenseQueryOptions(address: PortfolioControllerGetHistoryPathParams["address"], params?: PortfolioControllerGetHistoryQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const queryKey = portfolioControllerGetHistorySuspenseQueryKey(address, params)
   return queryOptions<PortfolioControllerGetHistoryQueryResponse, ResponseErrorConfig<Error>, PortfolioControllerGetHistoryQueryResponse, typeof queryKey>({
-   enabled: !!(params),
+   enabled: !!(address),
    queryKey,
    queryFn: async ({ signal }) => {
       config.signal = signal
-      return portfolioControllerGetHistory(params, config)
+      return portfolioControllerGetHistory(address, params, config)
    },
   })
 }
 
 /**
- * @summary Portfolio value history snapshots for a public key
- * {@link /api/portfolio/history}
+ * @summary Get portfolio value history for an address
+ * {@link /api/portfolio/history/:address}
  */
-export function usePortfolioControllerGetHistorySuspense<TData = PortfolioControllerGetHistoryQueryResponse, TQueryKey extends QueryKey = PortfolioControllerGetHistorySuspenseQueryKey>(params: PortfolioControllerGetHistoryQueryParams, options: 
+export function usePortfolioControllerGetHistorySuspense<TData = PortfolioControllerGetHistoryQueryResponse, TQueryKey extends QueryKey = PortfolioControllerGetHistorySuspenseQueryKey>(address: PortfolioControllerGetHistoryPathParams["address"], params?: PortfolioControllerGetHistoryQueryParams, options: 
 {
   query?: Partial<UseSuspenseQueryOptions<PortfolioControllerGetHistoryQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -38,10 +38,10 @@ export function usePortfolioControllerGetHistorySuspense<TData = PortfolioContro
  = {}) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? portfolioControllerGetHistorySuspenseQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? portfolioControllerGetHistorySuspenseQueryKey(address, params)
 
   const query = useSuspenseQuery({
-   ...portfolioControllerGetHistorySuspenseQueryOptions(params, config),
+   ...portfolioControllerGetHistorySuspenseQueryOptions(address, params, config),
    queryKey,
    ...queryOptions
   } as unknown as UseSuspenseQueryOptions, queryClient) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }

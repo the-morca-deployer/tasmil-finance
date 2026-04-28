@@ -4,21 +4,21 @@
 */
 
 import fetch from "@/lib/kubb-backend-client";
-import type { PortfolioControllerGetHistoryQueryResponse, PortfolioControllerGetHistoryQueryParams } from "@/gen-backend/types/portfolio-controller-get-history";
+import type { PortfolioControllerGetHistoryQueryResponse, PortfolioControllerGetHistoryPathParams, PortfolioControllerGetHistoryQueryParams } from "@/gen-backend/types/portfolio-controller-get-history";
 import type { RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
 
-function getPortfolioControllerGetHistoryUrl() {
-  const res = { method: 'GET', url: `/api/portfolio/history` as const }  
+function getPortfolioControllerGetHistoryUrl(address: PortfolioControllerGetHistoryPathParams["address"]) {
+  const res = { method: 'GET', url: `/api/portfolio/history/${address}` as const }  
   return res
 }
 
 /**
- * @summary Portfolio value history snapshots for a public key
- * {@link /api/portfolio/history}
+ * @summary Get portfolio value history for an address
+ * {@link /api/portfolio/history/:address}
  */
-export async function portfolioControllerGetHistory(params: PortfolioControllerGetHistoryQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function portfolioControllerGetHistory(address: PortfolioControllerGetHistoryPathParams["address"], params?: PortfolioControllerGetHistoryQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
   const { client: request = fetch, ...requestConfig } = config  
   
-  const res = await request<PortfolioControllerGetHistoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method : "GET", url : getPortfolioControllerGetHistoryUrl().url.toString(), params, ... requestConfig })  
+  const res = await request<PortfolioControllerGetHistoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method : "GET", url : getPortfolioControllerGetHistoryUrl(address).url.toString(), params, ... requestConfig })  
   return res.data
 }

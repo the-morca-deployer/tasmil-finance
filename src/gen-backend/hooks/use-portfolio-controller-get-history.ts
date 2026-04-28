@@ -4,33 +4,33 @@
 */
 
 import fetch from "@kubb/plugin-client/clients/axios";
-import type { PortfolioControllerGetHistoryQueryResponse, PortfolioControllerGetHistoryQueryParams } from "@/gen-backend/types/portfolio-controller-get-history";
+import type { PortfolioControllerGetHistoryQueryResponse, PortfolioControllerGetHistoryPathParams, PortfolioControllerGetHistoryQueryParams } from "@/gen-backend/types/portfolio-controller-get-history";
 import type { RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from "@tanstack/react-query";
 import { portfolioControllerGetHistory } from "@/gen-backend/client/portfolio-controller-get-history";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
-export const portfolioControllerGetHistoryQueryKey = (params: PortfolioControllerGetHistoryQueryParams) => [{ url: '/api/portfolio/history' }, ...(params ? [params] : [])] as const
+export const portfolioControllerGetHistoryQueryKey = (address: PortfolioControllerGetHistoryPathParams["address"], params?: PortfolioControllerGetHistoryQueryParams) => [{ url: '/api/portfolio/history/:address', params: {address:address} }, ...(params ? [params] : [])] as const
 
 export type PortfolioControllerGetHistoryQueryKey = ReturnType<typeof portfolioControllerGetHistoryQueryKey>
 
-export function portfolioControllerGetHistoryQueryOptions(params: PortfolioControllerGetHistoryQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
-  const queryKey = portfolioControllerGetHistoryQueryKey(params)
+export function portfolioControllerGetHistoryQueryOptions(address: PortfolioControllerGetHistoryPathParams["address"], params?: PortfolioControllerGetHistoryQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  const queryKey = portfolioControllerGetHistoryQueryKey(address, params)
   return queryOptions<PortfolioControllerGetHistoryQueryResponse, ResponseErrorConfig<Error>, PortfolioControllerGetHistoryQueryResponse, typeof queryKey>({
-   enabled: !!(params),
+   enabled: !!(address),
    queryKey,
    queryFn: async ({ signal }) => {
       config.signal = signal
-      return portfolioControllerGetHistory(params, config)
+      return portfolioControllerGetHistory(address, params, config)
    },
   })
 }
 
 /**
- * @summary Portfolio value history snapshots for a public key
- * {@link /api/portfolio/history}
+ * @summary Get portfolio value history for an address
+ * {@link /api/portfolio/history/:address}
  */
-export function usePortfolioControllerGetHistory<TData = PortfolioControllerGetHistoryQueryResponse, TQueryData = PortfolioControllerGetHistoryQueryResponse, TQueryKey extends QueryKey = PortfolioControllerGetHistoryQueryKey>(params: PortfolioControllerGetHistoryQueryParams, options: 
+export function usePortfolioControllerGetHistory<TData = PortfolioControllerGetHistoryQueryResponse, TQueryData = PortfolioControllerGetHistoryQueryResponse, TQueryKey extends QueryKey = PortfolioControllerGetHistoryQueryKey>(address: PortfolioControllerGetHistoryPathParams["address"], params?: PortfolioControllerGetHistoryQueryParams, options: 
 {
   query?: Partial<QueryObserverOptions<PortfolioControllerGetHistoryQueryResponse, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: typeof fetch }
@@ -38,10 +38,10 @@ export function usePortfolioControllerGetHistory<TData = PortfolioControllerGetH
  = {}) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? portfolioControllerGetHistoryQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? portfolioControllerGetHistoryQueryKey(address, params)
 
   const query = useQuery({
-   ...portfolioControllerGetHistoryQueryOptions(params, config),
+   ...portfolioControllerGetHistoryQueryOptions(address, params, config),
    queryKey,
    ...queryOptions
   } as unknown as QueryObserverOptions, queryClient) as UseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
