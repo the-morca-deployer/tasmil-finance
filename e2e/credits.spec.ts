@@ -103,17 +103,7 @@ test.describe("Phase 0 — Credit Ledger", () => {
   test("Scenario 1: funded wallet sees balance=0 and empty ledger", async ({ page }) => {
     const { jwt } = await loginAsWallet(page, FUNDED_WALLET);
     const userId = await getInternalUserId(jwt);
-
-    await fetch(`${BACKEND}/api/internal/credit/apply`, {
-      method: "POST",
-      headers: { "x-service-key": SERVICE_KEY, "content-type": "application/json" },
-      body: JSON.stringify({
-        userId,
-        reason: "ADMIN_ADJUST",
-        deltaCredits: 0,
-        idempotencyKey: `e2e:scenario1:bootstrap:${userId}`,
-      }),
-    });
+    void userId;
 
     const probes = attachConsoleAndNetworkAsserts(page);
     await page.goto("/profile/credits");
