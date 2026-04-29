@@ -190,7 +190,9 @@ test.describe("Referrals page — UI interaction matrix", () => {
     ].forEach(dbCleanWallet);
   });
 
-  test("S1: no waitlist entry → empty-state CTA, no copy/share buttons", async ({ page }) => {
+  test("S1: no waitlist entry → empty-state CTA + Join-Waitlist link + Link-X still actionable", async ({
+    page,
+  }) => {
     // No seed — wallet only exists once login fires.
     const { errors } = attachConsoleSpy(page);
     await loginAsWallet(page, S1_WALLET);
@@ -199,9 +201,17 @@ test.describe("Referrals page — UI interaction matrix", () => {
     await expect(page.getByTestId("referrals-root")).toBeVisible({ timeout: 10_000 });
     // Empty state visible because backend snapshot resolves to no code.
     await expect(page.getByTestId("referrals-empty")).toBeVisible();
+    // Join-waitlist CTA points anon-wallet users at the registration flow.
+    await expect(page.getByTestId("referrals-join-waitlist")).toHaveAttribute(
+      "href",
+      "/waitlist",
+    );
+    // Code-gated buttons stay hidden.
     await expect(page.getByTestId("referrals-copy-link")).toHaveCount(0);
     await expect(page.getByTestId("referrals-share-x")).toHaveCount(0);
-    await expect(page.getByTestId("referrals-link-x")).toHaveCount(0);
+    // Link-X is account-level, NOT gated on referralCode — must show so the
+    // user can bind their X handle even before completing waitlist signup.
+    await expect(page.getByTestId("referrals-link-x")).toBeVisible();
     // Stats card still renders with zeros.
     await expect(page.getByTestId("referrals-total-credits")).toContainText("0");
     await expect(page.getByTestId("referrals-events-empty")).toBeVisible();

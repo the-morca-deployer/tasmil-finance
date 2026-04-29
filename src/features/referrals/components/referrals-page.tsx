@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Copy, Share2, Sparkles } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -173,52 +174,62 @@ export function ReferralsPage() {
               <p className="text-muted-foreground text-xs">
                 Share link: <span className="font-mono">{shareUrl}</span>
               </p>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  data-testid="referrals-copy-link"
-                  variant="outline"
-                  onClick={handleCopyLink}
-                  disabled={!hasCode}
-                >
-                  {copied ? <Check /> : <Copy />}
-                  {copied ? "Copied" : "Copy link"}
-                </Button>
-                {xLinked ? (
-                  <>
-                    <Button
-                      data-testid="referrals-share-x"
-                      onClick={handleShareOnX}
-                      disabled={!hasCode}
-                    >
-                      <Share2 />
-                      Share on X
-                    </Button>
-                    <Button
-                      data-testid="referrals-verify-share"
-                      variant="outline"
-                      onClick={() => setVerifyShareDialogOpen(true)}
-                      disabled={!hasCode}
-                    >
-                      Verify your tweet (+30)
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    data-testid="referrals-link-x"
-                    variant="outline"
-                    onClick={() => setLinkDialogOpen(true)}
-                    disabled={!hasCode}
-                  >
-                    Link your X account
-                  </Button>
-                )}
-              </div>
             </>
           ) : (
-            <p data-testid="referrals-empty" className="text-muted-foreground text-sm">
-              No referral code yet — complete waitlist signup to receive one.
-            </p>
+            <div data-testid="referrals-empty" className="flex flex-col gap-2">
+              <p className="text-muted-foreground text-sm">
+                No referral code yet — complete waitlist signup to receive one.
+              </p>
+              <Button asChild variant="outline" size="sm" className="self-start">
+                <Link href="/waitlist" data-testid="referrals-join-waitlist">
+                  Join waitlist
+                </Link>
+              </Button>
+            </div>
           )}
+
+          <div className="flex flex-wrap gap-2">
+            {hasCode && (
+              <Button
+                data-testid="referrals-copy-link"
+                variant="outline"
+                onClick={handleCopyLink}
+              >
+                {copied ? <Check /> : <Copy />}
+                {copied ? "Copied" : "Copy link"}
+              </Button>
+            )}
+            {xLinked ? (
+              <>
+                {hasCode && (
+                  <Button
+                    data-testid="referrals-share-x"
+                    onClick={handleShareOnX}
+                  >
+                    <Share2 />
+                    Share on X
+                  </Button>
+                )}
+                {hasCode && (
+                  <Button
+                    data-testid="referrals-verify-share"
+                    variant="outline"
+                    onClick={() => setVerifyShareDialogOpen(true)}
+                  >
+                    Verify your tweet (+30)
+                  </Button>
+                )}
+              </>
+            ) : (
+              <Button
+                data-testid="referrals-link-x"
+                variant="outline"
+                onClick={() => setLinkDialogOpen(true)}
+              >
+                Link your X account
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 
