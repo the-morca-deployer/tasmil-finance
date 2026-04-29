@@ -221,16 +221,9 @@ test.describe("Topup admin reconcile — UI flow", () => {
     expect(errors, `Console errors: ${errors.join("\n")}`).toEqual([]);
   });
 
-  test("CAMPAIGN_ADMIN sees the pending-topups list and can interact with the form", async ({
+  test("CAMPAIGN_ADMIN cannot fulfill a topup — backend returns 403, row stays", async ({
     page,
   }) => {
-    // NB: The @Roles() decorator in admin-auth.guard.ts is currently a no-op
-    // (function body `{}` — see the source). So CAMPAIGN_ADMIN actually has
-    // full read+write access to the topup admin queue at the backend layer.
-    // The spec asserts the realistic UI behaviour: a CAMPAIGN_ADMIN logs in,
-    // sees the list, fills the form, and the row stays interactive. When the
-    // role check is fixed in the backend, this spec should be updated to
-    // assert a 403 + toast surface.
     const { errors } = attachConsoleSpy(page);
 
     await loginAdminViaForm(page, CAMPAIGN_ADMIN_EMAIL, CAMPAIGN_ADMIN_PASSWORD);
@@ -241,20 +234,29 @@ test.describe("Topup admin reconcile — UI flow", () => {
     const row = page.getByTestId(`admin-topup-row-${user.topupId}`);
     await expect(row).toBeVisible({ timeout: 10_000 });
 
-    // Fill the bank-tx-ref input — verifies the form is interactive even
-    // when the underlying role permits more than the spec assumes.
-    const inputBox = page.getByTestId(`admin-topup-banktxref-${user.topupId}`);
-    await inputBox.fill("BNK-E2E-CAMPAIGN-001");
-    await expect(inputBox).toHaveValue("BNK-E2E-CAMPAIGN-001");
+    await page
+      .getByTestId(`admin-topup-banktxref-${user.topupId}`)
+      .fill("BNK-E2E-CAMPAIGN-FORBIDDEN");
 
-    // Cancel the row (cleaner than fulfilling — keeps test isolation
-    // intact). Confirm() handler accepts in-line.
-    page.once("dialog", async (dlg) => {
-      await dlg.accept();
-    });
-    await page.getByTestId(`admin-topup-cancel-${user.topupId}`).click();
-    await expect(row).toHaveCount(0, { timeout: 10_000 });
+    // Capture the network response of the fulfill POST so we can assert 403.
+    const fulfillResponse = page.waitForResponse(
+      (resp) =>
+        resp.url().includes(`/api/admin/topup/${user.topupId}/fulfill`) &&
+        resp.request().method() === "POST",
+      { timeout: 10_000 },
+    );
 
-    expect(errors, `Console errors: ${errors.join("\n")}`).toEqual([]);
+    await page.getByTestId(`admin-topup-fulfill-${user.topupId}`).click();
+    const resp = await fulfillResponse;
+    expect(resp.status(), "fulfill must be 403 for CAMPAIGN_ADMIN").toBe(403);
+
+    // Row must still be visible — no fulfill side-effect.
+    await expect(row).toBeVisible({ timeout: 5_000 });
+
+    // Console: a documented 403 from /api/admin/topup/.../fulfill is the
+    // expected error for this test. attachConsoleSpy logs `/api/* >= 400`
+    // unless 401, so 403 will appear in `errors`. Filter it explicitly.
+    const unexpected = errors.filter((line) => !line.includes(`/api/admin/topup/${user.topupId}/fulfill`));
+    expect(unexpected, `Unexpected console errors: ${unexpected.join("\n")}`).toEqual([]);
   });
 });
