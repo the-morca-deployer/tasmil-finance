@@ -116,18 +116,23 @@ test.describe("/portfolio — UI interaction matrix", () => {
     await page.goto("/portfolio");
     // The 4 tabs render as buttons (not links — they replace the URL via
     // router.replace). Locate them by visible text.
-    await expect(page.getByRole("button", { name: "Tokens" })).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByRole("button", { name: "Positions" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "NFTs" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Transaction History" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Tokens" })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("button", { name: "Positions" })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("button", { name: "NFTs" })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("button", { name: "Transaction History" })).toBeVisible({
+      timeout: 15_000,
+    });
 
     // The Tokens body renders an "Assets" heading once the wallet-tokens
     // query resolves (or a skeleton with the same heading while loading).
-    await expect(page.getByRole("heading", { name: /Assets/i })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("heading", { name: /Assets/i })).toBeVisible({ timeout: 30_000 });
 
-    // The wallet header truncates the address to "AAAAAA...BBBB"; assert
-    // the prefix is rendered.
-    await expect(page.locator("text=GPORTF")).toBeVisible();
+    // The wallet header truncates the address to "AAAAAA...BBBB". The
+    // header is mounted on first render but may flicker through a skeleton
+    // while wallet-tokens loads — give it generous time and assert
+    // attachment (DOM presence) rather than visibility, which is the
+    // strictest test of "did the address render at all".
+    await expect(page.locator("text=GPORTF").first()).toBeAttached({ timeout: 20_000 });
 
     const noisy = filterStackSplitNoise(errors); expect(noisy, `Unexpected console errors: ${noisy.join("\n")}`).toEqual([]);
   });

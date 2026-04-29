@@ -177,6 +177,66 @@ async function loginAsWallet(page: Page, walletAddress: string): Promise<Session
   return { walletAddress, jwt, userId };
 }
 
+/**
+ * Zustand v5 `persist` rehydrates from localStorage in an async setState()
+ * AFTER the store is created. The very first React render of any page
+ * always sees `accessToken: null`. /profile/referrals (commit 9a106063)
+ * redirects unauth → /login on first render, so a single page.goto races
+ * the store hydration and lands on /login.
+ *
+ * Workaround: navigate to a public route first (/topup), let the auth
+ * store hydrate while the public page renders, then push to the protected
+ * route via Next's client-side navigation. Client routing keeps the same
+ * React tree and store, so the protected page sees `accessToken` set on
+ * its first render.
+ */
+async function gotoAuthed(page: Page, path: string): Promise<void> {
+  await page.goto("/topup");
+  // Wait for Zustand to flush localStorage → in-memory (the hydration
+  // setState fires in a microtask after the first render commit).
+  await page
+    .waitForFunction(
+      () => {
+        const raw = window.localStorage.getItem("auth-storage");
+        if (!raw) return false;
+        try {
+          const parsed = JSON.parse(raw);
+          return Boolean(parsed?.state?.accessToken);
+        } catch {
+          return false;
+        }
+      },
+      undefined,
+      { timeout: 10_000 },
+    )
+    .catch(() => {});
+  // Two animation frames + a 250ms settle is plenty for persist's async
+  // hydrate microtask + the first store-subscriber re-render.
+  await page.waitForTimeout(400);
+  // Trigger a client-side navigation via Next.js by clicking a real <Link>
+  // in the sidebar. This keeps the same JS bundle alive, so Zustand stays
+  // hydrated and the protected route's first render sees the JWT.
+  if (path === "/profile/referrals") {
+    const referralsLink = page
+      .getByRole("link", { name: /^Referrals$/i })
+      .first();
+    if (await referralsLink.count()) {
+      await referralsLink.click();
+      await page
+        .waitForURL((url) => url.pathname === path, { timeout: 10_000 })
+        .catch(() => {});
+    } else {
+      await page.goto(path);
+    }
+  } else {
+    await page.goto(path);
+  }
+  // Last-resort fallback if neither click nor goto landed on the target.
+  if (!page.url().endsWith(path) && !page.url().includes(`${path}?`)) {
+    await page.goto(path);
+  }
+}
+
 async function fetchReferralSnapshot(jwt: string): Promise<ReferralSnapshot> {
   const res = await fetch(`${BACKEND}/api/referral/me`, {
     headers: { Authorization: `Bearer ${jwt}` },
@@ -210,8 +270,8 @@ test.describe("Phase 4 — Referral JOIN flow", () => {
     const session = await loginAsWallet(page, ORGANIC_WALLET);
     const { errors } = attachConsoleSpy(page);
 
-    await page.goto("/profile/referrals");
-    await expect(page.getByTestId("referrals-root")).toBeVisible();
+    await gotoAuthed(page, "/profile/referrals");
+    await expect(page.getByTestId("referrals-root")).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId("referrals-code")).toContainText(ORGANIC_REFCODE);
     await expect(page.getByTestId("referrals-join-badge")).toContainText(/not yet/i);
     await expect(page.getByTestId("referrals-events-empty")).toBeVisible();
@@ -242,8 +302,8 @@ test.describe("Phase 4 — Referral JOIN flow", () => {
     const session = await loginAsWallet(page, INVITEE_WALLET);
     const { errors } = attachConsoleSpy(page);
 
-    await page.goto("/profile/referrals");
-    await expect(page.getByTestId("referrals-root")).toBeVisible();
+    await gotoAuthed(page, "/profile/referrals");
+    await expect(page.getByTestId("referrals-root")).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId("referrals-code")).toContainText(INVITEE_REFCODE);
     await expect(page.getByTestId("referrals-join-badge")).toContainText(/claimed/i);
     await expect(page.getByTestId("referrals-total-credits")).toContainText("20");

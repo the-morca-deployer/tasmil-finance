@@ -126,6 +126,58 @@ async function loginAsWallet(page: Page, walletAddress: string): Promise<Session
   return { jwt, walletAddress };
 }
 
+/**
+ * Zustand v5 `persist` rehydrates from localStorage in an async setState()
+ * AFTER the store is created. The very first React render of any page
+ * always sees `accessToken: null`. /profile/referrals (commit 9a106063)
+ * redirects unauth → /login on first render, so a single page.goto races
+ * the store hydration and lands on /login.
+ *
+ * Workaround: navigate to a public route first (/topup), let the auth
+ * store hydrate while the public page renders, then click the sidebar
+ * Referrals <Link> to navigate client-side. Client routing keeps the same
+ * React tree and store, so the protected page sees `accessToken` set on
+ * its first render.
+ */
+async function gotoAuthed(page: Page, path: string): Promise<void> {
+  await page.goto("/topup");
+  await page
+    .waitForFunction(
+      () => {
+        const raw = window.localStorage.getItem("auth-storage");
+        if (!raw) return false;
+        try {
+          const parsed = JSON.parse(raw);
+          return Boolean(parsed?.state?.accessToken);
+        } catch {
+          return false;
+        }
+      },
+      undefined,
+      { timeout: 10_000 },
+    )
+    .catch(() => {});
+  await page.waitForTimeout(400);
+  if (path === "/profile/referrals") {
+    const referralsLink = page
+      .getByRole("link", { name: /^Referrals$/i })
+      .first();
+    if (await referralsLink.count()) {
+      await referralsLink.click();
+      await page
+        .waitForURL((url) => url.pathname === path, { timeout: 10_000 })
+        .catch(() => {});
+    } else {
+      await page.goto(path);
+    }
+  } else {
+    await page.goto(path);
+  }
+  if (!page.url().endsWith(path) && !page.url().includes(`${path}?`)) {
+    await page.goto(path);
+  }
+}
+
 test.describe("Referrals page — UI interaction matrix", () => {
   test.beforeAll(() => {
     [
@@ -143,8 +195,8 @@ test.describe("Referrals page — UI interaction matrix", () => {
     const { errors } = attachConsoleSpy(page);
     await loginAsWallet(page, S1_WALLET);
 
-    await page.goto("/profile/referrals");
-    await expect(page.getByTestId("referrals-root")).toBeVisible();
+    await gotoAuthed(page, "/profile/referrals");
+    await expect(page.getByTestId("referrals-root")).toBeVisible({ timeout: 10_000 });
     // Empty state visible because backend snapshot resolves to no code.
     await expect(page.getByTestId("referrals-empty")).toBeVisible();
     await expect(page.getByTestId("referrals-copy-link")).toHaveCount(0);
@@ -172,8 +224,8 @@ test.describe("Referrals page — UI interaction matrix", () => {
     const { errors } = attachConsoleSpy(page);
     await loginAsWallet(page, S2_WALLET);
 
-    await page.goto("/profile/referrals");
-    await expect(page.getByTestId("referrals-root")).toBeVisible();
+    await gotoAuthed(page, "/profile/referrals");
+    await expect(page.getByTestId("referrals-root")).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId("referrals-code")).toContainText(S2_REFCODE);
 
     // ── Copy-link UI flow ──
@@ -238,8 +290,8 @@ test.describe("Referrals page — UI interaction matrix", () => {
     const { errors } = attachConsoleSpy(page);
     await loginAsWallet(page, S3_INVITEE_WALLET);
 
-    await page.goto("/profile/referrals");
-    await expect(page.getByTestId("referrals-root")).toBeVisible();
+    await gotoAuthed(page, "/profile/referrals");
+    await expect(page.getByTestId("referrals-root")).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId("referrals-code")).toContainText(S3_INVITEE_REFCODE);
     await expect(page.getByTestId("referrals-join-badge")).toContainText(/claimed/i);
     await expect(page.getByTestId("referrals-total-credits")).toContainText("20");
@@ -274,8 +326,8 @@ test.describe("Referrals page — UI interaction matrix", () => {
     const { errors } = attachConsoleSpy(page);
     await loginAsWallet(page, S4_WALLET);
 
-    await page.goto("/profile/referrals");
-    await expect(page.getByTestId("referrals-root")).toBeVisible();
+    await gotoAuthed(page, "/profile/referrals");
+    await expect(page.getByTestId("referrals-root")).toBeVisible({ timeout: 10_000 });
     const copyBtn = page.getByTestId("referrals-copy-link");
     const linkX = page.getByTestId("referrals-link-x");
     await expect(copyBtn).toBeVisible();
@@ -320,28 +372,28 @@ test.describe("Referrals page — UI interaction matrix", () => {
     const authCtx = await browser.newContext();
     const authPage = await authCtx.newPage();
     await loginAsWallet(authPage, S5_WALLET);
-    await authPage.goto("/profile/referrals");
-    await expect(authPage.getByTestId("referrals-root")).toBeVisible();
+    await gotoAuthed(authPage, "/profile/referrals");
+    await expect(authPage.getByTestId("referrals-root")).toBeVisible({ timeout: 10_000 });
     await expect(authPage.getByTestId("referrals-code")).toContainText(S5_REFCODE);
     await authCtx.close();
 
     // Second context: brand-new browser session — no cookies, no
-    // localStorage, no addInitScript. /profile/referrals is unauthenticated
-    // and the page renders without any code (loading shell or error shell).
-    // Either way the user's referral code must NOT leak across sessions.
+    // localStorage, no addInitScript. After commit 9a106063 the referrals
+    // page redirects unauthenticated visitors to /login?next=... rather
+    // than rendering an empty shell. Confirm the redirect target so we
+    // also verify the original path is preserved for round-trip.
     const anonCtx = await browser.newContext();
     const anonPage = await anonCtx.newPage();
     const { errors } = attachConsoleSpy(anonPage);
 
     await anonPage.goto("/profile/referrals");
-    // Give the network/render time to settle.
-    await anonPage.waitForLoadState("domcontentloaded");
-    await anonPage.waitForTimeout(2_000);
+    await anonPage.waitForURL(/\/login/, { timeout: 15_000 });
+    // Next encodes the `next` query param when it serialises the URL, so
+    // accept either the raw or URL-encoded form of /profile/referrals.
+    expect(anonPage.url()).toMatch(/next=(\/profile\/referrals|%2Fprofile%2Freferrals)/);
 
-    // The page is unauthenticated → useReferralSnapshot is disabled
-    // (`enabled: !!accessToken && !isExpired`) so it returns isLoading=true
-    // forever, rendering the loading shell. In either case, the referral
-    // code from a previous wallet must not be visible.
+    // Whatever the login page renders, the prior wallet's referral code
+    // must NOT have leaked into this anonymous context.
     const codeCount = await anonPage.getByTestId("referrals-code").count();
     if (codeCount > 0) {
       const codeText = (await anonPage.getByTestId("referrals-code").textContent()) ?? "";
