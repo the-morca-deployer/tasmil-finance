@@ -378,27 +378,23 @@ test.describe("Referrals page — UI interaction matrix", () => {
     await authCtx.close();
 
     // Second context: brand-new browser session — no cookies, no
-    // localStorage, no addInitScript. After commit 9a106063 the referrals
-    // page redirects unauthenticated visitors to /login?next=... rather
-    // than rendering an empty shell. Confirm the redirect target so we
-    // also verify the original path is preserved for round-trip.
+    // localStorage, no addInitScript. The referrals page now renders an
+    // unauthed prompt (with `referrals-unauthed` testid) instead of
+    // redirecting to /login (which 404s — there is no public login route;
+    // /login only exists under /admin/(auth)). Wallet connect is handled
+    // by the sidebar's <ConnectWalletButton />.
     const anonCtx = await browser.newContext();
     const anonPage = await anonCtx.newPage();
     const { errors } = attachConsoleSpy(anonPage);
 
     await anonPage.goto("/profile/referrals");
-    await anonPage.waitForURL(/\/login/, { timeout: 15_000 });
-    // Next encodes the `next` query param when it serialises the URL, so
-    // accept either the raw or URL-encoded form of /profile/referrals.
-    expect(anonPage.url()).toMatch(/next=(\/profile\/referrals|%2Fprofile%2Freferrals)/);
+    await expect(anonPage.getByTestId("referrals-unauthed")).toBeVisible({ timeout: 15_000 });
+    // No redirect should have fired.
+    expect(anonPage.url()).toContain("/profile/referrals");
 
-    // Whatever the login page renders, the prior wallet's referral code
-    // must NOT have leaked into this anonymous context.
+    // Authed wallet's referral code must NOT have leaked into this anon context.
     const codeCount = await anonPage.getByTestId("referrals-code").count();
-    if (codeCount > 0) {
-      const codeText = (await anonPage.getByTestId("referrals-code").textContent()) ?? "";
-      expect(codeText).not.toContain(S5_REFCODE);
-    }
+    expect(codeCount).toBe(0);
 
     expect(errors, `Console errors: ${errors.join("\n")}`).toEqual([]);
     await anonCtx.close();

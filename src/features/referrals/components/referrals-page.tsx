@@ -1,8 +1,7 @@
 "use client";
 
 import { Check, Copy, Share2, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
@@ -53,7 +52,6 @@ function formatKind(kind: ReferralEvent["kind"]): string {
 }
 
 export function ReferralsPage() {
-  const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
   const isExpired = useAuthStore((s) => s.isTokenExpired());
   const isAuthed = !!accessToken && !isExpired;
@@ -62,19 +60,20 @@ export function ReferralsPage() {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [verifyShareDialogOpen, setVerifyShareDialogOpen] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthed) {
-      router.replace("/login?next=/profile/referrals");
-    }
-  }, [isAuthed, router]);
-
   if (!isAuthed) {
     return (
       <main
-        data-testid="referrals-redirecting"
-        className="mx-auto flex w-full max-w-3xl items-center justify-center px-6 py-10 text-muted-foreground text-sm"
+        data-testid="referrals-unauthed"
+        className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-3 px-6 py-16 text-center"
       >
-        Redirecting to login…
+        <h1 className="font-bold text-2xl tracking-tight">Referrals</h1>
+        <p className="max-w-md text-muted-foreground text-sm">
+          Connect your wallet to view your referral code, share it on X, and claim credits when
+          friends join.
+        </p>
+        <p className="text-muted-foreground text-xs">
+          Use the &ldquo;Connect Wallet&rdquo; button in the sidebar to sign in.
+        </p>
       </main>
     );
   }
