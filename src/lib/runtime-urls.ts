@@ -67,6 +67,10 @@ export function getAiProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyR
       source: "/ok",
       destination: `${aiBaseUrl}/ok`,
     },
+    {
+      source: "/agui/:path*",
+      destination: `${aiBaseUrl}/agui/:path*`,
+    },
   ];
 }
 
