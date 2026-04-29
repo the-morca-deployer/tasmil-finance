@@ -1,7 +1,7 @@
 "use client";
 
 import { BarChart3, Coins, ExternalLink, Star } from "lucide-react";
-import Image from "next/image";
+import { TokenImage } from "@/shared/components/token-image";
 import Link from "next/link";
 import { TourTriggerButton } from "@/features/onboarding/components/tour-trigger-button";
 import { AddressAvatar, ConnectWalletButton } from "@/shared/components/connect-wallet-button";
@@ -99,9 +99,8 @@ export function FooterSidebarSection() {
               glowRadius={20}
             >
               <div className="flex items-center gap-2 px-3 py-2">
-                <Image
-                  src="/token/xlm.png"
-                  alt="Stellar"
+                <TokenImage
+                  alt="XLM"
                   width={32}
                   height={32}
                   className="rounded-full"
@@ -247,9 +246,8 @@ export function FooterSidebarSection() {
                 glowRadius={15}
               >
                 <div className="flex h-14 w-full flex-col items-center justify-center gap-1">
-                  <Image
-                    src="/token/xlm.png"
-                    alt="Stellar"
+                  <TokenImage
+                    alt="XLM"
                     width={20}
                     height={20}
                     className="rounded-full"

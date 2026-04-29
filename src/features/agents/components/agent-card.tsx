@@ -2,6 +2,7 @@
 
 import { Bot, ChevronRight, Layers, Sparkles } from "lucide-react";
 import Image from "next/image";
+import { TokenImage } from "@/shared/components/token-image";
 import { useState } from "react";
 import type { Assistant } from "@/gen-ai/types/assistant";
 import { Badge } from "@/shared/ui/badge";
@@ -33,22 +34,24 @@ interface AgentCardProps {
   comingSoon?: boolean;
 }
 
-// Map chain name to icon path (files in /public/token/)
-const CHAIN_ICONS: Record<string, string> = {
-  stellar: "/token/xlm.png",
-  ethereum: "/token/ethereum.png",
-  arbitrum: "/token/arb.png",
-  optimism: "/token/optimism.png",
-  polygon: "/token/polygon.png",
-  bsc: "/token/bsc.png",
-  avalanche: "/token/avalanche.png",
-  base: "/token/base.png",
-  solana: "/token/solana.png",
+// Map chain name to a TokenImage `alt` key. TokenImage resolves the actual
+// CDN URL via the asset manifest (post-Phase 5 the icons live on DO Spaces).
+// Stellar is keyed as "XLM" because the manifest is asset-keyed.
+const CHAIN_ICON_ALTS: Record<string, string> = {
+  stellar: "XLM",
+  ethereum: "ETHEREUM",
+  arbitrum: "ARB",
+  optimism: "OPTIMISM",
+  polygon: "POLYGON",
+  bsc: "BSC",
+  avalanche: "AVALANCHE",
+  base: "BASE",
+  solana: "SOLANA",
 };
 
-function getChainIconPath(chainName: string): string | null {
+function getChainIconAlt(chainName: string): string | null {
   const normalized = chainName.toLowerCase().replace(/\s+/g, "");
-  return CHAIN_ICONS[normalized] || null;
+  return CHAIN_ICON_ALTS[normalized] || null;
 }
 
 // Agent icon with error fallback
@@ -72,30 +75,17 @@ function AgentIconImage({ src, name }: { src: string; name: string }) {
   );
 }
 
-// Chain icon component
+// Chain icon component — delegates to TokenImage which resolves manifest URL
+// or falls back to a deterministic letter avatar if the chain isn't mapped.
 function ChainIcon({ chain, size = 20 }: { chain: string; size?: number }) {
-  const iconPath = getChainIconPath(chain);
-
-  if (iconPath) {
-    return (
-      <Image
-        src={iconPath}
-        alt={chain}
-        width={size}
-        height={size}
-        className="rounded-full object-cover"
-      />
-    );
-  }
-
-  // Fallback: first letter
+  const alt = getChainIconAlt(chain) ?? chain.toUpperCase();
   return (
-    <span
-      className="flex items-center justify-center rounded-full bg-muted font-medium text-muted-foreground"
-      style={{ width: size, height: size, fontSize: size * 0.5 }}
-    >
-      {chain.charAt(0).toUpperCase()}
-    </span>
+    <TokenImage
+      alt={alt}
+      width={size}
+      height={size}
+      className="rounded-full object-cover"
+    />
   );
 }
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useWallet } from "@/shared/context/wallet-context";
-import Image from "next/image";
+import { TokenImage } from "@/shared/components/token-image";
 import { ExternalLink, LogOut } from "lucide-react";
 import BorderGlow from "@/shared/ui/border-glow";
 import { BackgroundRippleEffect } from "@/shared/ui/background-ripple-effect";
@@ -92,7 +92,7 @@ export default function FaucetPage() {
           <div className="flex items-center justify-between px-5 py-5">
             <span className="text-sm text-muted-foreground">You will receive:</span>
             <div className="flex items-center gap-2">
-              <Image src="/token/xlm.png" alt="XLM" width={28} height={28} className="rounded-full" />
+              <TokenImage alt="XLM" width={28} height={28} className="rounded-full" />
               <span className="text-lg font-bold">10,000 XLM</span>
             </div>
           </div>

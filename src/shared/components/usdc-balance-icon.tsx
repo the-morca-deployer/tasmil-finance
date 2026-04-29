@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { TokenImage } from "@/shared/components/token-image";
 import { Button } from "@/shared/ui/button-v2";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { Typography } from "@/shared/ui/typography";
@@ -17,7 +17,7 @@ export function USDCBalanceIcon() {
           className="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-800/50 p-0 backdrop-blur-sm transition-all hover:bg-zinc-800/70"
           variant="ghost"
         >
-          <Image src="/token/usdc.png" alt="USDC" width={24} height={24} className="rounded-full" />
+          <TokenImage alt="USDC" width={24} height={24} className="rounded-full" />
         </Button>
       </TooltipTrigger>
       <TooltipContent side="right">
