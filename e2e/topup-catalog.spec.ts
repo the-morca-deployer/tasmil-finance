@@ -1,4 +1,5 @@
-import { expect, test, type ConsoleMessage, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { attachConsoleSpy } from "./_helpers/console-filter";
 
 interface PackageExpectation {
   id: string;
@@ -14,32 +15,6 @@ const EXPECTED_PACKAGES: readonly PackageExpectation[] = [
   { id: "pro",     usd: "$50",  credits: "1,200", points: "10,000", bonusPercent: 20 },
   { id: "whale",   usd: "$200", credits: "5,200", points: "40,000", bonusPercent: 30 },
 ] as const;
-
-function attachConsoleSpy(page: Page): { errors: string[] } {
-  const errors: string[] = [];
-  page.on("console", (msg: ConsoleMessage) => {
-    if (msg.type() !== "error") return;
-    const text = msg.text();
-    // Ignore generic "Failed to load resource" 404s on static assets — these
-    // are repo-wide pre-existing noise (image quality config warnings, etc).
-    // We assert real JS errors and unexpected /api/* failures separately.
-    if (text.startsWith("Failed to load resource:")) return;
-    errors.push(text);
-  });
-  page.on("pageerror", (err) => {
-    errors.push(`pageerror: ${err.message}`);
-  });
-  page.on("response", (resp) => {
-    const url = resp.url();
-    const status = resp.status();
-    if (!url.includes("/api/")) return;
-    // Allow 401 on bootstrap (existing auth flow expectation).
-    if (status >= 400 && status !== 401) {
-      errors.push(`api ${status} ${url}`);
-    }
-  });
-  return { errors };
-}
 
 test.describe("/topup — Pricing catalog", () => {
   test("renders exactly 4 package cards with the correct values", async ({ page }) => {

@@ -23,6 +23,7 @@
 
 import { execSync } from "node:child_process";
 import { expect, type Page, test } from "@playwright/test";
+import { attachConsoleSpy } from "./_helpers/console-filter";
 
 const BACKEND = process.env.PLAYWRIGHT_BACKEND_URL ?? "http://localhost:6856";
 const SERVICE_KEY = process.env.AI_INTERNAL_SHARED_TOKEN ?? "tasmil-local-internal-token";
@@ -146,31 +147,12 @@ function setCommittedTurnsViaDb(userId: string, committedTurns: number): void {
   );
 }
 
-function attachConsoleAndNetworkAsserts(page: Page): {
-  errors: string[];
-  badResponses: string[];
-} {
-  const errors: string[] = [];
-  const badResponses: string[] = [];
-  page.on("console", (msg) => {
-    if (msg.type() === "error") errors.push(msg.text());
-  });
-  page.on("response", (resp) => {
-    const url = resp.url();
-    const status = resp.status();
-    if (status >= 400 && status !== 401 && url.startsWith(BACKEND)) {
-      badResponses.push(`${status} ${url}`);
-    }
-  });
-  return { errors, badResponses };
-}
-
 test.describe("Phase 3 — Chat overflow (in-scope scenarios)", () => {
   test.describe.configure({ mode: "serial" });
 
   test("Scenario 1: snapshot endpoint returns full shape with daily defaults", async ({ page }) => {
     const session = await loginAsWallet(page, SCENARIO_1_WALLET);
-    const probes = attachConsoleAndNetworkAsserts(page);
+    const { errors } = attachConsoleSpy(page);
 
     const snap = await readSnapshot(session.jwt);
 
@@ -185,8 +167,7 @@ test.describe("Phase 3 — Chat overflow (in-scope scenarios)", () => {
     await page.goto("/topup");
     await expect(page.getByTestId("topup-page-title")).toBeVisible();
 
-    expect(probes.errors).toEqual([]);
-    expect(probes.badResponses).toEqual([]);
+    expect(errors).toEqual([]);
   });
 
   test("Scenario 2: PROMO_GRANT +50 surfaces credits=50 in snapshot", async ({ page }) => {
@@ -199,15 +180,14 @@ test.describe("Phase 3 — Chat overflow (in-scope scenarios)", () => {
       idempotencyKey: `e2e:chat-overflow:scenario2:${session.userId}`,
     });
 
-    const probes = attachConsoleAndNetworkAsserts(page);
+    const { errors } = attachConsoleSpy(page);
     const snap = await readSnapshot(session.jwt);
 
     expect(snap.credits).toBe(50);
     expect(snap.creditPending).toBe(0);
     expect(snap.baseTurns).toBe(10);
 
-    expect(probes.errors).toEqual([]);
-    expect(probes.badResponses).toEqual([]);
+    expect(errors).toEqual([]);
   });
 
   test("Scenario 3: committedTurns=10 + credits=0 → remainingTurns=0 (both exhausted)", async ({
@@ -219,7 +199,7 @@ test.describe("Phase 3 — Chat overflow (in-scope scenarios)", () => {
     await readSnapshot(session.jwt);
     setCommittedTurnsViaDb(session.userId, 10);
 
-    const probes = attachConsoleAndNetworkAsserts(page);
+    const { errors } = attachConsoleSpy(page);
     const snap = await readSnapshot(session.jwt);
 
     expect(snap.committedTurns).toBe(10);
@@ -232,7 +212,6 @@ test.describe("Phase 3 — Chat overflow (in-scope scenarios)", () => {
     await page.goto("/topup");
     await expect(page.getByTestId("topup-page-title")).toBeVisible();
 
-    expect(probes.errors).toEqual([]);
-    expect(probes.badResponses).toEqual([]);
+    expect(errors).toEqual([]);
   });
 });

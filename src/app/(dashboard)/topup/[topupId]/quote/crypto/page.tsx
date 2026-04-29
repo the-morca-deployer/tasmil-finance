@@ -8,10 +8,13 @@ import { useAuthStore } from "@/store/use-auth";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: Promise<{ packageId: string }>;
+  // The dynamic segment under /topup is unified as `topupId` (Next.js
+  // requires a single slug name across siblings). For this page the value is
+  // actually a package ID (e.g. `starter`), not a topup id.
+  params: Promise<{ topupId: string }>;
 }
 
-export default function FiatQuotePage({ params }: PageProps) {
+export default function CryptoQuotePage({ params }: PageProps) {
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
   const isExpired = useAuthStore((s) => s.isTokenExpired());
@@ -23,13 +26,13 @@ export default function FiatQuotePage({ params }: PageProps) {
     ranRef.current = true;
 
     void (async () => {
-      const { packageId } = await params;
+      const { topupId: packageId } = await params;
       if (!accessToken || isExpired) {
-        router.replace(`/login?next=/topup/${packageId}/quote/fiat`);
+        router.replace(`/login?next=/topup/${packageId}/quote/crypto`);
         return;
       }
       try {
-        const quote = await createQuote(packageId, "FIAT");
+        const quote = await createQuote(packageId, "CRYPTO");
         router.replace(`/topup/${quote.topupId}/wait`);
       } catch (err) {
         const message = err instanceof Error ? err.message : "unknown error";
@@ -40,7 +43,7 @@ export default function FiatQuotePage({ params }: PageProps) {
 
   return (
     <div
-      data-testid="topup-quote-fiat-loader"
+      data-testid="topup-quote-crypto-loader"
       className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-muted-foreground text-sm"
     >
       {error ? (
@@ -57,7 +60,7 @@ export default function FiatQuotePage({ params }: PageProps) {
       ) : (
         <>
           <div className="h-2 w-2 animate-pulse rounded-full bg-primary" aria-hidden />
-          <p>Creating fiat quote…</p>
+          <p>Creating crypto quote…</p>
         </>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { attachConsoleSpy } from "./_helpers/console-filter";
 
 const FUNDED_WALLET = "GDQI7LOG3I6R000000000000000000000000000000000000000000";
 const FRESH_WALLET = "GFRESHCREDIT000000000000000000000000000000000000000000";
@@ -81,22 +82,6 @@ async function applyCreditDelta(args: {
   return res.json();
 }
 
-function attachConsoleAndNetworkAsserts(page: Page) {
-  const errors: string[] = [];
-  const badResponses: string[] = [];
-  page.on("console", (msg) => {
-    if (msg.type() === "error") errors.push(msg.text());
-  });
-  page.on("response", (resp) => {
-    const url = resp.url();
-    const status = resp.status();
-    if (status >= 400 && status !== 401 && url.startsWith(BACKEND)) {
-      badResponses.push(`${status} ${url}`);
-    }
-  });
-  return { errors, badResponses };
-}
-
 test.describe("Phase 0 — Credit Ledger", () => {
   test.describe.configure({ mode: "serial" });
 
@@ -105,15 +90,14 @@ test.describe("Phase 0 — Credit Ledger", () => {
     const userId = await getInternalUserId(jwt);
     void userId;
 
-    const probes = attachConsoleAndNetworkAsserts(page);
+    const { errors } = attachConsoleSpy(page);
     await page.goto("/profile/credits");
 
     await expect(page.getByTestId("credits-page")).toBeVisible();
     await expect(page.getByTestId("credits-balance")).toHaveText("0");
     await expect(page.getByTestId("ledger-empty")).toBeVisible();
 
-    expect(probes.errors).toEqual([]);
-    expect(probes.badResponses).toEqual([]);
+    expect(errors).toEqual([]);
   });
 
   test("Scenario 2: PROMO_GRANT +50 → balance=50, one ledger row", async ({ page }) => {
@@ -127,7 +111,7 @@ test.describe("Phase 0 — Credit Ledger", () => {
       idempotencyKey: `e2e:scenario2:promo:${userId}`,
     });
 
-    const probes = attachConsoleAndNetworkAsserts(page);
+    const { errors } = attachConsoleSpy(page);
     await page.goto("/profile/credits");
 
     await expect(page.getByTestId("credits-balance")).toHaveText("50");
@@ -136,8 +120,7 @@ test.describe("Phase 0 — Credit Ledger", () => {
     await expect(rows.first()).toContainText("PROMO GRANT");
     await expect(rows.first()).toContainText("+50");
 
-    expect(probes.errors).toEqual([]);
-    expect(probes.badResponses).toEqual([]);
+    expect(errors).toEqual([]);
   });
 
   test("Scenario 3: idempotency replay → balance still 50, one row total", async ({ page }) => {
@@ -151,15 +134,14 @@ test.describe("Phase 0 — Credit Ledger", () => {
       idempotencyKey: `e2e:scenario2:promo:${userId}`,
     });
 
-    const probes = attachConsoleAndNetworkAsserts(page);
+    const { errors } = attachConsoleSpy(page);
     await page.goto("/profile/credits");
 
     await expect(page.getByTestId("credits-balance")).toHaveText("50");
     const rows = page.getByTestId("ledger-table").locator("tbody tr");
     await expect(rows).toHaveCount(1);
 
-    expect(probes.errors).toEqual([]);
-    expect(probes.badResponses).toEqual([]);
+    expect(errors).toEqual([]);
   });
 
   test("Scenario 4: brand-new wallet → CreditAccount exists, balance=0, ledger empty", async ({
@@ -168,7 +150,7 @@ test.describe("Phase 0 — Credit Ledger", () => {
     const { jwt } = await loginAsWallet(page, FRESH_WALLET);
     const userId = await getInternalUserId(jwt);
 
-    const probes = attachConsoleAndNetworkAsserts(page);
+    const { errors } = attachConsoleSpy(page);
     await page.goto("/profile/credits");
 
     await expect(page.getByTestId("credits-balance")).toHaveText("0");
@@ -186,7 +168,6 @@ test.describe("Phase 0 — Credit Ledger", () => {
     });
     expect(account.ok).toBe(true);
 
-    expect(probes.errors).toEqual([]);
-    expect(probes.badResponses).toEqual([]);
+    expect(errors).toEqual([]);
   });
 });

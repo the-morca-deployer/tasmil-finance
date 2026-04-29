@@ -115,6 +115,14 @@ export function getBackendProxyRewrites(env: NodeJS.ProcessEnv = process.env): P
       destination: `${backendBaseUrl}/api/rebalance/:path*`,
     },
     {
+      source: "/api/topup/:path*",
+      destination: `${backendBaseUrl}/api/topup/:path*`,
+    },
+    {
+      source: "/api/user/:path*",
+      destination: `${backendBaseUrl}/api/user/:path*`,
+    },
+    {
       source: "/api/users/:path*",
       destination: `${backendBaseUrl}/api/users/:path*`,
     },
