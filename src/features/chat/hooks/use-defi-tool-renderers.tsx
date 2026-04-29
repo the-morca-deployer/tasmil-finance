@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { TxStatus } from "@/features/chat/types/flow-messages";
 import { AccountInfoCard } from "@/features/chat/actions/components/stellar/account-info-card";
 import { ActionSearchCard } from "@/features/chat/actions/components/stellar/action-search-card";
@@ -550,6 +550,42 @@ export const EXECUTE_DISPATCHER = {
 // `stream.submit`. This starts a new agent turn with the selection context.
 // ---------------------------------------------------------------------------
 
+/** Try to find a clarify_response message in the stream to restore selection state. */
+function usePreviousClarifyResponse(
+  questions: { field_name: string; input_type: string; suggestions?: { label: string; value: Record<string, unknown> }[] }[],
+) {
+  const stream = useStreamContext();
+  return useMemo(() => {
+    // Scan messages for a human message containing clarify_response JSON
+    for (const m of (stream.messages ?? [])) {
+      if (m.type !== "human") continue;
+      const content = typeof m.content === "string" ? m.content : "";
+      if (!content.includes("clarify_response")) continue;
+      try {
+        const parsed = JSON.parse(content);
+        if (parsed?.type !== "clarify_response") continue;
+        // Reconstruct answers from the payload — match each question's field
+        const answers: Record<string, unknown> = {};
+        for (const q of questions) {
+          if (q.input_type === "select" && q.suggestions) {
+            // Find which suggestion matches the payload values
+            const match = q.suggestions.find((s) =>
+              Object.entries(s.value).every(([k, v]) => parsed[k] === v),
+            );
+            if (match) answers[q.field_name] = match.value;
+          } else if (q.input_type === "text" && parsed[q.field_name]) {
+            answers[q.field_name] = parsed[q.field_name];
+          }
+        }
+        if (Object.keys(answers).length > 0) return answers;
+      } catch {
+        continue;
+      }
+    }
+    return null;
+  }, [stream.messages, questions]);
+}
+
 /** Unified ClarifyCard wrapper — handles both single and multi-question flows. */
 function FlowClarifyCardWithStream({
   questions,
@@ -566,7 +602,8 @@ function FlowClarifyCardWithStream({
 }) {
   const stream = useStreamContext();
   const walletAddress = useWalletStore((s) => s.account);
-  const [sent, setSent] = useState(false);
+  const previousAnswers = usePreviousClarifyResponse(questions);
+  const [sent, setSent] = useState(!!previousAnswers);
 
   const handleSubmit = useCallback(
     async (answers: Record<string, unknown>) => {
@@ -616,6 +653,7 @@ function FlowClarifyCardWithStream({
       questions={questions}
       onSubmit={handleSubmit}
       disabled={sent}
+      initialAnswers={previousAnswers ?? undefined}
     />
   );
 }
@@ -767,7 +805,7 @@ export const FLOW_TOOL_RENDERERS: Array<{
     render: (props) => {
       const data = parseFlowResult(props.result);
       if (!data) {
-        return <div className="text-muted-foreground text-xs">No plan data</div>;
+        return <div className="text-muted-foreground text-xs">No transaction data</div>;
       }
       // Error response
       if (data.kind === "error") {
@@ -777,13 +815,26 @@ export const FLOW_TOOL_RENDERERS: Array<{
           </div>
         );
       }
-      // Plan preview with signing integration
-      return (
-        <FlowPlanWithSigning
-          plan={(data.plan as Record<string, unknown>) || {}}
-          simulationReport={data.simulation_report as Record<string, unknown>}
-        />
-      );
+      // Cross-chain plan — keep PlanPreviewCard (multi-step, future work)
+      if (data.kind === "cross_chain_plan" || data.kind === "plan_preview") {
+        return (
+          <FlowPlanWithSigning
+            plan={(data.plan as Record<string, unknown>) || {}}
+            simulationReport={data.simulation_report as Record<string, unknown>}
+          />
+        );
+      }
+      // Single TX (kind=tx_ready) — route to protocol-specific card
+      // via the same EXECUTE_DISPATCHER used by the `execute` MCP tool.
+      return EXECUTE_DISPATCHER.render({
+        ...props,
+        result: data,
+        args: {
+          ...(props.args as Record<string, unknown>),
+          protocol: data.protocol as string,
+          action: data.action as string,
+        },
+      });
     },
   },
   {

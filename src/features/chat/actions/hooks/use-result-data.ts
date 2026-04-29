@@ -45,6 +45,28 @@ export function useResultData<T = any>(result: unknown, status?: string): Result
       }
     }
 
+    // Handle MCP response wrapper: {content: [{type:"text", text:"..."}]}
+    // This occurs when the full MCP response object is passed through without
+    // extracting the inner content blocks (e.g. via supervisor agent relay).
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      !Array.isArray(parsed) &&
+      Array.isArray((parsed as any).content)
+    ) {
+      const blocks = (parsed as any).content;
+      const textBlock = blocks.find(
+        (b: any) => b?.type === "text" && typeof b?.text === "string",
+      );
+      if (textBlock) {
+        try {
+          parsed = JSON.parse(textBlock.text);
+        } catch {
+          parsed = { raw: textBlock.text };
+        }
+      }
+    }
+
     const hasError =
       parsed?.success === false || parsed?.error != null || parsed?.status === "error";
 

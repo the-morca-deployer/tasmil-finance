@@ -164,18 +164,22 @@ function BalanceView({ data }: { data: any }) {
 }
 
 function AssetsView({ data, toolCallId }: { data: any; toolCallId?: string }) {
-  const assets = data.assets ?? [];
+  // Support both MCP normalized shape ({assets}) and Horizon raw shape ({balances})
+  const account = data.account ?? data;
+  const assets = account.assets ?? account.balances ?? [];
+  const address = data.address ?? account.id ?? account.address;
+  const count = data.count ?? account.count ?? assets.length;
   return (
     <div className="space-y-2">
-      {data.address && <DetailRow label="Account" value={truncateAddress(data.address)} mono />}
-      <DetailRow label="Total Assets" value={data.count ?? assets.length} />
+      {address && <DetailRow label="Account" value={truncateAddress(address)} mono />}
+      <DetailRow label="Total Assets" value={count} />
       <ScrollableList id={`assets-${toolCallId}`} maxHeight={250}>
         {assets.map((a: any, i: number) => (
           <div
             key={i}
             className="flex items-center justify-between border-border/50 border-b py-1.5 text-sm last:border-0"
           >
-            <span className="font-medium">{a.type === "native" || a.assetType === "native" ? "XLM" : (a.assetCode ?? a.asset_code ?? a.code ?? "?")}</span>
+            <span className="font-medium">{a.type === "native" || a.assetType === "native" || a.asset_type === "native" ? "XLM" : (a.assetCode ?? a.asset_code ?? a.code ?? "?")}</span>
             <span>
               {Number.parseFloat(a.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })}
             </span>
