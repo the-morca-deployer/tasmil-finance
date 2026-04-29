@@ -1,16 +1,22 @@
 /**
  * /aggregator — UI interaction matrix
  *
- * On the mainnet build (NEXT_PUBLIC_STELLAR_NETWORK=mainnet), /aggregator
- * is gated by middleware and 307-redirects to /agents (the aggregator UI
- * is not yet shipped to mainnet users). On a testnet build the full
- * compare-rates UI renders.
+ * /aggregator is gated by src/proxy.ts (Next 16 middleware) on every
+ * environment that does not set NEXT_PUBLIC_APP_ENV=development. On a
+ * gated build (mainnet, staging) the route 307-redirects to /agents; on
+ * a development build the full compare-rates UI renders.
  *
- * S1 always runs: detect the redirect contract; on testnet it falls back
- *    to asserting the aggregator hero loads.
- * S2-S5 are testnet-only and skip when the redirect is in effect — they
- *    drive the swap card's amount input, swap button, URL prefill and
- *    CTA states.
+ * The gate exists because the Allbridge multi-chain aggregator surface
+ * is still being hardened for mainnet — supported-chain coverage is
+ * being reverified before we expose it to production users. To restore
+ * the aggregator on a deployed build, set NEXT_PUBLIC_APP_ENV=development
+ * on the container or remove the dev-gate branch from src/proxy.ts (and
+ * also un-gate the sidebar entry in shared/layout/sidebar-data.ts).
+ *
+ * S1 always runs: detect the redirect contract; on a development build
+ *    it falls back to asserting the aggregator hero loads.
+ * S2-S5 require the aggregator UI to be reachable. They skip dynamically
+ *    when the proxy.ts gate is in effect (i.e. on mainnet/staging).
  *
  * Driving an actual swap end-to-end requires a real Soroban-signing
  * wallet extension; that's covered by the contract integration tests,
@@ -58,7 +64,10 @@ test.describe("/aggregator — UI interaction matrix", () => {
 
   test("S2: typing into the You-pay input updates the value", async ({ page }) => {
     const gated = await isAggregatorGated(page);
-    test.skip(gated, "Aggregator gated by middleware on mainnet — UI not reachable");
+    test.skip(
+      gated,
+      "Aggregator UI gated by proxy.ts (NEXT_PUBLIC_APP_ENV != development) — set the env to restore",
+    );
 
     await page.goto("/aggregator");
     const amountInputs = page.locator('input[placeholder="0"]');
@@ -72,7 +81,10 @@ test.describe("/aggregator — UI interaction matrix", () => {
 
   test("S3: swap-direction button is interactive (click does not throw)", async ({ page }) => {
     const gated = await isAggregatorGated(page);
-    test.skip(gated, "Aggregator gated by middleware on mainnet — UI not reachable");
+    test.skip(
+      gated,
+      "Aggregator UI gated by proxy.ts (NEXT_PUBLIC_APP_ENV != development) — set the env to restore",
+    );
 
     await page.goto("/aggregator");
     await expect(page.getByRole("heading", { name: /DeFi Aggregator/i })).toBeVisible({
@@ -97,7 +109,10 @@ test.describe("/aggregator — UI interaction matrix", () => {
 
   test("S4: ?amount= prefill populates the You-pay input", async ({ page }) => {
     const gated = await isAggregatorGated(page);
-    test.skip(gated, "Aggregator gated by middleware on mainnet — UI not reachable");
+    test.skip(
+      gated,
+      "Aggregator UI gated by proxy.ts (NEXT_PUBLIC_APP_ENV != development) — set the env to restore",
+    );
 
     await page.goto(
       "/aggregator?tokenIn=XLM&chainIn=stellar&tokenOut=USDC&chainOut=stellar&amount=42",
@@ -110,7 +125,10 @@ test.describe("/aggregator — UI interaction matrix", () => {
     page,
   }) => {
     const gated = await isAggregatorGated(page);
-    test.skip(gated, "Aggregator gated by middleware on mainnet — UI not reachable");
+    test.skip(
+      gated,
+      "Aggregator UI gated by proxy.ts (NEXT_PUBLIC_APP_ENV != development) — set the env to restore",
+    );
 
     await page.goto("/aggregator");
     await expect(page.getByRole("heading", { name: /DeFi Aggregator/i })).toBeVisible({
