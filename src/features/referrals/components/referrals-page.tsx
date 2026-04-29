@@ -1,11 +1,13 @@
 "use client";
 
 import { Check, Copy, Share2, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
+import { useAuthStore } from "@/store/use-auth";
 import { useReferralSnapshot } from "../hooks/use-referral-snapshot";
 import type { ReferralEvent } from "../lib/fetch-referral";
 import { LinkXDialog } from "./link-x-dialog";
@@ -50,9 +52,30 @@ function formatKind(kind: ReferralEvent["kind"]): string {
 }
 
 export function ReferralsPage() {
+  const router = useRouter();
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const isExpired = useAuthStore((s) => s.isTokenExpired());
+  const isAuthed = !!accessToken && !isExpired;
   const snapshot = useReferralSnapshot();
   const [copied, setCopied] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthed) {
+      router.replace("/login?next=/profile/referrals");
+    }
+  }, [isAuthed, router]);
+
+  if (!isAuthed) {
+    return (
+      <main
+        data-testid="referrals-redirecting"
+        className="mx-auto flex w-full max-w-3xl items-center justify-center px-6 py-10 text-muted-foreground text-sm"
+      >
+        Redirecting to login…
+      </main>
+    );
+  }
 
   if (snapshot.isLoading) {
     return (
@@ -69,7 +92,7 @@ export function ReferralsPage() {
     );
   }
 
-  if (snapshot.isError || !snapshot.data) {
+  if (snapshot.isError) {
     const message =
       snapshot.error instanceof Error ? snapshot.error.message : "Failed to load referrals";
     return (
@@ -78,6 +101,23 @@ export function ReferralsPage() {
         className="mx-auto w-full max-w-3xl px-6 py-10 text-destructive text-sm"
       >
         {message}
+      </main>
+    );
+  }
+
+  if (!snapshot.data) {
+    // Happens briefly after the query enables but before the first response.
+    // Render the same loading state rather than the error fallback.
+    return (
+      <main
+        data-testid="referrals-loading"
+        className="mx-auto flex w-full max-w-3xl items-center justify-center px-6 py-10 text-muted-foreground text-sm"
+      >
+        <span
+          aria-hidden
+          className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent"
+        />
+        Loading referrals…
       </main>
     );
   }
