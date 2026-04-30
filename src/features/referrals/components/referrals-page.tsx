@@ -52,7 +52,7 @@ function formatKind(kind: ReferralEvent["kind"]): string {
   }
 }
 
-export function ReferralsPage() {
+export function ReferralsBody() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const isExpired = useAuthStore((s) => s.isTokenExpired());
   const isAuthed = !!accessToken && !isExpired;
@@ -63,9 +63,9 @@ export function ReferralsPage() {
 
   if (!isAuthed) {
     return (
-      <main
+      <div
         data-testid="referrals-unauthed"
-        className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-3 px-6 py-16 text-center"
+        className="flex w-full flex-col items-center justify-center gap-3 py-16 text-center"
       >
         <h1 className="font-bold text-2xl tracking-tight">Referrals</h1>
         <p className="max-w-md text-muted-foreground text-sm">
@@ -75,22 +75,22 @@ export function ReferralsPage() {
         <p className="text-muted-foreground text-xs">
           Use the &ldquo;Connect Wallet&rdquo; button in the sidebar to sign in.
         </p>
-      </main>
+      </div>
     );
   }
 
   if (snapshot.isLoading) {
     return (
-      <main
+      <div
         data-testid="referrals-loading"
-        className="mx-auto flex w-full max-w-3xl items-center justify-center px-6 py-10 text-muted-foreground text-sm"
+        className="flex w-full items-center justify-center py-10 text-muted-foreground text-sm"
       >
         <span
           aria-hidden
           className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent"
         />
         Loading referrals…
-      </main>
+      </div>
     );
   }
 
@@ -98,29 +98,27 @@ export function ReferralsPage() {
     const message =
       snapshot.error instanceof Error ? snapshot.error.message : "Failed to load referrals";
     return (
-      <main
+      <div
         data-testid="referrals-error"
-        className="mx-auto w-full max-w-3xl px-6 py-10 text-destructive text-sm"
+        className="w-full py-10 text-destructive text-sm"
       >
         {message}
-      </main>
+      </div>
     );
   }
 
   if (!snapshot.data) {
-    // Happens briefly after the query enables but before the first response.
-    // Render the same loading state rather than the error fallback.
     return (
-      <main
+      <div
         data-testid="referrals-loading"
-        className="mx-auto flex w-full max-w-3xl items-center justify-center px-6 py-10 text-muted-foreground text-sm"
+        className="flex w-full items-center justify-center py-10 text-muted-foreground text-sm"
       >
         <span
           aria-hidden
           className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent"
         />
         Loading referrals…
-      </main>
+      </div>
     );
   }
 
@@ -145,9 +143,9 @@ export function ReferralsPage() {
   };
 
   return (
-    <main
+    <div
       data-testid="referrals-root"
-      className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10"
+      className="flex w-full flex-col gap-6"
     >
       <header>
         <h1 className="font-bold text-2xl tracking-tight">Referrals</h1>
@@ -306,6 +304,14 @@ export function ReferralsPage() {
         open={verifyShareDialogOpen}
         onOpenChange={setVerifyShareDialogOpen}
       />
+    </div>
+  );
+}
+
+export function ReferralsPage() {
+  return (
+    <main className="mx-auto w-full max-w-3xl px-6 py-10">
+      <ReferralsBody />
     </main>
   );
 }

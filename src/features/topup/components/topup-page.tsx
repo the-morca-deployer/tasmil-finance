@@ -1,6 +1,23 @@
 import type { CreditPackage } from "../types";
 import { PackageCard } from "./package-card";
 
+interface PackageGridProps {
+  packages: CreditPackage[];
+}
+
+export function PackageGrid({ packages }: PackageGridProps) {
+  return (
+    <div
+      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      data-testid="topup-package-grid"
+    >
+      {packages.map((pkg) => (
+        <PackageCard key={pkg.id} pkg={pkg} />
+      ))}
+    </div>
+  );
+}
+
 interface TopupPageProps {
   packages: CreditPackage[];
 }
@@ -21,14 +38,7 @@ export function TopupPage({ packages }: TopupPageProps) {
         </p>
       </div>
 
-      <div
-        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
-        data-testid="topup-package-grid"
-      >
-        {packages.map((pkg) => (
-          <PackageCard key={pkg.id} pkg={pkg} />
-        ))}
-      </div>
+      <PackageGrid packages={packages} />
     </div>
   );
 }
