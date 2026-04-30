@@ -7,6 +7,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback } from "react";
 import { TOUR_NAMES } from "@/features/onboarding/config/tour-steps";
 import { usePageTour } from "@/features/onboarding/hooks/use-onboarding";
+import { ReferralsBody } from "@/features/referrals";
+import { PackageGrid } from "@/features/topup/components/topup-page";
+import type { CreditPackage } from "@/features/topup/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button-v2";
 import { useWalletStore } from "@/store/use-wallet";
@@ -21,14 +24,15 @@ import { TokenList } from "./token-list";
 import { TransactionList } from "./transaction-list";
 import { WalletHeader } from "./wallet-header";
 
-type TabValue = "tokens" | "positions" | "nfts" | "history";
-const VALID_TABS: TabValue[] = ["tokens", "positions", "nfts", "history"];
+type TabValue = "tokens" | "positions" | "nfts" | "history" | "credits";
+const VALID_TABS: TabValue[] = ["tokens", "positions", "nfts", "history", "credits"];
 
 const TABS: { value: TabValue; label: string }[] = [
   { value: "tokens", label: "Tokens" },
   { value: "positions", label: "Positions" },
   { value: "nfts", label: "NFTs" },
   { value: "history", label: "Transaction History" },
+  { value: "credits", label: "Credits" },
 ];
 
 function ConnectPrompt() {
@@ -48,7 +52,11 @@ function ConnectPrompt() {
   );
 }
 
-function ProfileContent() {
+interface ProfileContentProps {
+  packages: CreditPackage[];
+}
+
+function ProfileContent({ packages }: ProfileContentProps) {
   usePageTour(TOUR_NAMES.portfolio);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -214,6 +222,23 @@ function ProfileContent() {
                 <TransactionList address={account} />
               </motion.div>
             )}
+
+            {activeTab === "credits" && (
+              <motion.div
+                key="credits"
+                className="flex flex-col gap-10"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25 }}
+              >
+                <ReferralsBody />
+                <section className="flex flex-col gap-4">
+                  <h2 className="font-semibold text-lg text-foreground">Top up credits</h2>
+                  <PackageGrid packages={packages} />
+                </section>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </div>
@@ -221,10 +246,14 @@ function ProfileContent() {
   );
 }
 
-export function ProfilePage() {
+interface ProfilePageProps {
+  packages: CreditPackage[];
+}
+
+export function ProfilePage({ packages }: ProfilePageProps) {
   return (
     <Suspense>
-      <ProfileContent />
+      <ProfileContent packages={packages} />
     </Suspense>
   );
 }

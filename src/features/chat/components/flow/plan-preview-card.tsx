@@ -21,10 +21,10 @@ export function PlanPreviewCard({
   onCancel,
   disabled,
 }: PlanPreviewCardProps) {
-  const isFailed = simulationReport?.status === "fail";
+  const isFailed = simulationReport.status === "fail";
   const isDisabled = disabled || isFailed;
 
-  const failedErrors = (simulationReport?.steps ?? [])
+  const failedErrors = simulationReport.steps
     .filter((s) => s.status === "fail" && s.error)
     .map((s) => s.error!);
 

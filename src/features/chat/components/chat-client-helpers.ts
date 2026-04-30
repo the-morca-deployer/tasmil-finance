@@ -34,7 +34,15 @@ export const shouldFilterMessage = (
       ? aiMsg.content.filter((c: any) => c.type === 'text').map((c: any) => c.text?.trim()).join('')
       : '';
 
-  // parse_user_intent is now shown as a visible step (like demo-ai)
+  // Always filter parse_user_intent-only messages — they're internal routing
+  // steps with no visible UI. Keeping them in the list causes isConsecutiveAi
+  // to incorrectly hide avatars on the next real AI message.
+  if (hasToolCalls && !content) {
+    const allAreParseIntent = aiMsg.tool_calls.every(
+      (tc: any) => tc.name === 'parse_user_intent'
+    );
+    if (allAreParseIntent) return true;
+  }
 
   // Filter intermediate tool-only messages, BUT keep them if a tool result
   // exists in the messages (so the ToolCallRenderer can show cards).
@@ -80,19 +88,23 @@ export const shouldFilterMessage = (
     return !allAreSupervisorCalls;
   }
 
-  // Filter duplicate AI messages with identical tool_calls — when a graph retry
-  // or double-POST creates multiple AI messages calling the same tools with the
-  // same args, keep only the LAST one (which has the most recent result).
+  // Filter duplicate supervisor agent calls — when the supervisor calls the same agent
+  // with the same arguments as a previous message, hide the duplicate.
   if (hasToolCalls) {
-    const toolCallKey = (tc: any) => `${tc.name}:${JSON.stringify(tc.args)}`;
-    const myKeys = new Set(aiMsg.tool_calls.map(toolCallKey));
-
-    for (let i = index + 1; i < allMessages.length; i++) {
-      const later = allMessages[i] as any;
-      if (later.type !== 'ai' || !later.tool_calls?.length) continue;
-      const laterKeys = new Set(later.tool_calls.map(toolCallKey));
-      // If all my tool calls appear in a later AI message, I'm the earlier duplicate
-      if ([...myKeys].every((k) => laterKeys.has(k))) return true;
+    const supervisorCalls = aiMsg.tool_calls.filter(
+      (tc: any) => tc.name?.startsWith('call_') && tc.name?.endsWith('_agent')
+    );
+    if (supervisorCalls.length > 0 && supervisorCalls.length === aiMsg.tool_calls.length) {
+      for (let i = 0; i < index; i++) {
+        const prev = allMessages[i] as any;
+        if (prev.type !== 'ai' || !prev.tool_calls?.length) continue;
+        const isDuplicate = supervisorCalls.every((sc: any) =>
+          prev.tool_calls.some(
+            (pc: any) => pc.name === sc.name && JSON.stringify(pc.args) === JSON.stringify(sc.args)
+          )
+        );
+        if (isDuplicate) return true;
+      }
     }
   }
 

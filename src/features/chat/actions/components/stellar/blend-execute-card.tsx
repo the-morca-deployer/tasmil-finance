@@ -291,6 +291,7 @@ export function BlendExecuteCard({
               ...(toolCallId ? { signed_txs: { [toolCallId]: txRecord } } : {}),
             },
             {
+              // @ts-expect-error
               streamMode: ["values"],
               streamSubgraphs: false,
               streamResumable: true,
@@ -347,6 +348,7 @@ export function BlendExecuteCard({
             ...(toolCallId ? { signed_txs: { [toolCallId]: txRecord } } : {}),
           },
           {
+            // @ts-expect-error
             streamMode: ["values"],
             streamSubgraphs: false,
             streamResumable: true,
