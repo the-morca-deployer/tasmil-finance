@@ -200,9 +200,6 @@ function BlendOpWithRespond({
   return renderFn({ ...renderProps, respond });
 }
 
-/** @deprecated Use `ToolCallRenderer` instead. */
-export const CopilotKitToolCallRenderer = ToolCallRenderer;
-
 export function ToolCallRenderer({
   message,
   messages,

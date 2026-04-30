@@ -4,6 +4,16 @@ import { getAiProxyRewrites, getBackendProxyRewrites } from "./src/lib/runtime-u
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@blend-capital/blend-sdk", "@stellar/stellar-sdk"],
   reactStrictMode: false,
+  images: {
+    qualities: [75, 80, 85, 90],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "tasmil-assets.sgp1.cdn.digitaloceanspaces.com",
+        pathname: "/static/**",
+      },
+    ],
+  },
   async rewrites() {
     return [...getBackendProxyRewrites(), ...getAiProxyRewrites()];
   },

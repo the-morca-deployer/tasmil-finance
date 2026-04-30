@@ -4,14 +4,12 @@
  * AG-UI Stream Provider.
  *
  * Wraps `useAguiStream` and provides the same `StreamContext` that the rest
- * of the chat feature expects.  Drop-in replacement for `StreamProvider`
- * (which uses `useStream` from `@langchain/langgraph-sdk`).
- *
- * Activated via `NEXT_PUBLIC_USE_AGUI=true`.
+ * of the chat feature expects.  Uses `HttpAgent` from `@ag-ui/client` to
+ * connect to the backend `/agui/{graphId}` SSE endpoint.
  */
 
 import type React from "react";
-import { type ReactNode, useEffect, useMemo } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { buildAiIdentityHeaders } from "@/lib/ai-auth";
 import { getBrowserAiBaseUrl } from "@/lib/runtime-urls";
@@ -19,6 +17,8 @@ import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useAuthStore } from "@/store/use-auth";
 import { useWalletStore } from "@/store/use-wallet";
+import { getAgentConfig } from "../config/agents.config";
+import { createClient } from "../lib/client";
 import { useAguiStream } from "../hooks/use-agui-stream";
 import { StreamContext } from "./stream-provider";
 import { useChatState } from "./chat-state-provider";
@@ -33,15 +33,37 @@ function AguiStreamSession({
   apiUrl: string;
   assistantId: string;
 }) {
-  const { threadId, setThreadId } = useChatState();
+  const { threadId, setThreadId, setThreadTitle } = useChatState();
   const { getThreads, setThreads } = useThreads();
   const { address: walletAddress } = useWallet();
   const accessToken = useAuthStore((state) => state.accessToken);
   const effectiveWallet = walletAddress ?? useWalletStore.getState().account;
 
+  // Keep a ref to the current thread ID so title callbacks can check it
+  const currentThreadIdRef = useRef(threadId);
+  useEffect(() => {
+    currentThreadIdRef.current = threadId;
+  }, [threadId]);
+
   const defaultHeaders = useMemo(
     () => buildAiIdentityHeaders({ accessToken, walletAddress: effectiveWallet }),
     [accessToken, effectiveWallet],
+  );
+
+  const agentName = getAgentConfig(assistantId).name;
+
+  // Persist a title to thread metadata
+  const persistThreadTitle = useCallback(
+    (id: string, title: string) => {
+      const client = createClient(apiUrl, {
+        accessToken,
+        walletAddress: effectiveWallet,
+      });
+      client.threads.update(id, { metadata: { title } }).catch(() => {
+        // Silently ignore — title is cosmetic, metadata update may fail on new threads
+      });
+    },
+    [apiUrl, accessToken, effectiveWallet],
   );
 
   const streamValue = useAguiStream({
@@ -54,12 +76,52 @@ function AguiStreamSession({
       setThreadId(id);
       window.history.replaceState(null, "", `/chat/${id}`);
 
+      // Set initial title to agent name and persist
+      setThreadTitle(agentName);
+      persistThreadTitle(id, agentName);
+
       // Refresh thread list after a short delay
       setTimeout(() => {
         getThreads(assistantId).then(setThreads).catch(console.error);
       }, 4000);
     },
+    onFirstResponse: (title) => {
+      // Only update if we're still on the same thread
+      const currentId = currentThreadIdRef.current;
+      if (currentId) {
+        setThreadTitle(title);
+        persistThreadTitle(currentId, title);
+      }
+    },
   });
+
+  // Restore thread title from metadata when loading an existing thread
+  useEffect(() => {
+    if (!threadId) {
+      setThreadTitle(agentName);
+      return;
+    }
+
+    let cancelled = false;
+    fetch(`${apiUrl}/threads/${threadId}`, { headers: defaultHeaders })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        const savedTitle = data?.metadata?.title;
+        if (savedTitle && typeof savedTitle === "string") {
+          setThreadTitle(savedTitle);
+        } else {
+          setThreadTitle(agentName);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setThreadTitle(agentName);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [threadId, apiUrl, defaultHeaders, agentName, setThreadTitle]);
 
   // Health check on mount
   useEffect(() => {
@@ -86,7 +148,7 @@ function AguiStreamSession({
   return <StreamContext.Provider value={streamValue}>{children}</StreamContext.Provider>;
 }
 
-export const AguiStreamProvider: React.FC<{
+export const StreamProvider: React.FC<{
   children: ReactNode;
   agentId?: string;
 }> = ({ children, agentId }) => {

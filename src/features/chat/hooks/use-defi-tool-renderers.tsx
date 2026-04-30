@@ -65,7 +65,7 @@ import { SoroswapPoolsCard } from "@/features/protocols/cards/soroswap";
  */
 
 // ---------------------------------------------------------------------------
-// Helper to adapt CopilotKit render props to our card component props
+// Helper to adapt render props to our card component props
 // ---------------------------------------------------------------------------
 
 type RenderProps = {
@@ -880,9 +880,7 @@ export const FLOW_TOOL_RENDERERS: Array<{
 ];
 
 // ---------------------------------------------------------------------------
-// Note: The `DefiToolRenderers` component (which used CopilotKit's
-// `useRenderToolCall`) has been removed.  Tool rendering is now handled
-// directly by `ToolCallRenderer` in `tool-call-renderer.tsx` using the
-// data arrays exported above.
+// Tool rendering is handled directly by `ToolCallRenderer`
+// in `tool-call-renderer.tsx` using the data arrays exported above.
 // ---------------------------------------------------------------------------
 

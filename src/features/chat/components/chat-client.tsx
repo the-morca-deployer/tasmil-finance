@@ -2,15 +2,15 @@
 
 import type { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { AnimatePresence } from "framer-motion";
-import { ArrowDown, ArrowLeft, Clock, Coins, Send, Square } from "lucide-react";
+import { ArrowDown, ArrowLeft, Clock, Coins, Layers, Send, Square } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { WelcomeRewardDialog } from "@/features/welcome-reward/components/welcome-reward-dialog";
 import { useWelcomeReward } from "@/features/welcome-reward/hooks/use-welcome-reward";
-import { useUserStatus, USER_STATUS_KEY, type UserStatus } from "@/shared/hooks/use-user-status";
+
 import { useSearchAssistantsAssistantsSearchPost } from "@/gen-ai/hooks/use-search-assistants-assistants-search-post";
 import { DO_NOT_RENDER_ID_PREFIX, ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
 import { cancelPendingTxCards } from "@/features/protocols/hooks/use-tx-signing";
@@ -23,14 +23,14 @@ import { Button } from "@/shared/ui/button-v2";
 import { useMultiSidebar } from "@/shared/ui/multi-sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { useWalletStore } from "@/store/use-wallet";
+import { useRightSidebarTab } from "@/store/use-right-sidebar-tab";
 import { AssistantMessage, AssistantMessageLoading } from "../components/messages/ai-message";
 import { HumanMessage } from "../components/messages/human-message";
-import { useChatState, useChatUsage, useStreamContext } from "../hooks";
+import { getAgentConfig } from "../config/agents.config";
+import { useChatState, useStreamContext } from "../hooks";
 import { classifyChatProductError, type ChatProductError } from "../lib/chat-product-error";
 import { ContentBlocksPreview } from "../thread/components/content-blocks-preview";
-import { ChatUsageBadge } from "./chat-usage-badge";
 import { mergeMessagesWithCache, shouldFilterMessage } from "./chat-client-helpers";
-// import { BackgroundRippleEffect } from '@/shared/ui/background-ripple-effect';
 import { Greeting } from "./greeting";
 import { SuggestedActions } from "./suggested-actions";
 
@@ -60,16 +60,6 @@ function toGraphId(agentId: string): string {
   return AGENT_TO_GRAPH_ID[agentId] ?? agentId;
 }
 
-// Agent configuration
-const AGENT_CONFIG: Record<string, { name: string }> = {
-  staking: { name: "Staking Agent" },
-  research: { name: "Research Agent" },
-  yield: { name: "Yield Agent" },
-  bridge: { name: "Bridge Agent" },
-} as const;
-
-const DEFAULT_AGENT = { name: "DeFi Agent" };
-
 interface ChatClientProps {
   agentId: string;
   chatId: string;
@@ -77,7 +67,6 @@ interface ChatClientProps {
 
 export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -103,9 +92,6 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   type StreamSubmitOptions = Parameters<typeof stream.submit>[1];
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isLoading = stream.isLoading || isSubmitting;
-
-  // Live chat-usage snapshot (daily turns + credits pool)
-  const chatUsage = useChatUsage();
 
   // Cache messages to prevent content loss during streaming
   const messagesCache = useRef<Message[]>([]);
@@ -194,7 +180,6 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   // Using the store as fallback ensures wallet_address is always included even before kit ready.
   const effectiveWalletAddress = walletAddress ?? useWalletStore.getState().account;
   const { status: welcomeRewardStatus, openRewardPage, markSeen } = useWelcomeReward();
-  const { status: _userStatus } = useUserStatus();
 
   // Fetch assistant info for avatar
   const { mutate: searchAssistants } = useSearchAssistantsAssistantsSearchPost({
@@ -222,9 +207,56 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     );
   }, [agentId, searchAssistants, setAssistantInfo]);
 
-  const config = AGENT_CONFIG[agentId] || DEFAULT_AGENT;
-  const chatTitle = chatId === "new" ? "New Chat" : `Chat with ${config.name}`;
+  const agentConfig = getAgentConfig(agentId);
+  const { threadTitle, setThreadTitle } = useChatState();
+
+  // Derive chat title: thread metadata title > agent name
+  const targetTitle = threadTitle ?? agentConfig.name;
   const isNewChat = messages.length === 0;
+
+  // Typewriter animation for title changes
+  const [displayTitle, setDisplayTitle] = useState(targetTitle);
+  const prevTargetRef = useRef(targetTitle);
+  const typewriterRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    // On initial mount, show full text immediately
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      setDisplayTitle(targetTitle);
+      prevTargetRef.current = targetTitle;
+      return;
+    }
+
+    // Skip if title hasn't changed
+    if (targetTitle === prevTargetRef.current) return;
+    prevTargetRef.current = targetTitle;
+
+    // Clear any running typewriter
+    if (typewriterRef.current) clearInterval(typewriterRef.current);
+
+    // Animate: type out new title character by character
+    let i = 0;
+    setDisplayTitle("");
+    typewriterRef.current = setInterval(() => {
+      i++;
+      setDisplayTitle(targetTitle.slice(0, i));
+      if (i >= targetTitle.length) {
+        if (typewriterRef.current) {
+          clearInterval(typewriterRef.current);
+          typewriterRef.current = null;
+        }
+      }
+    }, 25);
+
+    return () => {
+      if (typewriterRef.current) {
+        clearInterval(typewriterRef.current);
+        typewriterRef.current = null;
+      }
+    };
+  }, [targetTitle]);
 
   // Use stream.isLoading directly for the stop button. Previous heuristics
   // (isAiResponseComplete) tried to hide the stop button early but caused
@@ -414,8 +446,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
   const composerBlocked =
     productError === "CHAT_USAGE_LIMIT_REACHED" ||
-    productError === "INVALID_CHAT_WALLET_ADDRESS" ||
-    chatUsage.data?.bothExhausted === true;
+    productError === "INVALID_CHAT_WALLET_ADDRESS";
 
   const scrollToBottom = () => {
     setUserScrolledUp(false);
@@ -445,6 +476,12 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     // Add user message to cache immediately for instant display
     messagesCache.current = [...messagesCache.current, newHumanMessage];
 
+    // Set conversation title from first user message immediately
+    if (messagesCache.current.filter((m) => m.type === "human").length === 1 && input.trim()) {
+      const title = input.trim().replace(/\s+/g, " ").slice(0, 50);
+      setThreadTitle(title);
+    }
+
     // Force re-render to show user message immediately
     forceUpdate({});
 
@@ -456,7 +493,6 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         // pollute backend state with do-not-render messages.
         messages: [newHumanMessage],
         ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
-        charge_usage: true,
       },
       {
         streamMode: ["values", "custom"],
@@ -468,18 +504,6 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         }),
       } as StreamSubmitOptions
     );
-
-    // Optimistic credit deduction: -1 turn = -10 credits displayed
-    queryClient.setQueryData<UserStatus>(USER_STATUS_KEY, (prev) => {
-      if (!prev?.chatCredits) return prev;
-      return {
-        ...prev,
-        chatCredits: {
-          ...prev.chatCredits,
-          remaining: Math.max(prev.chatCredits.remaining - 1, 0),
-        },
-      };
-    });
 
     setInput("");
     setContentBlocks([]);
@@ -579,6 +603,12 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     // Add user message to cache immediately for instant display
     messagesCache.current = [...messagesCache.current, newHumanMessage];
 
+    // Set conversation title from first user message immediately
+    if (messagesCache.current.filter((m) => m.type === "human").length === 1 && text.trim()) {
+      const title = text.trim().replace(/\s+/g, " ").slice(0, 50);
+      setThreadTitle(title);
+    }
+
     // Force re-render to show user message immediately
     forceUpdate({});
 
@@ -587,7 +617,6 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         // Only send the new human message — same rationale as handleSubmit.
         messages: [newHumanMessage],
         ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
-        charge_usage: true,
       },
       {
         streamMode: ["values", "custom"],
@@ -599,18 +628,6 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         }),
       } as StreamSubmitOptions
     );
-
-    // Optimistic credit deduction
-    queryClient.setQueryData<UserStatus>(USER_STATUS_KEY, (prev) => {
-      if (!prev?.chatCredits) return prev;
-      return {
-        ...prev,
-        chatCredits: {
-          ...prev.chatCredits,
-          remaining: Math.max(prev.chatCredits.remaining - 1, 0),
-        },
-      };
-    });
 
     setUserScrolledUp(false); // Reset scroll state
   };
@@ -633,11 +650,38 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         <Button className="h-8 w-8 p-0" onClick={() => router.push("/chat/new")} variant="outline">
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <span className="font-semibold text-foreground text-lg">{chatTitle}</span>
-        <div className="ml-auto">
-          <Button className="h-9 w-9 p-0" onClick={toggleRightSidebar} variant="ghost">
-            <Clock className="h-4 w-4" />
-          </Button>
+        <span className="font-semibold text-foreground text-lg">{displayTitle}</span>
+        <div className="ml-auto flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="h-9 w-9 p-0"
+                onClick={() => {
+                  useRightSidebarTab.getState().setTab("positions");
+                  toggleRightSidebar();
+                }}
+                variant="ghost"
+              >
+                <Layers className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Positions</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="h-9 w-9 p-0"
+                onClick={() => {
+                  useRightSidebarTab.getState().setTab("history");
+                  toggleRightSidebar();
+                }}
+                variant="ghost"
+              >
+                <Clock className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Chat History</TooltipContent>
+          </Tooltip>
         </div>
       </header>
 
@@ -776,15 +820,6 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
           {productError === "INVALID_CHAT_WALLET_ADDRESS" ? (
             <div className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
               The connected wallet address could not be used for chat. Reconnect and try again.
-            </div>
-          ) : null}
-
-          <ChatUsageBadge data={chatUsage.data} />
-
-          {productError === "CHAT_USAGE_LIMIT_REACHED" && !chatUsage.data?.bothExhausted ? (
-            <div className="mb-4 rounded-2xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
-              You have used all available AI responses. Trade on any supported protocol to
-              earn more credits.
             </div>
           ) : null}
 
