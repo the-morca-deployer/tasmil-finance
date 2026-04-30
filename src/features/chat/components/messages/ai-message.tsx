@@ -127,7 +127,6 @@ export function AssistantMessage({
     // Walk backwards — if we hit a human message before another AI, we're first
     for (let i = msgIdx - 1; i >= 0; i--) {
       const m = thread.messages[i];
-      if (!m) continue;
       if (m.type === "human") return true;
       if (m.type === "ai") return false;
     }
@@ -145,6 +144,7 @@ export function AssistantMessage({
       ? thread.messages.slice(currentIdx + 1).find((m) => m.type !== "tool")
       : undefined;
   const isIntermediateAiMessage = !isLastMessage && nextVisibleMessage?.type === "ai";
+  // @ts-expect-error - getMessagesMetadata may not be in type definition
   const meta = message ? thread.getMessagesMetadata?.(message) : undefined;
   const threadInterrupt = thread.interrupt;
 
