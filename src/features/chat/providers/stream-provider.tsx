@@ -101,7 +101,7 @@ const StreamSession = ({
       }
 
       setThreadId(null);
-      window.history.replaceState(null, "", `/chat/${assistantId}/new`);
+      window.history.replaceState(null, "", `/chat/new`);
     });
   }, [accessToken, apiKey, apiUrl, assistantId, effectiveWallet, setThreadId]);
 
@@ -123,7 +123,7 @@ const StreamSession = ({
     },
     onThreadId: (id) => {
       setThreadId(id);
-      window.history.replaceState(null, "", `/chat/${assistantId}/${id}`);
+      window.history.replaceState(null, "", `/chat/${id}`);
       if (effectiveWallet) {
         const client = createClient(apiUrl, {
           apiKey: apiKey ?? undefined,

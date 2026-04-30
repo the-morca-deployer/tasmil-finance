@@ -22,6 +22,8 @@ import {
   SOROSWAP_OPERATION_CARDS,
   ALLBRIDGE_INFO_CARDS,
   ALLBRIDGE_OPERATION_CARDS,
+  DEFINDEX_INFO_CARDS,
+  DEFINDEX_OPERATION_CARDS,
 } from "./card-registry";
 
 // ─── Combined lookups ────────────────────────────────────────
@@ -31,6 +33,7 @@ const ALL_INFO: InfoCardEntry[] = [
   ...AQUARIUS_INFO_CARDS,
   ...SOROSWAP_INFO_CARDS,
   ...ALLBRIDGE_INFO_CARDS,
+  ...DEFINDEX_INFO_CARDS,
 ];
 
 const ALL_OPERATIONS: OperationCardEntry[] = [
@@ -38,6 +41,7 @@ const ALL_OPERATIONS: OperationCardEntry[] = [
   ...AQUARIUS_OPERATION_CARDS,
   ...SOROSWAP_OPERATION_CARDS,
   ...ALLBRIDGE_OPERATION_CARDS,
+  ...DEFINDEX_OPERATION_CARDS,
 ];
 
 // ─── Shared render props type (same as tool-call-renderer.tsx) ─
@@ -76,7 +80,7 @@ export function findRegistryRenderer(
     return {
       kind: "shared",
       render: (props) => {
-        const data = info.fromMcp(props.result);
+        const data = tryFromMcp(info.fromMcp, props.result);
         if (!data) return <></>;
 
         const Component = info.component;
@@ -91,7 +95,7 @@ export function findRegistryRenderer(
     return {
       kind: "shared-op",
       render: (props) => {
-        const data = op.fromMcp(props.result, props.args);
+        const data = tryFromMcp((r) => op.fromMcp(r, props.args), props.result);
         if (!data) return <></>;
 
         const Component = op.component;
@@ -111,6 +115,18 @@ export function findRegistryRenderer(
 
 // ─── resolve_pool routing ─────────────────────────────────────
 
+/** Try fromMcp, with fallback rewrap for already-parsed objects. */
+function tryFromMcp<T>(fromMcp: (result: unknown) => T | null, result: unknown): T | null {
+  const data = fromMcp(result);
+  if (data) return data;
+  // During AG-UI streaming, result may already be a parsed object.
+  // Rewrap as MCP text block so fromMcp's unwrapMcpResult can process it.
+  if (result && typeof result === "object" && !Array.isArray(result)) {
+    return fromMcp([{ type: "text", text: JSON.stringify(result) }]);
+  }
+  return null;
+}
+
 function resolvePoolRenderer(args?: Record<string, unknown>): RegistryRenderResult {
   const protocol = (args?.protocol as string)?.toLowerCase();
 
@@ -124,7 +140,7 @@ function resolvePoolRenderer(args?: Record<string, unknown>): RegistryRenderResu
       return {
         kind: "shared",
         render: (props) => {
-          const pools = entry.fromMcp(props.result);
+          const pools = tryFromMcp(entry.fromMcp, props.result);
           if (!pools || (Array.isArray(pools) && pools.length === 0)) return <></>;
 
           const Component = entry.component;
@@ -140,7 +156,7 @@ function resolvePoolRenderer(args?: Record<string, unknown>): RegistryRenderResu
       return {
         kind: "shared",
         render: (props) => {
-          const pools = entry.fromMcp(props.result);
+          const pools = tryFromMcp(entry.fromMcp, props.result);
           if (!pools || (Array.isArray(pools) && pools.length === 0)) return <></>;
 
           const Component = entry.component;
@@ -155,7 +171,7 @@ function resolvePoolRenderer(args?: Record<string, unknown>): RegistryRenderResu
     return {
       kind: "shared",
       render: (props) => {
-        const pools = blendEntry.fromMcp(props.result);
+        const pools = tryFromMcp(blendEntry.fromMcp, props.result);
         if (!pools || (Array.isArray(pools) && pools.length === 0)) return <></>;
 
         const Component = blendEntry.component;

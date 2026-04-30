@@ -8,7 +8,8 @@ export const PATHS = {
   HELP: "/help",
   PROFILE: "/profile",
   COMMUNITY: "/community",
-  AGENTS: "/agents",
+  CHAT_NEW: "/chat/new",
+  AGENTS: "/agents", // deprecated — redirects to /chat/new
   STRATEGIES: "/strategies",
   DEMO: "/demo",
   DEFI_AGENT: "/defi-agent",
