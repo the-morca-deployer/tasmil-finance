@@ -79,7 +79,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ pro
         return Response.json({
           success: true, network, protocol,
           pools: vaults.map((v) => ({
-            address: v.address, name: v.name, symbol: v.symbol,
+            address: v.address, name: v.name,
             asset: v.asset, assetAddress: v.assetAddress,
             totalSupply: v.totalSupply, tvl: v.tvl,
             apy: v.apy, status: v.status,
