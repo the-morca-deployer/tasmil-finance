@@ -41,6 +41,8 @@ function AguiStreamSession({
 
   // Keep a ref to the current thread ID so title callbacks can check it
   const currentThreadIdRef = useRef(threadId);
+  // Track thread IDs that were just created (to skip title restore)
+  const justCreatedRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     currentThreadIdRef.current = threadId;
   }, [threadId]);
@@ -76,8 +78,10 @@ function AguiStreamSession({
       setThreadId(id);
       window.history.replaceState(null, "", `/chat/${id}`);
 
-      // Set initial title to agent name and persist
-      setThreadTitle(agentName);
+      // Mark as just-created so restore useEffect doesn't overwrite title
+      justCreatedRef.current.add(id);
+
+      // Persist initial agent-name title to thread metadata
       persistThreadTitle(id, agentName);
 
       // Refresh thread list after a short delay
@@ -99,6 +103,12 @@ function AguiStreamSession({
   useEffect(() => {
     if (!threadId) {
       setThreadTitle(agentName);
+      return;
+    }
+
+    // Skip restore for just-created threads — title already set by handleSubmit
+    if (justCreatedRef.current.has(threadId)) {
+      justCreatedRef.current.delete(threadId);
       return;
     }
 

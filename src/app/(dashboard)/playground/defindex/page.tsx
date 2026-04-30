@@ -30,6 +30,7 @@ import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
 import { TokenImage } from "@/shared/components/token-image";
+import { PROTOCOL_ICONS } from "@/shared/constants/asset-manifest";
 
 // ── Mock stream so DefindexTxCard's useStreamContext() doesn't throw ─────────
 const MOCK_STREAM = {
@@ -458,7 +459,7 @@ export default function DefindexPlaygroundPage() {
         <div className="space-y-3">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
-              <TokenImage src="/protocols/defindex.svg" alt="DeFindex" className="h-8 w-8 rounded-lg" />
+              <TokenImage src={PROTOCOL_ICONS.defindex} alt="DeFindex" className="h-8 w-8 rounded-lg" />
               <div>
                 <Typography as="h1" variant="h3" weight="bold" className="text-foreground">DeFindex Playground</Typography>
                 <Typography variant="p" className="text-muted-foreground text-sm mt-1">
