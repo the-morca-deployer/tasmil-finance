@@ -30,6 +30,8 @@
     "prepare": ""
   },
   "dependencies": {
+    "@ag-ui/client": "^0.0.53",
+    "@ag-ui/core": "^0.0.53",
     "@allbridge/bridge-core-sdk": "^3.30.0",
     "@botanary/ecdsa-validator": "^1.0.0",
     "@botanary/sdk": "^1.0.0",

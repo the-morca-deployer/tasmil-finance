@@ -114,7 +114,6 @@ export function AssistantMessage({
       ? thread.messages.slice(currentIdx + 1).find((m) => m.type !== "tool")
       : undefined;
   const isIntermediateAiMessage = !isLastMessage && nextVisibleMessage?.type === "ai";
-  // @ts-expect-error - getMessagesMetadata may not be in type definition
   const meta = message ? thread.getMessagesMetadata?.(message) : undefined;
   const threadInterrupt = thread.interrupt;
 
