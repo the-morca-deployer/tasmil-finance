@@ -32,6 +32,54 @@ export interface AguiStreamConfig {
 }
 
 // ---------------------------------------------------------------------------
+// AG-UI → LangGraph message conversion
+// ---------------------------------------------------------------------------
+
+function aguiToLangGraph(msg: AguiMessage): Message {
+  switch (msg.role) {
+    case "user":
+      return {
+        id: msg.id,
+        type: "human",
+        content: msg.content ?? "",
+      } as unknown as Message;
+    case "assistant":
+      return {
+        id: msg.id,
+        type: "ai",
+        content: msg.content ?? "",
+        tool_calls:
+          (msg as any).toolCalls?.map((tc: any) => ({
+            id: tc.id,
+            name: tc.function?.name ?? tc.name ?? "",
+            args: (() => {
+              try {
+                const raw = tc.function?.arguments;
+                if (typeof raw === "string" && raw.length > 0) return JSON.parse(raw);
+                return tc.function?.arguments ?? tc.args ?? {};
+              } catch {
+                return tc.args ?? {};
+              }
+            })(),
+          })) ?? [],
+      } as unknown as Message;
+    case "tool":
+      return {
+        id: msg.id,
+        type: "tool",
+        content: msg.content ?? "",
+        tool_call_id: (msg as any).toolCallId ?? "",
+      } as unknown as Message;
+    default:
+      return {
+        id: msg.id,
+        type: msg.role ?? "unknown",
+        content: msg.content ?? "",
+      } as unknown as Message;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Internal state for an in-flight AI message being assembled from events
 // ---------------------------------------------------------------------------
 
@@ -64,37 +112,14 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
   const messagesRef = useRef<Message[]>([]);
   const threadIdRef = useRef<string | null>(config.threadId);
 
-  // ── Run-scoped refs ──
-  // Each model call within a ReAct run gets its OWN AI message so that text
-  // and tool calls render in chronological order (matching the backend state).
-  const runMsgIdRef = useRef<string>(uuidv4());
-  const hasReasoningRef = useRef(false);
-  // Track the thread that was just streamed to — prevents loadHistory from
-  // overwriting freshly-built messages after onRunFinalized sets threadId.
-  const streamedThreadIdRef = useRef<string | null>(null);
-
-  // Keep threadIdRef in sync; clear streamed marker when switching threads
+  // Keep threadIdRef in sync
   useEffect(() => {
-    if (config.threadId !== threadIdRef.current) {
-      // Navigating to a different thread — clear messages and allow history load
-      if (config.threadId !== streamedThreadIdRef.current) {
-        messagesRef.current = [];
-        setMessages([]);
-        streamedThreadIdRef.current = null;
-      }
-    }
     threadIdRef.current = config.threadId;
   }, [config.threadId]);
 
-  // ── Load thread history on mount / thread switch ────────────────
-  // Skip if we already have messages from a just-finished streaming run
-  // (onRunFinalized sets threadId which re-triggers this effect).
+  // ── Load thread history on mount ────────────────────────────────
   useEffect(() => {
     if (!config.threadId || !config.fetchStateHistory) return;
-
-    // If we just streamed to this exact thread, the messages are already
-    // correct — don't overwrite with backend state (which may have duplicates).
-    if (streamedThreadIdRef.current === config.threadId) return;
 
     const loadHistory = async () => {
       try {
@@ -107,15 +132,6 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
         if (!state?.values?.messages?.length) return;
 
         const lgMessages = (state.values.messages as any[])
-          .filter((msg: any) => {
-            // Skip do-not-render placeholders that leaked into state
-            const mid = msg.id as string | undefined;
-            if (mid?.startsWith("do-not-render")) return false;
-            if (mid?.startsWith("__do_not_render__")) return false;
-            // Skip system messages (wallet context injected per-run)
-            if (msg.type === "system") return false;
-            return true;
-          })
           .map((msg: any): Message | null => {
             // Content can be string OR list of multimodal blocks.
             // Extract text from list format: ["", {type:"reasoning",...}, "text"]
@@ -175,19 +191,8 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
           })
           .filter(Boolean) as Message[];
 
-        // Deduplicate tool messages by tool_call_id — backend state may
-        // contain duplicates from retries or SafeLangGraphAgent list handling.
-        const seenToolCallIds = new Set<string>();
-        const deduped = lgMessages.filter((m) => {
-          if (m.type !== "tool") return true;
-          const tcId = (m as any).tool_call_id;
-          if (!tcId || seenToolCallIds.has(tcId)) return false;
-          seenToolCallIds.add(tcId);
-          return true;
-        });
-
-        messagesRef.current = deduped;
-        setMessages(deduped);
+        messagesRef.current = lgMessages;
+        setMessages(lgMessages);
 
         if (state.values.ui || state.values.signed_txs) {
           setValues((prev) => ({
@@ -258,28 +263,22 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
       setInterrupt(undefined);
       setIsLoading(true);
       buildingRef.current = null;
-      runMsgIdRef.current = uuidv4();
-      hasReasoningRef.current = false;
 
-      // Add user message to local state immediately (optimistic).
-      // Only add genuinely NEW messages — skip do-not-render placeholders
-      // and messages already present (from history or previous submits).
+      // Add user message to local state immediately (optimistic)
       const payloadMessages = Array.isArray(payload.messages)
         ? payload.messages
         : payload.messages
           ? [payload.messages as Message]
           : [];
 
-      const existingIds = new Set(messagesRef.current.map((m) => m.id));
       for (const m of payloadMessages) {
         if (typeof m === "string") continue;
-        if (!m.id) (m as any).id = uuidv4();
-        const mid = m.id as string;
-        // Skip do-not-render placeholders — they pollute backend state
-        if (mid.startsWith("do-not-render") || mid.startsWith("__do_not_render__")) continue;
-        if (!existingIds.has(mid)) {
+        // Ensure every message has an id (flow cards may submit without one)
+        if (!m.id) {
+          (m as any).id = uuidv4();
+        }
+        if (!messagesRef.current.some((existing) => existing.id === m.id)) {
           messagesRef.current.push(m);
-          existingIds.add(mid);
         }
       }
       setMessages([...messagesRef.current]);
@@ -303,15 +302,7 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
       // Sending all messagesRef would create DUPLICATES because frontend-built
       // messages have different IDs than checkpoint messages.
       const newAguiMessages = payloadMessages
-        .filter((m) => {
-          if (typeof m === "string") return false;
-          const msg = m as any;
-          // Skip do-not-render placeholders
-          if (msg.id?.startsWith("do-not-render") || msg.id?.startsWith("__do_not_render__")) return false;
-          // Only send human messages (new user input) and tool messages (HITL responses)
-          // AI messages and existing tool results are already in the checkpoint.
-          return msg.type === "human" || msg.type === "tool";
-        })
+        .filter((m) => typeof m !== "string")
         .map((m): AguiMessage => {
           const msg = m as any;
           const id = msg.id || uuidv4();
@@ -375,9 +366,6 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
               setMessages([...messagesRef.current]);
 
               setIsLoading(false);
-              // Mark this thread as freshly streamed so loadHistory won't
-              // overwrite our messages when onThreadId triggers a re-render.
-              streamedThreadIdRef.current = threadId;
               // Notify parent of thread ID (for URL update)
               if (threadId !== threadIdRef.current) {
                 threadIdRef.current = threadId;
@@ -390,39 +378,37 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
             },
 
             // ── Text message streaming ──
-            onTextMessageStartEvent: () => {
-              // Lock in reasoning after the first model call emits text —
-              // subsequent model calls' reasoning is internal and hidden.
-              if (buildingRef.current?.reasoning) {
-                hasReasoningRef.current = true;
+            onTextMessageStartEvent: ({ event }) => {
+              // Reasoning events use a DIFFERENT messageId (random UUID) than
+              // text events (chunk.id like lc_run--...). When text starts,
+              // MERGE any pending reasoning into this message instead of
+              // flushing it as a separate reasoning-only message.
+              const pendingReasoning = buildingRef.current?.reasoning ?? "";
+              const pendingToolCalls = buildingRef.current?.toolCalls ?? [];
+
+              // If there's a previous building message with a different ID,
+              // DON'T flush it — absorb its reasoning instead.
+              // Only flush if it has content or tool calls (not just reasoning).
+              if (
+                buildingRef.current &&
+                buildingRef.current.id !== event.messageId &&
+                (buildingRef.current.content.trim() || buildingRef.current.toolCalls.length > 0)
+              ) {
+                flushBuilding();
+              }
+              // If the previous buildingRef was reasoning-only, remove its
+              // flushed message from messagesRef (it'll be merged into this one).
+              if (buildingRef.current && buildingRef.current.id !== event.messageId) {
+                const oldId = buildingRef.current.id;
+                messagesRef.current = messagesRef.current.filter((m) => m.id !== oldId);
               }
 
-              if (!buildingRef.current) {
-                // First model call in this run
-                buildingRef.current = {
-                  id: runMsgIdRef.current,
-                  content: "",
-                  toolCalls: [],
-                  reasoning: "",
-                };
-              } else if (buildingRef.current.toolCalls.length > 0) {
-                // New model call after tool execution — finalize the current
-                // message (with its tool calls) and start a fresh one.
-                // This preserves chronological order: each model call step
-                // becomes its own AI message, matching the backend state.
-                flushBuilding();
-                const newId = uuidv4();
-                buildingRef.current = {
-                  id: newId,
-                  content: "",
-                  toolCalls: [],
-                  reasoning: "",
-                };
-              } else {
-                // Subsequent text event on the same message (no tool calls yet)
-                // — clear intermediate text but keep reasoning.
-                buildingRef.current.content = "";
-              }
+              buildingRef.current = {
+                id: event.messageId,
+                content: "",
+                toolCalls: pendingToolCalls,
+                reasoning: pendingReasoning,
+              };
             },
             onTextMessageContentEvent: ({ event }) => {
               if (buildingRef.current) {
@@ -441,21 +427,26 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
 
             // ── Tool call streaming ──
             onToolCallStartEvent: ({ event }) => {
+              const parentId = (event as any).parentMessageId;
+
               if (!buildingRef.current) {
-                // Tool call without preceding text — create a new AI message
+                // Tool call without preceding text — create AI message
+                // Use parentMessageId if available so tool calls link correctly
                 buildingRef.current = {
-                  id: uuidv4(),
+                  id: parentId || uuidv4(),
                   content: "",
                   toolCalls: [],
                   reasoning: "",
                 };
-              }
-
-              // Deduplicate: AG-UI may emit duplicate ToolCallStart events when
-              // the backend returns list tool outputs (SafeLangGraphAgent emits
-              // Start+Args+End+Result for each ToolMessage in the list).
-              if (buildingRef.current.toolCalls.some((t) => t.id === event.toolCallId)) {
-                return;
+              } else if (parentId && buildingRef.current.id !== parentId) {
+                // New parent message — flush current and start new
+                flushBuilding();
+                buildingRef.current = {
+                  id: parentId,
+                  content: "",
+                  toolCalls: [],
+                  reasoning: "",
+                };
               }
 
               buildingRef.current.toolCalls.push({
@@ -497,12 +488,7 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
               }
             },
             onToolCallResultEvent: ({ event }) => {
-              // Deduplicate: skip if we already have a tool result for this tool_call_id
-              const alreadyHasResult = messagesRef.current.some(
-                (m) => m.type === "tool" && (m as any).tool_call_id === event.toolCallId,
-              );
-              if (alreadyHasResult) return;
-
+              // Create a tool message
               const toolMsg: Message = {
                 id: event.messageId || `tool-${event.toolCallId}`,
                 type: "tool",
@@ -533,14 +519,12 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
             },
 
             // ── Reasoning ──
-            onReasoningMessageStartEvent: () => {
-              // Only capture reasoning from the FIRST model call per run.
-              // Subsequent model calls have internal reasoning the user doesn't need.
-              if (hasReasoningRef.current) return;
-
+            onReasoningMessageStartEvent: ({ event }) => {
+              // Reasoning arrives BEFORE TEXT_MESSAGE_START.
+              // Create the building message now so reasoning content is captured.
               if (!buildingRef.current) {
                 buildingRef.current = {
-                  id: runMsgIdRef.current, // first message keeps the run ID
+                  id: event.messageId || uuidv4(),
                   content: "",
                   toolCalls: [],
                   reasoning: "",
@@ -548,11 +532,9 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
               }
             },
             onReasoningMessageContentEvent: ({ event }) => {
-              if (hasReasoningRef.current) return;
-
               if (!buildingRef.current) {
                 buildingRef.current = {
-                  id: runMsgIdRef.current,
+                  id: event.messageId || uuidv4(),
                   content: "",
                   toolCalls: [],
                   reasoning: "",

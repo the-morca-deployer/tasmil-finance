@@ -7,13 +7,16 @@ import { v4 as uuidv4 } from "uuid";
 import { SupervisorAgentCallCard } from "@/features/chat/actions/components/stellar/supervisor-agent-call-card";
 import { useStreamContext } from "@/features/chat/hooks";
 import {
+  AQUARIUS_SHARED_INFO,
+  AQUARIUS_SHARED_OPERATIONS,
+  BLEND_SHARED_INFO,
+  BLEND_SHARED_OPERATIONS,
   EXECUTE_DISPATCHER,
   FLOW_TOOL_RENDERERS,
   INFO_TOOL_RENDERERS,
   OPERATION_TOOL_RENDERERS,
   SUPERVISOR_AGENTS,
 } from "@/features/chat/hooks/use-defi-tool-renderers";
-import { findRegistryRenderer } from "@/features/protocols/registry/render-tool";
 import { ToolStatusDispatcher } from "@/shared/components/tool-status-dispatcher";
 
 interface ToolCallData {
@@ -37,20 +40,29 @@ type CardRendererResult =
   | { kind: "shared-op"; render: (props: SharedRenderProps) => React.ReactElement }
   | null;
 
-export function getCardRenderer(toolName: string, args?: Record<string, unknown>): CardRendererResult {
-  // ─── Unified registry (card-registry.ts) — try first ──────
-  // This replaces the 8 separate registries below with a single lookup.
-  const registryResult = findRegistryRenderer(toolName, args);
-  if (registryResult) return registryResult;
-
-  // ─── Fallback: legacy registries (will be removed once migration complete) ──
-
+export function getCardRenderer(toolName: string): CardRendererResult {
   // Unified execute tool — routes to protocol-specific cards (Blend, Aquarius, etc.)
   if (toolName === EXECUTE_DISPATCHER.toolName) {
     return { kind: "shared-op", render: EXECUTE_DISPATCHER.render };
   }
 
-  // Check flow tool renderers — "shared" kind (interactive: clarify, plan preview, signing)
+  // Check shared Blend cards first (they have custom render functions with normalizers)
+  const sharedInfo = BLEND_SHARED_INFO.find((r) => r.toolName === toolName);
+  if (sharedInfo) return { kind: "shared", render: sharedInfo.render };
+
+  // Blend operations — tagged as "shared-op" so we can inject respond callback
+  const sharedOp = BLEND_SHARED_OPERATIONS.find((r) => r.toolName === toolName);
+  if (sharedOp) return { kind: "shared-op", render: sharedOp.render };
+
+  // Aquarius shared info cards
+  const aquaInfo = AQUARIUS_SHARED_INFO.find((r) => r.toolName === toolName);
+  if (aquaInfo) return { kind: "shared", render: aquaInfo.render };
+
+  // Aquarius operations
+  const aquaOp = AQUARIUS_SHARED_OPERATIONS.find((r) => r.toolName === toolName);
+  if (aquaOp) return { kind: "shared-op", render: aquaOp.render };
+
+  // Check flow tool renderers — "shared" kind (no BlendOpWithRespond wrapper)
   const flowTool = FLOW_TOOL_RENDERERS.find((r) => r.toolName === toolName);
   if (flowTool) return { kind: "shared", render: flowTool.render };
 
@@ -77,27 +89,13 @@ function extractMcpText(arr: unknown[]): unknown | undefined {
   }
 }
 
-/** Unwrap MCP response wrapper {content: [{type:"text", text:"..."}]} if present. */
-function unwrapMcpWrapper(obj: unknown): unknown {
-  if (
-    obj &&
-    typeof obj === "object" &&
-    !Array.isArray(obj) &&
-    Array.isArray((obj as any).content)
-  ) {
-    const extracted = extractMcpText((obj as any).content);
-    if (extracted !== undefined) return extracted;
-  }
-  return obj;
-}
-
 function parseResult(content: string | unknown): unknown {
   // MCP tools return content as an array of blocks: [{type:"text", text:"..."}]
   // Extract the text from the first text block before JSON parsing
   if (Array.isArray(content)) {
     return extractMcpText(content) ?? content;
   }
-  if (typeof content !== "string") return unwrapMcpWrapper(content);
+  if (typeof content !== "string") return content;
   try {
     const parsed = JSON.parse(content);
     // JSON.parse may yield an MCP content-block array when the tool message
@@ -105,7 +103,7 @@ function parseResult(content: string | unknown): unknown {
     if (Array.isArray(parsed)) {
       return extractMcpText(parsed) ?? parsed;
     }
-    return unwrapMcpWrapper(parsed);
+    return parsed;
   } catch {
     return content;
   }
@@ -222,23 +220,11 @@ export function ToolCallRenderer({
     for (let i = msgIdx + 1; i < messages.length; i++) {
       const m = messages[i] as any;
       if (m.type === "tool" && m.tool_call_id) {
-        // Skip HITL confirmation placeholders ("Successfully handled tool call.")
-        // that share the same tool_call_id as the real result — they'd overwrite
-        // the actual data with a bare string.
-        const mid = m.id as string | undefined;
-        if (mid?.startsWith("do-not-render") || mid?.startsWith("__do_not_render__")) continue;
-
-        // Only overwrite if this message carries meaningful data (not a bare
-        // confirmation string that lacks JSON structure).
         const parsed = parseResult(m.content);
         const hasError =
           typeof parsed === "object" &&
           parsed !== null &&
           ("error" in parsed || (parsed as any).success === false);
-
-        // Don't overwrite a structured result with a plain-text placeholder
-        if (map.has(m.tool_call_id) && typeof parsed === "string") continue;
-
         map.set(m.tool_call_id, { content: parsed, hasError });
       }
       // Keep scanning across AI follow-up messages because HITL updates
@@ -300,8 +286,13 @@ export function ToolCallRenderer({
           }
         }
 
-        const cardRenderer = isComplete ? getCardRenderer(tc.name, tc.args as Record<string, unknown>) : null;
+        const cardRenderer = isComplete ? getCardRenderer(tc.name) : null;
         const status = result?.hasError ? "error" : isComplete ? "complete" : "calling";
+
+        // parse_user_intent shown as visible step (agent is parsing user's request)
+        if (false) {
+          return null;
+        }
 
         return (
           <div key={tc.id} className="flex flex-col gap-1">

@@ -225,32 +225,16 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const chatTitle = chatId === "new" ? "New Chat" : `Chat with ${config.name}`;
   const isNewChat = messages.length === 0;
 
-  // Check if the last AI message is complete (has content and no pending tool calls).
-  // ONLY use this heuristic AFTER firstTokenReceived has been stable for a bit —
-  // during active streaming the last AI message flickers between "has content / no
-  // tool calls" and "has tool calls" as model calls interleave, which causes the
-  // stop button to disappear and reappear confusingly.
+  // Check if the last AI message is complete (has content and no pending tool calls)
   const lastAiMessage = messages.filter((m) => m.type === "ai").pop();
   const hasToolCalls =
     lastAiMessage &&
     "tool_calls" in lastAiMessage &&
     Array.isArray(lastAiMessage.tool_calls) &&
     lastAiMessage.tool_calls.length > 0;
-
-  // Only consider "complete" when the last AI message has content, NO tool calls,
-  // AND there are no in-flight tool results (which would trigger another model call).
-  const hasPendingToolResults = messages.some(
-    (m) => m.type === "ai" && (m as any).tool_calls?.length > 0
-      && !messages.some(
-        (tm) => tm.type === "tool" && (m as any).tool_calls?.some(
-          (tc: any) => tc.id === (tm as any).tool_call_id,
-        ),
-      ),
-  );
   const isAiResponseComplete =
     lastAiMessage &&
     !hasToolCalls &&
-    !hasPendingToolResults &&
     (typeof lastAiMessage.content === "string" ? lastAiMessage.content.length > 0 : true);
 
   // Effective loading state - consider AI response complete as "not loading" for UI purposes
@@ -462,6 +446,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       ] as Message["content"],
     };
 
+    const toolMessages = ensureToolCallsHaveResponses(stream.messages);
+
     // Add user message to cache immediately for instant display
     messagesCache.current = [...messagesCache.current, newHumanMessage];
 
@@ -470,11 +456,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
     stream.submit(
       {
-        // Only send the new human message. The AG-UI hook sends only new
-        // messages; the backend loads history from the checkpoint.
-        // Do NOT include ensureToolCallsHaveResponses placeholders — they
-        // pollute backend state with do-not-render messages.
-        messages: [newHumanMessage],
+        messages: [...stream.messages, ...toolMessages, newHumanMessage],
         ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
         charge_usage: true,
       },
@@ -484,7 +466,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         streamResumable: false,
         optimisticValues: (prev: any) => ({
           ...prev,
-          messages: [...(prev?.messages ?? []), newHumanMessage],
+          messages: [...(prev?.messages ?? []), ...toolMessages, newHumanMessage],
         }),
       } as StreamSubmitOptions
     );
@@ -593,6 +575,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       content: text,
     };
 
+    const toolMessages = ensureToolCallsHaveResponses(stream.messages);
+
     // Add user message to cache immediately for instant display
     messagesCache.current = [...messagesCache.current, newHumanMessage];
 
@@ -601,8 +585,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
     stream.submit(
       {
-        // Only send the new human message — same rationale as handleSubmit.
-        messages: [newHumanMessage],
+        // IMPORTANT: Send ALL existing messages + tool responses + new message
+        messages: [...stream.messages, ...toolMessages, newHumanMessage],
         ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
         charge_usage: true,
       },
@@ -612,7 +596,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         streamResumable: false,
         optimisticValues: (prev: any) => ({
           ...prev,
-          messages: [...(prev?.messages ?? []), newHumanMessage],
+          messages: [...(prev?.messages ?? []), ...toolMessages, newHumanMessage],
         }),
       } as StreamSubmitOptions
     );

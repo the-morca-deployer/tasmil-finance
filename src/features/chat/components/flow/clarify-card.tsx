@@ -16,7 +16,6 @@ interface ClarifyCardProps {
   questions: ClarifyQuestion[];
   onSubmit: (answers: Record<string, unknown>) => void;
   disabled?: boolean;
-  initialAnswers?: Record<string, unknown>;
 }
 
 // ─── Option row (shared between single & multi mode) ─────────
@@ -87,15 +86,13 @@ function MultiClarifyCardStepper({
   questions,
   onSubmit,
   disabled,
-  initialAnswers,
 }: {
   questions: ClarifyQuestion[];
   onSubmit: (answers: Record<string, unknown>) => void;
   disabled: boolean;
-  initialAnswers?: Record<string, unknown>;
 }) {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, unknown>>(initialAnswers ?? {});
+  const [answers, setAnswers] = useState<Record<string, unknown>>({});
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
 
@@ -270,6 +267,6 @@ function MultiClarifyCardStepper({
 
 // ─── Unified ClarifyCard ─────────────────────────────────────
 
-export function ClarifyCard({ questions, onSubmit, disabled = false, initialAnswers }: ClarifyCardProps) {
-  return <MultiClarifyCardStepper questions={questions} onSubmit={onSubmit} disabled={disabled} initialAnswers={initialAnswers} />;
+export function ClarifyCard({ questions, onSubmit, disabled = false }: ClarifyCardProps) {
+  return <MultiClarifyCardStepper questions={questions} onSubmit={onSubmit} disabled={disabled} />;
 }
