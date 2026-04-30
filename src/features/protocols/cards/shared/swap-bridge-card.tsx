@@ -9,7 +9,6 @@ import {
   Loader2,
 } from "lucide-react";
 import { TokenImage } from "@/shared/components/token-image";
-import { cn } from "@/lib/utils";
 import type { CardMode } from "../../schemas/common.schema";
 import type { SwapBridgeCardProps } from "../../schemas/shared.schema";
 import { ProtocolCard } from "../base/protocol-card";
@@ -47,7 +46,7 @@ export function SwapBridgeCard({
   respond,
 }: SwapBridgeCardComponentProps) {
   const operation = data.operation ?? "swap";
-  const opCfg = OP_LABELS[operation] ?? OP_LABELS.swap;
+  const opCfg = OP_LABELS[operation] ?? OP_LABELS.swap ?? { label: "Swap", icon: ArrowLeftRight };
   const protocolLabel =
     data.protocol.charAt(0).toUpperCase() + data.protocol.slice(1);
 

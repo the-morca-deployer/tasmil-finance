@@ -21,6 +21,8 @@ const nextConfig: NextConfig = {
       https: "https-browserify",
       os: "os-browserify/browser",
       vm: "vm-browserify",
+      // Stub for @wagmi/core Tempo Wallet dependency (not used by this app)
+      accounts: "./src/lib/stubs/accounts.ts",
     },
   },
   // Webpack polyfills for production builds
@@ -40,6 +42,11 @@ const nextConfig: NextConfig = {
         assert: require.resolve("assert"),
         url: require.resolve("url"),
         vm: require.resolve("vm-browserify"),
+      };
+      // Stub for @wagmi/core Tempo Wallet dependency (not used by this app)
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        accounts: require.resolve("./src/lib/stubs/accounts.ts"),
       };
     }
     return config;
