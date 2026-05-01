@@ -4,7 +4,7 @@ import { Coins, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
-import { useCredits, useCreditsLedger, type CreditLedgerEntry } from "./use-credits";
+import { useCredits, useCreditsLedger, REASON_LABELS, type CreditLedgerEntry } from "./use-credits";
 
 function formatNumber(n: number): string {
   return new Intl.NumberFormat("en-US").format(n);
@@ -15,9 +15,10 @@ function formatTime(iso: string): string {
 }
 
 function ReasonBadge({ reason }: { reason: CreditLedgerEntry["reason"] }) {
+  const label = REASON_LABELS[reason] ?? reason.replace(/_/g, " ");
   return (
     <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-      {reason.replace(/_/g, " ")}
+      {label}
     </span>
   );
 }

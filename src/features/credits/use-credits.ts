@@ -12,7 +12,22 @@ export type CreditReason =
   | "REFERRAL_JOIN"
   | "REFERRAL_X_SHARE"
   | "ADMIN_ADJUST"
-  | "PROMO_GRANT";
+  | "PROMO_GRANT"
+  | "WELCOME_GRANT"
+  | "TASK_COMPLETED";
+
+export const REASON_LABELS: Record<CreditReason, string> = {
+  TOPUP_CRYPTO: "Crypto top-up",
+  TOPUP_FIAT: "Fiat top-up",
+  CHAT_DEBIT: "Chat",
+  CHAT_REVERT: "Chat refund",
+  REFERRAL_JOIN: "Referral bonus",
+  REFERRAL_X_SHARE: "X share bonus",
+  ADMIN_ADJUST: "Admin adjustment",
+  PROMO_GRANT: "Promo grant",
+  WELCOME_GRANT: "Welcome bonus",
+  TASK_COMPLETED: "Task bonus",
+};
 
 export interface CreditLedgerEntry {
   id: string;
