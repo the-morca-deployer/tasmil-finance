@@ -1,11 +1,16 @@
 "use client";
 
 import { Clock, PanelLeft, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { AppSidebar } from "@/shared/layout/app-sidebar";
 import { ChatHistoryWrapper } from "@/shared/layout/chat-history-wrapper";
-import { MobileSidebarContent } from "@/shared/layout/mobile-sidebar-content";
+import { FooterSidebarSection } from "@/shared/layout/footer-sidebar";
+import { HeaderSidebar } from "@/shared/layout/header-sidebar";
+import { NavGroup } from "@/shared/layout/nav-group";
+import { sidebarData } from "@/shared/layout/sidebar-data";
 import { Button } from "@/shared/ui/button-v2";
 import {
   MultiSidebarProvider,
@@ -80,6 +85,16 @@ function MobileLayout({
 }) {
   const { leftSidebarOpen, rightSidebarOpen, setLeftSidebarOpen, setRightSidebarOpen } =
     useMultiSidebar();
+  const pathname = usePathname();
+  const prevPathname = useRef(pathname);
+
+  // Close left sidebar on navigation
+  useEffect(() => {
+    if (prevPathname.current !== pathname) {
+      setLeftSidebarOpen(false);
+      prevPathname.current = pathname;
+    }
+  }, [pathname, setLeftSidebarOpen]);
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden">
@@ -99,7 +114,28 @@ function MobileLayout({
           >
             <X className="h-4 w-4" />
           </button>
-          <MobileSidebarContent onClose={() => setLeftSidebarOpen(false)} />
+          <SidebarProvider
+            defaultOpen={true}
+            open={true}
+            onOpenChange={(open) => {
+              if (!open) setLeftSidebarOpen(false);
+            }}
+            className="!min-h-0 h-full"
+          >
+            <div className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground">
+              <div className="my-4 flex flex-col gap-2">
+                <HeaderSidebar header={sidebarData.header} />
+              </div>
+              <div className="flex min-h-0 flex-1 flex-col overflow-auto px-1">
+                {sidebarData.navGroups.map((navGroup, index) => (
+                  <NavGroup key={index} {...navGroup} />
+                ))}
+              </div>
+              <div className="flex flex-col gap-2 p-2">
+                <FooterSidebarSection />
+              </div>
+            </div>
+          </SidebarProvider>
         </SheetContent>
       </Sheet>
 
