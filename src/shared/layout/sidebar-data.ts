@@ -82,8 +82,8 @@ const _sidebarData: SidebarData = {
     {
       items: [
         {
-          title: "Agents",
-          url: "/agents",
+          title: "Chat",
+          url: "/chat/new",
           icon: Bot,
         },
       ],

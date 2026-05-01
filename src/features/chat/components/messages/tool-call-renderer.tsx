@@ -7,13 +7,13 @@ import { v4 as uuidv4 } from "uuid";
 import { SupervisorAgentCallCard } from "@/features/chat/actions/components/stellar/supervisor-agent-call-card";
 import { useStreamContext } from "@/features/chat/hooks";
 import {
-  BLEND_SHARED_INFO,
-  BLEND_SHARED_OPERATIONS,
+  EXECUTE_DISPATCHER,
   FLOW_TOOL_RENDERERS,
   INFO_TOOL_RENDERERS,
   OPERATION_TOOL_RENDERERS,
   SUPERVISOR_AGENTS,
 } from "@/features/chat/hooks/use-defi-tool-renderers";
+import { findRegistryRenderer } from "@/features/protocols/registry/render-tool";
 import { ToolStatusDispatcher } from "@/shared/components/tool-status-dispatcher";
 
 interface ToolCallData {
@@ -37,16 +37,20 @@ type CardRendererResult =
   | { kind: "shared-op"; render: (props: SharedRenderProps) => React.ReactElement }
   | null;
 
-function getCardRenderer(toolName: string): CardRendererResult {
-  // Check shared Blend cards first (they have custom render functions with normalizers)
-  const sharedInfo = BLEND_SHARED_INFO.find((r) => r.toolName === toolName);
-  if (sharedInfo) return { kind: "shared", render: sharedInfo.render };
+export function getCardRenderer(toolName: string, args?: Record<string, unknown>): CardRendererResult {
+  // ─── Unified registry (card-registry.ts) — try first ──────
+  // This replaces the 8 separate registries below with a single lookup.
+  const registryResult = findRegistryRenderer(toolName, args);
+  if (registryResult) return registryResult;
 
-  // Blend operations — tagged as "shared-op" so we can inject respond callback
-  const sharedOp = BLEND_SHARED_OPERATIONS.find((r) => r.toolName === toolName);
-  if (sharedOp) return { kind: "shared-op", render: sharedOp.render };
+  // ─── Fallback: legacy registries (will be removed once migration complete) ──
 
-  // Check flow tool renderers — "shared" kind (no BlendOpWithRespond wrapper)
+  // Unified execute tool — routes to protocol-specific cards (Blend, Aquarius, etc.)
+  if (toolName === EXECUTE_DISPATCHER.toolName) {
+    return { kind: "shared-op", render: EXECUTE_DISPATCHER.render };
+  }
+
+  // Check flow tool renderers — "shared" kind (interactive: clarify, plan preview, signing)
   const flowTool = FLOW_TOOL_RENDERERS.find((r) => r.toolName === toolName);
   if (flowTool) return { kind: "shared", render: flowTool.render };
 
@@ -60,25 +64,48 @@ function getCardRenderer(toolName: string): CardRendererResult {
   return null;
 }
 
+/** Try to extract the inner JSON from an MCP content-block array. */
+function extractMcpText(arr: unknown[]): unknown | undefined {
+  const textBlock = (arr as any[]).find(
+    (b) => b?.type === "text" && typeof b?.text === "string",
+  );
+  if (!textBlock) return undefined;
+  try {
+    return JSON.parse(textBlock.text);
+  } catch {
+    return textBlock.text;
+  }
+}
+
+/** Unwrap MCP response wrapper {content: [{type:"text", text:"..."}]} if present. */
+function unwrapMcpWrapper(obj: unknown): unknown {
+  if (
+    obj &&
+    typeof obj === "object" &&
+    !Array.isArray(obj) &&
+    Array.isArray((obj as any).content)
+  ) {
+    const extracted = extractMcpText((obj as any).content);
+    if (extracted !== undefined) return extracted;
+  }
+  return obj;
+}
+
 function parseResult(content: string | unknown): unknown {
   // MCP tools return content as an array of blocks: [{type:"text", text:"..."}]
   // Extract the text from the first text block before JSON parsing
   if (Array.isArray(content)) {
-    const textBlock = (content as any[]).find(
-      (b) => b?.type === "text" && typeof b?.text === "string"
-    );
-    if (textBlock) {
-      try {
-        return JSON.parse(textBlock.text);
-      } catch {
-        return textBlock.text;
-      }
-    }
-    return content;
+    return extractMcpText(content) ?? content;
   }
-  if (typeof content !== "string") return content;
+  if (typeof content !== "string") return unwrapMcpWrapper(content);
   try {
-    return JSON.parse(content);
+    const parsed = JSON.parse(content);
+    // JSON.parse may yield an MCP content-block array when the tool message
+    // content was double-serialised (e.g. history loaded from DB).
+    if (Array.isArray(parsed)) {
+      return extractMcpText(parsed) ?? parsed;
+    }
+    return unwrapMcpWrapper(parsed);
   } catch {
     return content;
   }
@@ -173,7 +200,7 @@ function BlendOpWithRespond({
   return renderFn({ ...renderProps, respond });
 }
 
-export function CopilotKitToolCallRenderer({
+export function ToolCallRenderer({
   message,
   messages,
 }: {
@@ -192,11 +219,23 @@ export function CopilotKitToolCallRenderer({
     for (let i = msgIdx + 1; i < messages.length; i++) {
       const m = messages[i] as any;
       if (m.type === "tool" && m.tool_call_id) {
+        // Skip HITL confirmation placeholders ("Successfully handled tool call.")
+        // that share the same tool_call_id as the real result — they'd overwrite
+        // the actual data with a bare string.
+        const mid = m.id as string | undefined;
+        if (mid?.startsWith("do-not-render") || mid?.startsWith("__do_not_render__")) continue;
+
+        // Only overwrite if this message carries meaningful data (not a bare
+        // confirmation string that lacks JSON structure).
         const parsed = parseResult(m.content);
         const hasError =
           typeof parsed === "object" &&
           parsed !== null &&
           ("error" in parsed || (parsed as any).success === false);
+
+        // Don't overwrite a structured result with a plain-text placeholder
+        if (map.has(m.tool_call_id) && typeof parsed === "string") continue;
+
         map.set(m.tool_call_id, { content: parsed, hasError });
       }
       // Keep scanning across AI follow-up messages because HITL updates
@@ -258,13 +297,8 @@ export function CopilotKitToolCallRenderer({
           }
         }
 
-        const cardRenderer = isComplete ? getCardRenderer(tc.name) : null;
+        const cardRenderer = isComplete ? getCardRenderer(tc.name, tc.args as Record<string, unknown>) : null;
         const status = result?.hasError ? "error" : isComplete ? "complete" : "calling";
-
-        // Hide parse_user_intent entirely — it's an internal routing step
-        if (tc.name === "parse_user_intent" && isComplete) {
-          return null;
-        }
 
         return (
           <div key={tc.id} className="flex flex-col gap-1">

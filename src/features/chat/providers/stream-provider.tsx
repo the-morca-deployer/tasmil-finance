@@ -10,7 +10,7 @@ import {
   uiMessageReducer,
 } from "@langchain/langgraph-sdk/react-ui";
 import type React from "react";
-import { createContext, type ReactNode, useContext, useEffect, useRef } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { getApiKey } from "@/lib/api-key";
 import { buildAiIdentityHeaders } from "@/lib/ai-auth";
@@ -79,10 +79,10 @@ const StreamSession = ({
   const { address: walletAddress } = useWallet();
   const accessToken = useAuthStore((state) => state.accessToken);
   const effectiveWallet = walletAddress ?? useWalletStore.getState().account;
-  const defaultHeaders = buildAiIdentityHeaders({
-    accessToken,
-    walletAddress: effectiveWallet,
-  });
+  const defaultHeaders = useMemo(
+    () => buildAiIdentityHeaders({ accessToken, walletAddress: effectiveWallet }),
+    [accessToken, effectiveWallet],
+  );
   const initialThreadId = useRef(threadId);
 
   useEffect(() => {
@@ -101,7 +101,7 @@ const StreamSession = ({
       }
 
       setThreadId(null);
-      window.history.replaceState(null, "", `/chat/${assistantId}/new`);
+      window.history.replaceState(null, "", `/chat/new`);
     });
   }, [accessToken, apiKey, apiUrl, assistantId, effectiveWallet, setThreadId]);
 
@@ -123,7 +123,7 @@ const StreamSession = ({
     },
     onThreadId: (id) => {
       setThreadId(id);
-      window.history.replaceState(null, "", `/chat/${assistantId}/${id}`);
+      window.history.replaceState(null, "", `/chat/${id}`);
       if (effectiveWallet) {
         const client = createClient(apiUrl, {
           apiKey: apiKey ?? undefined,

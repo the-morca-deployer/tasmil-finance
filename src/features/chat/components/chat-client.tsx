@@ -13,6 +13,7 @@ import { useWelcomeReward } from "@/features/welcome-reward/hooks/use-welcome-re
 
 import { useSearchAssistantsAssistantsSearchPost } from "@/gen-ai/hooks/use-search-assistants-assistants-search-post";
 import { DO_NOT_RENDER_ID_PREFIX, ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
+import { cancelPendingTxCards } from "@/features/protocols/hooks/use-tx-signing";
 import { kubbClient } from "@/lib/kubb";
 import { cn } from "@/lib/utils";
 import { useWallet } from "@/shared/context/wallet-context";
@@ -358,8 +359,15 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         ((typeof lastAiMsg.content === "string" && lastAiMsg.content.trim().length > 0) ||
           (Array.isArray(lastAiMsg.content) && lastAiMsg.content.length > 0));
 
-      // Only mark firstTokenReceived when CURRENT AI message actually has content
-      if (hasContent && !firstTokenReceived) {
+      // Also count native reasoning tokens (DeepSeek) as "first token"
+      const hasReasoning =
+        lastAiMsg &&
+        "additional_kwargs" in lastAiMsg &&
+        typeof (lastAiMsg.additional_kwargs as Record<string, unknown>)?.reasoning_content === "string" &&
+        ((lastAiMsg.additional_kwargs as Record<string, unknown>).reasoning_content as string).trim().length > 0;
+
+      // Mark firstTokenReceived when content OR reasoning tokens arrive
+      if ((hasContent || hasReasoning) && !firstTokenReceived) {
         setFirstTokenReceived(true);
       }
     }
@@ -448,6 +456,11 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if ((input.trim().length === 0 && contentBlocks.length === 0) || composerBlocked || effectiveIsLoading) return;
+
+    // Auto-cancel any pending TX cards — user moved on without signing.
+    // Only writes to sessionStorage (local UI state), no backend message.
+    cancelPendingTxCards(messages as any);
+
     setFirstTokenReceived(false);
     setIsSubmitting(true);
 
@@ -460,8 +473,6 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       ] as Message["content"],
     };
 
-    const toolMessages = ensureToolCallsHaveResponses(stream.messages);
-
     // Add user message to cache immediately for instant display
     messagesCache.current = [...messagesCache.current, newHumanMessage];
 
@@ -470,16 +481,20 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
     stream.submit(
       {
-        messages: [...stream.messages, ...toolMessages, newHumanMessage],
+        // Only send the new human message. The AG-UI hook sends only new
+        // messages; the backend loads history from the checkpoint.
+        // Do NOT include ensureToolCallsHaveResponses placeholders — they
+        // pollute backend state with do-not-render messages.
+        messages: [newHumanMessage],
         ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
       },
       {
         streamMode: ["values", "custom"],
         streamSubgraphs: false,
-        streamResumable: true,
+        streamResumable: false,
         optimisticValues: (prev: any) => ({
           ...prev,
-          messages: [...(prev?.messages ?? []), ...toolMessages, newHumanMessage],
+          messages: [...(prev?.messages ?? []), newHumanMessage],
         }),
       } as StreamSubmitOptions
     );
@@ -529,7 +544,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         checkpoint: parentCheckpoint ?? undefined,
         streamMode: ["values", "custom"],
         streamSubgraphs: false,
-        streamResumable: true,
+        streamResumable: false,
         optimisticValues: () => ({
           messages: [...safeMessagesBeforeCurrent, newHumanMessage],
         }),
@@ -567,6 +582,9 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
   const handleSendSuggestion = (text: string) => {
     if (!text.trim() || composerBlocked || effectiveIsLoading) return;
+
+    cancelPendingTxCards(messages as any);
+
     setFirstTokenReceived(false);
     setIsSubmitting(true);
 
@@ -576,8 +594,6 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       content: text,
     };
 
-    const toolMessages = ensureToolCallsHaveResponses(stream.messages);
-
     // Add user message to cache immediately for instant display
     messagesCache.current = [...messagesCache.current, newHumanMessage];
 
@@ -586,17 +602,17 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
     stream.submit(
       {
-        // IMPORTANT: Send ALL existing messages + tool responses + new message
-        messages: [...stream.messages, ...toolMessages, newHumanMessage],
+        // Only send the new human message — same rationale as handleSubmit.
+        messages: [newHumanMessage],
         ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
       },
       {
         streamMode: ["values", "custom"],
         streamSubgraphs: false,
-        streamResumable: true,
+        streamResumable: false,
         optimisticValues: (prev: any) => ({
           ...prev,
-          messages: [...(prev?.messages ?? []), ...toolMessages, newHumanMessage],
+          messages: [...(prev?.messages ?? []), newHumanMessage],
         }),
       } as StreamSubmitOptions
     );
@@ -619,7 +635,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
       {/* Header - no border */}
       <header className="relative z-10 flex shrink-0 items-center gap-3 px-4 py-3">
-        <Button className="h-8 w-8 p-0" onClick={() => router.push("/agents")} variant="outline">
+        <Button className="h-8 w-8 p-0" onClick={() => router.push("/chat/new")} variant="outline">
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <span className="font-semibold text-foreground text-lg">{displayTitle}</span>
@@ -685,9 +701,9 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
               return filtered.map((message, index, arr) => {
                 const prevMessage = index > 0 ? arr[index - 1] : undefined;
-                // Check if there's a hidden human message between prev and current
-                // in the unfiltered thread. If so, treat as new turn → show avatar.
-                const hasHiddenHumanBetween =
+                // Check if there's ANY human message between prev and current
+                // in the FULL unfiltered thread. If so, treat as new turn → show avatar.
+                const hasHumanBetween =
                   prevMessage && message
                     ? (() => {
                         const prevIdx = messages.findIndex((m) => m.id === prevMessage.id);
@@ -695,11 +711,11 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                         if (prevIdx === -1 || currIdx === -1) return false;
                         return messages
                           .slice(prevIdx + 1, currIdx)
-                          .some((m) => m.type === "human" && !!m.id?.startsWith("__hidden__"));
+                          .some((m) => m.type === "human");
                       })()
                     : false;
                 const isConsecutiveAi =
-                  !hasHiddenHumanBetween &&
+                  !hasHumanBetween &&
                   message.type !== "human" &&
                   prevMessage?.type !== "human" &&
                   !!prevMessage;

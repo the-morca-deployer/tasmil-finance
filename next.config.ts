@@ -2,11 +2,7 @@ import type { NextConfig } from "next";
 import { getAiProxyRewrites, getBackendProxyRewrites } from "./src/lib/runtime-urls";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: [
-    "@copilotkit/runtime",
-    "@blend-capital/blend-sdk",
-    "@stellar/stellar-sdk",
-  ],
+  serverExternalPackages: ["@blend-capital/blend-sdk", "@stellar/stellar-sdk"],
   reactStrictMode: false,
   // Disable built-in compression — SSE (text/event-stream) responses get
   // gzip'd which forces the browser to buffer the entire response before

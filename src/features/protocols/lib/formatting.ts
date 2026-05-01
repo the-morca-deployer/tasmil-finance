@@ -129,3 +129,8 @@ export function formatTokenAmount(
     return String(amount);
   }
 }
+
+/** Strip "DeFindex-Vault-" prefix for cleaner display. */
+export function cleanVaultName(raw: string): string {
+  return raw.replace(/^DeFindex-Vault-/i, "");
+}

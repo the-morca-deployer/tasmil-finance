@@ -1,21 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import {
   AlertCircle,
-  ArrowRightLeft,
+  Bot,
   ChevronRight,
-  Info,
-  Landmark,
-  Repeat,
-  Search,
-  TrendingUp,
-  Wallet,
 } from "lucide-react";
 import { memo, useState } from "react";
 import { Shimmer } from "@/features/chat/components/ai/shimmer";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui/collapsible";
-import { Loader } from "@/shared/ui/loader";
 
 interface SupervisorAgentCallCardProps {
   agent?: string;
@@ -24,53 +18,51 @@ interface SupervisorAgentCallCardProps {
   toolCallId?: string;
 }
 
-const AGENT_CONFIG: Record<
-  string,
-  { icon: typeof Info; color: string; bgColor: string; label: string }
-> = {
-  info: {
-    icon: Info,
-    color: "text-gray-400",
-    bgColor: "bg-gray-400",
-    label: "Info Agent",
-  },
-  swap: {
-    icon: Repeat,
-    color: "text-orange-400",
-    bgColor: "bg-orange-400",
-    label: "Swap Agent",
-  },
-  vault: {
-    icon: Wallet,
-    color: "text-blue-400",
-    bgColor: "bg-blue-400",
-    label: "Vault Agent",
-  },
-  staking: {
-    icon: Landmark,
-    color: "text-cyan-400",
-    bgColor: "bg-cyan-400",
-    label: "Staking Agent",
-  },
-  bridge: {
-    icon: ArrowRightLeft,
-    color: "text-purple-400",
-    bgColor: "bg-purple-400",
-    label: "Bridge Agent",
-  },
-  yield: {
-    icon: TrendingUp,
-    color: "text-emerald-400",
-    bgColor: "bg-emerald-400",
-    label: "Yield Agent",
-  },
-  research: {
-    icon: Search,
-    color: "text-yellow-400",
-    bgColor: "bg-yellow-400",
-    label: "Research Agent",
-  },
+/**
+ * Maps short agent names (from supervisor tool calls like "call_blend_agent")
+ * to their display label and icon path.
+ *
+ * Icon paths mirror the canonical `/agents/` assets used on the /agents page
+ * and in agents.config.ts.
+ */
+const AGENT_CONFIG: Record<string, { label: string; icon: string }> = {
+  info:      { label: "Info Agent",      icon: "/agents/info-agent.png" },
+  blend:     { label: "Blend Agent",     icon: "/agents/blend-agent.svg" },
+  soroswap:  { label: "Soroswap Agent",  icon: "/agents/soroswap-agent.svg" },
+  phoenix:   { label: "Phoenix Agent",   icon: "/agents/phoenix-agent.svg" },
+  aquarius:  { label: "Aquarius Agent",  icon: "/agents/aquarius-agent.svg" },
+  defindex:  { label: "DeFindex Agent",  icon: "/agents/defindex-agent.svg" },
+  templar:   { label: "Templar Agent",   icon: "/agents/templar-agent.svg" },
+  allbridge: { label: "Allbridge Agent", icon: "/agents/allbridge-agent.svg" },
+  sdex:      { label: "SDEX Agent",      icon: "/agents/sdex-agent.svg" },
+  bridge:    { label: "Bridge Agent",    icon: "/agents/bridge-agent-v6.png" },
+  yield:     { label: "Yield Agent",     icon: "/agents/yield-agent-v6.png" },
+  research:  { label: "Research Agent",  icon: "/agents/research-agent-v6.png" },
+  swap:      { label: "Swap Agent",      icon: "/agents/soroswap-agent.svg" },
+  vault:     { label: "Vault Agent",     icon: "/agents/defindex-agent.svg" },
+  staking:   { label: "Staking Agent",   icon: "/agents/blend-agent.svg" },
 };
+
+const DEFAULT_CONFIG = { label: "Agent", icon: "" };
+
+function AgentIcon({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const [error, setError] = useState(false);
+
+  if (!src || error) {
+    return <Bot className={cn("h-4 w-4 text-muted-foreground", className)} />;
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={16}
+      height={16}
+      className={cn("h-4 w-4 rounded-full object-cover", className)}
+      onError={() => setError(true)}
+    />
+  );
+}
 
 function SupervisorAgentCallCardComponent(props: SupervisorAgentCallCardProps) {
   const agentName = props.agent || "unknown";
@@ -78,8 +70,7 @@ function SupervisorAgentCallCardComponent(props: SupervisorAgentCallCardProps) {
   const status = props.status || "calling";
   const [isOpen, setIsOpen] = useState(status === "calling");
 
-  const config = AGENT_CONFIG[agentName] || AGENT_CONFIG.info!;
-  const AgentIcon = config.icon;
+  const config = AGENT_CONFIG[agentName] || DEFAULT_CONFIG;
 
   const isCalling = status === "calling";
   const isError = status === "error";
@@ -87,14 +78,16 @@ function SupervisorAgentCallCardComponent(props: SupervisorAgentCallCardProps) {
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger className="group flex items-center gap-2 py-1.5 text-sm transition-colors hover:opacity-80">
-        {/* Agent-colored icon */}
+        {/* Agent icon — always show logo, pulse when calling */}
         <div className="shrink-0">
-          {isCalling ? (
-            <Loader size={16} className="text-muted-foreground" />
-          ) : isError ? (
+          {isError ? (
             <AlertCircle className="h-4 w-4 text-red-400" />
           ) : (
-            <AgentIcon className="h-4 w-4 text-muted-foreground" />
+            <AgentIcon
+              src={config.icon}
+              alt={config.label}
+              className={isCalling ? "animate-pulse" : undefined}
+            />
           )}
         </div>
 

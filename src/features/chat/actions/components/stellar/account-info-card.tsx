@@ -126,20 +126,21 @@ function QueryContent({
 function AccountInfoView({ data }: { data: any }) {
   const account = data.account ?? data;
   const balances = account.balances ?? [];
+  // Support both Horizon raw (id, subentry_count) and MCP normalized (address, subentryCount)
+  const accountId = account.id ?? account.address;
+  const subentries = account.subentry_count ?? account.subentryCount;
   return (
     <div className="space-y-2">
-      {account.id && <DetailRow label="Address" value={truncateAddress(account.id)} mono />}
+      {accountId && <DetailRow label="Address" value={truncateAddress(accountId)} mono />}
       {account.sequence && <DetailRow label="Sequence" value={account.sequence} mono />}
-      {account.subentry_count != null && (
-        <DetailRow label="Subentries" value={account.subentry_count} />
-      )}
+      {subentries != null && <DetailRow label="Subentries" value={subentries} />}
       {balances.length > 0 && (
         <div className="mt-2 space-y-1 border-t pt-2">
           <div className="mb-1 text-muted-foreground text-xs">Balances ({balances.length})</div>
           {balances.slice(0, 10).map((b: any, i: number) => (
             <DetailRow
               key={i}
-              label={b.asset_type === "native" ? "XLM" : (b.code ?? b.asset_code ?? "?")}
+              label={b.asset_type === "native" || b.assetType === "native" ? "XLM" : (b.assetCode ?? b.asset_code ?? b.code ?? "?")}
               value={Number.parseFloat(b.balance).toLocaleString(undefined, {
                 maximumFractionDigits: 4,
               })}
@@ -163,18 +164,22 @@ function BalanceView({ data }: { data: any }) {
 }
 
 function AssetsView({ data, toolCallId }: { data: any; toolCallId?: string }) {
-  const assets = data.assets ?? [];
+  // Support both MCP normalized shape ({assets}) and Horizon raw shape ({balances})
+  const account = data.account ?? data;
+  const assets = account.assets ?? account.balances ?? [];
+  const address = data.address ?? account.id ?? account.address;
+  const count = data.count ?? account.count ?? assets.length;
   return (
     <div className="space-y-2">
-      {data.address && <DetailRow label="Account" value={truncateAddress(data.address)} mono />}
-      <DetailRow label="Total Assets" value={data.count ?? assets.length} />
+      {address && <DetailRow label="Account" value={truncateAddress(address)} mono />}
+      <DetailRow label="Total Assets" value={count} />
       <ScrollableList id={`assets-${toolCallId}`} maxHeight={250}>
         {assets.map((a: any, i: number) => (
           <div
             key={i}
             className="flex items-center justify-between border-border/50 border-b py-1.5 text-sm last:border-0"
           >
-            <span className="font-medium">{a.type === "native" ? "XLM" : (a.code ?? "?")}</span>
+            <span className="font-medium">{a.type === "native" || a.assetType === "native" || a.asset_type === "native" ? "XLM" : (a.assetCode ?? a.asset_code ?? a.code ?? "?")}</span>
             <span>
               {Number.parseFloat(a.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })}
             </span>
