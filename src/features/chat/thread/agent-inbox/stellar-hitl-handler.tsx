@@ -12,7 +12,7 @@
  * 2. This handler renders StellarExecuteCard
  * 3. User clicks Sign → wallet signs XDR → respond callback
  * 4. Handler submits result using command.update to add tool message
- * 5. Agent receives signed XDR and calls submit_transaction
+ * 5. Frontend automatically submits the signed transaction to the network
  */
 
 import type { Interrupt } from "@langchain/langgraph-sdk";

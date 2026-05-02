@@ -75,14 +75,10 @@ export function cancelPendingTxCards(
     "phoenix_stake_bond",
     "phoenix_stake_unbond",
     "phoenix_stake_claim_rewards",
-    "vault_deposit",
-    "vault_withdraw",
-    "bridge_build_transaction",
-    "allbridge_build_transaction",
-    "execute_swap",
-    "execute_bridge",
-    "execute_earn",
-    "execute_lending",
+    "vault_deposit", "vault_withdraw",
+    "bridge_build_transaction", "allbridge_build_transaction",
+    "allbridge_pool_deposit", "allbridge_pool_withdraw", "allbridge_pool_claim_rewards",
+    "execute_swap", "execute_bridge", "execute_earn", "execute_lending",
   ]);
 
   for (const msg of messages) {

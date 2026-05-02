@@ -7,9 +7,14 @@ import { BridgeDiscoveryCard } from "@/features/chat/actions/components/stellar/
 import { EarnDiscoveryCard } from "@/features/chat/actions/components/stellar/earn-discovery-card";
 import { StellarExecuteCard } from "@/features/chat/actions/components/stellar/execute-card";
 import { PoolInfoCard } from "@/features/chat/actions/components/stellar/pool-info-card";
+import { SwapExecuteCard } from "@/features/chat/actions/components/stellar/swap-execute-card";
+import { BridgeExecuteCard } from "@/features/chat/actions/components/stellar/bridge-execute-card";
+import type { SwapExecuteCardProps } from "@/features/chat/actions/components/stellar/swap-execute-card";
+import type { BridgeExecuteCardProps } from "@/features/chat/actions/components/stellar/bridge-execute-card";
 import { SwapQuoteCard } from "@/features/chat/actions/components/stellar/swap-quote-card";
 import { TrustlineExecuteCard } from "@/features/chat/actions/components/stellar/trustline-execute-card";
-import { TxSubmitCard } from "@/features/chat/actions/components/stellar/tx-submit-card";
+
+import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
 // Flow cards (option-select pattern)
 import { ClarifyCard } from "@/features/chat/components/flow/clarify-card";
 import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
@@ -151,8 +156,6 @@ export const INFO_TOOL_RENDERERS: Array<{
   // Yield / Research
   { toolName: "discover", type: "earn_discovery", component: EarnDiscoveryCard },
 
-  // Unified compare tools (aggregated multi-protocol comparison)
-  { toolName: "compare_swap", type: "swap_comparison", component: SwapQuoteCard },
   { toolName: "compare_bridge", type: "bridge_routes", component: BridgeDiscoveryCard },
   { toolName: "compare_earn", type: "earn_comparison", component: EarnDiscoveryCard },
   { toolName: "compare_lending", type: "lending_comparison", component: PoolInfoCard },
@@ -167,8 +170,6 @@ export const OPERATION_TOOL_RENDERERS: Array<{
   operation: string;
   component: React.ComponentType<any>;
 }> = [
-  // Shared
-  { toolName: "submit_transaction", operation: "tx_submit", component: TxSubmitCard },
   // NOTE: "execute" is handled by EXECUTE_DISPATCHER below (protocol-aware routing)
 
   // Soroswap
@@ -495,14 +496,132 @@ const AQUARIUS_ACTIONS = new Set([
   "lock_aqua",
 ]);
 
+// ─── Normalizers for swap & bridge ────────────────────────────────
+
+function normalizeSwapTxFromMcp(result: unknown, args?: Record<string, unknown>): SwapExecuteCardProps {
+  const { data } = unwrapMcpResult(result);
+  const merged = { ...(data ?? {}), ...(args ?? {}) };
+  const ctx = (merged.context as Record<string, unknown>) ?? {};
+
+  const tokenIn = String(merged.tokenIn ?? ctx.tokenIn ?? ctx.sourceAsset ?? "");
+  const tokenOut = String(merged.tokenOut ?? ctx.tokenOut ?? ctx.destAsset ?? "");
+  const amountIn = String(merged.amount ?? ctx.amountIn ?? "0");
+  const amountOut = ctx.amountOut != null ? String(ctx.amountOut) : null;
+
+  // Extract route pools from route array (protocol-dependent format)
+  const route = merged.route;
+  let routePools: string[] | undefined;
+  if (Array.isArray(route)) {
+    routePools = route.map((r: unknown) =>
+      typeof r === "string" ? r : String((r as Record<string, unknown>)?.address ?? (r as Record<string, unknown>)?.pool ?? r)
+    );
+  }
+
+  return {
+    operation: "swap",
+    tokenIn,
+    tokenOut,
+    amountIn,
+    amountOut,
+    routeTokens: undefined,
+    routePools,
+    xdr: String(merged.xdr ?? ""),
+    protocol: merged.protocol as string | undefined,
+    estimatedFee: merged.estimatedFee != null ? String(merged.estimatedFee) : undefined,
+    context: ctx as Record<string, unknown> | undefined,
+  };
+}
+
+function normalizeBridgeTxFromMcp(result: unknown, args?: Record<string, unknown>): BridgeExecuteCardProps {
+  const { data } = unwrapMcpResult(result);
+  const merged = { ...(data ?? {}), ...(args ?? {}) };
+  const ctx = (merged.context as Record<string, unknown>) ?? {};
+
+  const fromChain = String(merged.fromChain ?? ctx.fromChain ?? "");
+  const toChain = String(merged.toChain ?? ctx.toChain ?? "");
+  const tokenIn = String(
+    (ctx.fromToken as Record<string, unknown>)?.symbol ?? merged.asset ?? ""
+  );
+  const tokenOut = String(
+    (ctx.toToken as Record<string, unknown>)?.symbol ?? merged.asset ?? ""
+  );
+  const amountIn = String(merged.amount ?? ctx.amount ?? "0");
+
+  // Transaction type detection
+  const depositAddress = merged.depositAddress != null ? String(merged.depositAddress) : null;
+  const depositMemo = merged.depositMemo != null ? String(merged.depositMemo) : null;
+  const depositInstruction = merged.instruction != null ? String(merged.instruction) : null;
+
+  let xdr: string | null = null;
+  let evmTx: { to: string; data: string; value?: string } | null = null;
+
+  const rawTx = merged.transaction;
+  if (rawTx) {
+    if (typeof rawTx === "string") {
+      xdr = rawTx;
+    } else if (typeof rawTx === "object" && rawTx !== null) {
+      const tx = rawTx as Record<string, unknown>;
+      if (tx.to && tx.data) {
+        evmTx = {
+          to: String(tx.to),
+          data: String(tx.data),
+          value: tx.value != null ? String(tx.value) : undefined,
+        };
+      }
+    }
+  }
+
+  return {
+    operation: "bridge",
+    provider: merged.provider as string | undefined,
+    fromChain,
+    toChain,
+    tokenIn,
+    tokenOut,
+    amountIn,
+    xdr,
+    evmTx,
+    depositAddress,
+    depositMemo,
+    depositInstruction,
+    fromAddress: (merged.fromAddress as string) ?? (ctx.fromAddress as string),
+    toAddress: (merged.toAddress as string) ?? (ctx.toAddress as string),
+    context: ctx as Record<string, unknown> | undefined,
+  };
+}
+
 export const EXECUTE_DISPATCHER = {
   toolName: "execute",
   render: (props: RenderProps) => {
     const { data } = unwrapMcpResult(props.result);
     const action = String((data as Record<string, unknown>)?.action ?? props.args?.action ?? "");
-    const protocol = String(
-      (data as Record<string, unknown>)?.protocol ?? props.args?.protocol ?? ""
-    );
+    const protocol = String((data as Record<string, unknown>)?.protocol ?? props.args?.protocol ?? "");
+
+    // ── Swap operations ────────────────────────────────────────
+    if (action === "swap") {
+      const tx = normalizeSwapTxFromMcp(props.result, props.args);
+      return (
+        <SwapExecuteCard
+          tx={tx}
+          mode="chat"
+          toolCallId={props.toolCallId}
+          respond={props.respond}
+        />
+      );
+    }
+
+    // ── Bridge operations ──────────────────────────────────────
+    if (action === "bridge") {
+      const tx = normalizeBridgeTxFromMcp(props.result, props.args);
+      return (
+        <BridgeExecuteCard
+          tx={tx}
+          mode="chat"
+          toolCallId={props.toolCallId}
+          respond={props.respond}
+        />
+      );
+    }
 
     // Blend lending + backstop + comet operations
     const blendOp = EXECUTE_ACTION_TO_BLEND_OP[action];
@@ -557,9 +676,18 @@ export const EXECUTE_DISPATCHER = {
       );
     }
 
-    // Fallback — generic execute card for swaps, bridges, other protocols
+    // Fallback — generic execute card for LP, stake, vault, lock, etc.
     return (
       <StellarExecuteCard
+        tx={{
+          operation: action || "execute",
+          protocol,
+          xdr: String((data as Record<string, unknown>)?.xdr ?? ""),
+          amount: ((data as Record<string, unknown>)?.amount as string) ?? null,
+          symbol: ((data as Record<string, unknown>)?.symbol as string) ?? null,
+          estimatedFee: ((data as Record<string, unknown>)?.estimatedFee as string) ?? undefined,
+          context: (data as Record<string, unknown>)?.context as Record<string, unknown> | undefined,
+        }}
         operation={action || "execute"}
         args={props.args}
         result={props.result}
@@ -883,6 +1011,28 @@ export const FLOW_TOOL_RENDERERS: Array<{
           <FlowPlanWithSigning
             plan={(data.plan as Record<string, unknown>) || {}}
             simulationReport={data.simulation_report as Record<string, unknown>}
+          />
+        );
+      }
+      // Multi-step TX (e.g. trustline + main operation) — render each step
+      // sequentially. The first step (trustline) renders as TrustlineExecuteCard,
+      // subsequent steps render via EXECUTE_DISPATCHER.
+      if (data.multi_step && Array.isArray(data.steps)) {
+        const multiSteps = data.steps as Record<string, unknown>[];
+        return (
+          <FlowPlanWithSigning
+            plan={{
+              steps: multiSteps.map((s, i) => ({
+                index: i,
+                action: s.action as string,
+                protocol: s.protocol as string,
+                description: s.description as string,
+                asset: (s.asset as string) ?? (s.assetCode as string),
+              })),
+            }}
+            simulationReport={{
+              xdrs: multiSteps.map((s) => s.xdr as string).filter(Boolean),
+            }}
           />
         );
       }

@@ -37,16 +37,10 @@ type CardRendererResult =
   | { kind: "shared-op"; render: (props: SharedRenderProps) => React.ReactElement }
   | null;
 
-export function getCardRenderer(
-  toolName: string,
-  args?: Record<string, unknown>
-): CardRendererResult {
-  // ─── Unified registry (card-registry.ts) — try first ──────
-  // This replaces the 8 separate registries below with a single lookup.
-  const registryResult = findRegistryRenderer(toolName, args);
-  if (registryResult) return registryResult;
-
-  // ─── Fallback: legacy registries (will be removed once migration complete) ──
+export function getCardRenderer(toolName: string, args?: Record<string, unknown>): CardRendererResult {
+  // ─── Only render flow cards (clarify, plan preview, execute) and execute dispatcher ──
+  // Other custom UI cards (discover, get_account, resolve_pool, etc.) are temporarily
+  // hidden — the ToolStatusDispatcher still shows the tool status (spinner/check).
 
   // Unified execute tool — routes to protocol-specific cards (Blend, Aquarius, etc.)
   if (toolName === EXECUTE_DISPATCHER.toolName) {
@@ -57,12 +51,18 @@ export function getCardRenderer(
   const flowTool = FLOW_TOOL_RENDERERS.find((r) => r.toolName === toolName);
   if (flowTool) return { kind: "shared", render: flowTool.render };
 
-  // Generic info/operation cards
-  const info = INFO_TOOL_RENDERERS.find((r) => r.toolName === toolName);
-  if (info) return { component: info.component, label: info.type, kind: "info" };
+  // ─── TEMPORARILY HIDDEN: All other custom cards ───────────────
+  // Unified registry (card-registry.ts) — info/operation cards for all protocols
+  // const registryResult = findRegistryRenderer(toolName, args);
+  // if (registryResult) return registryResult;
 
-  const op = OPERATION_TOOL_RENDERERS.find((r) => r.toolName === toolName);
-  if (op) return { component: op.component, label: op.operation, kind: "operation" };
+  // Generic info cards (discover, get_account, pool_info, swap_quote, bridge, etc.)
+  // const info = INFO_TOOL_RENDERERS.find((r) => r.toolName === toolName);
+  // if (info) return { component: info.component, label: info.type, kind: "info" };
+
+  // Generic operation cards (swap_build_transaction, sdex_swap, phoenix_swap, etc.)
+  // const op = OPERATION_TOOL_RENDERERS.find((r) => r.toolName === toolName);
+  // if (op) return { component: op.component, label: op.operation, kind: "operation" };
 
   return null;
 }

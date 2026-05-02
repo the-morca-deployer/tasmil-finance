@@ -1,23 +1,42 @@
 "use client";
 
+import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
-import { ArrowRightLeft, Coins, FileCode, Globe, TrendingUp } from "lucide-react";
-import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
-import { truncateAddress } from "@/shared/config/stellar";
-import { DetailRow } from "../base/indicators";
-import { BaseOperationCard } from "../base/operation-card";
+import {
+  ArrowRightLeft,
+  Coins,
+  Droplets,
+  FileCode,
+  Globe,
+  Lock,
+  TrendingUp,
+  Loader2,
+} from "lucide-react";
+import { TokenImage } from "@/shared/components/token-image";
+import { useTxSigning } from "@/features/protocols/hooks/use-tx-signing";
+import { getExplorerUrl } from "@/shared/config/stellar";
+import { fmtAmount, fmtGas, trunc } from "@/features/protocols/lib/formatting";
 
-interface ExecuteResult {
-  success: boolean;
+// ─── Props ──────────────────────────────────────────────────────
+
+export interface GenericExecuteCardProps {
+  operation: string;
   protocol?: string;
-  xdr?: string;
+  xdr: string;
+  amount?: string | null;
+  symbol?: string | null;
   estimatedFee?: string;
-  route?: string[];
-  poolAddress?: string;
-  error?: string;
+  asset?: string | null;
+  pool?: string | null;
+  from?: string | null;
+  /** Additional context for detail rows */
+  extraRows?: Array<{ label: string; value: string; mono?: boolean }>;
+  context?: Record<string, unknown>;
 }
 
-interface StellarExecuteCardProps {
+interface GenericExecuteCardComponentProps {
+  tx?: GenericExecuteCardProps;
+  /** Legacy props — still supported for use-defi-tool-renderers direct usage */
   operation?: string;
   args?: Record<string, any>;
   result?: unknown;
@@ -26,237 +45,456 @@ interface StellarExecuteCardProps {
   respond?: (result: Record<string, unknown>) => void;
 }
 
-const OPERATION_CONFIG: Record<
-  string,
-  { title: string; buttonText: string; icon: LucideIcon; iconColor: string; iconBg: string }
-> = {
-  swap_execute: {
-    title: "Sign Swap",
-    buttonText: "Sign & Swap",
-    icon: ArrowRightLeft,
+// ─── Operation config ───────────────────────────────────────────
+
+interface OpConfig {
+  label: string;
+  buttonText: string;
+  icon: LucideIcon;
+  iconColor: string;
+  iconBg: string;
+}
+
+const OP_CONFIG: Record<string, OpConfig> = {
+  add_liquidity: {
+    label: "Add Liquidity",
+    buttonText: "Sign & Add",
+    icon: Droplets,
+    iconColor: "text-cyan-500",
+    iconBg: "bg-cyan-500/10",
+  },
+  remove_liquidity: {
+    label: "Withdraw Liquidity",
+    buttonText: "Sign & Withdraw",
+    icon: Droplets,
+    iconColor: "text-orange-500",
+    iconBg: "bg-orange-500/10",
+  },
+  provide_liquidity: {
+    label: "Provide Liquidity",
+    buttonText: "Sign & Provide",
+    icon: Droplets,
+    iconColor: "text-cyan-500",
+    iconBg: "bg-cyan-500/10",
+  },
+  withdraw_liquidity: {
+    label: "Withdraw Liquidity",
+    buttonText: "Sign & Withdraw",
+    icon: Droplets,
+    iconColor: "text-orange-500",
+    iconBg: "bg-orange-500/10",
+  },
+  stake_bond: {
+    label: "Stake",
+    buttonText: "Sign & Stake",
+    icon: TrendingUp,
+    iconColor: "text-orange-500",
+    iconBg: "bg-orange-500/10",
+  },
+  stake_unbond: {
+    label: "Unstake",
+    buttonText: "Sign & Unstake",
+    icon: TrendingUp,
+    iconColor: "text-orange-500",
+    iconBg: "bg-orange-500/10",
+  },
+  claim_rewards: {
+    label: "Claim Rewards",
+    buttonText: "Sign & Claim",
+    icon: Coins,
+    iconColor: "text-green-500",
+    iconBg: "bg-green-500/10",
+  },
+  stake_claim_rewards: {
+    label: "Claim Staking Rewards",
+    buttonText: "Sign & Claim",
+    icon: Coins,
+    iconColor: "text-green-500",
+    iconBg: "bg-green-500/10",
+  },
+  vault_deposit: {
+    label: "Vault Deposit",
+    buttonText: "Sign & Deposit",
+    icon: Coins,
+    iconColor: "text-green-500",
+    iconBg: "bg-green-500/10",
+  },
+  vault_withdraw: {
+    label: "Vault Withdraw",
+    buttonText: "Sign & Withdraw",
+    icon: Coins,
+    iconColor: "text-orange-500",
+    iconBg: "bg-orange-500/10",
+  },
+  vault_withdraw_by_amounts: {
+    label: "Vault Withdraw",
+    buttonText: "Sign & Withdraw",
+    icon: Coins,
+    iconColor: "text-orange-500",
+    iconBg: "bg-orange-500/10",
+  },
+  lock_aqua: {
+    label: "Lock AQUA",
+    buttonText: "Sign & Lock",
+    icon: Lock,
     iconColor: "text-blue-500",
     iconBg: "bg-blue-500/10",
   },
-  bridge_execute: {
-    title: "Sign Bridge Transfer",
-    buttonText: "Sign & Bridge",
-    icon: Globe,
+  templar_supply: {
+    label: "Templar Supply",
+    buttonText: "Sign & Supply",
+    icon: Coins,
+    iconColor: "text-green-500",
+    iconBg: "bg-green-500/10",
+  },
+  templar_borrow: {
+    label: "Templar Borrow",
+    buttonText: "Sign & Borrow",
+    icon: Coins,
+    iconColor: "text-blue-500",
+    iconBg: "bg-blue-500/10",
+  },
+  supply: {
+    label: "Supply",
+    buttonText: "Sign & Supply",
+    icon: Coins,
+    iconColor: "text-green-500",
+    iconBg: "bg-green-500/10",
+  },
+  borrow: {
+    label: "Borrow",
+    buttonText: "Sign & Borrow",
+    icon: Coins,
+    iconColor: "text-blue-500",
+    iconBg: "bg-blue-500/10",
+  },
+  repay: {
+    label: "Repay",
+    buttonText: "Sign & Repay",
+    icon: Coins,
     iconColor: "text-purple-500",
     iconBg: "bg-purple-500/10",
   },
+  withdraw: {
+    label: "Withdraw",
+    buttonText: "Sign & Withdraw",
+    icon: Coins,
+    iconColor: "text-orange-500",
+    iconBg: "bg-orange-500/10",
+  },
   vault_execute: {
-    title: "Sign Vault Operation",
+    label: "Vault Operation",
     buttonText: "Sign & Execute",
     icon: Coins,
     iconColor: "text-green-500",
     iconBg: "bg-green-500/10",
   },
   staking_execute: {
-    title: "Sign Staking Operation",
+    label: "Staking Operation",
     buttonText: "Sign & Stake",
     icon: TrendingUp,
     iconColor: "text-orange-500",
     iconBg: "bg-orange-500/10",
   },
-  // Blend lending operations
-  blend_deposit: {
-    title: "Sign Blend Deposit",
-    buttonText: "Sign & Deposit",
-    icon: Coins,
-    iconColor: "text-green-500",
-    iconBg: "bg-green-500/10",
-  },
-  blend_borrow: {
-    title: "Sign Blend Borrow",
-    buttonText: "Sign & Borrow",
-    icon: Coins,
+  swap_execute: {
+    label: "Swap",
+    buttonText: "Sign & Swap",
+    icon: ArrowRightLeft,
     iconColor: "text-blue-500",
     iconBg: "bg-blue-500/10",
   },
-  blend_repay: {
-    title: "Sign Blend Repay",
-    buttonText: "Sign & Repay",
-    icon: Coins,
+  bridge_execute: {
+    label: "Bridge Transfer",
+    buttonText: "Sign & Bridge",
+    icon: Globe,
     iconColor: "text-purple-500",
     iconBg: "bg-purple-500/10",
   },
-  blend_withdraw: {
-    title: "Sign Blend Withdrawal",
-    buttonText: "Sign & Withdraw",
-    icon: Coins,
-    iconColor: "text-orange-500",
-    iconBg: "bg-orange-500/10",
-  },
-  blend_toggle_collateral: {
-    title: "Sign Collateral Toggle",
-    buttonText: "Sign & Toggle",
-    icon: Coins,
-    iconColor: "text-yellow-500",
-    iconBg: "bg-yellow-500/10",
-  },
-  blend_claim_emissions: {
-    title: "Sign Emissions Claim",
-    buttonText: "Sign & Claim",
+  execute_earn: {
+    label: "Earn",
+    buttonText: "Sign & Execute",
     icon: Coins,
     iconColor: "text-green-500",
     iconBg: "bg-green-500/10",
   },
-  blend_backstop_deposit: {
-    title: "Sign Backstop Deposit",
-    buttonText: "Sign & Deposit",
+  execute_lending: {
+    label: "Lending",
+    buttonText: "Sign & Execute",
     icon: Coins,
     iconColor: "text-blue-500",
     iconBg: "bg-blue-500/10",
-  },
-  blend_backstop_queue_withdrawal: {
-    title: "Sign Backstop Queue",
-    buttonText: "Sign & Queue",
-    icon: Coins,
-    iconColor: "text-orange-500",
-    iconBg: "bg-orange-500/10",
-  },
-  blend_backstop_dequeue_withdrawal: {
-    title: "Sign Backstop Dequeue",
-    buttonText: "Sign & Dequeue",
-    icon: Coins,
-    iconColor: "text-purple-500",
-    iconBg: "bg-purple-500/10",
-  },
-  blend_backstop_withdraw: {
-    title: "Sign Backstop Withdrawal",
-    buttonText: "Sign & Withdraw",
-    icon: Coins,
-    iconColor: "text-green-500",
-    iconBg: "bg-green-500/10",
   },
 };
 
-const DEFAULT_CONFIG = {
-  title: "Sign Transaction",
+const DEFAULT_OP_CONFIG: OpConfig = {
+  label: "Transaction",
   buttonText: "Sign & Submit",
   icon: FileCode,
   iconColor: "text-primary",
   iconBg: "bg-primary/10",
 };
 
-export function StellarExecuteCard({
-  operation,
-  args,
-  result,
-  status = "executing",
-  respond,
-}: StellarExecuteCardProps) {
-  const config = OPERATION_CONFIG[operation ?? ""] ?? DEFAULT_CONFIG;
+// ─── Normalize result (MCP response) ────────────────────────────
 
-  // Parse the execute result for XDR
-  // MCP tool results may arrive as an array of content blocks [{type:"text",text:"..."}]
-  const normalizedResult = Array.isArray(result)
-    ? (() => {
-        const block = (result as any[]).find(
-          (b) => b?.type === "text" && typeof b?.text === "string"
-        );
-        if (!block) return result;
-        try {
-          return JSON.parse(block.text);
-        } catch {
-          return block.text;
-        }
-      })()
-    : result;
-  let execResult: ExecuteResult | null = null;
-  if (normalizedResult && typeof normalizedResult === "object") {
-    execResult = normalizedResult as ExecuteResult;
-  } else if (typeof normalizedResult === "string") {
+function normalizeResult(result: unknown): Record<string, unknown> | null {
+  if (!result) return null;
+  // MCP content-block array
+  if (Array.isArray(result)) {
+    const block = (result as any[]).find(
+      (b) => b?.type === "text" && typeof b?.text === "string"
+    );
+    if (!block) return null;
     try {
-      execResult = JSON.parse(normalizedResult);
+      return JSON.parse(block.text);
     } catch {
-      /* ignore */
+      return { raw: block.text };
     }
   }
-
-  const xdr = execResult?.xdr ?? args?.xdr;
-  const protocol = execResult?.protocol ?? args?.protocol;
-  const estimatedFee = execResult?.estimatedFee ?? args?.estimatedFee;
-  const route = execResult?.route ?? args?.route;
-  const action = args?.action;
-
-  const handleExecute = async (address: string) => {
-    if (!xdr) {
-      return { success: false, error: "No transaction XDR available" };
-    }
-
+  if (typeof result === "object" && !Array.isArray(result)) {
+    return result as Record<string, unknown>;
+  }
+  if (typeof result === "string") {
     try {
-      // Sign XDR with Stellar wallet
-      await checkWalletNetwork();
-      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-      const { signedTxXdr } = await StellarWalletsKit.signTransaction(xdr, {
-        address,
-        networkPassphrase: undefined,
-      });
-
-      // Return signed XDR - the agent will call submit_transaction with it
-      return {
-        success: true,
-        hash: signedTxXdr,
-      };
-    } catch (error) {
-      const msg = parseSigningError(error);
-      if (
-        msg.toLowerCase().includes("rejected") ||
-        msg.toLowerCase().includes("denied") ||
-        msg.toLowerCase().includes("cancel")
-      ) {
-        return { success: false, error: "Transaction rejected by user" };
-      }
-      return { success: false, error: msg };
+      return JSON.parse(result);
+    } catch {
+      return { raw: result };
     }
-  };
+  }
+  return null;
+}
 
-  const renderDetails = () => (
-    <div className="mb-2 space-y-2">
-      {action && (
-        <DetailRow
-          label="Action"
-          value={<span className="capitalize">{action.replace(/_/g, " ")}</span>}
-        />
-      )}
-      {protocol && (
-        <DetailRow label="Protocol" value={<span className="capitalize">{protocol}</span>} />
-      )}
-      {estimatedFee && <DetailRow label="Est. Fee" value={estimatedFee} />}
-      {route && route.length > 1 && <DetailRow label="Route" value={route.join(" → ")} />}
-      {args?.tokenIn && args?.tokenOut && (
-        <DetailRow label="Pair" value={`${args.tokenIn} → ${args.tokenOut}`} />
-      )}
-      {args?.amount && <DetailRow label="Amount" value={args.amount as string} />}
-      {args?.from && <DetailRow label="From" value={truncateAddress(String(args.from))} mono />}
-      {args?.poolAddress && (
-        <DetailRow label="Pool" value={truncateAddress(String(args.poolAddress))} mono />
-      )}
-      {xdr && (
-        <div className="mt-2 border-t pt-2">
-          <div className="mb-1 text-muted-foreground text-xs">Transaction XDR</div>
-          <div className="max-h-[60px] overflow-y-auto break-all rounded bg-muted/30 p-2 font-mono text-[10px] text-muted-foreground">
-            {xdr.slice(0, 200)}
-            {xdr.length > 200 ? "..." : ""}
-          </div>
-        </div>
-      )}
-    </div>
+function extractTx(result: unknown, args?: Record<string, any>): GenericExecuteCardProps {
+  const data = normalizeResult(result) ?? {};
+  const merged = { ...data, ...(args ?? {}) };
+
+  // Detect operation: try operation → action → protocol inference
+  const operation = String(
+    merged.operation ?? merged.action ?? merged.op ?? "execute"
   );
 
+  const symbol =
+    (merged.context as Record<string, unknown>)?.tokenIn as string
+    ?? (merged.context as Record<string, unknown>)?.symbol as string
+    ?? merged.symbol as string
+    ?? merged.asset as string
+    ?? null;
+
+  return {
+    operation,
+    protocol: merged.protocol as string | undefined,
+    xdr: String(merged.xdr ?? ""),
+    amount: merged.amount != null ? String(merged.amount) : null,
+    symbol,
+    estimatedFee: merged.estimatedFee != null ? String(merged.estimatedFee) : undefined,
+    asset: merged.asset as string | null,
+    pool: (merged.poolAddress ?? merged.pool ?? merged.pool_address) as string | null,
+    from: merged.from as string | null,
+    context: merged.context as Record<string, unknown> | undefined,
+  };
+}
+
+// ─── Component ──────────────────────────────────────────────────
+
+export function StellarExecuteCard({
+  tx,
+  operation: _operation,
+  args,
+  result,
+  status: _status,
+  respond,
+  toolCallId,
+}: GenericExecuteCardComponentProps) {
+  // Support both new typed tx prop and legacy args/result/operation props
+  const resolved = tx ?? extractTx(result, args);
+  const op = resolved.operation;
+
+  const cfg = OP_CONFIG[op] ?? DEFAULT_OP_CONFIG;
+  const xdr = resolved.xdr;
+  const symbol = resolved.symbol ?? "";
+  const amount = resolved.amount ?? null;
+  const fee = resolved.estimatedFee ?? "0";
+  const protocol = resolved.protocol;
+  const pool = resolved.pool;
+  const from = resolved.from;
+
+  const { sign, cancel, signing, txResult, txError } = useTxSigning({
+    mode: "chat",
+    stream: undefined,
+    toolCallId,
+    operation: op,
+    respond,
+    volumeContext: {
+      protocol: protocol ?? "generic",
+      operation: op,
+      asset: symbol,
+      amount: amount ?? "0",
+    },
+  });
+
+  const [showXdr, setShowXdr] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
+
+  const handleSign = () => sign(xdr);
+
   return (
-    <BaseOperationCard
-      title={config.title}
-      icon={config.icon}
-      iconColor={config.iconColor}
-      iconBg={config.iconBg}
-      buttonText={config.buttonText}
-      status={status}
-      result={result}
-      respond={respond}
-      onExecute={handleExecute}
-      renderDetails={renderDetails}
-    />
+    <div className="relative rounded-xl border border-border bg-card overflow-hidden">
+      {/* Header */}
+      <div className="px-5 pt-5 pb-2">
+        <p className="text-lg font-semibold text-foreground">
+          Confirm {cfg.label}
+          {protocol ? (
+            <span className="ml-1.5 text-xs font-normal text-muted-foreground capitalize">
+              via {protocol}
+            </span>
+          ) : null}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Review details before signing
+        </p>
+      </div>
+
+      {/* Detail rows */}
+      <div className="px-5 pb-3 space-y-0">
+        {/* Amount with token icon */}
+        {amount && symbol ? (
+          <div className="flex justify-between py-2.5 border-b border-border/30">
+            <span className="text-sm text-muted-foreground">Amount</span>
+            <span className="text-sm text-foreground font-medium tabular-nums flex items-center gap-1.5">
+              <TokenImage
+                src={null}
+                alt={symbol}
+                className="h-5 w-5 rounded-full"
+              />
+              {fmtAmount(amount)} {symbol}
+            </span>
+          </div>
+        ) : amount ? (
+          <div className="flex justify-between py-2.5 border-b border-border/30">
+            <span className="text-sm text-muted-foreground">Amount</span>
+            <span className="text-sm text-foreground font-medium tabular-nums">
+              {fmtAmount(amount)}
+            </span>
+          </div>
+        ) : null}
+
+        {/* Fee */}
+        {fee !== "0" ? (
+          <div className="flex justify-between py-2.5 border-b border-border/30">
+            <span className="text-sm text-muted-foreground">Maximum transaction fee</span>
+            <span className="text-sm text-foreground tabular-nums">{fmtGas(fee)}</span>
+          </div>
+        ) : null}
+
+        {/* Protocol */}
+        {protocol ? (
+          <div className="flex justify-between py-2.5 border-b border-border/30">
+            <span className="text-sm text-muted-foreground">Protocol</span>
+            <span className="text-sm text-foreground capitalize">{protocol}</span>
+          </div>
+        ) : null}
+
+        {/* Pool */}
+        {pool ? (
+          <div className="flex justify-between py-2.5 border-b border-border/30">
+            <span className="text-sm text-muted-foreground">Pool</span>
+            <span className="text-xs text-muted-foreground font-mono">{trunc(pool)}</span>
+          </div>
+        ) : null}
+
+        {/* From address */}
+        {from ? (
+          <div className="flex justify-between py-2.5 border-b border-border/30">
+            <span className="text-sm text-muted-foreground">From</span>
+            <span className="text-xs text-muted-foreground font-mono">{trunc(from)}</span>
+          </div>
+        ) : null}
+
+        {/* Extra context rows */}
+        {resolved.extraRows?.map((row) => (
+          <div key={row.label} className="flex justify-between py-2.5 border-b border-border/30">
+            <span className="text-sm text-muted-foreground">{row.label}</span>
+            <span
+              className={`text-sm text-foreground tabular-nums ${
+                row.mono ? "font-mono text-xs" : ""
+              }`}
+            >
+              {row.value}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* XDR toggle */}
+      {xdr ? (
+        <div className="px-5 pb-2">
+          <button
+            type="button"
+            onClick={() => setShowXdr(!showXdr)}
+            className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+          >
+            {showXdr ? "Hide XDR" : "Show XDR"}
+          </button>
+          {showXdr && (
+            <pre className="mt-1 max-h-[100px] overflow-auto rounded-lg bg-secondary p-2 text-[10px] text-muted-foreground font-mono break-all">
+              {xdr}
+            </pre>
+          )}
+        </div>
+      ) : null}
+
+      {/* Divider */}
+      <div className="h-px bg-border" />
+
+      {/* Action area */}
+      <div className="px-4 py-3">
+        {txResult?.success ? (
+          <a
+            href={getExplorerUrl("tx", txResult.hash ?? "")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full rounded-lg py-2 text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-center hover:bg-emerald-500/15 transition-colors"
+          >
+            Transaction confirmed {"\u00B7"} {trunc(txResult.hash ?? "")}
+          </a>
+        ) : txError ? (
+          <div className="rounded-lg py-2 px-3 text-xs bg-destructive/10 border border-destructive/20 text-destructive text-center">
+            Failed {"\u00B7"}{" "}
+            {txError.length > 80 ? txError.slice(0, 80) + "\u2026" : txError}
+          </div>
+        ) : cancelled ? (
+          <div className="rounded-lg py-2 px-3 text-xs bg-muted border border-border text-muted-foreground text-center">
+            Transaction cancelled
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="flex-1 rounded-lg py-2 text-xs font-semibold border border-border text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-[0.98]"
+              disabled={signing}
+              onClick={() => {
+                setCancelled(true);
+                cancel();
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="flex-1 rounded-lg py-2 text-xs font-semibold bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black hover:from-[#C5F0FF] hover:to-[#1CCFFF] transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+              onClick={handleSign}
+              disabled={signing || !xdr}
+            >
+              {signing ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Signing...
+                </>
+              ) : (
+                cfg.buttonText
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

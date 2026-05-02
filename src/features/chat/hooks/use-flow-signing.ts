@@ -50,10 +50,26 @@ function failStep(index: number, error: string): FlowStepResult {
 }
 
 async function submitSignedXdr(signedXdr: string): Promise<{ hash: string }> {
-  const { TransactionBuilder } = await import("@stellar/stellar-sdk");
+  const { TransactionBuilder, Horizon } = await import("@stellar/stellar-sdk");
+  const signedTx = TransactionBuilder.fromXDR(signedXdr, activeNetwork.networkPassphrase);
+
+  // Detect classic vs Soroban: if ALL operations are non-invokeHostFunction
+  // (e.g. changeTrust, payment) → submit via Horizon.  Otherwise → Soroban RPC.
+  const ops = (signedTx as any).operations ?? [];
+  const isClassic =
+    ops.length > 0 && ops.every((op: any) => op.type !== "invokeHostFunction");
+
+  if (isClassic) {
+    const horizon = new Horizon.Server(activeNetwork.horizonUrl, {
+      allowHttp: activeNetwork.horizonUrl.startsWith("http://"),
+    });
+    const response = await horizon.submitTransaction(signedTx as any);
+    return { hash: response.hash };
+  }
+
+  // Soroban operations (invokeHostFunction) → submit via Soroban RPC
   const { getSorobanClient } = await import("@/lib/stellar-client");
   const soroban = getSorobanClient();
-  const signedTx = TransactionBuilder.fromXDR(signedXdr, activeNetwork.networkPassphrase);
   const response = await soroban.sendTransaction(signedTx as any);
 
   if (response.status === "PENDING") {
