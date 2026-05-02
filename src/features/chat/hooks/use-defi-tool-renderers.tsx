@@ -4,22 +4,29 @@ import { useCallback, useMemo, useState } from "react";
 import { AccountInfoCard } from "@/features/chat/actions/components/stellar/account-info-card";
 import { ActionSearchCard } from "@/features/chat/actions/components/stellar/action-search-card";
 import { BridgeDiscoveryCard } from "@/features/chat/actions/components/stellar/bridge-discovery-card";
+import type { BridgeExecuteCardProps } from "@/features/chat/actions/components/stellar/bridge-execute-card";
+import { BridgeExecuteCard } from "@/features/chat/actions/components/stellar/bridge-execute-card";
 import { EarnDiscoveryCard } from "@/features/chat/actions/components/stellar/earn-discovery-card";
 import { StellarExecuteCard } from "@/features/chat/actions/components/stellar/execute-card";
 import { PoolInfoCard } from "@/features/chat/actions/components/stellar/pool-info-card";
-import { SwapExecuteCard } from "@/features/chat/actions/components/stellar/swap-execute-card";
-import { BridgeExecuteCard } from "@/features/chat/actions/components/stellar/bridge-execute-card";
 import type { SwapExecuteCardProps } from "@/features/chat/actions/components/stellar/swap-execute-card";
-import type { BridgeExecuteCardProps } from "@/features/chat/actions/components/stellar/bridge-execute-card";
+import { SwapExecuteCard } from "@/features/chat/actions/components/stellar/swap-execute-card";
 import { SwapQuoteCard } from "@/features/chat/actions/components/stellar/swap-quote-card";
 import { TrustlineExecuteCard } from "@/features/chat/actions/components/stellar/trustline-execute-card";
-
-import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
 // Flow cards (option-select pattern)
 import { ClarifyCard } from "@/features/chat/components/flow/clarify-card";
+
 import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
 import { PlanPreviewCard } from "@/features/chat/components/flow/plan-preview-card";
 import { useFlowSigning } from "@/features/chat/hooks/use-flow-signing";
+import { useStreamContext } from "@/features/chat/hooks/use-stream";
+import type { TxStatus } from "@/features/chat/types/flow-messages";
+import {
+  normalizeAquaPoolFromMcp,
+  normalizeAquaPoolsFromMcp,
+  normalizeAquaPositionsFromMcp,
+  normalizeAquaTxFromMcp,
+} from "@/features/protocols/adapters/aquarius-from-mcp";
 import { useStreamContext } from "@/features/chat/hooks/use-stream";
 import type { TxStatus } from "@/features/chat/types/flow-messages";
 import {
@@ -46,6 +53,14 @@ import {
   AquaPositionsCard,
   AquaTxCard,
 } from "@/features/protocols/cards/aquarius";
+import { normalizeSoroswapPoolsFromMcp } from "@/features/protocols/adapters/soroswap-from-mcp";
+// Shared Aquarius protocol cards
+import {
+  AquaPoolDetailCard,
+  AquaPoolsCard,
+  AquaPositionsCard,
+  AquaTxCard,
+} from "@/features/protocols/cards/aquarius";
 // Shared protocol cards
 import {
   BlendBackstopBalanceCard,
@@ -57,6 +72,7 @@ import {
   BlendTxCard,
 } from "@/features/protocols/cards/blend";
 import { SoroswapPoolsCard } from "@/features/protocols/cards/soroswap";
+import { useWalletStore } from "@/store/use-wallet";
 import { useWalletStore } from "@/store/use-wallet";
 
 /**
@@ -121,6 +137,16 @@ export const INFO_TOOL_RENDERERS: Array<{
   // Allbridge
   { toolName: "allbridge_get_routes", type: "allbridge_routes", component: BridgeDiscoveryCard },
   { toolName: "allbridge_get_quote", type: "allbridge_quote", component: BridgeDiscoveryCard },
+  {
+    toolName: "allbridge_pool_deposit_quote",
+    type: "allbridge_deposit_quote",
+    component: PoolInfoCard,
+  },
+  {
+    toolName: "allbridge_pool_withdraw_quote",
+    type: "allbridge_withdraw_quote",
+    component: PoolInfoCard,
+  },
   {
     toolName: "allbridge_pool_deposit_quote",
     type: "allbridge_deposit_quote",
@@ -234,6 +260,11 @@ export const OPERATION_TOOL_RENDERERS: Array<{
   // DeFindex
   { toolName: "vault_deposit", operation: "vault_deposit", component: StellarExecuteCard },
   { toolName: "vault_withdraw", operation: "vault_withdraw", component: StellarExecuteCard },
+  {
+    toolName: "vault_withdraw_by_amounts",
+    operation: "vault_withdraw_by_amounts",
+    component: StellarExecuteCard,
+  },
   {
     toolName: "vault_withdraw_by_amounts",
     operation: "vault_withdraw_by_amounts",
@@ -421,6 +452,9 @@ export const AQUARIUS_SHARED_INFO: Array<{
         return (
           <PoolInfoCard type="aquarius_pool_info" result={props.result} status={props.status} />
         );
+        return (
+          <PoolInfoCard type="aquarius_pool_info" result={props.result} status={props.status} />
+        );
       return <AquaPoolDetailCard pool={pool} mode="playground" />;
     },
   },
@@ -450,6 +484,7 @@ function makeAquaOpRenderer(operation: string) {
     const txWithOp = { ...tx, operation: tx.operation || operation };
     return (
       <AquaTxCard tx={txWithOp} mode="chat" toolCallId={props.toolCallId} respond={props.respond} />
+      <AquaTxCard tx={txWithOp} mode="chat" toolCallId={props.toolCallId} respond={props.respond} />
     );
   };
 }
@@ -475,6 +510,8 @@ export const AQUARIUS_SHARED_OPERATIONS = AQUA_OPS_RAW.map((op) => ({
 const EXECUTE_ACTION_TO_BLEND_OP: Record<string, string> = {
   supply: "blend_supply",
   supply_collateral: "blend_supply",
+  deposit_for_yield: "blend_supply",
+  deposit: "blend_supply",
   borrow: "blend_borrow",
   repay: "blend_repay",
   withdraw: "blend_withdraw",
@@ -494,11 +531,19 @@ const AQUARIUS_ACTIONS = new Set([
   "swap",
   "claim_rewards",
   "lock_aqua",
+  "add_liquidity",
+  "remove_liquidity",
+  "swap",
+  "claim_rewards",
+  "lock_aqua",
 ]);
 
 // ─── Normalizers for swap & bridge ────────────────────────────────
 
-function normalizeSwapTxFromMcp(result: unknown, args?: Record<string, unknown>): SwapExecuteCardProps {
+function normalizeSwapTxFromMcp(
+  result: unknown,
+  args?: Record<string, unknown>
+): SwapExecuteCardProps {
   const { data } = unwrapMcpResult(result);
   const merged = { ...(data ?? {}), ...(args ?? {}) };
   const ctx = (merged.context as Record<string, unknown>) ?? {};
@@ -508,43 +553,64 @@ function normalizeSwapTxFromMcp(result: unknown, args?: Record<string, unknown>)
   const amountIn = String(merged.amount ?? ctx.amountIn ?? "0");
   const amountOut = ctx.amountOut != null ? String(ctx.amountOut) : null;
 
-  // Extract route pools from route array (protocol-dependent format)
+  // Extract route data from route array (protocol-dependent format)
   const route = merged.route;
   let routePools: string[] | undefined;
+  let routeTokens: string[] | undefined;
   if (Array.isArray(route)) {
-    routePools = route.map((r: unknown) =>
-      typeof r === "string" ? r : String((r as Record<string, unknown>)?.address ?? (r as Record<string, unknown>)?.pool ?? r)
-    );
+    routePools = route.map((r: unknown) => {
+      if (typeof r === "string") return r;
+      const obj = r as Record<string, unknown>;
+      return String(obj?.address ?? obj?.pool ?? obj?.poolAddress ?? r);
+    });
+    // Try to extract token symbols from route if they look like token names
+    routeTokens = route
+      .map((r: unknown) => {
+        if (typeof r === "string" && r.length <= 10 && !r.startsWith("C")) return r;
+        const obj = r as Record<string, unknown>;
+        return String(obj?.token ?? obj?.symbol ?? obj?.asset ?? "");
+      })
+      .filter(Boolean);
+    if (routeTokens.length < 2) routeTokens = undefined;
   }
 
+  // Extract fee / price impact / rate from context
+  const feePercent = ctx.feePercent != null ? String(ctx.feePercent) : undefined;
+  const priceImpact = ctx.priceImpact != null ? String(ctx.priceImpact) : undefined;
+  const expectedRate = ctx.expectedRate != null ? String(ctx.expectedRate) : undefined;
+  const estimatedTime = ctx.estimatedTime != null ? String(ctx.estimatedTime) : undefined;
+
   return {
-    operation: "swap",
+    operation: String(merged.action ?? "swap"),
     tokenIn,
     tokenOut,
     amountIn,
     amountOut,
-    routeTokens: undefined,
+    routeTokens,
     routePools,
     xdr: String(merged.xdr ?? ""),
     protocol: merged.protocol as string | undefined,
     estimatedFee: merged.estimatedFee != null ? String(merged.estimatedFee) : undefined,
+    feePercent,
+    priceImpact,
+    expectedRate,
+    estimatedTime,
     context: ctx as Record<string, unknown> | undefined,
   };
 }
 
-function normalizeBridgeTxFromMcp(result: unknown, args?: Record<string, unknown>): BridgeExecuteCardProps {
+function normalizeBridgeTxFromMcp(
+  result: unknown,
+  args?: Record<string, unknown>
+): BridgeExecuteCardProps {
   const { data } = unwrapMcpResult(result);
   const merged = { ...(data ?? {}), ...(args ?? {}) };
   const ctx = (merged.context as Record<string, unknown>) ?? {};
 
   const fromChain = String(merged.fromChain ?? ctx.fromChain ?? "");
   const toChain = String(merged.toChain ?? ctx.toChain ?? "");
-  const tokenIn = String(
-    (ctx.fromToken as Record<string, unknown>)?.symbol ?? merged.asset ?? ""
-  );
-  const tokenOut = String(
-    (ctx.toToken as Record<string, unknown>)?.symbol ?? merged.asset ?? ""
-  );
+  const tokenIn = String((ctx.fromToken as Record<string, unknown>)?.symbol ?? merged.asset ?? "");
+  const tokenOut = String((ctx.toToken as Record<string, unknown>)?.symbol ?? merged.asset ?? "");
   const amountIn = String(merged.amount ?? ctx.amount ?? "0");
 
   // Transaction type detection
@@ -595,7 +661,9 @@ export const EXECUTE_DISPATCHER = {
   render: (props: RenderProps) => {
     const { data } = unwrapMcpResult(props.result);
     const action = String((data as Record<string, unknown>)?.action ?? props.args?.action ?? "");
-    const protocol = String((data as Record<string, unknown>)?.protocol ?? props.args?.protocol ?? "");
+    const protocol = String(
+      (data as Record<string, unknown>)?.protocol ?? props.args?.protocol ?? ""
+    );
 
     // ── Swap operations ────────────────────────────────────────
     if (action === "swap") {
@@ -613,6 +681,38 @@ export const EXECUTE_DISPATCHER = {
     // ── Bridge operations ──────────────────────────────────────
     if (action === "bridge") {
       const tx = normalizeBridgeTxFromMcp(props.result, props.args);
+      // Route through unified swap/bridge card for simple Stellar bridges (has XDR)
+      // Keep BridgeExecuteCard for complex cases: EVM source, deposit-pattern without XDR
+      const isSimpleStellarBridge =
+        tx.xdr && (!tx.fromChain || tx.fromChain.toLowerCase() === "stellar");
+      if (isSimpleStellarBridge) {
+        // Adapt BridgeExecuteCardProps → SwapExecuteCardProps for unified card
+        const swapTx: SwapExecuteCardProps = {
+          operation: "bridge",
+          tokenIn: tx.tokenIn,
+          tokenOut: tx.tokenOut,
+          amountIn: tx.amountIn,
+          amountOut: tx.amountOut,
+          xdr: tx.xdr!,
+          protocol: tx.provider ?? "bridge",
+          provider: tx.provider,
+          estimatedFee: tx.estimatedFee,
+          estimatedTime: tx.estimatedTime,
+          fromChain: tx.fromChain,
+          toChain: tx.toChain,
+          fromAddress: tx.fromAddress,
+          toAddress: tx.toAddress,
+          context: tx.context,
+        };
+        return (
+          <SwapExecuteCard
+            tx={swapTx}
+            mode="chat"
+            toolCallId={props.toolCallId}
+            respond={props.respond}
+          />
+        );
+      }
       return (
         <BridgeExecuteCard
           tx={tx}
@@ -671,6 +771,13 @@ export const EXECUTE_DISPATCHER = {
                 ? "complete"
                 : "executing"
           }
+          status={
+            props.status === "inProgress"
+              ? "pending"
+              : props.status === "complete"
+                ? "complete"
+                : "executing"
+          }
           respond={props.respond}
         />
       );
@@ -686,7 +793,9 @@ export const EXECUTE_DISPATCHER = {
           amount: ((data as Record<string, unknown>)?.amount as string) ?? null,
           symbol: ((data as Record<string, unknown>)?.symbol as string) ?? null,
           estimatedFee: ((data as Record<string, unknown>)?.estimatedFee as string) ?? undefined,
-          context: (data as Record<string, unknown>)?.context as Record<string, unknown> | undefined,
+          context: (data as Record<string, unknown>)?.context as
+            | Record<string, unknown>
+            | undefined,
         }}
         operation={action || "execute"}
         args={props.args}
@@ -714,6 +823,12 @@ function usePreviousClarifyResponse(
     suggestions?: { label: string; value: Record<string, unknown> }[];
   }[],
   toolCallId?: string
+  questions: {
+    field_name: string;
+    input_type: string;
+    suggestions?: { label: string; value: Record<string, unknown> }[];
+  }[],
+  toolCallId?: string
 ) {
   const stream = useStreamContext();
   return useMemo(() => {
@@ -724,6 +839,7 @@ function usePreviousClarifyResponse(
     let startIdx = 0;
     if (toolCallId) {
       const toolIdx = msgs.findIndex(
+        (m) => m.type === "tool" && (m as any).tool_call_id === toolCallId
         (m) => m.type === "tool" && (m as any).tool_call_id === toolCallId
       );
       if (toolIdx >= 0) startIdx = toolIdx + 1;
@@ -743,6 +859,7 @@ function usePreviousClarifyResponse(
           if (q.input_type === "select" && q.suggestions) {
             const match = q.suggestions.find((s) =>
               Object.entries(s.value).every(([k, v]) => parsed[k] === v)
+              Object.entries(s.value).every(([k, v]) => parsed[k] === v)
             );
             if (match) answers[q.field_name] = match.value;
           } else if (q.input_type === "text" && parsed[q.field_name]) {
@@ -750,6 +867,7 @@ function usePreviousClarifyResponse(
           }
         }
         if (Object.keys(answers).length > 0) return answers;
+      } catch {}
       } catch {}
     }
     return null;
@@ -766,6 +884,12 @@ function FlowClarifyCardWithStream({
     field_name: string;
     question: string;
     input_type: "select" | "text";
+    suggestions?: {
+      label: string;
+      value: Record<string, unknown>;
+      tags?: string[];
+      description?: string;
+    }[];
     suggestions?: {
       label: string;
       value: Record<string, unknown>;
@@ -823,6 +947,7 @@ function FlowClarifyCardWithStream({
       }
     },
     [stream, questions, context, sent, walletAddress]
+    [stream, questions, context, sent, walletAddress]
   );
 
   return (
@@ -837,7 +962,10 @@ function FlowClarifyCardWithStream({
 
 /** Parse flow tool result — handles string, object, and MCP content-block formats. */
 function parseFlowResult(result: unknown): Record<string, unknown> | null {
-  if (!result) return null;
+  if (!result) {
+    console.warn("[parseFlowResult] result is falsy:", result);
+    return null;
+  }
 
   // Already an object with expected fields
   if (typeof result === "object" && !Array.isArray(result) && result !== null) {
@@ -849,8 +977,18 @@ function parseFlowResult(result: unknown): Record<string, unknown> | null {
       "plan" in obj ||
       "step" in obj
     ) {
+    if (
+      "kind" in obj ||
+      "question" in obj ||
+      "questions" in obj ||
+      "plan" in obj ||
+      "step" in obj
+    ) {
       return obj;
     }
+    // Object but missing expected keys — log what keys it has
+    console.warn("[parseFlowResult] object missing expected keys, received:", Object.keys(obj));
+    return null;
   }
 
   // MCP content-block format: [{type:"text", text:"..."}]
@@ -867,10 +1005,12 @@ function parseFlowResult(result: unknown): Record<string, unknown> | null {
     try {
       return JSON.parse(raw) as Record<string, unknown>;
     } catch {
+      console.warn("[parseFlowResult] failed to parse JSON string, raw:", raw.slice(0, 200));
       return null;
     }
   }
 
+  console.warn("[parseFlowResult] unhandled type:", typeof result, "value:", String(result).slice(0, 200));
   return null;
 }
 
@@ -958,12 +1098,27 @@ export const FLOW_TOOL_RENDERERS: Array<{
             suggestions: (data.suggestions as any[]) ?? [],
           },
         ];
+        questions = [
+          {
+            field_name: "q0",
+            question: data.question as string,
+            input_type: "select",
+            suggestions: (data.suggestions as any[]) ?? [],
+          },
+        ];
       }
       if (!questions || questions.length === 0) {
         return <div className="text-muted-foreground text-xs">No questions</div>;
       }
 
       const context = (data._context ?? {}) as Record<string, unknown>;
+      return (
+        <FlowClarifyCardWithStream
+          questions={questions}
+          context={context}
+          toolCallId={props.toolCallId}
+        />
+      );
       return (
         <FlowClarifyCardWithStream
           questions={questions}
@@ -988,6 +1143,76 @@ export const FLOW_TOOL_RENDERERS: Array<{
           onCancel={() => props.respond?.({ kind: "plan_cancel", action: "cancel" })}
         />
       );
+    },
+  },
+  {
+    toolName: "flow_compose_plan",
+    render: (props) => {
+      // compose_plan auto-chains to flow_execute_plan internally.
+      // While the tool is running (no result yet), show a progress indicator.
+      // Once complete, the result is tx_ready — same shape as flow_compose_and_execute.
+      const data = parseFlowResult(props.result);
+      if (!data) {
+        return (
+          <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
+            <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            Composing plan...
+          </div>
+        );
+      }
+      if (data.kind === "error") {
+        return (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            {(data.message as string) || "Transaction failed"}
+          </div>
+        );
+      }
+      if (data.kind === "cross_chain_plan" || data.kind === "plan_preview") {
+        return (
+          <FlowPlanWithSigning
+            plan={(data.plan as Record<string, unknown>) || {}}
+            simulationReport={data.simulation_report as Record<string, unknown>}
+          />
+        );
+      }
+      if (data.multi_step && Array.isArray(data.steps)) {
+        const multiSteps = data.steps as Record<string, unknown>[];
+        const multiCard = (
+          <FlowPlanWithSigning
+            plan={{
+              steps: multiSteps.map((s, i) => ({
+                index: i,
+                action: s.action as string,
+                protocol: s.protocol as string,
+                description: s.description as string,
+                asset: (s.asset as string) ?? (s.assetCode as string),
+              })),
+            }}
+            simulationReport={{
+              xdrs: multiSteps.map((s) => s.xdr as string).filter(Boolean),
+            }}
+          />
+        );
+        const stopText2 = data._stop_text as string | undefined;
+        if (stopText2) {
+          return <div>{multiCard}<div className="mt-2 text-xs text-muted-foreground text-center">{stopText2}</div></div>;
+        }
+        return multiCard;
+      }
+      const card = EXECUTE_DISPATCHER.render({
+        ...props,
+        result: data,
+        args: {
+          ...(props.args as Record<string, unknown>),
+          protocol: data.protocol as string,
+          action: data.action as string,
+        },
+      });
+      const stopText = data._stop_text as string | undefined;
+      if (stopText) {
+        return <div>{card}<div className="mt-2 text-xs text-muted-foreground text-center">{stopText}</div></div>;
+      }
+      return card;
     },
   },
   {
@@ -1038,7 +1263,7 @@ export const FLOW_TOOL_RENDERERS: Array<{
       }
       // Single TX (kind=tx_ready) — route to protocol-specific card
       // via the same EXECUTE_DISPATCHER used by the `execute` MCP tool.
-      return EXECUTE_DISPATCHER.render({
+      const card2 = EXECUTE_DISPATCHER.render({
         ...props,
         result: data,
         args: {
@@ -1047,6 +1272,11 @@ export const FLOW_TOOL_RENDERERS: Array<{
           action: data.action as string,
         },
       });
+      const stop2 = data._stop_text as string | undefined;
+      if (stop2) {
+        return <div>{card2}<div className="mt-2 text-xs text-muted-foreground text-center">{stop2}</div></div>;
+      }
+      return card2;
     },
   },
   {

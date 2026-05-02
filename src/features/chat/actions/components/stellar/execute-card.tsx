@@ -332,7 +332,8 @@ export function StellarExecuteCard({
   });
 
   const [showXdr, setShowXdr] = useState(false);
-  const [cancelled, setCancelled] = useState(false);
+  // Derive cancelled from persisted txResult so it survives page reloads
+  const cancelled = txResult !== null && !txResult.success && txResult.message === "Transaction cancelled";
 
   const handleSign = () => sign(xdr);
 
@@ -472,7 +473,6 @@ export function StellarExecuteCard({
               className="flex-1 rounded-lg py-2 text-xs font-semibold border border-border text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-[0.98]"
               disabled={signing}
               onClick={() => {
-                setCancelled(true);
                 cancel();
               }}
             >

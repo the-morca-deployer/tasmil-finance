@@ -22,6 +22,13 @@ import {
   SoroswapPositionsCard,
   SoroswapTxCard,
 } from "@/features/protocols/cards/soroswap";
+import { SwapExecuteCard } from "@/features/chat/actions/components/stellar/swap-execute-card";
+import {
+  normalizeSoroswapPoolsFromSdk,
+  normalizeSoroswapQuoteFromSdk,
+  normalizeSoroswapPositionsFromSdk,
+  normalizeSoroswapYieldFromSdk,
+} from "@/features/protocols/adapters/soroswap-from-sdk";
 import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
@@ -266,25 +273,40 @@ function OpPanel({
         </Typography>
       )}
       {result?.xdr && (
-        <div className="mt-1">
-          <SoroswapTxCard
-            tx={{
-              operation: String(result.operation ?? operation),
+        <div className="mt-1 space-y-4">
+          <SoroswapTxCard tx={{
+            operation: String(result.operation ?? operation),
+            xdr: String(result.xdr ?? ""),
+            estimatedFee: result.estimatedFee ? String(result.estimatedFee) : undefined,
+            from: form.fromAddress ?? form.to ?? undefined,
+            tokenIn: form.assetIn ?? undefined,
+            tokenOut: form.assetOut ?? undefined,
+            amount: form.amount ?? undefined,
+            amountA: form.amountA ?? undefined,
+            amountB: form.amountB ?? undefined,
+            assetA: form.assetA ?? undefined,
+            assetB: form.assetB ?? undefined,
+            route: result.route ?? undefined,
+            context: result.context,
+          }} mode="playground" />
+
+          {/* NEW unified swap/bridge execute card preview */}
+          <div className="border-t border-border/50 pt-4 mt-4">
+            <p className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-3">
+              NEW — Unified Swap/Bridge Execute Card
+            </p>
+            <SwapExecuteCard tx={{
+              operation: "swap",
+              protocol: "soroswap",
+              tokenIn: form.assetIn ?? "XLM",
+              tokenOut: form.assetOut ?? "USDC",
+              amountIn: form.amount ?? "0",
               xdr: String(result.xdr ?? ""),
               estimatedFee: result.estimatedFee ? String(result.estimatedFee) : undefined,
-              from: form.fromAddress ?? form.to ?? undefined,
-              tokenIn: form.assetIn ?? undefined,
-              tokenOut: form.assetOut ?? undefined,
-              amount: form.amount ?? undefined,
-              amountA: form.amountA ?? undefined,
-              amountB: form.amountB ?? undefined,
-              assetA: form.assetA ?? undefined,
-              assetB: form.assetB ?? undefined,
-              route: result.route ?? undefined,
+              routeTokens: result.route ?? undefined,
               context: result.context,
-            }}
-            mode="playground"
-          />
+            }} mode="playground" />
+          </div>
         </div>
       )}
     </div>
@@ -687,6 +709,47 @@ export default function SoroswapPlaygroundPage() {
 
         {/* ═══ Operations ═══ */}
         {tab === "operations" && (
+          <>
+          {/* ── Mock preview of the NEW unified swap/bridge card ── */}
+          <div className="mb-6 rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
+            <p className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-3">
+              PREVIEW — Unified Swap Execute Card (no API needed)
+            </p>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              <SwapExecuteCard tx={{
+                operation: "swap",
+                protocol: "soroswap",
+                tokenIn: "XLM",
+                tokenOut: "USDC",
+                amountIn: "120000000",
+                amountOut: "24000000",
+                xdr: "AAAAAgAAAADaYqJcK4ZQ3FgMBkKP6F8LRGpF+...",
+                estimatedFee: "100000",
+                feePercent: "~0.30%",
+                priceImpact: "0.12%",
+                expectedRate: "0.2000000",
+                routeTokens: ["XLM", "USDC"],
+                routePools: ["CBQIQ3UUIPJRIUFEX6DI3FZ2LOELW74YJO3OC4KNEZD3YJNLDCKG33TQ"],
+              }} mode="playground" />
+              <SwapExecuteCard tx={{
+                operation: "bridge",
+                protocol: "allbridge",
+                provider: "allbridge",
+                tokenIn: "USDC",
+                tokenOut: "USDC",
+                amountIn: "500000000",
+                amountOut: "5000000",
+                xdr: "AAAAAgAAAADaYqJcK4ZQ3FgMBkKP6F8LRGpF+...",
+                estimatedFee: "50000",
+                estimatedTime: "~2 min",
+                fromChain: "stellar",
+                toChain: "ethereum",
+                fromAddress: "GDQI7LOGDRQRM5OXEIEY7TDHUYEHGQ7RX3KOJU3FNUP6HBDHUGWA3I6R",
+                toAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1",
+              }} mode="playground" />
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             <OpPanel
               title="Swap"
@@ -752,6 +815,7 @@ export default function SoroswapPlaygroundPage() {
               }}
             />
           </div>
+        </>
         )}
 
         {/* Footer */}

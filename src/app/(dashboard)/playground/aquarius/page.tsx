@@ -29,7 +29,14 @@ import {
   AquaRewardsCard,
   AquaTxCard,
 } from "@/features/protocols/cards/aquarius";
-import { useMultiTrustlineCheck } from "@/features/protocols/hooks/use-multi-trustline-check";
+import { SwapExecuteCard } from "@/features/chat/actions/components/stellar/swap-execute-card";
+import {
+  normalizeAquaPoolsFromSdk,
+  normalizeAquaPoolFromSdk,
+  normalizeAquaQuoteFromSdk,
+  normalizeAquaYieldFromSdk,
+  normalizeAquaPositionsFromSdk,
+} from "@/features/protocols/adapters/aquarius-from-sdk";
 import { TokenImage } from "@/shared/components/token-image";
 import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
@@ -297,7 +304,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
         </Typography>
       )}
       {result?.xdr && (
-        <div className="mt-1">
+        <div className="mt-1 space-y-4">
           <AquaTxCard
             tx={{
               operation: String(result.operation ?? operation),
@@ -315,6 +322,27 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
             }}
             mode="playground"
           />
+
+          {/* NEW unified swap/bridge execute card — protocol-agnostic */}
+          {operation === "swap" ? (
+            <div className="border-t border-border/50 pt-4 mt-4">
+              <p className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-3">
+                NEW — Unified Swap/Bridge Execute Card (Aquarius)
+              </p>
+              <SwapExecuteCard tx={{
+                operation: "swap",
+                protocol: "aquarius",
+                tokenIn: form.tokenIn ?? "XLM",
+                tokenOut: form.tokenOut ?? "USDC",
+                amountIn: form.amount ?? "0",
+                xdr: String(result.xdr ?? ""),
+                estimatedFee: result.estimatedFee ? String(result.estimatedFee) : undefined,
+                routeTokens: result.route?.tokens ?? undefined,
+                routePools: result.route?.pools ?? undefined,
+                context: result.context,
+              }} mode="playground" />
+            </div>
+          ) : null}
         </div>
       )}
       {/* For lock-aqua that returns instruction instead of XDR */}

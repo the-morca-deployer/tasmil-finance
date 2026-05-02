@@ -112,6 +112,9 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
             const mid = msg.id as string | undefined;
             if (mid?.startsWith("do-not-render")) return false;
             if (mid?.startsWith("__do_not_render__")) return false;
+            // Skip __hidden__ AI messages (middleware stop-placeholders) but
+            // keep __hidden__ human messages (carry transaction state for the backend).
+            if (mid?.startsWith("__hidden__") && msg.type === "ai") return false;
             // Skip system messages (wallet context injected per-run)
             if (msg.type === "system") return false;
             return true;

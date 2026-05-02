@@ -85,16 +85,38 @@ export const shouldFilterMessage = (
   // Filter duplicate AI messages with identical tool_calls — when a graph retry
   // or double-POST creates multiple AI messages calling the same tools with the
   // same args, keep only the LAST one (which has the most recent result).
+  // BUT: prefer the message that actually has tool results.  If the later
+  // message has no matching tool messages (middleware stripped execution),
+  // keep the earlier one that does have results instead.
   if (hasToolCalls) {
     const toolCallKey = (tc: any) => `${tc.name}:${JSON.stringify(tc.args)}`;
     const myKeys = new Set(aiMsg.tool_calls.map(toolCallKey));
+    const searchIn = fullMessages ?? allMessages;
+    const myToolCallIds = new Set(
+      aiMsg.tool_calls.map((tc: any) => tc.id).filter(Boolean)
+    );
+    const iHaveResults = searchIn.some(
+      (m: any) => m.type === 'tool' && myToolCallIds.has(m.tool_call_id)
+    );
 
     for (let i = index + 1; i < allMessages.length; i++) {
       const later = allMessages[i] as any;
       if (later.type !== "ai" || !later.tool_calls?.length) continue;
       const laterKeys = new Set(later.tool_calls.map(toolCallKey));
       // If all my tool calls appear in a later AI message, I'm the earlier duplicate
-      if ([...myKeys].every((k) => laterKeys.has(k))) return true;
+      if ([...myKeys].every((k) => laterKeys.has(k))) {
+        // But if I have tool results and the later message doesn't, keep me.
+        // This can happen when middleware strips execution of the duplicate call
+        // but the original AI message remains in thread state.
+        const laterToolCallIds = new Set(
+          later.tool_calls.map((tc: any) => tc.id).filter(Boolean)
+        );
+        const laterHasResults = searchIn.some(
+          (m: any) => m.type === 'tool' && laterToolCallIds.has(m.tool_call_id)
+        );
+        if (iHaveResults && !laterHasResults) return false;
+        return true;
+      }
     }
   }
 
@@ -118,13 +140,43 @@ export const mergeMessagesWithCache = (cached: Message[], incoming: Message[]): 
       }
 
       if (newContentLength >= cachedContentLength || cachedContentLength === 0) {
-        // Preserve tool_calls from cached message if incoming message lost them.
-        // AG-UI may update an AI message's content while dropping tool_calls,
-        // which causes the tool UI to disappear mid-stream.
+        // Preserve tool_calls from cached message if incoming message lost them
+        // due to AG-UI streaming (content extended but tool_calls array dropped).
+        // Only do this when the new content is an extension of the cached content
+        // (streaming).  When the backend middleware intentionally replaces a
+        // message (e.g. stripping unexecuted tool_calls after flow_clarify),
+        // the new content is completely different — in that case DONʼT restore.
         const cachedToolCalls = (cachedMsg as any).tool_calls;
         const newToolCalls = (newMsg as any).tool_calls;
         if (cachedToolCalls?.length > 0 && (!newToolCalls || newToolCalls.length === 0)) {
-          (newMsg as any).tool_calls = cachedToolCalls;
+          const cachedContentStr =
+            typeof cachedMsg.content === "string"
+              ? cachedMsg.content
+              : Array.isArray(cachedMsg.content)
+                ? cachedMsg.content
+                    .filter((c: any) => c.type === "text")
+                    .map((c: any) => c.text ?? "")
+                    .join("")
+                : "";
+          const newContentStr =
+            typeof newMsg.content === "string"
+              ? newMsg.content
+              : Array.isArray(newMsg.content)
+                ? newMsg.content
+                    .filter((c: any) => c.type === "text")
+                    .map((c: any) => c.text ?? "")
+                    .join("")
+                : "";
+          // Only restore tool_calls when the new content is an extension of
+          // the cached content (prefix match = streaming append).  If the
+          // content was completely replaced, the backend middleware
+          // intentionally stripped the tool_calls.
+          if (
+            cachedContentStr &&
+            newContentStr.startsWith(cachedContentStr)
+          ) {
+            (newMsg as any).tool_calls = cachedToolCalls;
+          }
         }
         merged[idx] = newMsg;
       }

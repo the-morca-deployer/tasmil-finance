@@ -95,6 +95,7 @@ export function BridgeExecuteCard({
   // ── Stellar signing ───────────────────────────────────────────
   const {
     sign: signStellar,
+    cancel: cancelStellar,
     signing: stellarSigning,
     txResult,
     txError,
@@ -153,7 +154,8 @@ export function BridgeExecuteCard({
   };
 
   const [showData, setShowData] = useState(false);
-  const [cancelled, setCancelled] = useState(false);
+  // Derive cancelled from persisted txResult so it survives page reloads
+  const cancelled = txResult !== null && !txResult.success && txResult.message === "Transaction cancelled";
 
   const hasResult = txResult?.success || evmHash;
   const hasError = txError || evmError;
@@ -324,7 +326,7 @@ export function BridgeExecuteCard({
               className="flex-1 rounded-lg py-2 text-xs font-semibold border border-border text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-[0.98]"
               disabled={stellarSigning}
               onClick={() => {
-                setCancelled(true);
+                cancelStellar();
                 respond?.({ success: false, cancelled: true, reason: "User cancelled the operation" });
               }}
             >
@@ -384,7 +386,7 @@ export function BridgeExecuteCard({
                     className="flex-1 rounded-lg py-2 text-xs font-semibold border border-border text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-[0.98]"
                     disabled={evmSigning}
                     onClick={() => {
-                      setCancelled(true);
+                      cancelStellar();
                       respond?.({ success: false, cancelled: true, reason: "User cancelled the operation" });
                     }}
                   >

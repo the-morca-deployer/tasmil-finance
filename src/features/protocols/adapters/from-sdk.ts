@@ -108,7 +108,7 @@ export function normalizeTxFromSdk(
 ): TxCardProps | null {
   const merged = { ...raw, ...(form ?? {}) };
   const result = txCardPropsSchema.safeParse({
-    operation: String(merged.operation ?? ""),
+    operation: String(merged.operation || merged.action || ""),
     xdr: String(merged.xdr ?? ""),
     estimatedFee: merged.estimatedFee != null ? String(merged.estimatedFee) : undefined,
     asset: merged.asset != null ? String(merged.asset) : undefined,
