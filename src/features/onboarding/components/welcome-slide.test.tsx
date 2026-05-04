@@ -20,7 +20,7 @@ describe("WelcomeSlide render branches", () => {
     render(
       <WelcomeSlide
         slide={{ ...baseSlide, imageSrc: "/onboarding/chat.png", imageAlt: "preview" }}
-      />,
+      />
     );
     expect(screen.getByRole("img", { name: /preview/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /play intro video/i })).not.toBeInTheDocument();

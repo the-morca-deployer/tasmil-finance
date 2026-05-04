@@ -23,6 +23,6 @@ export const useOnboardingStore = create<OnboardingState>()(
     {
       name: "tasmil-onboarding",
       partialize: (state) => ({ hasCompletedWelcome: state.hasCompletedWelcome }),
-    },
-  ),
+    }
+  )
 );
