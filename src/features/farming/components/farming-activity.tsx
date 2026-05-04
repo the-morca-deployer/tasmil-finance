@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import {
   ArrowDownLeft,
   ArrowLeftRight,
@@ -9,35 +10,37 @@ import {
   Crosshair,
   Droplets,
   Layers,
+  type LucideIcon,
   Pause,
   RefreshCw,
   Settings,
   ShieldOff,
   TrendingUp,
-  Zap,
   XCircle,
-  type LucideIcon,
+  Zap,
 } from "lucide-react";
-import { motion } from "framer-motion";
-import { Skeleton } from "@/shared/ui/skeleton";
-import { Button } from "@/shared/ui/button-v2";
+import { useState } from "react";
+import type { ActivityItem } from "@/features/account/types";
 import { cn } from "@/lib/utils";
 import { getExplorerUrl } from "@/shared/config/stellar";
-import type { ActivityItem } from "@/features/account/types";
+import { Button } from "@/shared/ui/button-v2";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { groupByDate as groupActivitiesByDate } from "@/shared/utils/date-group";
 
 const OP_ICONS: Record<string, { icon: LucideIcon; bg: string; fg: string }> = {
-  DEPLOY:         { icon: Layers,         bg: "bg-primary/10",      fg: "text-primary" },
-  FUND:           { icon: ArrowDownLeft,   bg: "bg-primary/10",      fg: "text-primary" },
-  DEPOSIT:        { icon: ArrowDownLeft,   bg: "bg-primary/10",      fg: "text-primary" },
-  REBALANCE:      { icon: RefreshCw,       bg: "bg-muted/30",        fg: "text-muted-foreground" },
-  HARVEST:        { icon: Zap,             bg: "bg-primary/10",      fg: "text-primary" },
-  WITHDRAW:       { icon: ArrowUpRight,    bg: "bg-destructive/10",  fg: "text-destructive" },
-  HALT:           { icon: XCircle,         bg: "bg-destructive/10",  fg: "text-destructive" },
-  RESUME:         { icon: CheckCircle2,    bg: "bg-primary/10",      fg: "text-primary" },
-  PRESET_CHANGE:  { icon: Settings,        bg: "bg-muted/30",        fg: "text-muted-foreground" },
-  REVOKE:         { icon: ShieldOff,       bg: "bg-destructive/10",  fg: "text-destructive" },
-  BACKSTOP_QUEUE: { icon: Pause,           bg: "bg-muted/30",        fg: "text-muted-foreground" },
-  BACKSTOP_EXIT:  { icon: CheckCircle2,    bg: "bg-primary/10",      fg: "text-primary" },
+  DEPLOY: { icon: Layers, bg: "bg-primary/10", fg: "text-primary" },
+  FUND: { icon: ArrowDownLeft, bg: "bg-primary/10", fg: "text-primary" },
+  DEPOSIT: { icon: ArrowDownLeft, bg: "bg-primary/10", fg: "text-primary" },
+  REBALANCE: { icon: RefreshCw, bg: "bg-muted/30", fg: "text-muted-foreground" },
+  HARVEST: { icon: Zap, bg: "bg-primary/10", fg: "text-primary" },
+  WITHDRAW: { icon: ArrowUpRight, bg: "bg-destructive/10", fg: "text-destructive" },
+  HALT: { icon: XCircle, bg: "bg-destructive/10", fg: "text-destructive" },
+  RESUME: { icon: CheckCircle2, bg: "bg-primary/10", fg: "text-primary" },
+  PRESET_CHANGE: { icon: Settings, bg: "bg-muted/30", fg: "text-muted-foreground" },
+  REVOKE: { icon: ShieldOff, bg: "bg-destructive/10", fg: "text-destructive" },
+  BACKSTOP_QUEUE: { icon: Pause, bg: "bg-muted/30", fg: "text-muted-foreground" },
+  BACKSTOP_EXIT: { icon: CheckCircle2, bg: "bg-primary/10", fg: "text-primary" },
 };
 
 // Sub-type icons for REBALANCE based on detail text
@@ -48,12 +51,75 @@ const REBALANCE_SUB: {
   fg: string;
   label: string;
 }[] = [
-  { match: /initial allocation/i,   icon: Crosshair,      bg: "bg-primary/10",      fg: "text-primary",           label: "Initial Allocation" },
-  { match: /drift/i,                icon: TrendingUp,      bg: "bg-muted/30",        fg: "text-muted-foreground",  label: "Drift Rebalance" },
-  { match: /swap|liquidity/i,       icon: ArrowLeftRight,  bg: "bg-muted/30",        fg: "text-muted-foreground",  label: "Swap Rebalance" },
-  { match: /withdraw|exit/i,        icon: ArrowUpRight,    bg: "bg-destructive/10",  fg: "text-destructive",       label: "Exit Rebalance" },
-  { match: /deposit|supply/i,       icon: Droplets,        bg: "bg-primary/10",      fg: "text-primary",           label: "Supply Rebalance" },
+  {
+    match: /initial allocation/i,
+    icon: Crosshair,
+    bg: "bg-primary/10",
+    fg: "text-primary",
+    label: "Initial Allocation",
+  },
+  {
+    match: /drift/i,
+    icon: TrendingUp,
+    bg: "bg-muted/30",
+    fg: "text-muted-foreground",
+    label: "Drift Rebalance",
+  },
+  {
+    match: /swap|liquidity/i,
+    icon: ArrowLeftRight,
+    bg: "bg-muted/30",
+    fg: "text-muted-foreground",
+    label: "Swap Rebalance",
+  },
+  {
+    match: /withdraw|exit/i,
+    icon: ArrowUpRight,
+    bg: "bg-destructive/10",
+    fg: "text-destructive",
+    label: "Exit Rebalance",
+  },
+  {
+    match: /deposit|supply/i,
+    icon: Droplets,
+    bg: "bg-primary/10",
+    fg: "text-primary",
+    label: "Supply Rebalance",
+  },
 ];
+
+type ActivityCategory = "all" | "protocol" | "reward";
+
+const PROTOCOL_TYPES: ReadonlySet<string> = new Set([
+  "DEPLOY",
+  "FUND",
+  "DEPOSIT",
+  "WITHDRAW",
+  "REBALANCE",
+  "PRESET_CHANGE",
+  "HALT",
+  "RESUME",
+  "REVOKE",
+]);
+
+const REWARD_TYPES: ReadonlySet<string> = new Set([
+  "HARVEST",
+  "BACKSTOP_QUEUE",
+  "BACKSTOP_EXIT",
+]);
+
+function categoryFilter(category: ActivityCategory) {
+  return (a: ActivityItem) => {
+    if (category === "all") return true;
+    if (category === "protocol") return PROTOCOL_TYPES.has(a.type);
+    if (category === "reward") return REWARD_TYPES.has(a.type);
+    return false;
+  };
+}
+
+function isReward(type: string): boolean {
+  return REWARD_TYPES.has(type);
+}
 
 function getActivityIcon(activity: ActivityItem): { icon: LucideIcon; bg: string; fg: string } {
   if (activity.type === "REBALANCE" && activity.detail) {
@@ -159,7 +225,7 @@ export function FarmingActivitySidebar({
                 <div
                   className={cn(
                     "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                    iconConfig.bg,
+                    iconConfig.bg
                   )}
                 >
                   <Icon className={cn("h-3.5 w-3.5", iconConfig.fg)} />
@@ -205,6 +271,7 @@ interface FarmingActivityProps {
 
 export function FarmingActivity({ activities, isLoading }: FarmingActivityProps) {
   const items = activities ?? [];
+  const [category, setCategory] = useState<ActivityCategory>("all");
 
   if (isLoading) {
     return (
@@ -233,6 +300,9 @@ export function FarmingActivity({ activities, isLoading }: FarmingActivityProps)
     );
   }
 
+  const filtered = items.filter(categoryFilter(category));
+  const groups = groupActivitiesByDate(filtered);
+
   return (
     <motion.div
       className="flex flex-col gap-4"
@@ -240,72 +310,106 @@ export function FarmingActivity({ activities, isLoading }: FarmingActivityProps)
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
     >
-      <div>
-        <h2 className="text-xl font-semibold text-foreground">Activity Timeline</h2>
-        <p className="text-sm text-muted-foreground">
-          Full history of account actions and automation events.
-        </p>
+      <div className="flex items-end justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Activity Timeline</h2>
+          <p className="text-sm text-muted-foreground">
+            Full history of account actions and automation events.
+          </p>
+        </div>
+        <Tabs
+          value={category}
+          onValueChange={(v) => setCategory(v as ActivityCategory)}
+        >
+          <TabsList>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="protocol">Protocol</TabsTrigger>
+            <TabsTrigger value="reward">Reward</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
-      {items.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground">
           <Clock className="h-8 w-8 opacity-40" />
-          <p className="text-sm">No activity yet</p>
+          <p className="text-sm">
+            {category === "reward"
+              ? "No rewards yet"
+              : category === "protocol"
+              ? "No protocol activity yet"
+              : "No activity yet"}
+          </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-card">
-          <div className="flex flex-col divide-y divide-border">
-            {items.map((activity, idx) => {
-              const iconConfig = getActivityIcon(activity);
-              const Icon = iconConfig.icon;
-              const label = getActivityLabel(activity);
+        <div className="flex flex-col gap-4">
+          {groups.map((group) => (
+            <section key={group.key} className="flex flex-col gap-2">
+              <h3 className="px-1 pt-2 text-sm font-semibold text-muted-foreground">
+                {group.label}
+              </h3>
+              <div className="overflow-hidden rounded-xl border border-border bg-card">
+                <div className="flex flex-col divide-y divide-border">
+                  {group.items.map((activity, idx) => {
+                    const iconConfig = getActivityIcon(activity);
+                    const Icon = iconConfig.icon;
+                    const label = getActivityLabel(activity);
+                    const reward = isReward(activity.type);
 
-              return (
-                <motion.div
-                  key={activity.id}
-                  className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-muted/20"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.25, delay: idx * 0.02 }}
-                >
-                  <div
-                    className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                      iconConfig.bg,
-                    )}
-                  >
-                    <Icon className={cn("h-[15px] w-[15px]", iconConfig.fg)} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-foreground">{label}</p>
-                    {activity.detail && (
-                      <p className="truncate text-sm text-muted-foreground">
-                        {activity.detail}
-                      </p>
-                    )}
-                  </div>
-                  {activity.amount != null && activity.token && (
-                    <span className="shrink-0 text-sm font-semibold text-foreground">
-                      {activity.amount} {activity.token}
-                    </span>
-                  )}
-                  {activity.txHash && (
-                    <a
-                      href={getExplorerUrl("tx", activity.txHash)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="shrink-0 text-sm text-primary hover:underline"
-                    >
-                      TX
-                    </a>
-                  )}
-                  <span className="shrink-0 text-sm text-muted-foreground">
-                    {formatRelativeTime(activity.createdAt)}
-                  </span>
-                </motion.div>
-              );
-            })}
-          </div>
+                    return (
+                      <motion.div
+                        key={activity.id}
+                        className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-muted/20"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.25, delay: idx * 0.02 }}
+                      >
+                        <div
+                          className={cn(
+                            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+                            iconConfig.bg,
+                          )}
+                        >
+                          <Icon className={cn("h-[15px] w-[15px]", iconConfig.fg)} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-foreground">{label}</p>
+                          {activity.detail && (
+                            <p className="truncate text-sm text-muted-foreground">
+                              {activity.detail}
+                            </p>
+                          )}
+                        </div>
+                        {activity.amount != null && activity.token && (
+                          <span
+                            className={cn(
+                              "shrink-0 text-sm font-semibold",
+                              reward ? "text-emerald-400" : "text-foreground",
+                            )}
+                          >
+                            {reward ? "+" : ""}
+                            {activity.amount} {activity.token}
+                          </span>
+                        )}
+                        {activity.txHash && (
+                          <a
+                            href={getExplorerUrl("tx", activity.txHash)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="shrink-0 text-sm text-primary hover:underline"
+                          >
+                            TX
+                          </a>
+                        )}
+                        <span className="shrink-0 text-sm text-muted-foreground">
+                          {formatRelativeTime(activity.createdAt)}
+                        </span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          ))}
         </div>
       )}
     </motion.div>
