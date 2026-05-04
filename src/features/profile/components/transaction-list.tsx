@@ -25,6 +25,9 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import type { StellarOperation } from "../hooks/use-stellar-transactions";
 import { useStellarTransactions } from "../hooks/use-stellar-transactions";
 import { useTransactionDetail } from "../hooks/use-transaction-detail";
+import {
+  groupByDate as groupOpsByDate,
+} from "@/shared/utils/date-group";
 
 // ─── Icon map ─────────────────────────────────────────────────────────────────
 // Icons chosen to be semantically obvious to non-devs
@@ -98,20 +101,6 @@ function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
-  });
-}
-
-function formatGroupDate(iso: string): string {
-  const d = new Date(iso);
-  const now = new Date();
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
-  if (d.toDateString() === now.toDateString()) return "Today";
-  if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
-  return d.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
   });
 }
 
@@ -209,22 +198,6 @@ function getRightInfo(op: StellarOperation, address: string): RightInfo | null {
     return { label: "Pool", value: op.assetCode ?? "—" };
   }
   return null;
-}
-
-// ─── Group by date ────────────────────────────────────────────────────────────
-
-function groupByDate(ops: StellarOperation[]): { label: string; ops: StellarOperation[] }[] {
-  const map = new Map<string, StellarOperation[]>();
-  for (const op of ops) {
-    const key = new Date(op.createdAt).toDateString();
-    const bucket = map.get(key);
-    if (bucket) bucket.push(op);
-    else map.set(key, [op] as StellarOperation[]);
-  }
-  return Array.from(map.entries()).map(([, dayOps]) => ({
-    label: formatGroupDate(dayOps[0]!.createdAt),
-    ops: dayOps,
-  }));
 }
 
 // ─── Status Dot + Details Panel ────────────────────────────────────────────────
@@ -413,7 +386,7 @@ export function TransactionList({ address }: { address: string }) {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const allOps = data?.pages.flatMap((p) => p.operations) ?? [];
-  const groups = groupByDate(allOps);
+  const groups = groupOpsByDate(allOps);
 
   const loadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
@@ -493,12 +466,12 @@ export function TransactionList({ address }: { address: string }) {
       </div>
 
       {groups.map((group) => (
-        <div key={group.label} className="flex flex-col gap-2">
+        <div key={group.key} className="flex flex-col gap-2">
           {/* Date label */}
           <p className="px-1 pt-2 text-sm font-semibold text-muted-foreground">{group.label}</p>
           {/* Rows card */}
           <div className="overflow-hidden rounded-xl border border-border bg-card divide-y divide-border/60">
-            {group.ops.map((op) => (
+            {group.items.map((op) => (
               <TxRow key={op.id} op={op} address={address} />
             ))}
           </div>
