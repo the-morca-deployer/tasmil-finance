@@ -16,6 +16,10 @@ describe("scaleByDecimals", () => {
   it("preserves precision for very large amounts", () => {
     expect(scaleByDecimals("123456789012345", 7)).toBe("12345678.9012345");
   });
+
+  it("returns input unchanged when raw is NaN", () => {
+    expect(scaleByDecimals("not-a-number", 7)).toBe("not-a-number");
+  });
 });
 
 describe("formatAmount", () => {
@@ -41,6 +45,22 @@ describe("formatAmount", () => {
 
   it("never returns NaN", () => {
     expect(formatAmount("not-a-number")).toBe("not-a-number");
+  });
+
+  it("prefixes minus for negative thousands", () => {
+    expect(formatAmount("-1234.56")).toBe("−1.23K");
+  });
+
+  it("prefixes minus for negative millions", () => {
+    expect(formatAmount("-1234567.89")).toBe("−1.23M");
+  });
+
+  it("prefixes minus for negative integers >= 1", () => {
+    expect(formatAmount("-12.5")).toBe("−12.5");
+  });
+
+  it("prefixes minus for negative sub-1", () => {
+    expect(formatAmount("-0.00012345")).toBe("−0.0001235");
   });
 });
 

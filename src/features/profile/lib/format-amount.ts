@@ -22,7 +22,7 @@ export function formatAmount(value: string): string {
     return `${sign}${abs.dividedBy(1_000).toFixed(2)}K`;
   }
   if (abs.gte(1)) {
-    return `${sign}${abs.toFormat(4, BigNumber.ROUND_HALF_EVEN).replace(/\.?0+$/, "")}`;
+    return `${sign}${abs.toFixed(4, BigNumber.ROUND_HALF_EVEN).replace(/\.?0+$/, "")}`;
   }
   if (abs.isZero()) return "0";
   return `${sign}${abs.toPrecision(4)}`;
