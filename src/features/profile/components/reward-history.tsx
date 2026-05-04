@@ -14,19 +14,13 @@ export interface RewardHistoryViewProps {
 }
 
 export function RewardHistoryView({ walletAddress }: RewardHistoryViewProps) {
-  const {
-    activities,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    error,
-  } = useAccountActivityInfinite(walletAddress, "reward");
+  const { activities, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, error } =
+    useAccountActivityInfinite(walletAddress, "reward");
 
   if (isLoading) return <Skeleton className="h-32 w-full" />;
   if (error) {
     return (
-      <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+      <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-destructive text-sm">
         Could not load rewards: {error.message}
       </div>
     );
@@ -51,7 +45,7 @@ export function RewardHistoryView({ walletAddress }: RewardHistoryViewProps) {
           type="button"
           onClick={fetchNextPage}
           disabled={isFetchingNextPage}
-          className="self-center rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/30 disabled:opacity-50"
+          className="self-center rounded-full border border-border bg-card px-4 py-1.5 font-medium text-muted-foreground text-xs hover:bg-muted/30 disabled:opacity-50"
         >
           {isFetchingNextPage ? "Loading…" : "Load more"}
         </button>
@@ -75,14 +69,9 @@ function HarvestRow({ activity }: { activity: ActivityItem }) {
             onClick={() => setOpen((v) => !v)}
             aria-label="Harvest details"
             aria-expanded={open}
-            className="flex w-full items-center justify-center gap-1 border-t border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/30"
+            className="flex w-full items-center justify-center gap-1 border-border border-t px-3 py-1.5 text-muted-foreground text-xs hover:bg-muted/30"
           >
-            <ChevronDown
-              className={cn(
-                "h-3 w-3 transition-transform",
-                open && "rotate-180"
-              )}
-            />
+            <ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} />
             {open
               ? "Hide breakdown"
               : `Show ${perPool.length} pool${perPool.length === 1 ? "" : "s"}`}
@@ -96,16 +85,15 @@ function HarvestRow({ activity }: { activity: ActivityItem }) {
 
 function PerPoolTable({ rows }: { rows: PerPoolReward[] }) {
   return (
-    <div className="border-t border-border">
+    <div className="border-border border-t">
       {rows.map((r, i) => (
         <div
           key={`${r.poolId}-${i}`}
-          className="flex items-center justify-between px-5 py-2 text-xs text-muted-foreground"
+          className="flex items-center justify-between px-5 py-2 text-muted-foreground text-xs"
         >
           <span className="capitalize">{r.protocol}</span>
           <span className="text-emerald-400">
-            +{r.amount.toLocaleString(undefined, { maximumFractionDigits: 4 })}{" "}
-            {r.token}
+            +{r.amount.toLocaleString(undefined, { maximumFractionDigits: 4 })} {r.token}
             {r.amountUsd != null && (
               <span className="ml-2 text-muted-foreground">
                 ($

@@ -7,7 +7,7 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { type DatedItem, groupByDate } from "@/shared/utils/date-group";
 import { useAccountActivityInfinite } from "../hooks/use-account-activity-infinite";
 import { ActivityRow } from "./activity-row";
-import { FilterChips, type FilterChip } from "./filter-chips";
+import { type FilterChip, FilterChips } from "./filter-chips";
 
 type ProtocolFilter = "all" | "blend" | "soroswap" | "aquarius" | "phoenix";
 type AssetFilter = "all" | "USDC" | "XLM";
@@ -31,14 +31,8 @@ export interface ProtocolHistoryViewProps {
 }
 
 export function ProtocolHistoryView({ walletAddress }: ProtocolHistoryViewProps) {
-  const {
-    activities,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    error,
-  } = useAccountActivityInfinite(walletAddress, "protocol");
+  const { activities, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, error } =
+    useAccountActivityInfinite(walletAddress, "protocol");
   const [protocol, setProtocol] = useState<ProtocolFilter>("all");
   const [asset, setAsset] = useState<AssetFilter>("all");
 
@@ -57,7 +51,7 @@ export function ProtocolHistoryView({ walletAddress }: ProtocolHistoryViewProps)
   if (isLoading) return <ActivityListSkeleton />;
   if (error) {
     return (
-      <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+      <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-destructive text-sm">
         Could not load activity: {error.message}
       </div>
     );
@@ -91,7 +85,7 @@ export function ProtocolHistoryView({ walletAddress }: ProtocolHistoryViewProps)
           type="button"
           onClick={fetchNextPage}
           disabled={isFetchingNextPage}
-          className="self-center rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/30 disabled:opacity-50"
+          className="self-center rounded-full border border-border bg-card px-4 py-1.5 font-medium text-muted-foreground text-xs hover:bg-muted/30 disabled:opacity-50"
         >
           {isFetchingNextPage ? "Loading…" : "Load more"}
         </button>
@@ -107,9 +101,7 @@ function ActivityGroups({ items }: { items: ActivityItem[] }) {
     <>
       {groups.map((group) => (
         <section key={group.key} className="flex flex-col gap-2">
-          <h3 className="px-1 pt-2 text-sm font-semibold text-muted-foreground">
-            {group.label}
-          </h3>
+          <h3 className="px-1 pt-2 font-semibold text-muted-foreground text-sm">{group.label}</h3>
           <div className="overflow-hidden rounded-xl border border-border bg-card">
             <div className="flex flex-col divide-y divide-border">
               {group.items.map((a) => (
@@ -124,8 +116,7 @@ function ActivityGroups({ items }: { items: ActivityItem[] }) {
 }
 
 function EmptyState({ protocol }: { protocol: string }) {
-  const copy =
-    protocol === "all" ? "No protocol activity yet" : `No ${protocol} activity yet`;
+  const copy = protocol === "all" ? "No protocol activity yet" : `No ${protocol} activity yet`;
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground">
       <Clock className="h-8 w-8 opacity-40" />

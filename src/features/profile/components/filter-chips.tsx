@@ -21,11 +21,7 @@ export function FilterChips<T extends string>({
   ariaLabel,
 }: FilterChipsProps<T>) {
   return (
-    <div
-      role="radiogroup"
-      aria-label={ariaLabel}
-      className="flex flex-wrap items-center gap-2"
-    >
+    <div role="radiogroup" aria-label={ariaLabel} className="flex flex-wrap items-center gap-2">
       {chips.map((chip) => {
         const selected = chip.value === active;
         return (
@@ -36,7 +32,7 @@ export function FilterChips<T extends string>({
             aria-checked={selected}
             onClick={() => onChange(chip.value)}
             className={cn(
-              "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+              "rounded-full border px-3 py-1 font-medium text-xs transition-colors",
               selected
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border bg-card text-muted-foreground hover:bg-muted/30"

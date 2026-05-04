@@ -1,12 +1,12 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { accountControllerGetActivity } from "@/gen-backend/client/account-controller-get-activity";
 import type {
   ActivityCategory,
   ActivityItem,
   ActivityListResponse,
 } from "@/features/account/types";
+import { accountControllerGetActivity } from "@/gen-backend/client/account-controller-get-activity";
 
 interface BackendEnvelope<T> {
   success?: boolean;

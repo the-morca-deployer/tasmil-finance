@@ -26,9 +26,7 @@ export function RewardSummaryCard({ activities }: RewardSummaryCardProps) {
     return { lifetimeUsd, byToken, lastHarvestAt };
   }, [activities]);
 
-  const tokenChips = Array.from(summary.byToken.entries()).sort(
-    (a, b) => b[1] - a[1]
-  );
+  const tokenChips = Array.from(summary.byToken.entries()).sort((a, b) => b[1] - a[1]);
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5">
@@ -37,8 +35,8 @@ export function RewardSummaryCard({ activities }: RewardSummaryCardProps) {
           <Zap className="h-5 w-5 text-emerald-400" />
         </div>
         <div>
-          <p className="text-xs text-muted-foreground">Lifetime rewards (loaded)</p>
-          <p className="text-2xl font-semibold text-foreground">
+          <p className="text-muted-foreground text-xs">Lifetime rewards (loaded)</p>
+          <p className="font-semibold text-2xl text-foreground">
             $
             {summary.lifetimeUsd.toLocaleString(undefined, {
               maximumFractionDigits: 2,
@@ -51,16 +49,15 @@ export function RewardSummaryCard({ activities }: RewardSummaryCardProps) {
           {tokenChips.map(([token, amount]) => (
             <span
               key={token}
-              className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300"
+              className="rounded-full bg-emerald-500/10 px-3 py-1 font-medium text-emerald-300 text-xs"
             >
-              {amount.toLocaleString(undefined, { maximumFractionDigits: 4 })}{" "}
-              {token}
+              {amount.toLocaleString(undefined, { maximumFractionDigits: 4 })} {token}
             </span>
           ))}
         </div>
       )}
       {summary.lastHarvestAt && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Last harvest: {formatDistanceToNowStrict(summary.lastHarvestAt)} ago
         </p>
       )}

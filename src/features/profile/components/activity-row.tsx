@@ -74,28 +74,20 @@ export function ActivityRow({ activity }: ActivityRowProps) {
         )}
       >
         {protocolIcon ? (
-          <Image
-            src={protocolIcon}
-            alt=""
-            width={20}
-            height={20}
-            className="rounded-full"
-          />
+          <Image src={protocolIcon} alt="" width={20} height={20} className="rounded-full" />
         ) : (
           <ActionIcon className={cn("h-[15px] w-[15px]", actionConfig.fg)} />
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-foreground">{label}</p>
-        {subline && (
-          <p className="truncate text-xs text-muted-foreground">{subline}</p>
-        )}
+        <p className="truncate font-medium text-foreground text-sm">{label}</p>
+        {subline && <p className="truncate text-muted-foreground text-xs">{subline}</p>}
       </div>
       {activity.amount != null && activity.token && (
         <div className="flex shrink-0 flex-col items-end">
           <span
             className={cn(
-              "text-sm font-semibold",
+              "font-semibold text-sm",
               isReward ? "text-emerald-400" : "text-foreground"
             )}
           >
@@ -106,7 +98,7 @@ export function ActivityRow({ activity }: ActivityRowProps) {
             {activity.token}
           </span>
           {activity.amountUsd != null && (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               $
               {activity.amountUsd.toLocaleString(undefined, {
                 maximumFractionDigits: 2,
@@ -120,12 +112,12 @@ export function ActivityRow({ activity }: ActivityRowProps) {
           href={getExplorerUrl("tx", activity.txHash)}
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0 text-sm text-primary hover:underline"
+          className="shrink-0 text-primary text-sm hover:underline"
         >
           TX
         </a>
       )}
-      <span className="shrink-0 text-xs text-muted-foreground">
+      <span className="shrink-0 text-muted-foreground text-xs">
         {new Date(activity.createdAt).toLocaleTimeString("en-US", {
           hour: "2-digit",
           minute: "2-digit",
