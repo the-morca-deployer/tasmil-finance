@@ -310,7 +310,121 @@ test.describe("T3 — Credit mechanic (P1)", () => {
 });
 
 test.describe("T4 — Protocol/Reward split (P1)", () => {
-  // tests added in Task 9
+  test("/portfolio?tab=history shows Wallet / Protocol / Reward sub-tabs", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    await clearWatchlistState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/portfolio?tab=history");
+
+    // Dismiss onboarding modal if it auto-opens
+    const dialog = page.getByRole("dialog");
+    if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await page.getByRole("button", { name: /Skip/i }).click();
+      await expect(dialog).not.toBeVisible({ timeout: 3000 });
+    }
+
+    await expect(page.getByRole("tab", { name: /^Wallet$/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("tab", { name: /^Protocol$/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /^Reward$/i })).toBeVisible();
+  });
+
+  test("Wallet sub-tab is default", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/portfolio?tab=history");
+
+    const dialog = page.getByRole("dialog");
+    if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await page.getByRole("button", { name: /Skip/i }).click();
+      await expect(dialog).not.toBeVisible({ timeout: 3000 });
+    }
+
+    const walletTab = page.getByRole("tab", { name: /^Wallet$/i });
+    await expect(walletTab).toBeVisible({ timeout: 10_000 });
+    await expect(walletTab).toHaveAttribute("data-state", "active");
+  });
+
+  test("Protocol sub-tab filters to PROTOCOL_TYPES only (no Harvest/Backstop)", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/portfolio?tab=history");
+
+    const dialog = page.getByRole("dialog");
+    if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await page.getByRole("button", { name: /Skip/i }).click();
+      await expect(dialog).not.toBeVisible({ timeout: 3000 });
+    }
+
+    await page.getByRole("tab", { name: /^Protocol$/i }).click();
+
+    // Either we see protocol-type rows (Deposit, Withdraw, Rebalance, ...) or
+    // we see the empty state. Reward labels (Harvest, Backstop) MUST NOT appear.
+    const harvest = page.getByText(/Harvest/i);
+    const backstop = page.getByText(/Backstop/i);
+    expect(await harvest.isVisible({ timeout: 1000 }).catch(() => false)).toBe(false);
+    expect(await backstop.isVisible({ timeout: 1000 }).catch(() => false)).toBe(false);
+
+    // Show either rows or the empty-state copy
+    const empty = page.getByText(/No protocol activity yet/i);
+    const protocolRow = page.locator("text=/Deposit|Withdrawal|Rebalance/i").first();
+    const emptyVisible = await empty.isVisible({ timeout: 3000 }).catch(() => false);
+    const rowVisible = await protocolRow.isVisible({ timeout: 3000 }).catch(() => false);
+    expect(emptyVisible || rowVisible).toBe(true);
+  });
+
+  test("Reward sub-tab filters to REWARD_TYPES with green + prefix", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/portfolio?tab=history");
+
+    const dialog = page.getByRole("dialog");
+    if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await page.getByRole("button", { name: /Skip/i }).click();
+      await expect(dialog).not.toBeVisible({ timeout: 3000 });
+    }
+
+    await page.getByRole("tab", { name: /^Reward$/i }).click();
+
+    // Protocol-only labels MUST NOT appear under Reward
+    const deposit = page.getByText(/^Deposit$/i);
+    const withdraw = page.getByText(/^Withdrawal$/i);
+    expect(await deposit.isVisible({ timeout: 1000 }).catch(() => false)).toBe(false);
+    expect(await withdraw.isVisible({ timeout: 1000 }).catch(() => false)).toBe(false);
+
+    const empty = page.getByText(/No rewards yet/i);
+    const plusRow = page.locator("text=/^\\+\\d/").first();
+    const emptyVisible = await empty.isVisible({ timeout: 3000 }).catch(() => false);
+    const rowVisible = await plusRow.isVisible({ timeout: 3000 }).catch(() => false);
+    expect(emptyVisible || rowVisible).toBe(true);
+  });
+
+  test("/farming activity also has the same 3 sub-tabs (regression check)", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming");
+
+    const dialog = page.getByRole("dialog");
+    if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await page.getByRole("button", { name: /Skip/i }).click();
+      await expect(dialog).not.toBeVisible({ timeout: 3000 });
+    }
+
+    await page.getByRole("tab", { name: /^Activity$/i }).click();
+
+    await expect(page.getByRole("tab", { name: /^All$/ })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /^Protocol$/ })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /^Reward$/ })).toBeVisible();
+  });
 });
 
 test.describe("T5 — History display Freighter-style (P1)", () => {
