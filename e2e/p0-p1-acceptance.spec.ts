@@ -233,9 +233,10 @@ test.describe("T3 — Credit mechanic (P1)", () => {
     if (!res.ok) throw new Error(`/api/credit/me failed ${res.status}: ${await res.text()}`);
     const body = await res.json();
     const data = body?.data ?? body;
+    // Backend envelope: {credits, points, recent: [{reason, deltaCredits, ...}]}
     return {
-      balance: Number(data.balance ?? 0),
-      ledger: Array.isArray(data.ledger) ? data.ledger : [],
+      balance: Number(data.credits ?? 0),
+      ledger: Array.isArray(data.recent) ? data.recent : [],
     };
   }
 

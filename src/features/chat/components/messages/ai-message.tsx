@@ -265,7 +265,6 @@ export function AssistantMessage({
                   <BranchSwitcher
                     branch={meta?.branch}
                     branchOptions={meta?.branchOptions}
-                    // @ts-expect-error - setBranch may not be in type definition
                     onSelect={(branch) => thread.setBranch?.(branch)}
                     isLoading={isLoading}
                   />

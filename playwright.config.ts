@@ -54,11 +54,14 @@ export default defineConfig({
     },
   ],
 
-  /* Run your local dev server before starting the tests */
+  /* Run your local dev server before starting the tests.
+   * When PLAYWRIGHT_BASE_URL is set (e.g. running against the mainnet docker
+   * stack on a different port), point the wait-URL at the same target and
+   * always reuse — never spawn `pnpm dev` since an external stack is up. */
   webServer: {
     command: "pnpm dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
+    url: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000",
+    reuseExistingServer: process.env.PLAYWRIGHT_BASE_URL ? true : !process.env.CI,
     timeout: 120000,
   },
 
