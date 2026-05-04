@@ -2,14 +2,12 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Wallet } from "lucide-react";
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback } from "react";
 import { ReferralsBody } from "@/features/referrals";
 import { PackageGrid } from "@/features/topup/components/topup-page";
 import type { CreditPackage } from "@/features/topup/types";
 import { cn } from "@/lib/utils";
-import { Button } from "@/shared/ui/button-v2";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { useWalletStore } from "@/store/use-wallet";
 import { useDefiPositions } from "../hooks/use-defi-positions";
@@ -111,13 +109,6 @@ function ProfileContent({ packages }: ProfileContentProps) {
             positionsUsd={positionsTotalUsd}
             isLoading={tokensLoading}
           />
-
-          {/* Credits link */}
-          <div className="flex justify-end">
-            <Button asChild variant="ghost" className="text-sm font-medium">
-              <Link href="/profile/credits">View credits & ledger →</Link>
-            </Button>
-          </div>
 
           {/* Tab bar */}
           <motion.div
