@@ -14,6 +14,8 @@ import {
 import { Input } from "@/shared/ui/input";
 import { keyOf, useWatchList } from "@/store/use-watch-list";
 
+const DEFAULT_SYMBOLS = ["USDC", "XLM", "BLND", "AQUA", "USDT", "EURC", "yXLM", "SHX"] as const;
+
 interface RegistryToken {
   symbol: string;
   name?: string;
@@ -65,7 +67,14 @@ export function AddAssetDialog({ open, onOpenChange }: AddAssetDialogProps) {
   }, [open, tokens.length]);
 
   const filtered = useMemo(() => {
-    if (!debounced) return [];
+    if (!debounced) {
+      // Curated default: preserve DEFAULT_SYMBOLS order, skip any missing from registry.
+      const bySymbol = new Map(tokens.map((t) => [t.symbol?.toUpperCase(), t]));
+      return DEFAULT_SYMBOLS.flatMap((sym) => {
+        const t = bySymbol.get(sym);
+        return t ? [t] : [];
+      });
+    }
     return tokens.filter((t) => t.symbol?.toUpperCase().includes(debounced)).slice(0, 30);
   }, [tokens, debounced]);
 
@@ -102,12 +111,6 @@ export function AddAssetDialog({ open, onOpenChange }: AddAssetDialogProps) {
               className="pl-9"
             />
           </div>
-
-          {!debounced && (
-            <p className="text-sm text-muted-foreground py-6 text-center">
-              Search to add assets to your watchlist.
-            </p>
-          )}
 
           {debounced && filtered.length === 0 && (
             <p className="text-sm text-muted-foreground py-6 text-center">

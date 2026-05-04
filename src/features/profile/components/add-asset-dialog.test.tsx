@@ -26,12 +26,30 @@ afterEach(() => {
 });
 
 describe("AddAssetDialog", () => {
-  it("renders with empty state when not searched", async () => {
+  it("renders search input and curated default list", async () => {
     render(<AddAssetDialog open={true} onOpenChange={() => {}} />);
     await waitFor(() => {
       expect(screen.getByPlaceholderText(/search/i)).toBeInTheDocument();
     });
-    expect(screen.getByText(/search to add assets/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("BLND")).toBeInTheDocument();
+    });
+  });
+
+  it("renders curated default rows when no query is typed", async () => {
+    render(<AddAssetDialog open={true} onOpenChange={() => {}} />);
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/search/i)).toBeInTheDocument();
+    });
+    // Curated set intersects the FAKE_REGISTRY at BLND, AQUA, USDC. With no query
+    // typed, all three should be visible.
+    await waitFor(() => {
+      expect(screen.getByText("BLND")).toBeInTheDocument();
+      expect(screen.getByText("AQUA")).toBeInTheDocument();
+      expect(screen.getByText("USDC")).toBeInTheDocument();
+    });
+    // Empty-state placeholder must NOT be present
+    expect(screen.queryByText(/search to add assets/i)).toBeNull();
   });
 
   it("filters results by typed query (debounced)", async () => {
