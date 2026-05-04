@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { addTrustline, checkTrustlineExists } from "@/features/protocols/hooks/use-trustline-check";
 import { useWelcomeReward } from "@/features/welcome-reward/hooks/use-welcome-reward";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
-import { checkTrustlineExists, addTrustline } from "@/features/protocols/hooks/use-trustline-check";
 import { useWallet } from "@/shared/context/wallet-context";
 
 // ─── Types matching MCP Stellar aggregator API ──────────────────
@@ -73,7 +73,26 @@ export interface AggregatorState {
   toggleProtocol: (protocol: string) => void;
   swapDirection: () => void;
   refreshQuotes: () => void;
-  executeSwap: (protocol: string, opts?: { sourceAddress?: string; signSolana?: (tx: unknown) => Promise<string>; signEvm?: (tx: { to: string; data: string; value?: string }) => Promise<string>; allbridgeExecute?: (params: { fromChain: string; toChain: string; tokenIn: string; tokenOut: string; amount: string; from: string; to: string; signSolana?: (tx: unknown) => Promise<string>; signEvm?: (tx: { to: string; data: string; value?: string }) => Promise<string>; signStellar?: (xdr: string) => Promise<string> }) => Promise<string> }) => Promise<void>;
+  executeSwap: (
+    protocol: string,
+    opts?: {
+      sourceAddress?: string;
+      signSolana?: (tx: unknown) => Promise<string>;
+      signEvm?: (tx: { to: string; data: string; value?: string }) => Promise<string>;
+      allbridgeExecute?: (params: {
+        fromChain: string;
+        toChain: string;
+        tokenIn: string;
+        tokenOut: string;
+        amount: string;
+        from: string;
+        to: string;
+        signSolana?: (tx: unknown) => Promise<string>;
+        signEvm?: (tx: { to: string; data: string; value?: string }) => Promise<string>;
+        signStellar?: (xdr: string) => Promise<string>;
+      }) => Promise<string>;
+    }
+  ) => Promise<void>;
   isExecuting: boolean;
   executeError: string | null;
   executeSuccess: string | null;
@@ -216,7 +235,9 @@ export function useAggregator(): AggregatorState {
       try {
         const arr = JSON.parse(saved) as string[];
         return new Set(arr.filter((p) => ALL_PROTOCOLS.has(p)));
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     return new Set(ALL_PROTOCOLS);
   });
@@ -267,7 +288,11 @@ export function useAggregator(): AggregatorState {
     if (!tokenIn) return;
     fetchFilteredTokens(tokenIn.symbol, chainIn, "in")
       .then(({ tokens: t, chains: c }) => {
-        setFilteredTokensOut(t.map((tk) => ({ ...tk, chains: tk.chains.filter((ch) => SUPPORTED_CHAINS.has(ch)) })).filter((tk) => tk.chains.length > 0));
+        setFilteredTokensOut(
+          t
+            .map((tk) => ({ ...tk, chains: tk.chains.filter((ch) => SUPPORTED_CHAINS.has(ch)) }))
+            .filter((tk) => tk.chains.length > 0)
+        );
         setFilteredChainsOut(c.filter((ch) => SUPPORTED_CHAINS.has(ch)));
       })
       .catch(() => {});
@@ -279,7 +304,11 @@ export function useAggregator(): AggregatorState {
     if (!tokenOut) return;
     fetchFilteredTokens(tokenOut.symbol, chainOut, "out")
       .then(({ tokens: t, chains: c }) => {
-        setFilteredTokensIn(t.map((tk) => ({ ...tk, chains: tk.chains.filter((ch) => SUPPORTED_CHAINS.has(ch)) })).filter((tk) => tk.chains.length > 0));
+        setFilteredTokensIn(
+          t
+            .map((tk) => ({ ...tk, chains: tk.chains.filter((ch) => SUPPORTED_CHAINS.has(ch)) }))
+            .filter((tk) => tk.chains.length > 0)
+        );
         setFilteredChainsIn(c.filter((ch) => SUPPORTED_CHAINS.has(ch)));
       })
       .catch(() => {});
@@ -502,14 +531,16 @@ export function useAggregator(): AggregatorState {
     let cancelled = false;
 
     Promise.all(
-      tokensToCheck.map((t) =>
-        checkTrustlineExists(stellarAddress, t.addresses.stellar, t.symbol)
+      tokensToCheck.map((t) => {
+        const stellarContract = t.addresses.stellar;
+        if (!stellarContract) return Promise.resolve({ symbol: t.symbol, has: true });
+        return checkTrustlineExists(stellarAddress, stellarContract, t.symbol)
           .then((has) => ({ symbol: t.symbol, has }))
           // Aggregator policy: on Horizon failure, treat as MISSING so the user
           // is prompted to add. The hook policy (assume true on error) is the
           // opposite — see use-trustline-check.ts.
-          .catch(() => ({ symbol: t.symbol, has: false })),
-      ),
+          .catch(() => ({ symbol: t.symbol, has: false }));
+      })
     ).then((results) => {
       if (cancelled) return;
       const missing = results.filter((r) => !r.has).map((r) => r.symbol);
@@ -518,7 +549,9 @@ export function useAggregator(): AggregatorState {
       setTrustlineToken(missing[0] ?? null);
     });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [tokenIn, tokenOut, chainIn, chainOut, stellarAddress]);
 
   const addTrustlineFor = useCallback(
@@ -527,10 +560,13 @@ export function useAggregator(): AggregatorState {
       const token = [tokenIn, tokenOut].find((t) => t?.symbol === sym);
       if (!token) return;
 
+      const stellarContract = token.addresses.stellar;
+      if (!stellarContract) return;
+
       setIsAddingTrustline(true);
       setSigningTrustline(sym);
       try {
-        const ok = await addTrustline(stellarAddress, token.addresses.stellar, sym);
+        const ok = await addTrustline(stellarAddress, stellarContract, sym);
         if (ok) {
           // Remove from missing list
           const remaining = missingTrustlines.filter((s) => s !== sym);
@@ -543,7 +579,7 @@ export function useAggregator(): AggregatorState {
         setSigningTrustline(null);
       }
     },
-    [missingTrustlines, stellarAddress, tokenIn, tokenOut],
+    [missingTrustlines, stellarAddress, tokenIn, tokenOut]
   );
 
   const addFirstTrustline = useCallback(() => {
@@ -559,7 +595,26 @@ export function useAggregator(): AggregatorState {
   const [executeSuccess, setExecuteSuccess] = useState<string | null>(null);
 
   const executeSwap = useCallback(
-    async (protocol: string, opts?: { sourceAddress?: string; signSolana?: (tx: unknown) => Promise<string>; signEvm?: (tx: { to: string; data: string; value?: string }) => Promise<string>; allbridgeExecute?: (params: { fromChain: string; toChain: string; tokenIn: string; tokenOut: string; amount: string; from: string; to: string; signSolana?: (tx: unknown) => Promise<string>; signEvm?: (tx: { to: string; data: string; value?: string }) => Promise<string>; signStellar?: (xdr: string) => Promise<string> }) => Promise<string> }) => {
+    async (
+      protocol: string,
+      opts?: {
+        sourceAddress?: string;
+        signSolana?: (tx: unknown) => Promise<string>;
+        signEvm?: (tx: { to: string; data: string; value?: string }) => Promise<string>;
+        allbridgeExecute?: (params: {
+          fromChain: string;
+          toChain: string;
+          tokenIn: string;
+          tokenOut: string;
+          amount: string;
+          from: string;
+          to: string;
+          signSolana?: (tx: unknown) => Promise<string>;
+          signEvm?: (tx: { to: string; data: string; value?: string }) => Promise<string>;
+          signStellar?: (xdr: string) => Promise<string>;
+        }) => Promise<string>;
+      }
+    ) => {
       if (!tokenIn || !tokenOut || !amount) return;
 
       // For Stellar protocols, stellarAddress is required
@@ -672,9 +727,7 @@ export function useAggregator(): AggregatorState {
 
           if (submitData.hash) {
             try {
-              const verifyRes = await fetch(
-                `/api/aggregator/verify?hash=${submitData.hash}`
-              );
+              const verifyRes = await fetch(`/api/aggregator/verify?hash=${submitData.hash}`);
               const verifyData = await verifyRes.json();
               if (verifyData.successful === false) {
                 throw new Error(verifyData.error || "Transaction failed on-chain");
