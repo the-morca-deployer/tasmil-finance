@@ -8,6 +8,7 @@ import BorderGlow from "@/shared/ui/border-glow";
 import { TokenImage } from "@/shared/components/token-image";
 import { PROTOCOL_ICONS as CDN_PROTOCOL_ICONS } from "@/shared/constants/asset-manifest";
 import { cn } from "@/lib/utils";
+import { ChainBadge } from "./chain-badge";
 
 // ─── Protocol branding ──────────────────────────────────────────
 
@@ -56,6 +57,8 @@ function RouteCard({
   tokenOutSymbol,
   decimalsIn,
   decimalsOut,
+  chainIn,
+  chainOut,
   rateDiffPct,
   onClick,
 }: {
@@ -66,6 +69,8 @@ function RouteCard({
   tokenOutSymbol: string;
   decimalsIn: number;
   decimalsOut: number;
+  chainIn: string;
+  chainOut: string;
   rateDiffPct: number;
   onClick: () => void;
 }) {
@@ -92,6 +97,7 @@ function RouteCard({
           <span className="text-sm font-semibold text-foreground">
             {proto.label}
           </span>
+          <ChainBadge chainIn={chainIn} chainOut={chainOut} className="ml-1" />
         </div>
         <div className="flex items-center gap-2">
           {isBest && (
@@ -298,6 +304,8 @@ export function AggregatorRoutePanel({
   tokenOutSymbol,
   decimalsIn,
   decimals,
+  chainIn,
+  chainOut,
   selectedProtocol,
   onSelectProtocol,
   onRefresh,
@@ -309,6 +317,8 @@ export function AggregatorRoutePanel({
   tokenOutSymbol: string;
   decimalsIn: number;
   decimals: number;
+  chainIn: string;
+  chainOut: string;
   selectedProtocol: string | null;
   onSelectProtocol: (protocol: string) => void;
   onRefresh: () => void;
@@ -420,6 +430,8 @@ export function AggregatorRoutePanel({
               tokenOutSymbol={tokenOutSymbol}
               decimalsIn={decimalsIn}
               decimalsOut={decimals}
+              chainIn={chainIn}
+              chainOut={chainOut}
               rateDiffPct={rateDiffPct}
               onClick={() => onSelectProtocol(id)}
             />

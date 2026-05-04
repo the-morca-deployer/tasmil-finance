@@ -945,6 +945,8 @@ export function AggregatorPage() {
                 tokenOutSymbol={agg.tokenOut?.symbol ?? ""}
                 decimalsIn={agg.tokenIn?.decimals ?? 7}
                 decimals={agg.tokenOut?.decimals ?? 7}
+                chainIn={agg.chainIn}
+                chainOut={agg.chainOut}
                 selectedProtocol={selectedProtocol}
                 onSelectProtocol={setSelectedProtocol}
                 onRefresh={agg.refreshQuotes}
