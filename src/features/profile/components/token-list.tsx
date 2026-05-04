@@ -110,41 +110,6 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
     );
   }
 
-  if (tokens.length === 0) {
-    return (
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-foreground">Assets</h2>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => setWatchAssetOpen(true)}
-            >
-              <Eye className="h-3.5 w-3.5" />
-              Watch Asset
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => setTrustlineOpen(true)}
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Add Trustline
-            </Button>
-          </div>
-        </div>
-        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground">
-          <p className="text-sm">No token balances found</p>
-        </div>
-        <AddTrustlineDialog open={trustlineOpen} onOpenChange={setTrustlineOpen} />
-        <AddAssetDialog open={watchAssetOpen} onOpenChange={setWatchAssetOpen} />
-      </div>
-    );
-  }
-
   return (
     <motion.div
       className="flex flex-col gap-4"
@@ -178,92 +143,100 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
 
       <WatchListSection />
 
-      <div
-        data-onborda="portfolio-assets"
-        className="overflow-hidden rounded-xl border border-border bg-card"
-      >
-        {/* Wallet summary */}
-        <div className="flex items-center gap-3 px-6 py-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-            <Wallet className="h-4.5 w-4.5 text-primary" />
+      {tokens.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground">
+          <p className="text-sm">No token balances found</p>
+        </div>
+      ) : (
+        <div
+          data-onborda="portfolio-assets"
+          className="overflow-hidden rounded-xl border border-border bg-card"
+        >
+          {/* Wallet summary */}
+          <div className="flex items-center gap-3 px-6 py-4">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+              <Wallet className="h-4.5 w-4.5 text-primary" />
+            </div>
+            <span className="text-lg font-medium text-foreground">
+              Wallet · {formatUsd(totalUsd)}
+            </span>
+            <span className="text-base text-muted-foreground">{tokens.length} assets</span>
           </div>
-          <span className="text-lg font-medium text-foreground">
-            Wallet · {formatUsd(totalUsd)}
-          </span>
-          <span className="text-base text-muted-foreground">{tokens.length} assets</span>
-        </div>
 
-        <div className="h-px bg-border" />
+          <div className="h-px bg-border" />
 
-        {/* Column headers */}
-        <div className={`${ROW_GRID} px-6 py-2.5`}>
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Asset
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Price
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Balance
-          </span>
-          <span className="text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Value
-          </span>
-          {/* spacer for link icon column */}
-          <span />
-        </div>
+          {/* Column headers */}
+          <div className={`${ROW_GRID} px-6 py-2.5`}>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Asset
+            </span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Price
+            </span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Balance
+            </span>
+            <span className="text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Value
+            </span>
+            {/* spacer for link icon column */}
+            <span />
+          </div>
 
-        {/* Token rows */}
-        {tokens.map((token, idx) => {
-          const slug = assetExplorerSlug(token.assetCode, token.assetIssuer);
-          const href = getExplorerUrl("asset", slug);
+          {/* Token rows */}
+          {tokens.map((token, idx) => {
+            const slug = assetExplorerSlug(token.assetCode, token.assetIssuer);
+            const href = getExplorerUrl("asset", slug);
 
-          return (
-            <motion.a
-              key={`${token.assetCode}-${token.assetIssuer ?? "native"}-${idx}`}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${ROW_GRID} group border-t border-border px-6 py-3.5 transition-colors hover:bg-muted/20`}
-              initial={{ opacity: 0, x: -6 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: idx * 0.04 }}
-            >
-              {/* Asset */}
-              <div className="flex items-center gap-3">
-                <TokenImage
-                  alt={token.assetCode}
-                  className="h-8 w-8 shrink-0 rounded-full text-[11px]"
-                />
-                <div className="flex flex-col">
-                  <span className="text-base font-medium text-foreground">{token.assetCode}</span>
-                  {token.assetIssuer && (
-                    <span className="text-sm text-muted-foreground">
-                      {shortenIssuer(token.assetIssuer)}
+            return (
+              <motion.a
+                key={`${token.assetCode}-${token.assetIssuer ?? "native"}-${idx}`}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${ROW_GRID} group border-t border-border px-6 py-3.5 transition-colors hover:bg-muted/20`}
+                initial={{ opacity: 0, x: -6 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.04 }}
+              >
+                {/* Asset */}
+                <div className="flex items-center gap-3">
+                  <TokenImage
+                    alt={token.assetCode}
+                    className="h-8 w-8 shrink-0 rounded-full text-[11px]"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-base font-medium text-foreground">
+                      {token.assetCode}
                     </span>
-                  )}
+                    {token.assetIssuer && (
+                      <span className="text-sm text-muted-foreground">
+                        {shortenIssuer(token.assetIssuer)}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Price */}
-              <span className="text-base text-foreground">{formatPrice(token.price)}</span>
+                {/* Price */}
+                <span className="text-base text-foreground">{formatPrice(token.price)}</span>
 
-              {/* Balance */}
-              <span className="text-base text-foreground">
-                {formatBalance(token.balance)} {token.assetCode}
-              </span>
+                {/* Balance */}
+                <span className="text-base text-foreground">
+                  {formatBalance(token.balance)} {token.assetCode}
+                </span>
 
-              {/* Value */}
-              <span className="text-right text-base font-medium text-foreground">
-                {token.valueUsd > 0 ? formatUsd(token.valueUsd) : "—"}
-              </span>
+                {/* Value */}
+                <span className="text-right text-base font-medium text-foreground">
+                  {token.valueUsd > 0 ? formatUsd(token.valueUsd) : "—"}
+                </span>
 
-              {/* Explorer link indicator */}
-              <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-50" />
-            </motion.a>
-          );
-        })}
-      </div>
+                {/* Explorer link indicator */}
+                <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-50" />
+              </motion.a>
+            );
+          })}
+        </div>
+      )}
 
       <AddTrustlineDialog open={trustlineOpen} onOpenChange={setTrustlineOpen} />
       <AddAssetDialog open={watchAssetOpen} onOpenChange={setWatchAssetOpen} />
