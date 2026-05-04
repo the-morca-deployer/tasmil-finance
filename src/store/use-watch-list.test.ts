@@ -53,10 +53,10 @@ describe("useWatchList", () => {
 
   it("isWatched reports correctly by composite key", () => {
     const { result } = renderHook(() => useWatchList());
-    act(() =>
-      result.current.addAsset({ symbol: "BLND", contractId: "C_BLND" })
-    );
-    expect(result.current.isWatched(keyOf({ symbol: "BLND", chain: "stellar", contractId: "C_BLND" }))).toBe(true);
+    act(() => result.current.addAsset({ symbol: "BLND", contractId: "C_BLND" }));
+    expect(
+      result.current.isWatched(keyOf({ symbol: "BLND", chain: "stellar", contractId: "C_BLND" }))
+    ).toBe(true);
     expect(result.current.isWatched(keyOf({ symbol: "XLM", chain: "stellar" }))).toBe(false);
   });
 
@@ -72,7 +72,9 @@ describe("useWatchList", () => {
   });
 
   it("keyOf builds chain:contractId|issuer|symbol composite", () => {
-    expect(keyOf({ symbol: "USDC", chain: "stellar", contractId: "C_USDC" })).toBe("stellar:C_USDC");
+    expect(keyOf({ symbol: "USDC", chain: "stellar", contractId: "C_USDC" })).toBe(
+      "stellar:C_USDC"
+    );
     expect(keyOf({ symbol: "EURT", chain: "stellar", issuer: "G_EURT" })).toBe("stellar:G_EURT");
     expect(keyOf({ symbol: "XLM", chain: "stellar" })).toBe("stellar:XLM");
   });

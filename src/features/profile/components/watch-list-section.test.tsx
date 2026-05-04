@@ -30,9 +30,7 @@ describe("WatchListSection", () => {
   });
 
   it("clicking remove drops the asset by composite key", () => {
-    act(() =>
-      useWatchList.getState().addAsset({ symbol: "BLND", contractId: "C_BLND" })
-    );
+    act(() => useWatchList.getState().addAsset({ symbol: "BLND", contractId: "C_BLND" }));
     render(<WatchListSection />);
     const removeBtn = screen.getByRole("button", { name: /remove blnd/i });
     fireEvent.click(removeBtn);
@@ -41,9 +39,7 @@ describe("WatchListSection", () => {
   });
 
   it("clicking row body navigates to aggregator with stored chain", () => {
-    act(() =>
-      useWatchList.getState().addAsset({ symbol: "BLND", contractId: "C_BLND" })
-    );
+    act(() => useWatchList.getState().addAsset({ symbol: "BLND", contractId: "C_BLND" }));
     render(<WatchListSection />);
     const rowBtn = screen.getByRole("button", { name: /open blnd in aggregator/i });
     fireEvent.click(rowBtn);
