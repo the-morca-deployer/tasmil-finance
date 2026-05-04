@@ -145,7 +145,8 @@ export function WelcomeModal() {
       <Sheet open={welcomeModalOpen} onOpenChange={handleOpenChange}>
         <SheetContent
           side="bottom"
-          className="flex h-[90vh] flex-col gap-0 overflow-hidden rounded-t-2xl p-0 pb-[env(safe-area-inset-bottom)] [&>button]:hidden"
+          hideCloseButton
+          className="flex h-[90vh] flex-col gap-0 overflow-hidden rounded-t-2xl p-0 pb-[env(safe-area-inset-bottom)]"
         >
           <SheetTitle className="sr-only">Welcome to Tasmil Finance</SheetTitle>
           {body}
@@ -156,7 +157,7 @@ export function WelcomeModal() {
 
   return (
     <Dialog open={welcomeModalOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-lg gap-0 overflow-hidden border-border p-0 sm:rounded-2xl [&>button]:hidden">
+      <DialogContent className="max-w-lg gap-0 overflow-hidden border-border p-0 sm:rounded-2xl">
         <DialogTitle className="sr-only">Welcome to Tasmil Finance</DialogTitle>
         {body}
       </DialogContent>
