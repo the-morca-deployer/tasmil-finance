@@ -195,12 +195,19 @@ describe("decodeOperation — Soroban via asset_balance_changes", () => {
     });
     const orig = process.env.NEXT_PUBLIC_STELLAR_NETWORK;
     process.env.NEXT_PUBLIC_STELLAR_NETWORK = "mainnet";
-    jest.resetModules();
-    const { decodeOperation: fresh } = require("./decode-operation");
-    const r = fresh(op, ADDR, meta);
-    process.env.NEXT_PUBLIC_STELLAR_NETWORK = orig;
-    expect(r.protocol).toBe("blend");
-    expect(r.kind).toBe("lend-deposit");
+    try {
+      jest.resetModules();
+      const { decodeOperation: fresh } = require("./decode-operation");
+      const r = fresh(op, ADDR, meta);
+      expect(r.protocol).toBe("blend");
+      expect(r.kind).toBe("lend-deposit");
+    } finally {
+      if (orig === undefined) {
+        delete process.env.NEXT_PUBLIC_STELLAR_NETWORK;
+      } else {
+        process.env.NEXT_PUBLIC_STELLAR_NETWORK = orig;
+      }
+    }
   });
 
   it("falls back to contract-other when balance changes are empty", () => {
@@ -208,6 +215,20 @@ describe("decodeOperation — Soroban via asset_balance_changes", () => {
     const r = decodeOperation(op, ADDR, meta);
     expect(r.kind).toBe("contract-other");
     expect(r.rawFnName).toBe("do_thing");
+    expect(r.successful).toBe(true);
+    expect(r.deltas).toEqual([]);
+  });
+
+  it("classifies single-credit + fnName=harvest as harvest", () => {
+    const op = base({
+      type: "invoke_host_function",
+      function: "harvest",
+      asset_balance_changes: [
+        { type: "transfer", from: OTHER, to: ADDR, amount: "5000000", asset_type: "credit_alphanum4", asset_issuer: "CC_BLND", asset_code: "BLND" },
+      ],
+    });
+    const r = decodeOperation(op, ADDR, meta);
+    expect(r.kind).toBe("harvest");
   });
 
   it("uses 7-decimal fallback when token meta unknown", () => {

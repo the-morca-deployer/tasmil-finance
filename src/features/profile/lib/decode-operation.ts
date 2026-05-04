@@ -5,6 +5,8 @@ import { lookupProtocol } from "./protocol-registry";
 
 const CLASSIC_DECIMALS = 7;
 
+const HARVEST_FN_NAMES = new Set(["claim", "claim_emissions", "claim_rewards", "harvest"]);
+
 export interface AssetBalanceChange {
   type: "transfer" | "mint" | "burn" | "clawback";
   from?: string;
@@ -102,7 +104,7 @@ function emptyDecoded(op: RawHorizonOp, kind: OpKind): DecodedOp {
 export function decodeOperation(
   op: RawHorizonOp,
   address: string,
-  _tokenMeta: TokenMetaLookup,
+  tokenMeta: TokenMetaLookup,
 ): DecodedOp {
   const successful = op.transaction_successful !== false;
 
@@ -202,7 +204,7 @@ export function decodeOperation(
   }
 
   if (op.type === "invoke_host_function") {
-    return decodeSoroban(op, address, _tokenMeta, successful);
+    return decodeSoroban(op, address, tokenMeta, successful);
   }
 
   return { ...emptyDecoded(op, "classic-other"), successful };
@@ -279,7 +281,7 @@ function decodeSoroban(
   } else if (credits.length === 1 && debits.length === 0) {
     kind = protocol === "blend" ? "lend-withdraw"
       : protocol === "soroswap" || protocol === "aquarius" || protocol === "phoenix" ? "lp-withdraw"
-      : fnName === "claim" ? "harvest"
+      : HARVEST_FN_NAMES.has(fnName ?? "") ? "harvest"
       : "receive";
   } else if (debits.length > 1 && credits.length === 0) {
     kind = "lp-deposit";
