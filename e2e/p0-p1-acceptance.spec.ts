@@ -22,9 +22,11 @@ import { clearOnboardingState, clearWatchlistState } from "./helpers/state";
 test.describe("T1 — Onboarding guide (P0)", () => {
   test("modal opens on first wallet connect", async ({ page, context }) => {
     await context.clearCookies();
-    await clearOnboardingState(page);
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
+    // Reset onboarding AFTER loginAsWallet so the helper's default
+    // (hasCompletedWelcome=true) is overridden and the modal triggers.
+    await clearOnboardingState(page);
     await page.goto("/farming");
 
     await expect(page.getByRole("dialog")).toBeVisible({ timeout: 8000 });
@@ -32,9 +34,9 @@ test.describe("T1 — Onboarding guide (P0)", () => {
 
   test("5 slides advance via Next button", async ({ page, context }) => {
     await context.clearCookies();
-    await clearOnboardingState(page);
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
+    await clearOnboardingState(page);
     await page.goto("/farming");
 
     const modal = page.getByRole("dialog");
@@ -49,9 +51,9 @@ test.describe("T1 — Onboarding guide (P0)", () => {
 
   test("slide 1 renders video placeholder (Watch intro caption)", async ({ page, context }) => {
     await context.clearCookies();
-    await clearOnboardingState(page);
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
+    await clearOnboardingState(page);
     await page.goto("/farming");
 
     const modal = page.getByRole("dialog");
@@ -63,9 +65,9 @@ test.describe("T1 — Onboarding guide (P0)", () => {
 
   test("every slide has icon + heading + description", async ({ page, context }) => {
     await context.clearCookies();
-    await clearOnboardingState(page);
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
+    await clearOnboardingState(page);
     await page.goto("/farming");
 
     const modal = page.getByRole("dialog");
@@ -93,9 +95,9 @@ test.describe("T1 — Onboarding guide (P0)", () => {
 
   test("Get Started dismisses and persists across reload", async ({ page, context }) => {
     await context.clearCookies();
-    await clearOnboardingState(page);
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
+    await clearOnboardingState(page);
     await page.goto("/farming");
 
     const modal = page.getByRole("dialog");

@@ -60,10 +60,34 @@ export async function loginAsWallet(page: Page, walletAddress: string): Promise<
           version: 0,
         })
       );
-      // Zustand persist store for useWalletStore (key: "wallet-storage")
+      // Zustand persist store for useWalletStore (key: "wallet-storage").
+      // Both `connected: true` AND `account` are required for WalletProvider's
+      // auto-restore effect to populate React-state `address` (otherwise
+      // wallet-aware UI like the onboarding modal never triggers).
       localStorage.setItem(
         "wallet-storage",
-        JSON.stringify({ state: { account: walletAddress }, version: 0 })
+        JSON.stringify({
+          state: { connected: true, account: walletAddress },
+          version: 0,
+        })
+      );
+
+      // Test-only flag honored by WalletProvider's auto-restore: trust the
+      // persisted wallet-storage state without calling StellarWalletsKit.
+      // Production code never sets this; safe to bake in for headless e2e.
+      (window as unknown as { __TASMIL_E2E_BYPASS_KIT__?: boolean }).__TASMIL_E2E_BYPASS_KIT__ = true;
+
+      // Pre-mark onboarding as completed so the welcome modal doesn't open
+      // in front of every test. Tests that DO want to exercise the modal
+      // must call `clearOnboardingState(page)` AFTER `loginAsWallet` to
+      // reset this. Without this default, the modal races every navigation
+      // and intermittently blocks downstream assertions.
+      localStorage.setItem(
+        "tasmil-onboarding",
+        JSON.stringify({
+          state: { hasCompletedWelcome: true, completedTours: [] },
+          version: 0,
+        })
       );
     },
     { walletAddress, jwt }

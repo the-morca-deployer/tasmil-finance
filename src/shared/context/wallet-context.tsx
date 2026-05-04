@@ -184,6 +184,21 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const walletState = useWalletStore.getState();
     if (!walletState.connected || !walletState.account) return;
 
+    // Test-only bypass: when window.__TASMIL_E2E_BYPASS_KIT__ is set, trust
+    // the persisted wallet-storage state without calling StellarWalletsKit.
+    // Playwright's loginAsWallet helper sets this flag so headless tests can
+    // exercise wallet-aware UI without integrating a real wallet kit. The
+    // flag is never written by production code paths.
+    const bypassKit =
+      typeof window !== "undefined" &&
+      (window as unknown as { __TASMIL_E2E_BYPASS_KIT__?: boolean })
+        .__TASMIL_E2E_BYPASS_KIT__ === true;
+    if (bypassKit) {
+      setAddress(walletState.account);
+      setIsConnected(true);
+      return;
+    }
+
     (async () => {
       try {
         const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");

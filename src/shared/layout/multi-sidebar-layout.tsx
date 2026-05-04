@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { ChatHistoryWrapper } from "@/shared/layout/chat-history-wrapper";
 import { MobileSidebarContent } from "@/shared/layout/mobile-sidebar-content";
+import { sidebarData as defaultSidebarData } from "@/shared/layout/sidebar-data";
 import { TopNavBar } from "@/shared/layout/top-nav-bar";
 import {
   MultiSidebarProvider,
@@ -107,11 +108,15 @@ function DesktopLayout({
   sidebarData?: import("@/shared/layout/sidebar-data").SidebarData;
 }) {
   const { rightSidebarOpen } = useMultiSidebar();
-  if (!customSidebarData) return null;
+  // Fall back to the default sidebarData export when the caller doesn't thread
+  // it. Most dashboard layouts (portfolio, faucet, topup, aggregator, ...) don't
+  // pass sidebarData explicitly; without this fallback, returning null here
+  // produces a blank page instead of the dashboard chrome.
+  const data = customSidebarData ?? defaultSidebarData;
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden">
-      <TopNavBar sidebarData={customSidebarData} showRightSidebar={showRightSidebar} />
+      <TopNavBar sidebarData={data} showRightSidebar={showRightSidebar} />
       <div className="flex flex-1 overflow-hidden">
         <main data-onborda="main-content" className="flex-1 overflow-y-auto">
           {children}
