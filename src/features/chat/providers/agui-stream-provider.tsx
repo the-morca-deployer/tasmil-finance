@@ -124,6 +124,7 @@ function AguiStreamSession({
       );
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [streamValue.isLoading, streamValue.error, queryClient]);
 
   // Restore thread title from metadata when loading an existing thread
