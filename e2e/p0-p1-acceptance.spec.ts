@@ -210,7 +210,103 @@ test.describe("T2 — Farming UI (P0)", () => {
 });
 
 test.describe("T3 — Credit mechanic (P1)", () => {
-  // tests added in Task 8
+  const BACKEND = process.env.PLAYWRIGHT_BACKEND_URL ?? "http://localhost:6756";
+
+  async function fetchCreditMe(jwt: string): Promise<{ balance: number; ledger: { reason: string; deltaCredits: number }[] }> {
+    const res = await fetch(`${BACKEND}/api/credit/me`, {
+      headers: { authorization: `Bearer ${jwt}` },
+    });
+    if (!res.ok) throw new Error(`/api/credit/me failed ${res.status}: ${await res.text()}`);
+    const body = await res.json();
+    const data = body?.data ?? body;
+    return {
+      balance: Number(data.balance ?? 0),
+      ledger: Array.isArray(data.ledger) ? data.ledger : [],
+    };
+  }
+
+  test("fresh wallet sign-in shows 200 credits", async ({ page }) => {
+    const wallet = freshWallet();
+    const session = await loginAsWallet(page, wallet);
+    const me = await fetchCreditMe(session.jwt);
+    expect(me.balance).toBe(200);
+  });
+
+  test("simulated chat debit decreases balance by 10", async ({ page }) => {
+    const wallet = freshWallet();
+    const session = await loginAsWallet(page, wallet);
+
+    const before = (await fetchCreditMe(session.jwt)).balance;
+    expect(before).toBe(200);
+
+    await applyCreditDelta({
+      userId: session.userId,
+      reason: "CHAT_DEBIT",
+      deltaCredits: -10,
+      idempotencyKey: `chat:${wallet}:${Date.now()}`,
+    });
+
+    const after = (await fetchCreditMe(session.jwt)).balance;
+    expect(after).toBe(190);
+  });
+
+  test("duplicate chat-debit idempotencyKey does NOT double-debit", async ({ page }) => {
+    const wallet = freshWallet();
+    const session = await loginAsWallet(page, wallet);
+
+    const idempotencyKey = `chat:${wallet}:dedupe-test`;
+
+    await applyCreditDelta({
+      userId: session.userId,
+      reason: "CHAT_DEBIT",
+      deltaCredits: -10,
+      idempotencyKey,
+    });
+    await applyCreditDelta({
+      userId: session.userId,
+      reason: "CHAT_DEBIT",
+      deltaCredits: -10,
+      idempotencyKey, // same key — must not double-debit
+    });
+
+    const after = (await fetchCreditMe(session.jwt)).balance;
+    expect(after).toBe(190);
+  });
+
+  test("REFERRAL_JOIN credits invitee +20", async ({ page }) => {
+    const wallet = freshWallet();
+    const session = await loginAsWallet(page, wallet);
+
+    await applyCreditDelta({
+      userId: session.userId,
+      reason: "REFERRAL_JOIN",
+      deltaCredits: 20,
+      idempotencyKey: `referral_join:${wallet}`,
+    });
+
+    const me = await fetchCreditMe(session.jwt);
+    expect(me.balance).toBe(220);
+    const referralRow = me.ledger.find((r) => r.reason === "REFERRAL_JOIN");
+    expect(referralRow?.deltaCredits).toBe(20);
+  });
+
+  test("TASK_COMPLETED credits the configured reward amount", async ({ page }) => {
+    const wallet = freshWallet();
+    const session = await loginAsWallet(page, wallet);
+
+    // Default first-deposit reward is +50 (per CreditService.getConfigReward fallback)
+    await applyCreditDelta({
+      userId: session.userId,
+      reason: "TASK_COMPLETED",
+      deltaCredits: 50,
+      idempotencyKey: `task:FIRST_DEPOSIT:${wallet}`,
+    });
+
+    const me = await fetchCreditMe(session.jwt);
+    expect(me.balance).toBe(250);
+    const taskRow = me.ledger.find((r) => r.reason === "TASK_COMPLETED");
+    expect(taskRow?.deltaCredits).toBe(50);
+  });
 });
 
 test.describe("T4 — Protocol/Reward split (P1)", () => {
