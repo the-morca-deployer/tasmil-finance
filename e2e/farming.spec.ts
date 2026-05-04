@@ -2,10 +2,7 @@ import { expect, test } from "@playwright/test";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
 test.describe("Farming UI (Task 8)", () => {
-  test.skip(
-    process.env.NODE_ENV === "production",
-    "test-login is disabled on production",
-  );
+  test.skip(process.env.NODE_ENV === "production", "test-login is disabled on production");
 
   test("Tab bar renders four tabs with icons", async ({ page }) => {
     const wallet = freshWallet();
@@ -48,9 +45,7 @@ test.describe("Farming UI (Task 8)", () => {
       // Protocol badges visible: blend/soroswap/aquarius
       const content = await page.content();
       const hasProtocol =
-        content.includes("blend") ||
-        content.includes("soroswap") ||
-        content.includes("aquarius");
+        content.includes("blend") || content.includes("soroswap") || content.includes("aquarius");
       expect(hasProtocol).toBeTruthy();
     }
   });
@@ -70,9 +65,7 @@ test.describe("Farming UI (Task 8)", () => {
     await expect(page.getByText("Your Portfolio").first()).toBeVisible();
   });
 
-  test("Activity tab shows date-grouped events with expandable rows", async ({
-    page,
-  }) => {
+  test("Activity tab shows date-grouped events with expandable rows", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.goto("/farming");
@@ -247,7 +240,7 @@ test.describe("Farming UI (Task 8)", () => {
   test("Network error shows error alert", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/pools", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/pools", (route) => route.fulfill({ status: 503 }));
     await page.goto("/farming");
     await page.waitForTimeout(3000);
     const alert = page.getByRole("alert");
@@ -303,5 +296,43 @@ test.describe("Farming UI (Task 8)", () => {
     await page.reload();
     await page.waitForLoadState("networkidle");
     await expect(page).toHaveURL(/\/farming/);
+  });
+
+  test("farming header total value renders (CountUp animation)", async ({ page }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming");
+    const valueEl = page.locator('[data-onborda="farming-header"]').getByText(/\$\d/);
+    await expect(valueEl).toBeVisible({ timeout: 10_000 });
+  });
+
+  test("activity tab has Protocol/Reward sub-tabs", async ({ page }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming");
+    const activityTab = page.getByRole("tab", { name: /activity/i });
+    if (await activityTab.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await activityTab.click();
+    }
+
+    await expect(page.getByRole("tab", { name: /^All$/ })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /Protocol/ })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /Reward/ })).toBeVisible();
+  });
+
+  test("activity reward filter shows reward-only rows or empty state", async ({ page }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming");
+    const activityTab = page.getByRole("tab", { name: /activity/i });
+    if (await activityTab.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await activityTab.click();
+    }
+    await page.getByRole("tab", { name: /Reward/ }).click();
+    const plusRow = page.locator("text=/^\\+/").first();
+    const emptyState = page.getByText(/No rewards yet/i);
+    const rewardVisible = await plusRow.isVisible({ timeout: 2000 }).catch(() => false);
+    const emptyVisible = await emptyState.isVisible({ timeout: 2000 }).catch(() => false);
+    expect(rewardVisible || emptyVisible).toBe(true);
   });
 });
