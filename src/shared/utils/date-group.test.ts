@@ -62,4 +62,19 @@ describe("groupByDate", () => {
     const out = groupByDate(items);
     expect(out).toHaveLength(1);
   });
+
+  it("buckets items across local-time day rollover into separate groups", () => {
+    // Pin "now" to 2026-05-04 12:00 local. The 23:59-vs-00:01 boundary is the
+    // failure mode the implementation handles via toDateString(): if either
+    // side were truncated by raw ms-arithmetic instead, both items would
+    // collapse into one bucket.
+    const items = [
+      { id: "late",  createdAt: "2026-05-03T23:59:00" }, // Yesterday
+      { id: "early", createdAt: "2026-05-04T00:01:00" }, // Today
+    ];
+    const out = groupByDate(items);
+    expect(out).toHaveLength(2);
+    expect(out.map((g) => g.items.map((i) => i.id))).toEqual([["late"], ["early"]]);
+    expect(out.map((g) => g.label)).toEqual(["Yesterday", "Today"]);
+  });
 });

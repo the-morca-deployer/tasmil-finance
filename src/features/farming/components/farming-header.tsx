@@ -78,7 +78,7 @@ export function FarmingHeader({
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
           >
-            <span className="text-5xl font-bold tracking-tight text-foreground">
+            <div className="text-5xl font-bold tracking-tight text-foreground">
               <CountUp
                 value={totalValueUsd}
                 prefix="$"
@@ -86,7 +86,7 @@ export function FarmingHeader({
                 duration={0.8}
                 abbreviate={false}
               />
-            </span>
+            </div>
             {hasPnl && (
               <motion.div
                 className="flex items-center gap-2"
