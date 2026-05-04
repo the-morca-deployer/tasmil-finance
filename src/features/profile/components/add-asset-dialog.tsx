@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Search } from "lucide-react";
+import { Check, Plus, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { TokenImage } from "@/shared/components/token-image";
 import { Button } from "@/shared/ui/button-v2";
@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
-import { useWatchList } from "@/store/use-watch-list";
+import { keyOf, useWatchList } from "@/store/use-watch-list";
 
 interface RegistryToken {
   symbol: string;
@@ -41,6 +41,7 @@ export function AddAssetDialog({ open, onOpenChange }: AddAssetDialogProps) {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const addAsset = useWatchList((s) => s.addAsset);
+  const isWatched = useWatchList((s) => s.isWatched);
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim().toUpperCase()), 200);
@@ -129,9 +130,18 @@ export function AddAssetDialog({ open, onOpenChange }: AddAssetDialogProps) {
                     </div>
                   )}
                 </div>
-                <Button size="sm" variant="outline" onClick={() => handleAdd(t)}>
-                  Watch
-                </Button>
+                {isWatched(
+                  keyOf({ symbol: t.symbol, chain: "stellar", contractId: t.addresses?.stellar })
+                ) ? (
+                  <Button size="sm" variant="ghost" disabled className="gap-1">
+                    <Check className="h-3.5 w-3.5" />
+                    Watching
+                  </Button>
+                ) : (
+                  <Button size="sm" variant="outline" onClick={() => handleAdd(t)}>
+                    Watch
+                  </Button>
+                )}
               </li>
             ))}
           </ul>

@@ -47,6 +47,23 @@ describe("AddAssetDialog", () => {
     expect(screen.queryByText("AQUA")).toBeNull();
   });
 
+  it("renders 'Watching' disabled state when asset is already watched", async () => {
+    // Seed the store with BLND already watched
+    useWatchList.getState().addAsset({ symbol: "BLND", contractId: "C_BLND" });
+
+    render(<AddAssetDialog open={true} onOpenChange={() => {}} />);
+    const input = await screen.findByPlaceholderText(/search/i);
+    await act(async () => {
+      fireEvent.change(input, { target: { value: "BL" } });
+      await new Promise((r) => setTimeout(r, 250));
+    });
+
+    const watchingBtn = screen.getByRole("button", { name: /watching/i });
+    expect(watchingBtn).toBeDisabled();
+    // Must not also show a clickable "Watch" button for BLND
+    expect(screen.queryByRole("button", { name: /^watch$/i })).toBeNull();
+  });
+
   it("clicking Watch adds to store and closes dialog", async () => {
     const onOpenChange = jest.fn();
     render(<AddAssetDialog open={true} onOpenChange={onOpenChange} />);
