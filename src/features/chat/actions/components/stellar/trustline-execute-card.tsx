@@ -259,6 +259,7 @@ export function TrustlineExecuteCard({
 
   return (
     <BaseOperationCard
+      data-testid="card-trustline"
       title={title}
       icon={ShieldCheck}
       iconColor="text-cyan-500"

@@ -256,7 +256,7 @@ export function BlendTxCard({
   const handleCancel = () => cancel();
 
   return (
-    <div ref={cardRef} className="relative rounded-xl border border-border bg-card overflow-hidden">
+    <div data-testid="card-blend-tx" ref={cardRef} className="relative rounded-xl border border-border bg-card overflow-hidden">
       {/* Header */}
       <div className="px-5 pt-5 pb-2">
         <p className="text-lg font-semibold text-foreground">Confirm {cfg.label}</p>

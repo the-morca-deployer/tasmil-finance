@@ -37,19 +37,24 @@ type CardRendererResult =
   | { kind: "shared-op"; render: (props: SharedRenderProps) => React.ReactElement }
   | null;
 
-export function getCardRenderer(toolName: string, args?: Record<string, unknown>): CardRendererResult {
-  // ─── Only render flow cards (clarify, plan preview, execute) and execute dispatcher ──
-  // Other custom UI cards (discover, get_account, resolve_pool, etc.) are temporarily
-  // hidden — the ToolStatusDispatcher still shows the tool status (spinner/check).
+/** Tasmil strategy tool names — these render info cards even when others are hidden. */
+const TASMIL_INFO_TOOLS = new Set(["get_strategy_presets", "get_account_strategy"]);
 
-  // Unified execute tool — routes to protocol-specific cards (Blend, Aquarius, etc.)
+export function getCardRenderer(toolName: string, args?: Record<string, unknown>): CardRendererResult {
+  // ─── Execute dispatcher — routes to protocol-specific TX cards ──
   if (toolName === EXECUTE_DISPATCHER.toolName) {
     return { kind: "shared-op", render: EXECUTE_DISPATCHER.render };
   }
 
-  // Check flow tool renderers — "shared" kind (interactive: clarify, plan preview, signing)
+  // ─── Flow tool renderers — clarify, plan preview, execution, account status ──
   const flowTool = FLOW_TOOL_RENDERERS.find((r) => r.toolName === toolName);
   if (flowTool) return { kind: "shared", render: flowTool.render };
+
+  // ─── Tasmil strategy info cards (active) ──────────────────────
+  if (TASMIL_INFO_TOOLS.has(toolName)) {
+    const info = INFO_TOOL_RENDERERS.find((r) => r.toolName === toolName);
+    if (info) return { component: info.component, label: info.type, kind: "info" };
+  }
 
   // ─── TEMPORARILY HIDDEN: All other custom cards ───────────────
   // Unified registry (card-registry.ts) — info/operation cards for all protocols

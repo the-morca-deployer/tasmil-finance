@@ -148,13 +148,7 @@ export function AquaTxCard({
   // ─── Chat mode ────────────────────────────────────────────────
   if (mode === "chat") {
     return (
-      <ProtocolCard
-        mode="chat"
-        title={cfg.title}
-        icon={cfg.icon}
-        iconColor={cfg.iconColor}
-        iconBg={cfg.iconBg}
-      >
+      <ProtocolCard data-testid="card-aqua-tx" mode="chat" title={cfg.title} icon={cfg.icon} iconColor={cfg.iconColor} iconBg={cfg.iconBg}>
         <div className="mb-2 space-y-2">
           <DetailRow
             label="Action"

@@ -31,7 +31,7 @@ export function ExecutionCard({
   const previousStepsConfirmed = step > 1;
 
   return (
-    <div className="rounded-xl border border-white/[0.07] bg-[#131715] p-4">
+    <div data-testid="card-execution" className="rounded-xl border border-white/[0.07] bg-[#131715] p-4">
       {/* Previous steps confirmed */}
       {previousStepsConfirmed && (
         <div className="mb-2 text-xs text-[#9aada4]">Step {step - 1} confirmed.</div>

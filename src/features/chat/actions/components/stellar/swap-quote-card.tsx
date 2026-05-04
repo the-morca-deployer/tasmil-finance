@@ -43,6 +43,7 @@ function SwapQuoteCardComponent({ args, result, toolCallId, status }: SwapQuoteC
 
   return (
     <BaseInfoCard
+      data-testid="card-swap-quote"
       title="Swap Quotes"
       subtitle={`${tokenIn} → ${tokenOut}`}
       icon={ArrowRightLeft}

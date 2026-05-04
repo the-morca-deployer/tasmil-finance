@@ -31,7 +31,7 @@ export function PlanPreviewCard({
   const asset = plan.steps[0]?.asset ?? "";
 
   return (
-    <div className="rounded-xl border border-white/[0.07] bg-[#131715] p-4">
+    <div data-testid="card-plan-preview" className="rounded-xl border border-white/[0.07] bg-[#131715] p-4">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <span className="text-sm font-medium text-[#f0f2f1]">Plan Preview</span>

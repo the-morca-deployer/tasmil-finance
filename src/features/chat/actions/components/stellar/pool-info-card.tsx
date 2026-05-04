@@ -42,6 +42,7 @@ function PoolInfoCardComponent({ args, result, toolCallId, status, type }: PoolI
 
   return (
     <BaseInfoCard
+      data-testid="card-pool-info"
       title={cardTitle}
       subtitle={protocol}
       icon={Database}

@@ -52,6 +52,7 @@ export function AquaPoolsCard({ pools, mode = "playground" }: AquaPoolsCardProps
 
   return (
     <ProtocolCard
+      data-testid="card-aqua-pools"
       mode={mode}
       title={mode === "chat" ? "Aquarius Pools" : undefined}
       icon={mode === "chat" ? Droplets : undefined}

@@ -174,10 +174,19 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
                 } as unknown as Message;
               }
               case "tool":
+                // Tool message content is structured data (JSON), not
+                // human-readable text.  Preserve it as-is so downstream
+                // parseResult / parseFlowResult can handle all formats
+                // (string, array of content blocks, object).
+                // extractContent() is designed for AI text and strips
+                // non-text blocks, which corrupts tool results.
                 return {
                   id: msg.id,
                   type: "tool",
-                  content: extractContent(msg.content),
+                  content:
+                    typeof msg.content === "string"
+                      ? msg.content
+                      : JSON.stringify(msg.content),
                   tool_call_id: msg.tool_call_id,
                 } as unknown as Message;
               default:

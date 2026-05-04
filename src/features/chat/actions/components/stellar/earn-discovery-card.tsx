@@ -88,6 +88,7 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
 
   return (
     <BaseInfoCard
+      data-testid="card-earn-discovery"
       title={title}
       subtitle={`${items.length} result${items.length !== 1 ? "s" : ""} found`}
       icon={TrendingUp}

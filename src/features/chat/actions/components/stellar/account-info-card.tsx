@@ -62,6 +62,7 @@ function AccountInfoCardComponent({
 
   return (
     <BaseInfoCard
+      data-testid="card-account-info"
       title={cfg?.title}
       icon={cfg?.icon}
       iconColor="text-blue-500"

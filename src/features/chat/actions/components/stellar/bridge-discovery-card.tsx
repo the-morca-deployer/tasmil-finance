@@ -49,6 +49,7 @@ function BridgeDiscoveryCardComponent({
 
   return (
     <BaseInfoCard
+      data-testid="card-bridge-discovery"
       title="Bridge Quotes"
       subtitle={`${fromChain} → ${toChain}${tokenIn ? ` (${tokenIn})` : ""}`}
       icon={Globe}

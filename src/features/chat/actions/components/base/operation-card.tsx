@@ -25,6 +25,7 @@ export interface OperationCardProps {
   /** Render operation details before execution. */
   renderDetails?: () => React.ReactNode;
   className?: string;
+  "data-testid"?: string;
 }
 
 export function BaseOperationCard({
@@ -41,6 +42,7 @@ export function BaseOperationCard({
   onCancel,
   renderDetails,
   className,
+  "data-testid": testId,
 }: OperationCardProps) {
   const { address, isConnected } = useWallet();
   const [isExecuting, setIsExecuting] = useState(false);
@@ -66,10 +68,8 @@ export function BaseOperationCard({
         }
       : null);
 
-  const cardClass = cn(
-    "w-full max-w-[360px] min-w-[280px] rounded-lg border bg-card p-5 shadow-sm",
-    className
-  );
+  const cardClass = cn("w-full max-w-[360px] min-w-[280px] rounded-lg border bg-card p-5 shadow-sm", className);
+  const cardProps = testId ? { "data-testid": testId } : {};
 
   const handleExecute = async () => {
     if (!isConnected || !address) {
@@ -104,7 +104,7 @@ export function BaseOperationCard({
   // Loading / pending state
   if (status === "pending") {
     return (
-      <div className={cn(cardClass, "bg-card/40")}>
+      <div {...cardProps} className={cn(cardClass, "bg-card/40")}>
         <div className="flex items-center gap-3">
           <div className={cn("flex h-10 w-10 items-center justify-center rounded-full", iconBg)}>
             <Loader2 className={cn("h-5 w-5 animate-spin", iconColor)} />
@@ -124,7 +124,7 @@ export function BaseOperationCard({
     const explorerUrl = getExplorerUrl("tx", hash);
 
     return (
-      <div className={cn(cardClass, "bg-card/40")}>
+      <div {...cardProps} className={cn(cardClass, "bg-card/40")}>
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500/10">
             <CheckCircle className="h-5 w-5 text-green-600" />
@@ -163,7 +163,7 @@ export function BaseOperationCard({
   // Error state
   if (effectiveResult?.success === false) {
     return (
-      <div className={cardClass}>
+      <div {...cardProps} className={cardClass}>
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10">
             <AlertCircle className="h-5 w-5 text-destructive" />

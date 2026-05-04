@@ -10,6 +10,8 @@ const TAG_STYLES: Record<string, [string, string]> = {
   il_risk: ["IL risk", "text-amber-400 bg-amber-400/10"],
   high_tvl: ["high TVL", "text-blue-400 bg-blue-400/10"],
   bridge: ["bridge", "text-purple-400 bg-purple-400/10"],
+  managed: ["managed", "text-violet-400 bg-violet-400/10"],
+  tasmil: ["Tasmil", "text-violet-400 bg-violet-400/10"],
 };
 
 interface ClarifyCardProps {
@@ -152,7 +154,7 @@ function MultiClarifyCardStepper({
   if (!current) return null;
 
   return (
-    <div className="w-full max-w-[460px] overflow-hidden rounded-xl border border-border bg-card">
+    <div data-testid="card-clarify" className="w-full max-w-[460px] overflow-hidden rounded-xl border border-border bg-card">
       {/* Question */}
       <div className="px-4 pt-3.5 pb-2.5">
         <p className="text-[14px] font-semibold text-foreground leading-snug">{current.question}</p>

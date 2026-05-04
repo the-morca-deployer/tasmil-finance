@@ -338,7 +338,7 @@ export function StellarExecuteCard({
   const handleSign = () => sign(xdr);
 
   return (
-    <div className="relative rounded-xl border border-border bg-card overflow-hidden">
+    <div data-testid="card-stellar-execute" className="relative rounded-xl border border-border bg-card overflow-hidden">
       {/* Header */}
       <div className="px-5 pt-5 pb-2">
         <p className="text-lg font-semibold text-foreground">

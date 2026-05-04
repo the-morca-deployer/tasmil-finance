@@ -6,8 +6,11 @@ import { ActionSearchCard } from "@/features/chat/actions/components/stellar/act
 import { BridgeDiscoveryCard } from "@/features/chat/actions/components/stellar/bridge-discovery-card";
 import type { BridgeExecuteCardProps } from "@/features/chat/actions/components/stellar/bridge-execute-card";
 import { BridgeExecuteCard } from "@/features/chat/actions/components/stellar/bridge-execute-card";
+import { AccountSetupCard } from "@/features/chat/actions/components/stellar/account-setup-card";
+import { AccountStrategyCard } from "@/features/chat/actions/components/stellar/account-strategy-card";
 import { EarnDiscoveryCard } from "@/features/chat/actions/components/stellar/earn-discovery-card";
 import { StellarExecuteCard } from "@/features/chat/actions/components/stellar/execute-card";
+import { StrategyPresetCard } from "@/features/chat/actions/components/stellar/strategy-preset-card";
 import { PoolInfoCard } from "@/features/chat/actions/components/stellar/pool-info-card";
 import type { SwapExecuteCardProps } from "@/features/chat/actions/components/stellar/swap-execute-card";
 import { SwapExecuteCard } from "@/features/chat/actions/components/stellar/swap-execute-card";
@@ -178,6 +181,10 @@ export const INFO_TOOL_RENDERERS: Array<{
   { toolName: "vault_get_user_shares", type: "user_shares", component: AccountInfoCard },
   { toolName: "vault_list_vaults", type: "vault_list", component: PoolInfoCard },
   { toolName: "vault_get_apy", type: "vault_apy", component: PoolInfoCard },
+
+  // Tasmil Strategy (active — rendered via TASMIL_INFO_TOOLS allowlist)
+  { toolName: "get_strategy_presets", type: "strategy_presets", component: StrategyPresetCard },
+  { toolName: "get_account_strategy", type: "account_strategy", component: AccountStrategyCard },
 
   // Yield / Research
   { toolName: "discover", type: "earn_discovery", component: EarnDiscoveryCard },
@@ -986,6 +993,27 @@ function parseFlowResult(result: unknown): Record<string, unknown> | null {
     ) {
       return obj;
     }
+    // Try unwrapping MCP content-block wrapper: {content: [{type:"text", text:"..."}]}
+    if ("content" in obj && Array.isArray(obj.content)) {
+      const textBlock = (obj.content as { type?: string; text?: string }[]).find(
+        (b) => b?.type === "text" && typeof b?.text === "string",
+      );
+      if (textBlock?.text) {
+        try {
+          return JSON.parse(textBlock.text) as Record<string, unknown>;
+        } catch {
+          /* fall through */
+        }
+      }
+    }
+    // Try unwrapping single-string content wrapper: {content: "..."}
+    if ("content" in obj && typeof obj.content === "string") {
+      try {
+        return JSON.parse(obj.content) as Record<string, unknown>;
+      } catch {
+        /* fall through */
+      }
+    }
     // Object but missing expected keys — log what keys it has
     console.warn("[parseFlowResult] object missing expected keys, received:", Object.keys(obj));
     return null;
@@ -1000,10 +1028,22 @@ function parseFlowResult(result: unknown): Record<string, unknown> | null {
     if (textBlock?.text) raw = textBlock.text;
   }
 
-  // String — parse JSON
+  // String — parse JSON (handles double-serialization via recursive call)
   if (typeof raw === "string") {
     try {
-      return JSON.parse(raw) as Record<string, unknown>;
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === "string") {
+        // Double-serialized — parse again
+        try {
+          return JSON.parse(parsed) as Record<string, unknown>;
+        } catch {
+          return null;
+        }
+      }
+      if (typeof parsed === "object" && parsed !== null) {
+        return parsed as Record<string, unknown>;
+      }
+      return null;
     } catch {
       console.warn("[parseFlowResult] failed to parse JSON string, raw:", raw.slice(0, 200));
       return null;
@@ -1082,7 +1122,41 @@ export const FLOW_TOOL_RENDERERS: Array<{
     toolName: "flow_clarify",
     render: (props) => {
       const data = parseFlowResult(props.result);
+
+      // Log for debugging — remove once the card rendering is stable
       if (!data) {
+        console.warn(
+          "[flow_clarify] parseFlowResult returned null. props.result:",
+          typeof props.result,
+          props.result,
+        );
+      }
+
+      // Error response from backend (tool threw an exception)
+      if (data?.kind === "error") {
+        return (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            {(data.message as string) || "Failed to load options"}
+          </div>
+        );
+      }
+
+      if (!data) {
+        // If result is a plain error string (from LangGraph handle_tool_errors),
+        // show it as an error instead of generic "Invalid clarify data".
+        const errorText =
+          typeof props.result === "string"
+            ? props.result
+            : typeof props.result === "object" && props.result !== null
+              ? JSON.stringify(props.result)
+              : null;
+        if (errorText && errorText.length > 0 && errorText.length < 500) {
+          return (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+              {errorText}
+            </div>
+          );
+        }
         return <div className="text-muted-foreground text-xs">Invalid clarify data</div>;
       }
 
@@ -1294,6 +1368,13 @@ export const FLOW_TOOL_RENDERERS: Array<{
           error={data.error as string}
         />
       );
+    },
+  },
+  {
+    toolName: "flow_check_account_status",
+    render: (props) => {
+      const data = parseFlowResult(props.result);
+      return <AccountSetupCard result={data ?? props.result} />;
     },
   },
 ];

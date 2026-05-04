@@ -1,4 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
+import { resolve } from "node:path";
+import { config } from "dotenv";
+
+/**
+ * Load E2E environment variables from .env.test
+ * Contains: PLAYWRIGHT_BASE_URL, E2E_WALLET_PUBLIC_KEY, E2E_MAINNET_SECRET_KEY,
+ * LANGSMITH_API_KEY, LANGSMITH_PROJECT
+ */
+config({ path: resolve(__dirname, ".env.test") });
+
+const isDevTunnel = !!process.env.PLAYWRIGHT_BASE_URL;
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -44,6 +55,9 @@ export default defineConfig({
 
     /* Global timeout for navigation */
     navigationTimeout: 30000,
+
+    /* Accept self-signed certs for dev tunnels */
+    ignoreHTTPSErrors: isDevTunnel,
   },
 
   /* Configure projects for major browsers */
@@ -52,22 +66,67 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
+
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+    },
+
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+    },
+
+    /* Test against mobile viewports. */
+    {
+      name: "Mobile Chrome",
+      use: { ...devices["Pixel 5"] },
+    },
+    {
+      name: "Mobile Safari",
+      use: { ...devices["iPhone 12"] },
+    },
+
+    /* Test against branded browsers. */
+    {
+      name: "Microsoft Edge",
+      use: { ...devices["Desktop Edge"], channel: "msedge" },
+    },
+    {
+      name: "Google Chrome",
+      use: { ...devices["Desktop Chrome"], channel: "chrome" },
+    },
+
+    /* AI Chat E2E — relaxed timeouts for LLM response latency */
+    {
+      name: "e2e-chat",
+      testDir: "./e2e",
+      use: {
+        ...devices["Desktop Chrome"],
+        actionTimeout: 60_000,
+        navigationTimeout: 60_000,
+        ignoreHTTPSErrors: true,
+        storageState: "./e2e/auth.json",
+      },
+      timeout: 120_000,
+    },
   ],
 
-  /* Run your local dev server before starting the tests.
-   * When PLAYWRIGHT_BASE_URL is set (e.g. running against the mainnet docker
-   * stack on a different port), point the wait-URL at the same target and
-   * always reuse — never spawn `pnpm dev` since an external stack is up. */
-  webServer: {
-    command: "pnpm dev",
-    url: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000",
-    reuseExistingServer: process.env.PLAYWRIGHT_BASE_URL ? true : !process.env.CI,
-    timeout: 120000,
-  },
+  /* Run local dev server only when not using an external URL (dev tunnel) */
+  ...(isDevTunnel
+    ? {}
+    : {
+        webServer: {
+          command: "pnpm dev",
+          url: "http://localhost:3000",
+          reuseExistingServer: !process.env.CI,
+          timeout: 120000,
+        },
+      }),
 
-  /* Global setup and teardown */
-  // globalSetup: require.resolve("./e2e/global-setup.ts"),
-  // globalTeardown: require.resolve("./e2e/global-teardown.ts"),
+  /* Global setup/teardown — creates artifact dirs + summary report */
+  globalSetup: "./e2e/global-setup.ts",
+  globalTeardown: "./e2e/global-teardown.ts",
 
   /* Test timeout */
   timeout: 30000,

@@ -13,6 +13,7 @@ interface ProtocolCardProps {
   isLoading?: boolean;
   error?: string | null;
   className?: string;
+  "data-testid"?: string;
   // Optional header
   title?: string;
   subtitle?: string;
@@ -27,6 +28,7 @@ export function ProtocolCard({
   isLoading,
   error,
   className,
+  "data-testid": testId,
   title,
   subtitle,
   icon: Icon,
@@ -74,7 +76,7 @@ export function ProtocolCard({
   }
 
   return (
-    <div className={cn(shellClass, className)}>
+    <div data-testid={testId} className={cn(shellClass, className)}>
       {isChat && (Icon || title) && (
         <div className="mb-3 flex items-center gap-3">
           {Icon && (

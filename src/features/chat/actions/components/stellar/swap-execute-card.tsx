@@ -4,12 +4,39 @@ import { ArrowRightLeft, Check, ChevronDown, Loader2, Pencil, Plus, Wallet, X } 
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { connectEvmWallet, isEvmWalletAvailable } from "@/features/aggregator/lib/evm-wallet";
+import { useWalletTokens } from "@/features/profile/hooks/use-wallet-tokens";
 import { useTxSigning } from "@/features/protocols/hooks/use-tx-signing";
 import { fmt, trunc } from "@/features/protocols/lib/formatting";
 import { TokenImage } from "@/shared/components/token-image";
 import { getExplorerUrl } from "@/shared/config/stellar";
 import { Input } from "@/shared/ui/input";
 import { useWalletStore } from "@/store/use-wallet";
+
+// ─── Chain labels (mirrors aggregator) ───────────────────────────────
+
+const CHAIN_LABELS: Record<string, string> = {
+  stellar: "Stellar",
+  ethereum: "Ethereum",
+  eth: "Ethereum",
+  arbitrum: "Arbitrum",
+  arb: "Arbitrum",
+  base: "Base",
+  polygon: "Polygon",
+  optimism: "Optimism",
+  opt: "Optimism",
+  bsc: "BSC",
+  avalanche: "Avalanche",
+  avax: "Avalanche",
+  solana: "Solana",
+  sol: "Solana",
+  near: "NEAR",
+  sui: "Sui",
+  tron: "TRON",
+};
+
+function chainLabel(chain: string): string {
+  return CHAIN_LABELS[chain.toLowerCase()] ?? chain;
+}
 
 // ─── Protocol colors ──────────────────────────────────────────────
 
@@ -259,7 +286,7 @@ function BridgeAddressPicker({
   const placeholder = chainType === "stellar" ? "G..." : "0x...";
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef}>
       {/* Trigger */}
       <button
         type="button"
@@ -280,154 +307,156 @@ function BridgeAddressPicker({
         )}
       </button>
 
-      {/* Centered modal with backdrop blur */}
+      {/* Popover inside card — backdrop handled at card level */}
       {open && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
-            onClick={() => handleOpen(false)}
-          />
-          {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="w-full max-w-[420px] rounded-2xl border border-border bg-card p-4 shadow-2xl">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-lg">{label}</h3>
+        <div className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-[420px] max-w-[calc(100%-2rem)] rounded-2xl border border-border bg-card p-4 shadow-2xl">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-lg">{label}</h3>
+            <button
+              type="button"
+              className="p-1 rounded hover:bg-secondary transition-colors"
+              onClick={() => handleOpen(false)}
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            {/* Manual input */}
+            <div className="space-y-2">
+              <span className="text-sm font-medium text-muted-foreground">
+                Enter {chainLabel} address
+              </span>
+              <div className="relative">
+                <Pencil className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
+                <Input
+                  value={manualInput}
+                  onChange={(e) => {
+                    setManualInput(e.target.value);
+                    setManualError(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && isValidManual) handleManualSubmit();
+                  }}
+                  placeholder={placeholder}
+                  className="pl-9 pr-9"
+                />
+                {manualInput.length > 0 && (
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                    onClick={() => setManualInput("")}
+                  >
+                    <X className="h-4 w-4 text-muted-foreground/50" />
+                  </button>
+                )}
+              </div>
+              {manualError && <p className="text-xs text-destructive">{manualError}</p>}
+              {isValidManual && (
                 <button
                   type="button"
-                  className="p-1 rounded hover:bg-secondary transition-colors"
-                  onClick={() => handleOpen(false)}
+                  className="w-full rounded-lg bg-secondary px-3 py-2 text-sm text-muted-foreground text-left font-mono hover:bg-secondary/80 transition-colors"
+                  onClick={handleManualSubmit}
                 >
-                  <X className="h-4 w-4 text-muted-foreground" />
+                  Use {trunc(manualInput.trim(), 10, 10)}
                 </button>
+              )}
+            </div>
+
+            {/* Connected wallets */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+                  <Wallet className="h-4 w-4" />
+                  <span>Connected Wallets</span>
+                </div>
+                {onConnectWallet && (
+                  <button
+                    type="button"
+                    className="text-xs text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50"
+                    onClick={handleConnectNew}
+                    disabled={connecting}
+                  >
+                    {connecting ? "Connecting..." : "Connect new"}
+                  </button>
+                )}
               </div>
 
-              <div className="flex flex-col gap-4">
-                {/* Manual input */}
-                <div className="space-y-2">
-                  <span className="text-sm font-medium text-muted-foreground">
-                    Enter {chainLabel} address
-                  </span>
-                  <div className="relative">
-                    <Pencil className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
-                    <Input
-                      value={manualInput}
-                      onChange={(e) => {
-                        setManualInput(e.target.value);
-                        setManualError(null);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && isValidManual) handleManualSubmit();
-                      }}
-                      placeholder={placeholder}
-                      className="pl-9 pr-9"
-                    />
-                    {manualInput.length > 0 && (
+              <div className="max-h-[280px] overflow-y-auto space-y-1.5">
+                {connectedAddresses.length === 0 ? (
+                  <p className="text-sm text-muted-foreground/50 text-center py-6">
+                    No wallets connected
+                  </p>
+                ) : (
+                  connectedAddresses.map((entry) => {
+                    const isSelected = entry.address === selectedAddress;
+                    return (
                       <button
+                        key={entry.address}
                         type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2"
-                        onClick={() => setManualInput("")}
+                        className="w-full flex items-center gap-3 rounded-xl p-3 bg-secondary hover:bg-secondary/80 transition-colors text-left"
+                        onClick={() => handleSelectEntry(entry.address)}
                       >
-                        <X className="h-4 w-4 text-muted-foreground/50" />
-                      </button>
-                    )}
-                  </div>
-                  {manualError && <p className="text-xs text-destructive">{manualError}</p>}
-                  {isValidManual && (
-                    <button
-                      type="button"
-                      className="w-full rounded-lg bg-secondary px-3 py-2 text-sm text-muted-foreground text-left font-mono hover:bg-secondary/80 transition-colors"
-                      onClick={handleManualSubmit}
-                    >
-                      Use {trunc(manualInput.trim(), 10, 10)}
-                    </button>
-                  )}
-                </div>
-
-                {/* Connected wallets */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                      <Wallet className="h-4 w-4" />
-                      <span>Connected Wallets</span>
-                    </div>
-                    {onConnectWallet && (
-                      <button
-                        type="button"
-                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50"
-                        onClick={handleConnectNew}
-                        disabled={connecting}
-                      >
-                        {connecting ? "Connecting..." : "Connect new"}
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="max-h-[280px] overflow-y-auto space-y-1.5">
-                    {connectedAddresses.length === 0 ? (
-                      <p className="text-sm text-muted-foreground/50 text-center py-6">
-                        No wallets connected
-                      </p>
-                    ) : (
-                      connectedAddresses.map((entry) => {
-                        const isSelected = entry.address === selectedAddress;
-                        return (
+                        <TokenImage alt={chainType} className="h-9 w-9 rounded-full shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {trunc(entry.address, 6, 4)}
+                          </p>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                            {entry.source === "connected" ? (
+                              <>
+                                <Wallet className="h-3 w-3" />
+                                <span>Connected {chainLabel}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Pencil className="h-3 w-3" />
+                                <span>Manual {chainLabel}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        {isSelected && <Check className="h-5 w-5 text-blue-400 shrink-0" />}
+                        {entry.source === "connected" && onDisconnect ? (
                           <button
-                            key={entry.address}
                             type="button"
-                            className="w-full flex items-center gap-3 rounded-xl p-3 bg-secondary hover:bg-secondary/80 transition-colors text-left"
-                            onClick={() => handleSelectEntry(entry.address)}
+                            className="shrink-0 p-1 hover:bg-destructive/10 rounded transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDisconnect();
+                            }}
                           >
-                            <TokenImage alt={chainType} className="h-9 w-9 rounded-full shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-foreground truncate">
-                                {trunc(entry.address, 6, 4)}
-                              </p>
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                                {entry.source === "connected" ? (
-                                  <>
-                                    <Wallet className="h-3 w-3" />
-                                    <span>Connected {chainLabel}</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Pencil className="h-3 w-3" />
-                                    <span>Manual {chainLabel}</span>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                            {isSelected && <Check className="h-5 w-5 text-blue-400 shrink-0" />}
-                            {entry.source === "connected" && onDisconnect ? (
-                              <button
-                                type="button"
-                                className="shrink-0 p-1 hover:bg-destructive/10 rounded transition-colors"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onDisconnect();
-                                }}
-                              >
-                                <X className="h-4 w-4 text-muted-foreground hover:text-destructive transition-colors" />
-                              </button>
-                            ) : null}
+                            <X className="h-4 w-4 text-muted-foreground hover:text-destructive transition-colors" />
                           </button>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
+                        ) : null}
+                      </button>
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
 }
 
+// ─── Balance formatter (mirrors aggregator) ──────────────────────────
+
+function formatBalanceShort(value: number): string {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(2)}K`;
+  if (value > 0) return value.toFixed(6);
+  return "0";
+}
+
 // ─── Aggregate-style bridge direction ─────────────────────────────
-// Mirrors aggregator-page.tsx: label + wallet on top row, amount below.
+// Mirrors aggregator-page.tsx layout exactly:
+//   label + AddressPicker on top row,
+//   amount (big) on left + token/chain stacked on right,
+//   $value | Balance row below.
 
 function BridgeDirectionCard({
   sourceChain,
@@ -443,6 +472,7 @@ function BridgeDirectionCard({
   evmError,
   onConnectEVM,
   onPickerOpenChange,
+  sourceBalance,
 }: {
   sourceChain: string;
   destChain: string;
@@ -457,6 +487,7 @@ function BridgeDirectionCard({
   evmError: string | null;
   onConnectEVM: () => void;
   onPickerOpenChange?: (open: boolean) => void;
+  sourceBalance?: number | null;
 }) {
   const isDestEvm = destChain.toLowerCase() !== "stellar" && destChain.toLowerCase() !== "near";
   const isSourceStellar = sourceChain.toLowerCase() === "stellar";
@@ -473,7 +504,7 @@ function BridgeDirectionCard({
   if (walletStore.account) {
     sourceConnected.push({
       address: walletStore.account,
-      label: `Connected Stellar`,
+      label: "Connected Stellar",
       source: "connected",
     });
   }
@@ -494,12 +525,15 @@ function BridgeDirectionCard({
   const sourceChainType: ChainType = isSourceStellar ? "stellar" : "evm";
   const destChainType: ChainType = isDestEvm ? "evm" : "stellar";
 
+  const srcChainLabel = chainLabel(sourceChain);
+  const dstChainLabel = chainLabel(destChain);
+
   return (
     <div className="flex flex-col px-5 pb-1">
       {/* ── You pay ── */}
       <div className="rounded-2xl bg-secondary p-4 pb-[15px]">
         <div className="grid grid-cols-9 gap-2 items-center h-7">
-          <span className="col-span-5 text-base font-normal text-muted-foreground">You pay</span>
+          <span className="col-span-5 text-sm font-normal text-muted-foreground">You pay</span>
           <div className="col-span-4 justify-self-end">
             <BridgeAddressPicker
               chainType={sourceChainType}
@@ -511,18 +545,40 @@ function BridgeDirectionCard({
             />
           </div>
         </div>
-        <div className="grid grid-cols-[1fr_auto] gap-1 w-full mt-[10px]">
-          <div className="flex items-center gap-2.5">
-            <TokenImage alt={firstToken} className="h-8 w-8 rounded-full" />
-            <span className="text-[28px] leading-[34px] font-normal text-foreground tabular-nums truncate">
+        <div className="mt-[10px] grid grid-cols-[1fr_auto] gap-1 w-full">
+          <div className="min-w-0 overflow-hidden">
+            <span className="text-2xl font-normal text-foreground tabular-nums truncate block">
               {fmt(humanAmount, 7)}
             </span>
-            <span className="text-base font-semibold text-foreground">{firstToken}</span>
+            <div className="flex items-center mt-0.5 h-5 gap-1.5">
+              <span className="text-sm font-medium leading-5 text-muted-foreground">$0</span>
+              {sourceBalance != null && sourceBalance > 0 ? (
+                <>
+                  <span className="text-sm leading-5 text-muted-foreground/40">|</span>
+                  <span className="text-sm font-medium leading-5 text-muted-foreground">
+                    Balance: {formatBalanceShort(sourceBalance)} {firstToken}
+                  </span>
+                </>
+              ) : null}
+            </div>
+          </div>
+          <div className="justify-self-end self-start shrink-0">
+            <div className="flex items-center gap-2.5">
+              <TokenImage alt={firstToken} className="h-8 w-8 rounded-full" />
+              <span className="flex flex-col text-left min-w-0">
+                <span className="text-base font-semibold leading-5 text-foreground">
+                  {firstToken}
+                </span>
+                <span className="text-sm font-normal leading-4 truncate text-muted-foreground">
+                  {srcChainLabel}
+                </span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── Swap arrow ── */}
+      {/* ── Arrow ── */}
       <div className="flex justify-center -my-2 relative z-10">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary">
           <ArrowRightLeft className="h-5 w-5 text-muted-foreground" />
@@ -532,7 +588,7 @@ function BridgeDirectionCard({
       {/* ── You receive ── */}
       <div className="rounded-2xl bg-secondary p-4 pb-[15px]">
         <div className="grid grid-cols-9 gap-2 items-center h-7">
-          <span className="col-span-5 text-base font-normal text-muted-foreground">
+          <span className="col-span-5 text-sm font-normal text-muted-foreground">
             You receive
           </span>
           <div className="col-span-4 justify-self-end">
@@ -552,13 +608,27 @@ function BridgeDirectionCard({
             )}
           </div>
         </div>
-        <div className="grid grid-cols-[1fr_auto] gap-1 w-full mt-[10px]">
-          <div className="flex items-center gap-2.5">
-            <TokenImage alt={lastToken} className="h-8 w-8 rounded-full" />
-            <span className="text-[28px] leading-[34px] font-normal text-foreground tabular-nums truncate">
+        <div className="mt-[10px] grid grid-cols-[1fr_auto] gap-1 w-full">
+          <div className="min-w-0 overflow-hidden">
+            <span className="text-2xl font-normal text-foreground tabular-nums truncate block">
               {humanOutput != null ? fmt(humanOutput, 7) : "\u2014"}
             </span>
-            <span className="text-base font-semibold text-foreground">{lastToken}</span>
+            <div className="flex items-center mt-0.5 h-5 gap-1.5">
+              <span className="text-sm font-medium leading-5 text-muted-foreground">$0</span>
+            </div>
+          </div>
+          <div className="justify-self-end self-start shrink-0">
+            <div className="flex items-center gap-2.5">
+              <TokenImage alt={lastToken} className="h-8 w-8 rounded-full" />
+              <span className="flex flex-col text-left min-w-0">
+                <span className="text-base font-semibold leading-5 text-foreground">
+                  {lastToken}
+                </span>
+                <span className="text-sm font-normal leading-4 truncate text-muted-foreground">
+                  {dstChainLabel}
+                </span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -908,6 +978,19 @@ export function SwapExecuteCard({
   const [connectingEVM, setConnectingEVM] = useState(false);
   const [evmError, setEvmError] = useState<string | null>(null);
 
+  // Source-chain balance (Stellar: use wallet tokens; EVM: not yet supported)
+  const walletStore = useWalletStore();
+  const isSourceStellar = tx.fromChain?.toLowerCase() === "stellar";
+  const { data: walletData } = useWalletTokens(
+    isSourceStellar ? walletStore.account : null,
+  );
+  const walletTokens = walletData?.tokens ?? [];
+  const sourceBalance: number | null = isSourceStellar
+    ? (walletTokens.find(
+        (t) => t.assetCode.toUpperCase() === firstToken.toUpperCase(),
+      )?.balance ?? null)
+    : null;
+
   const handleConnectEVM = async () => {
     setConnectingEVM(true);
     setEvmError(null);
@@ -930,7 +1013,7 @@ export function SwapExecuteCard({
   };
 
   return (
-    <div className="relative rounded-xl border border-border bg-card">
+    <div data-testid="card-swap-execute" className="relative rounded-xl border border-border bg-card">
       {/* Blur overlay when address picker is open */}
       {pickerOpen && (
         <div className="absolute inset-0 z-40 bg-card/60 backdrop-blur-sm rounded-xl" />
@@ -959,6 +1042,7 @@ export function SwapExecuteCard({
           evmError={evmError}
           onConnectEVM={handleConnectEVM}
           onPickerOpenChange={setPickerOpen}
+          sourceBalance={sourceBalance}
         />
       ) : (
         <TokenDirectionDisplay firstToken={firstToken} lastToken={lastToken} />

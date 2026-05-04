@@ -28,8 +28,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
         attribute="class"
-        defaultTheme="system"
-        enableSystem={true}
+        forcedTheme="dark"
         disableTransitionOnChange
         storageKey="tasmil-ui-theme"
       >
