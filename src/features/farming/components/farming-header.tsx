@@ -40,14 +40,14 @@ export function FarmingHeader({
   return (
     <motion.div
       data-testid="farming-header"
-      className="flex items-center gap-4 rounded-2xl border border-border/50 bg-gradient-to-br from-primary/10 via-background to-background p-6"
+      className="flex flex-col items-start gap-3 rounded-2xl border border-border/50 bg-gradient-to-br from-primary/10 via-background to-background p-5 sm:flex-row sm:items-center sm:gap-4 sm:p-6"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       {/* Icon — same size as AddressAvatar (size-20) */}
-      <div className="flex size-20 shrink-0 items-center justify-center rounded-full bg-primary/15">
-        <Tractor className="size-9 text-primary" />
+      <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary/15 sm:size-20">
+        <Tractor className="size-7 text-primary sm:size-9" />
       </div>
 
       <div className="flex flex-col gap-1">
@@ -69,7 +69,7 @@ export function FarmingHeader({
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
           >
-            <div className="text-5xl font-bold tracking-tight text-foreground">
+            <div className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
               <CountUp
                 value={totalValueUsd}
                 prefix="$"
