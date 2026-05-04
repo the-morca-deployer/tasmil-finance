@@ -18,16 +18,18 @@ function formatApyPercent(apyDecimal: number): string {
   return `${(apyDecimal * 100).toFixed(2)}%`;
 }
 
-const PIE_COLORS = [
-  "#00bfff",
-  "#36b1ff",
-  "#5eadd6",
-  "#7faabe",
-  "#a0a0a0",
-  "#b0b0b0",
-  "#c0c0c0",
-  "#d0d0d0",
-];
+const PROTOCOL_COLOR: Record<string, string> = {
+  blend: "#00bfff",
+  soroswap: "#36b1ff",
+  aquarius: "#5eadd6",
+  phoenix: "#7faabe",
+  wallet: "#525252",
+};
+const FALLBACK_COLOR = "#a0a0a0";
+
+function colorFor(protocol: string): string {
+  return PROTOCOL_COLOR[protocol.toLowerCase()] ?? FALLBACK_COLOR;
+}
 
 interface Position {
   poolName: string;
@@ -52,12 +54,12 @@ export function FarmingAllocation({
   unallocatedWalletUsd,
   isLoading,
 }: FarmingAllocationProps) {
-  const pieData = positions.map((pos, i) => ({
+  const pieData = positions.map((pos) => ({
     name: pos.poolName,
     protocol: pos.protocol,
     value: pos.valueUsd,
     apy: pos.apy,
-    fill: PIE_COLORS[i % PIE_COLORS.length],
+    fill: colorFor(pos.protocol),
   }));
 
   if (unallocatedWalletUsd > 0.01) {
@@ -66,7 +68,7 @@ export function FarmingAllocation({
       protocol: "wallet",
       value: unallocatedWalletUsd,
       apy: 0,
-      fill: "#525252",
+      fill: colorFor("wallet"),
     });
   }
 
@@ -129,8 +131,8 @@ export function FarmingAllocation({
       </div>
 
       {/* Donut chart + legend */}
-      <div className="flex items-center gap-6">
-        <div className="h-[160px] w-[160px] shrink-0">
+      <div className="flex flex-col items-stretch gap-4 sm:gap-6 lg:flex-col xl:flex-row xl:items-center">
+        <div className="mx-auto h-36 w-36 shrink-0 xl:mx-0 xl:h-40 xl:w-40">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -172,6 +174,7 @@ export function FarmingAllocation({
           {pieData.map((entry) => (
             <div key={entry.name} className="flex items-center gap-3">
               <div
+                data-protocol-swatch={entry.protocol}
                 className="h-3 w-3 shrink-0 rounded-full"
                 style={{ backgroundColor: entry.fill }}
               />
