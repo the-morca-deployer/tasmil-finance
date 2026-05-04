@@ -1,27 +1,27 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Layers, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { motion, AnimatePresence } from "framer-motion";
-import { Skeleton } from "@/shared/ui/skeleton";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
 import { PROTOCOL_ICONS as CDN_PROTOCOL_ICONS } from "@/shared/constants/asset-manifest";
-import { cn } from "@/lib/utils";
-import type { ProtocolPositionGroup, PositionItem } from "../hooks/use-defi-positions";
+import { Skeleton } from "@/shared/ui/skeleton";
+import type { PositionItem, ProtocolPositionGroup } from "../hooks/use-defi-positions";
 
 // ─── Protocol icon mapping ───────────────────────────────────────────────────
 
 const PROTOCOL_ICONS: Record<string, string> = {
   "tasmil-vault": CDN_PROTOCOL_ICONS.tasmil!,
-  blend:      CDN_PROTOCOL_ICONS.blend!,
-  soroswap:   CDN_PROTOCOL_ICONS.soroswap!,
-  aquarius:   CDN_PROTOCOL_ICONS.aquarius!,
-  phoenix:    CDN_PROTOCOL_ICONS.phoenix!,
-  defindex:   CDN_PROTOCOL_ICONS.defindex!,
-  sdex:       CDN_PROTOCOL_ICONS.sdex!,
-  templar:    CDN_PROTOCOL_ICONS.templar!,
-  allbridge:  CDN_PROTOCOL_ICONS.allbridge!,
+  blend: CDN_PROTOCOL_ICONS.blend!,
+  soroswap: CDN_PROTOCOL_ICONS.soroswap!,
+  aquarius: CDN_PROTOCOL_ICONS.aquarius!,
+  phoenix: CDN_PROTOCOL_ICONS.phoenix!,
+  defindex: CDN_PROTOCOL_ICONS.defindex!,
+  sdex: CDN_PROTOCOL_ICONS.sdex!,
+  templar: CDN_PROTOCOL_ICONS.templar!,
+  allbridge: CDN_PROTOCOL_ICONS.allbridge!,
 };
 
 function getProtocolIcon(protocol: string): string | null {
@@ -47,11 +47,11 @@ const PROTOCOL_NAMES: Record<string, string> = {
 // ─── Type badge ──────────────────────────────────────────────────────────────
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  vault:  { label: "Vault",   color: "text-violet-400",  bg: "bg-violet-400/10"  },
-  supply: { label: "Supply",  color: "text-primary",     bg: "bg-primary/10"     },
-  borrow: { label: "Borrow",  color: "text-destructive", bg: "bg-destructive/10" },
-  lp:     { label: "LP",      color: "text-amber-400",   bg: "bg-amber-400/10"   },
-  stake:  { label: "Staked",  color: "text-violet-400",  bg: "bg-violet-400/10"  },
+  vault: { label: "Vault", color: "text-violet-400", bg: "bg-violet-400/10" },
+  supply: { label: "Supply", color: "text-primary", bg: "bg-primary/10" },
+  borrow: { label: "Borrow", color: "text-destructive", bg: "bg-destructive/10" },
+  lp: { label: "LP", color: "text-amber-400", bg: "bg-amber-400/10" },
+  stake: { label: "Staked", color: "text-violet-400", bg: "bg-violet-400/10" },
 };
 
 function TypeBadge({ type }: { type: PositionItem["type"] }) {
@@ -65,7 +65,7 @@ function TypeBadge({ type }: { type: PositionItem["type"] }) {
       className={cn(
         "inline-block rounded-md px-2 py-0.5 text-xs font-medium",
         config.color,
-        config.bg,
+        config.bg
       )}
     >
       {config.label}
@@ -92,7 +92,10 @@ function TokenPairIcon({
       />
       <TokenImage
         alt={token1}
-        className={cn(size, "absolute left-[18px] top-0 z-[1] rounded-full ring-2 ring-card text-[9px]")}
+        className={cn(
+          size,
+          "absolute left-[18px] top-0 z-[1] rounded-full ring-2 ring-card text-[9px]"
+        )}
       />
     </div>
   );
@@ -118,11 +121,7 @@ function PositionAssetCell({ pos }: { pos: PositionItem }) {
                   {pair.poolType}
                 </span>
               )}
-              {pair.fee && (
-                <span className="text-[11px] text-muted-foreground/50">
-                  {pair.fee}
-                </span>
-              )}
+              {pair.fee && <span className="text-[11px] text-muted-foreground/50">{pair.fee}</span>}
             </div>
           )}
         </div>
@@ -132,13 +131,8 @@ function PositionAssetCell({ pos }: { pos: PositionItem }) {
 
   return (
     <div className="flex items-center gap-3">
-      <TokenImage
-        alt={pos.asset}
-        className="h-7 w-7 shrink-0 rounded-full text-[10px]"
-      />
-      <span className="text-base font-medium text-foreground">
-        {pos.name}
-      </span>
+      <TokenImage alt={pos.asset} className="h-7 w-7 shrink-0 rounded-full text-[10px]" />
+      <span className="text-base font-medium text-foreground">{pos.name}</span>
     </div>
   );
 }
@@ -164,11 +158,7 @@ function PositionAmountCell({ pos }: { pos: PositionItem }) {
     );
   }
 
-  return (
-    <span className="text-base text-foreground">
-      {pos.extra ?? pos.asset}
-    </span>
-  );
+  return <span className="text-base text-foreground">{pos.extra ?? pos.asset}</span>;
 }
 
 // ─── Formatters ──────────────────────────────────────────────────────────────
@@ -186,9 +176,16 @@ function formatRewardAmount(amount: number): string {
   return amount.toLocaleString("en-US", { maximumFractionDigits: 7 });
 }
 
-function PositionRewardsCell({ pos, groupRewards }: { pos: PositionItem; groupRewards?: { amount: number; token: string } }) {
+function PositionRewardsCell({
+  pos,
+  groupRewards,
+}: {
+  pos: PositionItem;
+  groupRewards?: { amount: number; token: string };
+}) {
   const rewards = pos.rewards ?? groupRewards;
-  if (!rewards || rewards.amount <= 0) return <span className="text-sm text-muted-foreground">—</span>;
+  if (!rewards || rewards.amount <= 0)
+    return <span className="text-sm text-muted-foreground">—</span>;
 
   return (
     <div className="flex flex-col">
@@ -305,9 +302,7 @@ export function ProtocolPositions({
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <h2 className="text-xl font-semibold text-foreground">
-          Protocol Positions
-        </h2>
+        <h2 className="text-xl font-semibold text-foreground">Protocol Positions</h2>
         {/* Skeleton summary */}
         <div className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="flex items-center gap-3 px-6 py-4">
@@ -332,10 +327,7 @@ export function ProtocolPositions({
         </div>
         {/* Skeleton protocol cards */}
         {Array.from({ length: 2 }).map((_, i) => (
-          <div
-            key={i}
-            className="overflow-hidden rounded-xl border border-border bg-card"
-          >
+          <div key={i} className="overflow-hidden rounded-xl border border-border bg-card">
             <div className="flex items-center gap-3 px-6 py-4">
               <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
               <Skeleton className="h-4 w-28" />
@@ -346,10 +338,7 @@ export function ProtocolPositions({
             </div>
             <div className="border-t border-border px-6 py-3">
               {Array.from({ length: 2 }).map((_, j) => (
-                <div
-                  key={j}
-                  className="flex items-center gap-3 py-2.5"
-                >
+                <div key={j} className="flex items-center gap-3 py-2.5">
                   <Skeleton className="h-7 w-7 rounded-full" />
                   <div className="flex-1 space-y-1">
                     <Skeleton className="h-4 w-24" />
@@ -375,9 +364,7 @@ export function ProtocolPositions({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <h2 className="text-xl font-semibold text-foreground">
-          Protocol Positions
-        </h2>
+        <h2 className="text-xl font-semibold text-foreground">Protocol Positions</h2>
         <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground">
           <Layers className="h-8 w-8 opacity-40" />
           <p className="text-sm">No protocol positions found</p>
@@ -393,9 +380,7 @@ export function ProtocolPositions({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <h2 className="text-xl font-semibold text-foreground">
-        Protocol Positions
-      </h2>
+      <h2 className="text-xl font-semibold text-foreground">Protocol Positions</h2>
 
       {/* Summary card with pie chart */}
       <motion.div
@@ -446,14 +431,11 @@ export function ProtocolPositions({
                         const d = payload[0]?.payload as (typeof pieData)[0];
                         return (
                           <div className="rounded-lg border border-border bg-popover px-3 py-2 shadow-md">
-                            <p className="text-sm font-medium text-foreground">
-                              {d.name}
-                            </p>
+                            <p className="text-sm font-medium text-foreground">{d.name}</p>
                             <p className="text-xs text-muted-foreground">
                               {d.positions} position
                               {d.positions !== 1 ? "s" : ""}
-                              {d.value > 0 &&
-                                ` · ${formatUsd(d.value)}`}
+                              {d.value > 0 && ` · ${formatUsd(d.value)}`}
                             </p>
                           </div>
                         );
@@ -471,9 +453,7 @@ export function ProtocolPositions({
                       className="h-3.5 w-3.5 shrink-0 rounded-full"
                       style={{ backgroundColor: entry.fill }}
                     />
-                    <span className="text-base text-foreground">
-                      {entry.name}
-                    </span>
+                    <span className="text-base text-foreground">{entry.name}</span>
                     <span className="ml-auto text-base font-medium text-foreground">
                       {entry.value > 0 ? formatUsd(entry.value) : `${entry.positions} pos`}
                     </span>
@@ -518,9 +498,7 @@ export function ProtocolPositions({
                   className="h-8 w-8 shrink-0 rounded-full text-[11px]"
                 />
               )}
-              <span className="text-base font-semibold text-foreground">
-                {card.displayName}
-              </span>
+              <span className="text-base font-semibold text-foreground">{card.displayName}</span>
               <span className="text-sm text-muted-foreground">
                 {card.totalPositions} position
                 {card.totalPositions !== 1 ? "s" : ""}
@@ -530,7 +508,7 @@ export function ProtocolPositions({
                   <span
                     className={cn(
                       "text-xs font-medium",
-                      card.pnl.profitUsd >= 0 ? "text-emerald-400" : "text-destructive",
+                      card.pnl.profitUsd >= 0 ? "text-emerald-400" : "text-destructive"
                     )}
                   >
                     {card.pnl.profitUsd >= 0 ? "+" : ""}
@@ -544,7 +522,7 @@ export function ProtocolPositions({
               <ChevronDown
                 className={cn(
                   "h-4 w-4 text-muted-foreground transition-transform duration-200",
-                  isCollapsed && "-rotate-90",
+                  isCollapsed && "-rotate-90"
                 )}
               />
             </button>
@@ -552,7 +530,8 @@ export function ProtocolPositions({
             {/* Expanded content */}
             <AnimatePresence initial={false}>
               {/* Flat layout — no tree (e.g. Aquarius) */}
-              {!isCollapsed && !useTree &&
+              {!isCollapsed &&
+                !useTree &&
                 card.pools.map((pool) => (
                   <motion.div
                     key={pool.displayName}
@@ -563,12 +542,7 @@ export function ProtocolPositions({
                     className="overflow-hidden"
                   >
                     {/* Column headers */}
-                    <div
-                      className={cn(
-                        POS_GRID,
-                        "border-t border-border px-6 py-2.5",
-                      )}
-                    >
+                    <div className={cn(POS_GRID, "border-t border-border px-6 py-2.5")}>
                       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         Pool / Asset
                       </span>
@@ -594,7 +568,7 @@ export function ProtocolPositions({
                         key={`${pos.name}-${idx}`}
                         className={cn(
                           POS_GRID,
-                          "border-t border-border/60 px-6 py-3.5 transition-colors hover:bg-muted/20",
+                          "border-t border-border/60 px-6 py-3.5 transition-colors hover:bg-muted/20"
                         )}
                       >
                         <PositionAssetCell pos={pos} />
@@ -631,7 +605,7 @@ export function ProtocolPositions({
                         <div
                           className={cn(
                             "absolute left-0 top-0 w-0.5 bg-border",
-                            isLast ? "h-5" : "h-full",
+                            isLast ? "h-5" : "h-full"
                           )}
                         />
                         {/* Horizontal branch */}
@@ -688,7 +662,7 @@ export function ProtocolPositions({
                                 key={`${pos.name}-${idx}`}
                                 className={cn(
                                   POS_GRID,
-                                  "border-t border-border/40 px-4 py-3 transition-colors hover:bg-muted/20",
+                                  "border-t border-border/40 px-4 py-3 transition-colors hover:bg-muted/20"
                                 )}
                               >
                                 <PositionAssetCell pos={pos} />
@@ -701,9 +675,7 @@ export function ProtocolPositions({
                                 <PositionRewardsCell pos={pos} groupRewards={pool.rewards} />
                                 <PositionAmountCell pos={pos} />
                                 <span className="text-right text-base font-medium text-foreground">
-                                  {pos.valueUsd > 0
-                                    ? formatUsd(pos.valueUsd)
-                                    : "—"}
+                                  {pos.valueUsd > 0 ? formatUsd(pos.valueUsd) : "—"}
                                 </span>
                               </div>
                             ))}
@@ -745,9 +717,7 @@ export function ProtocolPositions({
               ) : (
                 <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
               )}
-              <span className="text-base font-semibold text-foreground/60">
-                {name}
-              </span>
+              <span className="text-base font-semibold text-foreground/60">{name}</span>
               <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 Loading positions...

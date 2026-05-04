@@ -9,7 +9,9 @@ export function getDefindexClient() {
   });
 }
 
-export function getNetwork() { return STELLAR_NETWORK; }
+export function getNetwork() {
+  return STELLAR_NETWORK;
+}
 
 export function jsonError(msg: string, status = 400) {
   return Response.json({ success: false, error: msg }, { status });

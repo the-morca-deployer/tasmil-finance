@@ -5,15 +5,15 @@
 
 import {
   type AquaPoolCardProps,
-  type AquaQuoteCardProps,
   type AquaPositionsCardProps,
-  type AquaYieldCardProps,
+  type AquaQuoteCardProps,
   type AquaTxCardProps,
+  type AquaYieldCardProps,
   aquaPoolCardPropsSchema,
-  aquaQuoteCardPropsSchema,
   aquaPositionsCardPropsSchema,
-  aquaYieldCardPropsSchema,
+  aquaQuoteCardPropsSchema,
   aquaTxCardPropsSchema,
+  aquaYieldCardPropsSchema,
 } from "../schemas/aquarius.schema";
 
 // ─── Pool normalization ────────────────────────────────────────
@@ -43,7 +43,9 @@ function normalizeTokensStr(raw: unknown): string[] {
  * If `tokens` array with symbol already exists (enriched SDK shape), use that.
  * Also handles resolve_pool format where tokens is a flat string[] of contract IDs.
  */
-function buildTokens(pool: Record<string, unknown>): Array<{ address: string; symbol?: string }> | undefined {
+function buildTokens(
+  pool: Record<string, unknown>
+): Array<{ address: string; symbol?: string }> | undefined {
   // Already enriched with symbols (objects with address+symbol)
   if (Array.isArray(pool.tokens) && pool.tokens.length > 0) {
     const first = pool.tokens[0];
@@ -55,9 +57,8 @@ function buildTokens(pool: Record<string, unknown>): Array<{ address: string; sy
     }
     // resolve_pool format: tokens is string[] of contract addresses
     // Use pool.name (e.g. "XLM/USDC") to extract symbols
-    const nameSymbols = typeof pool.name === "string"
-      ? pool.name.split("/").map((s) => s.trim())
-      : [];
+    const nameSymbols =
+      typeof pool.name === "string" ? pool.name.split("/").map((s) => s.trim()) : [];
     return (pool.tokens as string[]).map((addr, i) => ({
       address: String(addr),
       symbol: nameSymbols[i] ?? undefined,
@@ -101,24 +102,24 @@ export function normalizeAquaPoolFromSdk(raw: Record<string, unknown>): AquaPool
 
   // Detect if values are in decimal (< 1) or already percentage (> 1)
   const feeApy = rawFeeApy != null ? (rawFeeApy < 1 ? rawFeeApy * 100 : rawFeeApy) : null;
-  const rewardApy = rawRewardsApy != null ? (rawRewardsApy < 1 ? rawRewardsApy * 100 : rawRewardsApy) : null;
-  const totalApy = rawTotalApy != null
-    ? (rawTotalApy < 1 ? rawTotalApy * 100 : rawTotalApy)
-    : feeApy != null || rewardApy != null
-      ? (feeApy ?? 0) + (rewardApy ?? 0)
-      : null;
+  const rewardApy =
+    rawRewardsApy != null ? (rawRewardsApy < 1 ? rawRewardsApy * 100 : rawRewardsApy) : null;
+  const totalApy =
+    rawTotalApy != null
+      ? rawTotalApy < 1
+        ? rawTotalApy * 100
+        : rawTotalApy
+      : feeApy != null || rewardApy != null
+        ? (feeApy ?? 0) + (rewardApy ?? 0)
+        : null;
 
   // TVL & Volume: /pools/ API returns liquidity_usd and volume_usd in stroops (7 decimals).
   // Divide by 1e7 to get actual USD.
   const rawTvl = num(pool, "liquidity_usd");
-  const tvl = rawTvl != null
-    ? rawTvl / 1e7
-    : num(pool, "total_value_locked", "tvl");
+  const tvl = rawTvl != null ? rawTvl / 1e7 : num(pool, "total_value_locked", "tvl");
 
   const rawVolume = num(pool, "volume_usd");
-  const volume24h = rawVolume != null
-    ? rawVolume / 1e7
-    : num(pool, "volume_24h", "volume24h");
+  const volume24h = rawVolume != null ? rawVolume / 1e7 : num(pool, "volume_24h", "volume24h");
 
   const tokens = buildTokens(pool);
   const rawTokensStr = pool.tokens_str ?? pool.tokensStr;
@@ -130,9 +131,7 @@ export function normalizeAquaPoolFromSdk(raw: Record<string, unknown>): AquaPool
 
   // Fee rate as percentage string (e.g. "0.0030" → "0.30%")
   const feeRaw = pool.fee;
-  const feeDisplay = feeRaw != null
-    ? `${(Number(feeRaw) * 100).toFixed(2)}%`
-    : undefined;
+  const feeDisplay = feeRaw != null ? `${(Number(feeRaw) * 100).toFixed(2)}%` : undefined;
 
   const result = aquaPoolCardPropsSchema.safeParse({
     address: String(pool.address ?? pool.poolAddress ?? ""),
@@ -186,7 +185,7 @@ export function normalizeAquaQuoteFromSdk(raw: Record<string, unknown>): AquaQuo
 // ─── Positions normalization ───────────────────────────────────
 
 export function normalizeAquaPositionsFromSdk(
-  raw: Record<string, unknown>,
+  raw: Record<string, unknown>
 ): AquaPositionsCardProps | null {
   const result = aquaPositionsCardPropsSchema.safeParse({
     hasPosition: raw.hasPosition ?? (Array.isArray(raw.positions) && raw.positions.length > 0),
@@ -196,14 +195,14 @@ export function normalizeAquaPositionsFromSdk(
           tokens: Array.isArray(p.tokens) ? p.tokens.map(String) : undefined,
           tokensStr: normalizeTokensStr(p.tokens_str ?? p.tokensStr),
           shares: p.shares ?? null,
-          valueUsd: p.valueUsd != null || p.value_usd != null
-            ? Number(p.valueUsd ?? p.value_usd)
-            : null,
+          valueUsd:
+            p.valueUsd != null || p.value_usd != null ? Number(p.valueUsd ?? p.value_usd) : null,
           poolType: p.pool_type ?? p.poolType ?? undefined,
           feeApy: p.fee_apy != null || p.feeApy != null ? Number(p.fee_apy ?? p.feeApy) : null,
-          rewardApy: p.reward_apy != null || p.rewardApy != null
-            ? Number(p.reward_apy ?? p.rewardApy)
-            : null,
+          rewardApy:
+            p.reward_apy != null || p.rewardApy != null
+              ? Number(p.reward_apy ?? p.rewardApy)
+              : null,
         }))
       : undefined,
     totalValueUsd: raw.totalValueUsd ?? raw.total_value_usd ?? null,
@@ -251,7 +250,7 @@ export function normalizeAquaYieldFromSdk(raw: Record<string, unknown>): AquaYie
 
 export function normalizeAquaTxFromSdk(
   raw: Record<string, unknown>,
-  form?: Record<string, string>,
+  form?: Record<string, string>
 ): AquaTxCardProps | null {
   const merged = { ...raw, ...(form ?? {}) };
   const result = aquaTxCardPropsSchema.safeParse({

@@ -10,8 +10,8 @@
  * (`chat-client`, `ai-message`, tool renderers) work unchanged.
  */
 
-import { HttpAgent, EventType } from "@ag-ui/client";
-import type { CustomEvent, Message as AguiMessage } from "@ag-ui/core";
+import { EventType, HttpAgent } from "@ag-ui/client";
+import type { Message as AguiMessage, CustomEvent } from "@ag-ui/core";
 import type { Message } from "@langchain/langgraph-sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -99,10 +99,9 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
 
     const loadHistory = async () => {
       try {
-        const res = await fetch(
-          `${config.apiUrl}/threads/${config.threadId}/state`,
-          { headers: config.defaultHeaders },
-        );
+        const res = await fetch(`${config.apiUrl}/threads/${config.threadId}/state`, {
+          headers: config.defaultHeaders,
+        });
         if (!res.ok) return;
         const state = await res.json();
         if (!state?.values?.messages?.length) return;
@@ -124,26 +123,34 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
               if (typeof raw === "string") return raw;
               if (Array.isArray(raw)) {
                 return raw
-                  .filter((b) => typeof b === "string" || (typeof b === "object" && b?.type === "text"))
-                  .map((b) => (typeof b === "string" ? b : (b as { text?: string }).text ?? ""))
+                  .filter(
+                    (b) => typeof b === "string" || (typeof b === "object" && b?.type === "text")
+                  )
+                  .map((b) => (typeof b === "string" ? b : ((b as { text?: string }).text ?? "")))
                   .join("")
                   .trim();
               }
-              return typeof raw === "object" && raw !== null ? JSON.stringify(raw) : String(raw ?? "");
+              return typeof raw === "object" && raw !== null
+                ? JSON.stringify(raw)
+                : String(raw ?? "");
             };
 
             // Extract reasoning from list content: [{type:"reasoning", reasoning:"..."}]
             const extractReasoning = (raw: unknown): string | undefined => {
               if (!Array.isArray(raw)) return undefined;
               const block = raw.find(
-                (b) => typeof b === "object" && b?.type === "reasoning" && b?.reasoning,
+                (b) => typeof b === "object" && b?.type === "reasoning" && b?.reasoning
               );
               return block?.reasoning;
             };
 
             switch (msg.type) {
               case "human":
-                return { id: msg.id, type: "human", content: extractContent(msg.content) } as unknown as Message;
+                return {
+                  id: msg.id,
+                  type: "human",
+                  content: extractContent(msg.content),
+                } as unknown as Message;
               case "ai": {
                 const reasoning =
                   msg.additional_kwargs?.reasoning_content || extractReasoning(msg.content);
@@ -220,9 +227,7 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
         name: tc.name,
         args: tc.args,
       })),
-      ...(b.reasoning
-        ? { additional_kwargs: { reasoning_content: b.reasoning } }
-        : {}),
+      ...(b.reasoning ? { additional_kwargs: { reasoning_content: b.reasoning } } : {}),
     } as unknown as Message;
 
     // Replace or append the building message
@@ -253,7 +258,7 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
         wallet_address?: string;
         charge_usage?: boolean;
       },
-      options?: Record<string, unknown>,
+      options?: Record<string, unknown>
     ) => {
       setError(undefined);
       setInterrupt(undefined);
@@ -308,7 +313,8 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
           if (typeof m === "string") return false;
           const msg = m as any;
           // Skip do-not-render placeholders
-          if (msg.id?.startsWith("do-not-render") || msg.id?.startsWith("__do_not_render__")) return false;
+          if (msg.id?.startsWith("do-not-render") || msg.id?.startsWith("__do_not_render__"))
+            return false;
           // Only send human messages (new user input) and tool messages (HITL responses)
           // AI messages and existing tool results are already in the checkpoint.
           return msg.type === "human" || msg.type === "tool";
@@ -323,7 +329,8 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
               return {
                 id,
                 role: "tool" as const,
-                content: typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content),
+                content:
+                  typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content),
                 toolCallId: msg.tool_call_id,
               } as AguiMessage;
             default:
@@ -366,9 +373,10 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
               messagesRef.current = messagesRef.current.filter((m) => {
                 if (m.type !== "ai") return true;
                 const msg = m as any;
-                const hasContent = typeof msg.content === "string"
-                  ? msg.content.trim().length > 0
-                  : Array.isArray(msg.content) && msg.content.length > 0;
+                const hasContent =
+                  typeof msg.content === "string"
+                    ? msg.content.trim().length > 0
+                    : Array.isArray(msg.content) && msg.content.length > 0;
                 const hasToolCalls = msg.tool_calls?.length > 0;
                 const hasReasoning = msg.additional_kwargs?.reasoning_content;
                 return hasContent || hasToolCalls || hasReasoning;
@@ -392,7 +400,9 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
                   const text = typeof firstHuman.content === "string" ? firstHuman.content : "";
                   const cleaned = text.replace(/\s+/g, " ").trim();
                   if (cleaned) {
-                    config.onFirstResponse(cleaned.slice(0, 50) + (cleaned.length > 50 ? "..." : ""));
+                    config.onFirstResponse(
+                      cleaned.slice(0, 50) + (cleaned.length > 50 ? "..." : "")
+                    );
                   }
                 }
               }
@@ -481,9 +491,7 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
               flushBuilding();
             },
             onToolCallArgsEvent: ({ event }) => {
-              const tc = buildingRef.current?.toolCalls.find(
-                (t) => t.id === event.toolCallId,
-              );
+              const tc = buildingRef.current?.toolCalls.find((t) => t.id === event.toolCallId);
               if (tc) {
                 tc.argsBuffer += event.delta;
                 // Try parsing partial args
@@ -496,9 +504,7 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
               }
             },
             onToolCallEndEvent: ({ event }) => {
-              const tc = buildingRef.current?.toolCalls.find(
-                (t) => t.id === event.toolCallId,
-              );
+              const tc = buildingRef.current?.toolCalls.find((t) => t.id === event.toolCallId);
               if (tc) {
                 tc.done = true;
                 try {
@@ -513,7 +519,7 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
               // Deduplicate: skip if we already have a meaningful result.
               // If existing result is empty but new one has content, replace it.
               const existingIdx = messagesRef.current.findIndex(
-                (m) => m.type === "tool" && (m as any).tool_call_id === event.toolCallId,
+                (m) => m.type === "tool" && (m as any).tool_call_id === event.toolCallId
               );
               const newContent = event.content ?? "";
 
@@ -599,14 +605,14 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
                 setInterrupt((event as CustomEvent).value);
               }
             },
-          },
+          }
         );
       } catch (err) {
         setIsLoading(false);
         setError(err instanceof Error ? err : new Error(String(err)));
       }
     },
-    [config.apiUrl, config.assistantId, config.defaultHeaders, config.onThreadId, flushBuilding],
+    [config.apiUrl, config.assistantId, config.defaultHeaders, config.onThreadId, flushBuilding]
   );
 
   // ── Stop ────────────────────────────────────────────────────────
@@ -632,7 +638,7 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
         stop,
         getMessagesMetadata,
       }) as unknown as StreamContextType,
-    [messages, values, isLoading, error, interrupt, submit, stop, getMessagesMetadata],
+    [messages, values, isLoading, error, interrupt, submit, stop, getMessagesMetadata]
   );
 
   return contextValue;

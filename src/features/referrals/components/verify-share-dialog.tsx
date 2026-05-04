@@ -1,8 +1,8 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { useEffect, useId, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import backendAxios from "@/lib/kubb-backend";
 import { Button } from "@/shared/ui/button";
 import {
@@ -57,7 +57,8 @@ function mapBackendError(err: unknown): string {
     axiosErr?.response?.data?.error ||
     (err instanceof Error ? err.message : "");
 
-  if (status === 503) return "Verification temporarily unavailable — please retry in a few minutes.";
+  if (status === 503)
+    return "Verification temporarily unavailable — please retry in a few minutes.";
   if (status === 400) return "Invalid tweet URL.";
   if (typeof raw !== "string") return "Failed to verify tweet.";
   if (raw.includes("X_NOT_LINKED")) return "Link your X account first.";
@@ -94,9 +95,10 @@ export function VerifyShareDialog({ open, onOpenChange }: VerifyShareDialogProps
     }
     setState({ kind: "verifying" });
     try {
-      const res = await backendAxios.post<
-        ApiEnvelope<VerifyShareResponse> | VerifyShareResponse
-      >("/api/referral/verify-share", { tweetUrl: tweetUrl.trim() });
+      const res = await backendAxios.post<ApiEnvelope<VerifyShareResponse> | VerifyShareResponse>(
+        "/api/referral/verify-share",
+        { tweetUrl: tweetUrl.trim() }
+      );
       const data = unwrap(res.data);
       if (data.credited) {
         const credits = data.creditsAwarded ?? X_SHARE_CREDIT_AMOUNT;

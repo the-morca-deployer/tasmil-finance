@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAdminAuthStore } from "@/store/use-admin-auth";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useAdminAuthStore } from "@/store/use-admin-auth";
 
 export interface CampaignRun {
   id: string;
@@ -58,8 +58,7 @@ export function useCampaignStatus(id: string | null) {
       return json.data ?? json;
     },
     enabled: !!token && !!id,
-    refetchInterval: (query) =>
-      query.state.data?.status === "RUNNING" ? 2000 : false,
+    refetchInterval: (query) => (query.state.data?.status === "RUNNING" ? 2000 : false),
   });
 }
 

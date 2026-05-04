@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Droplets, Layers } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
-import type { CardMode } from "../../schemas/common.schema";
-import type { AquaPoolCardProps } from "../../schemas/aquarius.schema";
-import { ProtocolCard, EmptyState } from "../base/protocol-card";
-import { Tag, CardHeader } from "../base/indicators";
 import { fmt } from "../../lib/formatting";
+import type { AquaPoolCardProps } from "../../schemas/aquarius.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { CardHeader, Tag } from "../base/indicators";
+import { EmptyState, ProtocolCard } from "../base/protocol-card";
 
 interface AquaPoolsCardProps {
   pools: AquaPoolCardProps[];
@@ -20,7 +20,7 @@ function resolvePoolLabel(pool: AquaPoolCardProps): string {
   if (pool.tokens?.length) {
     return pool.tokens.map((t) => t.symbol ?? t.address.slice(0, 6)).join(" / ");
   }
-  const ts = Array.isArray(pool.tokensStr) ? pool.tokensStr : pool.tokensStr?.split("-") ?? [];
+  const ts = Array.isArray(pool.tokensStr) ? pool.tokensStr : (pool.tokensStr?.split("-") ?? []);
   return ts.length ? ts.join(" / ") : pool.address.slice(0, 10);
 }
 
@@ -78,7 +78,7 @@ export function AquaPoolsCard({ pools, mode = "playground" }: AquaPoolsCardProps
               <ChevronDown
                 className={cn(
                   "h-3 w-3 text-muted-foreground transition-transform",
-                  isOpen && "rotate-180",
+                  isOpen && "rotate-180"
                 )}
               />
               <span className="text-[13px] font-medium text-foreground flex-1 text-left truncate">
@@ -120,7 +120,9 @@ function PoolDetail({ pool }: { pool: AquaPoolCardProps }) {
           {tokens.map((t, j) => (
             <div key={t.address || j} className="flex items-center gap-2.5 py-1 pl-5">
               <TokenImage src={null} alt={t.symbol ?? "?"} className="h-5 w-5 rounded-full" />
-              <span className="text-xs font-medium text-foreground">{t.symbol ?? t.address.slice(0, 8)}</span>
+              <span className="text-xs font-medium text-foreground">
+                {t.symbol ?? t.address.slice(0, 8)}
+              </span>
             </div>
           ))}
         </div>
@@ -136,13 +138,17 @@ function PoolDetail({ pool }: { pool: AquaPoolCardProps }) {
         <span className="text-muted-foreground">
           <span className="text-muted-foreground/50">Vol </span>
           <span className="text-foreground tabular-nums">
-            {pool.volume24h != null && Number(pool.volume24h) > 0 ? `$${fmt(pool.volume24h)}` : "$0"}
+            {pool.volume24h != null && Number(pool.volume24h) > 0
+              ? `$${fmt(pool.volume24h)}`
+              : "$0"}
           </span>
         </span>
         <span className="text-muted-foreground">
           <span className="text-muted-foreground/50">Reward </span>
           <span className="text-emerald-400 tabular-nums">
-            {pool.rewardApy != null && pool.rewardApy > 0 ? `${pool.rewardApy.toFixed(2)}%` : "\u2014"}
+            {pool.rewardApy != null && pool.rewardApy > 0
+              ? `${pool.rewardApy.toFixed(2)}%`
+              : "\u2014"}
           </span>
         </span>
         <span className="text-muted-foreground">

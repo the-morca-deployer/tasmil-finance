@@ -1,4 +1,4 @@
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { useFlowSigning } from "../use-flow-signing";
 
 // ---------------------------------------------------------------------------
@@ -206,7 +206,7 @@ describe("useFlowSigning", () => {
     mockSignTransaction.mockReturnValueOnce(
       new Promise<string>((resolve) => {
         resolveSign = resolve;
-      }),
+      })
     );
 
     let flowPromise: Promise<any>;

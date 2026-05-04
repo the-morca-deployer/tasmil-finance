@@ -100,10 +100,12 @@ export const soroswapTxCardPropsSchema = z.object({
   assetA: z.string().optional(),
   assetB: z.string().optional(),
   route: z.array(z.string()).optional(),
-  context: z.object({
-    amountOut: z.string().optional(),
-    feePercent: z.string().optional(),
-    poolTvl: z.union([z.string(), z.number()]).nullable().optional(),
-  }).optional(),
+  context: z
+    .object({
+      amountOut: z.string().optional(),
+      feePercent: z.string().optional(),
+      poolTvl: z.union([z.string(), z.number()]).nullable().optional(),
+    })
+    .optional(),
 });
 export type SoroswapTxCardProps = z.infer<typeof soroswapTxCardPropsSchema>;

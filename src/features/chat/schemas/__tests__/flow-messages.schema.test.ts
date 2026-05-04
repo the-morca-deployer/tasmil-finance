@@ -37,9 +37,7 @@ const validPlan = {
 
 const validSimReport = {
   status: "success" as const,
-  steps: [
-    { step_index: 0, status: "success" as const, gas_consumed: 0.3, actual_return: "398.4" },
-  ],
+  steps: [{ step_index: 0, status: "success" as const, gas_consumed: 0.3, actual_return: "398.4" }],
   total_gas_xlm: 0.3,
   xdrs: ["AAAA...base64..."],
   warnings: [],
@@ -105,7 +103,13 @@ describe("assistantFlowMessageSchema", () => {
     const result = assistantFlowMessageSchema.parse({
       kind: "position_update",
       positions: [
-        { deposit: "400 USDC", venue: "Blend USDC Pool", protocol: "blend", apy_bps: 1420, tx_hash: "abc" },
+        {
+          deposit: "400 USDC",
+          venue: "Blend USDC Pool",
+          protocol: "blend",
+          apy_bps: 1420,
+          tx_hash: "abc",
+        },
       ],
     });
     expect(result.kind).toBe("position_update");
@@ -122,9 +126,9 @@ describe("assistantFlowMessageSchema", () => {
   });
 
   it("rejects unknown kind", () => {
-    expect(() =>
-      assistantFlowMessageSchema.parse({ kind: "unknown_type", data: 123 })
-    ).toThrow(ZodError);
+    expect(() => assistantFlowMessageSchema.parse({ kind: "unknown_type", data: 123 })).toThrow(
+      ZodError
+    );
   });
 });
 
@@ -147,9 +151,7 @@ describe("suggestionSchema", () => {
   });
 
   it("rejects suggestion with empty label", () => {
-    expect(() =>
-      suggestionSchema.parse({ label: "", value: {} })
-    ).toThrow(ZodError);
+    expect(() => suggestionSchema.parse({ label: "", value: {} })).toThrow(ZodError);
   });
 });
 
@@ -171,9 +173,7 @@ describe("planSchema", () => {
   });
 
   it("rejects plan with zero steps", () => {
-    expect(() =>
-      planSchema.parse({ ...validPlan, steps: [] })
-    ).toThrow(ZodError);
+    expect(() => planSchema.parse({ ...validPlan, steps: [] })).toThrow(ZodError);
   });
 
   it("accepts plan without idle_amount", () => {
@@ -218,9 +218,7 @@ describe("simulationReportSchema", () => {
   });
 
   it("rejects simulation with empty xdrs array", () => {
-    expect(() =>
-      simulationReportSchema.parse({ ...validSimReport, xdrs: [] })
-    ).toThrow(ZodError);
+    expect(() => simulationReportSchema.parse({ ...validSimReport, xdrs: [] })).toThrow(ZodError);
   });
 
   it("rejects simulation with zero ledger", () => {
@@ -230,9 +228,9 @@ describe("simulationReportSchema", () => {
   });
 
   it("rejects simulation with negative gas", () => {
-    expect(() =>
-      simulationReportSchema.parse({ ...validSimReport, total_gas_xlm: -1 })
-    ).toThrow(ZodError);
+    expect(() => simulationReportSchema.parse({ ...validSimReport, total_gas_xlm: -1 })).toThrow(
+      ZodError
+    );
   });
 });
 
@@ -240,8 +238,8 @@ describe("simulationReportSchema", () => {
 
 describe("clarify message validation", () => {
   it("rejects clarify with empty question", () => {
-    expect(() =>
-      assistantFlowMessageSchema.parse({ kind: "clarify", question: "" })
-    ).toThrow(ZodError);
+    expect(() => assistantFlowMessageSchema.parse({ kind: "clarify", question: "" })).toThrow(
+      ZodError
+    );
   });
 });

@@ -1,21 +1,15 @@
 "use client";
 
+import { ArrowLeftRight, ArrowUpDown, Clock, Info, Loader2 } from "lucide-react";
 import { useState } from "react";
-import {
-  ArrowUpDown,
-  ArrowLeftRight,
-  Clock,
-  Info,
-  Loader2,
-} from "lucide-react";
+import { useStreamContext } from "@/features/chat/hooks/use-stream";
 import { TokenImage } from "@/shared/components/token-image";
+import { getExplorerUrl } from "@/shared/config/stellar";
+import { useTxSigning } from "../../hooks/use-tx-signing";
+import { trunc } from "../../lib/formatting";
 import type { CardMode } from "../../schemas/common.schema";
 import type { SwapBridgeCardProps } from "../../schemas/shared.schema";
 import { ProtocolCard } from "../base/protocol-card";
-import { useTxSigning } from "../../hooks/use-tx-signing";
-import { useStreamContext } from "@/features/chat/hooks/use-stream";
-import { getExplorerUrl } from "@/shared/config/stellar";
-import { trunc } from "../../lib/formatting";
 
 // ─── Operation config ───────────────────────────────────────────
 
@@ -47,8 +41,7 @@ export function SwapBridgeCard({
 }: SwapBridgeCardComponentProps) {
   const operation = data.operation ?? "swap";
   const opCfg = OP_LABELS[operation] ?? OP_LABELS.swap ?? { label: "Swap", icon: ArrowLeftRight };
-  const protocolLabel =
-    data.protocol.charAt(0).toUpperCase() + data.protocol.slice(1);
+  const protocolLabel = data.protocol.charAt(0).toUpperCase() + data.protocol.slice(1);
 
   const chatStream = useStreamContext();
   const stream = mode === "chat" ? chatStream : streamProp;
@@ -69,9 +62,7 @@ export function SwapBridgeCard({
 
   const [showXdr, setShowXdr] = useState(false);
   const cancelled =
-    txResult !== null &&
-    !txResult.success &&
-    txResult.message === "Transaction cancelled";
+    txResult !== null && !txResult.success && txResult.message === "Transaction cancelled";
 
   const handleSign = () => sign(data.xdr);
   const handleCancel = () => cancel();
@@ -137,7 +128,8 @@ export function SwapBridgeCard({
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Info className="h-3 w-3 shrink-0" />
                 <span>
-                  Fee {data.fee ?? ""}{data.feeAmount ? ` (${data.feeAmount})` : ""}
+                  Fee {data.fee ?? ""}
+                  {data.feeAmount ? ` (${data.feeAmount})` : ""}
                 </span>
                 {data.gasEstimate && (
                   <span className="ml-1">
@@ -172,8 +164,7 @@ export function SwapBridgeCard({
             </a>
           ) : txError ? (
             <div className="rounded-lg py-2 px-3 text-xs bg-destructive/10 border border-destructive/20 text-destructive text-center">
-              Failed {"\u00B7"}{" "}
-              {txError.length > 80 ? txError.slice(0, 80) + "\u2026" : txError}
+              Failed {"\u00B7"} {txError.length > 80 ? txError.slice(0, 80) + "\u2026" : txError}
             </div>
           ) : cancelled ? (
             <div className="rounded-lg py-2 px-3 text-xs bg-muted border border-border text-muted-foreground text-center">
@@ -221,9 +212,7 @@ export function SwapBridgeCard({
           <p className="text-lg font-semibold text-foreground">
             {opCfg.label} via {protocolLabel}
           </p>
-          <p className="text-xs text-muted-foreground">
-            Review details before signing
-          </p>
+          <p className="text-xs text-muted-foreground">Review details before signing</p>
         </div>
       </div>
 
@@ -278,7 +267,8 @@ export function SwapBridgeCard({
           <div className="flex justify-between py-2.5 border-b border-border/30">
             <span className="text-sm text-muted-foreground">Fee</span>
             <span className="text-sm text-foreground tabular-nums">
-              {data.fee ?? ""}{data.feeAmount ? ` (${data.feeAmount})` : ""}
+              {data.fee ?? ""}
+              {data.feeAmount ? ` (${data.feeAmount})` : ""}
               {data.gasEstimate ? ` \u00B7 Gas ~${data.gasEstimate}` : ""}
             </span>
           </div>
@@ -330,8 +320,7 @@ export function SwapBridgeCard({
           </a>
         ) : txError ? (
           <div className="rounded-lg py-2 px-3 text-xs bg-destructive/10 border border-destructive/20 text-destructive text-center">
-            Failed {"\u00B7"}{" "}
-            {txError.length > 80 ? txError.slice(0, 80) + "\u2026" : txError}
+            Failed {"\u00B7"} {txError.length > 80 ? txError.slice(0, 80) + "\u2026" : txError}
           </div>
         ) : cancelled ? (
           <div className="rounded-lg py-2 px-3 text-xs bg-muted border border-border text-muted-foreground text-center">

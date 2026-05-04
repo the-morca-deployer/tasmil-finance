@@ -1,11 +1,11 @@
 "use client";
 
-import { Wallet, Layers } from "lucide-react";
+import { Layers, Wallet } from "lucide-react";
+import { fmt } from "../../lib/formatting";
 import type { CardMode } from "../../schemas/common.schema";
 import type { DefindexUserBalanceProps } from "../../schemas/defindex.schema";
-import { ProtocolCard, EmptyState } from "../base/protocol-card";
 import { CardHeader, MetricBox } from "../base/indicators";
-import { fmt } from "../../lib/formatting";
+import { EmptyState, ProtocolCard } from "../base/protocol-card";
 
 interface Props {
   balance: DefindexUserBalanceProps;
@@ -25,12 +25,13 @@ export function DefindexBalanceCard({ balance, mode = "playground" }: Props) {
   }
 
   return (
-    <ProtocolCard mode={mode} title={mode === "chat" ? "Vault Balance" : undefined} icon={mode === "chat" ? Wallet : undefined}>
+    <ProtocolCard
+      mode={mode}
+      title={mode === "chat" ? "Vault Balance" : undefined}
+      icon={mode === "chat" ? Wallet : undefined}
+    >
       {mode === "playground" && (
-        <CardHeader
-          icon={<Wallet className="h-3.5 w-3.5" />}
-          title="Your Vault Position"
-        />
+        <CardHeader icon={<Wallet className="h-3.5 w-3.5" />} title="Your Vault Position" />
       )}
 
       <div className="px-4 py-3 space-y-3">
@@ -49,7 +50,9 @@ export function DefindexBalanceCard({ balance, mode = "playground" }: Props) {
                 return (
                   <div key={i} className="rounded-lg bg-secondary px-2.5 py-2">
                     <p className="text-[10px] text-muted-foreground mb-0.5">Asset {i + 1}</p>
-                    <p className="text-sm font-semibold text-foreground tabular-nums">{fmt(human, 4)}</p>
+                    <p className="text-sm font-semibold text-foreground tabular-nums">
+                      {fmt(human, 4)}
+                    </p>
                   </div>
                 );
               })}

@@ -2,8 +2,8 @@
 
 import type { ReactNode } from "react";
 import { ArtifactProvider } from "../thread/components";
-import { ChatStateProvider } from "./chat-state-provider";
 import { StreamProvider } from "./agui-stream-provider";
+import { ChatStateProvider } from "./chat-state-provider";
 import { ThreadProvider } from "./thread-provider";
 
 interface ChatProviderProps {

@@ -1,7 +1,7 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
-import { SoroswapPoolsCard } from "../soroswap-pools-card";
+import React from "react";
 import type { SoroswapPoolCardProps } from "@/features/protocols/schemas/soroswap.schema";
+import { SoroswapPoolsCard } from "../soroswap-pools-card";
 
 const makePool = (overrides: Partial<SoroswapPoolCardProps> = {}): SoroswapPoolCardProps => ({
   address: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2OOTHU2F",
@@ -47,10 +47,7 @@ describe("SoroswapPoolsCard", () => {
 
   it("renders with missing optional fields (tvl, fee)", () => {
     render(
-      <SoroswapPoolsCard
-        pools={[makePool({ tvl: undefined, fee: undefined })]}
-        mode="playground"
-      />,
+      <SoroswapPoolsCard pools={[makePool({ tvl: undefined, fee: undefined })]} mode="playground" />
     );
     expect(screen.getByText("XLM / USDC")).toBeInTheDocument();
   });

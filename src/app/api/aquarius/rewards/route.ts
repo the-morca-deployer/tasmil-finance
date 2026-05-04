@@ -29,7 +29,7 @@ export async function GET() {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Failed to fetch rewards" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }

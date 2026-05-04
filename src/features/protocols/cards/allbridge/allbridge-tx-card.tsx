@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { Zap, Check, Loader2, ArrowRight, Copy } from "lucide-react";
-import type { CardMode } from "../../schemas/common.schema";
-import type { AllbridgeTxCardProps } from "../../schemas/allbridge.schema";
-import { ProtocolCard } from "../base/protocol-card";
-import { MetricBox, Row } from "../base/indicators";
-import { trunc } from "../../lib/formatting";
+import { ArrowRight, Check, Copy, Loader2, Zap } from "lucide-react";
+import { useCallback, useState } from "react";
 import { useTxSigning } from "../../hooks/use-tx-signing";
+import { trunc } from "../../lib/formatting";
+import type { AllbridgeTxCardProps } from "../../schemas/allbridge.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { MetricBox, Row } from "../base/indicators";
+import { ProtocolCard } from "../base/protocol-card";
 
 interface Props {
   tx: AllbridgeTxCardProps;
@@ -30,7 +30,18 @@ const OP_LABELS: Record<string, string> = {
 
 export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, respond }: Props) {
   const isChat = mode === "chat";
-  const { sign, signing, txResult, txError } = useTxSigning({ mode, stream, toolCallId, respond, volumeContext: { protocol: "allbridge", operation: tx.operation, asset: tx.asset ?? tx.symbol ?? "", amount: tx.amount ?? "0" } });
+  const { sign, signing, txResult, txError } = useTxSigning({
+    mode,
+    stream,
+    toolCallId,
+    respond,
+    volumeContext: {
+      protocol: "allbridge",
+      operation: tx.operation,
+      asset: tx.asset ?? tx.symbol ?? "",
+      amount: tx.amount ?? "0",
+    },
+  });
   const [showXdr, setShowXdr] = useState(false);
   const label = OP_LABELS[tx.operation] ?? tx.operation;
   const isBridge = tx.operation.includes("bridge") || tx.operation === "bridge";
@@ -43,14 +54,22 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
   // Completed state
   if (txResult) {
     return (
-      <ProtocolCard mode={mode} title={label} icon={Check} iconColor="text-emerald-500" iconBg="bg-emerald-500/10">
+      <ProtocolCard
+        mode={mode}
+        title={label}
+        icon={Check}
+        iconColor="text-emerald-500"
+        iconBg="bg-emerald-500/10"
+      >
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Check className="h-4 w-4 text-emerald-500" />
             <span className="text-sm font-medium text-emerald-400">Transaction confirmed</span>
           </div>
           {txResult.hash && (
-            <p className="text-[11px] text-muted-foreground font-mono">{trunc(txResult.hash, 12, 8)}</p>
+            <p className="text-[11px] text-muted-foreground font-mono">
+              {trunc(txResult.hash, 12, 8)}
+            </p>
           )}
         </div>
       </ProtocolCard>
@@ -59,7 +78,13 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title={label} icon={Zap} iconColor="text-blue-500" iconBg="bg-blue-500/10">
+      <ProtocolCard
+        mode="chat"
+        title={label}
+        icon={Zap}
+        iconColor="text-blue-500"
+        iconBg="bg-blue-500/10"
+      >
         <div className="space-y-2">
           {isBridge ? (
             <>
@@ -70,16 +95,28 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
                   <span className="capitalize font-medium">{tx.toChain}</span>
                 </div>
               )}
-              {tx.amount && <p className="text-sm">{tx.amount} {tx.asset ?? tx.symbol ?? ""}</p>}
+              {tx.amount && (
+                <p className="text-sm">
+                  {tx.amount} {tx.asset ?? tx.symbol ?? ""}
+                </p>
+              )}
             </>
           ) : (
             <>
-              {tx.amount && <p className="text-sm">{tx.amount} {tx.symbol ?? ""}</p>}
-              {tx.chain && <p className="text-xs text-muted-foreground capitalize">Chain: {tx.chain}</p>}
+              {tx.amount && (
+                <p className="text-sm">
+                  {tx.amount} {tx.symbol ?? ""}
+                </p>
+              )}
+              {tx.chain && (
+                <p className="text-xs text-muted-foreground capitalize">Chain: {tx.chain}</p>
+              )}
             </>
           )}
           {tx.xdr && (
-            <p className="text-[10px] text-muted-foreground font-mono truncate">{tx.xdr.slice(0, 120)}...</p>
+            <p className="text-[10px] text-muted-foreground font-mono truncate">
+              {tx.xdr.slice(0, 120)}...
+            </p>
           )}
           {txError && <p className="text-xs text-red-400">{txError}</p>}
           {tx.xdr && (
@@ -89,7 +126,13 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
               disabled={signing}
               className="w-full rounded-lg py-2 text-sm font-semibold bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black hover:from-[#C5F0FF] hover:to-[#1CCFFF] transition-all active:scale-[0.98] disabled:opacity-40 flex items-center justify-center gap-1.5"
             >
-              {signing ? <><Loader2 className="h-4 w-4 animate-spin" /> Signing...</> : `Sign & ${label}`}
+              {signing ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Signing...
+                </>
+              ) : (
+                `Sign & ${label}`
+              )}
             </button>
           )}
         </div>
@@ -109,9 +152,13 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
           <>
             {tx.fromChain && tx.toChain && (
               <div className="flex items-center justify-center gap-2 py-1">
-                <span className="rounded-lg bg-secondary px-3 py-1.5 text-sm font-medium capitalize">{tx.fromChain}</span>
+                <span className="rounded-lg bg-secondary px-3 py-1.5 text-sm font-medium capitalize">
+                  {tx.fromChain}
+                </span>
                 <ArrowRight className="h-4 w-4 text-muted-foreground/40" />
-                <span className="rounded-lg bg-secondary px-3 py-1.5 text-sm font-medium capitalize">{tx.toChain}</span>
+                <span className="rounded-lg bg-secondary px-3 py-1.5 text-sm font-medium capitalize">
+                  {tx.toChain}
+                </span>
               </div>
             )}
             <div className="grid grid-cols-2 gap-2">
@@ -131,14 +178,14 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
             </div>
             <div className="text-xs space-y-1">
               {tx.poolAddress && <Row label="Pool" value={trunc(tx.poolAddress, 8, 6)} />}
-              {tx.earnedRewards && <Row label="Rewards" value={`${tx.earnedRewards} ${tx.symbol ?? ""}`} />}
+              {tx.earnedRewards && (
+                <Row label="Rewards" value={`${tx.earnedRewards} ${tx.symbol ?? ""}`} />
+              )}
             </div>
           </>
         )}
 
-        {tx.note && (
-          <p className="text-[10px] text-muted-foreground/70 italic">{tx.note}</p>
-        )}
+        {tx.note && <p className="text-[10px] text-muted-foreground/70 italic">{tx.note}</p>}
 
         {/* XDR toggle */}
         {tx.xdr && (
@@ -169,7 +216,9 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
 
         {/* Error */}
         {txError && (
-          <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-2 text-xs text-red-400">{txError}</div>
+          <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-2 text-xs text-red-400">
+            {txError}
+          </div>
         )}
 
         {/* Sign button */}
@@ -180,7 +229,13 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
             disabled={signing}
             className="w-full rounded-xl py-2.5 text-sm font-semibold bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black hover:from-[#C5F0FF] hover:to-[#1CCFFF] transition-all active:scale-[0.98] disabled:opacity-40 flex items-center justify-center gap-1.5"
           >
-            {signing ? <><Loader2 className="h-4 w-4 animate-spin" /> Signing...</> : `Sign & ${label}`}
+            {signing ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Signing...
+              </>
+            ) : (
+              `Sign & ${label}`
+            )}
           </button>
         )}
 
@@ -191,7 +246,9 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
             {tx.transaction.depositAddress && (
               <div className="text-xs space-y-1">
                 <Row label="Deposit to" value={trunc(tx.transaction.depositAddress, 10, 8)} />
-                {tx.transaction.instruction && <p className="text-[10px] text-muted-foreground">{tx.transaction.instruction}</p>}
+                {tx.transaction.instruction && (
+                  <p className="text-[10px] text-muted-foreground">{tx.transaction.instruction}</p>
+                )}
               </div>
             )}
           </div>

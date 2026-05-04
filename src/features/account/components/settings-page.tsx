@@ -1,9 +1,9 @@
 "use client";
-import { activeNetwork } from "@/shared/config/stellar";
 
 import { AlertTriangle, Check, Copy, Loader2, Lock, ShieldOff, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useId, useMemo, useState } from "react";
+import { activeNetwork } from "@/shared/config/stellar";
 
 import { Button } from "@/shared/ui/button-v2";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
@@ -34,8 +34,7 @@ async function signXdr(xdr: string, publicKey: string): Promise<string> {
   const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
   const { signedTxXdr } = await StellarWalletsKit.signTransaction(xdr, {
     address: publicKey,
-    networkPassphrase:
-      activeNetwork.networkPassphrase,
+    networkPassphrase: activeNetwork.networkPassphrase,
   });
   return signedTxXdr;
 }
@@ -142,8 +141,7 @@ export function SettingsPage() {
       setWithdrawAmount("");
       router.push("/farming");
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Withdraw failed. Please try again.";
+      const message = err instanceof Error ? err.message : "Withdraw failed. Please try again.";
       if (message.toLowerCase().includes("reject") || message.toLowerCase().includes("cancel")) {
         console.warn("Withdraw cancelled by user:", message);
         setActionError("Transaction was cancelled.");
@@ -173,8 +171,7 @@ export function SettingsPage() {
 
       router.push("/farming");
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Revoke failed. Please try again.";
+      const message = err instanceof Error ? err.message : "Revoke failed. Please try again.";
       if (message.toLowerCase().includes("reject") || message.toLowerCase().includes("cancel")) {
         console.warn("Revoke cancelled by user:", message);
         setActionError("Transaction was cancelled.");

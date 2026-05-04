@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     if (!res.ok) {
       return NextResponse.json(
         { success: false, error: `Aquarius tokens API error: ${res.status}` },
-        { status: res.status },
+        { status: res.status }
       );
     }
 
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Tokens API unavailable" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

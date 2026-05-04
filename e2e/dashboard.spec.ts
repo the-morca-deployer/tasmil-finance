@@ -2,10 +2,7 @@ import { expect, test } from "@playwright/test";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
 test.describe("Dashboard — /dashboard", () => {
-  test.skip(
-    process.env.NODE_ENV === "production",
-    "test-login is disabled on production",
-  );
+  test.skip(process.env.NODE_ENV === "production", "test-login is disabled on production");
 
   // 1
   test("Wallet disconnected shows connect CTA", async ({ page }) => {
@@ -136,8 +133,16 @@ test.describe("Dashboard — /dashboard", () => {
     await page.waitForLoadState("networkidle");
     // Either an empty-state message or the activity list should be visible
     const hasEmpty =
-      (await page.getByText(/No recent|Empty| nothing/i).first().isVisible({ timeout: 3000 }).catch(() => false)) ||
-      (await page.getByText(/Activity|Recent|History/i).first().isVisible({ timeout: 3000 }).catch(() => false));
+      (await page
+        .getByText(/No recent|Empty| nothing/i)
+        .first()
+        .isVisible({ timeout: 3000 })
+        .catch(() => false)) ||
+      (await page
+        .getByText(/Activity|Recent|History/i)
+        .first()
+        .isVisible({ timeout: 3000 })
+        .catch(() => false));
     expect(hasEmpty).toBe(true);
   });
 
@@ -206,14 +211,15 @@ test.describe("Dashboard — /dashboard", () => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     // Intercept before navigation
-    await page.route("**/api/account/position", (route) =>
-      route.fulfill({ status: 503 }),
-    );
+    await page.route("**/api/account/position", (route) => route.fulfill({ status: 503 }));
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
     // Should degrade gracefully — no raw 503 text exposed to user
-    const has503 =
-      await page.getByText("503").first().isVisible({ timeout: 2000 }).catch(() => false);
+    const has503 = await page
+      .getByText("503")
+      .first()
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
     expect(has503).toBe(false);
   });
 
@@ -225,14 +231,22 @@ test.describe("Dashboard — /dashboard", () => {
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
     // Capture a timestamp or data marker
-    const marker1 = await page.getByText(/\d{4,}/).first().textContent().catch(() => "");
+    const marker1 = await page
+      .getByText(/\d{4,}/)
+      .first()
+      .textContent()
+      .catch(() => "");
     // Navigate away and back
     await page.goto("/farming");
     await page.waitForLoadState("networkidle");
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
     // Re-acquire marker — page should have reloaded fresh data
-    const marker2 = await page.getByText(/\d{4,}/).first().textContent().catch(() => "");
+    const marker2 = await page
+      .getByText(/\d{4,}/)
+      .first()
+      .textContent()
+      .catch(() => "");
     // The page itself should still be functional (no crash, title present)
     await expect(page).toHaveTitle(/Tasmil/i);
     expect(marker2).toBeTruthy();
@@ -267,13 +281,21 @@ test.describe("Dashboard — /dashboard", () => {
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
     // Record wallet1 data
-    const wallet1Marker = await page.getByText(/\d{4,}/).first().textContent().catch(() => "");
+    const wallet1Marker = await page
+      .getByText(/\d{4,}/)
+      .first()
+      .textContent()
+      .catch(() => "");
     // Switch to wallet2
     await loginAsWallet(page, wallet2);
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
     // wallet2's data shown (different from wallet1's)
-    const wallet2Marker = await page.getByText(/\d{4,}/).first().textContent().catch(() => "");
+    const wallet2Marker = await page
+      .getByText(/\d{4,}/)
+      .first()
+      .textContent()
+      .catch(() => "");
     expect(wallet2Marker).toBeTruthy();
     // Wallet2 should not see wallet1's data marker
     if (wallet1Marker) {

@@ -49,7 +49,7 @@ describe("next.config proxy rewrites", () => {
           source: "/api/pools/:path*",
           destination: "http://backend:6756/api/pools/:path*",
         },
-      ]),
+      ])
     );
     expect(rewrites).not.toEqual(
       expect.arrayContaining([
@@ -65,7 +65,7 @@ describe("next.config proxy rewrites", () => {
           source: "/api/admin/:path*",
           destination: expect.any(String),
         },
-      ]),
+      ])
     );
   });
 });

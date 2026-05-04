@@ -130,7 +130,7 @@ test.describe("Credits (/profile/credits)", () => {
   test("Network error on package fetch", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/credits/packages**", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/credits/packages**", (route) => route.fulfill({ status: 503 }));
     await page.goto("/profile/credits");
     await page.waitForTimeout(3000);
     const content = await page.content();
@@ -141,7 +141,9 @@ test.describe("Credits (/profile/credits)", () => {
   test("Empty state if no packages", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/credits/packages**", route => route.fulfill({ status: 200, body: JSON.stringify({ data: [] }) }));
+    await page.route("**/api/credits/packages**", (route) =>
+      route.fulfill({ status: 200, body: JSON.stringify({ data: [] }) })
+    );
     await page.goto("/profile/credits");
     await page.waitForLoadState("networkidle");
     const content = await page.content();
@@ -179,11 +181,13 @@ test.describe("Credits (/profile/credits)", () => {
   test("No console errors", async ({ page }) => {
     const wallet = freshWallet();
     const errors: string[] = [];
-    page.on("console", msg => { if (msg.type() === "error") errors.push(msg.text()); });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") errors.push(msg.text());
+    });
     await loginAsWallet(page, wallet);
     await page.goto("/profile/credits");
     await page.waitForLoadState("networkidle");
-    const critical = errors.filter(e => !/warning|deprecated/i.test(e));
+    const critical = errors.filter((e) => !/warning|deprecated/i.test(e));
     expect(critical).toHaveLength(0);
   });
 });

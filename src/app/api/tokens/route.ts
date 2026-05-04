@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { sdk, ensureBridgeTokens } from "../aggregator/_sdk";
+import { ensureBridgeTokens, sdk } from "../aggregator/_sdk";
 
 export async function GET() {
   await ensureBridgeTokens();

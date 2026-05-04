@@ -4,10 +4,10 @@ import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getBrowserBackendBaseUrl } from "@/lib/runtime-urls";
-import { type AuthUser, useAuthStore } from "@/store/use-auth";
-import { useWalletStore } from "@/store/use-wallet";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { activeNetwork } from "@/shared/config/stellar";
+import { type AuthUser, useAuthStore } from "@/store/use-auth";
+import { useWalletStore } from "@/store/use-wallet";
 
 interface WalletContextType {
   isConnected: boolean;
@@ -97,46 +97,47 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const { defaultModules } = await import("@creit.tech/stellar-wallets-kit/modules/utils");
         const { Networks, KitEventType } = await import("@creit.tech/stellar-wallets-kit/types");
 
-        const network = activeNetwork.networkPassphrase as typeof Networks[keyof typeof Networks];
+        const network = activeNetwork.networkPassphrase as (typeof Networks)[keyof typeof Networks];
 
-        const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+        const isDark =
+          typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
         const darkTheme = {
-          "background": "#18181b",
+          background: "#18181b",
           "background-secondary": "#27272a",
           "foreground-strong": "#fafafa",
-          "foreground": "#fafafa",
+          foreground: "#fafafa",
           "foreground-secondary": "#a1a1aa",
-          "primary": "hsl(203, 100%, 73%)",
+          primary: "hsl(203, 100%, 73%)",
           "primary-foreground": "#18181b",
-          "transparent": "rgba(0,0,0,0)",
-          "lighter": "#3f3f46",
-          "light": "#27272a",
+          transparent: "rgba(0,0,0,0)",
+          lighter: "#3f3f46",
+          light: "#27272a",
           "light-gray": "#71717a",
-          "gray": "#a1a1aa",
-          "danger": "#ef4444",
-          "border": "#27272a",
-          "shadow": "0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -4px rgba(0,0,0,0.4)",
+          gray: "#a1a1aa",
+          danger: "#ef4444",
+          border: "#27272a",
+          shadow: "0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -4px rgba(0,0,0,0.4)",
           "border-radius": "0.5rem",
           "font-family": "var(--font-outfit), sans-serif",
         };
 
         const lightTheme = {
-          "background": "#ffffff",
+          background: "#ffffff",
           "background-secondary": "#ffffff",
           "foreground-strong": "hsl(222.2, 84%, 4.9%)",
-          "foreground": "hsl(222.2, 84%, 4.9%)",
+          foreground: "hsl(222.2, 84%, 4.9%)",
           "foreground-secondary": "hsl(215.4, 16.3%, 46.9%)",
-          "primary": "hsl(203, 100%, 61%)",
+          primary: "hsl(203, 100%, 61%)",
           "primary-foreground": "hsl(210, 40%, 98%)",
-          "transparent": "rgba(0,0,0,0)",
-          "lighter": "hsl(214.3, 31.8%, 91.4%)",
-          "light": "hsl(210, 40%, 96.1%)",
+          transparent: "rgba(0,0,0,0)",
+          lighter: "hsl(214.3, 31.8%, 91.4%)",
+          light: "hsl(210, 40%, 96.1%)",
           "light-gray": "hsl(215.4, 16.3%, 46.9%)",
-          "gray": "hsl(215.4, 16.3%, 46.9%)",
-          "danger": "hsl(0, 84.2%, 60.2%)",
-          "border": "hsl(214.3, 31.8%, 91.4%)",
-          "shadow": "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.06)",
+          gray: "hsl(215.4, 16.3%, 46.9%)",
+          danger: "hsl(0, 84.2%, 60.2%)",
+          border: "hsl(214.3, 31.8%, 91.4%)",
+          shadow: "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.06)",
           "border-radius": "0.5rem",
           "font-family": "var(--font-outfit), sans-serif",
         };
@@ -244,9 +245,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const { data: challengeData } = await challengeRes.json();
 
         // Step 2: Build a TX for the user to sign (proves private key ownership)
-        const { TransactionBuilder, Operation, Account } = await import(
-          "@stellar/stellar-sdk"
-        );
+        const { TransactionBuilder, Operation, Account } = await import("@stellar/stellar-sdk");
         const network = activeNetwork.networkPassphrase;
         const account = new Account(walletAddress, "0");
         const tx = new TransactionBuilder(account, {

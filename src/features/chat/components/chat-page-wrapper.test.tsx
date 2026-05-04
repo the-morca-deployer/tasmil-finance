@@ -1,6 +1,6 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type React from "react";
 import { ChatPageWrapper } from "./chat-page-wrapper";
 
 jest.mock("@/shared/context/wallet-context", () => ({

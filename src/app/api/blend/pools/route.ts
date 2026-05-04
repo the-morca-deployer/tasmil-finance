@@ -47,11 +47,14 @@ export async function GET() {
     const r = await fetch(`${MCP_URL}/blend-v2/query/pools`);
     const d = await r.json();
     if (d.success) return NextResponse.json(d);
-    return NextResponse.json({ success: false, error: d.error ?? "MCP query failed" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: d.error ?? "MCP query failed" },
+      { status: 500 }
+    );
   } catch (error) {
     return NextResponse.json(
       { success: false, error: "Both SDK and MCP failed. Is mcp-stellar running?" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

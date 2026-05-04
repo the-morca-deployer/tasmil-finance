@@ -8,9 +8,16 @@ export async function GET() {
     const chains = (await sdk.allbridge.getSupportedChains()) as Record<string, any>;
 
     const CHAIN_MAP: Record<string, string> = {
-      SRB: "stellar", ETH: "ethereum", BSC: "bsc", POL: "polygon",
-      AVA: "avalanche", SOL: "solana", ARB: "arbitrum", OPT: "optimism",
-      BAS: "base", TRX: "tron",
+      SRB: "stellar",
+      ETH: "ethereum",
+      BSC: "bsc",
+      POL: "polygon",
+      AVA: "avalanche",
+      SOL: "solana",
+      ARB: "arbitrum",
+      OPT: "optimism",
+      BAS: "base",
+      TRX: "tron",
     };
 
     const supported = Object.entries(chains).map(([sym, data]: [string, any]) => ({
@@ -26,8 +33,16 @@ export async function GET() {
       tokenCount: (data.tokens ?? []).length,
     }));
 
-    return NextResponse.json({ success: true, network, chains: supported, count: supported.length });
+    return NextResponse.json({
+      success: true,
+      network,
+      chains: supported,
+      count: supported.length,
+    });
   } catch (e) {
-    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : "Unknown error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: e instanceof Error ? e.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }

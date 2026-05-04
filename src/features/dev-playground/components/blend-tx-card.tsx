@@ -1,11 +1,20 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { ArrowRight, Fuel, Loader2, AlertTriangle, TrendingUp, Layers, Coins, Wallet } from "lucide-react";
-import { TokenImage } from "@/shared/components/token-image";
-import { useWallet } from "@/shared/context/wallet-context";
+import {
+  AlertTriangle,
+  ArrowRight,
+  Coins,
+  Fuel,
+  Layers,
+  Loader2,
+  TrendingUp,
+  Wallet,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { checkWalletNetwork } from "@/lib/stellar-network-check";
+import { TokenImage } from "@/shared/components/token-image";
 import { getExplorerUrl } from "@/shared/config/stellar";
+import { useWallet } from "@/shared/context/wallet-context";
 
 // ─── Symbol resolution from contract address ────────────────────
 
@@ -22,7 +31,7 @@ const KNOWN_SYMBOLS: Record<string, string> = {
   CBLV4ATSIWU67CFSQU2NVRKINQIKUZ2ODSZBUJTJ43VJVRSBTZYOPNUR: "USTRY",
   CD6M4R2322BYCY2LNWM74PEBQAQ63SA3DUJLI3L4225U4ZVCLMSCBCIS: "TESOURO",
   CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP: "USDx",
-  CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U:  "EURx",
+  CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U: "EURx",
   CBCO65UOWXY2GR66GOCMCN6IU3Y45TXCPBY3FLUNL4AOUMOCKVIVV6JC: "GBPx",
   CBZPEXQLJCGUYTAQRQ4FGCXUV5O4TZER5WSOMCGNDNIIO4EJ4FU5GQNZ: "oUSD",
   CB226ZOEYXTBPD3QEGABTJYSKZVBP2PASEISLG3SBMTN5CE4QZUVZ3CE: "USDGLO",
@@ -67,22 +76,82 @@ interface OpConfig {
   label: string;
   verb: string;
   action: string;
-  cancel: boolean;  // is cancelling this tx safe for protocol?
-  sign: boolean;    // is signing this tx safe for protocol?
+  cancel: boolean; // is cancelling this tx safe for protocol?
+  sign: boolean; // is signing this tx safe for protocol?
 }
 
 const OP_CONFIG: Record<string, OpConfig> = {
   //                                                                               cancel  sign
-  blend_supply:            { label: "Supply",            verb: "to supply",   action: "Sign & Supply",   cancel: false, sign: true  },  // cancel = user doesn't deposit → bad
-  blend_borrow:            { label: "Borrow",            verb: "to borrow",   action: "Sign & Borrow",   cancel: true,  sign: true  },  // both neutral
-  blend_repay:             { label: "Repay",             verb: "to repay",    action: "Sign & Repay",    cancel: true,  sign: true  },  // both neutral
-  blend_withdraw:          { label: "Withdraw",          verb: "to withdraw", action: "Sign & Withdraw", cancel: true,  sign: false },  // sign = money leaves → bad
-  blend_toggle_collateral: { label: "Toggle Collateral", verb: "",            action: "Sign & Toggle",   cancel: true,  sign: true  },  // both neutral
-  blend_claim:             { label: "Claim Emissions",   verb: "to claim",    action: "Sign & Claim",    cancel: false, sign: true  },  // cancel = user misses rewards → bad
-  backstop_deposit:        { label: "Backstop Deposit",  verb: "to deposit",  action: "Sign & Deposit",  cancel: false, sign: true  },  // cancel = user doesn't deposit → bad
-  backstop_queue:          { label: "Queue Withdrawal",  verb: "to queue",    action: "Sign & Queue",    cancel: true,  sign: false },  // sign = starts exit → bad
-  backstop_dequeue:        { label: "Dequeue",           verb: "to dequeue",  action: "Sign & Dequeue",  cancel: false, sign: true  },  // cancel = continues exit → bad
-  backstop_withdraw:       { label: "Backstop Withdraw", verb: "to withdraw", action: "Sign & Withdraw", cancel: true,  sign: false },  // sign = money leaves → bad
+  blend_supply: {
+    label: "Supply",
+    verb: "to supply",
+    action: "Sign & Supply",
+    cancel: false,
+    sign: true,
+  }, // cancel = user doesn't deposit → bad
+  blend_borrow: {
+    label: "Borrow",
+    verb: "to borrow",
+    action: "Sign & Borrow",
+    cancel: true,
+    sign: true,
+  }, // both neutral
+  blend_repay: {
+    label: "Repay",
+    verb: "to repay",
+    action: "Sign & Repay",
+    cancel: true,
+    sign: true,
+  }, // both neutral
+  blend_withdraw: {
+    label: "Withdraw",
+    verb: "to withdraw",
+    action: "Sign & Withdraw",
+    cancel: true,
+    sign: false,
+  }, // sign = money leaves → bad
+  blend_toggle_collateral: {
+    label: "Toggle Collateral",
+    verb: "",
+    action: "Sign & Toggle",
+    cancel: true,
+    sign: true,
+  }, // both neutral
+  blend_claim: {
+    label: "Claim Emissions",
+    verb: "to claim",
+    action: "Sign & Claim",
+    cancel: false,
+    sign: true,
+  }, // cancel = user misses rewards → bad
+  backstop_deposit: {
+    label: "Backstop Deposit",
+    verb: "to deposit",
+    action: "Sign & Deposit",
+    cancel: false,
+    sign: true,
+  }, // cancel = user doesn't deposit → bad
+  backstop_queue: {
+    label: "Queue Withdrawal",
+    verb: "to queue",
+    action: "Sign & Queue",
+    cancel: true,
+    sign: false,
+  }, // sign = starts exit → bad
+  backstop_dequeue: {
+    label: "Dequeue",
+    verb: "to dequeue",
+    action: "Sign & Dequeue",
+    cancel: false,
+    sign: true,
+  }, // cancel = continues exit → bad
+  backstop_withdraw: {
+    label: "Backstop Withdraw",
+    verb: "to withdraw",
+    action: "Sign & Withdraw",
+    cancel: true,
+    sign: false,
+  }, // sign = money leaves → bad
 };
 
 // ─── Types ──────────────────────────────────────────────────────
@@ -93,7 +162,11 @@ interface BlendTxCardProps {
   form: Record<string, string>;
 }
 
-interface AssetPos { symbol: string; amount: number; apy: number }
+interface AssetPos {
+  symbol: string;
+  amount: number;
+  apy: number;
+}
 interface PositionData {
   hasPosition: boolean;
   // SDK format
@@ -101,7 +174,12 @@ interface PositionData {
   supply?: AssetPos[];
   liabilities?: AssetPos[];
   // MCP format (flat)
-  positions?: { symbol: string; suppliedAmount?: string; borrowedAmount?: string; isCollateral?: boolean }[];
+  positions?: {
+    symbol: string;
+    suppliedAmount?: string;
+    borrowedAmount?: string;
+    isCollateral?: boolean;
+  }[];
   summary?: {
     totalSuppliedUsd: number | null;
     totalBorrowedUsd: number | null;
@@ -122,7 +200,13 @@ export function BlendTxCard({ operation, result, form }: BlendTxCardProps) {
   const [showCancelWarning, setShowCancelWarning] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const cfg = OP_CONFIG[operation] ?? { label: operation, verb: "", action: "Sign", cancel: true, sign: true };
+  const cfg = OP_CONFIG[operation] ?? {
+    label: operation,
+    verb: "",
+    action: "Sign",
+    cancel: true,
+    sign: true,
+  };
   const asset = String(form.asset ?? result.asset ?? "");
   const symbol = (result.context as any)?.symbol || resolveSymbol(asset);
   const amount = String(form.amount ?? result.amount ?? "0");
@@ -143,7 +227,9 @@ export function BlendTxCard({ operation, result, form }: BlendTxCardProps) {
   }, [pool, from]);
 
   // Fetch reserve APY data
-  const [reserveApy, setReserveApy] = useState<{ supplyApy: number; borrowApy: number } | null>(null);
+  const [reserveApy, setReserveApy] = useState<{ supplyApy: number; borrowApy: number } | null>(
+    null
+  );
   useEffect(() => {
     if (!pool || !asset) return;
     fetch(`/api/blend/reserve?pool=${pool}&asset=${asset}`)
@@ -190,11 +276,17 @@ export function BlendTxCard({ operation, result, form }: BlendTxCardProps) {
 
   const current = currentForAsset();
   const apy = reserveApy
-    ? (operation === "blend_borrow" || operation === "blend_repay" ? reserveApy.borrowApy : reserveApy.supplyApy)
+    ? operation === "blend_borrow" || operation === "blend_repay"
+      ? reserveApy.borrowApy
+      : reserveApy.supplyApy
     : null;
   const delta = Number(amount) / 1e7;
-  const isAdd = operation === "blend_supply" || operation === "blend_borrow" || operation === "backstop_deposit";
-  const newAmount = current != null ? (isAdd ? current + delta : Math.max(0, current - delta)) : null;
+  const isAdd =
+    operation === "blend_supply" ||
+    operation === "blend_borrow" ||
+    operation === "backstop_deposit";
+  const newAmount =
+    current != null ? (isAdd ? current + delta : Math.max(0, current - delta)) : null;
   const estimatedYearlyEarnings = apy != null && apy > 0 ? delta * (apy / 100) : null;
 
   // Sign & submit
@@ -215,11 +307,17 @@ export function BlendTxCard({ operation, result, form }: BlendTxCardProps) {
       if (submitData.success) {
         setTxResult(submitData.hash ?? "Submitted");
       } else {
-        const e = submitData.error ?? submitData.detail ?? submitData.message ?? "Submission failed";
+        const e =
+          submitData.error ?? submitData.detail ?? submitData.message ?? "Submission failed";
         setTxError(typeof e === "string" ? e : JSON.stringify(e));
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : (typeof err === "object" ? JSON.stringify(err) : String(err));
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object"
+            ? JSON.stringify(err)
+            : String(err);
       if (!msg.toLowerCase().includes("cancel") && !msg.toLowerCase().includes("reject")) {
         setTxError(msg);
       }
@@ -250,9 +348,7 @@ export function BlendTxCard({ operation, result, form }: BlendTxCardProps) {
         <div className="flex items-center gap-2">
           <Fuel className="h-4 w-4 text-muted-foreground/50" />
           <span className="text-xs text-muted-foreground">Gas</span>
-          <span className="ml-auto text-sm text-muted-foreground tabular-nums">
-            {fmtGas(fee)}
-          </span>
+          <span className="ml-auto text-sm text-muted-foreground tabular-nums">{fmtGas(fee)}</span>
         </div>
 
         {/* APY */}
@@ -282,11 +378,17 @@ export function BlendTxCard({ operation, result, form }: BlendTxCardProps) {
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-muted-foreground/50" />
             <span className="text-xs text-muted-foreground flex-1">
-              {operation.includes("borrow") || operation === "blend_repay" ? "Your total borrowed" : "Your total supplied"}
+              {operation.includes("borrow") || operation === "blend_repay"
+                ? "Your total borrowed"
+                : "Your total supplied"}
             </span>
-            <span className="text-xs text-foreground tabular-nums">{current.toFixed(4)} {symbol}</span>
+            <span className="text-xs text-foreground tabular-nums">
+              {current.toFixed(4)} {symbol}
+            </span>
             <ArrowRight className="h-3 w-3 text-muted-foreground/40 shrink-0" />
-            <span className="text-xs text-foreground tabular-nums">{newAmount.toFixed(4)} {symbol}</span>
+            <span className="text-xs text-foreground tabular-nums">
+              {newAmount.toFixed(4)} {symbol}
+            </span>
           </div>
         )}
 
@@ -295,7 +397,11 @@ export function BlendTxCard({ operation, result, form }: BlendTxCardProps) {
           <ChangeRow
             label="Borrow capacity"
             before={`$${Number(positions.summary.borrowCapacityUsd).toFixed(2)}`}
-            after={operation === "blend_supply" ? `$${(Number(positions.summary.borrowCapacityUsd) + delta * 0.2).toFixed(2)}` : "—"}
+            after={
+              operation === "blend_supply"
+                ? `$${(Number(positions.summary.borrowCapacityUsd) + delta * 0.2).toFixed(2)}`
+                : "—"
+            }
           />
         )}
 
@@ -382,7 +488,9 @@ export function BlendTxCard({ operation, result, form }: BlendTxCardProps) {
               disabled={signing || !xdr}
             >
               {signing ? (
-                <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Signing…</>
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Signing…
+                </>
               ) : (
                 cfg.action
               )}
@@ -444,8 +552,8 @@ function CancelWarningPopup({
   const opLabel = OP_CONFIG[operation]?.label ?? operation;
 
   const title = signSafe
-    ? "You're about to miss out"       // cancel is detrimental
-    : `Before you ${opLabel.toLowerCase()}`;  // sign is detrimental
+    ? "You're about to miss out" // cancel is detrimental
+    : `Before you ${opLabel.toLowerCase()}`; // sign is detrimental
 
   const dismissLabel = signSafe ? "Keep earning" : "Keep earning";
   const confirmLabel = signSafe ? "Cancel anyway" : `${opLabel} anyway`;
@@ -486,21 +594,29 @@ function CancelWarningPopup({
               <>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   This action means you will{" "}
-                  <span className="text-red-400 font-medium">lose unclaimed rewards</span>{" "}
-                  and any <span className="font-medium text-foreground">unvested portion of your welcome reward</span>.
+                  <span className="text-red-400 font-medium">lose unclaimed rewards</span> and any{" "}
+                  <span className="font-medium text-foreground">
+                    unvested portion of your welcome reward
+                  </span>
+                  .
                 </p>
                 <div className="rounded-lg bg-secondary/50 border border-border p-3 space-y-1.5">
                   <p className="text-xs text-muted-foreground">
-                    Amount: <span className="text-foreground font-medium">{amount} {symbol}</span>
+                    Amount:{" "}
+                    <span className="text-foreground font-medium">
+                      {amount} {symbol}
+                    </span>
                   </p>
                   {apy != null && apy > 0 && (
                     <p className="text-xs text-muted-foreground">
-                      Current APY: <span className="text-emerald-400 font-medium">{apy.toFixed(2)}%</span>
+                      Current APY:{" "}
+                      <span className="text-emerald-400 font-medium">{apy.toFixed(2)}%</span>
                     </p>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  You will also forfeit <span className="font-medium text-foreground">accumulated referral points</span>{" "}
+                  You will also forfeit{" "}
+                  <span className="font-medium text-foreground">accumulated referral points</span>{" "}
                   tied to this pool position. This action cannot be undone.
                 </p>
               </>
@@ -509,8 +625,12 @@ function CancelWarningPopup({
               <>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   By cancelling, you're giving up earning{" "}
-                  <span className="text-emerald-400 font-medium">{apy.toFixed(2)}% APY</span>{" "}
-                  on your <span className="font-medium text-foreground">{amount} {symbol}</span>.
+                  <span className="text-emerald-400 font-medium">{apy.toFixed(2)}% APY</span> on
+                  your{" "}
+                  <span className="font-medium text-foreground">
+                    {amount} {symbol}
+                  </span>
+                  .
                 </p>
 
                 {estimatedYearlyEarnings != null && (
@@ -541,8 +661,10 @@ function CancelWarningPopup({
               /* Cancel is detrimental but no APY data — generic message */
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Are you sure you want to cancel this{" "}
-                <span className="font-medium text-foreground">{amount} {symbol}</span> transaction?
-                You may miss out on potential rewards.
+                <span className="font-medium text-foreground">
+                  {amount} {symbol}
+                </span>{" "}
+                transaction? You may miss out on potential rewards.
               </p>
             )}
           </div>

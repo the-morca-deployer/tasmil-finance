@@ -1,7 +1,7 @@
+import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { FlowMessageRouter } from "../flow-message-router";
 import type { AssistantFlowMessage } from "@/features/chat/types/flow-messages";
+import { FlowMessageRouter } from "../flow-message-router";
 
 // ─── Fixtures ────────────────────────────────────────────────────
 
@@ -45,9 +45,7 @@ const planPreviewMessage: AssistantFlowMessage = {
   },
   simulation_report: {
     status: "success",
-    steps: [
-      { step_index: 0, status: "success", gas_consumed: 0.15 },
-    ],
+    steps: [{ step_index: 0, status: "success", gas_consumed: 0.15 }],
     total_gas_xlm: 0.15,
     xdrs: ["AAAA"],
     warnings: [],
@@ -107,20 +105,14 @@ const errorNoRetryMessage: AssistantFlowMessage = {
 describe("FlowMessageRouter", () => {
   it("renders OptionCard for clarify message — question text appears", () => {
     render(<FlowMessageRouter message={clarifyMessage} />);
-    expect(
-      screen.getByText("Which pool do you want to deposit into?")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Which pool do you want to deposit into?")).toBeInTheDocument();
     expect(screen.getByText("Blend USDC Pool")).toBeInTheDocument();
     expect(screen.getByText("Soroswap XLM/USDC")).toBeInTheDocument();
   });
 
   it("renders PlanPreviewCard for plan_preview message — APY appears", () => {
     render(
-      <FlowMessageRouter
-        message={planPreviewMessage}
-        onConfirm={jest.fn()}
-        onCancel={jest.fn()}
-      />
+      <FlowMessageRouter message={planPreviewMessage} onConfirm={jest.fn()} onCancel={jest.fn()} />
     );
     // 820 bps = 8.2%
     expect(screen.getByText("8.2%")).toBeInTheDocument();
@@ -129,22 +121,16 @@ describe("FlowMessageRouter", () => {
 
   it("renders ExecutionCard for execution_update message — step text appears", () => {
     render(<FlowMessageRouter message={executionUpdateMessage} />);
-    expect(
-      screen.getByText(/Submitting step 1 of 2/)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Submitting step 1 of 2/)).toBeInTheDocument();
   });
 
   it("renders error code + message + retry button when retry_possible is true", () => {
     const onRetry = jest.fn();
-    render(
-      <FlowMessageRouter message={errorRetryMessage} onRetry={onRetry} />
-    );
+    render(<FlowMessageRouter message={errorRetryMessage} onRetry={onRetry} />);
 
     expect(screen.getByText("TX_SIMULATION_FAILED")).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "Transaction simulation failed: insufficient balance"
-      )
+      screen.getByText("Transaction simulation failed: insufficient balance")
     ).toBeInTheDocument();
 
     const retryButton = screen.getByRole("button", { name: "Retry" });
@@ -156,9 +142,7 @@ describe("FlowMessageRouter", () => {
 
     expect(screen.getByText("UNSUPPORTED_ASSET")).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "The selected asset is not supported on this network"
-      )
+      screen.getByText("The selected asset is not supported on this network")
     ).toBeInTheDocument();
 
     expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
@@ -166,9 +150,7 @@ describe("FlowMessageRouter", () => {
 
   it("renders text content for text message", () => {
     render(<FlowMessageRouter message={textMessage} />);
-    expect(
-      screen.getByText("Your deposit has been processed successfully.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Your deposit has been processed successfully.")).toBeInTheDocument();
   });
 
   it("renders position info for position_update message", () => {
@@ -186,12 +168,7 @@ describe("FlowMessageRouter", () => {
 
   it("onOptionSelect callback fires when an option is clicked", () => {
     const onOptionSelect = jest.fn();
-    render(
-      <FlowMessageRouter
-        message={clarifyMessage}
-        onOptionSelect={onOptionSelect}
-      />
-    );
+    render(<FlowMessageRouter message={clarifyMessage} onOptionSelect={onOptionSelect} />);
 
     fireEvent.click(screen.getByText("Soroswap XLM/USDC"));
     expect(onOptionSelect).toHaveBeenCalledTimes(1);
@@ -204,11 +181,7 @@ describe("FlowMessageRouter", () => {
   it("onConfirm callback fires when confirm button is clicked", () => {
     const onConfirm = jest.fn();
     render(
-      <FlowMessageRouter
-        message={planPreviewMessage}
-        onConfirm={onConfirm}
-        onCancel={jest.fn()}
-      />
+      <FlowMessageRouter message={planPreviewMessage} onConfirm={onConfirm} onCancel={jest.fn()} />
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Confirm & Sign" }));

@@ -4,26 +4,27 @@
  * These tests exercise the full data flow from raw MCP tool output through
  * normalization adapters and into the rendered card components.
  */
-import React from "react";
+
 import { render, screen } from "@testing-library/react";
-import { normalizeAquaPoolsFromMcp } from "../adapters/aquarius-from-mcp";
-import { normalizeSoroswapPoolsFromMcp } from "../adapters/soroswap-from-mcp";
-import { normalizePoolsFromMcp } from "../adapters/from-mcp";
-import { AquaPoolsCard } from "../cards/aquarius/aqua-pools-card";
-import { SoroswapPoolsCard } from "../cards/soroswap/soroswap-pools-card";
-import { BlendPoolsCard } from "../cards/blend/blend-pools-card";
+import React from "react";
 import {
   AQUARIUS_RESOLVE_POOL,
   AQUARIUS_RESOLVE_POOL_BROKEN,
   AQUARIUS_RESOLVE_POOL_V2,
-  SOROSWAP_RESOLVE_POOL,
-  SOROSWAP_RESOLVE_POOL_V2,
-  SOROSWAP_RESOLVE_POOL_OBJECT_TOKENS,
   BLEND_RESOLVE_POOL,
   BLEND_RESOLVE_POOL_V2,
   EMPTY_MCP_RESULT,
   MALFORMED_MCP_RESULT,
+  SOROSWAP_RESOLVE_POOL,
+  SOROSWAP_RESOLVE_POOL_OBJECT_TOKENS,
+  SOROSWAP_RESOLVE_POOL_V2,
 } from "../__fixtures__/mcp-tool-outputs";
+import { normalizeAquaPoolsFromMcp } from "../adapters/aquarius-from-mcp";
+import { normalizePoolsFromMcp } from "../adapters/from-mcp";
+import { normalizeSoroswapPoolsFromMcp } from "../adapters/soroswap-from-mcp";
+import { AquaPoolsCard } from "../cards/aquarius/aqua-pools-card";
+import { BlendPoolsCard } from "../cards/blend/blend-pools-card";
+import { SoroswapPoolsCard } from "../cards/soroswap/soroswap-pools-card";
 
 describe("MCP -> Adapter -> Card Pipeline", () => {
   // ─── Aquarius ────────────────────────────────────────────────

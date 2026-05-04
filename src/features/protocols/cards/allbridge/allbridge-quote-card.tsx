@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowRightLeft, ArrowRight } from "lucide-react";
-import type { CardMode } from "../../schemas/common.schema";
+import { ArrowRight, ArrowRightLeft } from "lucide-react";
 import type { AllbridgeQuoteCardProps } from "../../schemas/allbridge.schema";
-import { ProtocolCard } from "../base/protocol-card";
+import type { CardMode } from "../../schemas/common.schema";
 import { DetailRow, MetricBox } from "../base/indicators";
+import { ProtocolCard } from "../base/protocol-card";
 
 interface Props {
   quote: AllbridgeQuoteCardProps;
@@ -14,14 +14,26 @@ interface Props {
   mode?: CardMode;
 }
 
-export function AllbridgeQuoteCard({ quote, fromChain, toChain, asset, mode = "playground" }: Props) {
+export function AllbridgeQuoteCard({
+  quote,
+  fromChain,
+  toChain,
+  asset,
+  mode = "playground",
+}: Props) {
   const isChat = mode === "chat";
   const hasError = quote.status === "unavailable" || !!quote.error;
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title="Bridge Quote" icon={ArrowRightLeft} iconColor="text-blue-500" iconBg="bg-blue-500/10"
-        subtitle={fromChain && toChain ? `${fromChain} → ${toChain}` : undefined}>
+      <ProtocolCard
+        mode="chat"
+        title="Bridge Quote"
+        icon={ArrowRightLeft}
+        iconColor="text-blue-500"
+        iconBg="bg-blue-500/10"
+        subtitle={fromChain && toChain ? `${fromChain} → ${toChain}` : undefined}
+      >
         {hasError ? (
           <p className="text-sm text-red-400">{quote.error ?? "Quote unavailable"}</p>
         ) : (
@@ -60,9 +72,13 @@ export function AllbridgeQuoteCard({ quote, fromChain, toChain, asset, mode = "p
         {/* Chain direction */}
         {fromChain && toChain && (
           <div className="flex items-center justify-center gap-2 py-1">
-            <span className="rounded-lg bg-secondary px-3 py-1.5 text-sm font-medium text-foreground capitalize">{fromChain}</span>
+            <span className="rounded-lg bg-secondary px-3 py-1.5 text-sm font-medium text-foreground capitalize">
+              {fromChain}
+            </span>
             <ArrowRight className="h-4 w-4 text-muted-foreground/40" />
-            <span className="rounded-lg bg-secondary px-3 py-1.5 text-sm font-medium text-foreground capitalize">{toChain}</span>
+            <span className="rounded-lg bg-secondary px-3 py-1.5 text-sm font-medium text-foreground capitalize">
+              {toChain}
+            </span>
           </div>
         )}
 

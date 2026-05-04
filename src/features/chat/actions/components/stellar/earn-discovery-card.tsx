@@ -149,25 +149,34 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                  <DetailRow label="APY" value={<span className="font-semibold"><APYDisplay value={opp.apy} /></span>} />
+                  <DetailRow
+                    label="APY"
+                    value={
+                      <span className="font-semibold">
+                        <APYDisplay value={opp.apy} />
+                      </span>
+                    }
+                  />
                   {opp.tvl && <DetailRow label="TVL" value={`$${formatNumber(opp.tvl)}`} />}
                   {opp.supplyApy != null && (
-                    <DetailRow label="Supply" value={<span className="font-semibold">{formatPercent(opp.supplyApy)}</span>} />
+                    <DetailRow
+                      label="Supply"
+                      value={<span className="font-semibold">{formatPercent(opp.supplyApy)}</span>}
+                    />
                   )}
                   {opp.borrowApy != null && (
                     <DetailRow
                       label="Borrow"
-                      value={<span className="text-orange-500">{formatPercent(opp.borrowApy)}</span>}
+                      value={
+                        <span className="text-orange-500">{formatPercent(opp.borrowApy)}</span>
+                      }
                     />
                   )}
                   {opp.utilization != null && typeof opp.utilization === "number" && (
                     <DetailRow label="Util." value={`${opp.utilization.toFixed(1)}%`} />
                   )}
                   {opp.collateralFactor != null && typeof opp.collateralFactor === "number" && (
-                    <DetailRow
-                      label="CF"
-                      value={`${(opp.collateralFactor * 100).toFixed(0)}%`}
-                    />
+                    <DetailRow label="CF" value={`${(opp.collateralFactor * 100).toFixed(0)}%`} />
                   )}
                 </div>
 

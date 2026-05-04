@@ -8,12 +8,11 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { cancelPendingTxCards } from "@/features/protocols/hooks/use-tx-signing";
 import { WelcomeRewardDialog } from "@/features/welcome-reward/components/welcome-reward-dialog";
 import { useWelcomeReward } from "@/features/welcome-reward/hooks/use-welcome-reward";
-
 import { useSearchAssistantsAssistantsSearchPost } from "@/gen-ai/hooks/use-search-assistants-assistants-search-post";
 import { DO_NOT_RENDER_ID_PREFIX, ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
-import { cancelPendingTxCards } from "@/features/protocols/hooks/use-tx-signing";
 import { kubbClient } from "@/lib/kubb";
 import { cn } from "@/lib/utils";
 import { useWallet } from "@/shared/context/wallet-context";
@@ -22,13 +21,13 @@ import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { Button } from "@/shared/ui/button-v2";
 import { useMultiSidebar } from "@/shared/ui/multi-sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
-import { useWalletStore } from "@/store/use-wallet";
 import { useRightSidebarTab } from "@/store/use-right-sidebar-tab";
+import { useWalletStore } from "@/store/use-wallet";
 import { AssistantMessage, AssistantMessageLoading } from "../components/messages/ai-message";
 import { HumanMessage } from "../components/messages/human-message";
 import { getAgentConfig } from "../config/agents.config";
 import { useChatState, useStreamContext } from "../hooks";
-import { classifyChatProductError, type ChatProductError } from "../lib/chat-product-error";
+import { type ChatProductError, classifyChatProductError } from "../lib/chat-product-error";
 import { ContentBlocksPreview } from "../thread/components/content-blocks-preview";
 import { mergeMessagesWithCache, shouldFilterMessage } from "./chat-client-helpers";
 import { Greeting } from "./greeting";
@@ -79,13 +78,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const lastMessageCountRef = useRef(0);
 
   // File upload hook
-  const {
-    contentBlocks,
-    setContentBlocks,
-    dropRef,
-    removeBlock,
-    dragOver,
-  } = useFileUpload();
+  const { contentBlocks, setContentBlocks, dropRef, removeBlock, dragOver } = useFileUpload();
 
   // Stream context from provider
   const stream = useStreamContext();
@@ -168,7 +161,11 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     if (raw.length > 0) {
       console.warn(
         `[ChatDebug] stream.messages loaded: ${raw.length} total (${humanCount} human, ${aiCount} ai, ${toolCount} tool, ${hiddenCount} hidden)`,
-        raw.map((m: any) => ({ id: m.id?.slice(0, 20), type: m.type, content: typeof m.content === "string" ? m.content.slice(0, 50) : "[array]" }))
+        raw.map((m: any) => ({
+          id: m.id?.slice(0, 20),
+          type: m.type,
+          content: typeof m.content === "string" ? m.content.slice(0, 50) : "[array]",
+        }))
       );
     }
   }, [stream.messages]);
@@ -272,9 +269,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   // Use isAiResponseComplete as a faster indicator that AI is done
   const showSuggestions = isNewChat || (!effectiveIsLoading && messages.length > 0);
   const showWelcomeRewardDialog =
-    isNewChat &&
-    Boolean(welcomeRewardStatus?.reserved) &&
-    !welcomeRewardStatus?.welcomeCardSeen;
+    isNewChat && Boolean(welcomeRewardStatus?.reserved) && !welcomeRewardStatus?.welcomeCardSeen;
   const [productError, setProductError] = useState<ChatProductError | null>(null);
 
   // Error handling
@@ -363,8 +358,11 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       const hasReasoning =
         lastAiMsg &&
         "additional_kwargs" in lastAiMsg &&
-        typeof (lastAiMsg.additional_kwargs as Record<string, unknown>)?.reasoning_content === "string" &&
-        ((lastAiMsg.additional_kwargs as Record<string, unknown>).reasoning_content as string).trim().length > 0;
+        typeof (lastAiMsg.additional_kwargs as Record<string, unknown>)?.reasoning_content ===
+          "string" &&
+        (
+          (lastAiMsg.additional_kwargs as Record<string, unknown>).reasoning_content as string
+        ).trim().length > 0;
 
       // Mark firstTokenReceived when content OR reasoning tokens arrive
       if ((hasContent || hasReasoning) && !firstTokenReceived) {
@@ -445,8 +443,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   }, []);
 
   const composerBlocked =
-    productError === "CHAT_USAGE_LIMIT_REACHED" ||
-    productError === "INVALID_CHAT_WALLET_ADDRESS";
+    productError === "CHAT_USAGE_LIMIT_REACHED" || productError === "INVALID_CHAT_WALLET_ADDRESS";
 
   const scrollToBottom = () => {
     setUserScrolledUp(false);
@@ -455,7 +452,12 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if ((input.trim().length === 0 && contentBlocks.length === 0) || composerBlocked || effectiveIsLoading) return;
+    if (
+      (input.trim().length === 0 && contentBlocks.length === 0) ||
+      composerBlocked ||
+      effectiveIsLoading
+    )
+      return;
 
     // Auto-cancel any pending TX cards — user moved on without signing.
     // Only writes to sessionStorage (local UI state), no backend message.
@@ -709,9 +711,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                         const prevIdx = messages.findIndex((m) => m.id === prevMessage.id);
                         const currIdx = messages.findIndex((m) => m.id === message.id);
                         if (prevIdx === -1 || currIdx === -1) return false;
-                        return messages
-                          .slice(prevIdx + 1, currIdx)
-                          .some((m) => m.type === "human");
+                        return messages.slice(prevIdx + 1, currIdx).some((m) => m.type === "human");
                       })()
                     : false;
                 const isConsecutiveAi =
@@ -769,7 +769,9 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                 // Check if there's a NEW AI message after the last human message
                 // If yes, don't show "Thinking..." - the response is already rendering
                 const lastHumanIdx = messages.findLastIndex((m) => m.type === "human");
-                const hasNewAIMessage = messages.slice(lastHumanIdx + 1).some((m) => m.type === "ai");
+                const hasNewAIMessage = messages
+                  .slice(lastHumanIdx + 1)
+                  .some((m) => m.type === "ai");
                 if (hasNewAIMessage) {
                   return null;
                 }
@@ -923,7 +925,11 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                 ) : (
                   <Button
                     type="submit"
-                    disabled={composerBlocked || effectiveIsLoading || (!input.trim() && contentBlocks.length === 0)}
+                    disabled={
+                      composerBlocked ||
+                      effectiveIsLoading ||
+                      (!input.trim() && contentBlocks.length === 0)
+                    }
                     className="h-8 w-8 rounded-full bg-primary p-0 text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground"
                   >
                     <Send className="h-4 w-4" />

@@ -23,7 +23,7 @@ function unwrapResponse<T>(payload: { data?: T } | T): T {
 
 async function fetchUserStatus(): Promise<UserStatus> {
   const response = await backendAxios.get<{ data?: UserStatus } | UserStatus>(
-    "/api/welcome-reward/full-status",
+    "/api/welcome-reward/full-status"
   );
   return unwrapResponse(response.data);
 }

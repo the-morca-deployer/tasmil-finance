@@ -1,8 +1,8 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useAdminAuthStore } from "@/store/use-admin-auth";
 import { toast } from "sonner";
+import { useAdminAuthStore } from "@/store/use-admin-auth";
 
 interface CampaignDto {
   name: string;

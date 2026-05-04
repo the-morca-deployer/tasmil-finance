@@ -4,16 +4,16 @@
 
 import type {
   SoroswapPoolCardProps,
-  SoroswapQuoteCardProps,
   SoroswapPositionsCardProps,
+  SoroswapQuoteCardProps,
   SoroswapTxCardProps,
 } from "../schemas/soroswap.schema";
 import { unwrapMcpResult } from "./from-mcp";
 import {
   normalizeSoroswapPoolFromSdk,
   normalizeSoroswapPoolsFromSdk,
-  normalizeSoroswapQuoteFromSdk,
   normalizeSoroswapPositionsFromSdk,
+  normalizeSoroswapQuoteFromSdk,
   normalizeSoroswapTxFromSdk,
 } from "./soroswap-from-sdk";
 
@@ -35,7 +35,9 @@ export function normalizeSoroswapQuoteFromMcp(result: unknown): SoroswapQuoteCar
   return normalizeSoroswapQuoteFromSdk(data);
 }
 
-export function normalizeSoroswapPositionsFromMcp(result: unknown): SoroswapPositionsCardProps | null {
+export function normalizeSoroswapPositionsFromMcp(
+  result: unknown
+): SoroswapPositionsCardProps | null {
   const { data, error } = unwrapMcpResult(result);
   if (error || !data) return null;
   return normalizeSoroswapPositionsFromSdk(data);
@@ -43,7 +45,7 @@ export function normalizeSoroswapPositionsFromMcp(result: unknown): SoroswapPosi
 
 export function normalizeSoroswapTxFromMcp(
   result: unknown,
-  args?: Record<string, unknown>,
+  args?: Record<string, unknown>
 ): SoroswapTxCardProps | null {
   const { data, error } = unwrapMcpResult(result);
   if (error || !data) return null;

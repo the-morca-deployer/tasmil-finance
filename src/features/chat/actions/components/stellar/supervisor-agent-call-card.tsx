@@ -1,11 +1,7 @@
 "use client";
 
+import { AlertCircle, Bot, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import {
-  AlertCircle,
-  Bot,
-  ChevronRight,
-} from "lucide-react";
 import { memo, useState } from "react";
 import { Shimmer } from "@/features/chat/components/ai/shimmer";
 import { cn } from "@/lib/utils";
@@ -26,21 +22,21 @@ interface SupervisorAgentCallCardProps {
  * and in agents.config.ts.
  */
 const AGENT_CONFIG: Record<string, { label: string; icon: string }> = {
-  info:      { label: "Info Agent",      icon: "/agents/info-agent.png" },
-  blend:     { label: "Blend Agent",     icon: "/agents/blend-agent.svg" },
-  soroswap:  { label: "Soroswap Agent",  icon: "/agents/soroswap-agent.svg" },
-  phoenix:   { label: "Phoenix Agent",   icon: "/agents/phoenix-agent.svg" },
-  aquarius:  { label: "Aquarius Agent",  icon: "/agents/aquarius-agent.svg" },
-  defindex:  { label: "DeFindex Agent",  icon: "/agents/defindex-agent.svg" },
-  templar:   { label: "Templar Agent",   icon: "/agents/templar-agent.svg" },
+  info: { label: "Info Agent", icon: "/agents/info-agent.png" },
+  blend: { label: "Blend Agent", icon: "/agents/blend-agent.svg" },
+  soroswap: { label: "Soroswap Agent", icon: "/agents/soroswap-agent.svg" },
+  phoenix: { label: "Phoenix Agent", icon: "/agents/phoenix-agent.svg" },
+  aquarius: { label: "Aquarius Agent", icon: "/agents/aquarius-agent.svg" },
+  defindex: { label: "DeFindex Agent", icon: "/agents/defindex-agent.svg" },
+  templar: { label: "Templar Agent", icon: "/agents/templar-agent.svg" },
   allbridge: { label: "Allbridge Agent", icon: "/agents/allbridge-agent.svg" },
-  sdex:      { label: "SDEX Agent",      icon: "/agents/sdex-agent.svg" },
-  bridge:    { label: "Bridge Agent",    icon: "/agents/bridge-agent-v6.png" },
-  yield:     { label: "Yield Agent",     icon: "/agents/yield-agent-v6.png" },
-  research:  { label: "Research Agent",  icon: "/agents/research-agent-v6.png" },
-  swap:      { label: "Swap Agent",      icon: "/agents/soroswap-agent.svg" },
-  vault:     { label: "Vault Agent",     icon: "/agents/defindex-agent.svg" },
-  staking:   { label: "Staking Agent",   icon: "/agents/blend-agent.svg" },
+  sdex: { label: "SDEX Agent", icon: "/agents/sdex-agent.svg" },
+  bridge: { label: "Bridge Agent", icon: "/agents/bridge-agent-v6.png" },
+  yield: { label: "Yield Agent", icon: "/agents/yield-agent-v6.png" },
+  research: { label: "Research Agent", icon: "/agents/research-agent-v6.png" },
+  swap: { label: "Swap Agent", icon: "/agents/soroswap-agent.svg" },
+  vault: { label: "Vault Agent", icon: "/agents/defindex-agent.svg" },
+  staking: { label: "Staking Agent", icon: "/agents/blend-agent.svg" },
 };
 
 const DEFAULT_CONFIG = { label: "Agent", icon: "" };

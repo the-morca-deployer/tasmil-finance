@@ -48,7 +48,7 @@ describe("checkTrustlineExists (helper contract)", () => {
     const result = await checkTrustlineExists(
       "GAAAA",
       "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
-      "XLM",
+      "XLM"
     );
     expect(result).toBe(true);
     expect(loadAccountMock).not.toHaveBeenCalled();
@@ -67,8 +67,8 @@ describe("checkTrustlineExists (helper contract)", () => {
       checkTrustlineExists(
         "GAAAA",
         "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-        "USDC",
-      ),
+        "USDC"
+      )
     ).rejects.toThrow("Network down");
   });
 
@@ -80,7 +80,7 @@ describe("checkTrustlineExists (helper contract)", () => {
     const result = await checkTrustlineExists(
       "GAAAA",
       "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75", // mainnet USDC
-      "USDC",
+      "USDC"
     );
     expect(result).toBe(false);
   });
@@ -99,7 +99,7 @@ describe("checkTrustlineExists (helper contract)", () => {
     const result = await checkTrustlineExists(
       "GAAAA",
       "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-      "USDC",
+      "USDC"
     );
     expect(result).toBe(true);
   });
@@ -112,11 +112,7 @@ describe("useTrustlineCheck (hook contract)", () => {
     loadAccountMock.mockRejectedValue(new Error("Horizon unreachable"));
 
     const { result } = renderHook(() =>
-      useTrustlineCheck(
-        "GAAAA",
-        "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-        "USDC",
-      ),
+      useTrustlineCheck("GAAAA", "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75", "USDC")
     );
 
     await waitFor(() => {
@@ -132,11 +128,7 @@ describe("useTrustlineCheck (hook contract)", () => {
     });
 
     const { result } = renderHook(() =>
-      useTrustlineCheck(
-        "GAAAA",
-        "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-        "USDC",
-      ),
+      useTrustlineCheck("GAAAA", "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75", "USDC")
     );
 
     await waitFor(() => {

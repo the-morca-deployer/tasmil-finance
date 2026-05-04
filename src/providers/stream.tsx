@@ -133,8 +133,8 @@ export const StreamProvider: React.FC<{
             <LangGraphLogoSVG className="h-7" />
             <h1 className="font-semibold text-xl tracking-tight">Configuration Error</h1>
             <p className="text-muted-foreground">
-              Missing required configuration. Please ensure NEXT_PUBLIC_AI_URL is set and agentId
-              is provided.
+              Missing required configuration. Please ensure NEXT_PUBLIC_AI_URL is set and agentId is
+              provided.
             </p>
           </div>
         </div>

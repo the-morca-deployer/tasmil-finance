@@ -37,7 +37,10 @@ type CardRendererResult =
   | { kind: "shared-op"; render: (props: SharedRenderProps) => React.ReactElement }
   | null;
 
-export function getCardRenderer(toolName: string, args?: Record<string, unknown>): CardRendererResult {
+export function getCardRenderer(
+  toolName: string,
+  args?: Record<string, unknown>
+): CardRendererResult {
   // ─── Unified registry (card-registry.ts) — try first ──────
   // This replaces the 8 separate registries below with a single lookup.
   const registryResult = findRegistryRenderer(toolName, args);
@@ -66,9 +69,7 @@ export function getCardRenderer(toolName: string, args?: Record<string, unknown>
 
 /** Try to extract the inner JSON from an MCP content-block array. */
 function extractMcpText(arr: unknown[]): unknown | undefined {
-  const textBlock = (arr as any[]).find(
-    (b) => b?.type === "text" && typeof b?.text === "string",
-  );
+  const textBlock = (arr as any[]).find((b) => b?.type === "text" && typeof b?.text === "string");
   if (!textBlock) return undefined;
   try {
     return JSON.parse(textBlock.text);
@@ -200,13 +201,7 @@ function BlendOpWithRespond({
   return renderFn({ ...renderProps, respond });
 }
 
-export function ToolCallRenderer({
-  message,
-  messages,
-}: {
-  message: Message;
-  messages: Message[];
-}) {
+export function ToolCallRenderer({ message, messages }: { message: Message; messages: Message[] }) {
   const toolCalls: ToolCallData[] =
     message && "tool_calls" in message ? ((message.tool_calls as ToolCallData[]) ?? []) : [];
 
@@ -297,7 +292,9 @@ export function ToolCallRenderer({
           }
         }
 
-        const cardRenderer = isComplete ? getCardRenderer(tc.name, tc.args as Record<string, unknown>) : null;
+        const cardRenderer = isComplete
+          ? getCardRenderer(tc.name, tc.args as Record<string, unknown>)
+          : null;
         const status = result?.hasError ? "error" : isComplete ? "complete" : "calling";
 
         return (

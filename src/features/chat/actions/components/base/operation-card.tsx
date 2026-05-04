@@ -66,7 +66,10 @@ export function BaseOperationCard({
         }
       : null);
 
-  const cardClass = cn("w-full max-w-[360px] min-w-[280px] rounded-lg border bg-card p-5 shadow-sm", className);
+  const cardClass = cn(
+    "w-full max-w-[360px] min-w-[280px] rounded-lg border bg-card p-5 shadow-sm",
+    className
+  );
 
   const handleExecute = async () => {
     if (!isConnected || !address) {

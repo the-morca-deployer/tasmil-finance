@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 
 async function registerAddress(address: string) {
   const res = await fetch("/api/portfolio/snapshot", {

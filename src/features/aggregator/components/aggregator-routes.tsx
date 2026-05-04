@@ -1,13 +1,13 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { Check, Clock, Info, Settings2, RefreshCw, AlertTriangle } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertTriangle, Check, Clock, Info, RefreshCw, Settings2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import type { RouteQuote } from "@/features/aggregator/hooks/use-aggregator";
-import BorderGlow from "@/shared/ui/border-glow";
+import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
 import { PROTOCOL_ICONS as CDN_PROTOCOL_ICONS } from "@/shared/constants/asset-manifest";
-import { cn } from "@/lib/utils";
+import BorderGlow from "@/shared/ui/border-glow";
 import { ChainBadge } from "./chain-badge";
 
 // ─── Protocol branding ──────────────────────────────────────────
@@ -15,9 +15,9 @@ import { ChainBadge } from "./chain-badge";
 const PROTOCOL_META: Record<string, { label: string; icon: string; color: string }> = {
   soroswap: { label: "Soroswap", icon: CDN_PROTOCOL_ICONS.soroswap!, color: "#7B61FF" },
   aquarius: { label: "Aquarius", icon: CDN_PROTOCOL_ICONS.aquarius!, color: "#00B4D8" },
-  phoenix:  { label: "Phoenix",  icon: CDN_PROTOCOL_ICONS.phoenix!,  color: "#FF6B35" },
-  sdex:     { label: "SDEX",     icon: CDN_PROTOCOL_ICONS.sdex!,     color: "#00C2FF" },
-  templar:  { label: "Templar",  icon: CDN_PROTOCOL_ICONS.templar!,  color: "#10B981" },
+  phoenix: { label: "Phoenix", icon: CDN_PROTOCOL_ICONS.phoenix!, color: "#FF6B35" },
+  sdex: { label: "SDEX", icon: CDN_PROTOCOL_ICONS.sdex!, color: "#00C2FF" },
+  templar: { label: "Templar", icon: CDN_PROTOCOL_ICONS.templar!, color: "#10B981" },
   allbridge: { label: "Allbridge", icon: CDN_PROTOCOL_ICONS.allbridge!, color: "#3B82F6" },
 };
 
@@ -33,7 +33,12 @@ function formatAmount(raw: string, decimals = 7): string {
   return num.toLocaleString(undefined, { maximumFractionDigits: 6 });
 }
 
-function computeRate(amountIn: string, amountOut: string, decimalsIn: number, decimalsOut: number): number {
+function computeRate(
+  amountIn: string,
+  amountOut: string,
+  decimalsIn: number,
+  decimalsOut: number
+): number {
   const numIn = Number(amountIn) / 10 ** decimalsIn;
   const numOut = Number(amountOut) / 10 ** decimalsOut;
   if (numIn === 0) return 0;
@@ -87,16 +92,14 @@ function RouteCard({
         "active:scale-[0.98]",
         isSelected
           ? "bg-secondary border-primary/30"
-          : "bg-secondary border-border hover:border-primary/20",
+          : "bg-secondary border-border hover:border-primary/20"
       )}
     >
       {/* Row 1: Protocol + badges */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
           <TokenImage src={proto.icon} alt={proto.label} className="h-7 w-7 rounded-lg shrink-0" />
-          <span className="text-sm font-semibold text-foreground">
-            {proto.label}
-          </span>
+          <span className="text-sm font-semibold text-foreground">{proto.label}</span>
           <ChainBadge chainIn={chainIn} chainOut={chainOut} className="ml-1" />
         </div>
         <div className="flex items-center gap-2">
@@ -121,9 +124,7 @@ function RouteCard({
         <span className="text-[22px] font-bold tabular-nums tracking-tight text-foreground">
           {formatAmount(quote.amountOut, decimalsOut)}
         </span>
-        <span className="text-sm font-medium text-muted-foreground">
-          {tokenOutSymbol}
-        </span>
+        <span className="text-sm font-medium text-muted-foreground">{tokenOutSymbol}</span>
       </div>
 
       {/* Row 3: Exchange rate */}
@@ -133,10 +134,12 @@ function RouteCard({
 
       {/* Rate warning */}
       {showRateWarning && (
-        <div className={cn(
-          "flex items-center gap-1.5 mb-2.5 text-[11px] font-medium",
-          rateDiffPct > 50 ? "text-red-400" : "text-amber-400",
-        )}>
+        <div
+          className={cn(
+            "flex items-center gap-1.5 mb-2.5 text-[11px] font-medium",
+            rateDiffPct > 50 ? "text-red-400" : "text-amber-400"
+          )}
+        >
           <AlertTriangle className="h-3 w-3 shrink-0" />
           {rateDiffPct.toFixed(0)}% worse rate than best
         </div>
@@ -172,9 +175,7 @@ function RouteCard({
             <Clock className="h-3 w-3" />
             Est. time
           </span>
-          <span className="text-[11px] text-muted-foreground/70">
-            {quote.estimatedTime}
-          </span>
+          <span className="text-[11px] text-muted-foreground/70">{quote.estimatedTime}</span>
         </div>
       </div>
     </button>
@@ -236,9 +237,7 @@ export function SlippageSettings({
             className="absolute right-0 top-10 z-50 w-72 rounded-2xl p-4 space-y-4 shadow-xl bg-popover border border-border"
           >
             <div>
-              <p className="text-xs font-medium mb-2.5 text-muted-foreground">
-                Slippage Tolerance
-              </p>
+              <p className="text-xs font-medium mb-2.5 text-muted-foreground">Slippage Tolerance</p>
               <div className="flex gap-1.5">
                 {presets.map(({ label, value }) => {
                   const active = label === "Auto" ? isAuto : slippageBps === value && !isAuto;
@@ -251,7 +250,7 @@ export function SlippageSettings({
                         "flex-1 py-2 text-xs font-medium rounded-xl transition-all",
                         active
                           ? "bg-primary text-primary-foreground"
-                          : "bg-secondary text-muted-foreground",
+                          : "bg-secondary text-muted-foreground"
                       )}
                     >
                       {label}
@@ -262,9 +261,7 @@ export function SlippageSettings({
             </div>
 
             <div>
-              <p className="text-xs font-medium mb-2.5 text-muted-foreground">
-                Protocols
-              </p>
+              <p className="text-xs font-medium mb-2.5 text-muted-foreground">Protocols</p>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(PROTOCOL_META).map(([id, { label, icon }]) => {
                   const active = enabledProtocols.has(id);
@@ -275,9 +272,7 @@ export function SlippageSettings({
                       onClick={() => toggleProtocol(id)}
                       className={cn(
                         "flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-xl transition-all",
-                        active
-                          ? "bg-accent text-foreground"
-                          : "bg-secondary text-ring opacity-50",
+                        active ? "bg-accent text-foreground" : "bg-secondary text-ring opacity-50"
                       )}
                     >
                       <TokenImage src={icon} alt={label} className="h-5 w-5 rounded-sm" />
@@ -417,7 +412,9 @@ export function AggregatorRoutePanel({
       <div className="flex flex-col gap-2.5 overflow-y-auto flex-1 min-h-0">
         {okQuotes.map((quote, i) => {
           const id = quote.protocol || quote.provider || `route-${i}`;
-          const isBest = bestQuote != null && (quote.protocol || quote.provider) === (bestQuote.protocol || bestQuote.provider);
+          const isBest =
+            bestQuote != null &&
+            (quote.protocol || quote.provider) === (bestQuote.protocol || bestQuote.provider);
           const quoteRate = computeRate(quote.amountIn, quote.amountOut, decimalsIn, decimals);
           const rateDiffPct = bestRate > 0 ? ((bestRate - quoteRate) / bestRate) * 100 : 0;
           return (

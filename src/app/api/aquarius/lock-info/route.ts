@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   if (!amount || !days) {
     return NextResponse.json(
       { success: false, error: "Missing required params: amount, days" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   if (daysNum < 1 || daysNum > 1095) {
     return NextResponse.json(
       { success: false, error: "Lock period must be 1-1095 days" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 

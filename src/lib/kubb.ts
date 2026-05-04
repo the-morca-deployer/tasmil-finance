@@ -55,9 +55,7 @@ apiClient.interceptors.response.use(
         console.warn(
           `[auth:ai] ${error.response?.status} from ${url} (token fresh=${fresh}, detail=${detail || "n/a"})`
         );
-        window.dispatchEvent(
-          new CustomEvent("auth:session-invalid", { detail: { fresh, url } }),
-        );
+        window.dispatchEvent(new CustomEvent("auth:session-invalid", { detail: { fresh, url } }));
       }
     }
 

@@ -1,17 +1,17 @@
 "use client";
 
+import type { PositionItem } from "@/features/profile/hooks/use-defi-positions";
 import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
-import type { PositionItem } from "@/features/profile/hooks/use-defi-positions";
 
 // ─── Type badge config ──────────────────────────────────────────────────────
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  vault:  { label: "Vault",   color: "text-violet-400",  bg: "bg-violet-400/10"  },
-  supply: { label: "Supply",  color: "text-primary",     bg: "bg-primary/10"     },
-  borrow: { label: "Borrow",  color: "text-destructive", bg: "bg-destructive/10" },
-  lp:     { label: "LP",      color: "text-amber-400",   bg: "bg-amber-400/10"   },
-  stake:  { label: "Staked",  color: "text-violet-400",  bg: "bg-violet-400/10"  },
+  vault: { label: "Vault", color: "text-violet-400", bg: "bg-violet-400/10" },
+  supply: { label: "Supply", color: "text-primary", bg: "bg-primary/10" },
+  borrow: { label: "Borrow", color: "text-destructive", bg: "bg-destructive/10" },
+  lp: { label: "LP", color: "text-amber-400", bg: "bg-amber-400/10" },
+  stake: { label: "Staked", color: "text-violet-400", bg: "bg-violet-400/10" },
 };
 
 // ─── Formatters ─────────────────────────────────────────────────────────────
@@ -31,13 +31,7 @@ function formatRewardAmount(amount: number): string {
 
 // ─── Token pair icon ────────────────────────────────────────────────────────
 
-function TokenPairIconSmall({
-  token0,
-  token1,
-}: {
-  token0: string;
-  token1: string;
-}) {
+function TokenPairIconSmall({ token0, token1 }: { token0: string; token1: string }) {
   return (
     <div className="relative flex shrink-0" style={{ width: 44, height: 28 }}>
       <TokenImage
@@ -75,10 +69,7 @@ export function CompactPositionRow({ position: pos }: CompactPositionRowProps) {
           {pair ? (
             <TokenPairIconSmall token0={pair.token0} token1={pair.token1} />
           ) : (
-            <TokenImage
-              alt={pos.asset}
-              className="h-7 w-7 shrink-0 rounded-full text-[10px]"
-            />
+            <TokenImage alt={pos.asset} className="h-7 w-7 shrink-0 rounded-full text-[10px]" />
           )}
           <div className="min-w-0">
             <span className="text-sm font-medium text-sidebar-foreground">
@@ -104,7 +95,7 @@ export function CompactPositionRow({ position: pos }: CompactPositionRowProps) {
           className={cn(
             "inline-block rounded-md px-2 py-0.5 text-[11px] font-medium",
             typeConfig.color,
-            typeConfig.bg,
+            typeConfig.bg
           )}
         >
           {typeConfig.label}
@@ -126,8 +117,12 @@ export function CompactPositionRow({ position: pos }: CompactPositionRowProps) {
         <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-sidebar-foreground/50">
           {pair?.pooled0 && pair?.pooled1 && (
             <>
-              <span className="tabular-nums">{pair.pooled0} {pair.token0}</span>
-              <span className="tabular-nums">{pair.pooled1} {pair.token1}</span>
+              <span className="tabular-nums">
+                {pair.pooled0} {pair.token0}
+              </span>
+              <span className="tabular-nums">
+                {pair.pooled1} {pair.token1}
+              </span>
               {pair.shares && (
                 <span className="tabular-nums">
                   {pair.shares} shares ({pair.sharePct}%)
@@ -135,9 +130,7 @@ export function CompactPositionRow({ position: pos }: CompactPositionRowProps) {
               )}
             </>
           )}
-          {!pair && pos.extra && (
-            <span className="tabular-nums">{pos.extra}</span>
-          )}
+          {!pair && pos.extra && <span className="tabular-nums">{pos.extra}</span>}
           {rewards && rewards.amount > 0 && (
             <span className="font-medium text-amber-400 tabular-nums">
               {formatRewardAmount(rewards.amount)} {rewards.token}

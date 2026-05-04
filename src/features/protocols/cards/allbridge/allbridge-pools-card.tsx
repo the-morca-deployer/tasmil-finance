@@ -1,10 +1,10 @@
 "use client";
 
 import { Layers } from "lucide-react";
-import type { CardMode } from "../../schemas/common.schema";
 import type { AllbridgePoolCardProps } from "../../schemas/allbridge.schema";
-import { ProtocolCard } from "../base/protocol-card";
+import type { CardMode } from "../../schemas/common.schema";
 import { DetailRow, MetricBox } from "../base/indicators";
+import { ProtocolCard } from "../base/protocol-card";
 
 interface Props {
   pools: AllbridgePoolCardProps[];
@@ -22,7 +22,13 @@ export function AllbridgePoolsCard({ pools, mode = "playground" }: Props) {
 
   if (!pools.length) {
     return (
-      <ProtocolCard mode={mode} title="Allbridge Pools" icon={Layers} iconColor="text-blue-500" iconBg="bg-blue-500/10">
+      <ProtocolCard
+        mode={mode}
+        title="Allbridge Pools"
+        icon={Layers}
+        iconColor="text-blue-500"
+        iconBg="bg-blue-500/10"
+      >
         <p className="text-xs text-muted-foreground">No pools found.</p>
       </ProtocolCard>
     );
@@ -30,10 +36,20 @@ export function AllbridgePoolsCard({ pools, mode = "playground" }: Props) {
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title="Allbridge LP Pools" icon={Layers} iconColor="text-blue-500" iconBg="bg-blue-500/10" subtitle={`${pools.length} pools`}>
+      <ProtocolCard
+        mode="chat"
+        title="Allbridge LP Pools"
+        icon={Layers}
+        iconColor="text-blue-500"
+        iconBg="bg-blue-500/10"
+        subtitle={`${pools.length} pools`}
+      >
         <div className="space-y-2 max-h-[300px] overflow-auto">
           {pools.slice(0, 10).map((p) => (
-            <div key={`${p.chain}-${p.symbol}`} className="rounded-lg border border-border/50 p-2 space-y-1">
+            <div
+              key={`${p.chain}-${p.symbol}`}
+              className="rounded-lg border border-border/50 p-2 space-y-1"
+            >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">{p.symbol}</span>
                 <span className="text-[10px] text-muted-foreground capitalize">{p.chain}</span>
@@ -64,13 +80,22 @@ export function AllbridgePoolsCard({ pools, mode = "playground" }: Props) {
       <div className="p-4 space-y-4 max-h-[400px] overflow-auto">
         {Array.from(byChain.entries()).map(([chain, chainPools]) => (
           <div key={chain}>
-            <p className="text-[10px] text-muted-foreground/60 uppercase font-semibold tracking-wider mb-2 capitalize">{chain}</p>
+            <p className="text-[10px] text-muted-foreground/60 uppercase font-semibold tracking-wider mb-2 capitalize">
+              {chain}
+            </p>
             <div className="space-y-2">
               {chainPools.map((p) => (
-                <div key={`${p.chain}-${p.symbol}`} className="rounded-lg border border-border/50 bg-secondary/30 p-3 space-y-1.5">
+                <div
+                  key={`${p.chain}-${p.symbol}`}
+                  className="rounded-lg border border-border/50 bg-secondary/30 p-3 space-y-1.5"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-foreground">{p.symbol}</span>
-                    {p.poolAddress && <span className="text-[9px] text-muted-foreground/60 font-mono">{p.poolAddress.slice(0, 8)}...</span>}
+                    {p.poolAddress && (
+                      <span className="text-[9px] text-muted-foreground/60 font-mono">
+                        {p.poolAddress.slice(0, 8)}...
+                      </span>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <MetricBox label="APR (7d)" value={fmtApr(p.apr7d)} />

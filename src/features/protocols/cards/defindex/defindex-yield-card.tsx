@@ -1,12 +1,12 @@
 "use client";
 
-import { TrendingUp, Layers } from "lucide-react";
+import { Layers, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
+import { cleanVaultName, fmt } from "../../lib/formatting";
 import type { CardMode } from "../../schemas/common.schema";
-import { ProtocolCard, EmptyState } from "../base/protocol-card";
 import { CardHeader } from "../base/indicators";
-import { fmt, cleanVaultName } from "../../lib/formatting";
+import { EmptyState, ProtocolCard } from "../base/protocol-card";
 
 interface YieldOpportunity {
   protocol: string;
@@ -40,7 +40,11 @@ export function DefindexYieldCard({ opportunities, mode = "playground" }: Props)
   }
 
   return (
-    <ProtocolCard mode={mode} title={mode === "chat" ? "DeFindex Vaults" : undefined} icon={mode === "chat" ? TrendingUp : undefined}>
+    <ProtocolCard
+      mode={mode}
+      title={mode === "chat" ? "DeFindex Vaults" : undefined}
+      icon={mode === "chat" ? TrendingUp : undefined}
+    >
       {mode === "playground" && (
         <CardHeader
           icon={<TrendingUp className="h-3.5 w-3.5" />}
@@ -62,7 +66,10 @@ export function DefindexYieldCard({ opportunities, mode = "playground" }: Props)
         {opportunities.map((opp, i) => {
           const tvlNum = opp.tvl != null ? Number(opp.tvl) / 1e7 : null;
           const apyRaw = opp.apy;
-          const apyNum = typeof apyRaw === "object" && apyRaw !== null ? (apyRaw.total ?? apyRaw.base ?? null) : apyRaw;
+          const apyNum =
+            typeof apyRaw === "object" && apyRaw !== null
+              ? (apyRaw.total ?? apyRaw.base ?? null)
+              : apyRaw;
           const rawName = opp.name ?? opp.poolName ?? "Vault";
           const displayName = cleanVaultName(rawName);
           const symbol = opp.symbol || "";
@@ -100,7 +107,7 @@ export function DefindexYieldCard({ opportunities, mode = "playground" }: Props)
                 <span
                   className={cn(
                     "text-sm font-semibold tabular-nums",
-                    apyNum != null && apyNum > 0 ? "text-emerald-400" : "text-muted-foreground",
+                    apyNum != null && apyNum > 0 ? "text-emerald-400" : "text-muted-foreground"
                   )}
                 >
                   {apyNum != null ? `${apyNum.toFixed(2)}%` : "—"}

@@ -1,5 +1,17 @@
 "use client";
 
+import type { AppKitNetwork } from "@reown/appkit/networks";
+import {
+  arbitrum,
+  avalanche,
+  base,
+  bsc,
+  mainnet,
+  optimism,
+  polygon,
+  solana,
+  solanaTestnet,
+} from "@reown/appkit/networks";
 /**
  * Reown AppKit + Wagmi + Solana config for EVM & Solana wallet connection.
  *
@@ -11,20 +23,8 @@
  *   Guard everything that touches browser-only APIs.
  */
 import { createAppKit } from "@reown/appkit/react";
-import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { SolanaAdapter } from "@reown/appkit-adapter-solana";
-import {
-  mainnet,
-  arbitrum,
-  base,
-  polygon,
-  optimism,
-  bsc,
-  avalanche,
-  solana,
-  solanaTestnet,
-} from "@reown/appkit/networks";
-import type { AppKitNetwork } from "@reown/appkit/networks";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import type { Config } from "wagmi";
 
 const projectId = process.env.NEXT_PUBLIC_REOWN_PROJECT_ID ?? "";

@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   if (!tokenIn || !tokenOut || !amount) {
     return NextResponse.json(
       { success: false, error: "Missing required query params: tokenIn, tokenOut, amount" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Quote failed" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }

@@ -22,9 +22,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const url =
-      period === "totals"
-        ? `${base}/statistics/totals/?size=${size}`
-        : `${base}/statistics/24h/`;
+      period === "totals" ? `${base}/statistics/totals/?size=${size}` : `${base}/statistics/24h/`;
 
     const res = await fetch(url, {
       headers: { Accept: "application/json", "User-Agent": "Tasmil/1.0" },
@@ -34,7 +32,7 @@ export async function GET(req: NextRequest) {
     if (!res.ok) {
       return NextResponse.json(
         { success: false, error: `Aquarius statistics API error: ${res.status}` },
-        { status: res.status },
+        { status: res.status }
       );
     }
 
@@ -70,7 +68,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Statistics API unavailable" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

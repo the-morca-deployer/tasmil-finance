@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 const PUBLIC_PATHS = ["/waitlist", "/api", "/_next", "/favicon.ico", "/robots.txt", "/images"];
 
@@ -32,8 +32,10 @@ export function proxy(request: NextRequest) {
   // here too; un-gated once Allbridge cross-chain coverage was verified.
   const isDev = process.env["NEXT_PUBLIC_APP_ENV"] === "development";
   const isDevOnly =
-    pathname === "/playground" || pathname.startsWith("/playground/") ||
-    pathname === "/dev" || pathname.startsWith("/dev/");
+    pathname === "/playground" ||
+    pathname.startsWith("/playground/") ||
+    pathname === "/dev" ||
+    pathname.startsWith("/dev/");
 
   if (isDevOnly && !isDev) {
     return NextResponse.redirect(new URL("/chat/new", request.url));

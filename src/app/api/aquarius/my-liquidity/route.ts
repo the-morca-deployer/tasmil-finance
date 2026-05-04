@@ -1,7 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { createTasmilClient } from "@tasmil/adapter-sdk";
-import { getNetwork } from "../_sdk";
+import { type NextRequest, NextResponse } from "next/server";
 import { STELLAR_NETWORK } from "@/shared/config/stellar-server";
+import { getNetwork } from "../_sdk";
 
 const AQUARIUS_BASE: Record<string, string> = {
   mainnet: "https://amm-api.aqua.network",
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   if (!poolAddress || !userAddress) {
     return NextResponse.json(
       { success: false, error: "Missing required params: pool, user" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -62,18 +62,17 @@ export async function GET(req: NextRequest) {
     const hasPosition = sharesBig > 0n;
 
     const shares = (Number(sharesBig) / 1e7).toFixed(7);
-    const sharePct =
-      totalSharesBig > 0n
-        ? (Number(sharesBig) / Number(totalSharesBig)) * 100
-        : 0;
+    const sharePct = totalSharesBig > 0n ? (Number(sharesBig) / Number(totalSharesBig)) * 100 : 0;
 
     const pooled0 =
       hasPosition && totalSharesBig > 0n && reserves[0] != null
-        ? Number((BigInt(String(reserves[0]).split(".")[0] ?? "0") * sharesBig) / totalSharesBig) / 1e7
+        ? Number((BigInt(String(reserves[0]).split(".")[0] ?? "0") * sharesBig) / totalSharesBig) /
+          1e7
         : 0;
     const pooled1 =
       hasPosition && totalSharesBig > 0n && reserves[1] != null
-        ? Number((BigInt(String(reserves[1]).split(".")[0] ?? "0") * sharesBig) / totalSharesBig) / 1e7
+        ? Number((BigInt(String(reserves[1]).split(".")[0] ?? "0") * sharesBig) / totalSharesBig) /
+          1e7
         : 0;
 
     return NextResponse.json({
@@ -82,19 +81,23 @@ export async function GET(req: NextRequest) {
       protocol: "aquarius",
       hasPosition,
       positions: hasPosition
-        ? [{
-            poolAddress,
-            shares,
-            sharePct,
-            pooled: [pooled0, pooled1],
-            tokensStr: tokensStr.map((s: string) => s === "native" ? "XLM" : s.includes(":") ? s.split(":")[0] : s),
-          }]
+        ? [
+            {
+              poolAddress,
+              shares,
+              sharePct,
+              pooled: [pooled0, pooled1],
+              tokensStr: tokensStr.map((s: string) =>
+                s === "native" ? "XLM" : s.includes(":") ? s.split(":")[0] : s
+              ),
+            },
+          ]
         : [],
     });
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Failed to fetch liquidity data" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -2,10 +2,7 @@ import { expect, test } from "@playwright/test";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
 test.describe("Leaderboard (Task 9)", () => {
-  test.skip(
-    process.env.NODE_ENV === "production",
-    "test-login is disabled on production",
-  );
+  test.skip(process.env.NODE_ENV === "production", "test-login is disabled on production");
 
   test("Leaderboard page renders at /quest route", async ({ page }) => {
     const wallet = freshWallet();
@@ -42,9 +39,7 @@ test.describe("Leaderboard (Task 9)", () => {
     expect(isEmpty || hasPodium).toBeTruthy();
   });
 
-  test("Leaderboard table renders with wallet, volume, tier columns", async ({
-    page,
-  }) => {
+  test("Leaderboard table renders with wallet, volume, tier columns", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.goto("/quest");
@@ -62,9 +57,7 @@ test.describe("Leaderboard (Task 9)", () => {
     expect(page.url()).toContain("/quest");
   });
 
-  test("Tier badges show all five tier labels when data exists", async ({
-    page,
-  }) => {
+  test("Tier badges show all five tier labels when data exists", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.goto("/quest");
@@ -139,7 +132,7 @@ test.describe("Leaderboard (Task 9)", () => {
   test("Network error shows error state", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/leaderboard**", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/leaderboard**", (route) => route.fulfill({ status: 503 }));
     await page.goto("/quest");
     await page.waitForTimeout(3000);
     const content = await page.content();
@@ -182,11 +175,13 @@ test.describe("Leaderboard (Task 9)", () => {
   test("No console errors", async ({ page }) => {
     const wallet = freshWallet();
     const errors: string[] = [];
-    page.on("console", msg => { if (msg.type() === "error") errors.push(msg.text()); });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") errors.push(msg.text());
+    });
     await loginAsWallet(page, wallet);
     await page.goto("/quest");
     await page.waitForLoadState("networkidle");
-    const critical = errors.filter(e => !/warning|deprecated/i.test(e));
+    const critical = errors.filter((e) => !/warning|deprecated/i.test(e));
     expect(critical).toHaveLength(0);
   });
 

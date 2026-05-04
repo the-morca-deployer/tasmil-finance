@@ -3,9 +3,7 @@ import { z } from "zod";
 // ─── Swap / Bridge card ──────────────────────────────────────
 
 export const swapBridgeCardPropsSchema = z.object({
-  operation: z
-    .enum(["swap", "bridge", "add_liquidity", "remove_liquidity"])
-    .default("swap"),
+  operation: z.enum(["swap", "bridge", "add_liquidity", "remove_liquidity"]).default("swap"),
   protocol: z.string(),
   tokenIn: z.string(),
   tokenOut: z.string(),

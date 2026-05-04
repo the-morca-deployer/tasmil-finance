@@ -1,9 +1,13 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Shield } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
+import { activeNetwork } from "@/shared/config/stellar";
+import { useWallet } from "@/shared/context/wallet-context";
+import { Button } from "@/shared/ui/button-v2";
 import {
   Dialog,
   DialogContent,
@@ -13,10 +17,6 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
-import { Button } from "@/shared/ui/button-v2";
-import { useWallet } from "@/shared/context/wallet-context";
-import { activeNetwork } from "@/shared/config/stellar";
-import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 
 interface AddTrustlineDialogProps {
   open: boolean;
@@ -62,7 +62,7 @@ export function AddTrustlineDialog({ open, onOpenChange }: AddTrustlineDialogPro
         .addOperation(
           Operation.changeTrust({
             asset: new Asset(assetCode.trim(), issuer.trim()),
-          }),
+          })
         )
         .setTimeout(180)
         .build();
@@ -70,9 +70,7 @@ export function AddTrustlineDialog({ open, onOpenChange }: AddTrustlineDialogPro
       const xdr = tx.toXDR();
 
       // Sign via wallet
-      const { StellarWalletsKit } = await import(
-        "@creit.tech/stellar-wallets-kit/sdk"
-      );
+      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
       try {
         StellarWalletsKit.setWallet(address);
       } catch {
@@ -91,10 +89,7 @@ export function AddTrustlineDialog({ open, onOpenChange }: AddTrustlineDialogPro
 
       // Submit
       toast.info("Submitting trustline transaction...");
-      const signedTx = TransactionBuilder.fromXDR(
-        signedXdr,
-        activeNetwork.networkPassphrase,
-      );
+      const signedTx = TransactionBuilder.fromXDR(signedXdr, activeNetwork.networkPassphrase);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await horizon.submitTransaction(signedTx as any);
 
@@ -106,7 +101,11 @@ export function AddTrustlineDialog({ open, onOpenChange }: AddTrustlineDialogPro
       onOpenChange(false);
     } catch (err) {
       const msg = parseSigningError(err);
-      if (msg.toLowerCase().includes("reject") || msg.toLowerCase().includes("denied") || msg.toLowerCase().includes("cancel")) {
+      if (
+        msg.toLowerCase().includes("reject") ||
+        msg.toLowerCase().includes("denied") ||
+        msg.toLowerCase().includes("cancel")
+      ) {
         toast.error("Transaction rejected");
       } else {
         toast.error("Trustline failed", { description: msg });
@@ -131,9 +130,7 @@ export function AddTrustlineDialog({ open, onOpenChange }: AddTrustlineDialogPro
 
         <div className="flex flex-col gap-4 py-2">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-foreground">
-              Asset Code
-            </label>
+            <label className="text-sm font-medium text-foreground">Asset Code</label>
             <Input
               placeholder="e.g. USDC, BLND, AQUA"
               value={assetCode}
@@ -144,9 +141,7 @@ export function AddTrustlineDialog({ open, onOpenChange }: AddTrustlineDialogPro
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-foreground">
-              Issuer Address
-            </label>
+            <label className="text-sm font-medium text-foreground">Issuer Address</label>
             <Input
               placeholder="G..."
               value={issuer}
@@ -159,11 +154,7 @@ export function AddTrustlineDialog({ open, onOpenChange }: AddTrustlineDialogPro
         </div>
 
         <DialogFooter>
-          <Button
-            variant="ghost"
-            onClick={() => onOpenChange(false)}
-            disabled={loading}
-          >
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={!isValid || loading}>

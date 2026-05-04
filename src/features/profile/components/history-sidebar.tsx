@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import {
   ArrowDownLeft,
   ArrowLeftRight,
@@ -9,32 +10,31 @@ import {
   Layers,
   Link2,
   Lock,
+  type LucideIcon,
   Shield,
   TrendingUp,
   UserPlus,
-  type LucideIcon,
 } from "lucide-react";
-import { motion } from "framer-motion";
-import { Skeleton } from "@/shared/ui/skeleton";
-import { Button } from "@/shared/ui/button-v2";
 import { cn } from "@/lib/utils";
 import { getExplorerUrl } from "@/shared/config/stellar";
-import { useStellarTransactions, type StellarOperation } from "../hooks/use-stellar-transactions";
+import { Button } from "@/shared/ui/button-v2";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { type StellarOperation, useStellarTransactions } from "../hooks/use-stellar-transactions";
 
 // ─── Icon map (reuse same pattern as transaction-list) ────────────────────────
 
 const OP_ICONS: Record<string, { icon: LucideIcon; bg: string; fg: string }> = {
-  payment_in:  { icon: ArrowDownLeft,  bg: "bg-emerald-500/10", fg: "text-emerald-400"      },
-  payment_out: { icon: ArrowUpRight,   bg: "bg-destructive/10", fg: "text-destructive"      },
-  swap:        { icon: ArrowLeftRight, bg: "bg-violet-500/10",  fg: "text-violet-400"       },
-  dex:         { icon: TrendingUp,     bg: "bg-amber-500/10",   fg: "text-amber-400"        },
-  create:      { icon: UserPlus,       bg: "bg-emerald-500/10", fg: "text-emerald-400"      },
-  trust:       { icon: Shield,         bg: "bg-blue-500/10",    fg: "text-blue-400"         },
-  claim:       { icon: ArrowDownLeft,  bg: "bg-emerald-500/10", fg: "text-emerald-400"      },
-  lock:        { icon: Lock,           bg: "bg-amber-500/10",   fg: "text-amber-400"        },
-  lp:          { icon: Droplets,       bg: "bg-violet-500/10",  fg: "text-violet-400"       },
-  contract:    { icon: Layers,         bg: "bg-muted/30",       fg: "text-muted-foreground" },
-  merge:       { icon: Link2,          bg: "bg-muted/30",       fg: "text-muted-foreground" },
+  payment_in: { icon: ArrowDownLeft, bg: "bg-emerald-500/10", fg: "text-emerald-400" },
+  payment_out: { icon: ArrowUpRight, bg: "bg-destructive/10", fg: "text-destructive" },
+  swap: { icon: ArrowLeftRight, bg: "bg-violet-500/10", fg: "text-violet-400" },
+  dex: { icon: TrendingUp, bg: "bg-amber-500/10", fg: "text-amber-400" },
+  create: { icon: UserPlus, bg: "bg-emerald-500/10", fg: "text-emerald-400" },
+  trust: { icon: Shield, bg: "bg-blue-500/10", fg: "text-blue-400" },
+  claim: { icon: ArrowDownLeft, bg: "bg-emerald-500/10", fg: "text-emerald-400" },
+  lock: { icon: Lock, bg: "bg-amber-500/10", fg: "text-amber-400" },
+  lp: { icon: Droplets, bg: "bg-violet-500/10", fg: "text-violet-400" },
+  contract: { icon: Layers, bg: "bg-muted/30", fg: "text-muted-foreground" },
+  merge: { icon: Link2, bg: "bg-muted/30", fg: "text-muted-foreground" },
 };
 
 function getIconKey(type: string, outgoing: boolean): keyof typeof OP_ICONS {
@@ -54,29 +54,26 @@ function getIconKey(type: string, outgoing: boolean): keyof typeof OP_ICONS {
 // ─── Labels / helpers ─────────────────────────────────────────────────────────
 
 const OP_LABELS: Record<string, string> = {
-  payment:                     "Payment",
-  path_payment_strict_send:    "Swap",
+  payment: "Payment",
+  path_payment_strict_send: "Swap",
   path_payment_strict_receive: "Swap",
-  create_account:              "Create Account",
-  manage_sell_offer:           "Sell Order",
-  manage_buy_offer:            "Buy Order",
-  create_passive_sell_offer:   "Passive Order",
-  change_trust:                "Change Trust",
-  allow_trust:                 "Allow Trust",
-  set_trust_line_flags:        "Trust Flags",
-  account_merge:               "Merge Account",
-  create_claimable_balance:    "Lock Balance",
-  claim_claimable_balance:     "Claim Balance",
-  liquidity_pool_deposit:      "LP Deposit",
-  liquidity_pool_withdraw:     "LP Withdraw",
-  invoke_contract:             "Invoke Host Function",
+  create_account: "Create Account",
+  manage_sell_offer: "Sell Order",
+  manage_buy_offer: "Buy Order",
+  create_passive_sell_offer: "Passive Order",
+  change_trust: "Change Trust",
+  allow_trust: "Allow Trust",
+  set_trust_line_flags: "Trust Flags",
+  account_merge: "Merge Account",
+  create_claimable_balance: "Lock Balance",
+  claim_claimable_balance: "Claim Balance",
+  liquidity_pool_deposit: "LP Deposit",
+  liquidity_pool_withdraw: "LP Withdraw",
+  invoke_contract: "Invoke Host Function",
 };
 
 function getOpLabel(type: string): string {
-  return (
-    OP_LABELS[type] ??
-    type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-  );
+  return OP_LABELS[type] ?? type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function formatRelativeTime(iso: string): string {
@@ -92,23 +89,16 @@ function formatRelativeTime(iso: string): string {
 }
 
 function isOutgoingOp(op: StellarOperation, address: string): boolean {
-  const outTypes = new Set([
-    "payment",
-    "path_payment_strict_send",
-    "path_payment_strict_receive",
-  ]);
+  const outTypes = new Set(["payment", "path_payment_strict_send", "path_payment_strict_receive"]);
   return outTypes.has(op.type) && op.from === address;
 }
 
 function getAmountSummary(
   op: StellarOperation,
-  outgoing: boolean,
+  outgoing: boolean
 ): { text: string; color: string } | null {
-  const isTransfer =
-    op.type === "payment" || op.type.startsWith("path_payment");
-  const amt = op.type.startsWith("path_payment")
-    ? (op.destinationAmount ?? op.amount)
-    : op.amount;
+  const isTransfer = op.type === "payment" || op.type.startsWith("path_payment");
+  const amt = op.type.startsWith("path_payment") ? (op.destinationAmount ?? op.amount) : op.amount;
   const asset = op.type.startsWith("path_payment")
     ? (op.destinationAsset ?? op.assetCode ?? "XLM")
     : (op.assetCode ?? "XLM");
@@ -164,9 +154,7 @@ export function HistorySidebar({ address, onSeeAll }: HistorySidebarProps) {
       ) : ops.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center px-6 pb-8">
           <Clock className="mb-3 h-8 w-8 text-muted-foreground/40" />
-          <p className="mb-1 text-sm font-medium text-muted-foreground">
-            No transactions yet
-          </p>
+          <p className="mb-1 text-sm font-medium text-muted-foreground">No transactions yet</p>
           <p className="text-center text-xs text-muted-foreground/60">
             Stellar operations will appear here.
           </p>
@@ -192,7 +180,7 @@ export function HistorySidebar({ address, onSeeAll }: HistorySidebarProps) {
                 <div
                   className={cn(
                     "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                    bg,
+                    bg
                   )}
                 >
                   <Icon className={cn("h-3.5 w-3.5", fg)} />
@@ -210,12 +198,7 @@ export function HistorySidebar({ address, onSeeAll }: HistorySidebarProps) {
 
                 {/* Amount */}
                 {summary && (
-                  <span
-                    className={cn(
-                      "shrink-0 text-sm font-semibold",
-                      summary.color,
-                    )}
-                  >
+                  <span className={cn("shrink-0 text-sm font-semibold", summary.color)}>
                     {summary.text}
                   </span>
                 )}

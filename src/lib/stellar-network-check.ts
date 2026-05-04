@@ -46,7 +46,7 @@ export async function checkWalletNetwork(): Promise<void> {
       throw new NetworkMismatchError(
         `Your Freighter wallet is set to **${walletNetworkName}**, but this app runs on **${APP_NETWORK_NAME}**.\n\nPlease open Freighter → click the network name at the top → switch to **${APP_NETWORK_NAME}**, then try again.`,
         walletNetworkName,
-        APP_NETWORK_NAME,
+        APP_NETWORK_NAME
       );
     }
   } catch (err) {
@@ -59,7 +59,7 @@ export class NetworkMismatchError extends Error {
   constructor(
     message: string,
     public readonly walletNetwork: string,
-    public readonly appNetwork: string,
+    public readonly appNetwork: string
   ) {
     super(message);
     this.name = "NetworkMismatchError";
@@ -84,7 +84,11 @@ export function parseSigningError(error: unknown): string {
     return `Wallet is on ${walletNet} but app is on ${appNet}. Open Freighter → switch to ${appNet}, then retry.`;
   }
 
-  if (msg.includes("User rejected") || msg.includes("user rejected") || msg.includes("User denied")) {
+  if (
+    msg.includes("User rejected") ||
+    msg.includes("user rejected") ||
+    msg.includes("User denied")
+  ) {
     return "Transaction rejected by user.";
   }
 

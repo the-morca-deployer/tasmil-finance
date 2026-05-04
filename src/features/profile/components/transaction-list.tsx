@@ -22,12 +22,10 @@ import { activeNetwork, getExplorerUrl } from "@/shared/config/stellar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui/collapsible";
 import { CopyButton } from "@/shared/ui/copy-button";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { groupByDate as groupOpsByDate } from "@/shared/utils/date-group";
 import type { StellarOperation } from "../hooks/use-stellar-transactions";
 import { useStellarTransactions } from "../hooks/use-stellar-transactions";
 import { useTransactionDetail } from "../hooks/use-transaction-detail";
-import {
-  groupByDate as groupOpsByDate,
-} from "@/shared/utils/date-group";
 
 // ─── Icon map ─────────────────────────────────────────────────────────────────
 // Icons chosen to be semantically obvious to non-devs

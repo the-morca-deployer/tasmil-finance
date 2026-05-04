@@ -6,10 +6,10 @@ async function fetchEvmTokenBalance(
   wallet: string,
   token: string,
   chain: string,
-  decimals: number,
+  decimals: number
 ): Promise<number> {
   const res = await fetch(
-    `/api/evm-balance?wallet=${encodeURIComponent(wallet)}&token=${encodeURIComponent(token)}&chain=${encodeURIComponent(chain)}&decimals=${decimals}`,
+    `/api/evm-balance?wallet=${encodeURIComponent(wallet)}&token=${encodeURIComponent(token)}&chain=${encodeURIComponent(chain)}&decimals=${decimals}`
   );
   if (!res.ok) return 0;
   const data = await res.json();
@@ -20,7 +20,7 @@ export function useEvmTokenBalance(
   wallet: string | null,
   tokenAddress: string | null | undefined,
   chain: string | null,
-  decimals: number = 18,
+  decimals: number = 18
 ) {
   return useQuery({
     queryKey: ["evm-token-balance", wallet, tokenAddress, chain],

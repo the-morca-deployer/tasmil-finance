@@ -26,8 +26,8 @@ export { authControllerLogin } from "@/gen-backend/client/auth-controller-login"
 export { authControllerRegister } from "@/gen-backend/client/auth-controller-register";
 export { authControllerResolveChatUserForAi } from "@/gen-backend/client/auth-controller-resolve-chat-user-for-ai";
 export { authControllerTestLogin } from "@/gen-backend/client/auth-controller-test-login";
-export { authControllerVerifySessionForAi } from "@/gen-backend/client/auth-controller-verify-session-for-ai";
 export { authControllerVerify } from "@/gen-backend/client/auth-controller-verify";
+export { authControllerVerifySessionForAi } from "@/gen-backend/client/auth-controller-verify-session-for-ai";
 export { chatUsageInternalControllerCommit } from "@/gen-backend/client/chat-usage-internal-controller-commit";
 export { chatUsageInternalControllerGetSnapshot } from "@/gen-backend/client/chat-usage-internal-controller-get-snapshot";
 export { creditControllerGetMe } from "@/gen-backend/client/credit-controller-get-me";
@@ -55,8 +55,8 @@ export { userControllerGetUser } from "@/gen-backend/client/user-controller-get-
 export { userMeControllerGetMe } from "@/gen-backend/client/user-me-controller-get-me";
 export { waitlistControllerAttachContact } from "@/gen-backend/client/waitlist-controller-attach-contact";
 export { waitlistControllerGetStatus } from "@/gen-backend/client/waitlist-controller-get-status";
-export { waitlistControllerRegisterWallet } from "@/gen-backend/client/waitlist-controller-register-wallet";
 export { waitlistControllerRegister } from "@/gen-backend/client/waitlist-controller-register";
+export { waitlistControllerRegisterWallet } from "@/gen-backend/client/waitlist-controller-register-wallet";
 export { waitlistControllerRequestChallenge } from "@/gen-backend/client/waitlist-controller-request-challenge";
 export { waitlistControllerVerifyReferral } from "@/gen-backend/client/waitlist-controller-verify-referral";
 export { welcomeRewardControllerGetFullStatus } from "@/gen-backend/client/welcome-reward-controller-get-full-status";

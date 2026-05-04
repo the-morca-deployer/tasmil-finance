@@ -8,10 +8,7 @@ function getAdminToken(request: NextRequest): string | null {
   return null;
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token = getAdminToken(request);
   if (!token) return NextResponse.json({ message: "No admin token" }, { status: 401 });
 

@@ -14,25 +14,19 @@ export const AQUARIUS_RESOLVE_POOL = [
       protocol: "aquarius",
       pools: [
         {
-          poolAddress:
-            "CA6PUJLBYKZKUEKLZJMKBZLEKP2OTHANDEOWSFF44FTSYLKQPIICCJBE",
+          poolAddress: "CA6PUJLBYKZKUEKLZJMKBZLEKP2OTHANDEOWSFF44FTSYLKQPIICCJBE",
           name: "XLM/USDC",
           tokens: [
             {
-              address:
-                "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+              address: "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
               symbol: "XLM",
             },
             {
-              address:
-                "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+              address: "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
               symbol: "USDC",
             },
           ],
-          tokens_str: [
-            "native",
-            "USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
-          ],
+          tokens_str: ["native", "USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN"],
           tokens_addresses: [
             "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
             "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
@@ -61,8 +55,7 @@ export const AQUARIUS_RESOLVE_POOL_BROKEN = [
       protocol: "aquarius",
       pools: [
         {
-          poolAddress:
-            "CA6PUJLBYKZKUEKLZJMKBZLEKP2OTHANDEOWSFF44FTSYLKQPIICCJBE",
+          poolAddress: "CA6PUJLBYKZKUEKLZJMKBZLEKP2OTHANDEOWSFF44FTSYLKQPIICCJBE",
           name: "XLM/USDC",
           tokens: [
             "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
@@ -89,16 +82,13 @@ export const SOROSWAP_RESOLVE_POOL_OBJECT_TOKENS = [
       protocol: "soroswap",
       pools: [
         {
-          poolAddress:
-            "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2OOTHU2F",
+          poolAddress: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2OOTHU2F",
           tokenA: {
-            address:
-              "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+            address: "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
             symbol: "XLM",
           },
           tokenB: {
-            address:
-              "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+            address: "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
             symbol: "USDC",
           },
           reserveA: "1000000000",
@@ -121,14 +111,11 @@ export const SOROSWAP_RESOLVE_POOL = [
       protocol: "soroswap",
       pools: [
         {
-          address:
-            "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2OOTHU2F",
+          address: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2OOTHU2F",
           tokenA: "XLM",
           tokenB: "USDC",
-          token0_address:
-            "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-          token1_address:
-            "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+          token0_address: "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+          token1_address: "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
           reserveA: "1000000000",
           reserveB: "280000000",
           tvlUsd: 560.0,
@@ -151,16 +138,14 @@ export const BLEND_RESOLVE_POOL = [
       protocol: "blend",
       pools: [
         {
-          poolAddress:
-            "CAJJZSGMMM3PD7N33TAPHGBUGTB43OC73HVIK2L2G6BNGGGYOSSYBXBD",
+          poolAddress: "CAJJZSGMMM3PD7N33TAPHGBUGTB43OC73HVIK2L2G6BNGGGYOSSYBXBD",
           name: "Fixed Pool",
           status: "active",
           canSupply: true,
           canBorrow: true,
           reserves: [
             {
-              asset:
-                "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+              asset: "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
               symbol: "USDC",
               totalSupply: "500000",
               totalBorrow: "120000",
@@ -174,8 +159,7 @@ export const BLEND_RESOLVE_POOL = [
               enabled: true,
             },
             {
-              asset:
-                "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+              asset: "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
               symbol: "XLM",
               totalSupply: "1000000",
               totalBorrow: "300000",
@@ -362,6 +346,4 @@ export const EMPTY_MCP_RESULT = [
 ];
 
 /** Malformed MCP result — invalid JSON in text field */
-export const MALFORMED_MCP_RESULT = [
-  { type: "text", text: "not valid json{{{" },
-];
+export const MALFORMED_MCP_RESULT = [{ type: "text", text: "not valid json{{{" }];

@@ -1,30 +1,27 @@
 "use client";
 
 import { ShieldCheck, Sparkles, Waypoints } from "lucide-react";
-import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { WaitlistPhaseBoard } from "@/features/whitelist/components/waitlist-phase-board";
+import { Suspense } from "react";
 import { ReferralLoopCard } from "@/features/whitelist/components/referral-loop-card";
+import { WaitlistPhaseBoard } from "@/features/whitelist/components/waitlist-phase-board";
 import { PATHS } from "@/shared/constants/routes";
 import { Typography } from "@/shared/ui/typography";
 
 const hybridSections = [
   {
     title: "AI portfolio management, built for real-world rails",
-    body:
-      "Tasmil Finance is designed for investors who want intelligent allocation, disciplined execution, and a cleaner path into onchain portfolio management without noisy interfaces or fragmented workflows.",
+    body: "Tasmil Finance is designed for investors who want intelligent allocation, disciplined execution, and a cleaner path into onchain portfolio management without noisy interfaces or fragmented workflows.",
     icon: Sparkles,
   },
   {
     title: "Built on Stellar for fast, efficient access",
-    body:
-      "We are building on Stellar because it offers efficient settlement, dependable global payment rails, and an ecosystem that matches a more accessible, scalable portfolio experience.",
+    body: "We are building on Stellar because it offers efficient settlement, dependable global payment rails, and an ecosystem that matches a more accessible, scalable portfolio experience.",
     icon: Waypoints,
   },
   {
     title: "Early access comes with priority onboarding",
-    body:
-      "Join the waitlist to receive product updates, launch access, and earlier onboarding opportunities as the first Tasmil Finance experience rolls out on Stellar.",
+    body: "Join the waitlist to receive product updates, launch access, and earlier onboarding opportunities as the first Tasmil Finance experience rolls out on Stellar.",
     icon: ShieldCheck,
   },
 ] as const;
@@ -55,13 +52,17 @@ export default function WhitelistPage() {
             variant="p"
             className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg"
           >
-            Join the waitlist for a more refined way to access automated portfolio
-            management on Stellar — designed for faster execution, cleaner workflows,
-            and smarter capital allocation from day one.
+            Join the waitlist for a more refined way to access automated portfolio management on
+            Stellar — designed for faster execution, cleaner workflows, and smarter capital
+            allocation from day one.
           </Typography>
 
           <div className="mt-10 w-full max-w-[440px]">
-            <Suspense fallback={<div className="h-40 w-full rounded-2xl border border-border bg-card/80 animate-pulse" />}>
+            <Suspense
+              fallback={
+                <div className="h-40 w-full rounded-2xl border border-border bg-card/80 animate-pulse" />
+              }
+            >
               <WaitlistPhaseBoardWithRef />
             </Suspense>
           </div>
@@ -132,10 +133,7 @@ export default function WhitelistPage() {
               <Typography variant="h4" className="text-lg font-semibold tracking-tight">
                 {title}
               </Typography>
-              <Typography
-                variant="p"
-                className="mt-3 text-sm leading-7 text-muted-foreground"
-              >
+              <Typography variant="p" className="mt-3 text-sm leading-7 text-muted-foreground">
                 {body}
               </Typography>
             </div>

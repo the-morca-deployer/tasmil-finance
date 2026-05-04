@@ -1,4 +1,4 @@
-import { getClient, VALID_PROTOCOLS, getNetwork } from "../_sdk";
+import { getClient, getNetwork, VALID_PROTOCOLS } from "../_sdk";
 
 export async function GET() {
   const sdk = getClient();
@@ -9,7 +9,10 @@ export async function GET() {
     try {
       const adapter = sdk[protocol];
       // Use the lightest possible call per protocol
-      if ("getYieldOpportunities" in adapter && typeof adapter.getYieldOpportunities === "function") {
+      if (
+        "getYieldOpportunities" in adapter &&
+        typeof adapter.getYieldOpportunities === "function"
+      ) {
         await Promise.race([
           adapter.getYieldOpportunities(),
           new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 8000)),
@@ -28,7 +31,9 @@ export async function GET() {
 
   const results = await Promise.allSettled(checks);
   const health = results.map((r) =>
-    r.status === "fulfilled" ? r.value : { protocol: "unknown", status: "error" as const, latencyMs: 0, error: "Promise rejected" },
+    r.status === "fulfilled"
+      ? r.value
+      : { protocol: "unknown", status: "error" as const, latencyMs: 0, error: "Promise rejected" }
   );
 
   return Response.json({ success: true, network, health });

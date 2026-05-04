@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Database, Layers } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
-import type { CardMode } from "../../schemas/common.schema";
 import type { PoolCardProps } from "../../schemas/blend.schema";
-import { ProtocolCard, EmptyState } from "../base/protocol-card";
-import { Tag, CardHeader, Apy } from "../base/indicators";
+import type { CardMode } from "../../schemas/common.schema";
+import { Apy, CardHeader, Tag } from "../base/indicators";
+import { EmptyState, ProtocolCard } from "../base/protocol-card";
+
 // import { fmt, formatPercent } from "../../lib/formatting";
 
 interface BlendPoolsCardProps {
@@ -35,7 +36,11 @@ export function BlendPoolsCard({ pools, mode = "playground" }: BlendPoolsCardPro
   }
 
   return (
-    <ProtocolCard mode={mode} title={mode === "chat" ? "Blend Pools" : undefined} icon={mode === "chat" ? Database : undefined}>
+    <ProtocolCard
+      mode={mode}
+      title={mode === "chat" ? "Blend Pools" : undefined}
+      icon={mode === "chat" ? Database : undefined}
+    >
       {mode === "playground" && (
         <CardHeader
           icon={<Database className="h-3.5 w-3.5" />}
@@ -55,7 +60,7 @@ export function BlendPoolsCard({ pools, mode = "playground" }: BlendPoolsCardPro
               <ChevronDown
                 className={cn(
                   "h-3 w-3 text-muted-foreground transition-transform",
-                  isOpen && "rotate-180",
+                  isOpen && "rotate-180"
                 )}
               />
               <span className="text-[13px] font-medium text-foreground flex-1 text-left truncate">
@@ -77,8 +82,7 @@ export function BlendPoolsCard({ pools, mode = "playground" }: BlendPoolsCardPro
                 )}
               </AnimatePresence>
             ) : (
-              isOpen &&
-              pool.reserves.length > 0 && <ReserveList reserves={pool.reserves} />
+              isOpen && pool.reserves.length > 0 && <ReserveList reserves={pool.reserves} />
             )}
           </div>
         );
@@ -96,13 +100,20 @@ function ReserveList({ reserves }: { reserves: PoolCardProps["reserves"] }) {
         <span>Borrow APY</span>
       </div>
       {reserves.map((r, j) => (
-        <div key={r.assetAddress || j} className="grid grid-cols-[120px_1fr_1fr] items-center gap-2 py-1.5 pl-5">
+        <div
+          key={r.assetAddress || j}
+          className="grid grid-cols-[120px_1fr_1fr] items-center gap-2 py-1.5 pl-5"
+        >
           <div className="flex items-center gap-1.5">
             <TokenImage src={null} alt={r.symbol} className="h-5 w-5 rounded-full shrink-0" />
             <span className="text-xs font-medium text-foreground">{r.symbol}</span>
           </div>
-          <span className="text-[11px] text-muted-foreground"><Apy value={r.supplyApy} /></span>
-          <span className="text-[11px] text-muted-foreground"><Apy value={r.borrowApy} /></span>
+          <span className="text-[11px] text-muted-foreground">
+            <Apy value={r.supplyApy} />
+          </span>
+          <span className="text-[11px] text-muted-foreground">
+            <Apy value={r.borrowApy} />
+          </span>
         </div>
       ))}
     </div>

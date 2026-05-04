@@ -11,19 +11,19 @@
  * or null if the tool has no matching registry entry.
  */
 
-import React from "react";
+import type React from "react";
 import type { InfoCardEntry, OperationCardEntry } from "./card-registry";
 import {
-  BLEND_INFO_CARDS,
-  BLEND_OPERATION_CARDS,
-  AQUARIUS_INFO_CARDS,
-  AQUARIUS_OPERATION_CARDS,
-  SOROSWAP_INFO_CARDS,
-  SOROSWAP_OPERATION_CARDS,
   ALLBRIDGE_INFO_CARDS,
   ALLBRIDGE_OPERATION_CARDS,
+  AQUARIUS_INFO_CARDS,
+  AQUARIUS_OPERATION_CARDS,
+  BLEND_INFO_CARDS,
+  BLEND_OPERATION_CARDS,
   DEFINDEX_INFO_CARDS,
   DEFINDEX_OPERATION_CARDS,
+  SOROSWAP_INFO_CARDS,
+  SOROSWAP_OPERATION_CARDS,
 } from "./card-registry";
 
 // ─── Combined lookups ────────────────────────────────────────
@@ -67,7 +67,7 @@ type RegistryRenderResult =
  */
 export function findRegistryRenderer(
   toolName: string,
-  args?: Record<string, unknown>,
+  args?: Record<string, unknown>
 ): RegistryRenderResult {
   // ─── resolve_pool: special routing by protocol ─────────────
   if (toolName === "resolve_pool") {

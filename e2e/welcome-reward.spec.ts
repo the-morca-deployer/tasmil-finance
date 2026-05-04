@@ -97,7 +97,7 @@ test.describe("Welcome Reward (/rewards/welcome)", () => {
 
   test("Network error on claim", async ({ page }) => {
     const wallet = freshWallet();
-    await page.route("**/api/rewards**", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/rewards**", (route) => route.fulfill({ status: 503 }));
     await loginAsWallet(page, wallet);
     await page.goto("/rewards/welcome");
     await page.waitForTimeout(3000);
@@ -109,11 +109,13 @@ test.describe("Welcome Reward (/rewards/welcome)", () => {
   test("No console errors", async ({ page }) => {
     const wallet = freshWallet();
     const errors: string[] = [];
-    page.on("console", msg => { if (msg.type() === "error") errors.push(msg.text()); });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") errors.push(msg.text());
+    });
     await loginAsWallet(page, wallet);
     await page.goto("/rewards/welcome");
     await page.waitForLoadState("networkidle");
-    const critical = errors.filter(e => !/warning|deprecated/i.test(e));
+    const critical = errors.filter((e) => !/warning|deprecated/i.test(e));
     expect(critical).toHaveLength(0);
   });
 });

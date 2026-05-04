@@ -1,11 +1,11 @@
 "use client";
 
-import { ArrowRightLeft, ArrowRight } from "lucide-react";
-import type { CardMode } from "../../schemas/common.schema";
-import type { AquaQuoteCardProps } from "../../schemas/aquarius.schema";
-import { ProtocolCard } from "../base/protocol-card";
-import { MetricBox, Row, DetailRow } from "../base/indicators";
+import { ArrowRight, ArrowRightLeft } from "lucide-react";
 import { fmt } from "../../lib/formatting";
+import type { AquaQuoteCardProps } from "../../schemas/aquarius.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { DetailRow, MetricBox, Row } from "../base/indicators";
+import { ProtocolCard } from "../base/protocol-card";
 
 interface AquaQuoteCardComponentProps {
   quote: AquaQuoteCardProps;
@@ -19,7 +19,13 @@ export function AquaQuoteCard({ quote, mode = "playground" }: AquaQuoteCardCompo
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title="Aquarius Swap Quote" icon={ArrowRightLeft} iconColor="text-cyan-500" iconBg="bg-cyan-500/10">
+      <ProtocolCard
+        mode="chat"
+        title="Aquarius Swap Quote"
+        icon={ArrowRightLeft}
+        iconColor="text-cyan-500"
+        iconBg="bg-cyan-500/10"
+      >
         {noRoute ? (
           <p className="text-sm text-muted-foreground">No swap route found for this pair.</p>
         ) : (
@@ -34,7 +40,9 @@ export function AquaQuoteCard({ quote, mode = "playground" }: AquaQuoteCardCompo
                 {route.map((hop, i) => (
                   <span key={hop} className="flex items-center gap-1">
                     <span className="font-medium text-foreground">{hop}</span>
-                    {i < route.length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground/40" />}
+                    {i < route.length - 1 && (
+                      <ArrowRight className="h-3 w-3 text-muted-foreground/40" />
+                    )}
                   </span>
                 ))}
               </div>

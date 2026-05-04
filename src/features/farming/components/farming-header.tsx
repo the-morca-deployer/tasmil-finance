@@ -79,7 +79,13 @@ export function FarmingHeader({
             transition={{ duration: 0.5, delay: 0.15 }}
           >
             <span className="text-5xl font-bold tracking-tight text-foreground">
-              <CountUp value={totalValueUsd} prefix="$" decimals={2} duration={0.8} abbreviate={false} />
+              <CountUp
+                value={totalValueUsd}
+                prefix="$"
+                decimals={2}
+                duration={0.8}
+                abbreviate={false}
+              />
             </span>
             {hasPnl && (
               <motion.div

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getSoroswapClient, getNetwork } from "../_sdk";
+import { getNetwork, getSoroswapClient } from "../_sdk";
 
 /**
  * GET /api/soroswap/quote?tokenIn=XLM&tokenOut=USDC&amount=10000000
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   if (!tokenIn || !tokenOut || !amount) {
     return NextResponse.json(
       { success: false, error: "Missing: tokenIn, tokenOut, amount" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Quote failed" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }

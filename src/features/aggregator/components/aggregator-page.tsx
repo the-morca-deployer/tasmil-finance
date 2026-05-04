@@ -132,7 +132,7 @@ export function AggregatorPage() {
       const result = await solanaProvider.signAndSendTransaction(tx);
       return result.signature;
     },
-    [solanaProvider],
+    [solanaProvider]
   );
 
   // Sign and send an EVM transaction via wagmi
@@ -146,7 +146,7 @@ export function AggregatorPage() {
       });
       return hash;
     },
-    [sendTransactionAsync],
+    [sendTransactionAsync]
   );
 
   const connectEvm = useCallback(async () => {
@@ -236,9 +236,7 @@ export function AggregatorPage() {
   }, [stellarAddress, evmAddress, solanaAddress]);
 
   const resolveChainType = (chain: string): "stellar" | "evm" | "solana" =>
-    chain === "stellar" ? "stellar"
-    : chain === "solana" ? "solana"
-    : "evm";
+    chain === "stellar" ? "stellar" : chain === "solana" ? "solana" : "evm";
   const isChainSupported = (chain: string) =>
     chain === "stellar" || chain === "solana" || EVM_CHAINS.has(chain);
   const chainTypeIn = resolveChainType(agg.chainIn);
@@ -274,9 +272,11 @@ export function AggregatorPage() {
   const isUnsupportedChain = !isChainSupported(agg.chainIn) || !isChainSupported(agg.chainOut);
   const isCrossChain = agg.chainIn !== agg.chainOut;
   const destWalletAddress =
-    chainTypeOut === "stellar" ? stellarAddress
-    : chainTypeOut === "solana" ? solanaAddress
-    : evmAddress;
+    chainTypeOut === "stellar"
+      ? stellarAddress
+      : chainTypeOut === "solana"
+        ? solanaAddress
+        : evmAddress;
   const destConnected = !!agg.destAddress || !!destWalletAddress;
   const needsSrcWallet = !srcConnected && (isSourceStellar || isSourceEvm || isSourceSolana);
   const needsDestWallet = isCrossChain && !destConnected && isChainSupported(agg.chainOut);
@@ -293,7 +293,7 @@ export function AggregatorPage() {
   const solMintAddress = isSourceSolana ? agg.tokenIn?.addresses?.["solana"] : null;
   const { data: solanaTokenBal } = useSolanaTokenBalance(
     isSourceSolana ? solanaAddress : null,
-    solMintAddress,
+    solMintAddress
   );
 
   // EVM ERC-20 token balance via RPC (works regardless of connected chain)
@@ -302,7 +302,7 @@ export function AggregatorPage() {
     isSourceEvm ? evmAddress : null,
     evmTokenAddress,
     isSourceEvm ? agg.chainIn : null,
-    agg.tokenIn?.decimals ?? 18,
+    agg.tokenIn?.decimals ?? 18
   );
 
   // Build price map from wallet tokens
@@ -319,9 +319,9 @@ export function AggregatorPage() {
     : isSourceEvm && evmTokenBal != null
       ? { balance: evmTokenBal }
       : isSourceStellar && agg.tokenIn
-        ? walletTokens.find(
-            (t) => t.assetCode.toUpperCase() === agg.tokenIn!.symbol.toUpperCase(),
-          ) ?? null
+        ? (walletTokens.find(
+            (t) => t.assetCode.toUpperCase() === agg.tokenIn!.symbol.toUpperCase()
+          ) ?? null)
         : null;
 
   // Prices — use wallet price map (works even if user doesn't hold the token,
@@ -458,470 +458,489 @@ export function AggregatorPage() {
 
       <div className="relative z-20 flex items-start gap-3" data-onborda="aggregator-card">
         <div ref={swapPanelRef} className="w-full sm:w-[480px] max-w-[480px]">
-        <BorderGlow
-          animated
-          className="w-full"
-          backgroundColor="var(--card)"
-          borderRadius={24}
-          glowColor="203 100 73"
-          glowIntensity={0.4}
-          glowRadius={35}
-          colors={["hsl(203 100% 73%)", "hsl(195 90% 55%)", "hsl(210 80% 50%)"]}
-          fillOpacity={0.2}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-5 pt-4 pb-2">
-            <div className="flex items-center gap-1.5">
-              {agg.mode && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-secondary text-muted-foreground border border-border">
-                  <ArrowLeftRight className="h-3 w-3" />
-                  {agg.mode === "swap" ? "Swap" : "Bridge"}
-                </span>
-              )}
+          <BorderGlow
+            animated
+            className="w-full"
+            backgroundColor="var(--card)"
+            borderRadius={24}
+            glowColor="203 100 73"
+            glowIntensity={0.4}
+            glowRadius={35}
+            colors={["hsl(203 100% 73%)", "hsl(195 90% 55%)", "hsl(210 80% 50%)"]}
+            fillOpacity={0.2}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 pt-4 pb-2">
+              <div className="flex items-center gap-1.5">
+                {agg.mode && (
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-secondary text-muted-foreground border border-border">
+                    <ArrowLeftRight className="h-3 w-3" />
+                    {agg.mode === "swap" ? "Swap" : "Bridge"}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <WalletHub
+                  stellarAddress={stellarAddress}
+                  evmAddress={evmAddress}
+                  solanaAddress={solanaAddress}
+                  onConnectStellar={() => connectStellar?.()}
+                  onConnectEvm={connectEvm}
+                  onConnectSolana={connectSolana}
+                  onDisconnectStellar={disconnectStellar}
+                  onDisconnectEvm={disconnectEvm}
+                  onDisconnectSolana={disconnectEvm}
+                />
+                <SlippageSettings
+                  slippageBps={agg.slippageBps}
+                  setSlippageBps={agg.setSlippageBps}
+                  enabledProtocols={agg.enabledProtocols}
+                  toggleProtocol={agg.toggleProtocol}
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              <WalletHub
-                stellarAddress={stellarAddress}
-                evmAddress={evmAddress}
-                solanaAddress={solanaAddress}
-                onConnectStellar={() => connectStellar?.()}
-                onConnectEvm={connectEvm}
-                onConnectSolana={connectSolana}
-                onDisconnectStellar={disconnectStellar}
-                onDisconnectEvm={disconnectEvm}
-                onDisconnectSolana={disconnectEvm}
-              />
-              <SlippageSettings
-                slippageBps={agg.slippageBps}
-                setSlippageBps={agg.setSlippageBps}
-                enabledProtocols={agg.enabledProtocols}
-                toggleProtocol={agg.toggleProtocol}
-              />
-            </div>
-          </div>
 
-          {activeTab === "bridge" ? (
-            <div className="flex flex-col px-4 pb-4">
-              {/* Input/Output */}
-              <div
-                data-onborda="aggregator-inputs"
-                className="flex flex-col relative gap-2 leading-4"
-              >
-                {/* ── TOKEN IN ── */}
-                <div className="rounded-2xl p-4 pb-[15px]" style={{ background: C.sectionBg }}>
-                  <div className="grid grid-cols-9 gap-2 items-center h-7">
-                    <label
-                      className="col-span-5 text-base font-normal leading-5"
-                      style={{ color: C.mutedText }}
-                    >
-                      You pay
-                    </label>
-                    <div className="col-span-4 justify-self-end">
-                      <AddressPicker
-                        direction="source"
-                        chainType={chainTypeIn}
-                        selectedAddress={sourceAddress || null}
-                        onSelect={(addr) => addrStore.setSelectedSource(addr)}
-                        stellarAddress={stellarAddress}
-                        evmAddress={evmAddress}
-                        solanaAddress={solanaAddress}
-                        onConnectWallet={
-                          isSourceStellar
-                            ? () => connectStellar?.()
-                            : isSourceSolana
-                              ? connectSolana
-                              : connectEvm
-                        }
-                        onDisconnectStellar={disconnectStellar}
-                        onDisconnectEvm={disconnectEvm}
-                      />
+            {activeTab === "bridge" ? (
+              <div className="flex flex-col px-4 pb-4">
+                {/* Input/Output */}
+                <div
+                  data-onborda="aggregator-inputs"
+                  className="flex flex-col relative gap-2 leading-4"
+                >
+                  {/* ── TOKEN IN ── */}
+                  <div className="rounded-2xl p-4 pb-[15px]" style={{ background: C.sectionBg }}>
+                    <div className="grid grid-cols-9 gap-2 items-center h-7">
+                      <label
+                        className="col-span-5 text-base font-normal leading-5"
+                        style={{ color: C.mutedText }}
+                      >
+                        You pay
+                      </label>
+                      <div className="col-span-4 justify-self-end">
+                        <AddressPicker
+                          direction="source"
+                          chainType={chainTypeIn}
+                          selectedAddress={sourceAddress || null}
+                          onSelect={(addr) => addrStore.setSelectedSource(addr)}
+                          stellarAddress={stellarAddress}
+                          evmAddress={evmAddress}
+                          solanaAddress={solanaAddress}
+                          onConnectWallet={
+                            isSourceStellar
+                              ? () => connectStellar?.()
+                              : isSourceSolana
+                                ? connectSolana
+                                : connectEvm
+                          }
+                          onDisconnectStellar={disconnectStellar}
+                          onDisconnectEvm={disconnectEvm}
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-[10px] grid grid-cols-[1fr_auto] gap-1 w-full">
+                      <div className="min-w-0 overflow-hidden">
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          autoComplete="off"
+                          placeholder="0"
+                          value={agg.amount}
+                          onChange={(e) => {
+                            if (/^[0-9]*[.,]?[0-9]*$/.test(e.target.value)) {
+                              hasUserInteracted.current = true;
+                              agg.setAmount(e.target.value);
+                            }
+                          }}
+                          className="w-full bg-transparent text-[28px] leading-[34px] font-normal focus:outline-none truncate"
+                          style={{ color: C.mainText }}
+                        />
+                        <div className="flex items-center mt-0.5 h-5 gap-1.5">
+                          <span
+                            className="text-sm font-medium leading-5"
+                            style={{ color: C.mutedText }}
+                          >
+                            {inputAmount > 0 && tokenInPrice > 0
+                              ? formatUsdCompact(inputUsd)
+                              : "$0"}
+                          </span>
+                          {tokenInBalance != null && (
+                            <>
+                              <span className="text-sm leading-5" style={{ color: C.dimText }}>
+                                |
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => agg.setAmount(String(tokenInBalance.balance))}
+                                className="text-sm font-medium leading-5 underline decoration-dotted underline-offset-2 hover:opacity-80 transition-opacity cursor-pointer"
+                                style={{ color: C.dimText }}
+                                title="Use max balance"
+                              >
+                                Balance: {formatBalanceShort(tokenInBalance.balance)}{" "}
+                                {agg.tokenIn?.symbol ?? ""}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="justify-self-end self-start">
+                        <AggregatorTokenPicker
+                          selectedToken={agg.tokenIn}
+                          selectedChain={agg.chainIn}
+                          tokens={tokensForIn}
+                          chains={chainsForIn}
+                          allChains={agg.chains}
+                          onSelect={(token, chain) => {
+                            hasUserInteracted.current = true;
+                            agg.setTokenIn(token, chain);
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-[10px] grid grid-cols-[1fr_auto] gap-1 w-full">
-                    <div className="min-w-0 overflow-hidden">
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        autoComplete="off"
-                        placeholder="0"
-                        value={agg.amount}
-                        onChange={(e) => {
-                          if (/^[0-9]*[.,]?[0-9]*$/.test(e.target.value)) {
-                            hasUserInteracted.current = true;
-                            agg.setAmount(e.target.value);
+
+                  {/* ── SWAP ── */}
+                  <div className="flex justify-center -my-2 relative z-10">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        hasUserInteracted.current = true;
+                        agg.swapDirection();
+                        cycleSwap();
+                      }}
+                      className="rounded-lg h-9 w-9 flex items-center justify-center transition-colors hover:brightness-125"
+                      style={{ background: C.interactive }}
+                    >
+                      <motion.div
+                        animate={swapAnim}
+                        transition={{ duration: 0.3 }}
+                        className="flex items-center justify-center"
+                      >
+                        <ArrowUpDown className="h-5 w-5" style={{ color: C.mutedText }} />
+                      </motion.div>
+                    </button>
+                  </div>
+
+                  {/* ── TOKEN OUT ── */}
+                  <div className="rounded-2xl p-4 pb-[15px]" style={{ background: C.sectionBg }}>
+                    <div className="grid grid-cols-9 gap-2 items-center h-7">
+                      <label
+                        className="col-span-5 text-base font-normal leading-5"
+                        style={{ color: C.mutedText }}
+                      >
+                        You receive
+                      </label>
+                      <div className="col-span-4 justify-self-end">
+                        <AddressPicker
+                          direction="dest"
+                          chainType={chainTypeOut}
+                          selectedAddress={
+                            // Only show dest address if it matches the dest chain type
+                            chainTypeOut === "stellar" && agg.destAddress?.startsWith("G")
+                              ? agg.destAddress
+                              : chainTypeOut === "evm" && agg.destAddress?.startsWith("0x")
+                                ? agg.destAddress
+                                : chainTypeOut === "solana" &&
+                                    agg.destAddress &&
+                                    !agg.destAddress.startsWith("G") &&
+                                    !agg.destAddress.startsWith("0x")
+                                  ? agg.destAddress
+                                  : null
                           }
-                        }}
-                        className="w-full bg-transparent text-[28px] leading-[34px] font-normal focus:outline-none truncate"
-                        style={{ color: C.mainText }}
-                      />
-                      <div className="flex items-center mt-0.5 h-5 gap-1.5">
-                        <span
-                          className="text-sm font-medium leading-5"
-                          style={{ color: C.mutedText }}
-                        >
-                          {inputAmount > 0 && tokenInPrice > 0 ? formatUsdCompact(inputUsd) : "$0"}
-                        </span>
-                        {tokenInBalance != null && (
+                          onSelect={(addr) => {
+                            addrStore.setSelectedDest(addr);
+                            agg.setDestAddress(addr);
+                          }}
+                          stellarAddress={stellarAddress}
+                          evmAddress={evmAddress}
+                          solanaAddress={solanaAddress}
+                          onConnectWallet={
+                            chainTypeOut === "stellar"
+                              ? () => connectStellar?.()
+                              : chainTypeOut === "solana"
+                                ? connectSolana
+                                : connectEvm
+                          }
+                          onDisconnectStellar={disconnectStellar}
+                          onDisconnectEvm={disconnectEvm}
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-[10px] grid grid-cols-[1fr_auto] gap-1 w-full">
+                      <div className="min-w-0 overflow-hidden">
+                        {agg.isLoadingQuotes ? (
+                          <div className="space-y-2 pt-1">
+                            <div
+                              className="h-[34px] w-32 rounded-lg animate-pulse"
+                              style={{ background: C.interactive, opacity: 0.4 }}
+                            />
+                            <div
+                              className="h-5 w-16 rounded animate-pulse"
+                              style={{ background: C.interactive, opacity: 0.4 }}
+                            />
+                          </div>
+                        ) : (
                           <>
-                            <span className="text-sm leading-5" style={{ color: C.dimText }}>|</span>
-                            <button
-                              type="button"
-                              onClick={() => agg.setAmount(String(tokenInBalance.balance))}
-                              className="text-sm font-medium leading-5 underline decoration-dotted underline-offset-2 hover:opacity-80 transition-opacity cursor-pointer"
-                              style={{ color: C.dimText }}
-                              title="Use max balance"
+                            <p
+                              className="text-[28px] leading-[34px] font-normal truncate"
+                              style={{ color: C.mainText }}
                             >
-                              Balance: {formatBalanceShort(tokenInBalance.balance)} {agg.tokenIn?.symbol ?? ""}
-                            </button>
+                              {selectedQuote?.status === "ok"
+                                ? formatAmount(selectedQuote.amountOut, agg.tokenOut?.decimals ?? 7)
+                                : "0"}
+                            </p>
+                            <span
+                              className="text-sm font-medium leading-5 mt-0.5 block h-5"
+                              style={{ color: C.mutedText }}
+                            >
+                              {outputAmount > 0 && tokenOutPrice > 0
+                                ? formatUsdCompact(outputUsd)
+                                : "$0"}
+                            </span>
                           </>
                         )}
                       </div>
-                    </div>
-                    <div className="justify-self-end self-start">
-                      <AggregatorTokenPicker
-                        selectedToken={agg.tokenIn}
-                        selectedChain={agg.chainIn}
-                        tokens={tokensForIn}
-                        chains={chainsForIn}
-                        allChains={agg.chains}
-                        onSelect={(token, chain) => {
-                          hasUserInteracted.current = true;
-                          agg.setTokenIn(token, chain);
-                        }}
-                      />
+                      <div className="justify-self-end self-start">
+                        <AggregatorTokenPicker
+                          selectedToken={agg.tokenOut}
+                          selectedChain={agg.chainOut}
+                          tokens={tokensForOut}
+                          chains={chainsForOut}
+                          allChains={agg.chains}
+                          onSelect={(token, chain) => {
+                            hasUserInteracted.current = true;
+                            agg.setTokenOut(token, chain);
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* ── SWAP ── */}
-                <div className="flex justify-center -my-2 relative z-10">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      hasUserInteracted.current = true;
-                      agg.swapDirection();
-                      cycleSwap();
-                    }}
-                    className="rounded-lg h-9 w-9 flex items-center justify-center transition-colors hover:brightness-125"
-                    style={{ background: C.interactive }}
+                {/* ── Best quote summary (above CTA, like reference image) ── */}
+                {selectedQuote?.status === "ok" && !agg.isLoadingQuotes && (
+                  <div
+                    className="rounded-2xl px-3.5 py-3 text-sm mt-3"
+                    style={{ background: C.sectionBg }}
                   >
-                    <motion.div
-                      animate={swapAnim}
-                      transition={{ duration: 0.3 }}
-                      className="flex items-center justify-center"
-                    >
-                      <ArrowUpDown className="h-5 w-5" style={{ color: C.mutedText }} />
-                    </motion.div>
-                  </button>
-                </div>
-
-                {/* ── TOKEN OUT ── */}
-                <div className="rounded-2xl p-4 pb-[15px]" style={{ background: C.sectionBg }}>
-                  <div className="grid grid-cols-9 gap-2 items-center h-7">
-                    <label
-                      className="col-span-5 text-base font-normal leading-5"
-                      style={{ color: C.mutedText }}
-                    >
-                      You receive
-                    </label>
-                    <div className="col-span-4 justify-self-end">
-                      <AddressPicker
-                        direction="dest"
-                        chainType={chainTypeOut}
-                        selectedAddress={
-                          // Only show dest address if it matches the dest chain type
-                          chainTypeOut === "stellar" && agg.destAddress?.startsWith("G")
-                            ? agg.destAddress
-                            : chainTypeOut === "evm" && agg.destAddress?.startsWith("0x")
-                              ? agg.destAddress
-                              : chainTypeOut === "solana" &&
-                                  agg.destAddress &&
-                                  !agg.destAddress.startsWith("G") &&
-                                  !agg.destAddress.startsWith("0x")
-                                ? agg.destAddress
-                                : null
-                        }
-                        onSelect={(addr) => {
-                          addrStore.setSelectedDest(addr);
-                          agg.setDestAddress(addr);
-                        }}
-                        stellarAddress={stellarAddress}
-                        evmAddress={evmAddress}
-                        solanaAddress={solanaAddress}
-                        onConnectWallet={
-                          chainTypeOut === "stellar"
-                            ? () => connectStellar?.()
-                            : chainTypeOut === "solana"
-                              ? connectSolana
-                              : connectEvm
-                        }
-                        onDisconnectStellar={disconnectStellar}
-                        onDisconnectEvm={disconnectEvm}
-                      />
-                    </div>
-                  </div>
-                  <div className="mt-[10px] grid grid-cols-[1fr_auto] gap-1 w-full">
-                    <div className="min-w-0 overflow-hidden">
-                      {agg.isLoadingQuotes ? (
-                        <div className="space-y-2 pt-1">
-                          <div
-                            className="h-[34px] w-32 rounded-lg animate-pulse"
-                            style={{ background: C.interactive, opacity: 0.4 }}
-                          />
-                          <div
-                            className="h-5 w-16 rounded animate-pulse"
-                            style={{ background: C.interactive, opacity: 0.4 }}
-                          />
-                        </div>
-                      ) : (
-                        <>
-                          <p
-                            className="text-[28px] leading-[34px] font-normal truncate"
-                            style={{ color: C.mainText }}
-                          >
-                            {selectedQuote?.status === "ok"
-                              ? formatAmount(selectedQuote.amountOut, agg.tokenOut?.decimals ?? 7)
-                              : "0"}
-                          </p>
-                          <span
-                            className="text-sm font-medium leading-5 mt-0.5 block h-5"
-                            style={{ color: C.mutedText }}
-                          >
-                            {outputAmount > 0 && tokenOutPrice > 0
-                              ? formatUsdCompact(outputUsd)
-                              : "$0"}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    <div className="justify-self-end self-start">
-                      <AggregatorTokenPicker
-                        selectedToken={agg.tokenOut}
-                        selectedChain={agg.chainOut}
-                        tokens={tokensForOut}
-                        chains={chainsForOut}
-                        allChains={agg.chains}
-                        onSelect={(token, chain) => {
-                          hasUserInteracted.current = true;
-                          agg.setTokenOut(token, chain);
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Best quote summary (above CTA, like reference image) ── */}
-              {selectedQuote?.status === "ok" && !agg.isLoadingQuotes && (
-                <div
-                  className="rounded-2xl px-3.5 py-3 text-sm mt-3"
-                  style={{ background: C.sectionBg }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5" style={{ color: C.dimText }}>
-                      <Info className="h-3.5 w-3.5" /> Fee
-                    </span>
-                    <span style={{ color: C.mutedText }}>
-                      {formatAmount(selectedQuote.fee, agg.tokenIn?.decimals ?? 7)} {agg.tokenIn?.symbol ?? ""} ({selectedQuote.feePercent})
-                    </span>
-                  </div>
-                  {selectedQuote.gasFee && (
-                    <div className="flex items-center justify-between mt-1.5">
+                    <div className="flex items-center justify-between">
                       <span className="flex items-center gap-1.5" style={{ color: C.dimText }}>
-                        <Info className="h-3.5 w-3.5" /> Gas fee
+                        <Info className="h-3.5 w-3.5" /> Fee
                       </span>
                       <span style={{ color: C.mutedText }}>
-                        {selectedQuote.gasFee} {selectedQuote.gasFeeToken ?? ""}
+                        {formatAmount(selectedQuote.fee, agg.tokenIn?.decimals ?? 7)}{" "}
+                        {agg.tokenIn?.symbol ?? ""} ({selectedQuote.feePercent})
                       </span>
                     </div>
-                  )}
-                  <div className="flex items-center justify-between mt-1.5">
-                    <span className="flex items-center gap-1.5" style={{ color: C.dimText }}>
-                      <Clock className="h-3.5 w-3.5" /> Estimated time
-                    </span>
-                    <span style={{ color: C.mutedText }}>{selectedQuote.estimatedTime}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* ── Trustline Warning (shows all missing with individual buttons) ── */}
-              {agg.needsTrustline && agg.missingTrustlines.length > 0 && (
-                <div
-                  className="rounded-2xl p-4 mt-3 space-y-3"
-                  style={{ background: "var(--secondary)", border: "1px solid var(--border)" }}
-                >
-                  <p
-                    className="text-sm font-semibold flex items-center gap-1.5"
-                    style={{ color: "var(--foreground)" }}
-                  >
-                    <Info className="h-4 w-4" style={{ color: "var(--primary)" }} />
-                    Trustline{agg.missingTrustlines.length > 1 ? "s" : ""} missing
-                  </p>
-                  {agg.missingTrustlines.map((sym) => {
-                    const isSigning = agg.signingTrustline === sym;
-                    return (
-                      <div
-                        key={sym}
-                        className="flex items-center gap-3 rounded-xl p-3"
-                        style={{ background: "var(--input)" }}
-                      >
-                        <div className="flex flex-col flex-1 min-w-0">
-                          <span
-                            className="text-sm font-medium"
-                            style={{ color: "var(--foreground)" }}
-                          >
-                            {sym}
-                          </span>
-                          <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-                            {isSigning
-                              ? "Waiting for wallet signature..."
-                              : "Trustline required to receive"}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => agg.addTrustlineFor(sym)}
-                          disabled={agg.isAddingTrustline}
-                          className={`shrink-0 rounded-xl font-semibold px-4 py-2.5 text-xs transition-all active:scale-[0.98] relative overflow-hidden ${
-                            isSigning
-                              ? "bg-[var(--secondary)] text-[var(--muted-foreground)]"
-                              : "bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black"
-                          }`}
-                        >
-                          {isSigning ? (
-                            <span className="flex items-center gap-1.5">
-                              <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24">
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                  fill="none"
-                                />
-                                <path
-                                  className="opacity-75"
-                                  fill="currentColor"
-                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                                />
-                              </svg>
-                              Signing
-                            </span>
-                          ) : (
-                            "Add +"
-                          )}
-                        </button>
+                    {selectedQuote.gasFee && (
+                      <div className="flex items-center justify-between mt-1.5">
+                        <span className="flex items-center gap-1.5" style={{ color: C.dimText }}>
+                          <Info className="h-3.5 w-3.5" /> Gas fee
+                        </span>
+                        <span style={{ color: C.mutedText }}>
+                          {selectedQuote.gasFee} {selectedQuote.gasFeeToken ?? ""}
+                        </span>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    )}
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="flex items-center gap-1.5" style={{ color: C.dimText }}>
+                        <Clock className="h-3.5 w-3.5" /> Estimated time
+                      </span>
+                      <span style={{ color: C.mutedText }}>{selectedQuote.estimatedTime}</span>
+                    </div>
+                  </div>
+                )}
 
-              {/* ── CTA ── */}
-              <div data-onborda="aggregator-action" className="flex flex-col gap-2 mt-3">
-                {needsWallet ? (
-                  <button
-                    type="button"
-                    disabled={isUnsupportedChain}
-                    onClick={
-                      isUnsupportedChain
-                        ? undefined
-                        : needsSrcWallet
-                          ? isSourceStellar
-                            ? () => connectStellar?.()
-                            : isSourceSolana
-                              ? connectSolana
-                              : connectEvm
-                          : chainTypeOut === "stellar"
-                            ? () => connectStellar?.()
-                            : chainTypeOut === "solana"
-                              ? connectSolana
-                              : connectEvm
-                    }
-                    className={`w-full rounded-2xl font-bold py-4 text-base transition-all flex items-center justify-center gap-2 relative overflow-hidden ${
-                      isUnsupportedChain
-                        ? "cursor-not-allowed opacity-50"
-                        : "active:scale-[0.98] hover:scale-[1.02] bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black"
-                    }`}
-                    style={isUnsupportedChain ? { background: C.interactive, color: C.dimText } : undefined}
+                {/* ── Trustline Warning (shows all missing with individual buttons) ── */}
+                {agg.needsTrustline && agg.missingTrustlines.length > 0 && (
+                  <div
+                    className="rounded-2xl p-4 mt-3 space-y-3"
+                    style={{ background: "var(--secondary)", border: "1px solid var(--border)" }}
                   >
-                    {!isUnsupportedChain && <div className="absolute top-0 left-1/2 -translate-x-1/2 h-4 w-[50%] rounded-full bg-white/80 blur-xl" />}
-                    <Wallet className="h-5 w-5" strokeWidth={2} />
-                    <span>{isUnsupportedChain ? `${agg.chainIn === "tron" ? "Tron" : agg.chainIn} wallet not supported yet` : needsSrcWallet ? "Connect source wallet" : "Connect destination wallet"}</span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    disabled={
-                      !aggHasAmount ||
-                      !aggHasBothTokens ||
-                      !selectedProtocol ||
-                      agg.isExecuting ||
-                      agg.needsTrustline ||
-                      insufficientBalance
-                    }
-                    onClick={() =>
-                      selectedProtocol &&
-                      agg.executeSwap(selectedProtocol, {
-                        sourceAddress: sourceAddress || undefined,
-                        signSolana: isSourceSolana ? signSolanaTransaction : undefined,
-                        signEvm: isSourceEvm ? signEvmTransaction : undefined,
-                        allbridgeExecute: selectedProtocol === "allbridge" ? allbridgeExecute : undefined,
-                      })
-                    }
-                    className={`w-full rounded-2xl font-bold py-3.5 text-[15px] transition-all flex items-center justify-center gap-2 active:scale-[0.98] relative overflow-hidden ${
-                      agg.isExecuting
-                        ? "cursor-wait"
-                        : aggHasAmount &&
-                            selectedProtocol &&
-                            !agg.needsTrustline &&
-                            !insufficientBalance
-                          ? "bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black hover:scale-[1.02] hover:from-[#C5F0FF] hover:to-[#1CCFFF] cursor-pointer"
-                          : "cursor-not-allowed opacity-50"
-                    }`}
-                    style={
-                      agg.isExecuting
-                        ? { background: C.sectionBg, color: "var(--muted-foreground)" }
-                        : !(
-                              aggHasAmount &&
+                    <p
+                      className="text-sm font-semibold flex items-center gap-1.5"
+                      style={{ color: "var(--foreground)" }}
+                    >
+                      <Info className="h-4 w-4" style={{ color: "var(--primary)" }} />
+                      Trustline{agg.missingTrustlines.length > 1 ? "s" : ""} missing
+                    </p>
+                    {agg.missingTrustlines.map((sym) => {
+                      const isSigning = agg.signingTrustline === sym;
+                      return (
+                        <div
+                          key={sym}
+                          className="flex items-center gap-3 rounded-xl p-3"
+                          style={{ background: "var(--input)" }}
+                        >
+                          <div className="flex flex-col flex-1 min-w-0">
+                            <span
+                              className="text-sm font-medium"
+                              style={{ color: "var(--foreground)" }}
+                            >
+                              {sym}
+                            </span>
+                            <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                              {isSigning
+                                ? "Waiting for wallet signature..."
+                                : "Trustline required to receive"}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => agg.addTrustlineFor(sym)}
+                            disabled={agg.isAddingTrustline}
+                            className={`shrink-0 rounded-xl font-semibold px-4 py-2.5 text-xs transition-all active:scale-[0.98] relative overflow-hidden ${
+                              isSigning
+                                ? "bg-[var(--secondary)] text-[var(--muted-foreground)]"
+                                : "bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black"
+                            }`}
+                          >
+                            {isSigning ? (
+                              <span className="flex items-center gap-1.5">
+                                <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24">
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                    fill="none"
+                                  />
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                                  />
+                                </svg>
+                                Signing
+                              </span>
+                            ) : (
+                              "Add +"
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* ── CTA ── */}
+                <div data-onborda="aggregator-action" className="flex flex-col gap-2 mt-3">
+                  {needsWallet ? (
+                    <button
+                      type="button"
+                      disabled={isUnsupportedChain}
+                      onClick={
+                        isUnsupportedChain
+                          ? undefined
+                          : needsSrcWallet
+                            ? isSourceStellar
+                              ? () => connectStellar?.()
+                              : isSourceSolana
+                                ? connectSolana
+                                : connectEvm
+                            : chainTypeOut === "stellar"
+                              ? () => connectStellar?.()
+                              : chainTypeOut === "solana"
+                                ? connectSolana
+                                : connectEvm
+                      }
+                      className={`w-full rounded-2xl font-bold py-4 text-base transition-all flex items-center justify-center gap-2 relative overflow-hidden ${
+                        isUnsupportedChain
+                          ? "cursor-not-allowed opacity-50"
+                          : "active:scale-[0.98] hover:scale-[1.02] bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black"
+                      }`}
+                      style={
+                        isUnsupportedChain
+                          ? { background: C.interactive, color: C.dimText }
+                          : undefined
+                      }
+                    >
+                      {!isUnsupportedChain && (
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-4 w-[50%] rounded-full bg-white/80 blur-xl" />
+                      )}
+                      <Wallet className="h-5 w-5" strokeWidth={2} />
+                      <span>
+                        {isUnsupportedChain
+                          ? `${agg.chainIn === "tron" ? "Tron" : agg.chainIn} wallet not supported yet`
+                          : needsSrcWallet
+                            ? "Connect source wallet"
+                            : "Connect destination wallet"}
+                      </span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={
+                        !aggHasAmount ||
+                        !aggHasBothTokens ||
+                        !selectedProtocol ||
+                        agg.isExecuting ||
+                        agg.needsTrustline ||
+                        insufficientBalance
+                      }
+                      onClick={() =>
+                        selectedProtocol &&
+                        agg.executeSwap(selectedProtocol, {
+                          sourceAddress: sourceAddress || undefined,
+                          signSolana: isSourceSolana ? signSolanaTransaction : undefined,
+                          signEvm: isSourceEvm ? signEvmTransaction : undefined,
+                          allbridgeExecute:
+                            selectedProtocol === "allbridge" ? allbridgeExecute : undefined,
+                        })
+                      }
+                      className={`w-full rounded-2xl font-bold py-3.5 text-[15px] transition-all flex items-center justify-center gap-2 active:scale-[0.98] relative overflow-hidden ${
+                        agg.isExecuting
+                          ? "cursor-wait"
+                          : aggHasAmount &&
                               selectedProtocol &&
                               !agg.needsTrustline &&
                               !insufficientBalance
-                            )
-                          ? { background: C.interactive, color: C.dimText }
-                          : undefined
-                    }
-                  >
-                    {aggHasAmount &&
-                      selectedProtocol &&
-                      !agg.isExecuting &&
-                      !agg.needsTrustline &&
-                      !insufficientBalance && (
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-4 w-[50%] rounded-full bg-white/80 blur-xl" />
-                      )}
-                    {agg.isExecuting
-                      ? "Signing..."
-                      : agg.needsTrustline
-                        ? "Add trustline first"
-                        : !aggHasAmount
-                          ? "Enter amount"
-                          : !aggHasBothTokens
-                            ? "Select tokens"
-                            : insufficientBalance
-                              ? "Insufficient balance"
-                              : !selectedProtocol
-                                ? "Select a route"
-                                : "Swap"}
-                  </button>
-                )}
+                            ? "bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black hover:scale-[1.02] hover:from-[#C5F0FF] hover:to-[#1CCFFF] cursor-pointer"
+                            : "cursor-not-allowed opacity-50"
+                      }`}
+                      style={
+                        agg.isExecuting
+                          ? { background: C.sectionBg, color: "var(--muted-foreground)" }
+                          : !(
+                                aggHasAmount &&
+                                selectedProtocol &&
+                                !agg.needsTrustline &&
+                                !insufficientBalance
+                              )
+                            ? { background: C.interactive, color: C.dimText }
+                            : undefined
+                      }
+                    >
+                      {aggHasAmount &&
+                        selectedProtocol &&
+                        !agg.isExecuting &&
+                        !agg.needsTrustline &&
+                        !insufficientBalance && (
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 h-4 w-[50%] rounded-full bg-white/80 blur-xl" />
+                        )}
+                      {agg.isExecuting
+                        ? "Signing..."
+                        : agg.needsTrustline
+                          ? "Add trustline first"
+                          : !aggHasAmount
+                            ? "Enter amount"
+                            : !aggHasBothTokens
+                              ? "Select tokens"
+                              : insufficientBalance
+                                ? "Insufficient balance"
+                                : !selectedProtocol
+                                  ? "Select a route"
+                                  : "Swap"}
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ) : (
-            /* ── EXCHANGE TAB (Deposit from CEX) ── */
-            <ExchangeTab stellarAddress={stellarAddress} />
-          )}
-        </BorderGlow>
+            ) : (
+              /* ── EXCHANGE TAB (Deposit from CEX) ── */
+              <ExchangeTab stellarAddress={stellarAddress} />
+            )}
+          </BorderGlow>
         </div>
 
         {/* ══════════════════════════════════════════════════════════ */}

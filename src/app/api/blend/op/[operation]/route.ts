@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getBlendClient } from "../../_sdk";
 
 const VALID_OPERATIONS = [
@@ -26,14 +26,17 @@ type OpName = (typeof VALID_OPERATIONS)[number];
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ operation: string }> },
+  { params }: { params: Promise<{ operation: string }> }
 ) {
   const { operation } = await params;
 
   if (!VALID_OPERATIONS.includes(operation as OpName)) {
     return NextResponse.json(
-      { success: false, error: `Invalid operation: ${operation}. Valid: ${VALID_OPERATIONS.join(", ")}` },
-      { status: 400 },
+      {
+        success: false,
+        error: `Invalid operation: ${operation}. Valid: ${VALID_OPERATIONS.join(", ")}`,
+      },
+      { status: 400 }
     );
   }
 
@@ -62,7 +65,7 @@ export async function POST(
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Operation failed" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }
@@ -72,7 +75,7 @@ export async function POST(
 async function buildTx(
   sdk: ReturnType<typeof getBlendClient>,
   operation: OpName,
-  body: Record<string, string>,
+  body: Record<string, string>
 ) {
   const required = (field: string): string => {
     const value = body[field];

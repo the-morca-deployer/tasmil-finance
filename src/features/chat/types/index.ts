@@ -10,7 +10,7 @@ export type {
   SubmitType,
 } from "../thread/agent-inbox/types";
 export * from "./agent.types";
+export * from "./flow-messages";
 export * from "./message.types";
 export * from "./stream.types";
 export * from "./thread.types";
-export * from "./flow-messages";

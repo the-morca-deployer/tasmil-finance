@@ -1,12 +1,16 @@
-import { NextRequest } from "next/server";
-import { getClient, isValidProtocol, jsonError, getNetwork } from "../../_sdk";
+import type { NextRequest } from "next/server";
+import { getClient, getNetwork, isValidProtocol, jsonError } from "../../_sdk";
 
 const SUPPORTS_MARKETS = new Set(["blend", "templar"]);
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ protocol: string }> }) {
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ protocol: string }> }
+) {
   const { protocol } = await params;
   if (!isValidProtocol(protocol)) return jsonError(`Unknown protocol: ${protocol}`, 404);
-  if (!SUPPORTS_MARKETS.has(protocol)) return jsonError(`${protocol} does not support lending markets`);
+  if (!SUPPORTS_MARKETS.has(protocol))
+    return jsonError(`${protocol} does not support lending markets`);
 
   try {
     const sdk = getClient();

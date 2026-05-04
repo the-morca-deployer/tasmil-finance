@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { createTasmilClient } from "@tasmil/adapter-sdk";
+import { type NextRequest, NextResponse } from "next/server";
 import { STELLAR_NETWORK } from "@/shared/config/stellar-server";
 
 const SCALAR_7 = 10_000_000;
@@ -97,10 +97,10 @@ export async function GET(req: NextRequest) {
       let sharePct = 0;
       let pooled0: string | undefined;
       let pooled1: string | undefined;
-      const reserves = Array.isArray(pool.reserves) ? pool.reserves as string[] : [];
+      const reserves = Array.isArray(pool.reserves) ? (pool.reserves as string[]) : [];
 
       if (totalShare > 0) {
-        const totalShareHuman = totalShare / Math.pow(10, shareDecimals);
+        const totalShareHuman = totalShare / 10 ** shareDecimals;
         sharePct = (humanShares / totalShareHuman) * 100;
 
         if (reserves.length >= 2) {
@@ -117,9 +117,10 @@ export async function GET(req: NextRequest) {
       const rewardsApy = parseFloat(String(pool.rewards_apy ?? 0));
 
       // Rewards from Soroban contract
-      const posRewards = pool.rewards && pool.rewards.toClaim > 0
-        ? { amount: pool.rewards.toClaim, token: "AQUA", daily: pool.rewards.dailyReward }
-        : undefined;
+      const posRewards =
+        pool.rewards && pool.rewards.toClaim > 0
+          ? { amount: pool.rewards.toClaim, token: "AQUA", daily: pool.rewards.dailyReward }
+          : undefined;
 
       return {
         name: `${name} LP`,
@@ -136,7 +137,12 @@ export async function GET(req: NextRequest) {
           pooled1,
           shares: humanShares.toLocaleString("en-US", { maximumFractionDigits: 4 }),
           sharePct: sharePct.toFixed(7),
-          poolType: poolType === "stable" ? "Stable" : poolType === "concentrated" ? "Concentrated" : "Volatile",
+          poolType:
+            poolType === "stable"
+              ? "Stable"
+              : poolType === "concentrated"
+                ? "Concentrated"
+                : "Volatile",
           fee: fee > 0 ? `${fee.toFixed(2)}%` : undefined,
         },
       };
@@ -144,7 +150,15 @@ export async function GET(req: NextRequest) {
 
     const groups: ProtocolPositionGroup[] =
       items.length > 0
-        ? [{ protocol: "aquarius", displayName: "Aquarius AMM", icon: null, totalValueUsd: 0, positions: items }]
+        ? [
+            {
+              protocol: "aquarius",
+              displayName: "Aquarius AMM",
+              icon: null,
+              totalValueUsd: 0,
+              positions: items,
+            },
+          ]
         : [];
 
     return NextResponse.json({ success: true, groups });
@@ -152,7 +166,7 @@ export async function GET(req: NextRequest) {
     console.error("[api/positions/aquarius]", e);
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Failed to fetch positions" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

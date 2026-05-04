@@ -1,7 +1,7 @@
 "use client";
 
-import { MultiSidebarLayout } from "@/shared/layout/multi-sidebar-layout";
 import { EvmWalletProvider } from "@/features/aggregator/providers/evm-wallet-provider";
+import { MultiSidebarLayout } from "@/shared/layout/multi-sidebar-layout";
 
 export default function AggregatorLayout({ children }: { children: React.ReactNode }) {
   return (

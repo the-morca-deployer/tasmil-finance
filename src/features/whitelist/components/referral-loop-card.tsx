@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, TrendingUp } from "lucide-react";
+import { TrendingUp, Users } from "lucide-react";
 import { Typography } from "@/shared/ui/typography";
 
 export function ReferralLoopCard() {
@@ -13,8 +13,8 @@ export function ReferralLoopCard() {
         Climb the queue with referrals
       </Typography>
       <Typography variant="p" className="mb-4 text-sm leading-6 text-muted-foreground">
-        Every friend who connects their wallet using your link moves you up. The more
-        successful referrals, the higher you rank.
+        Every friend who connects their wallet using your link moves you up. The more successful
+        referrals, the higher you rank.
       </Typography>
 
       <div className="space-y-3">

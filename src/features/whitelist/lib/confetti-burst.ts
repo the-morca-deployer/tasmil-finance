@@ -7,8 +7,6 @@ export function fireConfettiBurst(originEl: HTMLElement): void {
   if (typeof window === "undefined") return;
 
   const rect = originEl.getBoundingClientRect();
-  
-  
 
   const canvas = document.createElement("canvas");
   canvas.style.cssText = `
@@ -19,10 +17,9 @@ export function fireConfettiBurst(originEl: HTMLElement): void {
   document.body.appendChild(canvas);
 
   const ctx = canvas.getContext("2d")!;
-  
+
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  
 
   const particleCount = 12;
   const particles: Particle[] = [];

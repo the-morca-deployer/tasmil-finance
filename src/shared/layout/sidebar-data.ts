@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Bot, Droplets, Home, Tractor, Wallet, KeyRound, Mail } from "lucide-react";
+import { ArrowLeftRight, Bot, Droplets, Home, KeyRound, Mail, Tractor, Wallet } from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -115,7 +115,6 @@ const _sidebarData: SidebarData = {
         },
       ],
     },
-
   ],
 };
 
@@ -138,9 +137,7 @@ export const adminSidebarData: SidebarData = {
   navGroups: [
     {
       title: "Overview",
-      items: [
-        { title: "Dashboard", url: "/admin/dashboard", icon: Home },
-      ],
+      items: [{ title: "Dashboard", url: "/admin/dashboard", icon: Home }],
     },
     {
       title: "Waitlist",

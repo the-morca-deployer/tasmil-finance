@@ -3,8 +3,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronUp, RefreshCw, SparkleIcon } from "lucide-react";
 import { memo, useCallback, useEffect, useState } from "react";
-import { getAgentConfig, getAgentSuggestions } from "../config";
 import { Button } from "@/shared/ui/button";
+import { getAgentConfig, getAgentSuggestions } from "../config";
 import { Suggestion } from "./suggestion";
 
 type SuggestedActionsProps = {

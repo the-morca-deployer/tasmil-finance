@@ -126,7 +126,7 @@ test.describe("Strategies (/strategies)", () => {
   test("Network error shows error", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/strategies**", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/strategies**", (route) => route.fulfill({ status: 503 }));
     await page.goto("/strategies");
     await page.waitForTimeout(3000);
     const content = await page.content();

@@ -1,10 +1,10 @@
+import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
 import { ZodError } from "zod";
+import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
 import { FlowMessageRouter } from "@/features/chat/components/flow/flow-message-router";
 import { OptionCard } from "@/features/chat/components/flow/option-card";
 import { PlanPreviewCard } from "@/features/chat/components/flow/plan-preview-card";
-import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
 import { SuggestedPrompts } from "@/features/chat/components/suggested-prompts";
 import { assistantFlowMessageSchema } from "@/features/chat/schemas/flow-messages.schema";
 import type {
@@ -101,9 +101,7 @@ describe("E2E: Full clarify → select → plan_preview → confirm flow", () =>
   it("renders FlowMessageRouter with clarify message showing question and 3 suggestion rows", () => {
     render(<FlowMessageRouter message={clarifyMessage} />);
 
-    expect(
-      screen.getByText("Which pool do you want to deposit into?"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Which pool do you want to deposit into?")).toBeInTheDocument();
 
     const buttons = screen.getAllByRole("button");
     expect(buttons).toHaveLength(3);
@@ -115,9 +113,7 @@ describe("E2E: Full clarify → select → plan_preview → confirm flow", () =>
 
   it("clicking a suggestion row fires onOptionSelect with the correct value", () => {
     const onOptionSelect = jest.fn();
-    render(
-      <FlowMessageRouter message={clarifyMessage} onOptionSelect={onOptionSelect} />,
-    );
+    render(<FlowMessageRouter message={clarifyMessage} onOptionSelect={onOptionSelect} />);
 
     fireEvent.click(screen.getByText("Soroswap XLM/USDC"));
 
@@ -130,11 +126,7 @@ describe("E2E: Full clarify → select → plan_preview → confirm flow", () =>
 
   it("renders plan_preview with step allocation, APY, and gas", () => {
     render(
-      <FlowMessageRouter
-        message={planPreviewMessage}
-        onConfirm={jest.fn()}
-        onCancel={jest.fn()}
-      />,
+      <FlowMessageRouter message={planPreviewMessage} onConfirm={jest.fn()} onCancel={jest.fn()} />
     );
 
     expect(screen.getByText("Plan Preview")).toBeInTheDocument();
@@ -148,11 +140,7 @@ describe("E2E: Full clarify → select → plan_preview → confirm flow", () =>
   it("clicking Confirm & Sign fires onConfirm callback", () => {
     const onConfirm = jest.fn();
     render(
-      <FlowMessageRouter
-        message={planPreviewMessage}
-        onConfirm={onConfirm}
-        onCancel={jest.fn()}
-      />,
+      <FlowMessageRouter message={planPreviewMessage} onConfirm={onConfirm} onCancel={jest.fn()} />
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Confirm & Sign" }));
@@ -203,11 +191,7 @@ describe("E2E: Multi-step plan rendering", () => {
 
   it("renders both allocations with protocol and amount", () => {
     render(
-      <FlowMessageRouter
-        message={multiStepMessage}
-        onConfirm={jest.fn()}
-        onCancel={jest.fn()}
-      />,
+      <FlowMessageRouter message={multiStepMessage} onConfirm={jest.fn()} onCancel={jest.fn()} />
     );
 
     expect(screen.getByText("400 USDC → Blend (14.2%)")).toBeInTheDocument();
@@ -216,11 +200,7 @@ describe("E2E: Multi-step plan rendering", () => {
 
   it("displays weighted APY across all allocations", () => {
     render(
-      <FlowMessageRouter
-        message={multiStepMessage}
-        onConfirm={jest.fn()}
-        onCancel={jest.fn()}
-      />,
+      <FlowMessageRouter message={multiStepMessage} onConfirm={jest.fn()} onCancel={jest.fn()} />
     );
 
     // 1400 bps = 14.0%
@@ -229,11 +209,7 @@ describe("E2E: Multi-step plan rendering", () => {
 
   it("shows idle amount (200 USDC idle)", () => {
     render(
-      <FlowMessageRouter
-        message={multiStepMessage}
-        onConfirm={jest.fn()}
-        onCancel={jest.fn()}
-      />,
+      <FlowMessageRouter message={multiStepMessage} onConfirm={jest.fn()} onCancel={jest.fn()} />
     );
 
     expect(screen.getByText("200 USDC idle")).toBeInTheDocument();
@@ -252,7 +228,7 @@ describe("E2E: Execution status flow", () => {
           total_steps: 2,
           status: "submitting",
         }}
-      />,
+      />
     );
 
     expect(screen.getByText(/Submitting step 1 of 2/)).toBeInTheDocument();
@@ -268,7 +244,7 @@ describe("E2E: Execution status flow", () => {
           status: "confirmed",
           tx_hash: "abc123def456ghi789jkl012",
         }}
-      />,
+      />
     );
 
     expect(screen.getByText("Step 1 confirmed.")).toBeInTheDocument();
@@ -277,7 +253,7 @@ describe("E2E: Execution status flow", () => {
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute(
       "href",
-      "https://stellar.expert/explorer/public/tx/abc123def456ghi789jkl012",
+      "https://stellar.expert/explorer/public/tx/abc123def456ghi789jkl012"
     );
   });
 
@@ -290,7 +266,7 @@ describe("E2E: Execution status flow", () => {
           total_steps: 2,
           status: "submitting",
         }}
-      />,
+      />
     );
 
     expect(screen.getByText("Step 1 confirmed.")).toBeInTheDocument();
@@ -307,7 +283,7 @@ describe("E2E: Execution status flow", () => {
           status: "confirmed",
           tx_hash: "finalhash12345678",
         }}
-      />,
+      />
     );
 
     const doneText = screen.getByText("Done. Position opened.");
@@ -330,9 +306,7 @@ describe("E2E: Error recovery", () => {
     render(<FlowMessageRouter message={errorMessage} onRetry={jest.fn()} />);
 
     expect(screen.getByText("TX_SIMULATION_FAILED")).toBeInTheDocument();
-    expect(
-      screen.getByText("Transaction simulation failed: pool is paused"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Transaction simulation failed: pool is paused")).toBeInTheDocument();
   });
 
   it("shows Retry button when retry_possible is true and onRetry is provided", () => {
@@ -455,7 +429,7 @@ describe("E2E: Zod schema validation of all message types", () => {
           warnings: [],
           simulated_at_ledger: 100,
         },
-      }),
+      })
     ).toThrow(ZodError);
   });
 
@@ -488,7 +462,7 @@ describe("E2E: Zod schema validation of all message types", () => {
           warnings: [],
           simulated_at_ledger: 100,
         },
-      }),
+      })
     ).toThrow(ZodError);
   });
 
@@ -527,9 +501,7 @@ describe("E2E: Zod schema validation of all message types", () => {
       { kind: "execution_update", step: 1, total_steps: 1, status: "submitting" },
       {
         kind: "position_update",
-        positions: [
-          { deposit: "100", venue: "v", protocol: "p", apy_bps: 100, tx_hash: "h" },
-        ],
+        positions: [{ deposit: "100", venue: "v", protocol: "p", apy_bps: 100, tx_hash: "h" }],
       },
       { kind: "error", code: "E", message: "m", retry_possible: false },
     ] as const;

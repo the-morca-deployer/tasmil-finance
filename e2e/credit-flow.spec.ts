@@ -1,4 +1,6 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+import { type AuthedSession, freshWallet, loginAsWallet } from "./helpers/auth";
+import { applyCreditDelta } from "./helpers/backend";
 
 /**
  * Credit-flow e2e — exercises the full credit mechanic redesigned in
@@ -12,87 +14,10 @@ import { expect, test, type Page } from "@playwright/test";
  * Skips on production where /api/auth/wallet/test-login is disabled.
  */
 
-const BACKEND = process.env.PLAYWRIGHT_BACKEND_URL ?? "http://localhost:6756";
-const SERVICE_KEY = process.env.AI_INTERNAL_SHARED_TOKEN ?? "test-shared-token";
-
-interface AuthedSession {
-  walletAddress: string;
-  jwt: string;
-  userId: string;
-}
-
-function freshWallet(): string {
-  // Stellar pubkeys start with 'G' and are 56 chars total. test-login only
-  // checks length >= 4 so any prefix-padded string works.
-  const stamp = `${Date.now()}${Math.floor(Math.random() * 1_000_000)}`;
-  return `GE2ECREDITFLOW${stamp}`.padEnd(56, "0").slice(0, 56);
-}
-
-async function loginAsWallet(page: Page, walletAddress: string): Promise<AuthedSession> {
-  const response = await page.request.post(`${BACKEND}/api/auth/wallet/test-login`, {
-    data: { walletAddress },
-  });
-  if (!response.ok()) {
-    throw new Error(`test-login failed ${response.status()}: ${await response.text()}`);
-  }
-  const body = await response.json();
-  const jwt: string = body?.data?.accessToken ?? body?.accessToken;
-  const userId: string = body?.data?.user?.id ?? body?.user?.id;
-  expect(jwt).toBeTruthy();
-  expect(userId).toBeTruthy();
-
-  await page.addInitScript(
-    ({ walletAddress, jwt }) => {
-      localStorage.setItem(
-        "auth-storage",
-        JSON.stringify({
-          state: {
-            isAuthenticated: true,
-            accessToken: jwt,
-            user: {
-              id: walletAddress,
-              walletAddress,
-              type: "regular",
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-            isLoading: false,
-            expiresAt: Date.now() + 60 * 60 * 1000,
-          },
-          version: 0,
-        }),
-      );
-      localStorage.setItem(
-        "wallet-storage",
-        JSON.stringify({ state: { account: walletAddress }, version: 0 }),
-      );
-    },
-    { walletAddress, jwt },
-  );
-
-  return { walletAddress, jwt, userId };
-}
-
-async function applyCreditDelta(args: {
-  userId: string;
-  reason: string;
-  deltaCredits: number;
-  idempotencyKey: string;
-}): Promise<void> {
-  const res = await fetch(`${BACKEND}/api/internal/credit/apply`, {
-    method: "POST",
-    headers: { "x-service-key": SERVICE_KEY, "content-type": "application/json" },
-    body: JSON.stringify(args),
-  });
-  if (!res.ok) {
-    throw new Error(`credit/apply failed ${res.status}: ${await res.text()}`);
-  }
-}
-
 test.describe("Credit flow — welcome grant, chat debit, task bonus", () => {
   test.skip(
     process.env.NODE_ENV === "production",
-    "test-login is disabled on production, e2e runs on dev/staging only",
+    "test-login is disabled on production, e2e runs on dev/staging only"
   );
 
   test("Scenario 1: fresh wallet sign-in shows +200 welcome bonus", async ({ page }) => {
@@ -181,9 +106,7 @@ test.describe("Credit flow — welcome grant, chat debit, task bonus", () => {
     await expect(rows.first()).toContainText("+50");
   });
 
-  test("Scenario 5: insufficient credits — debit beyond balance is blocked", async ({
-    page,
-  }) => {
+  test("Scenario 5: insufficient credits — debit beyond balance is blocked", async ({ page }) => {
     const wallet = freshWallet();
     const { userId } = await loginAsWallet(page, wallet);
 

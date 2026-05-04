@@ -1,7 +1,7 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
-import { AquaPoolsCard } from "../aqua-pools-card";
+import React from "react";
 import type { AquaPoolCardProps } from "@/features/protocols/schemas/aquarius.schema";
+import { AquaPoolsCard } from "../aqua-pools-card";
 
 const makePool = (overrides: Partial<AquaPoolCardProps> = {}): AquaPoolCardProps => ({
   address: "CA6PUJLBYKZKUEKLZJMKBZLEKP2OTHANDEOWSFF44FTSYLKQPIICCJBE",
@@ -49,7 +49,9 @@ describe("AquaPoolsCard", () => {
   });
 
   it("renders pool type tag as 'Volatile' for constant_product", () => {
-    render(<AquaPoolsCard pools={[makePool({ poolType: "constant_product" })]} mode="playground" />);
+    render(
+      <AquaPoolsCard pools={[makePool({ poolType: "constant_product" })]} mode="playground" />
+    );
     // poolTypeTag converts "constant_product" -> "Volatile"
     expect(screen.getByText("Volatile")).toBeInTheDocument();
   });
@@ -64,7 +66,7 @@ describe("AquaPoolsCard", () => {
       <AquaPoolsCard
         pools={[makePool({ tokens: undefined, tokensStr: ["XLM", "USDC"] })]}
         mode="playground"
-      />,
+      />
     );
     // resolvePoolLabel falls back to tokensStr
     expect(screen.getByText("XLM / USDC")).toBeInTheDocument();
@@ -75,7 +77,7 @@ describe("AquaPoolsCard", () => {
       <AquaPoolsCard
         pools={[makePool({ tokens: undefined, tokensStr: undefined })]}
         mode="playground"
-      />,
+      />
     );
     // resolvePoolLabel falls back to address.slice(0, 10)
     expect(screen.getByText("CA6PUJLBYK")).toBeInTheDocument();

@@ -1,11 +1,11 @@
 "use client";
 
 import { Wallet } from "lucide-react";
-import { ProgressStepper, type Step } from "./ui/stepper";
+import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
+import { ProgressStepper, type Step } from "./ui/stepper";
 import { WaitlistContactFormV2 } from "./waitlist-contact-form-v2";
-import { useWallet } from "@/shared/context/wallet-context";
 
 interface WaitlistScreen2Props {
   onEmailSuccess: (email: string) => void;

@@ -56,9 +56,7 @@ backendAxios.interceptors.response.use(
         const fresh = !useAuthStore.getState().isTokenExpired();
         const url = orig?.url ?? "unknown";
         console.warn(`[auth] 401 from ${url} (token fresh=${fresh})`);
-        window.dispatchEvent(
-          new CustomEvent("auth:session-invalid", { detail: { fresh, url } }),
-        );
+        window.dispatchEvent(new CustomEvent("auth:session-invalid", { detail: { fresh, url } }));
       }
     }
     return Promise.reject(error);

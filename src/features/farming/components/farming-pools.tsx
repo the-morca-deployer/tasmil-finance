@@ -1,10 +1,10 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
-import { Skeleton } from "@/shared/ui/skeleton";
-import { TokenImage } from "@/shared/components/token-image";
+import { TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TokenImage } from "@/shared/components/token-image";
+import { Skeleton } from "@/shared/ui/skeleton";
 import type { DiscoveredPool } from "../types";
 
 function formatCompactUsd(value: number): string {
@@ -47,11 +47,7 @@ export function FarmingPools({ pools, isLoading }: FarmingPoolsProps) {
 
   if (isLoading) {
     return (
-      <motion.div
-        className="flex flex-col gap-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
+      <motion.div className="flex flex-col gap-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <h2 className="text-xl font-semibold text-foreground">Pools</h2>
         <div className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="flex items-center gap-3 px-6 py-4">
@@ -142,10 +138,7 @@ export function FarmingPools({ pools, isLoading }: FarmingPoolsProps) {
               {/* Pool name + token pair images */}
               <div className="flex items-center gap-3">
                 <div className="relative flex shrink-0">
-                  <TokenImage
-                    alt={pool.assetSymbol}
-                    className="h-7 w-7 rounded-full"
-                  />
+                  <TokenImage alt={pool.assetSymbol} className="h-7 w-7 rounded-full" />
                   {pool.pairedAssetSymbol && (
                     <TokenImage
                       alt={pool.pairedAssetSymbol}
@@ -167,7 +160,7 @@ export function FarmingPools({ pools, isLoading }: FarmingPoolsProps) {
                 <span
                   className={cn(
                     "inline-block rounded-md px-2 py-0.5 text-sm font-medium uppercase",
-                    typeCn,
+                    typeCn
                   )}
                 >
                   {pool.poolType}
@@ -187,10 +180,7 @@ export function FarmingPools({ pools, isLoading }: FarmingPoolsProps) {
               {/* Risk */}
               <div className="flex justify-end">
                 <span
-                  className={cn(
-                    "rounded-md px-1.5 py-0.5 text-xs font-medium",
-                    risk.className,
-                  )}
+                  className={cn("rounded-md px-1.5 py-0.5 text-xs font-medium", risk.className)}
                 >
                   {risk.label}
                 </span>

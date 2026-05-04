@@ -1,23 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Copy, ExternalLink, Check, Loader2 } from "lucide-react";
-import { ProgressStepper, type Step } from "./ui/stepper";
-import { SuccessBanner } from "./ui/success-banner";
-import { Button } from "@/shared/ui/button-v2";
-import { Typography } from "@/shared/ui/typography";
-import { Card, CardContent } from "@/shared/ui/card";
-import { useWallet } from "@/shared/context/wallet-context";
+import { Check, Copy, ExternalLink, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useWalletStatus } from "@/features/whitelist/hooks/use-wallet-waitlist";
+import { fireConfettiBurst } from "@/features/whitelist/lib/confetti-burst";
 import {
   buildReferralUrl,
   buildXShareText,
-  openXShare,
   copyToClipboard,
+  openXShare,
 } from "@/features/whitelist/lib/share-to-x";
-import { fireConfettiBurst } from "@/features/whitelist/lib/confetti-burst";
-import { toast } from "sonner";
+import { useWallet } from "@/shared/context/wallet-context";
+import { Button } from "@/shared/ui/button-v2";
+import { Card, CardContent } from "@/shared/ui/card";
+import { Typography } from "@/shared/ui/typography";
+import { ProgressStepper, type Step } from "./ui/stepper";
+import { SuccessBanner } from "./ui/success-banner";
 
 interface WaitlistScreen3Props {
   /** Email submitted in Screen2 this session u2014 null if skipped */
@@ -140,7 +140,11 @@ export function WaitlistScreen3({ submittedEmail }: WaitlistScreen3Props) {
                 {referralUrl}
               </div>
               <Button size="icon" variant="outline" onClick={handleCopy} className="shrink-0">
-                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                {copied ? (
+                  <Check className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
               </Button>
               <Button size="icon" variant="outline" onClick={handleShareX} className="shrink-0">
                 <ExternalLink className="h-4 w-4" />

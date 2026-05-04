@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getBlendClient, getNetwork, getExplorerUrl } from "../_sdk";
+import { type NextRequest, NextResponse } from "next/server";
+import { getBlendClient, getExplorerUrl, getNetwork } from "../_sdk";
 
 export async function GET(req: NextRequest) {
   const pool = req.nextUrl.searchParams.get("pool");
@@ -43,17 +43,18 @@ export async function GET(req: NextRequest) {
         },
       });
     }
-  } catch { /* fall through to MCP */ }
+  } catch {
+    /* fall through to MCP */
+  }
 
   // Fallback: MCP-stellar
   try {
     const r = await fetch(`${MCP_URL}/blend-v2/query/pool-info?pool=${pool}`);
     const d = await r.json();
     if (d.success) return NextResponse.json(d);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
-  return NextResponse.json(
-    { success: false, error: `Pool not found: ${pool}` },
-    { status: 404 },
-  );
+  return NextResponse.json({ success: false, error: `Pool not found: ${pool}` }, { status: 404 });
 }

@@ -55,9 +55,7 @@ function unwrap<T>(payload: { data?: T } | T): T {
 }
 
 async function fetchSnapshot(): Promise<CreditSnapshot> {
-  const res = await backendAxios.get<{ data?: CreditSnapshot } | CreditSnapshot>(
-    "/api/credit/me",
-  );
+  const res = await backendAxios.get<{ data?: CreditSnapshot } | CreditSnapshot>("/api/credit/me");
   return unwrap(res.data);
 }
 
@@ -66,7 +64,7 @@ async function fetchLedger(cursor?: string, limit = 50): Promise<CreditLedgerPag
   if (cursor) params.set("cursor", cursor);
   params.set("limit", String(limit));
   const res = await backendAxios.get<{ data?: CreditLedgerPage } | CreditLedgerPage>(
-    `/api/credit/me/ledger?${params.toString()}`,
+    `/api/credit/me/ledger?${params.toString()}`
   );
   return unwrap(res.data);
 }

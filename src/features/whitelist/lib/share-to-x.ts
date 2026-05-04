@@ -2,7 +2,7 @@
 
 export function buildReferralUrl(
   referralCode: string | null | undefined,
-  baseUrl?: string,
+  baseUrl?: string
 ): string | null {
   if (!referralCode) return null;
   const base = baseUrl ?? (typeof window !== "undefined" ? window.location.origin : "");

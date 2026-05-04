@@ -1,9 +1,9 @@
 "use client";
 
 import { useIsMobile } from "@/shared/hooks/use-mobile";
-import { AdminSidebar } from "./admin-sidebar";
 import { AdminHeader } from "./admin-header";
 import { AdminMobileNav } from "./admin-mobile-nav";
+import { AdminSidebar } from "./admin-sidebar";
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -17,9 +17,7 @@ export function AdminShell({ children, title }: AdminShellProps) {
     return (
       <div className="flex h-screen w-full flex-col overflow-hidden bg-background">
         <AdminMobileNav />
-        <main className="flex-1 overflow-y-auto overscroll-contain px-4 py-4">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto overscroll-contain px-4 py-4">{children}</main>
       </div>
     );
   }
@@ -29,9 +27,7 @@ export function AdminShell({ children, title }: AdminShellProps) {
       <AdminSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <AdminHeader title={title} />
-        <main className="flex-1 overflow-y-auto px-6 py-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto px-6 py-6">{children}</main>
       </div>
     </div>
   );

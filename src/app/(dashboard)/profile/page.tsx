@@ -1,5 +1,5 @@
 import { ProfilePage } from "@/features/profile";
-import { fetchCreditPackages, type CreditPackage } from "@/features/topup";
+import { type CreditPackage, fetchCreditPackages } from "@/features/topup";
 
 export const dynamic = "force-dynamic";
 

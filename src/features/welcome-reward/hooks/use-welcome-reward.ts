@@ -48,9 +48,10 @@ export interface TrackVolumeContext {
   amount: string;
 }
 
-async function trackWelcomeRewardTransaction(
-  params: { txHash: string; context?: TrackVolumeContext },
-): Promise<TrackWelcomeRewardResult> {
+async function trackWelcomeRewardTransaction(params: {
+  txHash: string;
+  context?: TrackVolumeContext;
+}): Promise<TrackWelcomeRewardResult> {
   const response = await backendAxios.post<
     { data?: TrackWelcomeRewardResult } | TrackWelcomeRewardResult
   >("/api/welcome-reward/track", {
@@ -80,7 +81,8 @@ export function useWelcomeReward() {
   });
 
   const trackMutation = useMutation({
-    mutationFn: (params: { txHash: string; context?: TrackVolumeContext }) => trackWelcomeRewardTransaction(params),
+    mutationFn: (params: { txHash: string; context?: TrackVolumeContext }) =>
+      trackWelcomeRewardTransaction(params),
     onSuccess: (result) => {
       queryClient.setQueryData(WELCOME_REWARD_QUERY_KEY, {
         reserved: result.reserved,

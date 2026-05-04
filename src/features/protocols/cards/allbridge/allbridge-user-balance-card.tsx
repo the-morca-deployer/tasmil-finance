@@ -1,11 +1,11 @@
 "use client";
 
 import { Wallet } from "lucide-react";
-import type { CardMode } from "../../schemas/common.schema";
-import type { AllbridgeUserBalanceProps } from "../../schemas/allbridge.schema";
-import { ProtocolCard } from "../base/protocol-card";
-import { DetailRow, MetricBox } from "../base/indicators";
 import { trunc } from "../../lib/formatting";
+import type { AllbridgeUserBalanceProps } from "../../schemas/allbridge.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { DetailRow, MetricBox } from "../base/indicators";
+import { ProtocolCard } from "../base/protocol-card";
 
 interface Props {
   data: AllbridgeUserBalanceProps;
@@ -18,12 +18,20 @@ export function AllbridgeUserBalanceCard({ data, mode = "playground" }: Props) {
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title={`${data.symbol} LP Position (${data.chain})`} icon={Wallet} iconColor="text-blue-500" iconBg="bg-blue-500/10">
+      <ProtocolCard
+        mode="chat"
+        title={`${data.symbol} LP Position (${data.chain})`}
+        icon={Wallet}
+        iconColor="text-blue-500"
+        iconBg="bg-blue-500/10"
+      >
         {hasPosition ? (
           <div className="space-y-1.5">
             <DetailRow label="LP Amount" value={data.lpAmount ?? "0"} />
             {data.userLiquidity && <DetailRow label="Liquidity" value={data.userLiquidity} />}
-            {data.earnedRewards && <DetailRow label="Earned Rewards" value={`${data.earnedRewards} ${data.symbol}`} />}
+            {data.earnedRewards && (
+              <DetailRow label="Earned Rewards" value={`${data.earnedRewards} ${data.symbol}`} />
+            )}
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">No LP position found.</p>
@@ -35,8 +43,12 @@ export function AllbridgeUserBalanceCard({ data, mode = "playground" }: Props) {
   return (
     <ProtocolCard mode="playground">
       <div className="px-4 py-3 border-b border-border">
-        <p className="text-sm font-medium text-foreground">{data.symbol} LP Position — <span className="capitalize">{data.chain}</span></p>
-        <p className="text-[10px] text-muted-foreground/60 font-mono mt-0.5">{trunc(data.accountAddress, 10, 6)}</p>
+        <p className="text-sm font-medium text-foreground">
+          {data.symbol} LP Position — <span className="capitalize">{data.chain}</span>
+        </p>
+        <p className="text-[10px] text-muted-foreground/60 font-mono mt-0.5">
+          {trunc(data.accountAddress, 10, 6)}
+        </p>
       </div>
       <div className="p-4 space-y-3">
         {hasPosition ? (
@@ -48,13 +60,13 @@ export function AllbridgeUserBalanceCard({ data, mode = "playground" }: Props) {
             <div className="rounded-lg bg-secondary/40 p-3 space-y-1 text-xs">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Earned Rewards</span>
-                <span className={`font-semibold tabular-nums ${data.hasRewards ? "text-emerald-400" : "text-foreground"}`}>
+                <span
+                  className={`font-semibold tabular-nums ${data.hasRewards ? "text-emerald-400" : "text-foreground"}`}
+                >
                   {data.earnedRewards ?? "0"} {data.symbol}
                 </span>
               </div>
-              {data.hasRewards && (
-                <p className="text-[10px] text-emerald-400/70">{data.note}</p>
-              )}
+              {data.hasRewards && <p className="text-[10px] text-emerald-400/70">{data.note}</p>}
             </div>
           </>
         ) : (

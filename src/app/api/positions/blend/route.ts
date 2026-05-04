@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getClient } from "../../protocols/_sdk";
 
 interface PositionItem {
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     const pools = await sdk.blend.listPools();
 
     const results = await Promise.allSettled(
-      pools.map((pool) => sdk.blend.getUserPositions(pool.address, user)),
+      pools.map((pool) => sdk.blend.getUserPositions(pool.address, user))
     );
 
     const groups: ProtocolPositionGroup[] = [];
@@ -84,9 +84,10 @@ export async function GET(req: NextRequest) {
       }
 
       // Add claimable BLND emissions as a group-level reward
-      const groupRewards = pos.emissions != null && pos.emissions > 0
-        ? { amount: pos.emissions, token: "BLND" }
-        : undefined;
+      const groupRewards =
+        pos.emissions != null && pos.emissions > 0
+          ? { amount: pos.emissions, token: "BLND" }
+          : undefined;
 
       groups.push({
         protocol: "blend",
@@ -103,7 +104,7 @@ export async function GET(req: NextRequest) {
     console.error("[api/positions/blend]", e);
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Failed to fetch positions" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

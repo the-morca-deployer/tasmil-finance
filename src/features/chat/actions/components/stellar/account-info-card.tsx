@@ -140,7 +140,11 @@ function AccountInfoView({ data }: { data: any }) {
           {balances.slice(0, 10).map((b: any, i: number) => (
             <DetailRow
               key={i}
-              label={b.asset_type === "native" || b.assetType === "native" ? "XLM" : (b.assetCode ?? b.asset_code ?? b.code ?? "?")}
+              label={
+                b.asset_type === "native" || b.assetType === "native"
+                  ? "XLM"
+                  : (b.assetCode ?? b.asset_code ?? b.code ?? "?")
+              }
               value={Number.parseFloat(b.balance).toLocaleString(undefined, {
                 maximumFractionDigits: 4,
               })}
@@ -179,7 +183,11 @@ function AssetsView({ data, toolCallId }: { data: any; toolCallId?: string }) {
             key={i}
             className="flex items-center justify-between border-border/50 border-b py-1.5 text-sm last:border-0"
           >
-            <span className="font-medium">{a.type === "native" || a.assetType === "native" || a.asset_type === "native" ? "XLM" : (a.assetCode ?? a.asset_code ?? a.code ?? "?")}</span>
+            <span className="font-medium">
+              {a.type === "native" || a.assetType === "native" || a.asset_type === "native"
+                ? "XLM"
+                : (a.assetCode ?? a.asset_code ?? a.code ?? "?")}
+            </span>
             <span>
               {Number.parseFloat(a.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })}
             </span>
@@ -428,8 +436,9 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
   const legacyPosition = data?.position;
   const legacyHas = legacyPosition
     ? Object.keys(legacyPosition.collateral ?? {}).length +
-      Object.keys(legacyPosition.liabilities ?? {}).length +
-      Object.keys(legacyPosition.supply ?? {}).length > 0
+        Object.keys(legacyPosition.liabilities ?? {}).length +
+        Object.keys(legacyPosition.supply ?? {}).length >
+      0
     : false;
 
   const showEmpty = !hasPosition && !legacyHas;
@@ -439,10 +448,8 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
 
   return (
     <div className="space-y-2">
-      {poolAddress && (
-        <DetailRow label="Pool" value={truncateAddress(String(poolAddress))} mono />
-      )}
-      
+      {poolAddress && <DetailRow label="Pool" value={truncateAddress(String(poolAddress))} mono />}
+
       {/* Summary Section */}
       {summary && (
         <div className="rounded-lg bg-muted/30 p-3 space-y-2 border border-border/50">
@@ -451,25 +458,33 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
             {summary.totalSuppliedUsd && (
               <>
                 <span className="text-muted-foreground">Total Supplied</span>
-                <span className="text-green-400 font-medium">${formatNumber(Number(summary.totalSuppliedUsd))}</span>
+                <span className="text-green-400 font-medium">
+                  ${formatNumber(Number(summary.totalSuppliedUsd))}
+                </span>
               </>
             )}
             {summary.totalBorrowedUsd && (
               <>
                 <span className="text-muted-foreground">Total Borrowed</span>
-                <span className="text-orange-400 font-medium">${formatNumber(Number(summary.totalBorrowedUsd))}</span>
+                <span className="text-orange-400 font-medium">
+                  ${formatNumber(Number(summary.totalBorrowedUsd))}
+                </span>
               </>
             )}
             {summary.availableBorrowUsd && (
               <>
                 <span className="text-muted-foreground">Available to Borrow</span>
-                <span className="text-blue-400 font-medium">${formatNumber(Number(summary.availableBorrowUsd))}</span>
+                <span className="text-blue-400 font-medium">
+                  ${formatNumber(Number(summary.availableBorrowUsd))}
+                </span>
               </>
             )}
             {summary.healthFactor && (
               <>
                 <span className="text-muted-foreground">Health Factor</span>
-                <span className={`font-medium ${Number(summary.healthFactor) > 1.5 ? 'text-green-400' : Number(summary.healthFactor) > 1.1 ? 'text-yellow-400' : 'text-red-400'}`}>
+                <span
+                  className={`font-medium ${Number(summary.healthFactor) > 1.5 ? "text-green-400" : Number(summary.healthFactor) > 1.1 ? "text-yellow-400" : "text-red-400"}`}
+                >
                   {Number(summary.healthFactor).toFixed(2)}
                 </span>
               </>
@@ -477,7 +492,9 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
             {summary.claimableBlnd && Number(summary.claimableBlnd) > 0 && (
               <>
                 <span className="text-muted-foreground">Claimable BLND</span>
-                <span className="text-purple-400 font-medium">{formatNumber(Number(summary.claimableBlnd))} BLND</span>
+                <span className="text-purple-400 font-medium">
+                  {formatNumber(Number(summary.claimableBlnd))} BLND
+                </span>
               </>
             )}
           </div>
@@ -496,17 +513,24 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
                   <div className="flex items-center justify-between">
                     <span className="font-semibold">{p.symbol ?? p.asset}</span>
                     {p.isCollateral && (
-                      <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-blue-400 text-[10px]">Collateral</span>
+                      <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-blue-400 text-[10px]">
+                        Collateral
+                      </span>
                     )}
                   </div>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-muted-foreground">
                     <span>Amount</span>
-                    <span className="text-foreground font-medium">{formatNumber(Number(p.suppliedAmount))} {p.symbol}</span>
+                    <span className="text-foreground font-medium">
+                      {formatNumber(Number(p.suppliedAmount))} {p.symbol}
+                    </span>
                     {p.netApy != null && (
                       <>
                         <span>Net APY</span>
-                        <span className={`font-semibold ${Number(p.netApy) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                          {Number(p.netApy) >= 0 ? '+' : ''}{formatPercent(p.netApy)}
+                        <span
+                          className={`font-semibold ${Number(p.netApy) >= 0 ? "text-green-400" : "text-red-400"}`}
+                        >
+                          {Number(p.netApy) >= 0 ? "+" : ""}
+                          {formatPercent(p.netApy)}
                         </span>
                       </>
                     )}
@@ -519,19 +543,25 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
                     {p.supplyEmissionApy != null && Number(p.supplyEmissionApy) > 0 && (
                       <>
                         <span className="text-[10px]">+ BLND Emission</span>
-                        <span className="text-purple-400 text-[10px]">+{Number(p.supplyEmissionApy).toFixed(2)}%</span>
+                        <span className="text-purple-400 text-[10px]">
+                          +{Number(p.supplyEmissionApy).toFixed(2)}%
+                        </span>
                       </>
                     )}
                     {p.borrowCapacityUsd != null && (
                       <>
                         <span>Borrow Capacity</span>
-                        <span className="text-foreground">${formatNumber(Number(p.borrowCapacityUsd))}</span>
+                        <span className="text-foreground">
+                          ${formatNumber(Number(p.borrowCapacityUsd))}
+                        </span>
                       </>
                     )}
                     {p.suppliedUsd != null && (
                       <>
                         <span>Value</span>
-                        <span className="text-foreground">${formatNumber(Number(p.suppliedUsd))}</span>
+                        <span className="text-foreground">
+                          ${formatNumber(Number(p.suppliedUsd))}
+                        </span>
                       </>
                     )}
                     {p.assetPrice > 0 && (
@@ -553,7 +583,9 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
                   <span className="font-semibold">{p.symbol ?? p.asset}</span>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-muted-foreground">
                     <span>Amount</span>
-                    <span className="text-foreground font-medium">{formatNumber(Number(p.borrowedAmount))} {p.symbol}</span>
+                    <span className="text-foreground font-medium">
+                      {formatNumber(Number(p.borrowedAmount))} {p.symbol}
+                    </span>
                     {p.borrowApy != null && (
                       <>
                         <span>Borrow APY</span>
@@ -563,13 +595,17 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
                     {p.borrowEmissionApy != null && Number(p.borrowEmissionApy) > 0 && (
                       <>
                         <span className="text-[10px]">- BLND Rewards</span>
-                        <span className="text-purple-400 text-[10px]">-{Number(p.borrowEmissionApy).toFixed(2)}%</span>
+                        <span className="text-purple-400 text-[10px]">
+                          -{Number(p.borrowEmissionApy).toFixed(2)}%
+                        </span>
                       </>
                     )}
                     {p.borrowedUsd != null && (
                       <>
                         <span>Value</span>
-                        <span className="text-foreground">${formatNumber(Number(p.borrowedUsd))}</span>
+                        <span className="text-foreground">
+                          ${formatNumber(Number(p.borrowedUsd))}
+                        </span>
                       </>
                     )}
                   </div>
@@ -584,7 +620,8 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
 }
 
 function BlendBackstopBalanceView({ data }: { data: any }) {
-  const shares = data?.sharesHuman ?? (data?.shares ? (Number(data.shares) / 1e7).toFixed(7) : null);
+  const shares =
+    data?.sharesHuman ?? (data?.shares ? (Number(data.shares) / 1e7).toFixed(7) : null);
   const queued: any[] = data?.queuedWithdrawals ?? [];
   return (
     <div className="space-y-2">

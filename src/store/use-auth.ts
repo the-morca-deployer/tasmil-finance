@@ -31,9 +31,7 @@ function parseJwtExp(token: string): number | null {
     const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
     const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
     const json = JSON.parse(
-      typeof atob !== "undefined"
-        ? atob(padded)
-        : Buffer.from(padded, "base64").toString("utf8")
+      typeof atob !== "undefined" ? atob(padded) : Buffer.from(padded, "base64").toString("utf8")
     );
     return typeof json.exp === "number" ? json.exp * 1000 : null;
   } catch {

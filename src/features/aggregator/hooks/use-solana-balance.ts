@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 
 async function fetchSolanaTokenBalance(
   walletAddress: string,
-  mintAddress: string,
+  mintAddress: string
 ): Promise<number> {
   const res = await fetch(
-    `/api/solana-balance?wallet=${encodeURIComponent(walletAddress)}&mint=${encodeURIComponent(mintAddress)}`,
+    `/api/solana-balance?wallet=${encodeURIComponent(walletAddress)}&mint=${encodeURIComponent(mintAddress)}`
   );
   if (!res.ok) return 0;
   const data = await res.json();
@@ -16,7 +16,7 @@ async function fetchSolanaTokenBalance(
 
 export function useSolanaTokenBalance(
   walletAddress: string | null,
-  mintAddress: string | null | undefined,
+  mintAddress: string | null | undefined
 ) {
   return useQuery({
     queryKey: ["solana-token-balance", walletAddress, mintAddress],

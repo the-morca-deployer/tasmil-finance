@@ -26,9 +26,7 @@ export function WatchListSection() {
             <button
               type="button"
               aria-label={`Open ${item.symbol} in aggregator`}
-              onClick={() =>
-                router.push(`/aggregator?tokenIn=${item.symbol}&chainIn=stellar`)
-              }
+              onClick={() => router.push(`/aggregator?tokenIn=${item.symbol}&chainIn=stellar`)}
               className="flex items-center gap-1.5 hover:opacity-80"
             >
               <TokenImage alt={item.symbol} className="h-5 w-5 rounded-full text-[9px]" />

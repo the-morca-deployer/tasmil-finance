@@ -12,9 +12,16 @@ export async function GET(req: Request) {
 
     // Map chain name to Allbridge chain symbol
     const CHAIN_MAP: Record<string, string> = {
-      stellar: "SRB", ethereum: "ETH", bsc: "BSC", polygon: "POL",
-      avalanche: "AVA", solana: "SOL", arbitrum: "ARB", optimism: "OPT",
-      base: "BAS", tron: "TRX",
+      stellar: "SRB",
+      ethereum: "ETH",
+      bsc: "BSC",
+      polygon: "POL",
+      avalanche: "AVA",
+      solana: "SOL",
+      arbitrum: "ARB",
+      optimism: "OPT",
+      base: "BAS",
+      tron: "TRX",
     };
 
     if (chain === "all") {
@@ -37,15 +44,24 @@ export async function GET(req: Request) {
           });
         }
       }
-      return NextResponse.json({ success: true, network, chain, pools: allPools, count: allPools.length });
+      return NextResponse.json({
+        success: true,
+        network,
+        chain,
+        pools: allPools,
+        count: allPools.length,
+      });
     }
 
     const sym = CHAIN_MAP[chain.toLowerCase()];
     if (!sym) {
-      return NextResponse.json({
-        success: false,
-        error: `Chain "${chain}" not supported. Supported: ${Object.keys(CHAIN_MAP).join(", ")}`,
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Chain "${chain}" not supported. Supported: ${Object.keys(CHAIN_MAP).join(", ")}`,
+        },
+        { status: 400 }
+      );
     }
 
     const tokens = chains[sym]?.tokens ?? [];
@@ -64,6 +80,9 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ success: true, network, chain, pools, count: pools.length });
   } catch (e) {
-    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : "Unknown error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: e instanceof Error ? e.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }

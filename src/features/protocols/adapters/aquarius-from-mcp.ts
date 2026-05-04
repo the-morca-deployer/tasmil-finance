@@ -5,18 +5,18 @@
 
 import type {
   AquaPoolCardProps,
-  AquaQuoteCardProps,
   AquaPositionsCardProps,
+  AquaQuoteCardProps,
   AquaTxCardProps,
 } from "../schemas/aquarius.schema";
-import { unwrapMcpResult } from "./from-mcp";
 import {
   normalizeAquaPoolFromSdk,
   normalizeAquaPoolsFromSdk,
-  normalizeAquaQuoteFromSdk,
   normalizeAquaPositionsFromSdk,
+  normalizeAquaQuoteFromSdk,
   normalizeAquaTxFromSdk,
 } from "./aquarius-from-sdk";
+import { unwrapMcpResult } from "./from-mcp";
 
 // ─── Pool ──────────────────────────────────────────────────────
 
@@ -52,7 +52,7 @@ export function normalizeAquaPositionsFromMcp(result: unknown): AquaPositionsCar
 
 export function normalizeAquaTxFromMcp(
   result: unknown,
-  args?: Record<string, unknown>,
+  args?: Record<string, unknown>
 ): AquaTxCardProps | null {
   const { data, error } = unwrapMcpResult(result);
   if (error || !data) return null;

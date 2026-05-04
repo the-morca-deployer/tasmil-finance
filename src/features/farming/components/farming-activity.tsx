@@ -102,11 +102,7 @@ const PROTOCOL_TYPES: ReadonlySet<string> = new Set([
   "REVOKE",
 ]);
 
-const REWARD_TYPES: ReadonlySet<string> = new Set([
-  "HARVEST",
-  "BACKSTOP_QUEUE",
-  "BACKSTOP_EXIT",
-]);
+const REWARD_TYPES: ReadonlySet<string> = new Set(["HARVEST", "BACKSTOP_QUEUE", "BACKSTOP_EXIT"]);
 
 function categoryFilter(category: ActivityCategory) {
   return (a: ActivityItem) => {
@@ -317,10 +313,7 @@ export function FarmingActivity({ activities, isLoading }: FarmingActivityProps)
             Full history of account actions and automation events.
           </p>
         </div>
-        <Tabs
-          value={category}
-          onValueChange={(v) => setCategory(v as ActivityCategory)}
-        >
+        <Tabs value={category} onValueChange={(v) => setCategory(v as ActivityCategory)}>
           <TabsList>
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="protocol">Protocol</TabsTrigger>
@@ -336,8 +329,8 @@ export function FarmingActivity({ activities, isLoading }: FarmingActivityProps)
             {category === "reward"
               ? "No rewards yet"
               : category === "protocol"
-              ? "No protocol activity yet"
-              : "No activity yet"}
+                ? "No protocol activity yet"
+                : "No activity yet"}
           </p>
         </div>
       ) : (
@@ -366,7 +359,7 @@ export function FarmingActivity({ activities, isLoading }: FarmingActivityProps)
                         <div
                           className={cn(
                             "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                            iconConfig.bg,
+                            iconConfig.bg
                           )}
                         >
                           <Icon className={cn("h-[15px] w-[15px]", iconConfig.fg)} />
@@ -383,7 +376,7 @@ export function FarmingActivity({ activities, isLoading }: FarmingActivityProps)
                           <span
                             className={cn(
                               "shrink-0 text-sm font-semibold",
-                              reward ? "text-emerald-400" : "text-foreground",
+                              reward ? "text-emerald-400" : "text-foreground"
                             )}
                           >
                             {reward ? "+" : ""}

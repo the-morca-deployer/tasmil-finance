@@ -91,8 +91,14 @@ function fixRootIndexFile(filePath) {
   });
 
   const aliasRegex = new RegExp(GEN_ALIAS.replace(/\//g, "\\/"), "g");
-  if (fixedContent.includes(GEN_ALIAS) && (fixedContent.includes('.ts"') || fixedContent.includes(".ts'"))) {
-    fixedContent = fixedContent.replace(new RegExp(`(${escapeRegex(GEN_ALIAS)}/[^"']+)\\.ts(["'])`, "g"), "$1$2");
+  if (
+    fixedContent.includes(GEN_ALIAS) &&
+    (fixedContent.includes('.ts"') || fixedContent.includes(".ts'"))
+  ) {
+    fixedContent = fixedContent.replace(
+      new RegExp(`(${escapeRegex(GEN_ALIAS)}/[^"']+)\\.ts(["'])`, "g"),
+      "$1$2"
+    );
     modified = true;
   }
 
@@ -163,8 +169,14 @@ function fixImportsInFile(filePath) {
       });
 
       // Strip leftover .ts extensions from alias imports
-      if (fixedLine.includes(GEN_ALIAS) && (fixedLine.includes('.ts"') || fixedLine.includes(".ts'"))) {
-        fixedLine = fixedLine.replace(new RegExp(`(${escapeRegex(GEN_ALIAS)}/[^"']+)\\.ts(["'])`, "g"), "$1$2");
+      if (
+        fixedLine.includes(GEN_ALIAS) &&
+        (fixedLine.includes('.ts"') || fixedLine.includes(".ts'"))
+      ) {
+        fixedLine = fixedLine.replace(
+          new RegExp(`(${escapeRegex(GEN_ALIAS)}/[^"']+)\\.ts(["'])`, "g"),
+          "$1$2"
+        );
         modified = true;
       }
     }

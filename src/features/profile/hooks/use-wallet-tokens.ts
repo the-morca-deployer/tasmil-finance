@@ -48,7 +48,7 @@ export function getCachedPrices(): Record<string, number> {
 
 async function fetchPrices(
   symbols: string[],
-  tokens: Omit<WalletToken, "price" | "valueUsd">[],
+  tokens: Omit<WalletToken, "price" | "valueUsd">[]
 ): Promise<Record<string, number>> {
   const now = Date.now();
 
@@ -60,9 +60,7 @@ async function fetchPrices(
   const result: Record<string, number> = {};
 
   // 1. Fetch from CoinGecko
-  const ids = symbols
-    .map((s) => COINGECKO_IDS[s.toUpperCase()])
-    .filter(Boolean);
+  const ids = symbols.map((s) => COINGECKO_IDS[s.toUpperCase()]).filter(Boolean);
 
   if (ids.length > 0) {
     try {
@@ -90,10 +88,7 @@ async function fetchPrices(
   const xlmPrice = result["XLM"] ?? 0;
   if (xlmPrice > 0) {
     const missing = tokens.filter(
-      (t) =>
-        t.balance > 0 &&
-        result[t.assetCode.toUpperCase()] == null &&
-        t.assetIssuer,
+      (t) => t.balance > 0 && result[t.assetCode.toUpperCase()] == null && t.assetIssuer
     );
 
     for (const token of missing.slice(0, 5)) {

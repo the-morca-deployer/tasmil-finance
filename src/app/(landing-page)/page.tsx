@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LandingPage, LandingBackground } from "@/features/landing";
+import { LandingBackground, LandingPage } from "@/features/landing";
 
 export const metadata: Metadata = {
   title: "Tasmil Finance | AI-Powered DeFi Gateway for Stellar Blockchain",

@@ -1,16 +1,16 @@
 "use client";
 
+import { Ban, ChevronLeft, ChevronRight, Copy, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { Copy, Ban, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { Typography } from "@/shared/ui/typography";
-import { Button } from "@/shared/ui/button-v2";
-import { Input } from "@/shared/ui/input";
-import { Badge } from "@/shared/ui/badge";
 import {
   useAdminCodes,
   useGenerateCodes,
   useRevokeCode,
 } from "@/features/admin-whitelist/hooks/use-admin-codes";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button-v2";
+import { Input } from "@/shared/ui/input";
+import { Typography } from "@/shared/ui/typography";
 
 const PAGE_SIZE = 50;
 
@@ -20,12 +20,8 @@ function StatusBadge({ status }: { status: string }) {
       <Badge className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20">ACTIVE</Badge>
     );
   if (status === "REVOKED")
-    return (
-      <Badge className="bg-red-500/20 text-red-400 hover:bg-red-500/20">REVOKED</Badge>
-    );
-  return (
-    <Badge className="bg-muted text-muted-foreground hover:bg-muted">EXHAUSTED</Badge>
-  );
+    return <Badge className="bg-red-500/20 text-red-400 hover:bg-red-500/20">REVOKED</Badge>;
+  return <Badge className="bg-muted text-muted-foreground hover:bg-muted">EXHAUSTED</Badge>;
 }
 
 export default function AdminCodesPage() {
@@ -73,9 +69,7 @@ export default function AdminCodesPage() {
               min={1}
               max={100}
               value={quantity}
-              onChange={(e) =>
-                setQuantity(Math.min(100, Math.max(1, Number(e.target.value))))
-              }
+              onChange={(e) => setQuantity(Math.min(100, Math.max(1, Number(e.target.value))))}
             />
           </div>
 
@@ -189,10 +183,7 @@ export default function AdminCodesPage() {
                   ))}
                   {data?.codes.length === 0 && (
                     <tr>
-                      <td
-                        colSpan={4}
-                        className="px-4 py-12 text-center text-muted-foreground"
-                      >
+                      <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
                         No codes yet. Generate your first batch.
                       </td>
                     </tr>

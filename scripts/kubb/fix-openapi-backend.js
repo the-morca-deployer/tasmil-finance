@@ -16,21 +16,23 @@ const OUTPUT_PATH = path.join(__dirname, "../../temp-openapi-backend.json");
 function downloadSpec() {
   return new Promise((resolve, reject) => {
     const client = OPENAPI_URL.startsWith("https") ? https : http;
-    client.get(OPENAPI_URL, (res) => {
-      if (res.statusCode !== 200) {
-        reject(new Error(`HTTP ${res.statusCode} from ${OPENAPI_URL}`));
-        return;
-      }
-      let data = "";
-      res.on("data", (chunk) => (data += chunk));
-      res.on("end", () => {
-        try {
-          resolve(JSON.parse(data));
-        } catch (e) {
-          reject(new Error(`Failed to parse JSON: ${e.message}`));
+    client
+      .get(OPENAPI_URL, (res) => {
+        if (res.statusCode !== 200) {
+          reject(new Error(`HTTP ${res.statusCode} from ${OPENAPI_URL}`));
+          return;
         }
-      });
-    }).on("error", (e) => reject(new Error(`Download failed: ${e.message}`)));
+        let data = "";
+        res.on("data", (chunk) => (data += chunk));
+        res.on("end", () => {
+          try {
+            resolve(JSON.parse(data));
+          } catch (e) {
+            reject(new Error(`Failed to parse JSON: ${e.message}`));
+          }
+        });
+      })
+      .on("error", (e) => reject(new Error(`Download failed: ${e.message}`)));
   });
 }
 

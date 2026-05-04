@@ -1,10 +1,10 @@
 "use client";
 
 import { X } from "lucide-react";
+import { PositionsSidebarPanel } from "@/features/chat/components/positions-sidebar-panel";
 import { cn } from "@/lib/utils";
 import { ThreadProvider } from "@/providers/thread";
 import { ChatHistorySidebar } from "@/shared/layout/chat-history-sidebar";
-import { PositionsSidebarPanel } from "@/features/chat/components/positions-sidebar-panel";
 import { useMultiSidebar } from "@/shared/ui/multi-sidebar";
 import { useRightSidebarTab } from "@/store/use-right-sidebar-tab";
 
@@ -24,7 +24,7 @@ export function ChatHistoryWrapper() {
               "rounded-t-lg border border-b-0 px-4 py-2 text-sm font-medium transition-colors",
               tab === "history"
                 ? "border-sidebar-border bg-sidebar text-sidebar-foreground"
-                : "border-transparent text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/40",
+                : "border-transparent text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
             )}
           >
             History
@@ -36,7 +36,7 @@ export function ChatHistoryWrapper() {
               "rounded-t-lg border border-b-0 px-4 py-2 text-sm font-medium transition-colors",
               tab === "positions"
                 ? "border-sidebar-border bg-sidebar text-sidebar-foreground"
-                : "border-transparent text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/40",
+                : "border-transparent text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
             )}
           >
             Positions

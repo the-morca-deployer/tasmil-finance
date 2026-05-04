@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { TokenImage } from "@/shared/components/token-image";
+import { Button } from "@/shared/ui/button-v2";
 import {
   Dialog,
   DialogContent,
@@ -10,8 +12,6 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
-import { Button } from "@/shared/ui/button-v2";
-import { TokenImage } from "@/shared/components/token-image";
 import { useWatchList } from "@/store/use-watch-list";
 
 interface RegistryToken {
@@ -58,14 +58,14 @@ export function AddAssetDialog({ open, onOpenChange }: AddAssetDialogProps) {
       .catch(() => {
         // Silent failure: dialog stays usable but empty
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [open, tokens.length]);
 
   const filtered = useMemo(() => {
     if (!debounced) return [];
-    return tokens
-      .filter((t) => t.symbol?.toUpperCase().includes(debounced))
-      .slice(0, 30);
+    return tokens.filter((t) => t.symbol?.toUpperCase().includes(debounced)).slice(0, 30);
   }, [tokens, debounced]);
 
   function handleAdd(token: RegistryToken) {

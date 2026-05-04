@@ -10,10 +10,7 @@ interface ChatAuthStateProps {
   onReconnect?: () => void;
 }
 
-const CONTENT: Record<
-  ChatAuthStateMode,
-  { title: string; body: string; cta?: string }
-> = {
+const CONTENT: Record<ChatAuthStateMode, { title: string; body: string; cta?: string }> = {
   disconnected: {
     title: "Connect your wallet",
     body: "You need to connect a Stellar wallet to access the AI agent chat.",

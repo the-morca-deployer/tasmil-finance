@@ -23,15 +23,17 @@ export const allbridgePoolInfoSchema = z.object({
   symbol: z.string(),
   poolAddress: z.string().optional(),
   tokenAddress: z.string().optional(),
-  poolInfo: z.object({
-    tokenBalance: z.string().optional(),
-    vUsdBalance: z.string().optional(),
-    totalLpAmount: z.string().optional(),
-    aValue: z.string().optional(),
-    dValue: z.string().optional(),
-    imbalance: z.union([z.string(), z.number()]).nullable().optional(),
-    accRewardPerShareP: z.string().optional(),
-  }).optional(),
+  poolInfo: z
+    .object({
+      tokenBalance: z.string().optional(),
+      vUsdBalance: z.string().optional(),
+      totalLpAmount: z.string().optional(),
+      aValue: z.string().optional(),
+      dValue: z.string().optional(),
+      imbalance: z.union([z.string(), z.number()]).nullable().optional(),
+      accRewardPerShareP: z.string().optional(),
+    })
+    .optional(),
   apr7d: z.union([z.string(), z.number()]).nullable().optional(),
   apr30d: z.union([z.string(), z.number()]).nullable().optional(),
   feeShare: z.union([z.string(), z.number()]).nullable().optional(),
@@ -109,13 +111,15 @@ export type AllbridgeWithdrawQuoteProps = z.infer<typeof allbridgeWithdrawQuoteS
 export const allbridgeSupportedChainSchema = z.object({
   chain: z.string(),
   chainSymbol: z.string(),
-  tokens: z.array(z.object({
-    symbol: z.string(),
-    name: z.string().optional(),
-    tokenAddress: z.string().optional(),
-    poolAddress: z.string().optional(),
-    decimals: z.number().optional(),
-  })),
+  tokens: z.array(
+    z.object({
+      symbol: z.string(),
+      name: z.string().optional(),
+      tokenAddress: z.string().optional(),
+      poolAddress: z.string().optional(),
+      decimals: z.number().optional(),
+    })
+  ),
   tokenCount: z.number(),
 });
 export type AllbridgeSupportedChain = z.infer<typeof allbridgeSupportedChainSchema>;

@@ -1,8 +1,8 @@
 "use client";
 
-import { Info, Layers } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { motion } from "framer-motion";
+import { Info, Layers } from "lucide-react";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 function formatUsd(value: number): string {
@@ -19,7 +19,14 @@ function formatApyPercent(apyDecimal: number): string {
 }
 
 const PIE_COLORS = [
-  "#00bfff", "#36b1ff", "#5eadd6", "#7faabe", "#a0a0a0", "#b0b0b0", "#c0c0c0", "#d0d0d0",
+  "#00bfff",
+  "#36b1ff",
+  "#5eadd6",
+  "#7faabe",
+  "#a0a0a0",
+  "#b0b0b0",
+  "#c0c0c0",
+  "#d0d0d0",
 ];
 
 interface Position {

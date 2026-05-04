@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getBlendClient, getNetwork, getExplorerUrl } from "../_sdk";
+import { type NextRequest, NextResponse } from "next/server";
+import { getBlendClient, getExplorerUrl, getNetwork } from "../_sdk";
 
 export async function GET(req: NextRequest) {
   const pool = req.nextUrl.searchParams.get("pool");
@@ -13,7 +13,10 @@ export async function GET(req: NextRequest) {
     const info = await sdk.blend.getPool(pool);
 
     if (!info) {
-      return NextResponse.json({ success: false, error: `Pool not found: ${pool}` }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: `Pool not found: ${pool}` },
+        { status: 404 }
+      );
     }
 
     const reserves = info.reserves.map((r, i) => ({
@@ -44,7 +47,9 @@ export async function GET(req: NextRequest) {
       totalAssets: reserves.length,
       assets: reserves,
     });
-  } catch { /* SDK failed, try MCP */ }
+  } catch {
+    /* SDK failed, try MCP */
+  }
 
   // Fallback: MCP-stellar
   const MCP_URL = process.env["NEXT_PUBLIC_MCP_STELLAR_URL"] ?? "http://localhost:3009";
@@ -52,10 +57,12 @@ export async function GET(req: NextRequest) {
     const r = await fetch(`${MCP_URL}/blend-v2/query/assets?pool=${pool}`);
     const d = await r.json();
     if (d.success) return NextResponse.json(d);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   return NextResponse.json(
     { success: false, error: "Failed to load assets from both SDK and MCP" },
-    { status: 500 },
+    { status: 500 }
   );
 }

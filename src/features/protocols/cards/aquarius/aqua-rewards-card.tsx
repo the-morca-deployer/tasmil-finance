@@ -1,11 +1,11 @@
 "use client";
 
 import { Gift } from "lucide-react";
-import type { CardMode } from "../../schemas/common.schema";
-import type { AquaRewardsCardProps } from "../../schemas/aquarius.schema";
-import { ProtocolCard, EmptyState } from "../base/protocol-card";
-import { CardHeader } from "../base/indicators";
 import { fmt } from "../../lib/formatting";
+import type { AquaRewardsCardProps } from "../../schemas/aquarius.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { CardHeader } from "../base/indicators";
+import { EmptyState, ProtocolCard } from "../base/protocol-card";
 
 interface AquaRewardsCardComponentProps {
   data: AquaRewardsCardProps;
@@ -32,7 +32,13 @@ export function AquaRewardsCard({ data, mode = "playground" }: AquaRewardsCardCo
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title="AQUA Daily Rewards" icon={Gift} iconColor="text-emerald-500" iconBg="bg-emerald-500/10">
+      <ProtocolCard
+        mode="chat"
+        title="AQUA Daily Rewards"
+        icon={Gift}
+        iconColor="text-emerald-500"
+        iconBg="bg-emerald-500/10"
+      >
         <div className="space-y-1.5">
           {data.totalDailyReward != null && (
             <div className="flex justify-between text-sm font-medium mb-2">
@@ -43,7 +49,9 @@ export function AquaRewardsCard({ data, mode = "playground" }: AquaRewardsCardCo
           {rewards.slice(0, 5).map((r) => (
             <div key={r.pair} className="flex justify-between text-xs">
               <span className="text-muted-foreground">{r.pair}</span>
-              <span className="text-foreground tabular-nums">{fmt(r.dailyTotalReward)} AQUA/day</span>
+              <span className="text-foreground tabular-nums">
+                {fmt(r.dailyTotalReward)} AQUA/day
+              </span>
             </div>
           ))}
           {rewards.length > 5 && (
@@ -62,7 +70,9 @@ export function AquaRewardsCard({ data, mode = "playground" }: AquaRewardsCardCo
         title="AQUA Daily Rewards"
         right={
           data.totalDailyReward != null ? (
-            <span className="text-xs font-medium text-emerald-400">{fmt(data.totalDailyReward)} AQUA/day</span>
+            <span className="text-xs font-medium text-emerald-400">
+              {fmt(data.totalDailyReward)} AQUA/day
+            </span>
           ) : undefined
         }
       />
@@ -80,9 +90,15 @@ export function AquaRewardsCard({ data, mode = "playground" }: AquaRewardsCardCo
             {rewards.slice(0, 20).map((r) => (
               <tr key={r.pair} className="border-b border-border/50 hover:bg-muted/20">
                 <td className="py-1.5 px-4 text-foreground font-medium">{r.pair}</td>
-                <td className="py-1.5 px-2 text-right tabular-nums text-muted-foreground">{fmt(r.dailyAmmReward)}</td>
-                <td className="py-1.5 px-2 text-right tabular-nums text-muted-foreground">{fmt(r.dailySdexReward)}</td>
-                <td className="py-1.5 px-4 text-right tabular-nums text-emerald-400 font-medium">{fmt(r.dailyTotalReward)}</td>
+                <td className="py-1.5 px-2 text-right tabular-nums text-muted-foreground">
+                  {fmt(r.dailyAmmReward)}
+                </td>
+                <td className="py-1.5 px-2 text-right tabular-nums text-muted-foreground">
+                  {fmt(r.dailySdexReward)}
+                </td>
+                <td className="py-1.5 px-4 text-right tabular-nums text-emerald-400 font-medium">
+                  {fmt(r.dailyTotalReward)}
+                </td>
               </tr>
             ))}
           </tbody>

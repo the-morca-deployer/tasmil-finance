@@ -11,26 +11,26 @@
  * and renders results using shared card components.
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { Loader2, RefreshCw, Zap, ChevronDown } from "lucide-react";
+import { ChevronDown, Loader2, RefreshCw, Zap } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StreamContext, type StreamContextType } from "@/features/chat/providers/stream-provider";
 import {
-  DefindexVaultsCard,
-  DefindexVaultDetailCard,
+  normalizeVaultBalanceFromSdk,
+  normalizeVaultDetailFromSdk,
+  normalizeVaultsFromSdk,
+} from "@/features/protocols/adapters/defindex-from-sdk";
+import {
   DefindexBalanceCard,
   DefindexTxCard,
+  DefindexVaultDetailCard,
+  DefindexVaultsCard,
   DefindexYieldCard,
 } from "@/features/protocols/cards/defindex";
-import {
-  normalizeVaultsFromSdk,
-  normalizeVaultDetailFromSdk,
-  normalizeVaultBalanceFromSdk,
-} from "@/features/protocols/adapters/defindex-from-sdk";
+import { TokenImage } from "@/shared/components/token-image";
+import { PROTOCOL_ICONS } from "@/shared/constants/asset-manifest";
 import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
-import { TokenImage } from "@/shared/components/token-image";
-import { PROTOCOL_ICONS } from "@/shared/constants/asset-manifest";
 
 // ── Mock stream so DefindexTxCard's useStreamContext() doesn't throw ─────────
 const MOCK_STREAM = {
@@ -51,8 +51,7 @@ const DEFINDEX_URL = "/api/defindex";
 const inputCls =
   "w-full rounded-lg bg-secondary border border-border px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20";
 const labelCls = "block text-muted-foreground text-[11px] mb-0.5 font-medium";
-const panelCls =
-  "rounded-xl border border-border bg-card/80 p-4 space-y-3 flex flex-col";
+const panelCls = "rounded-xl border border-border bg-card/80 p-4 space-y-3 flex flex-col";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface Field {
@@ -79,7 +78,15 @@ interface QueryPanelProps {
   renderResult?: (data: any) => React.ReactNode;
 }
 
-function QueryPanel({ title, url, fields, defaults = {}, autoFetch = false, className, renderResult }: QueryPanelProps) {
+function QueryPanel({
+  title,
+  url,
+  fields,
+  defaults = {},
+  autoFetch = false,
+  className,
+  renderResult,
+}: QueryPanelProps) {
   const [form, setForm] = useState<Record<string, string>>(defaults);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -88,7 +95,7 @@ function QueryPanel({ title, url, fields, defaults = {}, autoFetch = false, clas
 
   useEffect(() => {
     setForm((prev) => ({ ...defaults, ...prev }));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(defaults)]);
 
   const run = useCallback(async () => {
@@ -117,13 +124,15 @@ function QueryPanel({ title, url, fields, defaults = {}, autoFetch = false, clas
       autoFetched.current = true;
       run();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoFetch, form]);
 
   return (
     <div className={`${panelCls} ${className ?? ""}`}>
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-cyan-400 uppercase tracking-wider">{title}</span>
+        <span className="text-[11px] font-semibold text-cyan-400 uppercase tracking-wider">
+          {title}
+        </span>
         <span className="text-[10px] text-muted-foreground/60 font-mono">GET</span>
       </div>
 
@@ -146,15 +155,25 @@ function QueryPanel({ title, url, fields, defaults = {}, autoFetch = false, clas
         onClick={run}
         disabled={loading}
       >
-        {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+        {loading ? (
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        ) : (
+          <RefreshCw className="w-3.5 h-3.5" />
+        )}
         Fetch
       </Button>
 
-      {error && <Typography variant="small" className="text-red-400 text-xs bg-red-500/10 rounded p-2">{error}</Typography>}
+      {error && (
+        <Typography variant="small" className="text-red-400 text-xs bg-red-500/10 rounded p-2">
+          {error}
+        </Typography>
+      )}
 
       {result && (
         <div className="mt-1">
-          {renderResult ? renderResult(result) : (
+          {renderResult ? (
+            renderResult(result)
+          ) : (
             <pre className="max-h-[400px] overflow-auto rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground font-mono">
               {JSON.stringify(result, null, 2)}
             </pre>
@@ -196,7 +215,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
       if (address) next.from = address;
       return next;
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(defaults), address]);
 
   /** Convert human-readable amounts to stroops (7 decimals) */
@@ -216,9 +235,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
 
       // For "amounts" field: split by comma, convert each to stroops, send as array
       if (amountKeys.has("amounts") && typeof payload.amounts === "string") {
-        payload.amounts = (payload.amounts as string)
-          .split(",")
-          .map((a) => toStroops(a.trim()));
+        payload.amounts = (payload.amounts as string).split(",").map((a) => toStroops(a.trim()));
       }
 
       // For "shares" field: convert to stroops
@@ -244,7 +261,9 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
   return (
     <div className={panelCls}>
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">{title}</span>
+        <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">
+          {title}
+        </span>
         <span className="text-[10px] text-muted-foreground/60 font-mono">POST /op/{endpoint}</span>
       </div>
 
@@ -267,11 +286,19 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
         onClick={build}
         disabled={loading}
       >
-        {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+        {loading ? (
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        ) : (
+          <Zap className="w-3.5 h-3.5" />
+        )}
         Build TX
       </Button>
 
-      {error && <Typography variant="small" className="text-red-400 text-xs bg-red-500/10 rounded p-2">{error}</Typography>}
+      {error && (
+        <Typography variant="small" className="text-red-400 text-xs bg-red-500/10 rounded p-2">
+          {error}
+        </Typography>
+      )}
 
       {result?.xdr && (
         <div className="mt-1">
@@ -306,7 +333,9 @@ function VaultSelector({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <label className="text-muted-foreground text-xs font-medium whitespace-nowrap">Active Vault:</label>
+      <label className="text-muted-foreground text-xs font-medium whitespace-nowrap">
+        Active Vault:
+      </label>
       <div className="relative">
         <select
           className="appearance-none bg-secondary border border-border rounded px-3 py-1.5 pr-7 text-sm text-foreground focus:outline-none focus:border-primary/50 cursor-pointer"
@@ -321,7 +350,9 @@ function VaultSelector({
         </select>
         <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
       </div>
-      <span className="text-[10px] text-muted-foreground/60 font-mono hidden sm:block">{selected}</span>
+      <span className="text-[10px] text-muted-foreground/60 font-mono hidden sm:block">
+        {selected}
+      </span>
     </div>
   );
 }
@@ -370,13 +401,15 @@ function VaultDetailPanel({ address }: { address: string }) {
     if (autoFetched.current || !inputAddr) return;
     autoFetched.current = true;
     run();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputAddr]);
 
   return (
     <div className={panelCls}>
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-cyan-400 uppercase tracking-wider">Vault Detail</span>
+        <span className="text-[11px] font-semibold text-cyan-400 uppercase tracking-wider">
+          Vault Detail
+        </span>
         <span className="text-[10px] text-muted-foreground/60 font-mono">GET</span>
       </div>
       <div>
@@ -395,10 +428,18 @@ function VaultDetailPanel({ address }: { address: string }) {
         onClick={run}
         disabled={loading}
       >
-        {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+        {loading ? (
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        ) : (
+          <RefreshCw className="w-3.5 h-3.5" />
+        )}
         Fetch
       </Button>
-      {error && <Typography variant="small" className="text-red-400 text-xs bg-red-500/10 rounded p-2">{error}</Typography>}
+      {error && (
+        <Typography variant="small" className="text-red-400 text-xs bg-red-500/10 rounded p-2">
+          {error}
+        </Typography>
+      )}
       {result && (
         <div className="mt-1">
           {result.type === "detail" ? (
@@ -454,14 +495,19 @@ export default function DefindexPlaygroundPage() {
   return (
     <StreamContext.Provider value={MOCK_STREAM}>
       <div className="min-h-screen bg-background text-foreground p-6 space-y-6">
-
         {/* Header */}
         <div className="space-y-3">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
-              <TokenImage src={PROTOCOL_ICONS.defindex} alt="DeFindex" className="h-8 w-8 rounded-lg" />
+              <TokenImage
+                src={PROTOCOL_ICONS.defindex}
+                alt="DeFindex"
+                className="h-8 w-8 rounded-lg"
+              />
               <div>
-                <Typography as="h1" variant="h3" weight="bold" className="text-foreground">DeFindex Playground</Typography>
+                <Typography as="h1" variant="h3" weight="bold" className="text-foreground">
+                  DeFindex Playground
+                </Typography>
                 <Typography variant="p" className="text-muted-foreground text-sm mt-1">
                   Direct SDK — vault operations via{" "}
                   <span className="font-mono text-emerald-400 text-xs">/api/defindex/...</span>
@@ -495,7 +541,9 @@ export default function DefindexPlaygroundPage() {
               variant="ghost"
               onClick={() => setTab(t)}
               className={`px-5 py-1.5 rounded-md text-sm font-medium transition-colors capitalize h-auto ${
-                tab === t ? "bg-accent text-foreground shadow hover:bg-accent" : "text-muted-foreground hover:text-foreground"
+                tab === t
+                  ? "bg-accent text-foreground shadow hover:bg-accent"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {t === "queries" ? `Queries (${queryCount})` : `Operations (${opCount})`}
@@ -508,7 +556,6 @@ export default function DefindexPlaygroundPage() {
         ═══════════════════════════════════════ */}
         {tab === "queries" && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-
             {/* 1. List Vaults */}
             <QueryPanel
               title="List Vaults"
@@ -516,10 +563,7 @@ export default function DefindexPlaygroundPage() {
               fields={[]}
               autoFetch
               renderResult={(d) => (
-                <DefindexVaultsCard
-                  vaults={normalizeVaultsFromSdk(d)}
-                  mode="playground"
-                />
+                <DefindexVaultsCard vaults={normalizeVaultsFromSdk(d)} mode="playground" />
               )}
             />
 
@@ -561,7 +605,11 @@ export default function DefindexPlaygroundPage() {
               fields={[
                 { key: "address", label: "Vault Address", placeholder: "C..." },
                 { key: "period", label: "Period", placeholder: "7d | 30d | 90d | 1y | all" },
-                { key: "interval", label: "Interval", placeholder: "hourly | daily | weekly | monthly" },
+                {
+                  key: "interval",
+                  label: "Interval",
+                  placeholder: "hourly | daily | weekly | monthly",
+                },
               ]}
               defaults={{ address: vault, period: "7d", interval: "daily" }}
             />
@@ -585,7 +633,6 @@ export default function DefindexPlaygroundPage() {
         ═══════════════════════════════════════ */}
         {tab === "operations" && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-
             {/* 1. Deposit */}
             <OpPanel
               title="Deposit"
@@ -631,7 +678,8 @@ export default function DefindexPlaygroundPage() {
         {/* Footer */}
         <div className="border-t border-border pt-4 text-center">
           <Typography variant="small" className="text-muted-foreground/40 text-xs">
-            DeFindex Playground · SDK-backed · Operations build XDR only — wallet signing required to submit on-chain
+            DeFindex Playground · SDK-backed · Operations build XDR only — wallet signing required
+            to submit on-chain
           </Typography>
         </div>
       </div>

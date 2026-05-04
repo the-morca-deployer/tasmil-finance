@@ -1,18 +1,18 @@
 "use client";
 
+import { ExternalLink, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { Loader2, ExternalLink } from "lucide-react";
+import { useStreamContext } from "@/features/chat/hooks/use-stream";
 import { TokenImage } from "@/shared/components/token-image";
+import { getExplorerUrl } from "@/shared/config/stellar";
+import { useTxSigning } from "../../hooks/use-tx-signing";
+import { cleanVaultName, fmtAmount, fmtGas, trunc } from "../../lib/formatting";
 import type { CardMode } from "../../schemas/common.schema";
 import type { DefindexTxCardProps } from "../../schemas/defindex.schema";
-import { fmtAmount, fmtGas, trunc, cleanVaultName } from "../../lib/formatting";
-import { useTxSigning } from "../../hooks/use-tx-signing";
-import { useStreamContext } from "@/features/chat/hooks/use-stream";
-import { getExplorerUrl } from "@/shared/config/stellar";
 
 const OP_CONFIG: Record<string, { label: string; verb: string; action: string }> = {
-  vault_deposit:    { label: "Deposit",    verb: "to deposit",  action: "Sign & Deposit"  },
-  vault_withdraw:   { label: "Withdraw",   verb: "to withdraw", action: "Sign & Withdraw" },
+  vault_deposit: { label: "Deposit", verb: "to deposit", action: "Sign & Deposit" },
+  vault_withdraw: { label: "Withdraw", verb: "to withdraw", action: "Sign & Withdraw" },
   vault_withdraw_amounts: { label: "Withdraw", verb: "to withdraw", action: "Sign & Withdraw" },
 };
 
@@ -26,13 +26,23 @@ interface Props {
   respond?: (result: Record<string, unknown>) => void;
 }
 
-export function DefindexTxCard({ tx, mode = "playground", stream: streamProp, toolCallId, respond }: Props) {
+export function DefindexTxCard({
+  tx,
+  mode = "playground",
+  stream: streamProp,
+  toolCallId,
+  respond,
+}: Props) {
   const cfg = OP_CONFIG[tx.operation] ?? DEFAULT_OP;
 
   // Context from API enrichment
   const ctx = tx.context;
   const assetSymbol = ctx?.asset ?? tx.asset ?? "—";
-  const vaultDisplayName = ctx?.vaultName ? cleanVaultName(ctx.vaultName) : (tx.vaultName ? cleanVaultName(tx.vaultName) : null);
+  const vaultDisplayName = ctx?.vaultName
+    ? cleanVaultName(ctx.vaultName)
+    : tx.vaultName
+      ? cleanVaultName(tx.vaultName)
+      : null;
   const totalAmount = tx.amounts?.reduce((sum, a) => sum + Number(a), 0)?.toString() ?? "0";
   const rawFee = tx.estimatedFee ?? "0";
   const hasFee = Number(rawFee) > 0;
@@ -48,11 +58,17 @@ export function DefindexTxCard({ tx, mode = "playground", stream: streamProp, to
     toolCallId,
     operation: tx.operation,
     respond,
-    volumeContext: { protocol: "defindex", operation: tx.operation, asset: assetSymbol, amount: totalAmount },
+    volumeContext: {
+      protocol: "defindex",
+      operation: tx.operation,
+      asset: assetSymbol,
+      amount: totalAmount,
+    },
   });
 
   const [showXdr, setShowXdr] = useState(false);
-  const cancelled = txResult !== null && !txResult.success && txResult.message === "Transaction cancelled";
+  const cancelled =
+    txResult !== null && !txResult.success && txResult.message === "Transaction cancelled";
 
   return (
     <div className="relative rounded-xl border border-border bg-card overflow-hidden">
@@ -85,7 +101,9 @@ export function DefindexTxCard({ tx, mode = "playground", stream: streamProp, to
         {apy != null && apy > 0 && (
           <div className="flex justify-between py-2.5 border-b border-border/30">
             <span className="text-sm text-muted-foreground">Vault APY</span>
-            <span className="text-sm font-medium text-emerald-400 tabular-nums">{apy.toFixed(2)}%</span>
+            <span className="text-sm font-medium text-emerald-400 tabular-nums">
+              {apy.toFixed(2)}%
+            </span>
           </div>
         )}
 
@@ -114,7 +132,8 @@ export function DefindexTxCard({ tx, mode = "playground", stream: streamProp, to
           <div className="flex justify-between py-2.5 border-b border-border/30">
             <span className="text-sm text-muted-foreground">Fees</span>
             <span className="text-sm text-muted-foreground/80 tabular-nums">
-              {(ctx.feesBps.vaultFee / 100).toFixed(1)}% vault + {(ctx.feesBps.defindexFee / 100).toFixed(1)}% protocol
+              {(ctx.feesBps.vaultFee / 100).toFixed(1)}% vault +{" "}
+              {(ctx.feesBps.defindexFee / 100).toFixed(1)}% protocol
             </span>
           </div>
         )}
@@ -122,7 +141,11 @@ export function DefindexTxCard({ tx, mode = "playground", stream: streamProp, to
 
       {/* XDR toggle */}
       <div className="px-5 pb-2">
-        <button type="button" onClick={() => setShowXdr(!showXdr)} className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+        <button
+          type="button"
+          onClick={() => setShowXdr(!showXdr)}
+          className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+        >
           {showXdr ? "Hide XDR" : "Show XDR"}
         </button>
         {showXdr && (
@@ -169,7 +192,13 @@ export function DefindexTxCard({ tx, mode = "playground", stream: streamProp, to
               onClick={() => sign(xdr)}
               disabled={signing || !xdr}
             >
-              {signing ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Signing...</> : cfg.action}
+              {signing ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Signing...
+                </>
+              ) : (
+                cfg.action
+              )}
             </button>
           </div>
         )}

@@ -1,13 +1,15 @@
+import { resolveAsset, resolveAssetAsync } from "@tasmil/adapter-sdk";
 import { NextResponse } from "next/server";
 import { sdk } from "../_sdk";
-import { resolveAsset, resolveAssetAsync } from "@tasmil/adapter-sdk";
 
 async function toContract(symbol: string): Promise<string> {
   let c = resolveAsset(symbol, "contract", sdk.config.network);
   if (c === symbol && !c.startsWith("C")) {
     try {
       c = await resolveAssetAsync(symbol, "contract", sdk.config.network);
-    } catch { /* keep original */ }
+    } catch {
+      /* keep original */
+    }
   }
   return c;
 }
@@ -24,7 +26,7 @@ export async function POST(req: Request) {
     if (!protocol || !tokenIn || !tokenOut || !amount || !from) {
       return NextResponse.json(
         { success: false, error: "Missing required params" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -68,9 +70,7 @@ export async function POST(req: Request) {
           destination: from,
           destAsset,
           destMin: (Number(destMin) / 1e7).toFixed(7),
-          path: quote.route
-            .filter((r) => r !== tokenIn && r !== tokenOut)
-            .map((r) => toClassic(r)),
+          path: quote.route.filter((r) => r !== tokenIn && r !== tokenOut).map((r) => toClassic(r)),
         });
         break;
       }
@@ -116,7 +116,7 @@ export async function POST(req: Request) {
       default:
         return NextResponse.json(
           { success: false, error: `Unsupported protocol: ${protocol}` },
-          { status: 400 },
+          { status: 400 }
         );
     }
 
@@ -125,7 +125,7 @@ export async function POST(req: Request) {
     console.error("[execute]", err);
     return NextResponse.json(
       { success: false, error: err instanceof Error ? err.message : String(err) },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }

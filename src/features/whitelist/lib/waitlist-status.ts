@@ -23,7 +23,9 @@ export function hasContactEmail(status: WaitlistWalletStatusData | null | undefi
  * Returns true if the wallet entry is eligible for email-based access code delivery.
  * Currently equivalent to hasEmail, but reserved for future logic (e.g., verified emails).
  */
-export function isEmailDeliveryEligible(status: WaitlistWalletStatusData | null | undefined): boolean {
+export function isEmailDeliveryEligible(
+  status: WaitlistWalletStatusData | null | undefined
+): boolean {
   return !!status?.emailDeliveryEligible;
 }
 

@@ -7,27 +7,30 @@
  * Calls SDK-backed routes (/api/protocols/[protocol]/...) and renders JSON results.
  */
 
-import { use, useState, useEffect, useCallback, useRef } from "react";
-import { notFound } from "next/navigation";
 import { Loader2, RefreshCw } from "lucide-react";
-import { useWallet } from "@/shared/context/wallet-context";
+import { notFound } from "next/navigation";
+import { use, useCallback, useEffect, useRef, useState } from "react";
+import {
+  CATEGORY_LABELS,
+  PROTOCOL_CONFIGS,
+} from "@/features/dev-playground/config/protocol-configs";
 import { TokenImage } from "@/shared/components/token-image";
+import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
-import {
-  PROTOCOL_CONFIGS,
-  CATEGORY_LABELS,
-} from "@/features/dev-playground/config/protocol-configs";
 
 // ── Styles (same as blend-v2) ─────────────────────────────────────────────────
 const inputCls =
   "w-full rounded-lg bg-secondary border border-border px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20";
 const labelCls = "block text-muted-foreground text-[11px] mb-0.5 font-medium";
-const panelCls =
-  "rounded-xl border border-border bg-card/80 p-4 space-y-3 flex flex-col";
+const panelCls = "rounded-xl border border-border bg-card/80 p-4 space-y-3 flex flex-col";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-interface Field { key: string; label: string; placeholder?: string }
+interface Field {
+  key: string;
+  label: string;
+  placeholder?: string;
+}
 
 // ── QueryPanel ────────────────────────────────────────────────────────────────
 interface QueryPanelProps {
@@ -39,7 +42,14 @@ interface QueryPanelProps {
   autoFetch?: boolean;
 }
 
-function QueryPanel({ title, protocol, endpoint, fields, defaults = {}, autoFetch = false }: QueryPanelProps) {
+function QueryPanel({
+  title,
+  protocol,
+  endpoint,
+  fields,
+  defaults = {},
+  autoFetch = false,
+}: QueryPanelProps) {
   const [form, setForm] = useState<Record<string, string>>(defaults);
   const [result, setResult] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
@@ -48,7 +58,7 @@ function QueryPanel({ title, protocol, endpoint, fields, defaults = {}, autoFetc
 
   useEffect(() => {
     setForm((prev) => ({ ...defaults, ...prev }));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(defaults)]);
 
   const run = useCallback(async () => {
@@ -77,13 +87,15 @@ function QueryPanel({ title, protocol, endpoint, fields, defaults = {}, autoFetc
       autoFetched.current = true;
       run();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoFetch, form]);
 
   return (
     <div className={panelCls}>
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-cyan-400 uppercase tracking-wider">{title}</span>
+        <span className="text-[11px] font-semibold text-cyan-400 uppercase tracking-wider">
+          {title}
+        </span>
         <span className="text-[10px] text-muted-foreground/60 font-mono">GET /{endpoint}</span>
       </div>
 
@@ -106,11 +118,19 @@ function QueryPanel({ title, protocol, endpoint, fields, defaults = {}, autoFetc
         onClick={run}
         disabled={loading}
       >
-        {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+        {loading ? (
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        ) : (
+          <RefreshCw className="w-3.5 h-3.5" />
+        )}
         Fetch
       </Button>
 
-      {error && <Typography variant="small" className="text-red-400 text-xs bg-red-500/10 rounded p-2">{error}</Typography>}
+      {error && (
+        <Typography variant="small" className="text-red-400 text-xs bg-red-500/10 rounded p-2">
+          {error}
+        </Typography>
+      )}
 
       {result != null && (
         <pre className="max-h-[400px] overflow-auto rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground font-mono">
@@ -133,70 +153,112 @@ interface EndpointConfig {
 const PROTOCOL_ENDPOINTS: Record<string, EndpointConfig[]> = {
   aquarius: [
     { title: "List Pools", endpoint: "pools", fields: [], autoFetch: true },
-    { title: "Pool Detail", endpoint: "pool", fields: [{ key: "address", label: "Pool Address", placeholder: "C..." }] },
+    {
+      title: "Pool Detail",
+      endpoint: "pool",
+      fields: [{ key: "address", label: "Pool Address", placeholder: "C..." }],
+    },
     { title: "Yield Opportunities", endpoint: "yield", fields: [], autoFetch: true },
-    { title: "Swap Quote", endpoint: "quote", fields: [
-      { key: "tokenIn", label: "Token In", placeholder: "XLM" },
-      { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
-      { key: "amount", label: "Amount", placeholder: "10000000" },
-    ]},
+    {
+      title: "Swap Quote",
+      endpoint: "quote",
+      fields: [
+        { key: "tokenIn", label: "Token In", placeholder: "XLM" },
+        { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
+        { key: "amount", label: "Amount", placeholder: "10000000" },
+      ],
+    },
   ],
   soroswap: [
     { title: "List Pools", endpoint: "pools", fields: [], autoFetch: true },
     { title: "Yield Opportunities", endpoint: "yield", fields: [], autoFetch: true },
-    { title: "Swap Quote", endpoint: "quote", fields: [
-      { key: "tokenIn", label: "Token In", placeholder: "XLM" },
-      { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
-      { key: "amount", label: "Amount", placeholder: "10000000" },
-    ]},
+    {
+      title: "Swap Quote",
+      endpoint: "quote",
+      fields: [
+        { key: "tokenIn", label: "Token In", placeholder: "XLM" },
+        { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
+        { key: "amount", label: "Amount", placeholder: "10000000" },
+      ],
+    },
   ],
   phoenix: [
     { title: "List Pools", endpoint: "pools", fields: [], autoFetch: true },
-    { title: "Pool Detail", endpoint: "pool", fields: [{ key: "address", label: "Pool Address", placeholder: "C..." }] },
+    {
+      title: "Pool Detail",
+      endpoint: "pool",
+      fields: [{ key: "address", label: "Pool Address", placeholder: "C..." }],
+    },
     { title: "Yield Opportunities", endpoint: "yield", fields: [], autoFetch: true },
-    { title: "Swap Quote", endpoint: "quote", fields: [
-      { key: "tokenIn", label: "Token In", placeholder: "XLM" },
-      { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
-      { key: "amount", label: "Amount", placeholder: "10000000" },
-    ]},
+    {
+      title: "Swap Quote",
+      endpoint: "quote",
+      fields: [
+        { key: "tokenIn", label: "Token In", placeholder: "XLM" },
+        { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
+        { key: "amount", label: "Amount", placeholder: "10000000" },
+      ],
+    },
   ],
   sdex: [
     { title: "Yield Opportunities", endpoint: "yield", fields: [], autoFetch: true },
-    { title: "Swap Quote", endpoint: "quote", fields: [
-      { key: "tokenIn", label: "Token In", placeholder: "XLM" },
-      { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
-      { key: "amount", label: "Amount", placeholder: "10000000" },
-    ]},
-    { title: "Order Book", endpoint: "orderbook", fields: [
-      { key: "selling", label: "Selling Asset", placeholder: "XLM" },
-      { key: "buying", label: "Buying Asset", placeholder: "USDC" },
-      { key: "limit", label: "Depth", placeholder: "20" },
-    ]},
+    {
+      title: "Swap Quote",
+      endpoint: "quote",
+      fields: [
+        { key: "tokenIn", label: "Token In", placeholder: "XLM" },
+        { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
+        { key: "amount", label: "Amount", placeholder: "10000000" },
+      ],
+    },
+    {
+      title: "Order Book",
+      endpoint: "orderbook",
+      fields: [
+        { key: "selling", label: "Selling Asset", placeholder: "XLM" },
+        { key: "buying", label: "Buying Asset", placeholder: "USDC" },
+        { key: "limit", label: "Depth", placeholder: "20" },
+      ],
+    },
   ],
   allbridge: [
     { title: "Yield Opportunities", endpoint: "yield", fields: [], autoFetch: true },
-    { title: "Bridge Quote", endpoint: "quote", fields: [
-      { key: "tokenIn", label: "Token In", placeholder: "USDC" },
-      { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
-      { key: "amount", label: "Amount", placeholder: "10000000" },
-    ]},
+    {
+      title: "Bridge Quote",
+      endpoint: "quote",
+      fields: [
+        { key: "tokenIn", label: "Token In", placeholder: "USDC" },
+        { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
+        { key: "amount", label: "Amount", placeholder: "10000000" },
+      ],
+    },
   ],
   defindex: [
     { title: "List Vaults", endpoint: "pools", fields: [], autoFetch: true },
-    { title: "Vault Detail", endpoint: "pool", fields: [{ key: "address", label: "Vault Address", placeholder: "C..." }] },
+    {
+      title: "Vault Detail",
+      endpoint: "pool",
+      fields: [{ key: "address", label: "Vault Address", placeholder: "C..." }],
+    },
     { title: "Yield Opportunities", endpoint: "yield", fields: [], autoFetch: true },
   ],
   templar: [
     { title: "Yield Opportunities", endpoint: "yield", fields: [], autoFetch: true },
     { title: "Lending Markets", endpoint: "markets", fields: [], autoFetch: true },
-    { title: "User Position", endpoint: "positions", fields: [
-      { key: "market", label: "Market ID", placeholder: "ixlm-ixlmusdc.v1.tmplr.near" },
-    ]},
-    { title: "Swap Quote", endpoint: "quote", fields: [
-      { key: "tokenIn", label: "Token In", placeholder: "XLM" },
-      { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
-      { key: "amount", label: "Amount", placeholder: "10000000" },
-    ]},
+    {
+      title: "User Position",
+      endpoint: "positions",
+      fields: [{ key: "market", label: "Market ID", placeholder: "ixlm-ixlmusdc.v1.tmplr.near" }],
+    },
+    {
+      title: "Swap Quote",
+      endpoint: "quote",
+      fields: [
+        { key: "tokenIn", label: "Token In", placeholder: "XLM" },
+        { key: "tokenOut", label: "Token Out", placeholder: "USDC" },
+        { key: "amount", label: "Amount", placeholder: "10000000" },
+      ],
+    },
   ],
 };
 
@@ -219,7 +281,9 @@ export default function ProtocolPlaygroundPage({
   useEffect(() => {
     fetch("/api/protocols/health")
       .then((r) => r.json())
-      .then((d) => { if (d.success) setNetworkInfo(d.network ?? ""); })
+      .then((d) => {
+        if (d.success) setNetworkInfo(d.network ?? "");
+      })
       .catch(() => {});
   }, []);
 
@@ -239,7 +303,9 @@ export default function ProtocolPlaygroundPage({
         <div className="flex items-center gap-3">
           <TokenImage src={config.icon} alt={config.name} className="h-8 w-8 rounded-lg" />
           <div>
-            <Typography as="h1" variant="h3" weight="bold" className="text-foreground">{config.name} Playground</Typography>
+            <Typography as="h1" variant="h3" weight="bold" className="text-foreground">
+              {config.name} Playground
+            </Typography>
             <Typography variant="p" className="text-muted-foreground text-sm mt-1">
               Direct SDK queries · {CATEGORY_LABELS[config.category]} · {endpoints.length} endpoints
             </Typography>

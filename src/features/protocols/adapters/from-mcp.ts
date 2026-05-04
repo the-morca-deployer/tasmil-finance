@@ -4,21 +4,21 @@
  */
 
 import type {
-  PoolCardProps,
-  ReserveCardProps,
-  PositionsCardProps,
-  TxCardProps,
-  BackstopCardProps,
   BackstopBalanceCardProps,
+  BackstopCardProps,
+  PoolCardProps,
+  PositionsCardProps,
+  ReserveCardProps,
+  TxCardProps,
 } from "../schemas/blend.schema";
 import {
+  normalizeBackstopBalanceFromSdk,
+  normalizeBackstopFromSdk,
   normalizePoolFromSdk,
   normalizePoolsFromSdk,
-  normalizeReserveFromSdk,
   normalizePositionsFromSdk,
+  normalizeReserveFromSdk,
   normalizeTxFromSdk,
-  normalizeBackstopFromSdk,
-  normalizeBackstopBalanceFromSdk,
 } from "./from-sdk";
 
 // ─── MCP result unwrapping ──────────────────────────────────────
@@ -30,14 +30,14 @@ import {
  * - Object: already parsed
  */
 export function unwrapMcpResult<T = Record<string, unknown>>(
-  result: unknown,
+  result: unknown
 ): { data: T | null; error: string | null } {
   let parsed: unknown = result;
 
   // Handle MCP array format: [{type:"text", text: "..."}]
   if (Array.isArray(result)) {
     const textBlock = (result as Array<{ type?: string; text?: string }>).find(
-      (b) => b?.type === "text" && typeof b?.text === "string",
+      (b) => b?.type === "text" && typeof b?.text === "string"
     );
     if (textBlock?.text) {
       try {
@@ -102,7 +102,10 @@ function convertMcpPoolReserves(data: Record<string, unknown>): Record<string, u
   // Convert single pool reserves
   const pool = (out.pool ?? out) as Record<string, unknown>;
   if (pool.reserves && Array.isArray(pool.reserves)) {
-    const converted = { ...pool, reserves: (pool.reserves as Record<string, unknown>[]).map(convertMcpApyToDecimal) };
+    const converted = {
+      ...pool,
+      reserves: (pool.reserves as Record<string, unknown>[]).map(convertMcpApyToDecimal),
+    };
     if (out.pool) {
       out = { ...out, pool: converted };
     } else {
@@ -116,7 +119,10 @@ function convertMcpPoolReserves(data: Record<string, unknown>): Record<string, u
       ...out,
       pools: (out.pools as Record<string, unknown>[]).map((p) => {
         if (p.reserves && Array.isArray(p.reserves)) {
-          return { ...p, reserves: (p.reserves as Record<string, unknown>[]).map(convertMcpApyToDecimal) };
+          return {
+            ...p,
+            reserves: (p.reserves as Record<string, unknown>[]).map(convertMcpApyToDecimal),
+          };
         }
         return p;
       }),
@@ -147,7 +153,10 @@ export function normalizeReserveFromMcp(result: unknown): ReserveCardProps | nul
   if (error || !data) return null;
   // Convert single reserve APY
   const reserve = (data as Record<string, unknown>).reserve ?? data;
-  const converted = { ...data as Record<string, unknown>, reserve: convertMcpApyToDecimal(reserve as Record<string, unknown>) };
+  const converted = {
+    ...(data as Record<string, unknown>),
+    reserve: convertMcpApyToDecimal(reserve as Record<string, unknown>),
+  };
   return normalizeReserveFromSdk(converted);
 }
 
@@ -163,7 +172,7 @@ export function normalizePositionsFromMcp(result: unknown): PositionsCardProps |
 
 export function normalizeTxFromMcp(
   result: unknown,
-  args?: Record<string, unknown>,
+  args?: Record<string, unknown>
 ): TxCardProps | null {
   const { data, error } = unwrapMcpResult(result);
   if (error || !data) return null;

@@ -1,5 +1,4 @@
 "use client";
-import { activeNetwork } from "@/shared/config/stellar";
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Info, Loader2, Shield, ShieldOff, Wallet, XCircle } from "lucide-react";
@@ -23,6 +22,7 @@ import type { RiskPreset } from "@/features/account/types";
 import { TOUR_NAMES } from "@/features/onboarding/config/tour-steps";
 import { usePageTour } from "@/features/onboarding/hooks/use-onboarding";
 import { cn } from "@/lib/utils";
+import { activeNetwork } from "@/shared/config/stellar";
 import { Button } from "@/shared/ui/button-v2";
 import {
   Dialog,
@@ -44,8 +44,7 @@ async function signXdr(xdr: string, publicKey: string): Promise<string> {
   const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
   const { signedTxXdr } = await StellarWalletsKit.signTransaction(xdr, {
     address: publicKey,
-    networkPassphrase:
-      activeNetwork.networkPassphrase,
+    networkPassphrase: activeNetwork.networkPassphrase,
   });
   return signedTxXdr;
 }
@@ -148,9 +147,7 @@ function FarmingContent() {
   } = useActivity(publicKey);
   // Default preview asset to the account's current baseAsset; fall back to
   // USDC until position loads.
-  const [strategyPreviewAsset, setStrategyPreviewAsset] = useState<"USDC" | "XLM">(
-    "USDC",
-  );
+  const [strategyPreviewAsset, setStrategyPreviewAsset] = useState<"USDC" | "XLM">("USDC");
   const { data: presets, isLoading: presetsLoading } = usePresets(strategyPreviewAsset);
 
   // Keep selectedPreset in sync with the account's active preset so the
@@ -291,9 +288,7 @@ function FarmingContent() {
 
   // ─── Action handlers ──────────────────────────────────────────────────────
 
-  const openAccountModal = (
-    tab: "fund" | "strategy" | "withdraw" | "security" | "activate",
-  ) => {
+  const openAccountModal = (tab: "fund" | "strategy" | "withdraw" | "security" | "activate") => {
     setActionError(null);
     if (tab === "strategy") {
       const normalized = position?.preset?.toLowerCase();
@@ -487,20 +482,14 @@ function FarmingContent() {
             >
               <Shield className="mt-0.5 h-4 w-4 shrink-0 text-yellow-500" />
               <div className="flex-1">
-                <p className="font-medium text-foreground">
-                  New yield strategies available
-                </p>
+                <p className="font-medium text-foreground">New yield strategies available</p>
                 <p className="text-muted-foreground">
-                  Your session key was registered before we launched some pools. Refresh it
-                  to let the bot access the latest opportunities. Your funds stay in your
-                  keeper wallet — this just updates the bot's scope.
+                  Your session key was registered before we launched some pools. Refresh it to let
+                  the bot access the latest opportunities. Your funds stay in your keeper wallet —
+                  this just updates the bot's scope.
                 </p>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => openAccountModal("security")}
-              >
+              <Button variant="outline" size="sm" onClick={() => openAccountModal("security")}>
                 Refresh
               </Button>
             </motion.div>
@@ -601,8 +590,8 @@ function FarmingContent() {
                   <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/10 px-4 py-3">
                     <Info className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <span className="flex-1 text-sm text-muted-foreground">
-                      <strong className="text-foreground">Agent paused.</strong>{" "}
-                      Deposits are available, but withdrawals require reactivating the session key first.
+                      <strong className="text-foreground">Agent paused.</strong> Deposits are
+                      available, but withdrawals require reactivating the session key first.
                     </span>
                     <Button
                       size="sm"
@@ -665,12 +654,11 @@ function FarmingContent() {
                       Your current preset is{" "}
                       <span className="font-medium text-foreground">
                         {position?.preset
-                          ? position.preset.charAt(0) +
-                            position.preset.slice(1).toLowerCase()
+                          ? position.preset.charAt(0) + position.preset.slice(1).toLowerCase()
                           : "Balanced"}
                       </span>
-                      . The same preset applies to both USDC and XLM deposits —
-                      each portion is allocated through its asset-specific pools.
+                      . The same preset applies to both USDC and XLM deposits — each portion is
+                      allocated through its asset-specific pools.
                     </p>
                   </div>
 
@@ -687,8 +675,9 @@ function FarmingContent() {
                       // this asset. Backend fills activeAssets from both
                       // strategy positions AND keeper-wallet balances so a
                       // user who funds both USDC and XLM sees both badges.
-                      const activeAssetsUpper = (position?.activeAssets ?? [])
-                        .map((a) => a.toUpperCase());
+                      const activeAssetsUpper = (position?.activeAssets ?? []).map((a) =>
+                        a.toUpperCase()
+                      );
                       const isCurrentBase = activeAssetsUpper.includes(asset);
                       return (
                         <button
@@ -699,7 +688,7 @@ function FarmingContent() {
                             "inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition-all",
                             isActive
                               ? "border-primary/50 bg-primary/10 text-foreground ring-1 ring-primary/40"
-                              : "border-white/8 bg-white/3 text-muted-foreground hover:border-white/12 hover:text-foreground",
+                              : "border-white/8 bg-white/3 text-muted-foreground hover:border-white/12 hover:text-foreground"
                           )}
                         >
                           <span className="font-semibold">{asset}</span>
@@ -718,8 +707,8 @@ function FarmingContent() {
                   <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/20 p-3 text-sm">
                     <ShieldOff className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                     <p className="text-muted-foreground">
-                      Session key is revoked. Reactivate from the Security action before
-                      changing your strategy.
+                      Session key is revoked. Reactivate from the Security action before changing
+                      your strategy.
                     </p>
                   </div>
                 )}
@@ -748,9 +737,7 @@ function FarmingContent() {
                     </div>
 
                     <div className="flex items-center justify-end gap-3">
-                      {actionError && (
-                        <p className="text-destructive text-sm">{actionError}</p>
-                      )}
+                      {actionError && <p className="text-destructive text-sm">{actionError}</p>}
                       <Button
                         variant="gradient"
                         size="lg"
@@ -769,7 +756,7 @@ function FarmingContent() {
                             setActionError(
                               err instanceof Error
                                 ? err.message
-                                : "Strategy update failed. Please try again.",
+                                : "Strategy update failed. Please try again."
                             );
                           }
                         }}
@@ -777,8 +764,7 @@ function FarmingContent() {
                           isRevoked ||
                           !selectedPreset ||
                           // Disable when already on the selected preset
-                          selectedPreset?.toUpperCase() ===
-                            position?.preset?.toUpperCase() ||
+                          selectedPreset?.toUpperCase() === position?.preset?.toUpperCase() ||
                           updatePreset.isPending
                         }
                       >
@@ -969,9 +955,9 @@ function FarmingContent() {
                 <div className="text-xs">
                   <p className="font-medium text-foreground">Refresh Session Key</p>
                   <p className="text-muted-foreground">
-                    Re-sign the session-key policy if the bot reports "not authorized"
-                    after a strategy upgrade. Safe to run anytime — it replaces the
-                    current policy with one scoped to the latest deployed strategies.
+                    Re-sign the session-key policy if the bot reports "not authorized" after a
+                    strategy upgrade. Safe to run anytime — it replaces the current policy with one
+                    scoped to the latest deployed strategies.
                   </p>
                 </div>
               </div>
@@ -994,7 +980,8 @@ function FarmingContent() {
                 <div className="text-xs">
                   <p className="font-medium text-foreground">Revoke stops bot automation.</p>
                   <p className="text-muted-foreground">
-                    You can still deposit and withdraw. Activate a new session key any time to resume.
+                    You can still deposit and withdraw. Activate a new session key any time to
+                    resume.
                   </p>
                 </div>
               </div>
@@ -1021,8 +1008,8 @@ function FarmingContent() {
                 <div className="text-xs">
                   <p className="font-medium text-foreground">Sign to register a new session key.</p>
                   <p className="text-muted-foreground">
-                    This allows the bot to rebalance on your behalf. Your funds remain
-                    in the keeper wallet — the session key only grants scoped permissions.
+                    This allows the bot to rebalance on your behalf. Your funds remain in the keeper
+                    wallet — the session key only grants scoped permissions.
                   </p>
                 </div>
               </div>

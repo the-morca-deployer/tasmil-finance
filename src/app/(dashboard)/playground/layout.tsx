@@ -1,14 +1,14 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-import { TokenImage } from "@/shared/components/token-image";
-import { cn } from "@/lib/utils";
-import {
-  PROTOCOL_CONFIGS,
-  CATEGORY_LABELS,
-} from "@/features/dev-playground/config/protocol-configs";
 import { Bot } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  CATEGORY_LABELS,
+  PROTOCOL_CONFIGS,
+} from "@/features/dev-playground/config/protocol-configs";
+import { cn } from "@/lib/utils";
+import { TokenImage } from "@/shared/components/token-image";
 
 // ─── Sidebar ───────────────────────────────────────────────────
 
@@ -36,7 +36,7 @@ function PlaygroundSidebar({ currentPath }: { currentPath: string }) {
               "w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
               demoAiActive
                 ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-muted/40 hover:text-foreground",
+                : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
             )}
           >
             <Bot className="h-4 w-4" />
@@ -64,7 +64,7 @@ function PlaygroundSidebar({ currentPath }: { currentPath: string }) {
                     "w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     isActive
                       ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted/40 hover:text-foreground",
+                      : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
                   )}
                 >
                   <TokenImage src={p.icon} alt={p.name} className="h-5 w-5 rounded-sm" />

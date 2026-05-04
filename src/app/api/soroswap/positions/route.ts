@@ -19,17 +19,17 @@ export async function GET(req: NextRequest) {
   try {
     // Build headers with API key
     const headers: Record<string, string> = { Accept: "application/json" };
-    const apiKey = process.env["SOROSWAP_API_KEYS"]?.split(",")[0] ?? process.env["SOROSWAP_API_KEY"];
+    const apiKey =
+      process.env["SOROSWAP_API_KEYS"]?.split(",")[0] ?? process.env["SOROSWAP_API_KEY"];
     if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
-    const res = await fetch(
-      `${SOROSWAP_API_BASE}/liquidity/positions/${user}?network=${network}`,
-      { headers },
-    );
+    const res = await fetch(`${SOROSWAP_API_BASE}/liquidity/positions/${user}?network=${network}`, {
+      headers,
+    });
 
     if (res.ok) {
       const data = await res.json();
-      const positions = Array.isArray(data) ? data : data.positions ?? [];
+      const positions = Array.isArray(data) ? data : (data.positions ?? []);
       return NextResponse.json({
         success: true,
         network,
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Failed to fetch positions" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

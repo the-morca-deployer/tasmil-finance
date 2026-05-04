@@ -140,7 +140,9 @@ function DesktopLayout({
       {/* Main Content Area - Header + Content */}
       <SidebarInset className="flex h-screen flex-col">
         {showHeader && <Header title={title} showRightSidebar={showRightSidebar} />}
-        <main data-onborda="main-content" className="flex-1 overflow-y-auto">{children}</main>
+        <main data-onborda="main-content" className="flex-1 overflow-y-auto">
+          {children}
+        </main>
       </SidebarInset>
 
       {/* Right Sidebar - Separate, full height with animation */}
@@ -179,7 +181,12 @@ function LayoutContent({
       {children}
     </MobileLayout>
   ) : (
-    <DesktopLayout showRightSidebar={showRightSidebar} showHeader={showHeader} title={title} sidebarData={customSidebarData}>
+    <DesktopLayout
+      showRightSidebar={showRightSidebar}
+      showHeader={showHeader}
+      title={title}
+      sidebarData={customSidebarData}
+    >
       {children}
     </DesktopLayout>
   );
@@ -192,10 +199,18 @@ export function MultiSidebarLayout({
   showHeader = true,
   title = "",
   sidebarData: customSidebarData,
-}: MultiSidebarLayoutProps & { title?: string; sidebarData?: import("@/shared/layout/sidebar-data").SidebarData }) {
+}: MultiSidebarLayoutProps & {
+  title?: string;
+  sidebarData?: import("@/shared/layout/sidebar-data").SidebarData;
+}) {
   return (
     <MultiSidebarProvider className={className || ""}>
-      <LayoutContent showRightSidebar={showRightSidebar} showHeader={showHeader} title={title} sidebarData={customSidebarData}>
+      <LayoutContent
+        showRightSidebar={showRightSidebar}
+        showHeader={showHeader}
+        title={title}
+        sidebarData={customSidebarData}
+      >
         {children}
       </LayoutContent>
     </MultiSidebarProvider>

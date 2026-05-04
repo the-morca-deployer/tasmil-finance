@@ -1,13 +1,13 @@
 "use client";
 
 import { ShieldCheck } from "lucide-react";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useStreamContext } from "@/features/chat/hooks";
 import type { SignedTxRecord } from "@/features/chat/types/stream.types";
-import { useWallet } from "@/shared/context/wallet-context";
-import { activeNetwork, truncateAddress } from "@/shared/config/stellar";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
+import { activeNetwork, truncateAddress } from "@/shared/config/stellar";
+import { useWallet } from "@/shared/context/wallet-context";
 import { DetailRow } from "../base/indicators";
 import { BaseOperationCard } from "../base/operation-card";
 
@@ -97,7 +97,9 @@ export function TrustlineExecuteCard({
   const action = execResult?.action ?? args?.action ?? "add_trustline";
 
   const isAdd = action !== "remove_trustline";
-  const title = isAdd ? `Add Trustline: ${assetCode ?? "Token"}` : `Remove Trustline: ${assetCode ?? "Token"}`;
+  const title = isAdd
+    ? `Add Trustline: ${assetCode ?? "Token"}`
+    : `Remove Trustline: ${assetCode ?? "Token"}`;
   const buttonText = isAdd ? "Sign & Add Trustline" : "Sign & Remove Trustline";
 
   const effectiveResult = localTxResult ?? (persistedTx ? toCardResult(persistedTx) : null);
@@ -137,10 +139,7 @@ export function TrustlineExecuteCard({
         const horizon = new Horizon.Server(activeNetwork.horizonUrl, {
           allowHttp: activeNetwork.horizonUrl.startsWith("http://"),
         });
-        const signedTx = TransactionBuilder.fromXDR(
-          signedTxXdr,
-          activeNetwork.networkPassphrase
-        );
+        const signedTx = TransactionBuilder.fromXDR(signedTxXdr, activeNetwork.networkPassphrase);
         const response = await horizon.submitTransaction(signedTx as any);
 
         const hash = response.hash;
@@ -187,7 +186,9 @@ export function TrustlineExecuteCard({
       } catch (error) {
         const msg = parseSigningError(error);
         const isRejection =
-          msg.toLowerCase().includes("rejected") || msg.toLowerCase().includes("denied") || msg.toLowerCase().includes("cancel");
+          msg.toLowerCase().includes("rejected") ||
+          msg.toLowerCase().includes("denied") ||
+          msg.toLowerCase().includes("cancel");
 
         const cardResult: TxCacheEntry = {
           success: false,
@@ -239,10 +240,7 @@ export function TrustlineExecuteCard({
   const renderDetails = () => (
     <div className="mb-2 space-y-2">
       {assetCode && (
-        <DetailRow
-          label="Asset"
-          value={<span className="font-semibold">{assetCode}</span>}
-        />
+        <DetailRow label="Asset" value={<span className="font-semibold">{assetCode}</span>} />
       )}
       {assetIssuer && (
         <DetailRow label="Issuer" value={truncateAddress(String(assetIssuer))} mono />

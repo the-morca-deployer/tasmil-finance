@@ -13,9 +13,9 @@ import { ThreadView } from "@/features/chat/thread/agent-inbox";
 import { MarkdownText } from "@/features/chat/thread/components/markdown-text";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { Loader } from "@/shared/ui/loader";
-import { ToolCallRenderer } from "./tool-call-renderer";
 import { GenericInterruptView } from "./generic-interrupt";
 import { BranchSwitcher, CommandBar } from "./shared";
+import { ToolCallRenderer } from "./tool-call-renderer";
 import { ToolResult } from "./tool-calls";
 
 /** Check if a tool call is a supervisor-to-agent delegation */
@@ -28,7 +28,6 @@ function hasSupervisorAgentCalls(toolCalls: AIMessage["tool_calls"] | undefined)
   if (!toolCalls) return false;
   return toolCalls.some((tc) => isSupervisorAgentCall(tc.name || ""));
 }
-
 
 interface InterruptProps {
   interrupt?: unknown;
@@ -60,8 +59,7 @@ function Interrupt({ interrupt, isLastMessage, hasNoAIOrToolMessages }: Interrup
       {isAgentInboxInterruptSchema(interrupt) && (isLastMessage || hasNoAIOrToolMessages) && (
         <ThreadView interrupt={interrupt} />
       )}
-      {!isAgentInboxInterruptSchema(interrupt) &&
-      (isLastMessage || hasNoAIOrToolMessages) ? (
+      {!isAgentInboxInterruptSchema(interrupt) && (isLastMessage || hasNoAIOrToolMessages) ? (
         <GenericInterruptView interrupt={fallbackValue} />
       ) : null}
     </>
@@ -113,9 +111,10 @@ export function AssistantMessage({
   const tagReasoning = hasTagStreaming
     ? extractIncompleteReasoningContent(rawContentString)
     : extractReasoningContent(rawContentString);
-  const reasoningContent = (typeof nativeReasoning === "string" && nativeReasoning.trim())
-    ? nativeReasoning.trim()
-    : tagReasoning;
+  const reasoningContent =
+    typeof nativeReasoning === "string" && nativeReasoning.trim()
+      ? nativeReasoning.trim()
+      : tagReasoning;
   // Only show reasoning for the FIRST AI message in the current turn.
   // Subsequent model calls (parse_intent → clarify → resolve) have their
   // own reasoning but it's internal — user only needs the initial "thinking".
@@ -187,20 +186,29 @@ export function AssistantMessage({
         ) : (
           <>
             {/* Show "Thinking..." if loading and no content/tool calls yet */}
-            {isNewMessageLoading && !hasToolCalls && contentString.length === 0 && !hasReasoning && (() => {
-              // Don't show "Thinking..." if an earlier AI message in this turn already has tool calls
-              const prevHasToolCalls = currentIdx > 0 && thread.messages
-                .slice(0, currentIdx)
-                .some((m) => m.type === "ai" && "tool_calls" in m && (m as any).tool_calls?.length > 0);
-              return !prevHasToolCalls;
-            })() && (
-              <div className="flex items-center gap-2 py-1.5">
-                <Loader size={16} className="text-muted-foreground" />
-                <Shimmer className="font-medium text-sm" duration={2}>
-                  Thinking...
-                </Shimmer>
-              </div>
-            )}
+            {isNewMessageLoading &&
+              !hasToolCalls &&
+              contentString.length === 0 &&
+              !hasReasoning &&
+              (() => {
+                // Don't show "Thinking..." if an earlier AI message in this turn already has tool calls
+                const prevHasToolCalls =
+                  currentIdx > 0 &&
+                  thread.messages
+                    .slice(0, currentIdx)
+                    .some(
+                      (m) =>
+                        m.type === "ai" && "tool_calls" in m && (m as any).tool_calls?.length > 0
+                    );
+                return !prevHasToolCalls;
+              })() && (
+                <div className="flex items-center gap-2 py-1.5">
+                  <Loader size={16} className="text-muted-foreground" />
+                  <Shimmer className="font-medium text-sm" duration={2}>
+                    Thinking...
+                  </Shimmer>
+                </div>
+              )}
 
             {/* 1. Reasoning extracted from message content */}
             {hasReasoning && (
@@ -216,10 +224,7 @@ export function AssistantMessage({
 
             {/* 3. Tool calls: status indicator + data cards (frontend-driven, no backend UI state needed) */}
             {hasToolCalls && message && (
-              <ToolCallRenderer
-                message={message}
-                messages={allMessages ?? thread.messages}
-              />
+              <ToolCallRenderer message={message} messages={allMessages ?? thread.messages} />
             )}
 
             {/* 4. Supervisor coordination indicator (only for supervisor agent calls without sub-cards) */}
@@ -251,28 +256,32 @@ export function AssistantMessage({
             />
 
             {/* Command bar */}
-            {!hasToolCalls && !isIntermediateAiMessage && !isLoading && !isNewMessageLoading && (contentString.length > 0 || isLastMessage) && (
-              <div className="mr-auto flex items-center gap-2">
-                <BranchSwitcher
-                  branch={meta?.branch}
-                  branchOptions={meta?.branchOptions}
-                  // @ts-ignore - setBranch may not be in type definition
-                  onSelect={(branch) => thread.setBranch?.(branch)}
-                  isLoading={isLoading}
-                />
-                <CommandBar
-                  content={contentString}
-                  isLoading={isLoading}
-                  isAiMessage={true}
-                  handleRegenerate={() =>
-                    handleRegenerate(
-                      parentCheckpoint,
-                      parentValues as { messages: Message[] } | undefined
-                    )
-                  }
-                />
-              </div>
-            )}
+            {!hasToolCalls &&
+              !isIntermediateAiMessage &&
+              !isLoading &&
+              !isNewMessageLoading &&
+              (contentString.length > 0 || isLastMessage) && (
+                <div className="mr-auto flex items-center gap-2">
+                  <BranchSwitcher
+                    branch={meta?.branch}
+                    branchOptions={meta?.branchOptions}
+                    // @ts-expect-error - setBranch may not be in type definition
+                    onSelect={(branch) => thread.setBranch?.(branch)}
+                    isLoading={isLoading}
+                  />
+                  <CommandBar
+                    content={contentString}
+                    isLoading={isLoading}
+                    isAiMessage={true}
+                    handleRegenerate={() =>
+                      handleRegenerate(
+                        parentCheckpoint,
+                        parentValues as { messages: Message[] } | undefined
+                      )
+                    }
+                  />
+                </div>
+              )}
           </>
         )}
       </div>

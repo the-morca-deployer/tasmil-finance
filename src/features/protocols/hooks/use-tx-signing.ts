@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { useWallet } from "@/shared/context/wallet-context";
-import { activeNetwork } from "@/shared/config/stellar";
+import {
+  type TrackVolumeContext,
+  useWelcomeReward,
+} from "@/features/welcome-reward/hooks/use-welcome-reward";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
-import { getExplorerUrl } from "@/shared/config/stellar";
-import { useWelcomeReward, type TrackVolumeContext } from "@/features/welcome-reward/hooks/use-welcome-reward";
+import { activeNetwork, getExplorerUrl } from "@/shared/config/stellar";
+import { useWallet } from "@/shared/context/wallet-context";
 import type { CardMode } from "../schemas/common.schema";
 
 // Persisted cache: survives component remounts AND page reloads (same tab).
@@ -39,24 +41,48 @@ const sessionTxCache = {
  * so cards show "Transaction cancelled" on next render. Does NOT send any
  * message to the backend — purely local UI state.
  */
-export function cancelPendingTxCards(messages: Array<{ type: string; tool_calls?: Array<{ id: string; name: string }> }>): void {
+export function cancelPendingTxCards(
+  messages: Array<{ type: string; tool_calls?: Array<{ id: string; name: string }> }>
+): void {
   // Known operation tool names that produce TX cards
   const TX_TOOL_NAMES = new Set([
-    "blend_deposit", "blend_borrow", "blend_repay", "blend_withdraw",
-    "blend_toggle_collateral", "blend_claim_emissions",
-    "blend_backstop_deposit", "blend_backstop_queue_withdrawal",
-    "blend_backstop_dequeue_withdrawal", "blend_backstop_withdraw",
-    "blend_join_comet", "blend_exit_comet",
-    "aquarius_add_liquidity", "aquarius_withdraw_liquidity",
-    "aquarius_swap", "aquarius_claim_rewards", "aquarius_lock_aqua",
-    "execute", "flow_compose_and_execute",
-    "swap_build_transaction", "swap_add_liquidity", "swap_remove_liquidity",
-    "sdex_swap", "phoenix_swap", "phoenix_provide_liquidity",
-    "phoenix_withdraw_liquidity", "phoenix_stake_bond", "phoenix_stake_unbond",
+    "blend_deposit",
+    "blend_borrow",
+    "blend_repay",
+    "blend_withdraw",
+    "blend_toggle_collateral",
+    "blend_claim_emissions",
+    "blend_backstop_deposit",
+    "blend_backstop_queue_withdrawal",
+    "blend_backstop_dequeue_withdrawal",
+    "blend_backstop_withdraw",
+    "blend_join_comet",
+    "blend_exit_comet",
+    "aquarius_add_liquidity",
+    "aquarius_withdraw_liquidity",
+    "aquarius_swap",
+    "aquarius_claim_rewards",
+    "aquarius_lock_aqua",
+    "execute",
+    "flow_compose_and_execute",
+    "swap_build_transaction",
+    "swap_add_liquidity",
+    "swap_remove_liquidity",
+    "sdex_swap",
+    "phoenix_swap",
+    "phoenix_provide_liquidity",
+    "phoenix_withdraw_liquidity",
+    "phoenix_stake_bond",
+    "phoenix_stake_unbond",
     "phoenix_stake_claim_rewards",
-    "vault_deposit", "vault_withdraw",
-    "bridge_build_transaction", "allbridge_build_transaction",
-    "execute_swap", "execute_bridge", "execute_earn", "execute_lending",
+    "vault_deposit",
+    "vault_withdraw",
+    "bridge_build_transaction",
+    "allbridge_build_transaction",
+    "execute_swap",
+    "execute_bridge",
+    "execute_earn",
+    "execute_lending",
   ]);
 
   for (const msg of messages) {
@@ -110,7 +136,9 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
           return {
             success: persisted.success,
             hash: persisted.hash,
-            message: persisted.error ?? (persisted.success ? "Transaction successful!" : "Transaction failed"),
+            message:
+              persisted.error ??
+              (persisted.success ? "Transaction successful!" : "Transaction failed"),
           };
         }
       }
@@ -126,7 +154,7 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
       if (toolCallId) sessionTxCache.set(toolCallId, entry);
       setTxResult(entry);
     },
-    [toolCallId],
+    [toolCallId]
   );
 
   const resetResult = useCallback(() => {
@@ -169,7 +197,8 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
             return { success: true, hash };
           }
 
-          const e = submitData.error ?? submitData.detail ?? submitData.message ?? "Submission failed";
+          const e =
+            submitData.error ?? submitData.detail ?? submitData.message ?? "Submission failed";
           const errMsg = typeof e === "string" ? e : JSON.stringify(e);
           setTxError(errMsg);
           cacheTxResult({ success: false, message: errMsg });
@@ -223,11 +252,23 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
             // Only submit directly if there's no respond callback (non-HITL path)
             await stream.submit(
               {
-                messages: [{ id: `__hidden__tx-success-${Date.now()}`, type: "human" as const, content: `Transaction ${hash} submitted successfully` }],
+                messages: [
+                  {
+                    id: `__hidden__tx-success-${Date.now()}`,
+                    type: "human" as const,
+                    content: `Transaction ${hash} submitted successfully`,
+                  },
+                ],
                 ...(walletAddress ? { wallet_address: walletAddress } : {}),
-                ...(toolCallId ? { signed_txs: { [toolCallId]: { success: true, hash, operation, timestamp: Date.now() } } } : {}),
+                ...(toolCallId
+                  ? {
+                      signed_txs: {
+                        [toolCallId]: { success: true, hash, operation, timestamp: Date.now() },
+                      },
+                    }
+                  : {}),
               },
-            { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true },
+              { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true }
             );
           }
 
@@ -264,15 +305,30 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
         if (mode === "chat" && stream && !respond) {
           await stream.submit(
             {
-              messages: [{
-                id: `__hidden__tx-${isRejection ? "cancel" : "error"}-${Date.now()}`,
-                type: "human" as const,
-                content: isRejection ? "Transaction rejected by user" : `Transaction failed: ${msg}`,
-              }],
+              messages: [
+                {
+                  id: `__hidden__tx-${isRejection ? "cancel" : "error"}-${Date.now()}`,
+                  type: "human" as const,
+                  content: isRejection
+                    ? "Transaction rejected by user"
+                    : `Transaction failed: ${msg}`,
+                },
+              ],
               ...(walletAddress ? { wallet_address: walletAddress } : {}),
-              ...(toolCallId ? { signed_txs: { [toolCallId]: { success: false, error: cardResult.message, operation, timestamp: Date.now() } } } : {}),
+              ...(toolCallId
+                ? {
+                    signed_txs: {
+                      [toolCallId]: {
+                        success: false,
+                        error: cardResult.message,
+                        operation,
+                        timestamp: Date.now(),
+                      },
+                    },
+                  }
+                : {}),
             },
-            { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true },
+            { streamMode: ["values", "custom"], streamSubgraphs: false, streamResumable: true }
           );
         }
 
@@ -282,7 +338,18 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
         setSigning(false);
       }
     },
-    [mode, signTransaction, walletAddress, stream, toolCallId, operation, respond, cacheTxResult, reportTransaction, volumeContext],
+    [
+      mode,
+      signTransaction,
+      walletAddress,
+      stream,
+      toolCallId,
+      operation,
+      respond,
+      cacheTxResult,
+      reportTransaction,
+      volumeContext,
+    ]
   );
 
   return { sign, cancel, signing, txResult, txError, resetResult };

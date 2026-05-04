@@ -1,12 +1,14 @@
-import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import React from "react";
 import { useAuthStore } from "@/store/use-auth";
 import { useWalletStore } from "@/store/use-wallet";
 
 jest.unmock("@/shared/context/wallet-context");
 
-const { WalletProvider, useWallet } = jest.requireActual("./wallet-context") as typeof import("./wallet-context");
+const { WalletProvider, useWallet } = jest.requireActual(
+  "./wallet-context"
+) as typeof import("./wallet-context");
 
 const authModalMock = jest.fn().mockResolvedValue({
   address: "GABC1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234",

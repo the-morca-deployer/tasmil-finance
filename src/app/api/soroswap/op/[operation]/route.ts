@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getSoroswapClient } from "../../_sdk";
 
 const VALID_OPERATIONS = ["swap", "add-liquidity", "remove-liquidity"] as const;
@@ -22,14 +22,17 @@ const OP_NAME_MAP: Record<OpName, string> = {
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ operation: string }> },
+  { params }: { params: Promise<{ operation: string }> }
 ) {
   const { operation } = await params;
 
   if (!VALID_OPERATIONS.includes(operation as OpName)) {
     return NextResponse.json(
-      { success: false, error: `Invalid operation: ${operation}. Valid: ${VALID_OPERATIONS.join(", ")}` },
-      { status: 400 },
+      {
+        success: false,
+        error: `Invalid operation: ${operation}. Valid: ${VALID_OPERATIONS.join(", ")}`,
+      },
+      { status: 400 }
     );
   }
 
@@ -114,12 +117,15 @@ export async function POST(
       }
 
       default:
-        return NextResponse.json({ success: false, error: `Unhandled: ${operation}` }, { status: 400 });
+        return NextResponse.json(
+          { success: false, error: `Unhandled: ${operation}` },
+          { status: 400 }
+        );
     }
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Operation failed" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }

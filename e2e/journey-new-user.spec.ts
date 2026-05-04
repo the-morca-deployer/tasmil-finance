@@ -5,7 +5,9 @@ test.describe("Journey — New User (10 tests)", () => {
   test.skip(process.env.NODE_ENV === "production", "disabled on production");
 
   // J1: Full new user journey
-  test("New user: landing → dashboard → farming → aggregator → chat → portfolio → quest → credits", async ({ page }) => {
+  test("New user: landing → dashboard → farming → aggregator → chat → portfolio → quest → credits", async ({
+    page,
+  }) => {
     const wallet = freshWallet();
 
     // Dashboard (connect prompt)

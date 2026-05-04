@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getSoroswapClient, getNetwork } from "../_sdk";
+import { getNetwork, getSoroswapClient } from "../_sdk";
 
 const MCP_URL = process.env["NEXT_PUBLIC_MCP_STELLAR_URL"] ?? "http://localhost:3009";
 
@@ -18,7 +18,9 @@ export async function GET(req: NextRequest) {
   // Try SDK first
   try {
     const sdk = getSoroswapClient();
-    const allPools = await sdk.soroswap.listPools(protocol === "all" ? undefined : protocol as any);
+    const allPools = await sdk.soroswap.listPools(
+      protocol === "all" ? undefined : (protocol as any)
+    );
 
     // Client-side paginate
     const totalCount = allPools.length;
@@ -31,7 +33,14 @@ export async function GET(req: NextRequest) {
       network,
       protocol: "soroswap",
       filter: protocol,
-      pagination: { page, limit, totalCount, totalPages, hasNext: page < totalPages, hasPrev: page > 1 },
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
       pools: paginated,
     });
   } catch {
@@ -51,8 +60,18 @@ export async function GET(req: NextRequest) {
       const totalPages = Math.ceil(totalCount / limit);
       const offset = (page - 1) * limit;
       return NextResponse.json({
-        success: true, network, protocol: "soroswap", filter: protocol,
-        pagination: { page, limit, totalCount, totalPages, hasNext: page < totalPages, hasPrev: page > 1 },
+        success: true,
+        network,
+        protocol: "soroswap",
+        filter: protocol,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+        },
         pools: pools.slice(offset, offset + limit),
       });
     }

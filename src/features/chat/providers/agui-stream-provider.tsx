@@ -13,15 +13,15 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { buildAiIdentityHeaders } from "@/lib/ai-auth";
 import { getBrowserAiBaseUrl } from "@/lib/runtime-urls";
-import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
 import { useWallet } from "@/shared/context/wallet-context";
+import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
 import { useAuthStore } from "@/store/use-auth";
 import { useWalletStore } from "@/store/use-wallet";
 import { getAgentConfig } from "../config/agents.config";
-import { createClient } from "../lib/client";
 import { useAguiStream } from "../hooks/use-agui-stream";
-import { StreamContext } from "./stream-provider";
+import { createClient } from "../lib/client";
 import { useChatState } from "./chat-state-provider";
+import { StreamContext } from "./stream-provider";
 import { useThreads } from "./thread-provider";
 
 function AguiStreamSession({
@@ -49,7 +49,7 @@ function AguiStreamSession({
 
   const defaultHeaders = useMemo(
     () => buildAiIdentityHeaders({ accessToken, walletAddress: effectiveWallet }),
-    [accessToken, effectiveWallet],
+    [accessToken, effectiveWallet]
   );
 
   const agentName = getAgentConfig(assistantId).name;
@@ -65,7 +65,7 @@ function AguiStreamSession({
         // Silently ignore — title is cosmetic, metadata update may fail on new threads
       });
     },
-    [apiUrl, accessToken, effectiveWallet],
+    [apiUrl, accessToken, effectiveWallet]
   );
 
   const streamValue = useAguiStream({
@@ -173,8 +173,8 @@ export const StreamProvider: React.FC<{
             <LangGraphLogoSVG className="h-7" />
             <h1 className="font-semibold text-xl tracking-tight">Configuration Error</h1>
             <p className="text-muted-foreground">
-              Missing required configuration. Please ensure NEXT_PUBLIC_AI_URL is set and agentId
-              is provided.
+              Missing required configuration. Please ensure NEXT_PUBLIC_AI_URL is set and agentId is
+              provided.
             </p>
           </div>
         </div>

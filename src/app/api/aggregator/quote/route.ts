@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { sdk } from "../_sdk";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as {
+    const body = (await req.json()) as {
       tokenIn: string;
       tokenOut: string;
       amount: string;
@@ -13,15 +13,23 @@ export async function POST(req: NextRequest) {
       protocols?: string[];
     };
 
-    const { tokenIn, tokenOut, amount, fromChain = "stellar", toChain = "stellar", from, protocols } = body;
+    const {
+      tokenIn,
+      tokenOut,
+      amount,
+      fromChain = "stellar",
+      toChain = "stellar",
+      from,
+      protocols,
+    } = body;
     const isCrossChain = fromChain !== toChain;
 
     if (isCrossChain) {
       // ── Cross-chain bridge ──────────────────────────────────
       const result = await sdk.bridge.getAllQuotes({
         fromChain: fromChain as any,
-        toChain:   toChain as any,
-        asset:    tokenIn,
+        toChain: toChain as any,
+        asset: tokenIn,
         assetOut: tokenOut !== tokenIn ? tokenOut : undefined,
         amount,
         from,
@@ -29,24 +37,24 @@ export async function POST(req: NextRequest) {
       });
 
       const quotes = result.quotes.map((q) => ({
-        provider:      q.provider,
-        amountIn:      q.amountIn,
-        amountOut:     q.amountOut,
-        fee:           q.fee,
-        feePercent:    q.feePercent,
-        gasFee:        q.gasFee,
-        gasFeeToken:   q.gasFeeToken,
+        provider: q.provider,
+        amountIn: q.amountIn,
+        amountOut: q.amountOut,
+        fee: q.fee,
+        feePercent: q.feePercent,
+        gasFee: q.gasFee,
+        gasFeeToken: q.gasFeeToken,
         estimatedTime: q.estimatedTime,
-        route:         [] as string[],
-        status:        q.status,
-        error:         q.error,
+        route: [] as string[],
+        status: q.status,
+        error: q.error,
         depositAddress: q.depositAddress,
       }));
 
       return NextResponse.json({
-        mode:   "bridge",
+        mode: "bridge",
         quotes,
-        best:   result.best ?? null,
+        best: result.best ?? null,
       });
     }
 
@@ -61,27 +69,27 @@ export async function POST(req: NextRequest) {
     });
 
     const quotes = result.quotes.map((q) => ({
-      protocol:      q.protocol,
-      amountIn:      q.amountIn,
-      amountOut:     q.amountOut,
-      fee:           q.fee,
-      feePercent:    q.feePercent,
+      protocol: q.protocol,
+      amountIn: q.amountIn,
+      amountOut: q.amountOut,
+      fee: q.fee,
+      feePercent: q.feePercent,
       estimatedTime: q.estimatedTime,
-      route:         q.route,
-      poolAddress:   q.poolAddress,
-      status:        q.status,
-      error:         q.error,
+      route: q.route,
+      poolAddress: q.poolAddress,
+      status: q.status,
+      error: q.error,
     }));
 
     return NextResponse.json({
-      mode:   "swap",
+      mode: "swap",
       quotes,
-      best:   result.best ?? null,
+      best: result.best ?? null,
     });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Quote failed" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }

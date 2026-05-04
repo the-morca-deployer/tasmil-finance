@@ -34,9 +34,7 @@ export function ExecutionCard({
     <div className="rounded-xl border border-white/[0.07] bg-[#131715] p-4">
       {/* Previous steps confirmed */}
       {previousStepsConfirmed && (
-        <div className="mb-2 text-xs text-[#9aada4]">
-          Step {step - 1} confirmed.
-        </div>
+        <div className="mb-2 text-xs text-[#9aada4]">Step {step - 1} confirmed.</div>
       )}
 
       {/* Current status */}
@@ -49,13 +47,9 @@ export function ExecutionCard({
       {status === "confirmed" && (
         <div className="space-y-2">
           {isDone ? (
-            <div className="text-sm font-medium text-[#00C278]">
-              Done. Position opened.
-            </div>
+            <div className="text-sm font-medium text-[#00C278]">Done. Position opened.</div>
           ) : (
-            <div className="text-xs text-[#9aada4]">
-              Step {step} confirmed.
-            </div>
+            <div className="text-xs text-[#9aada4]">Step {step} confirmed.</div>
           )}
 
           {txHash && (
@@ -75,9 +69,7 @@ export function ExecutionCard({
 
       {status === "failed" && (
         <div className="space-y-2">
-          {error && (
-            <div className="text-xs text-[#f87171]">{error}</div>
-          )}
+          {error && <div className="text-xs text-[#f87171]">{error}</div>}
           {onRetry && (
             <button
               type="button"

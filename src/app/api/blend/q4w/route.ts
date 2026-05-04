@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getBlendClient } from "../_sdk";
 
 export async function GET(req: NextRequest) {
@@ -6,7 +6,10 @@ export async function GET(req: NextRequest) {
   const user = req.nextUrl.searchParams.get("user");
 
   if (!pool || !user) {
-    return NextResponse.json({ success: false, error: "pool and user parameters required" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: "pool and user parameters required" },
+      { status: 400 }
+    );
   }
 
   try {

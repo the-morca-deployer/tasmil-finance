@@ -34,7 +34,7 @@ export function useResultData<T = any>(result: unknown, status?: string): Result
     // This occurs when tool content is double-serialised (e.g. history from DB).
     if (Array.isArray(parsed)) {
       const textBlock = (parsed as any[]).find(
-        (b: any) => b?.type === "text" && typeof b?.text === "string",
+        (b: any) => b?.type === "text" && typeof b?.text === "string"
       );
       if (textBlock) {
         try {
@@ -55,9 +55,7 @@ export function useResultData<T = any>(result: unknown, status?: string): Result
       Array.isArray((parsed as any).content)
     ) {
       const blocks = (parsed as any).content;
-      const textBlock = blocks.find(
-        (b: any) => b?.type === "text" && typeof b?.text === "string",
-      );
+      const textBlock = blocks.find((b: any) => b?.type === "text" && typeof b?.text === "string");
       if (textBlock) {
         try {
           parsed = JSON.parse(textBlock.text);

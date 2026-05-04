@@ -1,40 +1,67 @@
 "use client";
 
-import { Wallet, Clock } from "lucide-react";
-import type { CardMode } from "../../schemas/common.schema";
-import type { BackstopBalanceCardProps } from "../../schemas/blend.schema";
-import { ProtocolCard, EmptyState } from "../base/protocol-card";
-import { MetricBox, Row, CardHeader, DetailRow } from "../base/indicators";
+import { Clock, Wallet } from "lucide-react";
 import { trunc } from "../../lib/formatting";
+import type { BackstopBalanceCardProps } from "../../schemas/blend.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { CardHeader, DetailRow, MetricBox, Row } from "../base/indicators";
+import { EmptyState, ProtocolCard } from "../base/protocol-card";
 
 interface BlendBackstopBalanceCardProps {
   data: BackstopBalanceCardProps;
   mode?: CardMode;
 }
 
-export function BlendBackstopBalanceCard({ data, mode = "playground" }: BlendBackstopBalanceCardProps) {
-  const shares = data.sharesHuman ?? (data.shares != null ? (Number(data.shares) / 1e7).toFixed(7) : null);
+export function BlendBackstopBalanceCard({
+  data,
+  mode = "playground",
+}: BlendBackstopBalanceCardProps) {
+  const shares =
+    data.sharesHuman ?? (data.shares != null ? (Number(data.shares) / 1e7).toFixed(7) : null);
   const queued = data.queuedWithdrawals ?? [];
   const isChat = mode === "chat";
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title="Backstop Balance" icon={Wallet} iconColor="text-indigo-500" iconBg="bg-indigo-500/10">
+      <ProtocolCard
+        mode="chat"
+        title="Backstop Balance"
+        icon={Wallet}
+        iconColor="text-indigo-500"
+        iconBg="bg-indigo-500/10"
+      >
         <div className="space-y-1.5">
-          {data.pool && <DetailRow label="Pool" value={<span className="font-mono text-xs">{trunc(String(data.pool), 12, 0)}</span>} />}
+          {data.pool && (
+            <DetailRow
+              label="Pool"
+              value={<span className="font-mono text-xs">{trunc(String(data.pool), 12, 0)}</span>}
+            />
+          )}
           {shares != null && (
-            <DetailRow label="Backstop Shares" value={<span className="font-semibold">{shares}</span>} />
+            <DetailRow
+              label="Backstop Shares"
+              value={<span className="font-semibold">{shares}</span>}
+            />
           )}
           {data.hasPosition === false && (
             <div className="text-muted-foreground text-xs">No backstop position in this pool.</div>
           )}
           {queued.length > 0 && (
             <div className="mt-2 space-y-1 border-t pt-2">
-              <div className="mb-1 text-muted-foreground text-xs">Queued Withdrawals ({queued.length})</div>
+              <div className="mb-1 text-muted-foreground text-xs">
+                Queued Withdrawals ({queued.length})
+              </div>
               {queued.map((q, i) => (
                 <div key={i} className="space-y-1 rounded border p-2 text-xs">
-                  <DetailRow label="Amount" value={<span className="font-semibold">{String(q.amountHuman ?? q.amount)}</span>} />
-                  {q.expiration != null && <DetailRow label="Expiration (ledger)" value={String(q.expiration)} />}
+                  <DetailRow
+                    label="Amount"
+                    value={
+                      <span className="font-semibold">{String(q.amountHuman ?? q.amount)}</span>
+                    }
+                  />
+                  {q.expiration != null && (
+                    <DetailRow label="Expiration (ledger)" value={String(q.expiration)} />
+                  )}
                 </div>
               ))}
             </div>
@@ -67,7 +94,12 @@ export function BlendBackstopBalanceCard({ data, mode = "playground" }: BlendBac
             <span className="text-muted-foreground">Pool</span>
             <span className="text-foreground tabular-nums">
               {data.poolName ? (
-                <span>{data.poolName} <span className="font-mono text-muted-foreground">{trunc(String(data.pool), 4, 4)}</span></span>
+                <span>
+                  {data.poolName}{" "}
+                  <span className="font-mono text-muted-foreground">
+                    {trunc(String(data.pool), 4, 4)}
+                  </span>
+                </span>
               ) : (
                 <span className="font-mono">{trunc(String(data.pool))}</span>
               )}
@@ -76,9 +108,7 @@ export function BlendBackstopBalanceCard({ data, mode = "playground" }: BlendBac
         )}
 
         {/* Shares */}
-        {shares != null && (
-          <MetricBox label="Backstop Shares" value={String(shares)} />
-        )}
+        {shares != null && <MetricBox label="Backstop Shares" value={String(shares)} />}
 
         {/* Queued withdrawals */}
         {queued.length > 0 && (

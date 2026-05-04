@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useRef } from "react";
 import {
   AllbridgeCoreSdk,
   ChainSymbol,
   FeePaymentMethod,
   Messenger,
 } from "@allbridge/bridge-core-sdk";
+import { useCallback, useRef } from "react";
 
 const STELLAR_NETWORK = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] ?? "testnet";
 
@@ -101,10 +101,10 @@ export function useAllbridgeExecute() {
       if (!dstChain) throw new Error(`${toChain} not found in Allbridge`);
 
       const srcToken = srcChain.tokens.find(
-        (t) => t.symbol.toUpperCase() === tokenIn.toUpperCase(),
+        (t) => t.symbol.toUpperCase() === tokenIn.toUpperCase()
       );
       const dstToken = dstChain.tokens.find(
-        (t) => t.symbol.toUpperCase() === (tokenOut || tokenIn).toUpperCase(),
+        (t) => t.symbol.toUpperCase() === (tokenOut || tokenIn).toUpperCase()
       );
       if (!srcToken) throw new Error(`${tokenIn} not on ${fromChain}`);
       if (!dstToken) throw new Error(`${tokenOut} not on ${toChain}`);
@@ -141,7 +141,7 @@ export function useAllbridgeExecute() {
         value: evmTx.value,
       });
     },
-    [],
+    []
   );
 
   return { execute };

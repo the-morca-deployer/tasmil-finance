@@ -1,6 +1,6 @@
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import { AddAssetDialog } from "./add-asset-dialog";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useWatchList } from "@/store/use-watch-list";
+import { AddAssetDialog } from "./add-asset-dialog";
 
 const FAKE_REGISTRY = {
   tokens: [
@@ -17,7 +17,7 @@ beforeEach(() => {
     Promise.resolve({
       ok: true,
       json: () => Promise.resolve(FAKE_REGISTRY),
-    }),
+    })
   ) as jest.Mock;
 });
 

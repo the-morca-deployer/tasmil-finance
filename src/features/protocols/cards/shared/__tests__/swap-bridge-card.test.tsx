@@ -1,7 +1,7 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
-import { SwapBridgeCard } from "../swap-bridge-card";
+import React from "react";
 import type { SwapBridgeCardProps } from "../../../schemas/shared.schema";
+import { SwapBridgeCard } from "../swap-bridge-card";
 
 // Mock hooks that require providers
 jest.mock("@/features/chat/hooks/use-stream", () => ({
@@ -121,7 +121,11 @@ describe("SwapBridgeCard", () => {
 
   describe("Edge cases", () => {
     it("renders with missing optional fields", () => {
-      const data = makeSwapData({ fee: undefined, gasEstimate: undefined, estimatedTime: undefined });
+      const data = makeSwapData({
+        fee: undefined,
+        gasEstimate: undefined,
+        estimatedTime: undefined,
+      });
       render(<SwapBridgeCard data={data} mode="playground" />);
       expect(screen.getAllByText(/XLM/).length).toBeGreaterThan(0);
     });

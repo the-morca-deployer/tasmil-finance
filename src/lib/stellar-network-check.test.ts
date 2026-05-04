@@ -29,9 +29,9 @@ describe("parseSigningError", () => {
         title: "Resource Missing",
         status: 404,
         detail: "The resource at the url requested was not found.",
-      }),
+      })
     ).toBe(
-      "Stellar account was not found on Mainnet. Fund or activate this address on Mainnet, then try again.",
+      "Stellar account was not found on Mainnet. Fund or activate this address on Mainnet, then try again."
     );
   });
 });

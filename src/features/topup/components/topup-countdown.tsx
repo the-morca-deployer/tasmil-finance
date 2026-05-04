@@ -8,14 +8,12 @@ interface CountdownProps {
 
 export function TopupCountdown({ expiresAt }: CountdownProps) {
   const [remainingSec, setRemainingSec] = useState(() =>
-    Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)),
+    Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000))
   );
 
   useEffect(() => {
     const id = window.setInterval(() => {
-      setRemainingSec(
-        Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)),
-      );
+      setRemainingSec(Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)));
     }, 1_000);
     return () => window.clearInterval(id);
   }, [expiresAt]);

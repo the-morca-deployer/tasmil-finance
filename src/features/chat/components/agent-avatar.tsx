@@ -1,8 +1,8 @@
 "use client";
 
+import { Bot } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { Bot } from "lucide-react";
 import { getAgentConfig } from "@/features/chat/config/agents.config";
 import { useChatState } from "@/features/chat/hooks";
 

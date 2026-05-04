@@ -1,9 +1,9 @@
-import type { Message } from '@langchain/langgraph-sdk';
+import type { Message } from "@langchain/langgraph-sdk";
 
-export const DO_NOT_RENDER_PREFIXES = ['__do_not_render__', '__hidden__'];
+export const DO_NOT_RENDER_PREFIXES = ["__do_not_render__", "__hidden__"];
 
 export const getContentLength = (content: any): number => {
-  if (typeof content === 'string') return content.length;
+  if (typeof content === "string") return content.length;
   if (Array.isArray(content)) return content.length;
   return 0;
 };
@@ -13,10 +13,10 @@ export const shouldFilterMessage = (
   index: number,
   allMessages: Message[],
   uiComponents: any[],
-  fullMessages?: Message[],
+  fullMessages?: Message[]
 ): boolean => {
   // Keep non-AI messages
-  if (message.type !== 'ai') return false;
+  if (message.type !== "ai") return false;
 
   // Keep messages with UI attached
   const hasUIAttached = uiComponents.some((ui: any) => ui.metadata?.message_id === message.id);
@@ -28,11 +28,15 @@ export const shouldFilterMessage = (
 
   const aiMsg = message as any;
   const hasToolCalls = aiMsg.tool_calls?.length > 0;
-  const content = typeof aiMsg.content === 'string'
-    ? aiMsg.content.trim()
-    : Array.isArray(aiMsg.content)
-      ? aiMsg.content.filter((c: any) => c.type === 'text').map((c: any) => c.text?.trim()).join('')
-      : '';
+  const content =
+    typeof aiMsg.content === "string"
+      ? aiMsg.content.trim()
+      : Array.isArray(aiMsg.content)
+        ? aiMsg.content
+            .filter((c: any) => c.type === "text")
+            .map((c: any) => c.text?.trim())
+            .join("")
+        : "";
 
   // parse_user_intent is now shown as a visible step (like demo-ai)
 
@@ -42,11 +46,9 @@ export const shouldFilterMessage = (
     // Check if any tool result exists for these tool calls — if so, keep for card rendering.
     // Use fullMessages (includes tool-type messages) since allMessages has them filtered out.
     const searchIn = fullMessages ?? allMessages;
-    const toolCallIds = new Set(
-      aiMsg.tool_calls.map((tc: any) => tc.id).filter(Boolean)
-    );
+    const toolCallIds = new Set(aiMsg.tool_calls.map((tc: any) => tc.id).filter(Boolean));
     const hasToolResult = searchIn.some(
-      (m: any) => m.type === 'tool' && toolCallIds.has(m.tool_call_id)
+      (m: any) => m.type === "tool" && toolCallIds.has(m.tool_call_id)
     );
 
     if (hasToolResult) {
@@ -57,14 +59,14 @@ export const shouldFilterMessage = (
       const myToolNames = new Set(aiMsg.tool_calls.map((tc: any) => tc.name));
       for (let i = 0; i < index; i++) {
         const earlier = allMessages[i] as any;
-        if (earlier.type !== 'ai' || !earlier.tool_calls?.length) continue;
+        if (earlier.type !== "ai" || !earlier.tool_calls?.length) continue;
         const earlierNames = new Set(earlier.tool_calls.map((tc: any) => tc.name));
         // If all my tool names already appear in an earlier AI message, I'm a duplicate
         if ([...myToolNames].every((n) => earlierNames.has(n))) {
           // Verify the earlier message's tool calls also have results
           const earlierIds = new Set(earlier.tool_calls.map((tc: any) => tc.id).filter(Boolean));
           const earlierHasResults = searchIn.some(
-            (m: any) => m.type === 'tool' && earlierIds.has(m.tool_call_id)
+            (m: any) => m.type === "tool" && earlierIds.has(m.tool_call_id)
           );
           if (earlierHasResults) return true; // Filter — earlier message already shows this tool
         }
@@ -74,7 +76,7 @@ export const shouldFilterMessage = (
 
     // Only filter supervisor-internal tool calls (call_*_agent) without results
     const allAreSupervisorCalls = aiMsg.tool_calls.every(
-      (tc: any) => tc.name?.startsWith('call_') && tc.name?.endsWith('_agent')
+      (tc: any) => tc.name?.startsWith("call_") && tc.name?.endsWith("_agent")
     );
     // Filter non-supervisor tool-only messages without results (still loading)
     return !allAreSupervisorCalls;
@@ -89,7 +91,7 @@ export const shouldFilterMessage = (
 
     for (let i = index + 1; i < allMessages.length; i++) {
       const later = allMessages[i] as any;
-      if (later.type !== 'ai' || !later.tool_calls?.length) continue;
+      if (later.type !== "ai" || !later.tool_calls?.length) continue;
       const laterKeys = new Set(later.tool_calls.map(toolCallKey));
       // If all my tool calls appear in a later AI message, I'm the earlier duplicate
       if ([...myKeys].every((k) => laterKeys.has(k))) return true;
@@ -99,10 +101,7 @@ export const shouldFilterMessage = (
   return false;
 };
 
-export const mergeMessagesWithCache = (
-  cached: Message[],
-  incoming: Message[]
-): Message[] => {
+export const mergeMessagesWithCache = (cached: Message[], incoming: Message[]): Message[] => {
   if (!cached.length) return incoming;
 
   const merged = [...cached];

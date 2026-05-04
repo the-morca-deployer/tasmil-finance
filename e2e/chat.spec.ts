@@ -81,7 +81,9 @@ test.describe("Chat (/chat)", () => {
     await input.waitFor({ timeout: 5000 });
     await input.fill("What pools are available on Aquarius?");
     await input.press("Enter");
-    await expect(page.getByText("What pools are available on Aquarius?")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("What pools are available on Aquarius?")).toBeVisible({
+      timeout: 5000,
+    });
   });
 
   // T8
@@ -221,7 +223,7 @@ test.describe("Chat (/chat)", () => {
   test("Network error during send", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/agui/**", route => route.fulfill({ status: 503 }));
+    await page.route("**/agui/**", (route) => route.fulfill({ status: 503 }));
     await page.goto("/chat/new");
     const input = page.locator("textarea, input[type=text]").first();
     await input.waitFor({ timeout: 5000 });
@@ -280,14 +282,16 @@ test.describe("Chat (/chat)", () => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     const errors: string[] = [];
-    page.on("console", msg => { if (msg.type() === "error") errors.push(msg.text()); });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") errors.push(msg.text());
+    });
     await page.goto("/chat/new");
     const input = page.locator("textarea, input[type=text]").first();
     await input.waitFor({ timeout: 5000 });
     await input.fill("Quick test");
     await input.press("Enter");
     await page.waitForTimeout(3000);
-    expect(errors.filter(e => !/warning|deprecated/i.test(e))).toHaveLength(0);
+    expect(errors.filter((e) => !/warning|deprecated/i.test(e))).toHaveLength(0);
   });
 
   // T22
@@ -297,7 +301,7 @@ test.describe("Chat (/chat)", () => {
     await page.goto("/chat/new");
     await page.waitForLoadState("networkidle");
     const active = page.locator(":focus");
-    const tag = await active.evaluate(el => el.tagName);
+    const tag = await active.evaluate((el) => el.tagName);
     expect(["INPUT", "TEXTAREA"].includes(tag)).toBeTruthy();
   });
 

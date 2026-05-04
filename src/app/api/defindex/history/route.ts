@@ -1,4 +1,4 @@
-import { type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { getDefindexClient, getNetwork, jsonError } from "../_sdk";
 
 /**
@@ -10,8 +10,19 @@ export async function GET(req: NextRequest) {
   const address = req.nextUrl.searchParams.get("address");
   if (!address) return jsonError("address parameter required");
 
-  const period = req.nextUrl.searchParams.get("period") as "all" | "7d" | "30d" | "90d" | "1y" | null;
-  const interval = req.nextUrl.searchParams.get("interval") as "hourly" | "daily" | "weekly" | "monthly" | null;
+  const period = req.nextUrl.searchParams.get("period") as
+    | "all"
+    | "7d"
+    | "30d"
+    | "90d"
+    | "1y"
+    | null;
+  const interval = req.nextUrl.searchParams.get("interval") as
+    | "hourly"
+    | "daily"
+    | "weekly"
+    | "monthly"
+    | null;
 
   try {
     const sdk = getDefindexClient();

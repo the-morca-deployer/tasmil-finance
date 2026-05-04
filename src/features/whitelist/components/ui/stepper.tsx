@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import { Check } from "lucide-react";
+import React from "react";
 import { cn } from "@/lib/utils";
 
 export type StepState = "inactive" | "active" | "done";
@@ -30,17 +30,11 @@ export function ProgressStepper({ steps, className }: ProgressStepperProps) {
                 "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all duration-300",
                 step.state === "done" &&
                   "border-green-500 bg-green-500 text-white animate-stepper-pop",
-                step.state === "active" &&
-                  "border-primary bg-primary/10 text-primary",
-                step.state === "inactive" &&
-                  "border-border bg-background text-muted-foreground"
+                step.state === "active" && "border-primary bg-primary/10 text-primary",
+                step.state === "inactive" && "border-border bg-background text-muted-foreground"
               )}
             >
-              {step.state === "done" ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <span>{i + 1}</span>
-              )}
+              {step.state === "done" ? <Check className="h-4 w-4" /> : <span>{i + 1}</span>}
             </div>
 
             {/* Connector between this dot and the next */}

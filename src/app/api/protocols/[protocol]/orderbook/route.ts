@@ -1,5 +1,5 @@
-import { NextRequest } from "next/server";
-import { getClient, isValidProtocol, jsonError, getNetwork } from "../../_sdk";
+import type { NextRequest } from "next/server";
+import { getClient, getNetwork, isValidProtocol, jsonError } from "../../_sdk";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ protocol: string }> }) {
   const { protocol } = await params;

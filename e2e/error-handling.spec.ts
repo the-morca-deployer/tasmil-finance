@@ -7,7 +7,7 @@ test.describe("Error Handling (10 tests)", () => {
   test("Dashboard: network error on position fetch — graceful degradation", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/account/position", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/account/position", (route) => route.fulfill({ status: 503 }));
     await page.goto("/dashboard");
     await page.waitForTimeout(3000);
     const content = await page.content();
@@ -20,7 +20,7 @@ test.describe("Error Handling (10 tests)", () => {
   test("Farming: network error on pools — error state", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/pools", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/pools", (route) => route.fulfill({ status: 503 }));
     await page.goto("/farming");
     await page.waitForTimeout(3000);
     const content = await page.content();
@@ -30,7 +30,7 @@ test.describe("Error Handling (10 tests)", () => {
   test("Portfolio: network error — graceful degradation", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/portfolio**", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/portfolio**", (route) => route.fulfill({ status: 503 }));
     await page.goto("/portfolio");
     await page.waitForTimeout(3000);
     const content = await page.content();
@@ -40,7 +40,7 @@ test.describe("Error Handling (10 tests)", () => {
   test("Chat: AG-UI endpoint 503 — error shown", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/agui/**", route => route.fulfill({ status: 503 }));
+    await page.route("**/agui/**", (route) => route.fulfill({ status: 503 }));
     await page.goto("/chat/new");
     await page.waitForTimeout(3000);
     const content = await page.content();
@@ -51,7 +51,7 @@ test.describe("Error Handling (10 tests)", () => {
   test("Leaderboard: network error — error state", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/leaderboard**", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/leaderboard**", (route) => route.fulfill({ status: 503 }));
     await page.goto("/quest");
     await page.waitForTimeout(3000);
     const content = await page.content();
@@ -61,7 +61,7 @@ test.describe("Error Handling (10 tests)", () => {
   test("Credits: network error on packages — empty or error state", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/credits/packages**", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/credits/packages**", (route) => route.fulfill({ status: 503 }));
     await page.goto("/profile/credits");
     await page.waitForTimeout(3000);
     const content = await page.content();
@@ -71,7 +71,7 @@ test.describe("Error Handling (10 tests)", () => {
   test("Strategies: network error — page still loads", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/strategies**", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/strategies**", (route) => route.fulfill({ status: 503 }));
     await page.goto("/strategies");
     await page.waitForTimeout(3000);
     await expect(page).toHaveURL(/\/strategies/);
@@ -80,7 +80,7 @@ test.describe("Error Handling (10 tests)", () => {
   test("Dashboard: timeout on slow API — loading state shown", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/account/position", route => {
+    await page.route("**/api/account/position", (route) => {
       setTimeout(() => route.fulfill({ status: 200, body: JSON.stringify({ data: null }) }), 10000);
     });
     await page.goto("/dashboard");
@@ -95,7 +95,7 @@ test.describe("Error Handling (10 tests)", () => {
     await loginAsWallet(page, wallet);
     const routes = ["**/api/account/position", "**/api/pools", "**/api/portfolio"];
     for (const rt of routes) {
-      await page.route(rt, route => route.fulfill({ status: 503 }));
+      await page.route(rt, (route) => route.fulfill({ status: 503 }));
     }
     await page.goto("/dashboard");
     await page.waitForTimeout(2000);
@@ -110,12 +110,14 @@ test.describe("Error Handling (10 tests)", () => {
   test("No console errors during API failures", async ({ page }) => {
     const wallet = freshWallet();
     const errors: string[] = [];
-    page.on("console", msg => { if (msg.type() === "error") errors.push(msg.text()); });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") errors.push(msg.text());
+    });
     await loginAsWallet(page, wallet);
-    await page.route("**/api/account/position", route => route.fulfill({ status: 503 }));
+    await page.route("**/api/account/position", (route) => route.fulfill({ status: 503 }));
     await page.goto("/dashboard");
     await page.waitForTimeout(3000);
-    const critical = errors.filter(e => !/warning|deprecated/i.test(e));
+    const critical = errors.filter((e) => !/warning|deprecated/i.test(e));
     expect(critical).toHaveLength(0);
   });
 });

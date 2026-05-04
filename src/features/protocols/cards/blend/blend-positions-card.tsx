@@ -3,18 +3,21 @@
 import { Shield, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
-import type { CardMode } from "../../schemas/common.schema";
-import type { PositionsCardProps } from "../../schemas/blend.schema";
-import { ProtocolCard, EmptyState } from "../base/protocol-card";
-import { Apy, Tag, MetricBox, CardHeader } from "../base/indicators";
 import { fmt, resolveSymbol } from "../../lib/formatting";
+import type { PositionsCardProps } from "../../schemas/blend.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { Apy, CardHeader, MetricBox, Tag } from "../base/indicators";
+import { EmptyState, ProtocolCard } from "../base/protocol-card";
 
 interface BlendPositionsCardComponentProps {
   data: PositionsCardProps;
   mode?: CardMode;
 }
 
-export function BlendPositionsCard({ data, mode = "playground" }: BlendPositionsCardComponentProps) {
+export function BlendPositionsCard({
+  data,
+  mode = "playground",
+}: BlendPositionsCardComponentProps) {
   const positions = data.positions ?? [];
   const summary = data.summary;
   const collateral = data.collateral ?? [];
@@ -52,7 +55,11 @@ export function BlendPositionsCard({ data, mode = "playground" }: BlendPositions
   const isChat = mode === "chat";
 
   return (
-    <ProtocolCard mode={mode} title={isChat ? "Position" : undefined} icon={isChat ? Shield : undefined}>
+    <ProtocolCard
+      mode={mode}
+      title={isChat ? "Position" : undefined}
+      icon={isChat ? Shield : undefined}
+    >
       {!isChat && <CardHeader icon={<Shield className="h-3.5 w-3.5" />} title="Position" />}
       {summary && (
         <div className="grid grid-cols-4 gap-1.5 px-3 py-3 border-b border-border">
@@ -67,9 +74,7 @@ export function BlendPositionsCard({ data, mode = "playground" }: BlendPositions
           </div>
         </div>
       )}
-      {supplied.length > 0 && (
-        <PositionSection type="supply" positions={supplied} showCollateral />
-      )}
+      {supplied.length > 0 && <PositionSection type="supply" positions={supplied} showCollateral />}
       {borrowed.length > 0 && <PositionSection type="borrow" positions={borrowed} />}
     </ProtocolCard>
   );
@@ -88,7 +93,7 @@ function PositionSection({
     <div
       className={cn(
         "px-4 py-2.5",
-        type === "supply" && positions.length > 0 && "border-b border-border",
+        type === "supply" && positions.length > 0 && "border-b border-border"
       )}
     >
       <div className="flex items-center gap-1.5 mb-1.5">
@@ -98,8 +103,8 @@ function PositionSection({
       {positions.map((p, i) => {
         const raw = String(p.symbol ?? p.asset ?? "?");
         const sym = raw.length > 12 ? resolveSymbol(raw) : raw;
-        const amount = type === "borrow" ? p.borrowedAmount ?? p.amount : p.suppliedAmount;
-        const apy = type === "borrow" ? p.borrowApy ?? p.apy : p.supplyApy ?? p.apy;
+        const amount = type === "borrow" ? (p.borrowedAmount ?? p.amount) : p.suppliedAmount;
+        const apy = type === "borrow" ? (p.borrowApy ?? p.apy) : (p.supplyApy ?? p.apy);
         return (
           <div key={i} className="flex items-center py-1.5 gap-2">
             <TokenImage src={null} alt={sym} className="h-5 w-5 rounded-full" />

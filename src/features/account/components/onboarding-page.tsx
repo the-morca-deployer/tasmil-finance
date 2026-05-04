@@ -1,20 +1,11 @@
 "use client";
-import { activeNetwork } from "@/shared/config/stellar";
 
-import {
-  AlertCircle,
-  CheckCircle,
-  Info,
-  Loader2,
-  ShieldCheck,
-  Wallet,
-  Zap,
-} from "lucide-react";
+import { AlertCircle, CheckCircle, Info, Loader2, ShieldCheck, Wallet, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-
-import { Button } from "@/shared/ui/button-v2";
 import { cn } from "@/lib/utils";
+import { activeNetwork } from "@/shared/config/stellar";
+import { Button } from "@/shared/ui/button-v2";
 import { useWalletStore } from "@/store/use-wallet";
 
 import {
@@ -108,8 +99,7 @@ export function OnboardingPage() {
   // Helper to get StellarWalletsKit + passphrase
   const getStellarKit = async () => {
     const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-    const passphrase =
-      activeNetwork.networkPassphrase;
+    const passphrase = activeNetwork.networkPassphrase;
     return { StellarWalletsKit, passphrase };
   };
 
@@ -118,9 +108,7 @@ export function OnboardingPage() {
    * with an empty / undefined signedTxXdr on user rejection instead of
    * throwing. Treat any non-string / empty result as an explicit cancel.
    */
-  const assertSigned = (
-    signResult: { signedTxXdr?: string } | null | undefined,
-  ): string => {
+  const assertSigned = (signResult: { signedTxXdr?: string } | null | undefined): string => {
     const xdr = signResult?.signedTxXdr;
     if (typeof xdr !== "string" || xdr.length === 0) {
       const err = new Error("User rejected transaction signing");
@@ -237,7 +225,7 @@ export function OnboardingPage() {
       } catch (presetErr: any) {
         console.warn(
           "Preset application failed; leaving account on default BALANCED:",
-          presetErr?.message ?? presetErr,
+          presetErr?.message ?? presetErr
         );
       }
       setDeploySubStep("done");
@@ -263,7 +251,7 @@ export function OnboardingPage() {
           `Transaction signing was cancelled at the ${step} step. ` +
             (deployCompleted && !setupCompleted
               ? "Your account was deployed but session key setup didn't complete — click retry to finish."
-              : "Please try again."),
+              : "Please try again.")
         );
       } else if (message.includes("insufficient") || message.includes("Insufficient")) {
         setDeployError("Insufficient XLM balance. Please fund your wallet and try again.");
@@ -313,9 +301,8 @@ export function OnboardingPage() {
   // Users deserve a heads-up before picking an allocation that pays ~nothing.
   const LOW_APY_THRESHOLD_PCT = 1;
   const showLowApyWarning =
-    presets?.some(
-      (p) => p.name === selectedPreset && p.estimatedApy < LOW_APY_THRESHOLD_PCT,
-    ) ?? false;
+    presets?.some((p) => p.name === selectedPreset && p.estimatedApy < LOW_APY_THRESHOLD_PCT) ??
+    false;
 
   const selectedApy =
     presets?.find((p) => p.name === selectedPreset)?.estimatedApy?.toFixed(2) ?? "—";
@@ -331,12 +318,10 @@ export function OnboardingPage() {
           Deposit asset
         </span>
         <div className="flex gap-2">
-          {(
-            [
-              { id: "USDC" as const, label: "USDC", hint: "stablecoin" },
-              { id: "XLM" as const, label: "XLM", hint: "native" },
-            ]
-          ).map((asset) => {
+          {[
+            { id: "USDC" as const, label: "USDC", hint: "stablecoin" },
+            { id: "XLM" as const, label: "XLM", hint: "native" },
+          ].map((asset) => {
             const isActive = selectedBaseAsset === asset.id;
             return (
               <button
@@ -349,7 +334,7 @@ export function OnboardingPage() {
                   "disabled:cursor-not-allowed disabled:opacity-60",
                   isActive
                     ? "border-primary/50 bg-primary/10 text-foreground ring-1 ring-primary/40"
-                    : "border-white/8 bg-white/3 text-muted-foreground hover:border-white/12 hover:text-foreground",
+                    : "border-white/8 bg-white/3 text-muted-foreground hover:border-white/12 hover:text-foreground"
                 )}
               >
                 <span className="font-semibold">{asset.label}</span>
@@ -365,12 +350,8 @@ export function OnboardingPage() {
         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-[10px] text-primary">
           2
         </span>
-        <span className="text-muted-foreground text-xs uppercase tracking-widest">
-          Strategy
-        </span>
-        <span className="text-muted-foreground/60 text-xs">
-          · change any time
-        </span>
+        <span className="text-muted-foreground text-xs uppercase tracking-widest">Strategy</span>
+        <span className="text-muted-foreground/60 text-xs">· change any time</span>
       </div>
       {presetsLoading ? (
         <div className="flex items-center justify-center rounded-2xl border border-white/6 bg-white/3 py-10">
@@ -398,7 +379,9 @@ export function OnboardingPage() {
         <div className="flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
           <p className="text-amber-200/90">
-            <span className="font-medium text-amber-200">{selectedPreset} with {selectedBaseAsset} pays &lt;1% right now.</span>{" "}
+            <span className="font-medium text-amber-200">
+              {selectedPreset} with {selectedBaseAsset} pays &lt;1% right now.
+            </span>{" "}
             {selectedBaseAsset === "XLM"
               ? "Mainnet XLM lending demand is low. Try Balanced/Aggressive or switch to USDC for 5–9% APY."
               : "Pool yields fluctuate — you can change strategy any time."}
@@ -471,9 +454,7 @@ export function OnboardingPage() {
         {isDeploying && (
           <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs">
             <Loader2 className="h-3 w-3 animate-spin text-primary" />
-            <p className="font-medium text-primary">
-              {getDeployStatusLabel(deploySubStep)}
-            </p>
+            <p className="font-medium text-primary">{getDeployStatusLabel(deploySubStep)}</p>
             <p className="text-muted-foreground">· keep Freighter open</p>
           </div>
         )}

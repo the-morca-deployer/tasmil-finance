@@ -44,7 +44,12 @@ export function ProtocolCard({
       <div className={cn(shellClass, isChat && "bg-card/40", className)}>
         <div className="flex items-center gap-3">
           {Icon && (
-            <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full", iconBg)}>
+            <div
+              className={cn(
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+                iconBg
+              )}
+            >
               <Loader2 className={cn("h-4 w-4 animate-spin", iconColor)} />
             </div>
           )}
@@ -73,7 +78,12 @@ export function ProtocolCard({
       {isChat && (Icon || title) && (
         <div className="mb-3 flex items-center gap-3">
           {Icon && (
-            <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full", iconBg)}>
+            <div
+              className={cn(
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+                iconBg
+              )}
+            >
               <Icon className={cn("h-4 w-4", iconColor)} />
             </div>
           )}

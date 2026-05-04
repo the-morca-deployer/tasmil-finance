@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { activeNetwork } from "@/shared/config/stellar";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
+import { activeNetwork } from "@/shared/config/stellar";
 
 interface TrustlineCheckResult {
   /** Whether the asset needs a trustline (false for native XLM) */
@@ -33,20 +33,43 @@ function isNativeAsset(assetContract: string | undefined, symbol?: string): bool
 /** Map of known Soroban token contract → classic asset {code, issuer} */
 const KNOWN_CLASSIC_ASSETS: Record<string, { code: string; issuer: string }> = {
   // Testnet USDC variants
-  CAQCFVLOBK5GIULPNZRGATJJMIZL5BSP7X5YJVMGCPTUEPFM4AVSRCJU: { code: "USDC", issuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5" },
-  CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA: { code: "USDC", issuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5" },
-  CAZRY5GSFBFXD7H6GAFBA5YGYQTDXU4QKWKMYFWBAZFUCURN3WKX6LF5: { code: "USDC", issuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5" },
+  CAQCFVLOBK5GIULPNZRGATJJMIZL5BSP7X5YJVMGCPTUEPFM4AVSRCJU: {
+    code: "USDC",
+    issuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+  },
+  CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA: {
+    code: "USDC",
+    issuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+  },
+  CAZRY5GSFBFXD7H6GAFBA5YGYQTDXU4QKWKMYFWBAZFUCURN3WKX6LF5: {
+    code: "USDC",
+    issuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+  },
   // Mainnet USDC
-  CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75: { code: "USDC", issuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN" },
+  CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75: {
+    code: "USDC",
+    issuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+  },
   // BLND
-  CB22KRA3YZVCNCQI64JQ5WE7UY2VAV7WFLK6A2JN3HEX56T2EDAFO7QF: { code: "BLND", issuer: "GATALTGTWIOT6BUDBCZM3Q4OQ4BO2COLOAZ7IYSKPLC2PMSOPPGF5V56" },
+  CB22KRA3YZVCNCQI64JQ5WE7UY2VAV7WFLK6A2JN3HEX56T2EDAFO7QF: {
+    code: "BLND",
+    issuer: "GATALTGTWIOT6BUDBCZM3Q4OQ4BO2COLOAZ7IYSKPLC2PMSOPPGF5V56",
+  },
   // USDT
-  CBL6KD2LFMLAUKFFWNNXWOXFN73GAXLEA4WMJRLQ5L76DMYTM3KWQVJN: { code: "USDT", issuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5" },
+  CBL6KD2LFMLAUKFFWNNXWOXFN73GAXLEA4WMJRLQ5L76DMYTM3KWQVJN: {
+    code: "USDT",
+    issuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+  },
   // AQUA
-  CDNVQW44C3HALYNVQ4SOBXY5EWYTGVYXX6JPESOLQDABJI5FC5LTRRUE: { code: "AQUA", issuer: "GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA" },
+  CDNVQW44C3HALYNVQ4SOBXY5EWYTGVYXX6JPESOLQDABJI5FC5LTRRUE: {
+    code: "AQUA",
+    issuer: "GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA",
+  },
 };
 
-async function resolveClassicAsset(contract: string): Promise<{ code: string; issuer: string } | null> {
+async function resolveClassicAsset(
+  contract: string
+): Promise<{ code: string; issuer: string } | null> {
   if (KNOWN_CLASSIC_ASSETS[contract]) return KNOWN_CLASSIC_ASSETS[contract];
 
   // Try fetching from Stellar Expert API for unknown tokens
@@ -79,7 +102,7 @@ async function resolveClassicAsset(contract: string): Promise<{ code: string; is
 export async function checkTrustlineExists(
   walletAddress: string,
   assetContract: string,
-  symbol?: string,
+  symbol?: string
 ): Promise<boolean> {
   if (isNativeAsset(assetContract, symbol)) return true;
 
@@ -92,10 +115,12 @@ export async function checkTrustlineExists(
   const assetInfo = await resolveClassicAsset(assetContract);
   if (!assetInfo) return true; // can't resolve — don't block
 
-  return account.balances.some((b: { asset_type: string; asset_code?: string; asset_issuer?: string }) => {
-    if (b.asset_type === "native") return false;
-    return b.asset_code === assetInfo.code && b.asset_issuer === assetInfo.issuer;
-  });
+  return account.balances.some(
+    (b: { asset_type: string; asset_code?: string; asset_issuer?: string }) => {
+      if (b.asset_type === "native") return false;
+      return b.asset_code === assetInfo.code && b.asset_issuer === assetInfo.issuer;
+    }
+  );
 }
 
 /**
@@ -107,7 +132,7 @@ export async function checkTrustlineExists(
 export async function addTrustline(
   walletAddress: string,
   assetContract: string,
-  symbol?: string,
+  symbol?: string
 ): Promise<boolean> {
   if (isNativeAsset(assetContract, symbol)) return true;
 
@@ -135,7 +160,11 @@ export async function addTrustline(
       .build();
 
     const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-    try { StellarWalletsKit.setWallet(walletAddress); } catch { /* ignore */ }
+    try {
+      StellarWalletsKit.setWallet(walletAddress);
+    } catch {
+      /* ignore */
+    }
 
     const signingResult = await StellarWalletsKit.signTransaction(tx.toXDR(), {
       address: walletAddress,
@@ -174,7 +203,7 @@ export async function addTrustline(
 export function useTrustlineCheck(
   walletAddress: string | undefined,
   assetContract: string | undefined,
-  symbol?: string,
+  symbol?: string
 ): TrustlineCheckResult {
   const [hasTrustline, setHasTrustline] = useState(true); // assume true until checked
   const [checking, setChecking] = useState(false);
@@ -207,7 +236,9 @@ export function useTrustlineCheck(
         }
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [walletAddress, assetContract, isNative, symbol, checkId]);
 
   const recheck = useCallback(() => setCheckId((id) => id + 1), []);

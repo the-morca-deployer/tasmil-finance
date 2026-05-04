@@ -13,7 +13,14 @@ export function getClient(): TasmilClient {
 }
 
 export const VALID_PROTOCOLS = [
-  "blend", "aquarius", "soroswap", "phoenix", "sdex", "allbridge", "defindex", "templar",
+  "blend",
+  "aquarius",
+  "soroswap",
+  "phoenix",
+  "sdex",
+  "allbridge",
+  "defindex",
+  "templar",
 ] as const;
 export type ProtocolId = (typeof VALID_PROTOCOLS)[number];
 
@@ -22,9 +29,10 @@ export function isValidProtocol(p: string): p is ProtocolId {
 }
 
 export function getExplorerUrl(contract: string): string {
-  const base = STELLAR_NETWORK === "testnet"
-    ? "https://stellar.expert/explorer/testnet/contract"
-    : "https://stellar.expert/explorer/public/contract";
+  const base =
+    STELLAR_NETWORK === "testnet"
+      ? "https://stellar.expert/explorer/testnet/contract"
+      : "https://stellar.expert/explorer/public/contract";
   return `${base}/${contract}`;
 }
 
@@ -32,4 +40,6 @@ export function jsonError(msg: string, status = 400) {
   return Response.json({ success: false, error: msg }, { status });
 }
 
-export function getNetwork() { return STELLAR_NETWORK; }
+export function getNetwork() {
+  return STELLAR_NETWORK;
+}

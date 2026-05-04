@@ -1,5 +1,5 @@
-import { NextRequest } from "next/server";
-import { getClient, isValidProtocol, jsonError, getNetwork } from "../../_sdk";
+import type { NextRequest } from "next/server";
+import { getClient, getNetwork, isValidProtocol, jsonError } from "../../_sdk";
 
 const SUPPORTS_POSITIONS = new Set(["blend", "templar"]);
 
@@ -20,7 +20,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ prot
       if (!pool || !user) return jsonError("pool and user parameters required");
       const pos = await sdk.blend.getUserPositions(pool, user);
       return Response.json({
-        success: true, network, protocol,
+        success: true,
+        network,
+        protocol,
         hasPosition: pos.collateral.length + pos.supply.length + pos.liabilities.length > 0,
         poolAddress: pos.poolAddress,
         poolName: pos.poolName,
@@ -43,8 +45,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ prot
       const account = user ?? "";
       const pos = await sdk.templar.getPosition(market, account);
       return Response.json({
-        success: true, network, protocol: "templar",
-        market, account,
+        success: true,
+        network,
+        protocol: "templar",
+        market,
+        account,
         position: pos,
       });
     }

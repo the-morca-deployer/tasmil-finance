@@ -1,11 +1,11 @@
 "use client";
 
-import { Wallet, Layers } from "lucide-react";
-import type { CardMode } from "../../schemas/common.schema";
-import type { AquaPositionsCardProps, AquaPositionItem } from "../../schemas/aquarius.schema";
-import { ProtocolCard, EmptyState } from "../base/protocol-card";
-import { APYDisplay, CardHeader } from "../base/indicators";
+import { Layers, Wallet } from "lucide-react";
 import { fmt, pct } from "../../lib/formatting";
+import type { AquaPositionItem, AquaPositionsCardProps } from "../../schemas/aquarius.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { APYDisplay, CardHeader } from "../base/indicators";
+import { EmptyState, ProtocolCard } from "../base/protocol-card";
 
 interface AquaPositionsCardComponentProps {
   data: AquaPositionsCardProps;
@@ -14,7 +14,7 @@ interface AquaPositionsCardComponentProps {
 
 function resolvePositionLabel(pos: AquaPositionItem): string {
   if (pos.tokens?.length) return pos.tokens.join(" / ");
-  const ts = Array.isArray(pos.tokensStr) ? pos.tokensStr : pos.tokensStr?.split("-") ?? [];
+  const ts = Array.isArray(pos.tokensStr) ? pos.tokensStr : (pos.tokensStr?.split("-") ?? []);
   return ts.length ? ts.join(" / ") : pos.poolAddress.slice(0, 10);
 }
 
@@ -38,7 +38,13 @@ export function AquaPositionsCard({ data, mode = "playground" }: AquaPositionsCa
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title="Aquarius LP Positions" icon={Wallet} iconColor="text-cyan-500" iconBg="bg-cyan-500/10">
+      <ProtocolCard
+        mode="chat"
+        title="Aquarius LP Positions"
+        icon={Wallet}
+        iconColor="text-cyan-500"
+        iconBg="bg-cyan-500/10"
+      >
         <div className="space-y-2">
           {data.totalValueUsd != null && (
             <div className="flex justify-between text-sm font-medium">
@@ -55,8 +61,16 @@ export function AquaPositionsCard({ data, mode = "playground" }: AquaPositionsCa
                 </div>
                 <div className="flex gap-3 text-xs text-muted-foreground">
                   {pos.shares != null && <span>Shares: {fmt(pos.shares)}</span>}
-                  {pos.feeApy != null && <span>Fee: <APYDisplay value={pos.feeApy} /></span>}
-                  {pos.rewardApy != null && <span>Reward: <APYDisplay value={pos.rewardApy} /></span>}
+                  {pos.feeApy != null && (
+                    <span>
+                      Fee: <APYDisplay value={pos.feeApy} />
+                    </span>
+                  )}
+                  {pos.rewardApy != null && (
+                    <span>
+                      Reward: <APYDisplay value={pos.rewardApy} />
+                    </span>
+                  )}
                 </div>
               </div>
             ))}

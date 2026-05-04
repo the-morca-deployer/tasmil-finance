@@ -28,11 +28,7 @@ export async function GET(req: NextRequest) {
 
   // Map frontend filter values to Aquarius API pool_type param
   const aquaPoolType =
-    poolType === "volatile"
-      ? "constant_product"
-      : poolType === "all"
-        ? ""
-        : poolType; // "stable" and "concentrated" pass through directly
+    poolType === "volatile" ? "constant_product" : poolType === "all" ? "" : poolType; // "stable" and "concentrated" pass through directly
 
   const params = new URLSearchParams({
     pool_type: aquaPoolType,
@@ -54,7 +50,7 @@ export async function GET(req: NextRequest) {
     if (!res.ok) {
       return NextResponse.json(
         { success: false, error: `Aquarius API error: ${res.status}` },
-        { status: res.status },
+        { status: res.status }
       );
     }
 
@@ -107,7 +103,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Aquarius API unavailable" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

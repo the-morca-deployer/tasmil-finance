@@ -1,4 +1,4 @@
-import { groupByDate, formatGroupDate } from "./date-group";
+import { formatGroupDate, groupByDate } from "./date-group";
 
 beforeAll(() => {
   jest.useFakeTimers();

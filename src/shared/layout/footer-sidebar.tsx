@@ -1,10 +1,10 @@
 "use client";
 
 import { BarChart3, Coins, ExternalLink, Star } from "lucide-react";
-import { TokenImage } from "@/shared/components/token-image";
 import Link from "next/link";
 import { TourTriggerButton } from "@/features/onboarding/components/tour-trigger-button";
 import { AddressAvatar, ConnectWalletButton } from "@/shared/components/connect-wallet-button";
+import { TokenImage } from "@/shared/components/token-image";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useStellarBalance } from "@/shared/hooks/use-stellar-balance";
 import { useUserStatus } from "@/shared/hooks/use-user-status";
@@ -53,7 +53,10 @@ export function FooterSidebarSection() {
                 >
                   <div className="flex items-center gap-1.5">
                     <BarChart3 className="h-3.5 w-3.5 text-gray-400" />
-                    <Typography className="text-gray-300 group-hover/volume:text-white transition-colors" size="xs">
+                    <Typography
+                      className="text-gray-300 group-hover/volume:text-white transition-colors"
+                      size="xs"
+                    >
                       Volume
                     </Typography>
                     <ExternalLink className="h-3 w-3 text-gray-500 group-hover/volume:text-white transition-colors" />
@@ -81,9 +84,7 @@ export function FooterSidebarSection() {
                     </Typography>
                   </div>
                   <Typography className="text-white" size="sm" weight="semibold">
-                    {userStatus?.chatCredits
-                      ? `${userStatus.chatCredits.remaining * 10}`
-                      : "-"}
+                    {userStatus?.chatCredits ? `${userStatus.chatCredits.remaining * 10}` : "-"}
                   </Typography>
                 </div>
               </div>
@@ -99,12 +100,7 @@ export function FooterSidebarSection() {
               glowRadius={20}
             >
               <div className="flex items-center gap-2 px-3 py-2">
-                <TokenImage
-                  alt="XLM"
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                />
+                <TokenImage alt="XLM" width={32} height={32} className="rounded-full" />
                 <div className="flex-1">
                   <Typography className="text-gray-400" size="xs">
                     Balance
@@ -216,7 +212,11 @@ export function FooterSidebarSection() {
                     href="/rewards/welcome"
                     className="flex flex-col items-center group/volume py-1"
                   >
-                    <Typography className="text-gray-400 group-hover/volume:text-white transition-colors" size="xs" weight="semibold">
+                    <Typography
+                      className="text-gray-400 group-hover/volume:text-white transition-colors"
+                      size="xs"
+                      weight="semibold"
+                    >
                       ${userStatus?.volumeUsd?.toFixed(0) ?? "0"}
                     </Typography>
                   </Link>
@@ -246,12 +246,7 @@ export function FooterSidebarSection() {
                 glowRadius={15}
               >
                 <div className="flex h-14 w-full flex-col items-center justify-center gap-1">
-                  <TokenImage
-                    alt="XLM"
-                    width={20}
-                    height={20}
-                    className="rounded-full"
-                  />
+                  <TokenImage alt="XLM" width={20} height={20} className="rounded-full" />
                   <Typography className="text-center text-white" size="sm" weight="semibold">
                     {isLoading ? "..." : `${xlm.toFixed(1)}`}
                   </Typography>

@@ -1,9 +1,10 @@
 import { formatPercent } from "@/features/protocols/lib/formatting";
-"use client";
 
+("use client");
+
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, Database, Layers, Shield, Wallet } from "lucide-react";
 import { useState } from "react";
-import { ChevronDown, Layers, Database, Shield, Wallet } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
 
@@ -16,7 +17,6 @@ function fmt(v: unknown, d = 2): string {
   if (Math.abs(n) >= 1e3) return `${(n / 1e3).toFixed(2)}K`;
   return n.toFixed(d);
 }
-
 
 function trunc(s: string): string {
   return s.length <= 10 ? s : `${s.slice(0, 4)}…${s.slice(-4)}`;
@@ -33,14 +33,16 @@ function Apy({ value }: { value: unknown }) {
 
 function Tag({ type }: { type: string }) {
   const m: Record<string, [string, string]> = {
-    supply:     ["Supply",     "text-foreground bg-muted"],
+    supply: ["Supply", "text-foreground bg-muted"],
     collateral: ["Collateral", "text-primary bg-primary/10"],
-    borrow:     ["Borrow",     "text-foreground bg-muted"],
-    active:     ["Active",     "text-emerald-400 bg-emerald-400/10"],
-    setup:      ["Setup",      "text-amber-400 bg-amber-400/10"],
+    borrow: ["Borrow", "text-foreground bg-muted"],
+    active: ["Active", "text-emerald-400 bg-emerald-400/10"],
+    setup: ["Setup", "text-amber-400 bg-amber-400/10"],
   };
   const [label, cls] = m[type] ?? [type, "text-muted-foreground bg-muted"];
-  return <span className={cn("rounded-md px-1.5 py-px text-[10px] font-medium", cls)}>{label}</span>;
+  return (
+    <span className={cn("rounded-md px-1.5 py-px text-[10px] font-medium", cls)}>{label}</span>
+  );
 }
 
 function Bar({ value }: { value: unknown }) {
@@ -48,7 +50,10 @@ function Bar({ value }: { value: unknown }) {
   const p = isFinite(n) ? (n < 1 ? n * 100 : n) : 0;
   return (
     <div className="h-1 w-full rounded-full bg-border overflow-hidden">
-      <div className="h-full rounded-full bg-primary/60" style={{ width: `${Math.min(p, 100)}%` }} />
+      <div
+        className="h-full rounded-full bg-primary/60"
+        style={{ width: `${Math.min(p, 100)}%` }}
+      />
     </div>
   );
 }
@@ -58,35 +63,74 @@ function Bar({ value }: { value: unknown }) {
 export function BlendPoolsCard({ data }: { data: Record<string, unknown> }) {
   const pools = (data.pools ?? []) as Record<string, unknown>[];
   const [open, setOpen] = useState<Set<number>>(new Set([0]));
-  const flip = (i: number) => setOpen((s) => { const n = new Set(s); n.has(i) ? n.delete(i) : n.add(i); return n; });
+  const flip = (i: number) =>
+    setOpen((s) => {
+      const n = new Set(s);
+      n.has(i) ? n.delete(i) : n.add(i);
+      return n;
+    });
 
   if (!pools.length) return <Empty icon={Layers} text="No pools found" />;
 
   return (
     <Card>
-      <Header icon={<Database className="h-3.5 w-3.5" />} title="Blend Pools" right={<span className="text-xs text-muted-foreground">{pools.length}</span>} />
+      <Header
+        icon={<Database className="h-3.5 w-3.5" />}
+        title="Blend Pools"
+        right={<span className="text-xs text-muted-foreground">{pools.length}</span>}
+      />
       {pools.map((pool, i) => {
         const res = (pool.reserves ?? []) as Record<string, unknown>[];
         const isOpen = open.has(i);
         return (
           <div key={i} className={cn(i > 0 && "border-t border-border")}>
-            <button type="button" onClick={() => flip(i)} className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-muted/30 transition-colors">
-              <ChevronDown className={cn("h-3 w-3 text-muted-foreground transition-transform", isOpen && "rotate-180")} />
-              <span className="text-[13px] font-medium text-foreground flex-1 text-left truncate">{String(pool.name ?? "Pool")}</span>
+            <button
+              type="button"
+              onClick={() => flip(i)}
+              className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-muted/30 transition-colors"
+            >
+              <ChevronDown
+                className={cn(
+                  "h-3 w-3 text-muted-foreground transition-transform",
+                  isOpen && "rotate-180"
+                )}
+              />
+              <span className="text-[13px] font-medium text-foreground flex-1 text-left truncate">
+                {String(pool.name ?? "Pool")}
+              </span>
               <Tag type={String(pool.status ?? "unknown")} />
             </button>
             <AnimatePresence>
               {isOpen && res.length > 0 && (
-                <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: "auto" }}
+                  exit={{ height: 0 }}
+                  className="overflow-hidden"
+                >
                   <div className="pb-2 px-4 space-y-1">
                     {res.map((r, j) => (
                       <div key={j} className="flex items-center gap-2.5 py-1.5 pl-5">
-                        <TokenImage src={null} alt={String(r.symbol ?? "?")} className="h-5 w-5 rounded-full" />
-                        <span className="text-xs font-medium text-foreground w-12">{String(r.symbol ?? "?")}</span>
+                        <TokenImage
+                          src={null}
+                          alt={String(r.symbol ?? "?")}
+                          className="h-5 w-5 rounded-full"
+                        />
+                        <span className="text-xs font-medium text-foreground w-12">
+                          {String(r.symbol ?? "?")}
+                        </span>
                         <div className="flex-1 grid grid-cols-3 gap-1 text-[11px]">
-                          <span className="text-muted-foreground"><span className="text-muted-foreground/50">S </span><Apy value={r.supplyApy} /></span>
-                          <span className="text-muted-foreground"><span className="text-muted-foreground/50">B </span><Apy value={r.borrowApy} /></span>
-                          <span className="text-muted-foreground tabular-nums">{fmt(r.totalSupply ?? r.totalSupplied)}</span>
+                          <span className="text-muted-foreground">
+                            <span className="text-muted-foreground/50">S </span>
+                            <Apy value={r.supplyApy} />
+                          </span>
+                          <span className="text-muted-foreground">
+                            <span className="text-muted-foreground/50">B </span>
+                            <Apy value={r.borrowApy} />
+                          </span>
+                          <span className="text-muted-foreground tabular-nums">
+                            {fmt(r.totalSupply ?? r.totalSupplied)}
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -114,7 +158,9 @@ export function BlendPoolDetailCard({ data }: { data: Record<string, unknown> })
           <Database className="h-4 w-4 text-muted-foreground" />
           <div>
             <p className="text-[13px] font-medium text-foreground">{String(pool.name ?? "Pool")}</p>
-            <p className="text-[10px] text-muted-foreground font-mono">{trunc(String(pool.address ?? pool.poolAddress ?? ""))}</p>
+            <p className="text-[10px] text-muted-foreground font-mono">
+              {trunc(String(pool.address ?? pool.poolAddress ?? ""))}
+            </p>
           </div>
         </div>
         <Tag type={String(pool.status ?? "unknown")} />
@@ -124,9 +170,17 @@ export function BlendPoolDetailCard({ data }: { data: Record<string, unknown> })
           {res.map((r: Record<string, unknown>, i: number) => (
             <div key={i} className="px-4 py-3 hover:bg-muted/20 transition-colors">
               <div className="flex items-center gap-2.5 mb-2">
-                <TokenImage src={null} alt={String(r.symbol ?? "?")} className="h-6 w-6 rounded-full" />
-                <span className="text-sm font-medium text-foreground flex-1">{String(r.symbol ?? "?")}</span>
-                <div className="w-20"><Bar value={r.utilization as number} /></div>
+                <TokenImage
+                  src={null}
+                  alt={String(r.symbol ?? "?")}
+                  className="h-6 w-6 rounded-full"
+                />
+                <span className="text-sm font-medium text-foreground flex-1">
+                  {String(r.symbol ?? "?")}
+                </span>
+                <div className="w-20">
+                  <Bar value={r.utilization as number} />
+                </div>
               </div>
               <div className="grid grid-cols-4 gap-3 pl-8">
                 <Stat label="Supply APY" value={formatPercent(r.supplyApy as number)} />
@@ -137,7 +191,9 @@ export function BlendPoolDetailCard({ data }: { data: Record<string, unknown> })
             </div>
           ))}
         </div>
-      ) : <Empty icon={Database} text="No reserves" />}
+      ) : (
+        <Empty icon={Database} text="No reserves" />
+      )}
     </Card>
   );
 }
@@ -165,7 +221,9 @@ export function BlendReserveCard({ data }: { data: Record<string, unknown> }) {
         <div>
           <div className="flex justify-between text-[10px] mb-1">
             <span className="text-muted-foreground">Utilization</span>
-            <span className="text-foreground tabular-nums">{formatPercent(r.utilization as number)}</span>
+            <span className="text-foreground tabular-nums">
+              {formatPercent(r.utilization as number)}
+            </span>
           </div>
           <Bar value={r.utilization as number} />
         </div>
@@ -192,16 +250,29 @@ export function BlendPositionsCard({ data }: { data: Record<string, unknown> }) 
 
   const supplied: Record<string, unknown>[] = positions.length
     ? positions.filter((p) => p.suppliedAmount != null)
-    : [...collateral.map((c) => ({ ...c, suppliedAmount: c.amount, isCollateral: true })),
-       ...supply.map((s) => ({ ...s, suppliedAmount: s.amount, isCollateral: false }))];
+    : [
+        ...collateral.map((c) => ({ ...c, suppliedAmount: c.amount, isCollateral: true })),
+        ...supply.map((s) => ({ ...s, suppliedAmount: s.amount, isCollateral: false })),
+      ];
   const borrowed: Record<string, unknown>[] = positions.length
     ? positions.filter((p) => p.borrowedAmount != null)
     : liabilities.map((l) => ({ ...l, borrowedAmount: l.amount }));
 
-  if (!hasPos && !supplied.length && !borrowed.length) return <Card><Empty icon={Wallet} text="No open positions" /></Card>;
+  if (!hasPos && !supplied.length && !borrowed.length)
+    return (
+      <Card>
+        <Empty icon={Wallet} text="No open positions" />
+      </Card>
+    );
 
   const hf = Number(summary?.healthFactor);
-  const hfColor = !isFinite(hf) ? "text-muted-foreground" : hf > 1.5 ? "text-emerald-400" : hf > 1.1 ? "text-amber-400" : "text-destructive";
+  const hfColor = !isFinite(hf)
+    ? "text-muted-foreground"
+    : hf > 1.5
+      ? "text-emerald-400"
+      : hf > 1.1
+        ? "text-amber-400"
+        : "text-destructive";
 
   return (
     <Card>
@@ -213,38 +284,51 @@ export function BlendPositionsCard({ data }: { data: Record<string, unknown> }) 
           <MetricBox label="Available" value={`$${fmt(summary.availableBorrowUsd)}`} />
           <div className="rounded-lg bg-secondary px-2.5 py-2">
             <p className="text-[10px] text-muted-foreground mb-0.5">Health</p>
-            <p className={cn("text-sm font-semibold tabular-nums", hfColor)}>{isFinite(hf) ? hf.toFixed(2) : "—"}</p>
+            <p className={cn("text-sm font-semibold tabular-nums", hfColor)}>
+              {isFinite(hf) ? hf.toFixed(2) : "—"}
+            </p>
           </div>
         </div>
       )}
-      {supplied.length > 0 && (
-        <PositionSection type="supply" positions={supplied} showCollateral />
-      )}
-      {borrowed.length > 0 && (
-        <PositionSection type="borrow" positions={borrowed} />
-      )}
+      {supplied.length > 0 && <PositionSection type="supply" positions={supplied} showCollateral />}
+      {borrowed.length > 0 && <PositionSection type="borrow" positions={borrowed} />}
     </Card>
   );
 }
 
-function PositionSection({ type, positions, showCollateral }: { type: string; positions: Record<string, unknown>[]; showCollateral?: boolean }) {
+function PositionSection({
+  type,
+  positions,
+  showCollateral,
+}: {
+  type: string;
+  positions: Record<string, unknown>[];
+  showCollateral?: boolean;
+}) {
   return (
-    <div className={cn("px-4 py-2.5", type === "supply" && positions.length > 0 && "border-b border-border")}>
+    <div
+      className={cn(
+        "px-4 py-2.5",
+        type === "supply" && positions.length > 0 && "border-b border-border"
+      )}
+    >
       <div className="flex items-center gap-1.5 mb-1.5">
         <Tag type={type} />
         <span className="text-[10px] text-muted-foreground">{positions.length}</span>
       </div>
       {positions.map((p, i) => {
         const sym = String(p.symbol ?? p.asset ?? "?");
-        const amount = type === "borrow" ? p.borrowedAmount ?? p.amount : p.suppliedAmount;
-        const apy = type === "borrow" ? p.borrowApy ?? p.apy : p.supplyApy ?? p.apy;
+        const amount = type === "borrow" ? (p.borrowedAmount ?? p.amount) : p.suppliedAmount;
+        const apy = type === "borrow" ? (p.borrowApy ?? p.apy) : (p.supplyApy ?? p.apy);
         return (
           <div key={i} className="flex items-center py-1.5 gap-2">
             <TokenImage src={null} alt={sym} className="h-5 w-5 rounded-full" />
             <span className="text-xs font-medium text-foreground flex-1">{sym}</span>
             {showCollateral && p.isCollateral === true && <Tag type="collateral" />}
             <span className="text-xs text-foreground tabular-nums">{fmt(amount, 2)}</span>
-            <span className="text-[11px] text-muted-foreground tabular-nums w-14 text-right"><Apy value={apy} /></span>
+            <span className="text-[11px] text-muted-foreground tabular-nums w-14 text-right">
+              <Apy value={apy} />
+            </span>
           </div>
         );
       })}
@@ -258,7 +342,15 @@ function Card({ children }: { children: React.ReactNode }) {
   return <div className="rounded-xl border border-border bg-card overflow-hidden">{children}</div>;
 }
 
-function Header({ icon, title, right }: { icon: React.ReactNode; title: string; right?: React.ReactNode }) {
+function Header({
+  icon,
+  title,
+  right,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  right?: React.ReactNode;
+}) {
   return (
     <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border">
       <span className="text-muted-foreground">{icon}</span>

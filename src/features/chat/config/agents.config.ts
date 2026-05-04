@@ -17,7 +17,8 @@ export const AGENTS: Record<string, AgentConfig> = {
   supervisor: {
     id: "supervisor",
     name: "Tasmil Assistant",
-    description: "AI DeFi assistant for the Stellar ecosystem. Orchestrates all specialized agents. Routes your requests to the best agent automatically",
+    description:
+      "AI DeFi assistant for the Stellar ecosystem. Orchestrates all specialized agents. Routes your requests to the best agent automatically",
     icon: "/agents/supervisor-agent.png",
     supportedChains: ["Stellar"],
     testnetAvailable: true,

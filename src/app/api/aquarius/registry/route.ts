@@ -1,6 +1,6 @@
+import { getTokenPoolRegistry } from "@tasmil/adapter-sdk";
 import { type NextRequest, NextResponse } from "next/server";
 import { STELLAR_NETWORK } from "@/shared/config/stellar-server";
-import { getTokenPoolRegistry } from "@tasmil/adapter-sdk";
 
 /**
  * GET /api/aquarius/registry?action=resolve-pool&pair=XLM/USDC&protocol=aquarius
@@ -21,7 +21,8 @@ export async function GET(req: NextRequest) {
     case "resolve-pool": {
       const pair = req.nextUrl.searchParams.get("pair");
       const protocol = req.nextUrl.searchParams.get("protocol") ?? "aquarius";
-      if (!pair) return NextResponse.json({ success: false, error: "Missing 'pair'" }, { status: 400 });
+      if (!pair)
+        return NextResponse.json({ success: false, error: "Missing 'pair'" }, { status: 400 });
       const pool = registry.resolvePool(pair, protocol);
       return NextResponse.json({
         success: !!pool,
@@ -33,7 +34,8 @@ export async function GET(req: NextRequest) {
     case "resolve-symbol": {
       const symbol = req.nextUrl.searchParams.get("symbol");
       const protocol = req.nextUrl.searchParams.get("protocol");
-      if (!symbol) return NextResponse.json({ success: false, error: "Missing 'symbol'" }, { status: 400 });
+      if (!symbol)
+        return NextResponse.json({ success: false, error: "Missing 'symbol'" }, { status: 400 });
       const address = registry.resolveSymbol(symbol, protocol ?? undefined);
       const variants = registry.getAddresses(symbol);
       return NextResponse.json({
@@ -73,8 +75,15 @@ export async function GET(req: NextRequest) {
     case "list-tokens": {
       const tokens = registry.listTokens();
       return NextResponse.json({
-        success: true, network, count: tokens.length,
-        tokens: tokens.map((t) => ({ address: t.address, symbol: t.symbol, name: t.name, protocols: t.protocols })),
+        success: true,
+        network,
+        count: tokens.length,
+        tokens: tokens.map((t) => ({
+          address: t.address,
+          symbol: t.symbol,
+          name: t.name,
+          protocols: t.protocols,
+        })),
       });
     }
 
@@ -82,12 +91,23 @@ export async function GET(req: NextRequest) {
       const source = req.nextUrl.searchParams.get("source") ?? "aquarius";
       if (source === "aquarius") {
         const loaded = await registry.loadAquariusPools(3, 100);
-        return NextResponse.json({ success: true, network, loaded, totalPools: registry.listPools().length });
+        return NextResponse.json({
+          success: true,
+          network,
+          loaded,
+          totalPools: registry.listPools().length,
+        });
       }
-      return NextResponse.json({ success: false, error: `Unknown source: ${source}` }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: `Unknown source: ${source}` },
+        { status: 400 }
+      );
     }
 
     default:
-      return NextResponse.json({ success: false, error: `Unknown action: ${action}` }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: `Unknown action: ${action}` },
+        { status: 400 }
+      );
   }
 }

@@ -1,13 +1,10 @@
 import {
-  normalizeAquaPoolsFromMcp,
-  normalizeAquaPoolFromMcp,
-} from "../aquarius-from-mcp";
-import {
   AQUARIUS_RESOLVE_POOL,
   AQUARIUS_RESOLVE_POOL_BROKEN,
   EMPTY_MCP_RESULT,
   MALFORMED_MCP_RESULT,
 } from "../../__fixtures__/mcp-tool-outputs";
+import { normalizeAquaPoolFromMcp, normalizeAquaPoolsFromMcp } from "../aquarius-from-mcp";
 
 describe("Aquarius MCP Adapter", () => {
   describe("normalizeAquaPoolsFromMcp", () => {
@@ -22,9 +19,7 @@ describe("Aquarius MCP Adapter", () => {
 
     it("extracts pool address", () => {
       const pools = normalizeAquaPoolsFromMcp(AQUARIUS_RESOLVE_POOL);
-      expect(pools[0]!.address).toBe(
-        "CA6PUJLBYKZKUEKLZJMKBZLEKP2OTHANDEOWSFF44FTSYLKQPIICCJBE",
-      );
+      expect(pools[0]!.address).toBe("CA6PUJLBYKZKUEKLZJMKBZLEKP2OTHANDEOWSFF44FTSYLKQPIICCJBE");
     });
 
     it("extracts TVL from liquidity_usd (stroops -> USD)", () => {

@@ -1,4 +1,4 @@
-import { type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { getDefindexClient, getNetwork, jsonError } from "../_sdk";
 
 /**
@@ -12,7 +12,12 @@ export async function GET(req: NextRequest) {
   if (!wallet) return jsonError("wallet parameter required");
   if (!vault) return jsonError("vault parameter required");
 
-  const interval = req.nextUrl.searchParams.get("interval") as "hourly" | "daily" | "weekly" | "monthly" | null;
+  const interval = req.nextUrl.searchParams.get("interval") as
+    | "hourly"
+    | "daily"
+    | "weekly"
+    | "monthly"
+    | null;
 
   try {
     const sdk = getDefindexClient();

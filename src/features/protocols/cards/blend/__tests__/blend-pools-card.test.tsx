@@ -1,7 +1,7 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
-import { BlendPoolsCard } from "../blend-pools-card";
+import React from "react";
 import type { PoolCardProps } from "@/features/protocols/schemas/blend.schema";
+import { BlendPoolsCard } from "../blend-pools-card";
 
 const makePool = (overrides: Partial<PoolCardProps> = {}): PoolCardProps => ({
   address: "CAJJZSGMMM3PD7N33TAPHGBUGTB43OC73HVIK2L2G6BNGGGYOSSYBXBD",

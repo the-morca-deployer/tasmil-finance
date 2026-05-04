@@ -2,8 +2,8 @@
 
 import type { LucideIcon } from "lucide-react";
 import { ArrowRightLeft, Coins, FileCode, Globe, TrendingUp } from "lucide-react";
-import { truncateAddress } from "@/shared/config/stellar";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
+import { truncateAddress } from "@/shared/config/stellar";
 import { DetailRow } from "../base/indicators";
 import { BaseOperationCard } from "../base/operation-card";
 
@@ -152,9 +152,15 @@ export function StellarExecuteCard({
   // MCP tool results may arrive as an array of content blocks [{type:"text",text:"..."}]
   const normalizedResult = Array.isArray(result)
     ? (() => {
-        const block = (result as any[]).find((b) => b?.type === "text" && typeof b?.text === "string");
+        const block = (result as any[]).find(
+          (b) => b?.type === "text" && typeof b?.text === "string"
+        );
         if (!block) return result;
-        try { return JSON.parse(block.text); } catch { return block.text; }
+        try {
+          return JSON.parse(block.text);
+        } catch {
+          return block.text;
+        }
       })()
     : result;
   let execResult: ExecuteResult | null = null;
@@ -195,7 +201,11 @@ export function StellarExecuteCard({
       };
     } catch (error) {
       const msg = parseSigningError(error);
-      if (msg.toLowerCase().includes("rejected") || msg.toLowerCase().includes("denied") || msg.toLowerCase().includes("cancel")) {
+      if (
+        msg.toLowerCase().includes("rejected") ||
+        msg.toLowerCase().includes("denied") ||
+        msg.toLowerCase().includes("cancel")
+      ) {
         return { success: false, error: "Transaction rejected by user" };
       }
       return { success: false, error: msg };

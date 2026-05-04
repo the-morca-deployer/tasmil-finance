@@ -61,9 +61,7 @@ export function TopupWaitPage({ topupId }: TopupWaitPageProps) {
       className="mx-auto w-full max-w-2xl px-6 py-10"
     >
       <header className="mb-6">
-        <h1 className="font-bold text-2xl tracking-tight">
-          Top up #{snapshot.topupId.slice(-8)}
-        </h1>
+        <h1 className="font-bold text-2xl tracking-tight">Top up #{snapshot.topupId.slice(-8)}</h1>
         <p className="text-muted-foreground text-sm">
           {snapshot.pricing.credits.toLocaleString()} credits
           <span className="px-1">+</span>

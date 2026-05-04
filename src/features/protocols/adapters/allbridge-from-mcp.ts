@@ -6,17 +6,17 @@
 import type {
   AllbridgePoolCardProps,
   AllbridgePoolInfoProps,
-  AllbridgeUserBalanceProps,
   AllbridgeQuoteCardProps,
   AllbridgeRoute,
   AllbridgeTxCardProps,
+  AllbridgeUserBalanceProps,
 } from "../schemas/allbridge.schema";
 import {
-  normalizeAllbridgePoolsFromSdk,
   normalizeAllbridgePoolInfoFromSdk,
-  normalizeAllbridgeUserBalanceFromSdk,
+  normalizeAllbridgePoolsFromSdk,
   normalizeAllbridgeQuoteFromSdk,
   normalizeAllbridgeRoutesFromSdk,
+  normalizeAllbridgeUserBalanceFromSdk,
 } from "./allbridge-from-sdk";
 
 function extractMcpContent(result: unknown): Record<string, unknown> {
@@ -26,7 +26,11 @@ function extractMcpContent(result: unknown): Record<string, unknown> {
     if (Array.isArray(r.content)) {
       const text = (r.content[0] as any)?.text;
       if (typeof text === "string") {
-        try { return JSON.parse(text); } catch { /* fallthrough */ }
+        try {
+          return JSON.parse(text);
+        } catch {
+          /* fallthrough */
+        }
       }
     }
     return r;
@@ -42,7 +46,9 @@ export function normalizeAllbridgePoolInfoFromMcp(result: unknown): AllbridgePoo
   return normalizeAllbridgePoolInfoFromSdk(extractMcpContent(result));
 }
 
-export function normalizeAllbridgeUserBalanceFromMcp(result: unknown): AllbridgeUserBalanceProps | null {
+export function normalizeAllbridgeUserBalanceFromMcp(
+  result: unknown
+): AllbridgeUserBalanceProps | null {
   return normalizeAllbridgeUserBalanceFromSdk(extractMcpContent(result));
 }
 
@@ -54,7 +60,10 @@ export function normalizeAllbridgeRoutesFromMcp(result: unknown): AllbridgeRoute
   return normalizeAllbridgeRoutesFromSdk(extractMcpContent(result));
 }
 
-export function normalizeAllbridgeTxFromMcp(result: unknown, args?: Record<string, unknown>): AllbridgeTxCardProps | null {
+export function normalizeAllbridgeTxFromMcp(
+  result: unknown,
+  args?: Record<string, unknown>
+): AllbridgeTxCardProps | null {
   const data = { ...extractMcpContent(result), ...(args ?? {}) };
   return {
     operation: String(data.operation ?? ""),

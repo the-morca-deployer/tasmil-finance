@@ -21,9 +21,7 @@ export async function fetchCreditPackages(): Promise<CreditPackage[]> {
   });
 
   if (!res.ok) {
-    throw new Error(
-      `fetchCreditPackages: backend responded ${res.status} ${res.statusText}`,
-    );
+    throw new Error(`fetchCreditPackages: backend responded ${res.status} ${res.statusText}`);
   }
 
   const json = (await res.json()) as BackendEnvelope<CreditPackage[]>;

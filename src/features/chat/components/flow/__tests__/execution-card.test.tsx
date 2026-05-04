@@ -1,5 +1,5 @@
+import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
 import { ExecutionCard } from "../execution-card";
 
 describe("ExecutionCard", () => {
@@ -10,24 +10,17 @@ describe("ExecutionCard", () => {
         totalSteps={2}
         status="submitting"
         description="Deposit 400 USDC into Blend"
-      />,
+      />
     );
 
     expect(
-      screen.getByText(
-        "Submitting step 1 of 2: Deposit 400 USDC into Blend...",
-      ),
+      screen.getByText("Submitting step 1 of 2: Deposit 400 USDC into Blend...")
     ).toBeInTheDocument();
   });
 
   it("confirmed on all steps shows done message with green highlight", () => {
     render(
-      <ExecutionCard
-        step={2}
-        totalSteps={2}
-        status="confirmed"
-        txHash="abc123def456ghi789"
-      />,
+      <ExecutionCard step={2} totalSteps={2} status="confirmed" txHash="abc123def456ghi789" />
     );
 
     const doneText = screen.getByText("Done. Position opened.");
@@ -44,7 +37,7 @@ describe("ExecutionCard", () => {
         status="failed"
         error="Transaction expired"
         onRetry={onRetry}
-      />,
+      />
     );
 
     expect(screen.getByText("Transaction expired")).toBeInTheDocument();
@@ -57,19 +50,14 @@ describe("ExecutionCard", () => {
 
   it("tx hash is truncated and links to stellar.expert", () => {
     render(
-      <ExecutionCard
-        step={1}
-        totalSteps={1}
-        status="confirmed"
-        txHash="abcdefghijklmnopqrst"
-      />,
+      <ExecutionCard step={1} totalSteps={1} status="confirmed" txHash="abcdefghijklmnopqrst" />
     );
 
     const link = screen.getByRole("link", { name: /abcd\.\.\.qrst/i });
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute(
       "href",
-      "https://stellar.expert/explorer/public/tx/abcdefghijklmnopqrst",
+      "https://stellar.expert/explorer/public/tx/abcdefghijklmnopqrst"
     );
     expect(link).toHaveAttribute("target", "_blank");
   });
@@ -81,49 +69,29 @@ describe("ExecutionCard", () => {
         totalSteps={2}
         status="submitting"
         description="Deposit 400 USDC into DeFindex"
-      />,
+      />
     );
 
+    expect(screen.getByText("Step 1 confirmed.")).toBeInTheDocument();
     expect(
-      screen.getByText("Step 1 confirmed."),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "Submitting step 2 of 2: Deposit 400 USDC into DeFindex...",
-      ),
+      screen.getByText("Submitting step 2 of 2: Deposit 400 USDC into DeFindex...")
     ).toBeInTheDocument();
   });
 
   it("confirmed on intermediate step shows step progress not done", () => {
     render(
-      <ExecutionCard
-        step={1}
-        totalSteps={2}
-        status="confirmed"
-        txHash="abcdefghijklmnopqrst"
-      />,
+      <ExecutionCard step={1} totalSteps={2} status="confirmed" txHash="abcdefghijklmnopqrst" />
     );
 
-    expect(
-      screen.getByText("Step 1 confirmed."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Step 1 confirmed.")).toBeInTheDocument();
     expect(screen.queryByText("Done. Position opened.")).not.toBeInTheDocument();
   });
 
   it("does not render Try again button when onRetry is not provided", () => {
-    render(
-      <ExecutionCard
-        step={1}
-        totalSteps={1}
-        status="failed"
-        error="Network error"
-      />,
-    );
+    render(<ExecutionCard step={1} totalSteps={1} status="failed" error="Network error" />);
 
     expect(screen.getByText("Network error")).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /try again/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /try again/i })).not.toBeInTheDocument();
   });
 
   it("submitting single step does not show step progress prefix", () => {
@@ -133,13 +101,11 @@ describe("ExecutionCard", () => {
         totalSteps={1}
         status="submitting"
         description="Deposit 800 USDC into Blend"
-      />,
+      />
     );
 
     expect(
-      screen.getByText(
-        "Submitting step 1 of 1: Deposit 800 USDC into Blend...",
-      ),
+      screen.getByText("Submitting step 1 of 1: Deposit 800 USDC into Blend...")
     ).toBeInTheDocument();
     expect(screen.queryByText(/Step \d+ confirmed\./)).not.toBeInTheDocument();
   });

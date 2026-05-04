@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from "next/server";
 import { createTasmilClient } from "@tasmil/adapter-sdk";
+import { type NextRequest, NextResponse } from "next/server";
 import { STELLAR_NETWORK } from "@/shared/config/stellar-server";
 
 function getSdk() {
@@ -7,15 +7,24 @@ function getSdk() {
 }
 
 const VALID_OPERATIONS = [
-  "swap", "add-liquidity", "withdraw-liquidity", "claim-rewards",
-  "lock-aqua", "delegate-ice", "vote",
+  "swap",
+  "add-liquidity",
+  "withdraw-liquidity",
+  "claim-rewards",
+  "lock-aqua",
+  "delegate-ice",
+  "vote",
 ] as const;
 type OpName = (typeof VALID_OPERATIONS)[number];
 
 const OP_NAME_MAP: Record<OpName, string> = {
-  swap: "swap", "add-liquidity": "add_liquidity", "withdraw-liquidity": "withdraw_liquidity",
-  "claim-rewards": "claim_rewards", "lock-aqua": "lock_aqua",
-  "delegate-ice": "delegate_ice", vote: "vote",
+  swap: "swap",
+  "add-liquidity": "add_liquidity",
+  "withdraw-liquidity": "withdraw_liquidity",
+  "claim-rewards": "claim_rewards",
+  "lock-aqua": "lock_aqua",
+  "delegate-ice": "delegate_ice",
+  vote: "vote",
 };
 
 /**
@@ -25,14 +34,17 @@ const OP_NAME_MAP: Record<OpName, string> = {
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ operation: string }> },
+  { params }: { params: Promise<{ operation: string }> }
 ) {
   const { operation } = await params;
 
   if (!VALID_OPERATIONS.includes(operation as OpName)) {
     return NextResponse.json(
-      { success: false, error: `Invalid operation: ${operation}. Valid: ${VALID_OPERATIONS.join(", ")}` },
-      { status: 400 },
+      {
+        success: false,
+        error: `Invalid operation: ${operation}. Valid: ${VALID_OPERATIONS.join(", ")}`,
+      },
+      { status: 400 }
     );
   }
 
@@ -88,7 +100,9 @@ export async function POST(
 
       // ─── Deposit (add liquidity) via pool.deposit() ───
       case "add-liquidity": {
-        const rawAmounts = body.amounts ? body.amounts.split(",") : [body.amountA ?? "0", body.amountB ?? "0"];
+        const rawAmounts = body.amounts
+          ? body.amounts.split(",")
+          : [body.amountA ?? "0", body.amountB ?? "0"];
         const amounts = rawAmounts.map(toStroops);
         const result = await sdk.aquarius.buildDeposit({
           poolAddress: body.poolAddress ?? body.pool ?? "",
@@ -157,7 +171,8 @@ export async function POST(
             iceMultiplier: Math.round(iceMultiplier * 100) / 100,
             estimatedIce: estimatedIce.toFixed(2),
             unlockDate,
-            instruction: "To lock AQUA: create a Stellar claimable balance with your AQUA tokens and submit it to the ICE approval server at https://ice-approval.aqua.network/api/v2/",
+            instruction:
+              "To lock AQUA: create a Stellar claimable balance with your AQUA tokens and submit it to the ICE approval server at https://ice-approval.aqua.network/api/v2/",
           },
           ...body,
         });
@@ -166,19 +181,22 @@ export async function POST(
       // ─── Governance ops (placeholder) ───
       case "delegate-ice":
       case "vote":
-        return NextResponse.json({
-          success: false,
-          error: `${opName} is a governance operation. Use the Aquarius dApp at aqua.network.`,
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            success: false,
+            error: `${opName} is a governance operation. Use the Aquarius dApp at aqua.network.`,
+          },
+          { status: 400 }
+        );
 
       default:
-        return NextResponse.json({ success: false, error: `Unhandled: ${operation}` }, { status: 400 });
+        return NextResponse.json(
+          { success: false, error: `Unhandled: ${operation}` },
+          { status: 400 }
+        );
     }
   } catch (e) {
     const rawError = e instanceof Error ? e.message : "Operation failed";
-    return NextResponse.json(
-      { success: false, error: rawError },
-      { status: 400 },
-    );
+    return NextResponse.json({ success: false, error: rawError }, { status: 400 });
   }
 }

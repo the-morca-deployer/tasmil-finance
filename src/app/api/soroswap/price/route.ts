@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getSoroswapClient, getNetwork } from "../_sdk";
+import { getNetwork, getSoroswapClient } from "../_sdk";
 
 /**
  * GET /api/soroswap/price?asset=XLM&currency=USD
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Price fetch failed" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }

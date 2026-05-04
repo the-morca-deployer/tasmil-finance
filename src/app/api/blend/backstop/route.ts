@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getBlendClient } from "../_sdk";
 
 export async function GET(req: NextRequest) {
@@ -22,9 +22,6 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: String(error) },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
   }
 }

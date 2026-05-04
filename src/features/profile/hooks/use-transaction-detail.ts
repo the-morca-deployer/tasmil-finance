@@ -5,7 +5,7 @@ import { activeNetwork } from "@/shared/config/stellar";
 
 export interface TransactionDetail {
   hash: string;
-  feeCharged: string;     // stroops
+  feeCharged: string; // stroops
   memo: string | null;
   memoType: string | null;
   ledger: number;

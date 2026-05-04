@@ -4,16 +4,16 @@
  */
 
 import {
+  type DefindexAccountPerformanceProps,
+  type DefindexUserBalanceProps,
   type DefindexVaultCardProps,
   type DefindexVaultDetailProps,
-  type DefindexUserBalanceProps,
   type DefindexVaultHistoryProps,
-  type DefindexAccountPerformanceProps,
+  defindexAccountPerformanceSchema,
+  defindexUserBalanceSchema,
   defindexVaultCardSchema,
   defindexVaultDetailSchema,
-  defindexUserBalanceSchema,
   defindexVaultHistorySchema,
-  defindexAccountPerformanceSchema,
 } from "../schemas/defindex.schema";
 
 // ─── Vaults list normalization ───────────────────────────────────
@@ -34,7 +34,9 @@ export function normalizeVaultsFromSdk(raw: Record<string, unknown>): DefindexVa
 
 // ─── Vault detail normalization ──────────────────────────────────
 
-export function normalizeVaultDetailFromSdk(raw: Record<string, unknown>): DefindexVaultDetailProps | null {
+export function normalizeVaultDetailFromSdk(
+  raw: Record<string, unknown>
+): DefindexVaultDetailProps | null {
   const data = (raw.vault ?? raw.pool ?? raw) as Record<string, unknown>;
   const result = defindexVaultDetailSchema.safeParse(data);
   if (!result.success) {
@@ -46,7 +48,9 @@ export function normalizeVaultDetailFromSdk(raw: Record<string, unknown>): Defin
 
 // ─── User balance normalization ──────────────────────────────────
 
-export function normalizeVaultBalanceFromSdk(raw: Record<string, unknown>): DefindexUserBalanceProps | null {
+export function normalizeVaultBalanceFromSdk(
+  raw: Record<string, unknown>
+): DefindexUserBalanceProps | null {
   const data = (raw.balance ?? raw) as Record<string, unknown>;
   const result = defindexUserBalanceSchema.safeParse(data);
   if (!result.success) {
@@ -58,7 +62,9 @@ export function normalizeVaultBalanceFromSdk(raw: Record<string, unknown>): Defi
 
 // ─── Vault history normalization ─────────────────────────────────
 
-export function normalizeVaultHistoryFromSdk(raw: Record<string, unknown>): DefindexVaultHistoryProps | null {
+export function normalizeVaultHistoryFromSdk(
+  raw: Record<string, unknown>
+): DefindexVaultHistoryProps | null {
   const data = (raw.history ?? raw) as Record<string, unknown>;
   const result = defindexVaultHistorySchema.safeParse(data);
   if (!result.success) {
@@ -70,7 +76,9 @@ export function normalizeVaultHistoryFromSdk(raw: Record<string, unknown>): Defi
 
 // ─── Account performance normalization ───────────────────────────
 
-export function normalizeAccountPerformanceFromSdk(raw: Record<string, unknown>): DefindexAccountPerformanceProps | null {
+export function normalizeAccountPerformanceFromSdk(
+  raw: Record<string, unknown>
+): DefindexAccountPerformanceProps | null {
   const data = (raw.performance ?? raw) as Record<string, unknown>;
   const result = defindexAccountPerformanceSchema.safeParse(data);
   if (!result.success) {

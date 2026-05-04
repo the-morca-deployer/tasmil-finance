@@ -1,24 +1,24 @@
 "use client";
 
-import { useAdminDashboard } from "@/features/admin-whitelist/hooks/use-admin-dashboard";
-import { useRegistrationStats } from "@/features/admin-whitelist/hooks/use-registration-stats";
-import { Typography } from "@/shared/ui/typography";
-import { Card, CardContent } from "@/shared/ui/card";
 import { Loader2, RefreshCw, TrendingUp } from "lucide-react";
-import { Button } from "@/shared/ui/button-v2";
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  Legend,
 } from "recharts";
+import { useAdminDashboard } from "@/features/admin-whitelist/hooks/use-admin-dashboard";
+import { useRegistrationStats } from "@/features/admin-whitelist/hooks/use-registration-stats";
 import { cn } from "@/lib/utils";
+import { Button } from "@/shared/ui/button-v2";
+import { Card, CardContent } from "@/shared/ui/card";
+import { Typography } from "@/shared/ui/typography";
 
 // u2500u2500 Shared primitives u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500
 
@@ -56,7 +56,7 @@ function KpiBadge({ label, variant }: { label: string; variant: "green" | "blue"
     <span
       className={cn(
         "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold mt-1",
-        cls,
+        cls
       )}
     >
       {label}
@@ -103,13 +103,9 @@ function KpiRow({
   const { totalWalletEntries, contactableEntries, last24h, last7d, totalSuccessfulReferrals } =
     walletStats;
   const emailPct =
-    totalWalletEntries > 0
-      ? Math.round((contactableEntries / totalWalletEntries) * 100)
-      : 0;
+    totalWalletEntries > 0 ? Math.round((contactableEntries / totalWalletEntries) * 100) : 0;
   const viralRate =
-    totalWalletEntries > 0
-      ? Math.round((totalSuccessfulReferrals / totalWalletEntries) * 100)
-      : 0;
+    totalWalletEntries > 0 ? Math.round((totalSuccessfulReferrals / totalWalletEntries) * 100) : 0;
   const accessPct =
     totalWalletEntries > 0
       ? Math.round((emailDispatches.accessSent / totalWalletEntries) * 100)
@@ -241,18 +237,34 @@ function ConversionFunnel({
   accessSent: number;
 }) {
   const emailPct =
-    totalWalletEntries > 0
-      ? Math.round((contactableEntries / totalWalletEntries) * 100)
-      : 0;
+    totalWalletEntries > 0 ? Math.round((contactableEntries / totalWalletEntries) * 100) : 0;
   const accessPct =
     totalWalletEntries > 0 ? Math.round((accessSent / totalWalletEntries) * 100) : 0;
   const dropOff = totalWalletEntries - contactableEntries;
   const eligible = Math.max(contactableEntries - accessSent, 0);
 
   const steps = [
-    { label: "Wallets", count: totalWalletEntries, pct: 100, from: "from-blue-500", to: "to-indigo-500" },
-    { label: "Have Email", count: contactableEntries, pct: emailPct, from: "from-indigo-500", to: "to-violet-500" },
-    { label: "Access Sent", count: accessSent, pct: accessPct, from: "from-violet-500", to: "to-purple-500" },
+    {
+      label: "Wallets",
+      count: totalWalletEntries,
+      pct: 100,
+      from: "from-blue-500",
+      to: "to-indigo-500",
+    },
+    {
+      label: "Have Email",
+      count: contactableEntries,
+      pct: emailPct,
+      from: "from-indigo-500",
+      to: "to-violet-500",
+    },
+    {
+      label: "Access Sent",
+      count: accessSent,
+      pct: accessPct,
+      from: "from-violet-500",
+      to: "to-purple-500",
+    },
   ];
 
   return (
@@ -278,7 +290,7 @@ function ConversionFunnel({
                     className={cn(
                       "flex h-full items-center rounded bg-gradient-to-r pl-3",
                       step.from,
-                      step.to,
+                      step.to
                     )}
                     style={{ width: `${Math.max(step.pct, 4)}%` }}
                   >
@@ -287,7 +299,9 @@ function ConversionFunnel({
                     </span>
                   </div>
                 </div>
-                <span className="w-8 text-right text-[11px] text-muted-foreground">{step.pct}%</span>
+                <span className="w-8 text-right text-[11px] text-muted-foreground">
+                  {step.pct}%
+                </span>
               </div>
               {i < steps.length - 1 && (
                 <p className="py-0.5 pl-20 text-center text-[10px] text-muted-foreground/40">
@@ -409,13 +423,9 @@ function ReferralPerformance({
   const { totalWalletEntries, totalSuccessfulReferrals, usersWithReferrals, topReferrers } =
     walletStats;
   const avgPerReferrer =
-    usersWithReferrals > 0
-      ? (totalSuccessfulReferrals / usersWithReferrals).toFixed(1)
-      : "0";
+    usersWithReferrals > 0 ? (totalSuccessfulReferrals / usersWithReferrals).toFixed(1) : "0";
   const viralCoeff =
-    totalWalletEntries > 0
-      ? (totalSuccessfulReferrals / totalWalletEntries).toFixed(2)
-      : "0.00";
+    totalWalletEntries > 0 ? (totalSuccessfulReferrals / totalWalletEntries).toFixed(2) : "0.00";
   const preview = topReferrers.slice(0, 3);
 
   return (
@@ -508,7 +518,7 @@ function TopReferrers({
                     className={cn(
                       "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
                       style.bg,
-                      style.text,
+                      style.text
                     )}
                   >
                     {i + 1}
@@ -583,7 +593,7 @@ function CampaignsSection({
               <span
                 className={cn(
                   "rounded px-2 py-0.5 text-[10px] font-semibold",
-                  statusColor[recentCampaign.status] ?? "bg-muted text-muted-foreground",
+                  statusColor[recentCampaign.status] ?? "bg-muted text-muted-foreground"
                 )}
               >
                 {recentCampaign.status}
@@ -676,10 +686,7 @@ export default function AdminDashboardPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <TopReferrers referrers={walletStats.topReferrers} />
-        <CampaignsSection
-          campaigns={stats.campaigns}
-          recentCampaign={stats.recentCampaign}
-        />
+        <CampaignsSection campaigns={stats.campaigns} recentCampaign={stats.recentCampaign} />
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
-import { ArrowUpRight, Gift } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { ArrowUpRight, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { WelcomeRewardStatus } from "../hooks/use-welcome-reward";
 
@@ -16,16 +16,16 @@ function formatUsd(value: number) {
   return `$${value.toFixed(2)}`;
 }
 
-export function WelcomeRewardDialog({
-  open,
-  status,
-  onDismiss,
-  onOpen,
-}: WelcomeRewardDialogProps) {
+export function WelcomeRewardDialog({ open, status, onDismiss, onOpen }: WelcomeRewardDialogProps) {
   const pct = Math.min(status.progressPercent, 100);
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={(isOpen) => { if (!isOpen) onDismiss(); }}>
+    <DialogPrimitive.Root
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onDismiss();
+      }}
+    >
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
           className={cn(
@@ -61,7 +61,9 @@ export function WelcomeRewardDialog({
                 </span>
                 <span className="text-xs font-medium tabular-nums text-foreground">
                   {formatUsd(status.currentVolumeUsd)}{" "}
-                  <span className="text-muted-foreground/50">/ {formatUsd(status.targetVolumeUsd)}</span>
+                  <span className="text-muted-foreground/50">
+                    / {formatUsd(status.targetVolumeUsd)}
+                  </span>
                 </span>
               </div>
               <div className="h-1 overflow-hidden rounded-full bg-muted/30">

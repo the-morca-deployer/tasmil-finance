@@ -1,9 +1,9 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { Layers, Loader2, Wallet } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { useDefiPositions } from "@/features/profile/hooks/use-defi-positions";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { useWalletStore } from "@/store/use-wallet";
 import { ProtocolCollapsibleSection } from "./protocol-collapsible-section";
@@ -48,9 +48,7 @@ function EmptyState() {
     <div className="flex flex-col items-center justify-center gap-2 px-4 py-12 text-center">
       <Layers className="h-8 w-8 text-sidebar-foreground/20" />
       <div>
-        <p className="text-sm text-sidebar-foreground/70">
-          No positions found
-        </p>
+        <p className="text-sm text-sidebar-foreground/70">No positions found</p>
         <p className="mt-0.5 text-xs text-sidebar-foreground/40">
           Start a conversation with the AI to manage your DeFi positions.
         </p>
@@ -66,9 +64,7 @@ function DisconnectedState() {
     <div className="flex flex-col items-center justify-center gap-2 px-4 py-12 text-center">
       <Wallet className="h-8 w-8 text-sidebar-foreground/20" />
       <div>
-        <p className="text-sm text-sidebar-foreground/70">
-          Connect wallet to view positions
-        </p>
+        <p className="text-sm text-sidebar-foreground/70">Connect wallet to view positions</p>
         <p className="mt-0.5 text-xs text-sidebar-foreground/40">
           Your DeFi positions will appear here once your wallet is connected.
         </p>
@@ -111,9 +107,7 @@ export function PositionsSidebarPanel() {
       {/* Summary */}
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-baseline justify-between">
-          <span className="text-base font-semibold text-sidebar-foreground">
-            Total Value
-          </span>
+          <span className="text-base font-semibold text-sidebar-foreground">Total Value</span>
           <span className="text-base font-semibold text-sidebar-foreground tabular-nums">
             {formatUsd(totalValueUsd)}
           </span>
@@ -132,7 +126,7 @@ export function PositionsSidebarPanel() {
               <span
                 className={cn(
                   "font-medium",
-                  totalProfitUsd >= 0 ? "text-emerald-400" : "text-red-400",
+                  totalProfitUsd >= 0 ? "text-emerald-400" : "text-red-400"
                 )}
               >
                 {totalProfitUsd >= 0 ? "+" : ""}

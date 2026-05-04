@@ -5,9 +5,9 @@ export { WaitlistScreen1 } from "./components/waitlist-screen1";
 export { WaitlistScreen2 } from "./components/waitlist-screen2";
 export { WaitlistScreen3 } from "./components/waitlist-screen3";
 export {
-  useRequestChallenge,
-  useRegisterWallet,
-  useWalletStatus,
-  useVerifyReferralCode,
   useAttachWaitlistContact,
+  useRegisterWallet,
+  useRequestChallenge,
+  useVerifyReferralCode,
+  useWalletStatus,
 } from "./hooks/use-wallet-waitlist";

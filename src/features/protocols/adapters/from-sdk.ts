@@ -4,17 +4,17 @@
  */
 
 import {
-  type PoolCardProps,
-  type ReserveCardProps,
-  type PositionsCardProps,
-  type TxCardProps,
-  type BackstopCardProps,
   type BackstopBalanceCardProps,
+  type BackstopCardProps,
+  backstopBalanceCardPropsSchema,
+  backstopCardPropsSchema,
+  type PoolCardProps,
+  type PositionsCardProps,
   poolCardPropsSchema,
   positionsCardPropsSchema,
+  type ReserveCardProps,
+  type TxCardProps,
   txCardPropsSchema,
-  backstopCardPropsSchema,
-  backstopBalanceCardPropsSchema,
 } from "../schemas/blend.schema";
 
 // ─── Reserve normalization ──────────────────────────────────────
@@ -25,16 +25,18 @@ function normalizeReserveRaw(r: Record<string, unknown>): ReserveCardProps {
     symbol: String(r.symbol ?? "?"),
     supplyApy: r.supplyApy != null ? Number(r.supplyApy) : null,
     borrowApy: r.borrowApy != null ? Number(r.borrowApy) : null,
-    totalSupplied: r.totalSupply != null
-      ? Number(r.totalSupply)
-      : r.totalSupplied != null
-        ? Number(r.totalSupplied)
-        : null,
-    totalBorrowed: r.totalBorrow != null
-      ? Number(r.totalBorrow)
-      : r.totalBorrowed != null
-        ? Number(r.totalBorrowed)
-        : null,
+    totalSupplied:
+      r.totalSupply != null
+        ? Number(r.totalSupply)
+        : r.totalSupplied != null
+          ? Number(r.totalSupplied)
+          : null,
+    totalBorrowed:
+      r.totalBorrow != null
+        ? Number(r.totalBorrow)
+        : r.totalBorrowed != null
+          ? Number(r.totalBorrowed)
+          : null,
     utilization: r.utilization != null ? Number(r.utilization) : null,
     collateralFactor: r.collateralFactor != null ? Number(r.collateralFactor) : null,
     liabilityFactor: r.liabilityFactor != null ? Number(r.liabilityFactor) : null,
@@ -69,9 +71,7 @@ export function normalizePoolFromSdk(raw: Record<string, unknown>): PoolCardProp
 
 export function normalizePoolsFromSdk(raw: Record<string, unknown>): PoolCardProps[] {
   const pools = (raw.pools ?? []) as Record<string, unknown>[];
-  return pools
-    .map((p) => normalizePoolFromSdk(p))
-    .filter((p): p is PoolCardProps => p !== null);
+  return pools.map((p) => normalizePoolFromSdk(p)).filter((p): p is PoolCardProps => p !== null);
 }
 
 // ─── Reserve normalization (single) ─���───────────────────────────
@@ -104,7 +104,7 @@ export function normalizePositionsFromSdk(raw: Record<string, unknown>): Positio
 
 export function normalizeTxFromSdk(
   raw: Record<string, unknown>,
-  form?: Record<string, string>,
+  form?: Record<string, string>
 ): TxCardProps | null {
   const merged = { ...raw, ...(form ?? {}) };
   const result = txCardPropsSchema.safeParse({
@@ -140,7 +140,9 @@ export function normalizeBackstopFromSdk(raw: Record<string, unknown>): Backstop
 
 // ─── Backstop Balance normalization ────────────────────────────
 
-export function normalizeBackstopBalanceFromSdk(raw: Record<string, unknown>): BackstopBalanceCardProps | null {
+export function normalizeBackstopBalanceFromSdk(
+  raw: Record<string, unknown>
+): BackstopBalanceCardProps | null {
   const data = (raw.data ?? raw) as Record<string, unknown>;
   const result = backstopBalanceCardPropsSchema.safeParse(data);
   if (!result.success) {

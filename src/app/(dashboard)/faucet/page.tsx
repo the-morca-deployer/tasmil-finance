@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useWallet } from "@/shared/context/wallet-context";
-import { TokenImage } from "@/shared/components/token-image";
 import { ExternalLink, LogOut } from "lucide-react";
-import BorderGlow from "@/shared/ui/border-glow";
+import { redirect } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { TokenImage } from "@/shared/components/token-image";
+import { useWallet } from "@/shared/context/wallet-context";
 import { BackgroundRippleEffect } from "@/shared/ui/background-ripple-effect";
+import BorderGlow from "@/shared/ui/border-glow";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
-import { toast } from "sonner";
-import { redirect } from "next/navigation";
 
 const isTestnet = process.env["NEXT_PUBLIC_STELLAR_NETWORK"] !== "mainnet";
 const FRIENDBOT_URL = "https://friendbot.stellar.org";
@@ -47,11 +47,17 @@ export default function FaucetPage() {
     <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-56px)] w-full px-4 py-16 text-center overflow-hidden">
       <BackgroundRippleEffect rows={10} cols={22} cellSize={72} />
       <div className="relative z-10 w-full max-w-lg space-y-8">
-
         {/* Hero text */}
         <div className="space-y-3">
-          <Typography as="h1" variant="h1" weight="bold" className="text-5xl leading-tight tracking-tight text-center">
-            Claim test token<br />to your wallet
+          <Typography
+            as="h1"
+            variant="h1"
+            weight="bold"
+            className="text-5xl leading-tight tracking-tight text-center"
+          >
+            Claim test token
+            <br />
+            to your wallet
           </Typography>
           <Typography variant="p" className="text-muted-foreground text-base text-center">
             Fund your wallet with 10,000 XLM on Stellar testnet
@@ -111,7 +117,9 @@ export default function FaucetPage() {
               <span className="h-4 w-4 rounded-full border-2 border-black/30 border-t-black animate-spin" />
               Sending...
             </span>
-          ) : "Claim 10,000 XLM"}
+          ) : (
+            "Claim 10,000 XLM"
+          )}
         </Button>
 
         {/* Tx status */}
@@ -142,9 +150,12 @@ export default function FaucetPage() {
         )}
 
         {/* Footer note */}
-        <Typography variant="small" className="text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
-          To ensure a sufficient balance for all users, the Faucet is set to
-          dispense 10,000 testnet XLM every 24 hours per address.
+        <Typography
+          variant="small"
+          className="text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto"
+        >
+          To ensure a sufficient balance for all users, the Faucet is set to dispense 10,000 testnet
+          XLM every 24 hours per address.
         </Typography>
       </div>
     </div>

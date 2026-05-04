@@ -15,6 +15,9 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ success: true, network, quote });
   } catch (e) {
-    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : "Unknown error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: e instanceof Error ? e.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }

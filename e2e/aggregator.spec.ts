@@ -2,10 +2,7 @@ import { expect, test } from "@playwright/test";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
 test.describe("Aggregator (Task 3)", () => {
-  test.skip(
-    process.env.NODE_ENV === "production",
-    "test-login is disabled on production",
-  );
+  test.skip(process.env.NODE_ENV === "production", "test-login is disabled on production");
 
   test("Aggregator page loads at /aggregator route", async ({ page }) => {
     const wallet = freshWallet();
@@ -150,7 +147,7 @@ test.describe("Aggregator (Task 3)", () => {
   test("Network error on swap", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.route("**/api/**", route => {
+    await page.route("**/api/**", (route) => {
       if (!route.request().url().includes("websocket")) {
         route.fulfill({ status: 503 });
       } else {
@@ -191,19 +188,25 @@ test.describe("Aggregator (Task 3)", () => {
   test("No console errors", async ({ page }) => {
     const wallet = freshWallet();
     const errors: string[] = [];
-    page.on("console", msg => { if (msg.type() === "error") errors.push(msg.text()); });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") errors.push(msg.text());
+    });
     await loginAsWallet(page, wallet);
     await page.goto("/aggregator");
     await page.waitForLoadState("networkidle");
-    const critical = errors.filter(e => !/warning|deprecated/i.test(e));
+    const critical = errors.filter((e) => !/warning|deprecated/i.test(e));
     expect(critical).toHaveLength(0);
   });
 
   test("chain badge renders for same-chain swap (stellar → stellar)", async ({ page }) => {
-    await page.goto("/aggregator?tokenIn=XLM&tokenOut=USDC&chainIn=stellar&chainOut=stellar&amount=1");
+    await page.goto(
+      "/aggregator?tokenIn=XLM&tokenOut=USDC&chainIn=stellar&chainOut=stellar&amount=1"
+    );
 
     // Wait for routes to render — at least one route card appears
-    await expect(page.locator('[data-testid="chain-badge"]').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="chain-badge"]').first()).toBeVisible({
+      timeout: 10000,
+    });
 
     const firstBadge = page.locator('[data-testid="chain-badge"]').first();
     await expect(firstBadge).toHaveAttribute("data-chain-in", "stellar");
@@ -214,8 +217,12 @@ test.describe("Aggregator (Task 3)", () => {
     expect(imgs).toBe(1);
   });
 
-  test("chain badge shows two icons for cross-chain bridge (stellar → ethereum)", async ({ page }) => {
-    await page.goto("/aggregator?tokenIn=USDC&tokenOut=USDC&chainIn=stellar&chainOut=ethereum&amount=10");
+  test("chain badge shows two icons for cross-chain bridge (stellar → ethereum)", async ({
+    page,
+  }) => {
+    await page.goto(
+      "/aggregator?tokenIn=USDC&tokenOut=USDC&chainIn=stellar&chainOut=ethereum&amount=10"
+    );
 
     // Wait for any route OR the missing-trustline banner OR the no-route message
     await expect(page).toHaveURL(/chainIn=stellar.*chainOut=ethereum/);
@@ -233,7 +240,9 @@ test.describe("Aggregator (Task 3)", () => {
   });
 
   test("trustline-required asset shows Add+ button in aggregator", async ({ page }) => {
-    await page.goto("/aggregator?tokenIn=XLM&tokenOut=BLND&chainIn=stellar&chainOut=stellar&amount=10");
+    await page.goto(
+      "/aggregator?tokenIn=XLM&tokenOut=BLND&chainIn=stellar&chainOut=stellar&amount=10"
+    );
 
     // Wait for either the missing-trustline banner OR confirm absence
     const banner = page.locator("text=/Trustline.*missing/i").first();

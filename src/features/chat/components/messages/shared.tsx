@@ -1,9 +1,4 @@
-import {
-  ChevronLeft,
-  ChevronRight,
-  SendHorizontal,
-  XIcon,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, SendHorizontal, XIcon } from "lucide-react";
 import { TooltipIconButton } from "@/features/chat/thread/components/tooltip-icon-button";
 import { Button } from "@/shared/ui/button";
 

@@ -1,24 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
-import {
-  ArrowRightLeft,
-  Droplets,
-  Loader2,
-  Coins,
-  Lock,
-  Vote,
-  Snowflake,
-} from "lucide-react";
+import { ArrowRightLeft, Coins, Droplets, Loader2, Lock, Snowflake, Vote } from "lucide-react";
+import { useState } from "react";
 import { TokenImage } from "@/shared/components/token-image";
-import type { CardMode } from "../../schemas/common.schema";
-import type { AquaTxCardProps } from "../../schemas/aquarius.schema";
-import { ProtocolCard } from "../base/protocol-card";
-import { DetailRow } from "../base/indicators";
-import { fmtGas, trunc, fmt } from "../../lib/formatting";
-import { useTxSigning } from "../../hooks/use-tx-signing";
 import { getExplorerUrl } from "@/shared/config/stellar";
+import { useTxSigning } from "../../hooks/use-tx-signing";
+import { fmt, fmtGas, trunc } from "../../lib/formatting";
+import type { AquaTxCardProps } from "../../schemas/aquarius.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { DetailRow } from "../base/indicators";
+import { ProtocolCard } from "../base/protocol-card";
 
 // ─── Operation config ───────────────────────────────────────────
 
@@ -137,7 +129,12 @@ export function AquaTxCard({
     toolCallId,
     operation: tx.operation,
     respond,
-    volumeContext: { protocol: "aquarius", operation: tx.operation, asset: tx.tokenIn ?? "", amount: tx.amount ?? tx.amounts?.[0] ?? "0" },
+    volumeContext: {
+      protocol: "aquarius",
+      operation: tx.operation,
+      asset: tx.tokenIn ?? "",
+      amount: tx.amount ?? tx.amounts?.[0] ?? "0",
+    },
   });
 
   const _isLiquidityOp = tx.operation === "add_liquidity" || tx.operation === "withdraw_liquidity";
@@ -151,9 +148,18 @@ export function AquaTxCard({
   // ─── Chat mode ────────────────────────────────────────────────
   if (mode === "chat") {
     return (
-      <ProtocolCard mode="chat" title={cfg.title} icon={cfg.icon} iconColor={cfg.iconColor} iconBg={cfg.iconBg}>
+      <ProtocolCard
+        mode="chat"
+        title={cfg.title}
+        icon={cfg.icon}
+        iconColor={cfg.iconColor}
+        iconBg={cfg.iconBg}
+      >
         <div className="mb-2 space-y-2">
-          <DetailRow label="Action" value={<span className="capitalize">{tx.operation.replace(/_/g, " ")}</span>} />
+          <DetailRow
+            label="Action"
+            value={<span className="capitalize">{tx.operation.replace(/_/g, " ")}</span>}
+          />
           {fee !== "0" && <DetailRow label="Est. Fee" value={fee} />}
           {tx.pool && <DetailRow label="Pool" value={trunc(tx.pool)} mono />}
           {tx.from && <DetailRow label="From" value={trunc(tx.from)} mono />}
@@ -168,7 +174,8 @@ export function AquaTxCard({
             <div className="mt-2 border-t pt-2">
               <div className="mb-1 text-muted-foreground text-xs">Transaction XDR</div>
               <div className="max-h-[60px] overflow-y-auto break-all rounded bg-muted/30 p-2 font-mono text-[10px] text-muted-foreground">
-                {xdr.slice(0, 200)}{xdr.length > 200 ? "..." : ""}
+                {xdr.slice(0, 200)}
+                {xdr.length > 200 ? "..." : ""}
               </div>
             </div>
           )}
@@ -177,7 +184,9 @@ export function AquaTxCard({
           <div className="rounded-md border border-green-500/30 bg-green-500/20 p-3">
             <p className="text-green-700 text-sm dark:text-green-300">
               {txResult.message}
-              {txResult.hash && <span className="ml-1 font-mono text-xs">({trunc(txResult.hash)})</span>}
+              {txResult.hash && (
+                <span className="ml-1 font-mono text-xs">({trunc(txResult.hash)})</span>
+              )}
             </p>
           </div>
         ) : txResult && !txResult.success ? (
@@ -191,7 +200,13 @@ export function AquaTxCard({
             disabled={signing || !xdr}
             className="mt-2 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
           >
-            {signing ? <><Loader2 className="h-4 w-4 animate-spin" /> Signing...</> : cfg.buttonText}
+            {signing ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Signing...
+              </>
+            ) : (
+              cfg.buttonText
+            )}
           </button>
         )}
       </ProtocolCard>
@@ -215,7 +230,9 @@ export function AquaTxCard({
       {/* Title */}
       <div className="px-5 pt-5 pb-2">
         <p className="text-lg font-semibold text-foreground">Confirm {cfg.label}</p>
-        <p className="text-xs text-muted-foreground">Review amounts, rate, and fees before confirming</p>
+        <p className="text-xs text-muted-foreground">
+          Review amounts, rate, and fees before confirming
+        </p>
       </div>
 
       {isLiquidity && routeTokens.length >= 2 ? (
@@ -225,7 +242,9 @@ export function AquaTxCard({
           <div className="flex justify-between items-center py-3 border-b border-border/30">
             <span className="text-sm text-muted-foreground">{firstToken} Amount</span>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-foreground font-medium tabular-nums">{txAmounts[0] ?? fmt(amountIn, 7)}</span>
+              <span className="text-sm text-foreground font-medium tabular-nums">
+                {txAmounts[0] ?? fmt(amountIn, 7)}
+              </span>
               <TokenImage src={null} alt={firstToken} className="h-5 w-5 rounded-full" />
               <span className="text-xs text-muted-foreground">{firstToken}</span>
             </div>
@@ -233,7 +252,9 @@ export function AquaTxCard({
           <div className="flex justify-between items-center py-3 border-b border-border/30">
             <span className="text-sm text-muted-foreground">{lastToken} Amount</span>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-foreground font-medium tabular-nums">{txAmounts[1] ?? "—"}</span>
+              <span className="text-sm text-foreground font-medium tabular-nums">
+                {txAmounts[1] ?? "—"}
+              </span>
               <TokenImage src={null} alt={lastToken} className="h-5 w-5 rounded-full" />
               <span className="text-xs text-muted-foreground">{lastToken}</span>
             </div>
@@ -247,13 +268,17 @@ export function AquaTxCard({
           {ctxAny?.range != null ? (
             <>
               <div className="flex justify-between py-2.5 border-b border-border/30">
-                <span className="text-sm text-muted-foreground">Selected range ({firstToken}/{lastToken})</span>
+                <span className="text-sm text-muted-foreground">
+                  Selected range ({firstToken}/{lastToken})
+                </span>
                 <span className="text-sm text-foreground tabular-nums">{String(ctxAny.range)}</span>
               </div>
               {ctxAny.ticks != null ? (
                 <div className="flex justify-between py-2.5 border-b border-border/30">
                   <span className="text-sm text-muted-foreground">Current tick</span>
-                  <span className="text-sm text-foreground tabular-nums">{String(ctxAny.ticks)}</span>
+                  <span className="text-sm text-foreground tabular-nums">
+                    {String(ctxAny.ticks)}
+                  </span>
                 </div>
               ) : null}
             </>
@@ -264,7 +289,10 @@ export function AquaTxCard({
             <div className="flex justify-between py-2.5">
               <span className="text-sm text-muted-foreground">Pool APY</span>
               <span className="text-sm text-emerald-400 tabular-nums">
-                {((tx.context.poolApy.feeApy ?? 0) + (tx.context.poolApy.rewardApy ?? 0)).toFixed(2)}%
+                {((tx.context.poolApy.feeApy ?? 0) + (tx.context.poolApy.rewardApy ?? 0)).toFixed(
+                  2
+                )}
+                %
               </span>
             </div>
           )}
@@ -295,18 +323,24 @@ export function AquaTxCard({
           <div className="px-5 pb-3 space-y-0">
             <div className="flex justify-between py-2.5 border-b border-border/30">
               <span className="text-sm text-muted-foreground">You give</span>
-              <span className="text-sm text-foreground font-medium tabular-nums">{fmt(amountIn, 7)} {firstToken}</span>
+              <span className="text-sm text-foreground font-medium tabular-nums">
+                {fmt(amountIn, 7)} {firstToken}
+              </span>
             </div>
             {estOutput != null && estOutput > 0 && (
               <div className="flex justify-between py-2.5 border-b border-border/30">
                 <span className="text-sm text-muted-foreground">You get (estimate)</span>
-                <span className="text-sm text-foreground font-medium tabular-nums">{fmt(estOutput, 7)} {lastToken}</span>
+                <span className="text-sm text-foreground font-medium tabular-nums">
+                  {fmt(estOutput, 7)} {lastToken}
+                </span>
               </div>
             )}
             {exchangeRate != null && exchangeRate > 0 && (
               <div className="flex justify-between py-2.5 border-b border-border/30">
                 <span className="text-sm text-muted-foreground">Exchange rate</span>
-                <span className="text-sm text-foreground tabular-nums">1 {firstToken} = {exchangeRate.toFixed(7)} {lastToken}</span>
+                <span className="text-sm text-foreground tabular-nums">
+                  1 {firstToken} = {exchangeRate.toFixed(7)} {lastToken}
+                </span>
               </div>
             )}
             <div className="flex justify-between py-2.5 border-b border-border/30">
@@ -317,7 +351,10 @@ export function AquaTxCard({
               <div className="flex justify-between py-2.5">
                 <span className="text-sm text-muted-foreground">Pool APY</span>
                 <span className="text-sm text-emerald-400 tabular-nums">
-                  {((tx.context.poolApy.feeApy ?? 0) + (tx.context.poolApy.rewardApy ?? 0)).toFixed(2)}%
+                  {((tx.context.poolApy.feeApy ?? 0) + (tx.context.poolApy.rewardApy ?? 0)).toFixed(
+                    2
+                  )}
+                  %
                 </span>
               </div>
             )}
@@ -331,10 +368,20 @@ export function AquaTxCard({
                 {pools.map((pool, i) => (
                   <span key={pool} className="flex items-center gap-1.5">
                     <span className="flex items-center gap-1 rounded-full border border-border/50 bg-secondary/40 px-2.5 py-1.5">
-                      <TokenImage src={null} alt={routeTokens[i] ?? "?"} className="h-6 w-6 rounded-full" />
-                      <TokenImage src={null} alt={routeTokens[i + 1] ?? "?"} className="h-6 w-6 rounded-full" />
+                      <TokenImage
+                        src={null}
+                        alt={routeTokens[i] ?? "?"}
+                        className="h-6 w-6 rounded-full"
+                      />
+                      <TokenImage
+                        src={null}
+                        alt={routeTokens[i + 1] ?? "?"}
+                        className="h-6 w-6 rounded-full"
+                      />
                     </span>
-                    {i < pools.length - 1 && <span className="text-muted-foreground/40 text-sm">{"\u2192"}</span>}
+                    {i < pools.length - 1 && (
+                      <span className="text-muted-foreground/40 text-sm">{"\u2192"}</span>
+                    )}
                   </span>
                 ))}
               </div>
@@ -387,7 +434,14 @@ export function AquaTxCard({
               type="button"
               className="flex-1 rounded-lg py-2 text-xs font-semibold border border-border text-muted-foreground hover:bg-secondary hover:text-foreground transition-all active:scale-[0.98]"
               disabled={signing}
-              onClick={() => { setCancelled(true); respond?.({ success: false, cancelled: true, reason: "User cancelled the operation" }); }}
+              onClick={() => {
+                setCancelled(true);
+                respond?.({
+                  success: false,
+                  cancelled: true,
+                  reason: "User cancelled the operation",
+                });
+              }}
             >
               Cancel
             </button>
@@ -397,7 +451,13 @@ export function AquaTxCard({
               onClick={handleSign}
               disabled={signing || !xdr}
             >
-              {signing ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Signing...</> : cfg.action}
+              {signing ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Signing...
+                </>
+              ) : (
+                cfg.action
+              )}
             </button>
           </div>
         )}

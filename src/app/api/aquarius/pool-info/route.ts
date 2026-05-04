@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   if (!poolAddress) {
     return NextResponse.json(
       { success: false, error: "Missing 'pool' query parameter" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     if (!res.ok) {
       return NextResponse.json(
         { success: false, error: `Aquarius API error: ${res.status}` },
-        { status: res.status },
+        { status: res.status }
       );
     }
 
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
     if (!pool) {
       return NextResponse.json(
         { success: false, error: `Pool not found: ${poolAddress}` },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Failed to fetch pool" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }

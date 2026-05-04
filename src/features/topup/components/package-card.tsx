@@ -68,18 +68,11 @@ export function PackageCard({ pkg }: PackageCardProps) {
           data-testid={`package-card-${pkg.id}-credits`}
         >
           <span className="text-muted-foreground">Credits</span>
-          <span className="font-medium text-foreground">
-            {formatNumber(pkg.credits)}
-          </span>
+          <span className="font-medium text-foreground">{formatNumber(pkg.credits)}</span>
         </div>
-        <div
-          className="flex justify-between text-sm"
-          data-testid={`package-card-${pkg.id}-points`}
-        >
+        <div className="flex justify-between text-sm" data-testid={`package-card-${pkg.id}-points`}>
           <span className="text-muted-foreground">Points</span>
-          <span className="font-medium text-foreground">
-            {formatNumber(pkg.points)}
-          </span>
+          <span className="font-medium text-foreground">{formatNumber(pkg.points)}</span>
         </div>
       </CardContent>
 

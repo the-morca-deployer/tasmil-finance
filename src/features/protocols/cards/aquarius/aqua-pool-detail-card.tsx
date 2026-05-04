@@ -2,11 +2,11 @@
 
 import { Droplets } from "lucide-react";
 import { TokenImage } from "@/shared/components/token-image";
-import type { CardMode } from "../../schemas/common.schema";
+import { fmt, pct } from "../../lib/formatting";
 import type { AquaPoolCardProps } from "../../schemas/aquarius.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { APYDisplay, MetricBox, Row } from "../base/indicators";
 import { ProtocolCard } from "../base/protocol-card";
-import { MetricBox, Row, APYDisplay } from "../base/indicators";
-import { pct, fmt } from "../../lib/formatting";
 
 interface AquaPoolDetailCardProps {
   pool: AquaPoolCardProps;
@@ -17,7 +17,7 @@ function resolvePoolLabel(pool: AquaPoolCardProps): string {
   if (pool.tokens?.length) {
     return pool.tokens.map((t) => t.symbol ?? t.address.slice(0, 6)).join(" / ");
   }
-  const ts = Array.isArray(pool.tokensStr) ? pool.tokensStr : pool.tokensStr?.split("-") ?? [];
+  const ts = Array.isArray(pool.tokensStr) ? pool.tokensStr : (pool.tokensStr?.split("-") ?? []);
   return ts.length ? ts.join(" / ") : pool.address.slice(0, 10);
 }
 
@@ -27,7 +27,13 @@ export function AquaPoolDetailCard({ pool, mode = "playground" }: AquaPoolDetail
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title={label} icon={Droplets} iconColor="text-cyan-500" iconBg="bg-cyan-500/10">
+      <ProtocolCard
+        mode="chat"
+        title={label}
+        icon={Droplets}
+        iconColor="text-cyan-500"
+        iconBg="bg-cyan-500/10"
+      >
         <div className="space-y-1.5">
           {pool.totalApy != null && (
             <div className="flex justify-between text-sm">

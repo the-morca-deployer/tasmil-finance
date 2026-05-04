@@ -10,7 +10,7 @@ export interface RegistrationDataPoint {
 
 async function fetchRegistrationStats(
   token: string,
-  days: number,
+  days: number
 ): Promise<RegistrationDataPoint[]> {
   const response = await fetch(`/api/admin/stats/registrations?days=${days}`, {
     headers: { Authorization: `Bearer ${token}` },

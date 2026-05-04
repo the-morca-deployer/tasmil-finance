@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { AlertCircle, Check, ChevronDown, Pencil, Plus, Unplug, Wallet, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { TokenImage } from "@/shared/components/token-image";
 import {
   Dialog,
   DialogContent,
@@ -9,9 +11,7 @@ import {
   DialogTrigger,
 } from "@/shared/ui/dialog";
 import { ScrollArea } from "@/shared/ui/scroll-area";
-import { Check, ChevronDown, Pencil, Plus, Unplug, Wallet, X, AlertCircle } from "lucide-react";
-import { useAddressStore, type ChainType, type SavedAddress } from "@/store/use-address";
-import { TokenImage } from "@/shared/components/token-image";
+import { type ChainType, type SavedAddress, useAddressStore } from "@/store/use-address";
 
 function truncAddr(addr: string) {
   if (!addr) return "";
@@ -20,17 +20,23 @@ function truncAddr(addr: string) {
 
 function getChainLogo(chainType: ChainType): string {
   switch (chainType) {
-    case "stellar": return "/chains/stellar.png";
-    case "evm": return "/chains/ethereum.png";
-    case "solana": return "/chains/solana.png";
+    case "stellar":
+      return "/chains/stellar.png";
+    case "evm":
+      return "/chains/ethereum.png";
+    case "solana":
+      return "/chains/solana.png";
   }
 }
 
 function getChainLabel(chainType: ChainType): string {
   switch (chainType) {
-    case "stellar": return "Stellar";
-    case "evm": return "EVM";
-    case "solana": return "Solana";
+    case "stellar":
+      return "Stellar";
+    case "evm":
+      return "EVM";
+    case "solana":
+      return "Solana";
   }
 }
 
@@ -88,9 +94,13 @@ export function AddressPicker({
 
     // 1. Connected wallet (live)
     const connectedAddr =
-      chainType === "stellar" ? stellarAddress :
-      chainType === "evm" ? evmAddress :
-      chainType === "solana" ? solanaAddress : null;
+      chainType === "stellar"
+        ? stellarAddress
+        : chainType === "evm"
+          ? evmAddress
+          : chainType === "solana"
+            ? solanaAddress
+            : null;
 
     if (connectedAddr && !seen.has(connectedAddr)) {
       addrs.push({
@@ -186,24 +196,37 @@ export function AddressPicker({
               Enter {getChainLabel(chainType)} address
             </p>
             <div className="relative">
-              <Pencil className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: "var(--ring)" }} />
+              <Pencil
+                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4"
+                style={{ color: "var(--ring)" }}
+              />
               <input
                 type="text"
                 placeholder={
-                  chainType === "stellar" ? "G..." :
-                  chainType === "evm" ? "0x..." :
-                  "Solana address..."
+                  chainType === "stellar"
+                    ? "G..."
+                    : chainType === "evm"
+                      ? "0x..."
+                      : "Solana address..."
                 }
                 value={manualInput}
-                onChange={(e) => { setManualInput(e.target.value); setManualError(""); }}
-                onKeyDown={(e) => { if (e.key === "Enter") handleAddManual(); }}
+                onChange={(e) => {
+                  setManualInput(e.target.value);
+                  setManualError("");
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleAddManual();
+                }}
                 className="w-full rounded-xl py-3 pl-10 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] border-0"
                 style={{ background: "var(--secondary)", color: "var(--foreground)" }}
               />
               {manualInput && (
                 <button
                   type="button"
-                  onClick={() => { setManualInput(""); setManualError(""); }}
+                  onClick={() => {
+                    setManualInput("");
+                    setManualError("");
+                  }}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
                   <X className="h-4 w-4" style={{ color: "var(--muted-foreground)" }} />
@@ -211,7 +234,10 @@ export function AddressPicker({
               )}
             </div>
             {manualError && (
-              <p className="flex items-center gap-1 mt-1.5 text-xs" style={{ color: "var(--destructive)" }}>
+              <p
+                className="flex items-center gap-1 mt-1.5 text-xs"
+                style={{ color: "var(--destructive)" }}
+              >
                 <AlertCircle className="h-3 w-3" /> {manualError}
               </p>
             )}
@@ -224,7 +250,9 @@ export function AddressPicker({
               >
                 <TokenImage src={logo} alt={chainType} className="h-5 w-5 rounded-full" />
                 <span className="font-mono text-xs truncate flex-1">{manualInput}</span>
-                <span className="text-xs font-medium" style={{ color: "var(--primary)" }}>Use this</span>
+                <span className="text-xs font-medium" style={{ color: "var(--primary)" }}>
+                  Use this
+                </span>
               </button>
             )}
           </div>
@@ -232,13 +260,19 @@ export function AddressPicker({
           {/* ── Connected Wallets ── */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium flex items-center gap-1.5" style={{ color: "var(--muted-foreground)" }}>
+              <p
+                className="text-xs font-medium flex items-center gap-1.5"
+                style={{ color: "var(--muted-foreground)" }}
+              >
                 <Wallet className="h-3.5 w-3.5" /> Connected Wallets
               </p>
               {onConnectWallet && (
                 <button
                   type="button"
-                  onClick={() => { setOpen(false); setTimeout(() => onConnectWallet(), 200); }}
+                  onClick={() => {
+                    setOpen(false);
+                    setTimeout(() => onConnectWallet(), 200);
+                  }}
                   className="flex items-center gap-1 text-xs transition-colors"
                   style={{ color: "var(--primary)" }}
                 >
@@ -264,27 +298,44 @@ export function AddressPicker({
                       className="flex items-center gap-3 rounded-xl p-3 text-left transition-colors"
                       style={{ background: isSelected ? "var(--accent)" : "transparent" }}
                     >
-                      <TokenImage src={logo} alt={chainType} className="h-9 w-9 rounded-lg object-contain shrink-0" />
+                      <TokenImage
+                        src={logo}
+                        alt={chainType}
+                        className="h-9 w-9 rounded-lg object-contain shrink-0"
+                      />
                       <div className="flex flex-col min-w-0 flex-1">
-                        <span className="text-sm font-medium truncate" style={{ color: "var(--foreground)" }}>
+                        <span
+                          className="text-sm font-medium truncate"
+                          style={{ color: "var(--foreground)" }}
+                        >
                           {truncAddr(item.address)}
                         </span>
-                        <span className="text-xs flex items-center gap-1" style={{ color: "var(--muted-foreground)" }}>
+                        <span
+                          className="text-xs flex items-center gap-1"
+                          style={{ color: "var(--muted-foreground)" }}
+                        >
                           {item.source === "connected" ? (
-                            <><Wallet className="h-3 w-3" /> {item.label}</>
+                            <>
+                              <Wallet className="h-3 w-3" /> {item.label}
+                            </>
                           ) : (
-                            <><Pencil className="h-3 w-3" /> {item.label}</>
+                            <>
+                              <Pencil className="h-3 w-3" /> {item.label}
+                            </>
                           )}
                         </span>
                       </div>
-                      {isSelected && <Check className="h-4 w-4 shrink-0" style={{ color: "var(--primary)" }} />}
+                      {isSelected && (
+                        <Check className="h-4 w-4 shrink-0" style={{ color: "var(--primary)" }} />
+                      )}
                       {/* Disconnect button for connected wallets */}
                       {item.source === "connected" && (
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (item.chainType === "stellar" && onDisconnectStellar) onDisconnectStellar();
+                            if (item.chainType === "stellar" && onDisconnectStellar)
+                              onDisconnectStellar();
                             else if (item.chainType === "evm" && onDisconnectEvm) onDisconnectEvm();
                           }}
                           className="p-1.5 rounded-lg hover:bg-[var(--secondary)] transition-colors"
@@ -297,7 +348,10 @@ export function AddressPicker({
                       {item.source === "manual" && (
                         <button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); store.removeAddress(item.address); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            store.removeAddress(item.address);
+                          }}
                           className="p-1.5 rounded-lg hover:bg-[var(--secondary)] transition-colors"
                         >
                           <X className="h-3.5 w-3.5" style={{ color: "var(--ring)" }} />

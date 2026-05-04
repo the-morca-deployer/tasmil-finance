@@ -5,4 +5,6 @@ export function getAllbridgeClient() {
   return createTasmilClient({ network: STELLAR_NETWORK });
 }
 
-export function getNetwork() { return STELLAR_NETWORK; }
+export function getNetwork() {
+  return STELLAR_NETWORK;
+}

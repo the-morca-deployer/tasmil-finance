@@ -12,15 +12,15 @@ import {
 import type React from "react";
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
-import { getApiKey } from "@/lib/api-key";
 import { buildAiIdentityHeaders } from "@/lib/ai-auth";
+import { getApiKey } from "@/lib/api-key";
 import { getBrowserAiBaseUrl } from "@/lib/runtime-urls";
-import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
 import { useWallet } from "@/shared/context/wallet-context";
+import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
 import { useAuthStore } from "@/store/use-auth";
 import { useWalletStore } from "@/store/use-wallet";
-import { createClient } from "../lib/client";
 import { classifyChatProductError } from "../lib/chat-product-error";
+import { createClient } from "../lib/client";
 import type { StateType } from "../types";
 import { useChatState } from "./chat-state-provider";
 import { useThreads } from "./thread-provider";
@@ -81,7 +81,7 @@ const StreamSession = ({
   const effectiveWallet = walletAddress ?? useWalletStore.getState().account;
   const defaultHeaders = useMemo(
     () => buildAiIdentityHeaders({ accessToken, walletAddress: effectiveWallet }),
-    [accessToken, effectiveWallet],
+    [accessToken, effectiveWallet]
   );
   const initialThreadId = useRef(threadId);
 
@@ -130,7 +130,9 @@ const StreamSession = ({
           accessToken,
           walletAddress: effectiveWallet,
         });
-        client.threads.update(id, { metadata: { wallet_address: effectiveWallet } }).catch(console.error);
+        client.threads
+          .update(id, { metadata: { wallet_address: effectiveWallet } })
+          .catch(console.error);
       }
       sleep().then(() => getThreads(assistantId).then(setThreads).catch(console.error));
     },
@@ -175,8 +177,8 @@ export const LangGraphStreamProvider: React.FC<{
             <LangGraphLogoSVG className="h-7" />
             <h1 className="font-semibold text-xl tracking-tight">Configuration Error</h1>
             <p className="text-muted-foreground">
-              Missing required configuration. Please ensure NEXT_PUBLIC_AI_URL is set and agentId
-              is provided.
+              Missing required configuration. Please ensure NEXT_PUBLIC_AI_URL is set and agentId is
+              provided.
             </p>
           </div>
         </div>

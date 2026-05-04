@@ -4,13 +4,13 @@
 
 import {
   type SoroswapPoolCardProps,
-  type SoroswapQuoteCardProps,
   type SoroswapPositionsCardProps,
-  type SoroswapYieldCardProps,
+  type SoroswapQuoteCardProps,
   type SoroswapTxCardProps,
+  type SoroswapYieldCardProps,
   soroswapPoolCardPropsSchema,
-  soroswapQuoteCardPropsSchema,
   soroswapPositionsCardPropsSchema,
+  soroswapQuoteCardPropsSchema,
   soroswapTxCardPropsSchema,
 } from "../schemas/soroswap.schema";
 
@@ -37,19 +37,22 @@ function num(obj: Record<string, unknown>, ...keys: string[]): number | null {
 
 // ─── Pool normalization ────────────────────────────────────────
 
-export function normalizeSoroswapPoolFromSdk(raw: Record<string, unknown>): SoroswapPoolCardProps | null {
+export function normalizeSoroswapPoolFromSdk(
+  raw: Record<string, unknown>
+): SoroswapPoolCardProps | null {
   const pool = (raw.pool ?? raw) as Record<string, unknown>;
 
   const tokenA = String(pool.tokenA ?? pool.token0 ?? "");
   const tokenB = String(pool.tokenB ?? pool.token1 ?? "");
 
-  const fee = pool.fee != null
-    ? Number(pool.fee) < 1
-      ? `${(Number(pool.fee) * 100).toFixed(2)}%`
-      : `${Number(pool.fee).toFixed(0)} bps`
-    : pool.totalFeeBps != null
-      ? `${Number(pool.totalFeeBps)} bps`
-      : undefined;
+  const fee =
+    pool.fee != null
+      ? Number(pool.fee) < 1
+        ? `${(Number(pool.fee) * 100).toFixed(2)}%`
+        : `${Number(pool.fee).toFixed(0)} bps`
+      : pool.totalFeeBps != null
+        ? `${Number(pool.totalFeeBps)} bps`
+        : undefined;
 
   const result = soroswapPoolCardPropsSchema.safeParse({
     address: pool.address ?? undefined,
@@ -74,7 +77,9 @@ export function normalizeSoroswapPoolFromSdk(raw: Record<string, unknown>): Soro
   return result.data;
 }
 
-export function normalizeSoroswapPoolsFromSdk(raw: Record<string, unknown>): SoroswapPoolCardProps[] {
+export function normalizeSoroswapPoolsFromSdk(
+  raw: Record<string, unknown>
+): SoroswapPoolCardProps[] {
   const pools = (raw.pools ?? []) as Record<string, unknown>[];
   return pools
     .map((p) => normalizeSoroswapPoolFromSdk(p))
@@ -83,14 +88,18 @@ export function normalizeSoroswapPoolsFromSdk(raw: Record<string, unknown>): Sor
 
 // ─── Quote normalization ───────────────────────────────────────
 
-export function normalizeSoroswapQuoteFromSdk(raw: Record<string, unknown>): SoroswapQuoteCardProps | null {
+export function normalizeSoroswapQuoteFromSdk(
+  raw: Record<string, unknown>
+): SoroswapQuoteCardProps | null {
   const q = (raw.quote ?? raw) as Record<string, unknown>;
   const result = soroswapQuoteCardPropsSchema.safeParse({
     amountIn: String(q.amountIn ?? q.amount_in ?? "0"),
     amountOut: String(q.amountOut ?? q.amount_out ?? "0"),
     fee: q.fee != null ? String(q.fee) : undefined,
     feePercent: q.feePercent ?? q.fee_percent ?? undefined,
-    route: Array.isArray(q.route) ? q.route.map((r: unknown) => resolveSymbol(String(r))) : undefined,
+    route: Array.isArray(q.route)
+      ? q.route.map((r: unknown) => resolveSymbol(String(r)))
+      : undefined,
     estimatedTime: q.estimatedTime ?? q.estimated_time ?? undefined,
     status: q.status ?? undefined,
     protocol: q.protocol ?? "soroswap",
@@ -103,7 +112,7 @@ export function normalizeSoroswapQuoteFromSdk(raw: Record<string, unknown>): Sor
 // ─── Positions normalization ───────────────────────────────────
 
 export function normalizeSoroswapPositionsFromSdk(
-  raw: Record<string, unknown>,
+  raw: Record<string, unknown>
 ): SoroswapPositionsCardProps | null {
   const positions = Array.isArray(raw.positions) ? raw.positions : [];
   const mapped = (positions as Record<string, unknown>[]).map((p) => ({
@@ -120,7 +129,8 @@ export function normalizeSoroswapPositionsFromSdk(
   const result = soroswapPositionsCardPropsSchema.safeParse({
     hasPosition: mapped.length > 0,
     positions: mapped,
-    totalValueUsd: num(raw, "totalValueUsd", "total_value_usd") ??
+    totalValueUsd:
+      num(raw, "totalValueUsd", "total_value_usd") ??
       (mapped.reduce((s, p) => s + (p.valueUsd ?? 0), 0) || null),
   });
 
@@ -130,35 +140,43 @@ export function normalizeSoroswapPositionsFromSdk(
 
 // ─── Yield normalization ───────────────────────────────────────
 
-export function normalizeSoroswapYieldFromSdk(raw: Record<string, unknown>): SoroswapYieldCardProps[] {
+export function normalizeSoroswapYieldFromSdk(
+  raw: Record<string, unknown>
+): SoroswapYieldCardProps[] {
   const opps = (raw.opportunities ?? raw.yields ?? []) as Record<string, unknown>[];
-  return opps
-    .map((opp) => {
-      const apy = opp.apy as Record<string, unknown> | undefined;
-      return {
-        protocol: "soroswap" as const,
-        type: "lp" as const,
-        name: String(opp.name ?? ""),
-        assets: Array.isArray(opp.assets) ? opp.assets.map((a: unknown) => resolveSymbol(String(a))) : [],
-        apy: {
-          base: apy?.base != null ? Number(apy.base) : null,
-          reward: apy?.reward != null ? Number(apy.reward) : null,
-          total: apy?.total != null ? Number(apy.total) : null,
-        },
-        tvl: opp.tvl != null ? String(opp.tvl) : null,
-        poolAddress: opp.poolAddress != null ? String(opp.poolAddress) : opp.pool_address != null ? String(opp.pool_address) : undefined,
-        risk: opp.risk != null ? String(opp.risk) : undefined,
-        status: opp.status != null ? String(opp.status) : undefined,
-        fee: opp.fee != null ? String(opp.fee) : undefined,
-      } satisfies SoroswapYieldCardProps;
-    });
+  return opps.map((opp) => {
+    const apy = opp.apy as Record<string, unknown> | undefined;
+    return {
+      protocol: "soroswap" as const,
+      type: "lp" as const,
+      name: String(opp.name ?? ""),
+      assets: Array.isArray(opp.assets)
+        ? opp.assets.map((a: unknown) => resolveSymbol(String(a)))
+        : [],
+      apy: {
+        base: apy?.base != null ? Number(apy.base) : null,
+        reward: apy?.reward != null ? Number(apy.reward) : null,
+        total: apy?.total != null ? Number(apy.total) : null,
+      },
+      tvl: opp.tvl != null ? String(opp.tvl) : null,
+      poolAddress:
+        opp.poolAddress != null
+          ? String(opp.poolAddress)
+          : opp.pool_address != null
+            ? String(opp.pool_address)
+            : undefined,
+      risk: opp.risk != null ? String(opp.risk) : undefined,
+      status: opp.status != null ? String(opp.status) : undefined,
+      fee: opp.fee != null ? String(opp.fee) : undefined,
+    } satisfies SoroswapYieldCardProps;
+  });
 }
 
 // ─── Transaction normalization ─────────────────────────────────
 
 export function normalizeSoroswapTxFromSdk(
   raw: Record<string, unknown>,
-  form?: Record<string, string>,
+  form?: Record<string, string>
 ): SoroswapTxCardProps | null {
   const merged = { ...raw, ...(form ?? {}) };
   const tx = (merged.transaction ?? merged) as Record<string, unknown>;

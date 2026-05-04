@@ -98,10 +98,7 @@ export function ReferralsBody() {
     const message =
       snapshot.error instanceof Error ? snapshot.error.message : "Failed to load referrals";
     return (
-      <div
-        data-testid="referrals-error"
-        className="w-full py-10 text-destructive text-sm"
-      >
+      <div data-testid="referrals-error" className="w-full py-10 text-destructive text-sm">
         {message}
       </div>
     );
@@ -143,10 +140,7 @@ export function ReferralsBody() {
   };
 
   return (
-    <div
-      data-testid="referrals-root"
-      className="flex w-full flex-col gap-6"
-    >
+    <div data-testid="referrals-root" className="flex w-full flex-col gap-6">
       <header>
         <h1 className="font-bold text-2xl tracking-tight">Referrals</h1>
         <p className="text-muted-foreground text-sm">
@@ -188,11 +182,7 @@ export function ReferralsBody() {
 
           <div className="flex flex-wrap gap-2">
             {hasCode && (
-              <Button
-                data-testid="referrals-copy-link"
-                variant="outline"
-                onClick={handleCopyLink}
-              >
+              <Button data-testid="referrals-copy-link" variant="outline" onClick={handleCopyLink}>
                 {copied ? <Check /> : <Copy />}
                 {copied ? "Copied" : "Copy link"}
               </Button>
@@ -200,10 +190,7 @@ export function ReferralsBody() {
             {xLinked ? (
               <>
                 {hasCode && (
-                  <Button
-                    data-testid="referrals-share-x"
-                    onClick={handleShareOnX}
-                  >
+                  <Button data-testid="referrals-share-x" onClick={handleShareOnX}>
                     <Share2 />
                     Share on X
                   </Button>
@@ -300,10 +287,7 @@ export function ReferralsBody() {
       </Card>
 
       <LinkXDialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen} />
-      <VerifyShareDialog
-        open={verifyShareDialogOpen}
-        onOpenChange={setVerifyShareDialogOpen}
-      />
+      <VerifyShareDialog open={verifyShareDialogOpen} onOpenChange={setVerifyShareDialogOpen} />
     </div>
   );
 }

@@ -17,7 +17,7 @@ export async function GET() {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Yield fetch failed" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }

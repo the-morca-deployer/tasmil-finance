@@ -86,9 +86,6 @@ describe("LangGraphStreamProvider", () => {
       </LangGraphStreamProvider>
     );
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      "/info",
-      expect.objectContaining({})
-    );
+    expect(global.fetch).toHaveBeenCalledWith("/info", expect.objectContaining({}));
   });
 });

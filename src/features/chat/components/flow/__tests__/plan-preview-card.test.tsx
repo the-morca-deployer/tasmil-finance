@@ -1,11 +1,7 @@
+import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import type { Plan, PlanStep, SimulationReport } from "@/features/chat/types/flow-messages";
 import { PlanPreviewCard } from "../plan-preview-card";
-import type {
-  Plan,
-  PlanStep,
-  SimulationReport,
-} from "@/features/chat/types/flow-messages";
 
 const makeStep = (overrides: Partial<PlanStep> = {}): PlanStep => ({
   index: 0,
@@ -28,9 +24,7 @@ const makePlan = (overrides: Partial<Plan> = {}): Plan => ({
   ...overrides,
 });
 
-const makeSimReport = (
-  overrides: Partial<SimulationReport> = {},
-): SimulationReport => ({
+const makeSimReport = (overrides: Partial<SimulationReport> = {}): SimulationReport => ({
   status: "success",
   steps: [{ step_index: 0, status: "success", gas_consumed: 0.15 }],
   total_gas_xlm: 0.15,
@@ -96,13 +90,11 @@ describe("PlanPreviewCard", () => {
         simulationReport={sim}
         onConfirm={jest.fn()}
         onCancel={jest.fn()}
-      />,
+      />
     );
 
     expect(screen.getByText("400 USDC → Blend (14.2%)")).toBeInTheDocument();
-    expect(
-      screen.getByText("400 USDC → DeFindex (13.8%)"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("400 USDC → DeFindex (13.8%)")).toBeInTheDocument();
   });
 
   it("displays weighted APY prominently", () => {
@@ -114,24 +106,14 @@ describe("PlanPreviewCard", () => {
 
   it("shows idle amount when > 0", () => {
     const plan = makePlan({ idle_amount: 200 });
-    render(
-      <PlanPreviewCard
-        {...defaultProps}
-        plan={plan}
-      />,
-    );
+    render(<PlanPreviewCard {...defaultProps} plan={plan} />);
 
     expect(screen.getByText("200 USDC idle")).toBeInTheDocument();
   });
 
   it("does not show idle section when idle_amount is 0", () => {
     const plan = makePlan({ idle_amount: 0 });
-    render(
-      <PlanPreviewCard
-        {...defaultProps}
-        plan={plan}
-      />,
-    );
+    render(<PlanPreviewCard {...defaultProps} plan={plan} />);
 
     expect(screen.queryByText(/idle/i)).not.toBeInTheDocument();
   });
@@ -141,30 +123,18 @@ describe("PlanPreviewCard", () => {
       warnings: ["Slippage may exceed 2%", "Pool TVL is low"],
     });
 
-    render(
-      <PlanPreviewCard
-        {...defaultProps}
-        simulationReport={sim}
-      />,
-    );
+    render(<PlanPreviewCard {...defaultProps} simulationReport={sim} />);
 
     const warning1 = screen.getByText("Slippage may exceed 2%");
     const warning2 = screen.getByText("Pool TVL is low");
     expect(warning1).toBeInTheDocument();
     expect(warning2).toBeInTheDocument();
-    expect(warning1.closest("[data-testid='warning-item']")?.className).toContain(
-      "text-amber-400",
-    );
+    expect(warning1.closest("[data-testid='warning-item']")?.className).toContain("text-amber-400");
   });
 
   it("Confirm & Sign CTA calls onConfirm", () => {
     const onConfirm = jest.fn();
-    render(
-      <PlanPreviewCard
-        {...defaultProps}
-        onConfirm={onConfirm}
-      />,
-    );
+    render(<PlanPreviewCard {...defaultProps} onConfirm={onConfirm} />);
 
     fireEvent.click(screen.getByRole("button", { name: /confirm & sign/i }));
     expect(onConfirm).toHaveBeenCalledTimes(1);
@@ -172,12 +142,7 @@ describe("PlanPreviewCard", () => {
 
   it("Cancel CTA calls onCancel", () => {
     const onCancel = jest.fn();
-    render(
-      <PlanPreviewCard
-        {...defaultProps}
-        onCancel={onCancel}
-      />,
-    );
+    render(<PlanPreviewCard {...defaultProps} onCancel={onCancel} />);
 
     fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
     expect(onCancel).toHaveBeenCalledTimes(1);
@@ -196,12 +161,7 @@ describe("PlanPreviewCard", () => {
       ],
     });
 
-    render(
-      <PlanPreviewCard
-        {...defaultProps}
-        simulationReport={sim}
-      />,
-    );
+    render(<PlanPreviewCard {...defaultProps} simulationReport={sim} />);
 
     const confirmBtn = screen.getByRole("button", { name: /confirm & sign/i });
     expect(confirmBtn).toBeDisabled();
@@ -209,12 +169,7 @@ describe("PlanPreviewCard", () => {
   });
 
   it("CTA is disabled when disabled prop is true", () => {
-    render(
-      <PlanPreviewCard
-        {...defaultProps}
-        disabled={true}
-      />,
-    );
+    render(<PlanPreviewCard {...defaultProps} disabled={true} />);
 
     const confirmBtn = screen.getByRole("button", { name: /confirm & sign/i });
     expect(confirmBtn).toBeDisabled();

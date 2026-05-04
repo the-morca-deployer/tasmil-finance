@@ -1,22 +1,16 @@
 "use client";
 
+import { Bot, ChevronDown, Play, RotateCcw, User } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Bot,
-  ChevronDown,
-  Play,
-  RotateCcw,
-  User,
-} from "lucide-react";
+import { SupervisorAgentCallCard } from "@/features/chat/actions/components/stellar/supervisor-agent-call-card";
 import { AIReasoning } from "@/features/chat/components/ai/ai-reasoning";
 import { ClarifyCard } from "@/features/chat/components/flow/clarify-card";
 import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
-import { SupervisorAgentCallCard } from "@/features/chat/actions/components/stellar/supervisor-agent-call-card";
 import { StreamContext, type StreamContextType } from "@/features/chat/providers/stream-provider";
 import { BlendTxCard } from "@/features/protocols/cards/blend";
+import { cn } from "@/lib/utils";
 import { ToolStatusDispatcher } from "@/shared/components/tool-status-dispatcher";
 import { Button } from "@/shared/ui/button";
-import { cn } from "@/lib/utils";
 
 // ─── Mock stream so BlendTxCard's useStreamContext() doesn't throw ──
 const MOCK_STREAM = {
@@ -36,11 +30,23 @@ type FlowStep =
   | { type: "user"; text: string }
   | { type: "reasoning"; content: string; duration: number }
   | { type: "agent_call"; agent: string; message: string; status: "calling" | "complete" }
-  | { type: "tool_call"; toolName: string; args: Record<string, string>; status: "calling" | "complete" | "error" }
+  | {
+      type: "tool_call";
+      toolName: string;
+      args: Record<string, string>;
+      status: "calling" | "complete" | "error";
+    }
   | { type: "text"; content: string }
   | { type: "clarify"; questions: any[] }
   | { type: "blend_tx"; tx: any }
-  | { type: "execution"; step: number; totalSteps: number; status: "submitting" | "confirmed" | "failed"; txHash?: string; description?: string }
+  | {
+      type: "execution";
+      step: number;
+      totalSteps: number;
+      status: "submitting" | "confirmed" | "failed";
+      txHash?: string;
+      description?: string;
+    }
   | { type: "divider" };
 
 /**
@@ -79,7 +85,8 @@ const FLOW_STEPS: FlowStep[] = [
   {
     type: "agent_call",
     agent: "research",
-    message: "Find best USDC yield opportunities across all supported protocols (Blend, Aquarius, DeFindex). Include APY, TVL, and risk level.",
+    message:
+      "Find best USDC yield opportunities across all supported protocols (Blend, Aquarius, DeFindex). Include APY, TVL, and risk level.",
     status: "complete",
   },
 
@@ -101,13 +108,21 @@ const FLOW_STEPS: FlowStep[] = [
         suggestions: [
           {
             label: "USDC Lending (Fixed Pool) \u00b7 Blend \u00b7 9.3% APY",
-            value: { protocol: "blend", pool_address: "CBHCRSVX3ZZ7EGTSYMKPEFGZNWRVCSESQR3UTQOV", asset: "USDC" },
+            value: {
+              protocol: "blend",
+              pool_address: "CBHCRSVX3ZZ7EGTSYMKPEFGZNWRVCSESQR3UTQOV",
+              asset: "USDC",
+            },
             tags: ["recommended"],
             description: "Low risk single-sided lending. $2.4M TVL.",
           },
           {
             label: "XLM/USDC LP \u00b7 Aquarius \u00b7 14.2% APY",
-            value: { protocol: "aquarius", pool_address: "GDVNK2MNBSN2VOFL5DBHKYKAM", asset: "USDC" },
+            value: {
+              protocol: "aquarius",
+              pool_address: "GDVNK2MNBSN2VOFL5DBHKYKAM",
+              asset: "USDC",
+            },
             tags: ["high_tvl", "il_risk"],
             description: "AMM liquidity pool. $5.1M TVL. Impermanent loss risk.",
           },
@@ -220,7 +235,7 @@ function FlowStepRenderer({
 }) {
   const wrapperCls = cn(
     "transition-all duration-500",
-    animate ? "animate-in fade-in slide-in-from-bottom-2" : "",
+    animate ? "animate-in fade-in slide-in-from-bottom-2" : ""
   );
 
   switch (step.type) {
@@ -250,22 +265,14 @@ function FlowStepRenderer({
     case "agent_call":
       return (
         <div className={wrapperCls}>
-          <SupervisorAgentCallCard
-            agent={step.agent}
-            message={step.message}
-            status={step.status}
-          />
+          <SupervisorAgentCallCard agent={step.agent} message={step.message} status={step.status} />
         </div>
       );
 
     case "tool_call":
       return (
         <div className={wrapperCls}>
-          <ToolStatusDispatcher
-            toolName={step.toolName}
-            args={step.args}
-            status={step.status}
-          />
+          <ToolStatusDispatcher toolName={step.toolName} args={step.args} status={step.status} />
         </div>
       );
 
@@ -273,13 +280,15 @@ function FlowStepRenderer({
       return (
         <div className={cn(wrapperCls, "py-1")}>
           <div className="text-sm leading-relaxed text-foreground whitespace-pre-line">
-            {step.content.split(/(\*\*[^*]+\*\*)/).map((part, i) =>
-              part.startsWith("**") && part.endsWith("**") ? (
-                <strong key={i}>{part.slice(2, -2)}</strong>
-              ) : (
-                <span key={i}>{part}</span>
-              ),
-            )}
+            {step.content
+              .split(/(\*\*[^*]+\*\*)/)
+              .map((part, i) =>
+                part.startsWith("**") && part.endsWith("**") ? (
+                  <strong key={i}>{part.slice(2, -2)}</strong>
+                ) : (
+                  <span key={i}>{part}</span>
+                )
+              )}
           </div>
         </div>
       );
@@ -446,13 +455,9 @@ function FlowSimulation() {
       elements.push(
         <AiMessageGroup key={groupKey}>
           {aiGroupSteps.map(({ step, idx }) => (
-            <FlowStepRenderer
-              key={idx}
-              step={step}
-              animate={idx === visibleCount - 1}
-            />
+            <FlowStepRenderer key={idx} step={step} animate={idx === visibleCount - 1} />
           ))}
-        </AiMessageGroup>,
+        </AiMessageGroup>
       );
       aiGroupSteps = [];
     };
@@ -461,12 +466,12 @@ function FlowSimulation() {
       if (step.type === "user") {
         flushAiGroup();
         elements.push(
-          <FlowStepRenderer key={idx} step={step} animate={idx === visibleCount - 1} />,
+          <FlowStepRenderer key={idx} step={step} animate={idx === visibleCount - 1} />
         );
       } else if (step.type === "divider") {
         flushAiGroup();
         elements.push(
-          <FlowStepRenderer key={idx} step={step} animate={idx === visibleCount - 1} />,
+          <FlowStepRenderer key={idx} step={step} animate={idx === visibleCount - 1} />
         );
       } else {
         aiGroupSteps.push({ step, idx });
@@ -578,7 +583,7 @@ function ComponentShowcase() {
               "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
               section === s.id
                 ? "border-primary bg-primary/10 text-primary"
-                : "border-border text-muted-foreground hover:bg-muted/30",
+                : "border-border text-muted-foreground hover:bg-muted/30"
             )}
           >
             {s.title}
@@ -589,7 +594,9 @@ function ComponentShowcase() {
       {/* Component preview */}
       {section === "reasoning" && (
         <div className="space-y-3 rounded-lg border border-border p-4">
-          <p className="text-muted-foreground text-xs">Streaming state (auto-opens, timer counts):</p>
+          <p className="text-muted-foreground text-xs">
+            Streaming state (auto-opens, timer counts):
+          </p>
           <AIReasoning isStreaming={false} duration={5} defaultOpen>
             The user wants to deposit 100 USDC. Let me check available yield opportunities across
             Blend, Aquarius, and DeFindex protocols to find the best risk-adjusted return.
@@ -620,9 +627,18 @@ function ComponentShowcase() {
           <p className="text-muted-foreground text-xs">All agent types:</p>
           <div className="space-y-1">
             {[
-              "info", "blend", "soroswap", "phoenix", "aquarius",
-              "defindex", "templar", "allbridge", "sdex", "bridge",
-              "yield", "research",
+              "info",
+              "blend",
+              "soroswap",
+              "phoenix",
+              "aquarius",
+              "defindex",
+              "templar",
+              "allbridge",
+              "sdex",
+              "bridge",
+              "yield",
+              "research",
             ].map((agent) => (
               <SupervisorAgentCallCard
                 key={agent}
@@ -785,8 +801,8 @@ export default function AIDemoPage() {
         <div className="space-y-1">
           <h2 className="font-semibold text-2xl">Supervisor Flow Simulation</h2>
           <p className="text-muted-foreground text-sm">
-            Complete flow: User asks to deposit USDC → Supervisor thinks → Research Agent
-            discovers yield → User picks pool → Blend Agent deposits → Transaction confirmed
+            Complete flow: User asks to deposit USDC → Supervisor thinks → Research Agent discovers
+            yield → User picks pool → Blend Agent deposits → Transaction confirmed
           </p>
         </div>
 
@@ -818,17 +834,27 @@ export default function AIDemoPage() {
           <div className="space-y-5 font-mono text-sm">
             {/* Two columns: what user sees vs what happens behind the scenes */}
             <div className="grid grid-cols-2 gap-6 border-b border-border pb-3">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">User sees</div>
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Behind the scenes</div>
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                User sees
+              </div>
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Behind the scenes
+              </div>
             </div>
 
             {/* Turn 1 */}
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-1.5">
-                <div className="rounded bg-cyan-500/10 px-2 py-0.5 text-cyan-400 text-xs w-fit">AIReasoning</div>
-                <div className="rounded bg-yellow-500/10 px-2 py-0.5 text-yellow-400 text-xs w-fit">Used Research Agent</div>
+                <div className="rounded bg-cyan-500/10 px-2 py-0.5 text-cyan-400 text-xs w-fit">
+                  AIReasoning
+                </div>
+                <div className="rounded bg-yellow-500/10 px-2 py-0.5 text-yellow-400 text-xs w-fit">
+                  Used Research Agent
+                </div>
                 <div className="text-muted-foreground text-xs">Text response</div>
-                <div className="rounded bg-blue-500/10 px-2 py-0.5 text-blue-400 text-xs w-fit">ClarifyCard</div>
+                <div className="rounded bg-blue-500/10 px-2 py-0.5 text-blue-400 text-xs w-fit">
+                  ClarifyCard
+                </div>
               </div>
               <div className="space-y-1.5 border-l-2 border-border/40 pl-4">
                 <div className="text-muted-foreground text-xs">parse_user_intent</div>
@@ -847,9 +873,15 @@ export default function AIDemoPage() {
             {/* Turn 2 */}
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-1.5">
-                <div className="rounded bg-cyan-500/10 px-2 py-0.5 text-cyan-400 text-xs w-fit">AIReasoning</div>
-                <div className="rounded bg-indigo-500/10 px-2 py-0.5 text-indigo-400 text-xs w-fit">Used Blend Agent</div>
-                <div className="rounded bg-green-500/10 px-2 py-0.5 text-green-400 text-xs w-fit">BlendTxCard (HITL)</div>
+                <div className="rounded bg-cyan-500/10 px-2 py-0.5 text-cyan-400 text-xs w-fit">
+                  AIReasoning
+                </div>
+                <div className="rounded bg-indigo-500/10 px-2 py-0.5 text-indigo-400 text-xs w-fit">
+                  Used Blend Agent
+                </div>
+                <div className="rounded bg-green-500/10 px-2 py-0.5 text-green-400 text-xs w-fit">
+                  BlendTxCard (HITL)
+                </div>
               </div>
               <div className="space-y-1.5 border-l-2 border-border/40 pl-4">
                 <div className="text-muted-foreground text-xs">call_blend_agent</div>
@@ -867,7 +899,9 @@ export default function AIDemoPage() {
             {/* Turn 3 */}
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-1.5">
-                <div className="rounded bg-green-500/10 px-2 py-0.5 text-green-400 text-xs w-fit">ExecutionCard</div>
+                <div className="rounded bg-green-500/10 px-2 py-0.5 text-green-400 text-xs w-fit">
+                  ExecutionCard
+                </div>
                 <div className="text-muted-foreground text-xs">Final summary text</div>
               </div>
               <div className="space-y-1.5 border-l-2 border-border/40 pl-4">

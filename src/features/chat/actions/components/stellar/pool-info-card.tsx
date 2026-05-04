@@ -25,19 +25,20 @@ function PoolInfoCardComponent({ args, result, toolCallId, status, type }: PoolI
   //   blend_get_reserve_info → { reserve: {...} }
   //   blend_get_pool_info    → { pool: { address, reserves[], ... } }
   //   resolve_pool           → { pools: [...] }   OR  { poolAddress, ... }
-  const reserve = data?.reserve ?? null;                           // single reserve
-  const pool = data?.pool                                          // single pool (nested)
+  const reserve = data?.reserve ?? null; // single reserve
+  const pool = data?.pool // single pool (nested)
     ? { ...data.pool, poolAddress: data.pool.address ?? data.pool.poolAddress }
     : null;
-  const pools = data?.pools ?? (pool ? null : (data?.poolAddress ? [data] : []));
+  const pools = data?.pools ?? (pool ? null : data?.poolAddress ? [data] : []);
   const isSingle = !data?.pools && (data?.poolAddress || pool);
 
   const backstop = data?.backstop ?? null;
 
   const cardTitle = reserve
     ? `Reserve: ${reserve.symbol ?? "Asset"}`
-    : backstop || type === "blend_backstop_info" ? "Backstop Info"
-    : "Pool Info";
+    : backstop || type === "blend_backstop_info"
+      ? "Backstop Info"
+      : "Pool Info";
 
   return (
     <BaseInfoCard
@@ -77,9 +78,18 @@ function PoolInfoCardComponent({ args, result, toolCallId, status, type }: PoolI
 function ReserveInfoView({ reserve }: { reserve: any }) {
   return (
     <div className="space-y-1.5">
-      {reserve.symbol && <DetailRow label="Asset" value={<span className="font-semibold">{reserve.symbol}</span>} />}
+      {reserve.symbol && (
+        <DetailRow label="Asset" value={<span className="font-semibold">{reserve.symbol}</span>} />
+      )}
       {reserve.supplyApy != null && (
-        <DetailRow label="Supply APY" value={<span className="text-foreground font-semibold">{formatPercent(reserve.supplyApy)}</span>} />
+        <DetailRow
+          label="Supply APY"
+          value={
+            <span className="text-foreground font-semibold">
+              {formatPercent(reserve.supplyApy)}
+            </span>
+          }
+        />
       )}
       {reserve.borrowApy != null && (
         <DetailRow
@@ -88,27 +98,48 @@ function ReserveInfoView({ reserve }: { reserve: any }) {
         />
       )}
       {reserve.collateralFactor != null && (
-        <DetailRow label="Collateral Factor" value={`${(Number(reserve.collateralFactor) * 100).toFixed(0)}%`} />
+        <DetailRow
+          label="Collateral Factor"
+          value={`${(Number(reserve.collateralFactor) * 100).toFixed(0)}%`}
+        />
       )}
       {reserve.utilization != null && (
-        <DetailRow label="Utilization" value={`${(Number(reserve.utilization) * 100).toFixed(2)}%`} />
+        <DetailRow
+          label="Utilization"
+          value={`${(Number(reserve.utilization) * 100).toFixed(2)}%`}
+        />
       )}
       {reserve.totalSupply != null && (
-        <DetailRow label="Total Supply" value={`${formatNumber(Number(reserve.totalSupply))} ${reserve.symbol ?? ""}`} />
+        <DetailRow
+          label="Total Supply"
+          value={`${formatNumber(Number(reserve.totalSupply))} ${reserve.symbol ?? ""}`}
+        />
       )}
       {reserve.totalBorrow != null && (
-        <DetailRow label="Total Borrow" value={`${formatNumber(Number(reserve.totalBorrow))} ${reserve.symbol ?? ""}`} />
+        <DetailRow
+          label="Total Borrow"
+          value={`${formatNumber(Number(reserve.totalBorrow))} ${reserve.symbol ?? ""}`}
+        />
       )}
       {reserve.supplyCap != null && (
-        <DetailRow label="Supply Cap" value={`${formatNumber(Number(reserve.supplyCap))} ${reserve.symbol ?? ""}`} />
+        <DetailRow
+          label="Supply Cap"
+          value={`${formatNumber(Number(reserve.supplyCap))} ${reserve.symbol ?? ""}`}
+        />
       )}
       {(reserve.supplyEmissionApy != null || reserve.borrowEmissionApy != null) && (
         <div className="border-t pt-1.5 mt-1">
           {reserve.supplyEmissionApy != null && (
-            <DetailRow label="Supply Emission" value={<APYDisplay value={reserve.supplyEmissionApy} />} />
+            <DetailRow
+              label="Supply Emission"
+              value={<APYDisplay value={reserve.supplyEmissionApy} />}
+            />
           )}
           {reserve.borrowEmissionApy != null && (
-            <DetailRow label="Borrow Emission" value={<APYDisplay value={reserve.borrowEmissionApy} />} />
+            <DetailRow
+              label="Borrow Emission"
+              value={<APYDisplay value={reserve.borrowEmissionApy} />}
+            />
           )}
         </div>
       )}
@@ -120,7 +151,10 @@ function BackstopInfoView({ backstop }: { backstop: any }) {
   return (
     <div className="space-y-1.5">
       {backstop.poolAddress && (
-        <DetailRow label="Pool" value={<span className="font-mono text-xs">{backstop.poolAddress.slice(0, 12)}…</span>} />
+        <DetailRow
+          label="Pool"
+          value={<span className="font-mono text-xs">{backstop.poolAddress.slice(0, 12)}…</span>}
+        />
       )}
       {backstop.totalApr != null && (
         <DetailRow label="Total APR" value={<APYDisplay value={backstop.totalApr} />} />
@@ -132,7 +166,10 @@ function BackstopInfoView({ backstop }: { backstop: any }) {
         <DetailRow label="Emission APR" value={<APYDisplay value={backstop.emissionApr} />} />
       )}
       {backstop.totalDepositedUsd != null && (
-        <DetailRow label="Total Deposited" value={`$${formatNumber(Number(backstop.totalDepositedUsd))}`} />
+        <DetailRow
+          label="Total Deposited"
+          value={`$${formatNumber(Number(backstop.totalDepositedUsd))}`}
+        />
       )}
       {backstop.q4wPct != null && (
         <DetailRow label="Q4W %" value={`${Number(backstop.q4wPct).toFixed(2)}%`} />
@@ -207,7 +244,12 @@ function SinglePoolView({ pool }: { pool: any; protocol?: string; compact?: bool
 
       {/* Supply/borrow info */}
       {pool.supplyApy != null && (
-        <DetailRow label="Supply APY" value={<span className="text-foreground font-semibold">{formatPercent(pool.supplyApy)}</span>} />
+        <DetailRow
+          label="Supply APY"
+          value={
+            <span className="text-foreground font-semibold">{formatPercent(pool.supplyApy)}</span>
+          }
+        />
       )}
       {pool.borrowApy != null && (
         <DetailRow

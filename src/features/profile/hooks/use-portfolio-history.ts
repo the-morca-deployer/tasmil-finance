@@ -10,9 +10,7 @@ export interface HistoryPoint {
 }
 
 async function fetchHistory(address: string, days: number): Promise<HistoryPoint[]> {
-  const res = await fetch(
-    `/api/portfolio/history/${encodeURIComponent(address)}?days=${days}`,
-  );
+  const res = await fetch(`/api/portfolio/history/${encodeURIComponent(address)}?days=${days}`);
   if (!res.ok) return [];
   const data = await res.json();
   return (Array.isArray(data) ? data : []).map(
@@ -21,14 +19,11 @@ async function fetchHistory(address: string, days: number): Promise<HistoryPoint
       totalValueUsd: Number(p.totalValueUsd),
       walletUsd: Number(p.walletUsd),
       defiUsd: Number(p.defiUsd),
-    }),
+    })
   );
 }
 
-export function usePortfolioHistory(
-  address: string | null | undefined,
-  days: number,
-) {
+export function usePortfolioHistory(address: string | null | undefined, days: number) {
   return useQuery<HistoryPoint[]>({
     queryKey: ["profile", "portfolio-history", address, days],
     queryFn: () => fetchHistory(address!, days),

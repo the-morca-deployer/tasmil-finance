@@ -1,14 +1,14 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, Layers, Vault } from "lucide-react";
 import { useState } from "react";
-import { ChevronDown, Vault, Layers } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { cleanVaultName, fmt, trunc } from "../../lib/formatting";
 import type { CardMode } from "../../schemas/common.schema";
 import type { DefindexVaultCardProps } from "../../schemas/defindex.schema";
-import { ProtocolCard, EmptyState } from "../base/protocol-card";
 import { CardHeader } from "../base/indicators";
-import { fmt, trunc, cleanVaultName } from "../../lib/formatting";
+import { EmptyState, ProtocolCard } from "../base/protocol-card";
 
 interface DefindexVaultsCardProps {
   vaults: DefindexVaultCardProps[];
@@ -34,7 +34,11 @@ export function DefindexVaultsCard({ vaults, mode = "playground" }: DefindexVaul
   }
 
   return (
-    <ProtocolCard mode={mode} title={mode === "chat" ? "DeFindex Vaults" : undefined} icon={mode === "chat" ? Vault : undefined}>
+    <ProtocolCard
+      mode={mode}
+      title={mode === "chat" ? "DeFindex Vaults" : undefined}
+      icon={mode === "chat" ? Vault : undefined}
+    >
       {mode === "playground" && (
         <CardHeader
           icon={<Vault className="h-3.5 w-3.5" />}
@@ -54,7 +58,7 @@ export function DefindexVaultsCard({ vaults, mode = "playground" }: DefindexVaul
               <ChevronDown
                 className={cn(
                   "h-3 w-3 text-muted-foreground transition-transform",
-                  isOpen && "rotate-180",
+                  isOpen && "rotate-180"
                 )}
               />
               <span className="text-[13px] font-medium text-foreground flex-1 text-left truncate">
@@ -91,7 +95,7 @@ function StatusBadge({ status }: { status: string }) {
     <span
       className={cn(
         "rounded-md px-1.5 py-px text-[10px] font-medium",
-        isOk ? "text-emerald-400 bg-emerald-400/10" : "text-amber-400 bg-amber-400/10",
+        isOk ? "text-emerald-400 bg-emerald-400/10" : "text-amber-400 bg-amber-400/10"
       )}
     >
       {isOk ? "Active" : "Unavailable"}

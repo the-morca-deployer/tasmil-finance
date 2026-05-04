@@ -4,17 +4,17 @@
  */
 
 import type {
+  DefindexTxCardProps,
+  DefindexUserBalanceProps,
   DefindexVaultCardProps,
   DefindexVaultDetailProps,
-  DefindexUserBalanceProps,
-  DefindexTxCardProps,
 } from "../schemas/defindex.schema";
-import { unwrapMcpResult } from "./from-mcp";
 import {
-  normalizeVaultsFromSdk,
-  normalizeVaultDetailFromSdk,
   normalizeVaultBalanceFromSdk,
+  normalizeVaultDetailFromSdk,
+  normalizeVaultsFromSdk,
 } from "./defindex-from-sdk";
+import { unwrapMcpResult } from "./from-mcp";
 
 export function normalizeDefindexVaultsFromMcp(result: unknown): DefindexVaultCardProps[] {
   const { data, error } = unwrapMcpResult(result);
@@ -22,7 +22,9 @@ export function normalizeDefindexVaultsFromMcp(result: unknown): DefindexVaultCa
   return normalizeVaultsFromSdk(data);
 }
 
-export function normalizeDefindexVaultDetailFromMcp(result: unknown): DefindexVaultDetailProps | null {
+export function normalizeDefindexVaultDetailFromMcp(
+  result: unknown
+): DefindexVaultDetailProps | null {
   const { data, error } = unwrapMcpResult(result);
   if (error || !data) return null;
   return normalizeVaultDetailFromSdk(data);
@@ -44,7 +46,7 @@ export function normalizeDefindexYieldFromMcp(result: unknown): unknown[] {
 
 export function normalizeDefindexTxFromMcp(
   result: unknown,
-  args?: Record<string, unknown>,
+  args?: Record<string, unknown>
 ): DefindexTxCardProps | null {
   const { data, error } = unwrapMcpResult(result);
   if (error || !data) return null;

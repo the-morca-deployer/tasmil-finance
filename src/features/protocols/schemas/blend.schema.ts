@@ -75,9 +75,7 @@ export const positionsCardPropsSchema = z.object({
   collateral: z
     .array(z.object({ symbol: z.string(), amount: z.number(), apy: z.number() }))
     .optional(),
-  supply: z
-    .array(z.object({ symbol: z.string(), amount: z.number(), apy: z.number() }))
-    .optional(),
+  supply: z.array(z.object({ symbol: z.string(), amount: z.number(), apy: z.number() })).optional(),
   liabilities: z
     .array(z.object({ symbol: z.string(), amount: z.number(), apy: z.number() }))
     .optional(),
@@ -88,19 +86,25 @@ export type PositionsCardProps = z.infer<typeof positionsCardPropsSchema>;
 // ─── Transaction ────────────────────────────────────────────────
 
 /** Enriched context returned by MCP operation endpoints alongside XDR. */
-export const operationContextSchema = z.object({
-  reserveApy: z.object({
-    supplyApy: z.number(),
-    borrowApy: z.number(),
-    supplyEmissionApy: z.number().optional(),
-    borrowEmissionApy: z.number().optional(),
-  }).optional(),
-  currentPosition: z.object({
-    suppliedAmount: z.number().nullable().optional(),
-    borrowedAmount: z.number().nullable().optional(),
-  }).optional(),
-  symbol: z.string().optional(),
-}).optional();
+export const operationContextSchema = z
+  .object({
+    reserveApy: z
+      .object({
+        supplyApy: z.number(),
+        borrowApy: z.number(),
+        supplyEmissionApy: z.number().optional(),
+        borrowEmissionApy: z.number().optional(),
+      })
+      .optional(),
+    currentPosition: z
+      .object({
+        suppliedAmount: z.number().nullable().optional(),
+        borrowedAmount: z.number().nullable().optional(),
+      })
+      .optional(),
+    symbol: z.string().optional(),
+  })
+  .optional();
 export type OperationContext = z.infer<typeof operationContextSchema>;
 
 export const txCardPropsSchema = z.object({

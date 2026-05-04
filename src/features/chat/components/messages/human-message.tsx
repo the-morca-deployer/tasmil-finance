@@ -49,7 +49,9 @@ export function HumanMessage({
   ) => void;
 }) {
   const thread = useStreamContext();
-  /* biome-ignore lint/suspicious/noExplicitAny */const meta = (thread as any).getMessagesMetadata?.(message);
+  /* biome-ignore lint/suspicious/noExplicitAny */ const meta = (
+    thread as any
+  ).getMessagesMetadata?.(message);
 
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState("");
@@ -64,13 +66,21 @@ export function HumanMessage({
       currentMessageIndex > 0 ? thread.messages.slice(0, currentMessageIndex) : [];
 
     // parent_checkpoint is the LangGraph checkpoint BEFORE this human message was added
-    const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint as Checkpoint | null | undefined;
+    const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint as
+      | Checkpoint
+      | null
+      | undefined;
 
     onEdit(message, value, parentCheckpoint, messagesBeforeCurrent);
   };
 
   return (
-    <div className={cn("group ml-auto flex max-w-[75%] items-center gap-2", isEditing && "w-full max-w-xl")}>
+    <div
+      className={cn(
+        "group ml-auto flex max-w-[75%] items-center gap-2",
+        isEditing && "w-full max-w-xl"
+      )}
+    >
       <div className={cn("flex min-w-0 flex-col gap-2", isEditing && "w-full")}>
         {isEditing ? (
           <EditableContent value={value} setValue={setValue} onSubmit={handleSubmitEdit} />

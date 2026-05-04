@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { createTasmilClient } from "@tasmil/adapter-sdk";
+import { type NextRequest, NextResponse } from "next/server";
 import { STELLAR_NETWORK } from "@/shared/config/stellar-server";
 
 /**
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Failed" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }

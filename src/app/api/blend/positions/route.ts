@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getBlendClient } from "../_sdk";
 
 export async function GET(req: NextRequest) {
@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   if (!pool || !user) {
     return NextResponse.json(
       { success: false, error: "pool and user parameters required" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -112,7 +112,9 @@ export async function GET(req: NextRequest) {
         netApy: pos.netApy != null ? (pos.netApy * 100).toFixed(2) : null,
       },
     });
-  } catch { /* SDK failed, try MCP */ }
+  } catch {
+    /* SDK failed, try MCP */
+  }
 
   // Fallback: MCP-stellar
   const MCP_URL = process.env["NEXT_PUBLIC_MCP_STELLAR_URL"] ?? "http://localhost:3009";
@@ -120,10 +122,12 @@ export async function GET(req: NextRequest) {
     const r = await fetch(`${MCP_URL}/blend-v2/query/positions?pool=${pool}&user=${user}`);
     const d = await r.json();
     if (d.success) return NextResponse.json(d);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   return NextResponse.json(
     { success: false, error: "Failed to load positions from both SDK and MCP" },
-    { status: 500 },
+    { status: 500 }
   );
 }

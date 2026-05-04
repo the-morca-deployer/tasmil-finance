@@ -56,18 +56,22 @@ export const defindexVaultDetailSchema = z.object({
   address: z.string(),
   name: z.string(),
   symbol: z.string().optional(),
-  roles: z.object({
-    manager: z.string(),
-    emergencyManager: z.string(),
-    rebalanceManager: z.string(),
-    feeReceiver: z.string(),
-  }).optional(),
+  roles: z
+    .object({
+      manager: z.string(),
+      emergencyManager: z.string(),
+      rebalanceManager: z.string(),
+      feeReceiver: z.string(),
+    })
+    .optional(),
   assets: z.array(defindexVaultAssetSchema).optional(),
   totalManagedFunds: z.array(defindexFundBreakdownSchema).optional(),
-  feesBps: z.object({
-    vaultFee: z.number(),
-    defindexFee: z.number(),
-  }).optional(),
+  feesBps: z
+    .object({
+      vaultFee: z.number(),
+      defindexFee: z.number(),
+    })
+    .optional(),
   apy: z.number().nullable().optional(),
   status: z.enum(["ok", "unavailable"]).catch("unavailable"),
 });
@@ -83,17 +87,22 @@ export type DefindexUserBalanceProps = z.infer<typeof defindexUserBalanceSchema>
 
 // ─── Transaction ───────────────────────────────────────────────
 
-export const defindexTxContextSchema = z.object({
-  vaultName: z.string().nullable().optional(),
-  vaultSymbol: z.string().nullable().optional(),
-  asset: z.string().nullable().optional(),
-  assetAddress: z.string().nullable().optional(),
-  apy: z.number().nullable().optional(),
-  feesBps: z.object({
-    vaultFee: z.number(),
-    defindexFee: z.number(),
-  }).nullable().optional(),
-}).optional();
+export const defindexTxContextSchema = z
+  .object({
+    vaultName: z.string().nullable().optional(),
+    vaultSymbol: z.string().nullable().optional(),
+    asset: z.string().nullable().optional(),
+    assetAddress: z.string().nullable().optional(),
+    apy: z.number().nullable().optional(),
+    feesBps: z
+      .object({
+        vaultFee: z.number(),
+        defindexFee: z.number(),
+      })
+      .nullable()
+      .optional(),
+  })
+  .optional();
 
 export const defindexTxCardSchema = z.object({
   operation: z.string(),
@@ -111,25 +120,32 @@ export type DefindexTxCardProps = z.infer<typeof defindexTxCardSchema>;
 
 // ─── History ───────────────────────────────────────────────────
 
-export const defindexVaultHistorySchema = z.object({
-  vaultAddress: z.string(),
-  period: z.string(),
-  interval: z.string(),
-  dataPoints: z.array(z.unknown()),
-}).passthrough();
+export const defindexVaultHistorySchema = z
+  .object({
+    vaultAddress: z.string(),
+    period: z.string(),
+    interval: z.string(),
+    dataPoints: z.array(z.unknown()),
+  })
+  .passthrough();
 export type DefindexVaultHistoryProps = z.infer<typeof defindexVaultHistorySchema>;
 
 // ─── Account performance ───────────────────────────────────────
 
-export const defindexAccountPerformanceSchema = z.object({
-  accountAddress: z.string(),
-  vaultAddress: z.string(),
-  interval: z.string(),
-  currentPosition: z.object({
-    shares: z.string(),
-    estimatedValue: z.string(),
-    assets: z.array(z.unknown()),
-  }).passthrough().optional(),
-  dataPoints: z.array(z.unknown()),
-}).passthrough();
+export const defindexAccountPerformanceSchema = z
+  .object({
+    accountAddress: z.string(),
+    vaultAddress: z.string(),
+    interval: z.string(),
+    currentPosition: z
+      .object({
+        shares: z.string(),
+        estimatedValue: z.string(),
+        assets: z.array(z.unknown()),
+      })
+      .passthrough()
+      .optional(),
+    dataPoints: z.array(z.unknown()),
+  })
+  .passthrough();
 export type DefindexAccountPerformanceProps = z.infer<typeof defindexAccountPerformanceSchema>;

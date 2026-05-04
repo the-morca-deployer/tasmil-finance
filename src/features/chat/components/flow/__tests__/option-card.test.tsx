@@ -1,7 +1,7 @@
+import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { OptionCard } from "../option-card";
 import type { Suggestion } from "@/features/chat/types/flow-messages";
+import { OptionCard } from "../option-card";
 
 const makeSuggestion = (overrides: Partial<Suggestion> = {}): Suggestion => ({
   label: "Blend USDC Pool",
@@ -36,9 +36,7 @@ describe("OptionCard", () => {
 
   it("renders question text as header", () => {
     render(<OptionCard {...defaultProps} />);
-    expect(
-      screen.getByText("Which pool do you want to deposit into?")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Which pool do you want to deposit into?")).toBeInTheDocument();
   });
 
   it("renders N suggestion rows", () => {
@@ -81,9 +79,7 @@ describe("OptionCard", () => {
   it("renders description as sub-text below label", () => {
     render(<OptionCard {...defaultProps} />);
     expect(screen.getByText("8.2% APY, low risk")).toBeInTheDocument();
-    expect(
-      screen.getByText("14.5% APY, impermanent loss risk")
-    ).toBeInTheDocument();
+    expect(screen.getByText("14.5% APY, impermanent loss risk")).toBeInTheDocument();
   });
 
   it("calls onSelect with the suggestion value when a row is clicked", () => {
@@ -150,13 +146,7 @@ describe("OptionCard", () => {
   });
 
   it("renders question only when suggestions array is empty", () => {
-    render(
-      <OptionCard
-        question="What asset do you want?"
-        suggestions={[]}
-        onSelect={jest.fn()}
-      />
-    );
+    render(<OptionCard question="What asset do you want?" suggestions={[]} onSelect={jest.fn()} />);
 
     expect(screen.getByText("What asset do you want?")).toBeInTheDocument();
     expect(screen.queryAllByRole("button")).toHaveLength(0);
@@ -166,18 +156,9 @@ describe("OptionCard", () => {
     render(<OptionCard {...defaultProps} />);
 
     const buttons = screen.getAllByRole("button");
-    expect(buttons[0]).toHaveAttribute(
-      "aria-label",
-      "Select Blend USDC Pool"
-    );
-    expect(buttons[1]).toHaveAttribute(
-      "aria-label",
-      "Select Soroswap XLM/USDC"
-    );
-    expect(buttons[2]).toHaveAttribute(
-      "aria-label",
-      "Select Phoenix XLM/USDC"
-    );
+    expect(buttons[0]).toHaveAttribute("aria-label", "Select Blend USDC Pool");
+    expect(buttons[1]).toHaveAttribute("aria-label", "Select Soroswap XLM/USDC");
+    expect(buttons[2]).toHaveAttribute("aria-label", "Select Phoenix XLM/USDC");
   });
 
   it("renders up to 6 suggestion rows", () => {
@@ -188,13 +169,7 @@ describe("OptionCard", () => {
       })
     );
 
-    render(
-      <OptionCard
-        question="Pick one"
-        suggestions={sixSuggestions}
-        onSelect={jest.fn()}
-      />
-    );
+    render(<OptionCard question="Pick one" suggestions={sixSuggestions} onSelect={jest.fn()} />);
 
     const buttons = screen.getAllByRole("button");
     expect(buttons).toHaveLength(6);

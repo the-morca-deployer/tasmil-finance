@@ -1,17 +1,17 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
-import { Loader2, Wallet } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ProgressStepper, type Step } from "./ui/stepper";
-import { Button } from "@/shared/ui/button-v2";
-import { Typography } from "@/shared/ui/typography";
-import { useWallet } from "@/shared/context/wallet-context";
+import { Loader2, Wallet } from "lucide-react";
+import { useCallback, useEffect } from "react";
 import {
-  useRequestChallenge,
   useRegisterWallet,
+  useRequestChallenge,
   useWalletStatus,
 } from "@/features/whitelist/hooks/use-wallet-waitlist";
+import { useWallet } from "@/shared/context/wallet-context";
+import { Button } from "@/shared/ui/button-v2";
+import { Typography } from "@/shared/ui/typography";
+import { ProgressStepper, type Step } from "./ui/stepper";
 
 interface WaitlistScreen1Props {
   referredByCode?: string | null;
@@ -171,7 +171,9 @@ export function WaitlistScreen1({ referredByCode, onJoined }: WaitlistScreen1Pro
           disabled={isAuthenticating || !!walletStatus}
           className="w-full"
         >
-          {registerWallet.isError ? "Try again u2014 Join waitlist" : "Join waitlist with this wallet"}
+          {registerWallet.isError
+            ? "Try again u2014 Join waitlist"
+            : "Join waitlist with this wallet"}
         </Button>
       )}
 

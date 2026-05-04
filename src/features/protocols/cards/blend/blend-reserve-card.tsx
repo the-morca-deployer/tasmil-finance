@@ -2,11 +2,11 @@
 
 import { Database } from "lucide-react";
 import { TokenImage } from "@/shared/components/token-image";
-import type { CardMode } from "../../schemas/common.schema";
+import { fmt, formatNumber, pct } from "../../lib/formatting";
 import type { ReserveCardProps } from "../../schemas/blend.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { APYDisplay, Bar, MetricBox, Row } from "../base/indicators";
 import { ProtocolCard } from "../base/protocol-card";
-import { Bar, MetricBox, Row, APYDisplay } from "../base/indicators";
-import { pct, fmt, formatNumber } from "../../lib/formatting";
 
 interface BlendReserveCardComponentProps {
   reserve: ReserveCardProps;
@@ -19,7 +19,13 @@ export function BlendReserveCard({ reserve, mode = "playground" }: BlendReserveC
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title={`Reserve: ${sym}`} icon={Database} iconColor="text-indigo-500" iconBg="bg-indigo-500/10">
+      <ProtocolCard
+        mode="chat"
+        title={`Reserve: ${sym}`}
+        icon={Database}
+        iconColor="text-indigo-500"
+        iconBg="bg-indigo-500/10"
+      >
         <div className="space-y-1.5">
           {reserve.supplyApy != null && (
             <div className="flex justify-between text-sm">
@@ -48,13 +54,17 @@ export function BlendReserveCard({ reserve, mode = "playground" }: BlendReserveC
           {reserve.totalSupplied != null && (
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Total Supply</span>
-              <span>{formatNumber(reserve.totalSupplied)} {sym}</span>
+              <span>
+                {formatNumber(reserve.totalSupplied)} {sym}
+              </span>
             </div>
           )}
           {reserve.totalBorrowed != null && (
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Total Borrow</span>
-              <span>{formatNumber(reserve.totalBorrowed)} {sym}</span>
+              <span>
+                {formatNumber(reserve.totalBorrowed)} {sym}
+              </span>
             </div>
           )}
           {(reserve.supplyEmissionApy != null || reserve.borrowEmissionApy != null) && (

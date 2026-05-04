@@ -158,14 +158,18 @@ export type AquaVoteMarket = z.infer<typeof aquaVoteMarketSchema>;
 
 // ─── Transaction ───────────────────────────────────────────────
 
-export const aquaOperationContextSchema = z.object({
-  poolApy: z.object({
-    feeApy: z.number().nullable().optional(),
-    rewardApy: z.number().nullable().optional(),
-  }).optional(),
-  tokens: z.array(z.string()).optional(),
-  estimatedOutput: z.string().optional(),
-}).optional();
+export const aquaOperationContextSchema = z
+  .object({
+    poolApy: z
+      .object({
+        feeApy: z.number().nullable().optional(),
+        rewardApy: z.number().nullable().optional(),
+      })
+      .optional(),
+    tokens: z.array(z.string()).optional(),
+    estimatedOutput: z.string().optional(),
+  })
+  .optional();
 export type AquaOperationContext = z.infer<typeof aquaOperationContextSchema>;
 
 export const aquaTxCardPropsSchema = z.object({
@@ -179,11 +183,13 @@ export const aquaTxCardPropsSchema = z.object({
   tokenIn: z.string().optional(),
   tokenOut: z.string().optional(),
   amount: z.string().optional(),
-  route: z.object({
-    pools: z.array(z.string()).optional(),
-    tokens: z.array(z.string()).optional(),
-    estimatedOutput: z.string().optional(),
-  }).optional(),
+  route: z
+    .object({
+      pools: z.array(z.string()).optional(),
+      tokens: z.array(z.string()).optional(),
+      estimatedOutput: z.string().optional(),
+    })
+    .optional(),
   context: aquaOperationContextSchema,
 });
 export type AquaTxCardProps = z.infer<typeof aquaTxCardPropsSchema>;

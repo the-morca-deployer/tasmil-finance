@@ -1,5 +1,5 @@
-import { NextRequest } from "next/server";
-import { getClient, isValidProtocol, jsonError, getNetwork } from "../../_sdk";
+import type { NextRequest } from "next/server";
+import { getClient, getNetwork, isValidProtocol, jsonError } from "../../_sdk";
 
 const SUPPORTS_QUOTE = new Set(["aquarius", "soroswap", "phoenix", "sdex", "allbridge", "templar"]);
 

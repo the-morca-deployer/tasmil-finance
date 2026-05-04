@@ -19,7 +19,7 @@ export const KNOWN_SYMBOLS: Record<string, string> = {
   CBLV4ATSIWU67CFSQU2NVRKINQIKUZ2ODSZBUJTJ43VJVRSBTZYOPNUR: "USTRY",
   CD6M4R2322BYCY2LNWM74PEBQAQ63SA3DUJLI3L4225U4ZVCLMSCBCIS: "TESOURO",
   CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP: "USDx",
-  CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U:  "EURx",
+  CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U: "EURx",
   CBCO65UOWXY2GR66GOCMCN6IU3Y45TXCPBY3FLUNL4AOUMOCKVIVV6JC: "GBPx",
   CBZPEXQLJCGUYTAQRQ4FGCXUV5O4TZER5WSOMCGNDNIIO4EJ4FU5GQNZ: "oUSD",
   CB226ZOEYXTBPD3QEGABTJYSKZVBP2PASEISLG3SBMTN5CE4QZUVZ3CE: "USDGLO",
@@ -40,7 +40,9 @@ export const KNOWN_SYMBOLS: Record<string, string> = {
 };
 
 export function resolveSymbol(contract: string): string {
-  return KNOWN_SYMBOLS[contract] ?? (contract.length > 10 ? `${contract.slice(0, 6)}...` : contract);
+  return (
+    KNOWN_SYMBOLS[contract] ?? (contract.length > 10 ? `${contract.slice(0, 6)}...` : contract)
+  );
 }
 
 // ─── Number formatting ──────────────────────────────────────────
@@ -103,7 +105,8 @@ export function formatPrice(price: number | string | undefined | null): string {
 /** Format percentage value. */
 export function formatPercent(value: unknown, decimals = 2): string {
   if (value === undefined || value === null) return "\u2014";
-  const n = typeof value === "string" ? Number.parseFloat(value) : typeof value === "number" ? value : NaN;
+  const n =
+    typeof value === "string" ? Number.parseFloat(value) : typeof value === "number" ? value : NaN;
   if (!Number.isFinite(n)) return "\u2014";
   return `${(n * 100).toFixed(decimals)}%`;
 }
@@ -112,7 +115,7 @@ export function formatPercent(value: unknown, decimals = 2): string {
 export function formatTokenAmount(
   amount: string | number | undefined | null,
   decimals: number,
-  maxFraction = 4,
+  maxFraction = 4
 ): string {
   if (amount === undefined || amount === null || amount === "") return "N/A";
   try {

@@ -1,6 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { Check, ChevronDown, Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import type { ChainInfo, TokenInfo } from "@/features/aggregator/hooks/use-aggregator";
+import { getChain, SUPPORTED_CHAINS, TOKEN_LOGOS } from "@/features/aggregator/lib/constants";
+import { TokenImage } from "@/shared/components/token-image";
 import {
   Dialog,
   DialogContent,
@@ -9,14 +13,6 @@ import {
   DialogTrigger,
 } from "@/shared/ui/dialog";
 import { ScrollArea } from "@/shared/ui/scroll-area";
-import { ChevronDown, Search, Check } from "lucide-react";
-import {
-  SUPPORTED_CHAINS,
-  TOKEN_LOGOS,
-  getChain,
-} from "@/features/aggregator/lib/constants";
-import type { TokenInfo, ChainInfo } from "@/features/aggregator/hooks/use-aggregator";
-import { TokenImage } from "@/shared/components/token-image";
 
 /* Colors from globals.css theme */
 const C = {
@@ -80,7 +76,7 @@ export function RoutePicker({
     if (!search.trim()) return routes;
     const q = search.toLowerCase();
     return routes.filter(
-      (r) => r.chainName.toLowerCase().includes(q) || r.token.toLowerCase().includes(q),
+      (r) => r.chainName.toLowerCase().includes(q) || r.token.toLowerCase().includes(q)
     );
   }, [routes, search]);
 
@@ -100,20 +96,37 @@ export function RoutePicker({
             {hasSelection ? (
               <>
                 <span className="relative inline-flex items-center shrink-0 h-9 w-9">
-                  <TokenImage src={tokenLogo} alt={selectedToken} className="h-8 w-8 rounded-full object-contain" />
-                  <TokenImage src={chain.logo} alt={chain.name} className="absolute left-[18px] top-[18px] h-[16px] w-[16px] rounded-full object-contain ring-1 ring-white/10" />
+                  <TokenImage
+                    src={tokenLogo}
+                    alt={selectedToken}
+                    className="h-8 w-8 rounded-full object-contain"
+                  />
+                  <TokenImage
+                    src={chain.logo}
+                    alt={chain.name}
+                    className="absolute left-[18px] top-[18px] h-[16px] w-[16px] rounded-full object-contain ring-1 ring-white/10"
+                  />
                 </span>
                 <span className="flex flex-col text-left min-w-0 flex-1">
-                  <span className="text-[15px] font-medium" style={{ color: C.mainText }}>{selectedToken}</span>
-                  <span className="text-xs" style={{ color: C.mutedText }}>{chain.name}</span>
+                  <span className="text-[15px] font-medium" style={{ color: C.mainText }}>
+                    {selectedToken}
+                  </span>
+                  <span className="text-xs" style={{ color: C.mutedText }}>
+                    {chain.name}
+                  </span>
                 </span>
               </>
             ) : (
               <>
-                <span className="flex items-center justify-center h-9 w-9 rounded-full" style={{ background: C.hover }}>
+                <span
+                  className="flex items-center justify-center h-9 w-9 rounded-full"
+                  style={{ background: C.hover }}
+                >
                   <span className="h-5 w-5 rounded-full" style={{ background: C.interactive }} />
                 </span>
-                <span className="flex-1 text-left text-[15px]" style={{ color: C.dimText }}>{placeholder}</span>
+                <span className="flex-1 text-left text-[15px]" style={{ color: C.dimText }}>
+                  {placeholder}
+                </span>
               </>
             )}
             <ChevronDown className="h-4 w-4 shrink-0" style={{ color: C.mutedText }} />
@@ -127,12 +140,27 @@ export function RoutePicker({
             {hasSelection ? (
               <>
                 <span className="relative inline-flex items-center shrink-0 h-7 w-7">
-                  <TokenImage src={tokenLogo} alt={selectedToken} className="h-6 w-6 rounded-full object-contain" />
-                  <TokenImage src={chain.logo} alt={chain.name} className="absolute left-[14px] top-[14px] h-[14px] w-[14px] rounded-full object-contain ring-1 ring-white/10" />
+                  <TokenImage
+                    src={tokenLogo}
+                    alt={selectedToken}
+                    className="h-6 w-6 rounded-full object-contain"
+                  />
+                  <TokenImage
+                    src={chain.logo}
+                    alt={chain.name}
+                    className="absolute left-[14px] top-[14px] h-[14px] w-[14px] rounded-full object-contain ring-1 ring-white/10"
+                  />
                 </span>
                 <span className="flex flex-col text-left min-w-0">
-                  <span className="text-base font-medium leading-5" style={{ color: C.mainText }}>{selectedToken}</span>
-                  <span className="text-sm font-normal leading-4 truncate" style={{ color: C.mutedText }}>{chain.name}</span>
+                  <span className="text-base font-medium leading-5" style={{ color: C.mainText }}>
+                    {selectedToken}
+                  </span>
+                  <span
+                    className="text-sm font-normal leading-4 truncate"
+                    style={{ color: C.mutedText }}
+                  >
+                    {chain.name}
+                  </span>
                 </span>
               </>
             ) : (
@@ -140,7 +168,12 @@ export function RoutePicker({
                 <span className="inline-flex items-center relative h-7 w-7">
                   <span className="h-6 w-6 rounded-full" style={{ background: C.hover }} />
                 </span>
-                <span className="text-base font-normal leading-5 whitespace-nowrap" style={{ color: C.mutedText }}>{placeholder}</span>
+                <span
+                  className="text-base font-normal leading-5 whitespace-nowrap"
+                  style={{ color: C.mutedText }}
+                >
+                  {placeholder}
+                </span>
               </>
             )}
             <ChevronDown className="h-4 w-4 shrink-0" style={{ color: C.mutedText }} />
@@ -160,7 +193,10 @@ export function RoutePicker({
 
         <div className="px-5 pb-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: C.mutedText }} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4"
+              style={{ color: C.mutedText }}
+            />
             <input
               type="text"
               placeholder="Search by token and network"
@@ -173,7 +209,10 @@ export function RoutePicker({
         </div>
 
         <ScrollArea className="max-h-[400px] px-3 pb-4">
-          <p className="px-3 pb-2 text-xs font-medium uppercase tracking-wider" style={{ color: C.mutedText }}>
+          <p
+            className="px-3 pb-2 text-xs font-medium uppercase tracking-wider"
+            style={{ color: C.mutedText }}
+          >
             Suggestions
           </p>
 
@@ -184,19 +223,40 @@ export function RoutePicker({
                 <button
                   key={`${route.chainId}-${route.token}`}
                   type="button"
-                  onClick={() => { onSelect(route.chainId, route.token); setOpen(false); setSearch(""); }}
+                  onClick={() => {
+                    onSelect(route.chainId, route.token);
+                    setOpen(false);
+                    setSearch("");
+                  }}
                   className="flex items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors cursor-pointer"
                   style={{ background: isSelected ? C.hover : "transparent" }}
                 >
                   <span className="relative inline-flex items-center shrink-0 h-11 w-11">
-                    <TokenImage src={route.tokenLogo} alt={route.token} className="h-10 w-10 rounded-full object-contain" />
-                    <TokenImage src={route.chainLogo} alt={route.chainName} className="absolute left-[24px] top-[24px] h-4 w-4 rounded-full object-contain ring-1 ring-white/10" />
+                    <TokenImage
+                      src={route.tokenLogo}
+                      alt={route.token}
+                      className="h-10 w-10 rounded-full object-contain"
+                    />
+                    <TokenImage
+                      src={route.chainLogo}
+                      alt={route.chainName}
+                      className="absolute left-[24px] top-[24px] h-4 w-4 rounded-full object-contain ring-1 ring-white/10"
+                    />
                   </span>
 
                   <div className="flex flex-col min-w-0 flex-1">
-                    <span className="text-[15px] font-semibold" style={{ color: C.mainText }}>{route.token}</span>
-                    <span className="flex items-center gap-1 text-xs" style={{ color: C.mutedText }}>
-                      <TokenImage src={route.chainLogo} alt={route.chainName} className="h-3.5 w-3.5 rounded-full" />
+                    <span className="text-[15px] font-semibold" style={{ color: C.mainText }}>
+                      {route.token}
+                    </span>
+                    <span
+                      className="flex items-center gap-1 text-xs"
+                      style={{ color: C.mutedText }}
+                    >
+                      <TokenImage
+                        src={route.chainLogo}
+                        alt={route.chainName}
+                        className="h-3.5 w-3.5 rounded-full"
+                      />
                       {route.chainName}
                     </span>
                   </div>
@@ -206,7 +266,9 @@ export function RoutePicker({
               );
             })}
             {filtered.length === 0 && (
-              <p className="py-8 text-center text-sm" style={{ color: C.dimText }}>No results found</p>
+              <p className="py-8 text-center text-sm" style={{ color: C.dimText }}>
+                No results found
+              </p>
             )}
           </div>
         </ScrollArea>
@@ -248,7 +310,7 @@ export function AggregatorTokenPicker({
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
-        (t) => t.symbol.toLowerCase().includes(q) || t.name.toLowerCase().includes(q),
+        (t) => t.symbol.toLowerCase().includes(q) || t.name.toLowerCase().includes(q)
       );
     }
     return list;
@@ -266,15 +328,33 @@ export function AggregatorTokenPicker({
         >
           {selectedToken ? (
             <>
-              <span className="relative inline-flex items-center shrink-0" style={{ width: 36, height: 36 }}>
-                <TokenImage src={selectedToken.logo || ""} alt={selectedToken.symbol} className="h-8 w-8 rounded-full object-cover" />
+              <span
+                className="relative inline-flex items-center shrink-0"
+                style={{ width: 36, height: 36 }}
+              >
+                <TokenImage
+                  src={selectedToken.logo || ""}
+                  alt={selectedToken.symbol}
+                  className="h-8 w-8 rounded-full object-cover"
+                />
                 {chainObj && (
-                  <TokenImage src={chainObj.logo} alt={chainObj.name} className="absolute left-[20px] top-[20px] h-[18px] w-[18px] rounded-full object-contain ring-2 ring-[var(--input)]" />
+                  <TokenImage
+                    src={chainObj.logo}
+                    alt={chainObj.name}
+                    className="absolute left-[20px] top-[20px] h-[18px] w-[18px] rounded-full object-contain ring-2 ring-[var(--input)]"
+                  />
                 )}
               </span>
               <span className="flex flex-col text-left min-w-0">
-                <span className="text-base font-semibold leading-5" style={{ color: C.mainText }}>{selectedToken.symbol}</span>
-                <span className="text-sm font-normal leading-4 truncate" style={{ color: C.mutedText }}>{chainObj?.name || selectedChain}</span>
+                <span className="text-base font-semibold leading-5" style={{ color: C.mainText }}>
+                  {selectedToken.symbol}
+                </span>
+                <span
+                  className="text-sm font-normal leading-4 truncate"
+                  style={{ color: C.mutedText }}
+                >
+                  {chainObj?.name || selectedChain}
+                </span>
               </span>
             </>
           ) : (
@@ -282,7 +362,12 @@ export function AggregatorTokenPicker({
               <span className="inline-flex items-center relative" style={{ width: 36, height: 36 }}>
                 <span className="h-8 w-8 rounded-full" style={{ background: C.hover }} />
               </span>
-              <span className="text-base font-normal leading-5 whitespace-nowrap" style={{ color: C.mutedText }}>{placeholder}</span>
+              <span
+                className="text-base font-normal leading-5 whitespace-nowrap"
+                style={{ color: C.mutedText }}
+              >
+                {placeholder}
+              </span>
             </>
           )}
           <ChevronDown className="h-4 w-4 shrink-0" style={{ color: C.mutedText }} />
@@ -302,7 +387,10 @@ export function AggregatorTokenPicker({
         {/* Search */}
         <div className="px-7 pb-4">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5" style={{ color: C.mutedText }} />
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5"
+              style={{ color: C.mutedText }}
+            />
             <input
               type="text"
               placeholder="Search token name or symbol"
@@ -355,34 +443,68 @@ export function AggregatorTokenPicker({
           <div className="flex flex-col gap-1">
             {filtered.map((token) => {
               const isSelected = selectedToken?.symbol === token.symbol;
-              const displayChain = filterChain || (token.chains.includes(selectedChain) ? selectedChain : token.chains[0] || "stellar");
+              const displayChain =
+                filterChain ||
+                (token.chains.includes(selectedChain)
+                  ? selectedChain
+                  : token.chains[0] || "stellar");
               const displayChainObj = allChains.find((c) => c.id === displayChain);
 
               return (
                 <button
                   key={token.symbol}
                   type="button"
-                  onClick={() => { onSelect(token, displayChain); setOpen(false); setSearch(""); setFilterChain(null); }}
+                  onClick={() => {
+                    onSelect(token, displayChain);
+                    setOpen(false);
+                    setSearch("");
+                    setFilterChain(null);
+                  }}
                   className="flex items-center gap-4 rounded-2xl px-4 py-4 text-left transition-colors cursor-pointer"
                   style={{ background: isSelected ? C.hover : "transparent" }}
                 >
-                  <span className="relative inline-flex items-center shrink-0" style={{ width: 52, height: 52 }}>
-                    <TokenImage src={token.logo || ""} alt={token.symbol} className="h-[48px] w-[48px] rounded-full object-cover" />
+                  <span
+                    className="relative inline-flex items-center shrink-0"
+                    style={{ width: 52, height: 52 }}
+                  >
+                    <TokenImage
+                      src={token.logo || ""}
+                      alt={token.symbol}
+                      className="h-[48px] w-[48px] rounded-full object-cover"
+                    />
                     {displayChainObj && (
-                      <TokenImage src={displayChainObj.logo} alt={displayChainObj.name} className="absolute left-[32px] top-[32px] h-[22px] w-[22px] rounded-full object-contain ring-2 ring-[var(--card)]" />
+                      <TokenImage
+                        src={displayChainObj.logo}
+                        alt={displayChainObj.name}
+                        className="absolute left-[32px] top-[32px] h-[22px] w-[22px] rounded-full object-contain ring-2 ring-[var(--card)]"
+                      />
                     )}
                   </span>
 
                   <div className="flex flex-col min-w-0 flex-1">
-                    <span className="text-lg font-bold" style={{ color: C.mainText }}>{token.symbol}</span>
-                    <span className="flex items-center gap-1.5 text-sm" style={{ color: C.mutedText }}>
-                      {displayChainObj && <TokenImage src={displayChainObj.logo} alt={displayChainObj.name} className="h-4 w-4 rounded-full" />}
+                    <span className="text-lg font-bold" style={{ color: C.mainText }}>
+                      {token.symbol}
+                    </span>
+                    <span
+                      className="flex items-center gap-1.5 text-sm"
+                      style={{ color: C.mutedText }}
+                    >
+                      {displayChainObj && (
+                        <TokenImage
+                          src={displayChainObj.logo}
+                          alt={displayChainObj.name}
+                          className="h-4 w-4 rounded-full"
+                        />
+                      )}
                       {token.name}
                     </span>
                   </div>
 
                   {token.bridgeable && (
-                    <span className="text-sm font-semibold px-3 py-1.5 rounded-xl" style={{ background: "rgba(59,130,246,0.15)", color: "#3B82F6" }}>
+                    <span
+                      className="text-sm font-semibold px-3 py-1.5 rounded-xl"
+                      style={{ background: "rgba(59,130,246,0.15)", color: "#3B82F6" }}
+                    >
                       Bridge
                     </span>
                   )}
@@ -392,7 +514,9 @@ export function AggregatorTokenPicker({
               );
             })}
             {filtered.length === 0 && (
-              <p className="py-8 text-center text-sm" style={{ color: C.dimText }}>No results found</p>
+              <p className="py-8 text-center text-sm" style={{ color: C.dimText }}>
+                No results found
+              </p>
             )}
           </div>
         </ScrollArea>

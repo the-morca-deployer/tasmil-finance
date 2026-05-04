@@ -3,8 +3,8 @@
 import { Check, Copy, ExternalLink, LogOut, User, Wallet } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { getExplorerUrl, isMainnet } from "@/shared/config/stellar";
 import { useWallet } from "@/shared/context/wallet-context";
-import { isMainnet, getExplorerUrl } from "@/shared/config/stellar";
 import { Button } from "@/shared/ui/button-v2";
 import {
   DropdownMenu,
@@ -49,7 +49,7 @@ const AddressAvatar = ({
       className={cn(
         "flex items-center justify-center rounded-full border-2 border-white/20 font-bold text-sm text-white",
         size,
-        gradientClass,
+        gradientClass
       )}
     >
       <User className={cn("size-5", iconSize)} />
@@ -82,9 +82,9 @@ export function ConnectWalletButton({ compact }: ConnectWalletButtonProps) {
     return compact ? (
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button 
-            className="h-10 w-10 p-0" 
-            onClick={connect} 
+          <Button
+            className="h-10 w-10 p-0"
+            onClick={connect}
             variant="gradient"
             data-testid="connect-wallet"
           >
@@ -96,12 +96,7 @@ export function ConnectWalletButton({ compact }: ConnectWalletButtonProps) {
         </TooltipContent>
       </Tooltip>
     ) : (
-      <Button 
-        className="w-full" 
-        onClick={connect} 
-        variant="gradient"
-        data-testid="connect-wallet"
-      >
+      <Button className="w-full" onClick={connect} variant="gradient" data-testid="connect-wallet">
         Connect Wallet
       </Button>
     );
@@ -131,7 +126,11 @@ export function ConnectWalletButton({ compact }: ConnectWalletButtonProps) {
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={copyAddress}>
-            {copied ? <Check className="mr-2 h-4 w-4 text-emerald-400" /> : <Copy className="mr-2 h-4 w-4" />}
+            {copied ? (
+              <Check className="mr-2 h-4 w-4 text-emerald-400" />
+            ) : (
+              <Copy className="mr-2 h-4 w-4" />
+            )}
             {copied ? "Copied!" : "Copy Address"}
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
@@ -176,9 +175,17 @@ export function ConnectWalletButton({ compact }: ConnectWalletButtonProps) {
           </div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="top" align="start" className="w-[var(--radix-dropdown-menu-trigger-width)]">
+      <DropdownMenuContent
+        side="top"
+        align="start"
+        className="w-[var(--radix-dropdown-menu-trigger-width)]"
+      >
         <DropdownMenuItem onClick={copyAddress}>
-          {copied ? <Check className="mr-2 h-4 w-4 text-emerald-400" /> : <Copy className="mr-2 h-4 w-4" />}
+          {copied ? (
+            <Check className="mr-2 h-4 w-4 text-emerald-400" />
+          ) : (
+            <Copy className="mr-2 h-4 w-4" />
+          )}
           {copied ? "Copied!" : "Copy Address"}
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

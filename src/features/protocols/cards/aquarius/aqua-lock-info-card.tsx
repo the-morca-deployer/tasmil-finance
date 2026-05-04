@@ -1,10 +1,10 @@
 "use client";
 
-import { Lock, Snowflake, Calendar } from "lucide-react";
-import type { CardMode } from "../../schemas/common.schema";
+import { Calendar, Lock, Snowflake } from "lucide-react";
 import type { AquaLockInfo } from "../../schemas/aquarius.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { DetailRow, MetricBox, Row } from "../base/indicators";
 import { ProtocolCard } from "../base/protocol-card";
-import { MetricBox, Row, DetailRow } from "../base/indicators";
 
 interface AquaLockInfoCardProps {
   data: AquaLockInfo;
@@ -16,7 +16,13 @@ export function AquaLockInfoCard({ data, mode = "playground" }: AquaLockInfoCard
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title="Lock AQUA for ICE" icon={Lock} iconColor="text-blue-500" iconBg="bg-blue-500/10">
+      <ProtocolCard
+        mode="chat"
+        title="Lock AQUA for ICE"
+        icon={Lock}
+        iconColor="text-blue-500"
+        iconBg="bg-blue-500/10"
+      >
         <div className="space-y-1.5">
           <DetailRow label="AQUA Amount" value={data.amount} />
           <DetailRow label="Lock Period" value={`${data.lockPeriodDays} days`} />

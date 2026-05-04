@@ -1,6 +1,6 @@
-import { render, screen, fireEvent, act } from "@testing-library/react";
-import { WatchListSection } from "./watch-list-section";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { useWatchList } from "@/store/use-watch-list";
+import { WatchListSection } from "./watch-list-section";
 
 const pushMock = jest.fn();
 jest.mock("next/navigation", () => ({
@@ -43,7 +43,7 @@ describe("WatchListSection", () => {
     const rowBtn = screen.getByRole("button", { name: /open blnd in aggregator/i });
     fireEvent.click(rowBtn);
     expect(pushMock).toHaveBeenCalledWith(
-      expect.stringContaining("/aggregator?tokenIn=BLND&chainIn=stellar"),
+      expect.stringContaining("/aggregator?tokenIn=BLND&chainIn=stellar")
     );
   });
 });

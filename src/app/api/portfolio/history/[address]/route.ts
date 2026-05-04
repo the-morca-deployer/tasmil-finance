@@ -12,13 +12,13 @@ function unwrap<T>(payload: T | { success?: boolean; data?: T }): T {
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ address: string }> },
+  { params }: { params: Promise<{ address: string }> }
 ) {
   try {
     const { address } = await params;
     const days = _request.nextUrl.searchParams.get("days") ?? "30";
     const response = await fetch(
-      `${BACKEND_URL}/api/portfolio/history/${encodeURIComponent(address)}?days=${days}`,
+      `${BACKEND_URL}/api/portfolio/history/${encodeURIComponent(address)}?days=${days}`
     );
     const data = await response.json();
     return NextResponse.json(unwrap(data), { status: response.status });

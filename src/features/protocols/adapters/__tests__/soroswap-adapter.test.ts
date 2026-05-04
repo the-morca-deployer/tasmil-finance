@@ -1,9 +1,9 @@
-import { normalizeSoroswapPoolsFromMcp } from "../soroswap-from-mcp";
 import {
+  EMPTY_MCP_RESULT,
   SOROSWAP_RESOLVE_POOL,
   SOROSWAP_RESOLVE_POOL_OBJECT_TOKENS,
-  EMPTY_MCP_RESULT,
 } from "../../__fixtures__/mcp-tool-outputs";
+import { normalizeSoroswapPoolsFromMcp } from "../soroswap-from-mcp";
 
 describe("Soroswap MCP Adapter", () => {
   describe("normalizeSoroswapPoolsFromMcp", () => {
@@ -16,9 +16,7 @@ describe("Soroswap MCP Adapter", () => {
 
     it("extracts pool address", () => {
       const pools = normalizeSoroswapPoolsFromMcp(SOROSWAP_RESOLVE_POOL);
-      expect(pools[0]!.address).toBe(
-        "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2OOTHU2F",
-      );
+      expect(pools[0]!.address).toBe("CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2OOTHU2F");
     });
 
     it("extracts TVL", () => {
@@ -33,9 +31,7 @@ describe("Soroswap MCP Adapter", () => {
       // so the pool survives Zod validation but with garbage token names.
       // After fixing the adapter to extract .symbol from object tokens, update
       // this test to expect correct symbols ("XLM", "USDC").
-      const pools = normalizeSoroswapPoolsFromMcp(
-        SOROSWAP_RESOLVE_POOL_OBJECT_TOKENS,
-      );
+      const pools = normalizeSoroswapPoolsFromMcp(SOROSWAP_RESOLVE_POOL_OBJECT_TOKENS);
       expect(pools).toHaveLength(1);
       const pool = pools[0]!;
       // BUG: token names are "[object Object]" instead of "XLM" / "USDC"
@@ -46,10 +42,10 @@ describe("Soroswap MCP Adapter", () => {
     it("extracts token addresses", () => {
       const pools = normalizeSoroswapPoolsFromMcp(SOROSWAP_RESOLVE_POOL);
       expect(pools[0]!.tokenAAddress).toBe(
-        "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+        "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA"
       );
       expect(pools[0]!.tokenBAddress).toBe(
-        "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+        "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75"
       );
     });
 

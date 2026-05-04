@@ -52,11 +52,10 @@ function schemaToTs(schema) {
 /** Patch an interface in the file content, replacing the empty version */
 function patchInterface(content, interfaceName, properties) {
   if (properties.length === 0) return content;
-  const propsStr = properties.map((p) => `  ${p.name}${p.required ? "" : "?"}: ${p.tsType}`).join("\n");
-  const emptyPattern = new RegExp(
-    `(export interface ${interfaceName})\\s*\\{\\s*\\}`,
-    "g"
-  );
+  const propsStr = properties
+    .map((p) => `  ${p.name}${p.required ? "" : "?"}: ${p.tsType}`)
+    .join("\n");
+  const emptyPattern = new RegExp(`(export interface ${interfaceName})\\s*\\{\\s*\\}`, "g");
   return content.replace(emptyPattern, `$1 {\n${propsStr}\n}`);
 }
 

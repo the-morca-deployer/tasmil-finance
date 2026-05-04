@@ -15,9 +15,9 @@ import {
 import { validate } from "uuid";
 import { getApiKey } from "@/lib/api-key";
 import { getBrowserAiBaseUrl } from "@/lib/runtime-urls";
+import { createClient } from "@/providers/client";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useWalletStore } from "@/store/use-wallet";
-import { createClient } from "@/providers/client";
 
 interface ThreadContextType {
   getThreads: (assistantId?: string) => Promise<Thread[]>;

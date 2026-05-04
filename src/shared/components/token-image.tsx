@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { TOKEN_ICONS, PROTOCOL_ICONS } from "@/shared/constants/asset-manifest";
+import { PROTOCOL_ICONS, TOKEN_ICONS } from "@/shared/constants/asset-manifest";
 
 // CDN host that powers the optimized pipeline (must match next.config.ts).
 const CDN_HOST = "tasmil-assets.sgp1.cdn.digitaloceanspaces.com";

@@ -1,8 +1,8 @@
 "use client";
 
 import { LogOut } from "lucide-react";
-import { Button } from "@/shared/ui/button-v2";
 import { useAdminAuth } from "@/features/admin-auth/hooks/use-admin-auth";
+import { Button } from "@/shared/ui/button-v2";
 import { Typography } from "@/shared/ui/typography";
 
 interface AdminHeaderProps {

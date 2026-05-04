@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Bot, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useAdminAuth } from "@/features/admin-auth/hooks/use-admin-auth";
 import { Button } from "@/shared/ui/button-v2";
 import { Input } from "@/shared/ui/input";
 import { Typography } from "@/shared/ui/typography";
-import { Loader2 } from "lucide-react";
-import { Bot } from "lucide-react";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -88,12 +87,7 @@ export default function AdminLoginPage() {
             </div>
           )}
 
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-11"
-            variant="gradient"
-          >
+          <Button type="submit" disabled={isLoading} className="w-full h-11" variant="gradient">
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />

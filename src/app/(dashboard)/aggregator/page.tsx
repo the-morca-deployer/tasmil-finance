@@ -7,7 +7,7 @@ const AggregatorPage = dynamic(
     import("@/features/aggregator/components/aggregator-page").then((m) => ({
       default: m.AggregatorPage,
     })),
-  { ssr: false },
+  { ssr: false }
 );
 
 export default function AggregatorRoute() {

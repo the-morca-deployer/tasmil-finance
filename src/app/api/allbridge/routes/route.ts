@@ -10,9 +10,16 @@ export async function GET(req: Request) {
     const network = getNetwork();
 
     const CHAIN_MAP: Record<string, string> = {
-      stellar: "SRB", ethereum: "ETH", bsc: "BSC", polygon: "POL",
-      avalanche: "AVA", solana: "SOL", arbitrum: "ARB", optimism: "OPT",
-      base: "BAS", tron: "TRX",
+      stellar: "SRB",
+      ethereum: "ETH",
+      bsc: "BSC",
+      polygon: "POL",
+      avalanche: "AVA",
+      solana: "SOL",
+      arbitrum: "ARB",
+      optimism: "OPT",
+      base: "BAS",
+      tron: "TRX",
     };
 
     const fromSym = CHAIN_MAP[fromChain.toLowerCase()];
@@ -47,6 +54,9 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ success: true, network, routes, totalRoutes: routes.length });
   } catch (e) {
-    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : "Unknown error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: e instanceof Error ? e.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }

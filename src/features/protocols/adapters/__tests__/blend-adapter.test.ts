@@ -1,8 +1,5 @@
+import { BLEND_RESOLVE_POOL, EMPTY_MCP_RESULT } from "../../__fixtures__/mcp-tool-outputs";
 import { normalizePoolsFromMcp, normalizeReserveFromMcp } from "../from-mcp";
-import {
-  BLEND_RESOLVE_POOL,
-  EMPTY_MCP_RESULT,
-} from "../../__fixtures__/mcp-tool-outputs";
 
 describe("Blend MCP Adapter", () => {
   describe("normalizePoolsFromMcp", () => {
@@ -10,9 +7,7 @@ describe("Blend MCP Adapter", () => {
       const pools = normalizePoolsFromMcp(BLEND_RESOLVE_POOL);
       expect(pools).toHaveLength(1);
       expect(pools[0]!.name).toBe("Fixed Pool");
-      expect(pools[0]!.address).toBe(
-        "CAJJZSGMMM3PD7N33TAPHGBUGTB43OC73HVIK2L2G6BNGGGYOSSYBXBD",
-      );
+      expect(pools[0]!.address).toBe("CAJJZSGMMM3PD7N33TAPHGBUGTB43OC73HVIK2L2G6BNGGGYOSSYBXBD");
     });
 
     it("extracts reserve symbols", () => {

@@ -1,12 +1,12 @@
 "use client";
 
-import { Vault, Shield, Coins, BarChart3 } from "lucide-react";
+import { BarChart3, Coins, Shield, Vault } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { cleanVaultName, fmt, trunc } from "../../lib/formatting";
 import type { CardMode } from "../../schemas/common.schema";
 import type { DefindexVaultDetailProps } from "../../schemas/defindex.schema";
-import { ProtocolCard } from "../base/protocol-card";
 import { CardHeader, MetricBox } from "../base/indicators";
-import { trunc, fmt, cleanVaultName } from "../../lib/formatting";
+import { ProtocolCard } from "../base/protocol-card";
 
 interface Props {
   vault: DefindexVaultDetailProps;
@@ -17,14 +17,16 @@ export function DefindexVaultDetailCard({ vault, mode = "playground" }: Props) {
   const totalFee = (vault.feesBps?.vaultFee ?? 0) + (vault.feesBps?.defindexFee ?? 0);
 
   return (
-    <ProtocolCard mode={mode} title={mode === "chat" ? vault.name : undefined} icon={mode === "chat" ? Vault : undefined}>
+    <ProtocolCard
+      mode={mode}
+      title={mode === "chat" ? vault.name : undefined}
+      icon={mode === "chat" ? Vault : undefined}
+    >
       {mode === "playground" && (
         <CardHeader
           icon={<Vault className="h-3.5 w-3.5" />}
           title={cleanVaultName(vault.name)}
-          right={
-            <StatusBadge status={vault.status} />
-          }
+          right={<StatusBadge status={vault.status} />}
         />
       )}
 
@@ -45,13 +47,24 @@ export function DefindexVaultDetailCard({ vault, mode = "playground" }: Props) {
             <div key={asset.address} className="rounded-lg bg-secondary/50 p-2.5 space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-foreground">{asset.symbol}</span>
-                <span className="text-[10px] text-muted-foreground/50 font-mono">{trunc(asset.address)}</span>
+                <span className="text-[10px] text-muted-foreground/50 font-mono">
+                  {trunc(asset.address)}
+                </span>
               </div>
               {asset.strategies.map((s) => (
                 <div key={s.address} className="flex items-center gap-2 pl-2">
-                  <div className={cn("h-1.5 w-1.5 rounded-full", s.paused ? "bg-amber-400" : "bg-emerald-400")} />
-                  <span className="text-[11px] text-muted-foreground flex-1 truncate">{s.name}</span>
-                  <span className="text-[10px] text-muted-foreground/50 font-mono">{trunc(s.address)}</span>
+                  <div
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      s.paused ? "bg-amber-400" : "bg-emerald-400"
+                    )}
+                  />
+                  <span className="text-[11px] text-muted-foreground flex-1 truncate">
+                    {s.name}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground/50 font-mono">
+                    {trunc(s.address)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -72,25 +85,48 @@ export function DefindexVaultDetailCard({ vault, mode = "playground" }: Props) {
             return (
               <div key={fund.asset} className="rounded-lg bg-secondary/50 p-2.5 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-muted-foreground/50 font-mono">{trunc(fund.asset)}</span>
-                  <span className="text-xs font-medium text-foreground tabular-nums">{fmt(total)}</span>
+                  <span className="text-[10px] text-muted-foreground/50 font-mono">
+                    {trunc(fund.asset)}
+                  </span>
+                  <span className="text-xs font-medium text-foreground tabular-nums">
+                    {fmt(total)}
+                  </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <MiniStat label="Idle" value={fmt(idle)} sub={`${idlePct.toFixed(1)}%`} />
-                  <MiniStat label="Invested" value={fmt(invested)} sub={`${(100 - idlePct).toFixed(1)}%`} />
+                  <MiniStat
+                    label="Invested"
+                    value={fmt(invested)}
+                    sub={`${(100 - idlePct).toFixed(1)}%`}
+                  />
                 </div>
                 {/* Allocation bar */}
                 <div className="h-1.5 w-full rounded-full bg-border overflow-hidden flex">
                   <div className="h-full bg-muted-foreground/30" style={{ width: `${idlePct}%` }} />
-                  <div className="h-full bg-emerald-400/60" style={{ width: `${100 - idlePct}%` }} />
+                  <div
+                    className="h-full bg-emerald-400/60"
+                    style={{ width: `${100 - idlePct}%` }}
+                  />
                 </div>
                 {fund.strategy_allocations.length > 0 && (
                   <div className="space-y-0.5 pt-1">
                     {fund.strategy_allocations.map((sa) => (
-                      <div key={sa.strategy_address} className="flex items-center gap-2 text-[10px]">
-                        <div className={cn("h-1.5 w-1.5 rounded-full", sa.paused ? "bg-amber-400" : "bg-emerald-400")} />
-                        <span className="text-muted-foreground/60 font-mono flex-1 truncate">{trunc(sa.strategy_address)}</span>
-                        <span className="text-muted-foreground tabular-nums">{fmt(Number(sa.amount) / 1e7)}</span>
+                      <div
+                        key={sa.strategy_address}
+                        className="flex items-center gap-2 text-[10px]"
+                      >
+                        <div
+                          className={cn(
+                            "h-1.5 w-1.5 rounded-full",
+                            sa.paused ? "bg-amber-400" : "bg-emerald-400"
+                          )}
+                        />
+                        <span className="text-muted-foreground/60 font-mono flex-1 truncate">
+                          {trunc(sa.strategy_address)}
+                        </span>
+                        <span className="text-muted-foreground tabular-nums">
+                          {fmt(Number(sa.amount) / 1e7)}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -118,9 +154,19 @@ export function DefindexVaultDetailCard({ vault, mode = "playground" }: Props) {
       {vault.feesBps && (
         <div className="px-4 pb-3">
           <div className="flex items-center gap-3 text-[11px]">
-            <span className="text-muted-foreground">Vault Fee: <span className="text-foreground font-medium">{(vault.feesBps.vaultFee / 100).toFixed(2)}%</span></span>
+            <span className="text-muted-foreground">
+              Vault Fee:{" "}
+              <span className="text-foreground font-medium">
+                {(vault.feesBps.vaultFee / 100).toFixed(2)}%
+              </span>
+            </span>
             <span className="text-muted-foreground/30">|</span>
-            <span className="text-muted-foreground">DeFindex Fee: <span className="text-foreground font-medium">{(vault.feesBps.defindexFee / 100).toFixed(2)}%</span></span>
+            <span className="text-muted-foreground">
+              DeFindex Fee:{" "}
+              <span className="text-foreground font-medium">
+                {(vault.feesBps.defindexFee / 100).toFixed(2)}%
+              </span>
+            </span>
           </div>
         </div>
       )}
@@ -134,7 +180,7 @@ function StatusBadge({ status }: { status: string }) {
     <span
       className={cn(
         "rounded-md px-1.5 py-px text-[10px] font-medium",
-        isOk ? "text-emerald-400 bg-emerald-400/10" : "text-amber-400 bg-amber-400/10",
+        isOk ? "text-emerald-400 bg-emerald-400/10" : "text-amber-400 bg-amber-400/10"
       )}
     >
       {isOk ? "Active" : "Unavailable"}
@@ -146,7 +192,9 @@ function SectionLabel({ icon, title }: { icon: React.ReactNode; title: string })
   return (
     <div className="flex items-center gap-1.5">
       <span className="text-muted-foreground/60">{icon}</span>
-      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{title}</span>
+      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+        {title}
+      </span>
     </div>
   );
 }

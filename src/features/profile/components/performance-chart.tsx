@@ -1,20 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { Skeleton } from "@/shared/ui/skeleton";
+import { BarChart3 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { cn } from "@/lib/utils";
-import { usePortfolioHistory } from "../hooks/use-portfolio-history";
+import { Skeleton } from "@/shared/ui/skeleton";
 import type { HistoryPoint } from "../hooks/use-portfolio-history";
+import { usePortfolioHistory } from "../hooks/use-portfolio-history";
 
 // ─── Formatters ──────────────────────────────────────────────────────────────
 
@@ -160,7 +153,7 @@ export function PerformanceChart({
                 <span
                   className={cn(
                     "text-sm font-medium",
-                    change.positive ? "text-emerald-400" : "text-destructive",
+                    change.positive ? "text-emerald-400" : "text-destructive"
                   )}
                 >
                   {change.positive ? "+" : ""}
@@ -181,7 +174,7 @@ export function PerformanceChart({
                 "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
                 days === opt.days
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               {opt.label}
@@ -218,7 +211,10 @@ export function PerformanceChart({
                 minTickGap={40}
               />
               <YAxis
-                domain={[(min: number) => Math.floor(min * 0.9 * 100) / 100, (max: number) => Math.ceil(max * 1.1 * 100) / 100]}
+                domain={[
+                  (min: number) => Math.floor(min * 0.9 * 100) / 100,
+                  (max: number) => Math.ceil(max * 1.1 * 100) / 100,
+                ]}
                 tickFormatter={formatUsdCompact}
                 tick={{ fontSize: 11, fill: "rgba(255,255,255,0.7)" }}
                 axisLine={false}
@@ -242,9 +238,7 @@ export function PerformanceChart({
         <div className="flex min-h-[120px] flex-1 flex-col items-center justify-center gap-3 rounded-lg bg-muted/5">
           <BarChart3 className="h-8 w-8 text-muted-foreground/30" />
           <div className="text-center">
-            <p className="text-sm font-medium text-muted-foreground">
-              Tracking started
-            </p>
+            <p className="text-sm font-medium text-muted-foreground">Tracking started</p>
             <p className="mt-0.5 text-xs text-muted-foreground/60">
               Your portfolio history will appear here within a few hours
             </p>

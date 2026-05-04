@@ -13,4 +13,6 @@ export function getExplorerUrl(network: string, contract: string): string {
   return `${base}/${contract}`;
 }
 
-export function getNetwork() { return STELLAR_NETWORK; }
+export function getNetwork() {
+  return STELLAR_NETWORK;
+}

@@ -2,9 +2,9 @@
 
 import { useRef } from "react";
 import { usePosition } from "@/features/account/hooks/use-account-api";
-import { useBlendPositions } from "./use-blend-positions";
 import { useAquariusPositions } from "./use-aquarius-positions";
-import { useWalletTokens, getCachedPrices } from "./use-wallet-tokens";
+import { useBlendPositions } from "./use-blend-positions";
+import { getCachedPrices, useWalletTokens } from "./use-wallet-tokens";
 
 export interface PositionItem {
   name: string;
@@ -122,7 +122,7 @@ function parseAmount(extra?: string): number {
 
 function enrichWithPrices(
   groups: ProtocolPositionGroup[],
-  priceMap: Record<string, number>,
+  priceMap: Record<string, number>
 ): ProtocolPositionGroup[] {
   return groups.map((g) => {
     const positions = g.positions.map((pos) => {
@@ -149,9 +149,7 @@ function enrichWithPrices(
     });
 
     const totalValueUsd =
-      g.totalValueUsd > 0
-        ? g.totalValueUsd
-        : positions.reduce((s, p) => s + p.valueUsd, 0);
+      g.totalValueUsd > 0 ? g.totalValueUsd : positions.reduce((s, p) => s + p.valueUsd, 0);
 
     return { ...g, positions, totalValueUsd };
   });

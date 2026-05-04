@@ -1,11 +1,11 @@
 "use client";
 
 import { Database } from "lucide-react";
-import type { CardMode } from "../../schemas/common.schema";
-import type { AllbridgePoolInfoProps } from "../../schemas/allbridge.schema";
-import { ProtocolCard } from "../base/protocol-card";
-import { DetailRow, MetricBox, Row } from "../base/indicators";
 import { fmt, trunc } from "../../lib/formatting";
+import type { AllbridgePoolInfoProps } from "../../schemas/allbridge.schema";
+import type { CardMode } from "../../schemas/common.schema";
+import { DetailRow, MetricBox, Row } from "../base/indicators";
+import { ProtocolCard } from "../base/protocol-card";
 
 interface Props {
   data: AllbridgePoolInfoProps;
@@ -18,7 +18,13 @@ export function AllbridgePoolInfoCard({ data, mode = "playground" }: Props) {
 
   if (isChat) {
     return (
-      <ProtocolCard mode="chat" title={`${data.symbol} Pool (${data.chain})`} icon={Database} iconColor="text-blue-500" iconBg="bg-blue-500/10">
+      <ProtocolCard
+        mode="chat"
+        title={`${data.symbol} Pool (${data.chain})`}
+        icon={Database}
+        iconColor="text-blue-500"
+        iconBg="bg-blue-500/10"
+      >
         <div className="space-y-1.5">
           {pool?.tokenBalance && <DetailRow label="Token Balance" value={fmt(pool.tokenBalance)} />}
           {pool?.vUsdBalance && <DetailRow label="vUSD Balance" value={fmt(pool.vUsdBalance)} />}
@@ -33,8 +39,14 @@ export function AllbridgePoolInfoCard({ data, mode = "playground" }: Props) {
   return (
     <ProtocolCard mode="playground">
       <div className="px-4 py-3 border-b border-border">
-        <p className="text-sm font-medium text-foreground">{data.symbol} Pool — <span className="capitalize">{data.chain}</span></p>
-        {data.poolAddress && <p className="text-[10px] text-muted-foreground/60 font-mono mt-0.5">{trunc(data.poolAddress, 10, 6)}</p>}
+        <p className="text-sm font-medium text-foreground">
+          {data.symbol} Pool — <span className="capitalize">{data.chain}</span>
+        </p>
+        {data.poolAddress && (
+          <p className="text-[10px] text-muted-foreground/60 font-mono mt-0.5">
+            {trunc(data.poolAddress, 10, 6)}
+          </p>
+        )}
       </div>
       <div className="p-4 space-y-3">
         <div className="grid grid-cols-2 gap-2">

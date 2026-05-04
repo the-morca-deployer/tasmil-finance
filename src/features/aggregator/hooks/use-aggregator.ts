@@ -534,12 +534,14 @@ export function useAggregator(): AggregatorState {
       tokensToCheck.map((t) => {
         const stellarContract = t.addresses.stellar;
         if (!stellarContract) return Promise.resolve({ symbol: t.symbol, has: true });
-        return checkTrustlineExists(stellarAddress, stellarContract, t.symbol)
-          .then((has) => ({ symbol: t.symbol, has }))
-          // Aggregator policy: on Horizon failure, treat as MISSING so the user
-          // is prompted to add. The hook policy (assume true on error) is the
-          // opposite — see use-trustline-check.ts.
-          .catch(() => ({ symbol: t.symbol, has: false }));
+        return (
+          checkTrustlineExists(stellarAddress, stellarContract, t.symbol)
+            .then((has) => ({ symbol: t.symbol, has }))
+            // Aggregator policy: on Horizon failure, treat as MISSING so the user
+            // is prompted to add. The hook policy (assume true on error) is the
+            // opposite — see use-trustline-check.ts.
+            .catch(() => ({ symbol: t.symbol, has: false }))
+        );
       })
     ).then((results) => {
       if (cancelled) return;

@@ -32,7 +32,7 @@ interface ApiEnvelope<T> {
 
 export async function fetchTopup(topupId: string): Promise<TopupSnapshot> {
   const res = await backendAxios.get<ApiEnvelope<TopupSnapshot> | TopupSnapshot>(
-    `/api/topup/${topupId}`,
+    `/api/topup/${topupId}`
   );
   const body = res.data as ApiEnvelope<TopupSnapshot> | TopupSnapshot;
   if ("success" in body) {

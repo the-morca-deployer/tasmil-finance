@@ -2,11 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  useAccountControllerGetPosition,
   useAccountControllerGetActivity,
+  useAccountControllerGetPosition,
 } from "@/gen-backend/hooks";
-import { $b, $bLive } from "@/lib/kubb-backend";
-import backendAxios from "@/lib/kubb-backend";
+import backendAxios, { $b, $bLive } from "@/lib/kubb-backend";
 import type { ActivityItem, PositionData, PresetCardData } from "../types";
 
 // ─── Query hooks (generated + config preset + select to unwrap NestJS envelope) ───
@@ -33,22 +32,24 @@ export function usePosition(publicKey: string | undefined) {
     query: {
       ...$bLive.query,
       enabled: !!publicKey,
-      select: (res: unknown): PositionData | null =>
-        (res as { data?: PositionData }).data ?? null,
+      select: (res: unknown): PositionData | null => (res as { data?: PositionData }).data ?? null,
     },
   });
 }
 
 export function useActivity(publicKey: string | undefined) {
-  return useAccountControllerGetActivity(publicKey!, { limit: "50" }, {
-    query: {
-      ...$b.query,
-      enabled: !!publicKey,
-      refetchInterval: 60_000,
-      select: (res: unknown): ActivityItem[] =>
-        (res as { data?: ActivityItem[] }).data ?? [],
-    },
-  });
+  return useAccountControllerGetActivity(
+    publicKey!,
+    { limit: "50" },
+    {
+      query: {
+        ...$b.query,
+        enabled: !!publicKey,
+        refetchInterval: 60_000,
+        select: (res: unknown): ActivityItem[] => (res as { data?: ActivityItem[] }).data ?? [],
+      },
+    }
+  );
 }
 
 // ─── Mutation hooks (backendAxios directly — mutations have no `select`) ─────────
@@ -56,10 +57,9 @@ export function useActivity(publicKey: string | undefined) {
 export function useDeployAccount() {
   return useMutation({
     mutationFn: async (publicKey: string) => {
-      const { data } = await backendAxios.post<{ data: { xdr: string } }>(
-        "/api/account/deploy",
-        { publicKey }
-      );
+      const { data } = await backendAxios.post<{ data: { xdr: string } }>("/api/account/deploy", {
+        publicKey,
+      });
       return data.data;
     },
   });
@@ -68,10 +68,7 @@ export function useDeployAccount() {
 export function useFundAccount() {
   return useMutation({
     mutationFn: async (dto: { publicKey: string; amount: number; token: string }) => {
-      const { data } = await backendAxios.post<{ data: { xdr: string } }>(
-        "/api/account/fund",
-        dto
-      );
+      const { data } = await backendAxios.post<{ data: { xdr: string } }>("/api/account/fund", dto);
       return data.data;
     },
   });
@@ -93,11 +90,12 @@ export function useUpdatePreset() {
       qc.invalidateQueries({
         predicate: (q) => {
           const k = q.queryKey[0];
-          return typeof k === "string" && (
-            k.includes("getPosition") ||
-            k.includes("getActivity") ||
-            k === "/api/account/position" ||
-            k === "/api/account/activity"
+          return (
+            typeof k === "string" &&
+            (k.includes("getPosition") ||
+              k.includes("getActivity") ||
+              k === "/api/account/position" ||
+              k === "/api/account/activity")
           );
         },
       });
@@ -141,10 +139,7 @@ export function useSubmitTx() {
   return useMutation({
     mutationFn: async (params: SubmitTxParams) => {
       try {
-        const { data } = await backendAxios.post<{ data: unknown }>(
-          "/api/account/submit",
-          params
-        );
+        const { data } = await backendAxios.post<{ data: unknown }>("/api/account/submit", params);
         return data.data;
       } catch (err: unknown) {
         // Surface backend's specific message (e.g. "txInsufficientFee",
@@ -167,15 +162,18 @@ export function useSubmitTx() {
     // cached data until the next 30-sec poll fires, and the user stays on
     // the OnboardingPage long after the flow is complete.
     onSuccess: () => {
-      qc.invalidateQueries({ predicate: (q) => {
-        const k = q.queryKey[0];
-        return typeof k === "string" && (
-          k.includes("getPosition") ||
-          k.includes("getActivity") ||
-          k === "/api/account/position" ||
-          k === "/api/account/activity"
-        );
-      }});
+      qc.invalidateQueries({
+        predicate: (q) => {
+          const k = q.queryKey[0];
+          return (
+            typeof k === "string" &&
+            (k.includes("getPosition") ||
+              k.includes("getActivity") ||
+              k === "/api/account/position" ||
+              k === "/api/account/activity")
+          );
+        },
+      });
     },
   });
 }
@@ -233,10 +231,9 @@ export function useWithdraw() {
 export function useRevoke() {
   return useMutation({
     mutationFn: async (publicKey: string) => {
-      const { data } = await backendAxios.post<{ data: { xdr: string } }>(
-        "/api/account/revoke",
-        { publicKey }
-      );
+      const { data } = await backendAxios.post<{ data: { xdr: string } }>("/api/account/revoke", {
+        publicKey,
+      });
       return data.data;
     },
   });

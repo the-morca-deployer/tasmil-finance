@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import { render, waitFor } from "@testing-library/react";
+import { useEffect } from "react";
 import { ThreadProvider, useThreads } from "./thread-provider";
 
 const mockSearch = jest.fn().mockResolvedValue([]);
@@ -14,8 +14,7 @@ jest.mock("uuid", () => ({
 }));
 
 jest.mock("../lib/client", () => ({
-  createClient: (apiUrl: unknown, options: unknown) =>
-    mockCreateClient(apiUrl, options),
+  createClient: (apiUrl: unknown, options: unknown) => mockCreateClient(apiUrl, options),
 }));
 
 jest.mock("@/lib/api-key", () => ({

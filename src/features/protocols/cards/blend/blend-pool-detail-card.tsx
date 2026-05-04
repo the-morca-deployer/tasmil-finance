@@ -2,11 +2,11 @@
 
 import { Database } from "lucide-react";
 import { TokenImage } from "@/shared/components/token-image";
-import type { CardMode } from "../../schemas/common.schema";
+import { fmt, pct, trunc } from "../../lib/formatting";
 import type { PoolCardProps } from "../../schemas/blend.schema";
-import { ProtocolCard, EmptyState } from "../base/protocol-card";
-import { Tag, Bar, Stat } from "../base/indicators";
-import { pct, fmt, trunc } from "../../lib/formatting";
+import type { CardMode } from "../../schemas/common.schema";
+import { Bar, Stat, Tag } from "../base/indicators";
+import { EmptyState, ProtocolCard } from "../base/protocol-card";
 
 interface BlendPoolDetailCardProps {
   pool: PoolCardProps;
@@ -17,16 +17,18 @@ export function BlendPoolDetailCard({ pool, mode = "playground" }: BlendPoolDeta
   const isChat = mode === "chat";
 
   return (
-    <ProtocolCard mode={mode} title={isChat ? pool.name : undefined} icon={isChat ? Database : undefined}>
+    <ProtocolCard
+      mode={mode}
+      title={isChat ? pool.name : undefined}
+      icon={isChat ? Database : undefined}
+    >
       {!isChat && (
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
           <div className="flex items-center gap-2">
             <Database className="h-4 w-4 text-muted-foreground" />
             <div>
               <p className="text-[13px] font-medium text-foreground">{pool.name}</p>
-              <p className="text-[10px] text-muted-foreground font-mono">
-                {trunc(pool.address)}
-              </p>
+              <p className="text-[10px] text-muted-foreground font-mono">{trunc(pool.address)}</p>
             </div>
           </div>
           <Tag type={pool.status} />
@@ -44,9 +46,7 @@ export function BlendPoolDetailCard({ pool, mode = "playground" }: BlendPoolDeta
           </div>
           {pool.reserves.length > 0 && (
             <div className="mt-2 space-y-1 border-t pt-2">
-              <div className="text-muted-foreground text-xs">
-                Reserves ({pool.reserves.length})
-              </div>
+              <div className="text-muted-foreground text-xs">Reserves ({pool.reserves.length})</div>
               {pool.reserves.map((r, i) => (
                 <div key={r.assetAddress || i} className="grid grid-cols-3 gap-1 text-xs">
                   <span className="font-medium">{r.symbol}</span>

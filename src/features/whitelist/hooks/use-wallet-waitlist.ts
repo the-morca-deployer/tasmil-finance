@@ -94,8 +94,7 @@ async function attachWaitlistContact(payload: { walletAddress: string; email: st
 
 export function useRequestChallenge() {
   return useMutation({
-    mutationFn: ({ walletAddress }: { walletAddress: string }) =>
-      requestChallenge(walletAddress),
+    mutationFn: ({ walletAddress }: { walletAddress: string }) => requestChallenge(walletAddress),
     onError: () => {
       toast.error("Failed to request wallet challenge. Please try again.");
     },
@@ -142,13 +141,11 @@ export function useAttachWaitlistContact() {
     onSuccess: (data) => {
       if (data.alreadyHasEmail) {
         toast.success("Email already attached", {
-          description:
-            "Your email is already on file for access code delivery.",
+          description: "Your email is already on file for access code delivery.",
         });
       } else {
         toast.success("Email attached", {
-          description:
-            "You'll receive your access code via email when early access opens.",
+          description: "You'll receive your access code via email when early access opens.",
         });
       }
     },

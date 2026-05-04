@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import type { TxStatus } from "@/features/chat/types/flow-messages";
 import { AccountInfoCard } from "@/features/chat/actions/components/stellar/account-info-card";
 import { ActionSearchCard } from "@/features/chat/actions/components/stellar/action-search-card";
 import { BridgeDiscoveryCard } from "@/features/chat/actions/components/stellar/bridge-discovery-card";
@@ -11,13 +10,19 @@ import { PoolInfoCard } from "@/features/chat/actions/components/stellar/pool-in
 import { SwapQuoteCard } from "@/features/chat/actions/components/stellar/swap-quote-card";
 import { TrustlineExecuteCard } from "@/features/chat/actions/components/stellar/trustline-execute-card";
 import { TxSubmitCard } from "@/features/chat/actions/components/stellar/tx-submit-card";
-import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
 // Flow cards (option-select pattern)
 import { ClarifyCard } from "@/features/chat/components/flow/clarify-card";
+import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
 import { PlanPreviewCard } from "@/features/chat/components/flow/plan-preview-card";
-import { useStreamContext } from "@/features/chat/hooks/use-stream";
 import { useFlowSigning } from "@/features/chat/hooks/use-flow-signing";
-import { useWalletStore } from "@/store/use-wallet";
+import { useStreamContext } from "@/features/chat/hooks/use-stream";
+import type { TxStatus } from "@/features/chat/types/flow-messages";
+import {
+  normalizeAquaPoolFromMcp,
+  normalizeAquaPoolsFromMcp,
+  normalizeAquaPositionsFromMcp,
+  normalizeAquaTxFromMcp,
+} from "@/features/protocols/adapters/aquarius-from-mcp";
 import {
   normalizeBackstopBalanceFromMcp,
   normalizeBackstopFromMcp,
@@ -28,6 +33,14 @@ import {
   normalizeTxFromMcp,
   unwrapMcpResult,
 } from "@/features/protocols/adapters/from-mcp";
+import { normalizeSoroswapPoolsFromMcp } from "@/features/protocols/adapters/soroswap-from-mcp";
+// Shared Aquarius protocol cards
+import {
+  AquaPoolDetailCard,
+  AquaPoolsCard,
+  AquaPositionsCard,
+  AquaTxCard,
+} from "@/features/protocols/cards/aquarius";
 // Shared protocol cards
 import {
   BlendBackstopBalanceCard,
@@ -38,23 +51,8 @@ import {
   BlendReserveCard,
   BlendTxCard,
 } from "@/features/protocols/cards/blend";
-// Shared Aquarius protocol cards
-import {
-  AquaPoolsCard,
-  AquaPoolDetailCard,
-  AquaPositionsCard,
-  AquaTxCard,
-} from "@/features/protocols/cards/aquarius";
-import {
-  normalizeAquaPoolsFromMcp,
-  normalizeAquaPoolFromMcp,
-  normalizeAquaPositionsFromMcp,
-  normalizeAquaTxFromMcp,
-} from "@/features/protocols/adapters/aquarius-from-mcp";
-import {
-  normalizeSoroswapPoolsFromMcp,
-} from "@/features/protocols/adapters/soroswap-from-mcp";
 import { SoroswapPoolsCard } from "@/features/protocols/cards/soroswap";
+import { useWalletStore } from "@/store/use-wallet";
 
 /**
  * Tool renderer registries for DeFi MCP tools.
@@ -118,8 +116,16 @@ export const INFO_TOOL_RENDERERS: Array<{
   // Allbridge
   { toolName: "allbridge_get_routes", type: "allbridge_routes", component: BridgeDiscoveryCard },
   { toolName: "allbridge_get_quote", type: "allbridge_quote", component: BridgeDiscoveryCard },
-  { toolName: "allbridge_pool_deposit_quote", type: "allbridge_deposit_quote", component: PoolInfoCard },
-  { toolName: "allbridge_pool_withdraw_quote", type: "allbridge_withdraw_quote", component: PoolInfoCard },
+  {
+    toolName: "allbridge_pool_deposit_quote",
+    type: "allbridge_deposit_quote",
+    component: PoolInfoCard,
+  },
+  {
+    toolName: "allbridge_pool_withdraw_quote",
+    type: "allbridge_withdraw_quote",
+    component: PoolInfoCard,
+  },
 
   // Templar
   { toolName: "templar_get_markets", type: "market_list", component: PoolInfoCard },
@@ -227,7 +233,11 @@ export const OPERATION_TOOL_RENDERERS: Array<{
   // DeFindex
   { toolName: "vault_deposit", operation: "vault_deposit", component: StellarExecuteCard },
   { toolName: "vault_withdraw", operation: "vault_withdraw", component: StellarExecuteCard },
-  { toolName: "vault_withdraw_by_amounts", operation: "vault_withdraw_by_amounts", component: StellarExecuteCard },
+  {
+    toolName: "vault_withdraw_by_amounts",
+    operation: "vault_withdraw_by_amounts",
+    component: StellarExecuteCard,
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -407,7 +417,9 @@ export const AQUARIUS_SHARED_INFO: Array<{
     render: (props) => {
       const pool = normalizeAquaPoolFromMcp(props.result);
       if (!pool)
-        return <PoolInfoCard type="aquarius_pool_info" result={props.result} status={props.status} />;
+        return (
+          <PoolInfoCard type="aquarius_pool_info" result={props.result} status={props.status} />
+        );
       return <AquaPoolDetailCard pool={pool} mode="playground" />;
     },
   },
@@ -436,12 +448,7 @@ function makeAquaOpRenderer(operation: string) {
       return <div className="text-muted-foreground text-xs">Failed to parse transaction data</div>;
     const txWithOp = { ...tx, operation: tx.operation || operation };
     return (
-      <AquaTxCard
-        tx={txWithOp}
-        mode="chat"
-        toolCallId={props.toolCallId}
-        respond={props.respond}
-      />
+      <AquaTxCard tx={txWithOp} mode="chat" toolCallId={props.toolCallId} respond={props.respond} />
     );
   };
 }
@@ -481,7 +488,11 @@ const EXECUTE_ACTION_TO_BLEND_OP: Record<string, string> = {
 };
 
 const AQUARIUS_ACTIONS = new Set([
-  "add_liquidity", "remove_liquidity", "swap", "claim_rewards", "lock_aqua",
+  "add_liquidity",
+  "remove_liquidity",
+  "swap",
+  "claim_rewards",
+  "lock_aqua",
 ]);
 
 export const EXECUTE_DISPATCHER = {
@@ -489,7 +500,9 @@ export const EXECUTE_DISPATCHER = {
   render: (props: RenderProps) => {
     const { data } = unwrapMcpResult(props.result);
     const action = String((data as Record<string, unknown>)?.action ?? props.args?.action ?? "");
-    const protocol = String((data as Record<string, unknown>)?.protocol ?? props.args?.protocol ?? "");
+    const protocol = String(
+      (data as Record<string, unknown>)?.protocol ?? props.args?.protocol ?? ""
+    );
 
     // Blend lending + backstop + comet operations
     const blendOp = EXECUTE_ACTION_TO_BLEND_OP[action];
@@ -532,7 +545,13 @@ export const EXECUTE_DISPATCHER = {
           args={props.args}
           result={props.result}
           toolCallId={props.toolCallId}
-          status={props.status === "inProgress" ? "pending" : props.status === "complete" ? "complete" : "executing"}
+          status={
+            props.status === "inProgress"
+              ? "pending"
+              : props.status === "complete"
+                ? "complete"
+                : "executing"
+          }
           respond={props.respond}
         />
       );
@@ -561,8 +580,12 @@ export const EXECUTE_DISPATCHER = {
 
 /** Try to find a clarify_response message AFTER this tool call to restore selection state. */
 function usePreviousClarifyResponse(
-  questions: { field_name: string; input_type: string; suggestions?: { label: string; value: Record<string, unknown> }[] }[],
-  toolCallId?: string,
+  questions: {
+    field_name: string;
+    input_type: string;
+    suggestions?: { label: string; value: Record<string, unknown> }[];
+  }[],
+  toolCallId?: string
 ) {
   const stream = useStreamContext();
   return useMemo(() => {
@@ -573,7 +596,7 @@ function usePreviousClarifyResponse(
     let startIdx = 0;
     if (toolCallId) {
       const toolIdx = msgs.findIndex(
-        (m) => m.type === "tool" && (m as any).tool_call_id === toolCallId,
+        (m) => m.type === "tool" && (m as any).tool_call_id === toolCallId
       );
       if (toolIdx >= 0) startIdx = toolIdx + 1;
     }
@@ -591,7 +614,7 @@ function usePreviousClarifyResponse(
         for (const q of questions) {
           if (q.input_type === "select" && q.suggestions) {
             const match = q.suggestions.find((s) =>
-              Object.entries(s.value).every(([k, v]) => parsed[k] === v),
+              Object.entries(s.value).every(([k, v]) => parsed[k] === v)
             );
             if (match) answers[q.field_name] = match.value;
           } else if (q.input_type === "text" && parsed[q.field_name]) {
@@ -599,9 +622,7 @@ function usePreviousClarifyResponse(
           }
         }
         if (Object.keys(answers).length > 0) return answers;
-      } catch {
-        continue;
-      }
+      } catch {}
     }
     return null;
   }, [stream.messages, questions, toolCallId]);
@@ -617,7 +638,12 @@ function FlowClarifyCardWithStream({
     field_name: string;
     question: string;
     input_type: "select" | "text";
-    suggestions?: { label: string; value: Record<string, unknown>; tags?: string[]; description?: string }[];
+    suggestions?: {
+      label: string;
+      value: Record<string, unknown>;
+      tags?: string[];
+      description?: string;
+    }[];
     placeholder?: string;
   }[];
   context?: Record<string, unknown>;
@@ -668,7 +694,7 @@ function FlowClarifyCardWithStream({
         setSent(false);
       }
     },
-    [stream, questions, context, sent, walletAddress],
+    [stream, questions, context, sent, walletAddress]
   );
 
   return (
@@ -688,7 +714,13 @@ function parseFlowResult(result: unknown): Record<string, unknown> | null {
   // Already an object with expected fields
   if (typeof result === "object" && !Array.isArray(result) && result !== null) {
     const obj = result as Record<string, unknown>;
-    if ("kind" in obj || "question" in obj || "questions" in obj || "plan" in obj || "step" in obj) {
+    if (
+      "kind" in obj ||
+      "question" in obj ||
+      "questions" in obj ||
+      "plan" in obj ||
+      "step" in obj
+    ) {
       return obj;
     }
   }
@@ -773,7 +805,6 @@ function FlowPlanWithSigning({
   );
 }
 
-
 export const FLOW_TOOL_RENDERERS: Array<{
   toolName: string;
   render: (props: RenderProps) => React.ReactElement;
@@ -791,19 +822,27 @@ export const FLOW_TOOL_RENDERERS: Array<{
       let questions = data.questions as any[] | undefined;
       if (!questions && data.question) {
         // Old single-question format → wrap into questions array
-        questions = [{
-          field_name: "q0",
-          question: data.question as string,
-          input_type: "select",
-          suggestions: (data.suggestions as any[]) ?? [],
-        }];
+        questions = [
+          {
+            field_name: "q0",
+            question: data.question as string,
+            input_type: "select",
+            suggestions: (data.suggestions as any[]) ?? [],
+          },
+        ];
       }
       if (!questions || questions.length === 0) {
         return <div className="text-muted-foreground text-xs">No questions</div>;
       }
 
       const context = (data._context ?? {}) as Record<string, unknown>;
-      return <FlowClarifyCardWithStream questions={questions} context={context} toolCallId={props.toolCallId} />;
+      return (
+        <FlowClarifyCardWithStream
+          questions={questions}
+          context={context}
+          toolCallId={props.toolCallId}
+        />
+      );
     },
   },
   {
@@ -883,4 +922,3 @@ export const FLOW_TOOL_RENDERERS: Array<{
 // Tool rendering is handled directly by `ToolCallRenderer`
 // in `tool-call-renderer.tsx` using the data arrays exported above.
 // ---------------------------------------------------------------------------
-

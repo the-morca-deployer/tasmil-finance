@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ClarifyQuestion } from "@/features/chat/types/flow-messages";
+import { cn } from "@/lib/utils";
 
 const TAG_STYLES: Record<string, [string, string]> = {
   recommended: ["recommended", "text-emerald-400 bg-emerald-400/10"],
@@ -28,7 +28,12 @@ function OptionRow({
   disabled,
   onClick,
 }: {
-  suggestion: { label: string; value: Record<string, unknown>; tags?: string[]; description?: string };
+  suggestion: {
+    label: string;
+    value: Record<string, unknown>;
+    tags?: string[];
+    description?: string;
+  };
   index: number;
   isSelected: boolean;
   disabled: boolean;
@@ -44,13 +49,13 @@ function OptionRow({
         "flex w-full items-center gap-3 border-t border-border px-4 py-2.5 text-left transition-colors",
         isSelected ? "bg-primary/5" : "hover:bg-muted/30",
         disabled && "pointer-events-none opacity-50",
-        !disabled && "cursor-pointer",
+        !disabled && "cursor-pointer"
       )}
     >
       <span
         className={cn(
           "flex h-6 w-6 shrink-0 items-center justify-center rounded-md font-mono text-[11px] font-medium",
-          isSelected ? "bg-primary/20 text-primary" : "bg-muted/40 text-muted-foreground",
+          isSelected ? "bg-primary/20 text-primary" : "bg-muted/40 text-muted-foreground"
         )}
       >
         {index + 1}
@@ -150,9 +155,7 @@ function MultiClarifyCardStepper({
     <div className="w-full max-w-[460px] overflow-hidden rounded-xl border border-border bg-card">
       {/* Question */}
       <div className="px-4 pt-3.5 pb-2.5">
-        <p className="text-[14px] font-semibold text-foreground leading-snug">
-          {current.question}
-        </p>
+        <p className="text-[14px] font-semibold text-foreground leading-snug">{current.question}</p>
       </div>
 
       {/* Animated content area */}
@@ -221,7 +224,7 @@ function MultiClarifyCardStepper({
                 "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
                 step === 0 || disabled
                   ? "cursor-default opacity-30 text-muted-foreground"
-                  : "hover:bg-muted/40 text-muted-foreground hover:text-foreground cursor-pointer",
+                  : "hover:bg-muted/40 text-muted-foreground hover:text-foreground cursor-pointer"
               )}
               aria-label="Previous question"
             >
@@ -238,7 +241,7 @@ function MultiClarifyCardStepper({
                 "flex h-7 w-7 items-center justify-center rounded-md transition-colors",
                 !currentAnswered || isLast || disabled
                   ? "cursor-default opacity-30 text-muted-foreground"
-                  : "hover:bg-muted/40 text-muted-foreground hover:text-foreground cursor-pointer",
+                  : "hover:bg-muted/40 text-muted-foreground hover:text-foreground cursor-pointer"
               )}
               aria-label="Next question"
             >
@@ -256,7 +259,7 @@ function MultiClarifyCardStepper({
               "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors",
               disabled
                 ? "bg-muted/30 text-muted-foreground cursor-not-allowed"
-                : "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer",
+                : "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
             )}
           >
             Continue
@@ -270,6 +273,18 @@ function MultiClarifyCardStepper({
 
 // ─── Unified ClarifyCard ─────────────────────────────────────
 
-export function ClarifyCard({ questions, onSubmit, disabled = false, initialAnswers }: ClarifyCardProps) {
-  return <MultiClarifyCardStepper questions={questions} onSubmit={onSubmit} disabled={disabled} initialAnswers={initialAnswers} />;
+export function ClarifyCard({
+  questions,
+  onSubmit,
+  disabled = false,
+  initialAnswers,
+}: ClarifyCardProps) {
+  return (
+    <MultiClarifyCardStepper
+      questions={questions}
+      onSubmit={onSubmit}
+      disabled={disabled}
+      initialAnswers={initialAnswers}
+    />
+  );
 }

@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { Loader2, Send } from "lucide-react";
-import { Typography } from "@/shared/ui/typography";
-import { Button } from "@/shared/ui/button-v2";
-import { Input } from "@/shared/ui/input";
-import { Badge } from "@/shared/ui/badge";
+import { useState } from "react";
 import {
+  type CampaignRun,
   useCampaignHistory,
   useCampaignStatus,
   useSendCampaign,
-  type CampaignRun,
 } from "@/features/admin-whitelist/hooks/use-campaigns";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button-v2";
+import { Input } from "@/shared/ui/input";
+import { Typography } from "@/shared/ui/typography";
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
@@ -32,9 +32,7 @@ function ActiveCampaignCard({ campaign }: { campaign: CampaignRun }) {
   const { data: liveStatus } = useCampaignStatus(campaign.id);
   const current = liveStatus ?? campaign;
   const progress =
-    current.targetedCount > 0
-      ? Math.round((current.sentCount / current.targetedCount) * 100)
-      : 0;
+    current.targetedCount > 0 ? Math.round((current.sentCount / current.targetedCount) * 100) : 0;
 
   return (
     <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4 space-y-3">
@@ -92,11 +90,7 @@ function NewCampaignForm() {
           Targets all waitlist entries with a confirmed email
         </p>
       </div>
-      <Input
-        placeholder="Campaign name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
+      <Input placeholder="Campaign name" value={name} onChange={(e) => setName(e.target.value)} />
       <Button
         variant="gradient"
         onClick={handleSend}
@@ -179,10 +173,7 @@ export default function AdminCampaignsPage() {
                 ))}
                 {(!campaigns || campaigns.length === 0) && (
                   <tr>
-                    <td
-                      colSpan={7}
-                      className="px-4 py-12 text-center text-muted-foreground"
-                    >
+                    <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                       No campaigns yet.
                     </td>
                   </tr>

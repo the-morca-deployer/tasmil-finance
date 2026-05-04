@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getDefindexClient, jsonError } from "../../_sdk";
 
 const VALID_OPERATIONS = ["deposit", "withdraw", "withdraw-by-amounts"] as const;
@@ -12,14 +12,12 @@ type OpName = (typeof VALID_OPERATIONS)[number];
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ operation: string }> },
+  { params }: { params: Promise<{ operation: string }> }
 ) {
   const { operation } = await params;
 
   if (!VALID_OPERATIONS.includes(operation as OpName)) {
-    return jsonError(
-      `Invalid operation: ${operation}. Valid: ${VALID_OPERATIONS.join(", ")}`,
-    );
+    return jsonError(`Invalid operation: ${operation}. Valid: ${VALID_OPERATIONS.join(", ")}`);
   }
 
   let body: Record<string, unknown>;
@@ -62,22 +60,17 @@ export async function POST(
     return NextResponse.json(
       {
         success: false,
-        error: isForbidden
-          ? "DeFindex API key required. Set DEFINDEX_API_KEY in .env"
-          : msg,
+        error: isForbidden ? "DeFindex API key required. Set DEFINDEX_API_KEY in .env" : msg,
         vaultAddress,
         context,
       },
-      { status: isForbidden ? 403 : 400 },
+      { status: isForbidden ? 403 : 400 }
     );
   }
 }
 
 /** Fetch vault detail for enriching the TX card. Never throws — returns partial on failure. */
-async function fetchVaultContext(
-  sdk: ReturnType<typeof getDefindexClient>,
-  vaultAddress: string,
-) {
+async function fetchVaultContext(sdk: ReturnType<typeof getDefindexClient>, vaultAddress: string) {
   try {
     const detail = await sdk.defindex.getVaultDetail(vaultAddress);
     const firstAsset = detail.assets?.[0];
@@ -110,7 +103,7 @@ async function fetchVaultContext(
 async function buildTx(
   sdk: ReturnType<typeof getDefindexClient>,
   operation: OpName,
-  body: Record<string, unknown>,
+  body: Record<string, unknown>
 ) {
   const required = (field: string): string => {
     const value = body[field];

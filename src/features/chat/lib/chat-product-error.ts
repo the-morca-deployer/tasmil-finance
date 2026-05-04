@@ -28,7 +28,9 @@ function extractDetail(error: unknown): string {
     (error as { response?: { data?: { detail?: unknown } } }).response?.data &&
     "detail" in (error as { response: { data: { detail?: unknown } } }).response.data
   ) {
-    return String((error as { response: { data: { detail?: unknown } } }).response.data.detail ?? "");
+    return String(
+      (error as { response: { data: { detail?: unknown } } }).response.data.detail ?? ""
+    );
   }
 
   if ("message" in error && typeof (error as { message?: unknown }).message === "string") {

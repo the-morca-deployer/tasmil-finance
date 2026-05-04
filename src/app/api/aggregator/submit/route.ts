@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   } catch (err) {
     return NextResponse.json(
       { success: false, error: err instanceof Error ? err.message : String(err) },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

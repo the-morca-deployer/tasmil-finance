@@ -3,27 +3,29 @@
  */
 
 import {
+  type AllbridgeDepositQuoteProps,
   type AllbridgePoolCardProps,
   type AllbridgePoolInfoProps,
-  type AllbridgeUserBalanceProps,
   type AllbridgeQuoteCardProps,
   type AllbridgeRoute,
-  type AllbridgeDepositQuoteProps,
-  type AllbridgeWithdrawQuoteProps,
   type AllbridgeSupportedChain,
+  type AllbridgeUserBalanceProps,
+  type AllbridgeWithdrawQuoteProps,
+  allbridgeDepositQuoteSchema,
   allbridgePoolCardPropsSchema,
   allbridgePoolInfoSchema,
-  allbridgeUserBalanceSchema,
   allbridgeQuoteCardPropsSchema,
   allbridgeRouteSchema,
-  allbridgeDepositQuoteSchema,
-  allbridgeWithdrawQuoteSchema,
   allbridgeSupportedChainSchema,
+  allbridgeUserBalanceSchema,
+  allbridgeWithdrawQuoteSchema,
 } from "../schemas/allbridge.schema";
 
 // ─── Pools normalization ──────────────────────────────────────────
 
-export function normalizeAllbridgePoolsFromSdk(raw: Record<string, unknown>): AllbridgePoolCardProps[] {
+export function normalizeAllbridgePoolsFromSdk(
+  raw: Record<string, unknown>
+): AllbridgePoolCardProps[] {
   const pools = (raw.pools ?? []) as Record<string, unknown>[];
   return pools
     .map((p) => {
@@ -39,7 +41,9 @@ export function normalizeAllbridgePoolsFromSdk(raw: Record<string, unknown>): Al
 
 // ─── Pool Info normalization ──────────────────────────────────────
 
-export function normalizeAllbridgePoolInfoFromSdk(raw: Record<string, unknown>): AllbridgePoolInfoProps | null {
+export function normalizeAllbridgePoolInfoFromSdk(
+  raw: Record<string, unknown>
+): AllbridgePoolInfoProps | null {
   const result = allbridgePoolInfoSchema.safeParse(raw);
   if (!result.success) {
     console.warn("[allbridge-from-sdk] pool info errors:", result.error.flatten());
@@ -50,7 +54,9 @@ export function normalizeAllbridgePoolInfoFromSdk(raw: Record<string, unknown>):
 
 // ─── User Balance normalization ───────────────────────────────────
 
-export function normalizeAllbridgeUserBalanceFromSdk(raw: Record<string, unknown>): AllbridgeUserBalanceProps | null {
+export function normalizeAllbridgeUserBalanceFromSdk(
+  raw: Record<string, unknown>
+): AllbridgeUserBalanceProps | null {
   const result = allbridgeUserBalanceSchema.safeParse(raw);
   if (!result.success) {
     console.warn("[allbridge-from-sdk] user balance errors:", result.error.flatten());
@@ -61,7 +67,9 @@ export function normalizeAllbridgeUserBalanceFromSdk(raw: Record<string, unknown
 
 // ─── Quote normalization ──────────────────────────────────────────
 
-export function normalizeAllbridgeQuoteFromSdk(raw: Record<string, unknown>): AllbridgeQuoteCardProps | null {
+export function normalizeAllbridgeQuoteFromSdk(
+  raw: Record<string, unknown>
+): AllbridgeQuoteCardProps | null {
   const quote = (raw.quote ?? raw) as Record<string, unknown>;
   const result = allbridgeQuoteCardPropsSchema.safeParse(quote);
   if (!result.success) {
@@ -85,7 +93,9 @@ export function normalizeAllbridgeRoutesFromSdk(raw: Record<string, unknown>): A
 
 // ─── Deposit Quote normalization ──────────────────────────────────
 
-export function normalizeAllbridgeDepositQuoteFromSdk(raw: Record<string, unknown>): AllbridgeDepositQuoteProps | null {
+export function normalizeAllbridgeDepositQuoteFromSdk(
+  raw: Record<string, unknown>
+): AllbridgeDepositQuoteProps | null {
   const result = allbridgeDepositQuoteSchema.safeParse(raw);
   if (!result.success) {
     console.warn("[allbridge-from-sdk] deposit quote errors:", result.error.flatten());
@@ -96,7 +106,9 @@ export function normalizeAllbridgeDepositQuoteFromSdk(raw: Record<string, unknow
 
 // ─── Withdraw Quote normalization ─────────────────────────────────
 
-export function normalizeAllbridgeWithdrawQuoteFromSdk(raw: Record<string, unknown>): AllbridgeWithdrawQuoteProps | null {
+export function normalizeAllbridgeWithdrawQuoteFromSdk(
+  raw: Record<string, unknown>
+): AllbridgeWithdrawQuoteProps | null {
   const result = allbridgeWithdrawQuoteSchema.safeParse(raw);
   if (!result.success) {
     console.warn("[allbridge-from-sdk] withdraw quote errors:", result.error.flatten());
@@ -107,7 +119,9 @@ export function normalizeAllbridgeWithdrawQuoteFromSdk(raw: Record<string, unkno
 
 // ─── Supported Chains normalization ───────────────────────────────
 
-export function normalizeAllbridgeSupportedChainsFromSdk(raw: Record<string, unknown>): AllbridgeSupportedChain[] {
+export function normalizeAllbridgeSupportedChainsFromSdk(
+  raw: Record<string, unknown>
+): AllbridgeSupportedChain[] {
   const chains = (raw.chains ?? []) as Record<string, unknown>[];
   return chains
     .map((c) => {

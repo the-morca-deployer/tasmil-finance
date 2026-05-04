@@ -29,12 +29,7 @@ export function FlowMessageRouter({
       return <p className="text-sm text-[#f0f2f1]">{message.text}</p>;
 
     case "clarify":
-      return (
-        <ClarifyCard
-          questions={message.questions}
-          onSubmit={onSubmit ?? (() => {})}
-        />
-      );
+      return <ClarifyCard questions={message.questions} onSubmit={onSubmit ?? (() => {})} />;
 
     case "plan_preview":
       return (
@@ -60,9 +55,7 @@ export function FlowMessageRouter({
     case "position_update":
       return (
         <div className="rounded-xl border border-white/[0.07] bg-[#131715] p-4">
-          <span className="mb-3 block text-sm font-medium text-[#f0f2f1]">
-            Position Update
-          </span>
+          <span className="mb-3 block text-sm font-medium text-[#f0f2f1]">Position Update</span>
           <div className="space-y-2">
             {message.positions.map((pos) => (
               <div

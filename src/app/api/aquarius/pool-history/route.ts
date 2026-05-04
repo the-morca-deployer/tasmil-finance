@@ -21,23 +21,20 @@ export async function GET(req: NextRequest) {
   if (!pool) {
     return NextResponse.json(
       { success: false, error: "Missing 'pool' query parameter" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
   try {
-    const res = await fetch(
-      `${base}/statistics/totals/?pool_address=${pool}&size=${size}`,
-      {
-        headers: { Accept: "application/json", "User-Agent": "Tasmil/1.0" },
-        next: { revalidate: 300 },
-      },
-    );
+    const res = await fetch(`${base}/statistics/totals/?pool_address=${pool}&size=${size}`, {
+      headers: { Accept: "application/json", "User-Agent": "Tasmil/1.0" },
+      next: { revalidate: 300 },
+    });
 
     if (!res.ok) {
       return NextResponse.json(
         { success: false, error: `Aquarius API error: ${res.status}` },
-        { status: res.status },
+        { status: res.status }
       );
     }
 
@@ -59,7 +56,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e instanceof Error ? e.message : "Pool history unavailable" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
