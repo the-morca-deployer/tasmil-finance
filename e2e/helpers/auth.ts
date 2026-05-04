@@ -85,7 +85,7 @@ export async function loginAsWallet(page: Page, walletAddress: string): Promise<
       localStorage.setItem(
         "tasmil-onboarding",
         JSON.stringify({
-          state: { hasCompletedWelcome: true, completedTours: [] },
+          state: { hasCompletedWelcome: true },
           version: 0,
         })
       );
