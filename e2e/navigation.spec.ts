@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Desktop chrome — top nav (now default)", () => {
   test("top nav visible by default", async ({ page }) => {

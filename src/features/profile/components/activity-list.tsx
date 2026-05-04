@@ -1,25 +1,25 @@
 "use client";
 
+import { motion } from "framer-motion";
 import {
   ArrowDownLeft,
   ArrowUpRight,
   CheckCircle2,
   Clock,
   Layers,
+  type LucideIcon,
   Pause,
   RefreshCw,
   Settings,
   ShieldOff,
   XCircle,
   Zap,
-  type LucideIcon,
 } from "lucide-react";
-import { motion } from "framer-motion";
-import { Skeleton } from "@/shared/ui/skeleton";
+import type { ActivityItem } from "@/features/account/types";
 import { cn } from "@/lib/utils";
 import { getExplorerUrl } from "@/shared/config/stellar";
-import { groupByDate, type DatedItem } from "@/shared/utils/date-group";
-import type { ActivityItem } from "@/features/account/types";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { type DatedItem, groupByDate } from "@/shared/utils/date-group";
 import { useAccountActivity } from "../hooks/use-account-activity";
 
 type ActivityCategory = "all" | "protocol" | "reward";
@@ -36,11 +36,7 @@ const PROTOCOL_TYPES: ReadonlySet<string> = new Set([
   "REVOKE",
 ]);
 
-const REWARD_TYPES: ReadonlySet<string> = new Set([
-  "HARVEST",
-  "BACKSTOP_QUEUE",
-  "BACKSTOP_EXIT",
-]);
+const REWARD_TYPES: ReadonlySet<string> = new Set(["HARVEST", "BACKSTOP_QUEUE", "BACKSTOP_EXIT"]);
 
 const OP_ICONS: Record<string, { icon: LucideIcon; bg: string; fg: string }> = {
   DEPLOY: { icon: Layers, bg: "bg-primary/10", fg: "text-primary" },
@@ -172,7 +168,7 @@ export function ActivityList({ walletAddress, category }: ActivityListProps) {
                     <div
                       className={cn(
                         "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                        iconConfig.bg,
+                        iconConfig.bg
                       )}
                     >
                       <Icon className={cn("h-[15px] w-[15px]", iconConfig.fg)} />
@@ -187,7 +183,7 @@ export function ActivityList({ walletAddress, category }: ActivityListProps) {
                       <span
                         className={cn(
                           "shrink-0 text-sm font-semibold",
-                          reward ? "text-emerald-400" : "text-foreground",
+                          reward ? "text-emerald-400" : "text-foreground"
                         )}
                       >
                         {reward ? "+" : ""}

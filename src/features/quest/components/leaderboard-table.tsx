@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { TIER_STYLES, tierFromVolume } from "../lib/tier";
 import type { CurrentUserRank, LeaderboardEntry } from "../hooks/use-leaderboard";
+import { TIER_STYLES, tierFromVolume } from "../lib/tier";
 
 interface LeaderboardTableProps {
   entries: LeaderboardEntry[];
@@ -53,11 +53,14 @@ export function LeaderboardTable({
               data-current-user={isCurrentUser ? "true" : "false"}
               className={cn(
                 "grid grid-cols-[60px_1fr_1fr_120px] items-center gap-4 px-6 py-3.5",
-                isCurrentUser && "bg-primary/5 ring-1 ring-inset ring-primary/30",
+                isCurrentUser && "bg-primary/5 ring-1 ring-inset ring-primary/30"
               )}
             >
               <span className="font-bold text-foreground">#{entry.rank}</span>
-              <span className="truncate font-mono text-sm text-foreground" title={entry.walletAddress}>
+              <span
+                className="truncate font-mono text-sm text-foreground"
+                title={entry.walletAddress}
+              >
                 {shorten(entry.walletAddress)}
               </span>
               <span className="font-semibold text-foreground">{formatUsd(entry.volumeUsd)}</span>
@@ -65,7 +68,7 @@ export function LeaderboardTable({
                 className={cn(
                   "inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-semibold",
                   tierStyle.bg,
-                  tierStyle.text,
+                  tierStyle.text
                 )}
               >
                 {tierStyle.label}

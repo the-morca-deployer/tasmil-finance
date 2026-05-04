@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { WelcomeModal } from "@/features/onboarding/components/welcome-modal";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useOnboardingStore } from "@/store/use-onboarding";
-import { WelcomeModal } from "@/features/onboarding/components/welcome-modal";
 
 export function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const { address } = useWallet();

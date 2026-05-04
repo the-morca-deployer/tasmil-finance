@@ -1,14 +1,20 @@
 import { render, screen } from "@testing-library/react";
-import { ActivityList } from "./activity-list";
 import { useAccountActivity } from "../hooks/use-account-activity";
+import { ActivityList } from "./activity-list";
 
 jest.mock("../hooks/use-account-activity");
 
 const SAMPLE = [
-  { id: "a1", type: "DEPOSIT",  amount: 100, token: "USDC", createdAt: "2026-05-04T10:00:00Z" },
-  { id: "a2", type: "HARVEST",  amount: 5,   token: "BLND", createdAt: "2026-05-04T11:00:00Z" },
-  { id: "a3", type: "WITHDRAW", amount: 50,  token: "USDC", createdAt: "2026-05-03T22:00:00Z" },
-  { id: "a4", type: "BACKSTOP_QUEUE", amount: 10, token: "BLND", createdAt: "2026-05-03T20:00:00Z" },
+  { id: "a1", type: "DEPOSIT", amount: 100, token: "USDC", createdAt: "2026-05-04T10:00:00Z" },
+  { id: "a2", type: "HARVEST", amount: 5, token: "BLND", createdAt: "2026-05-04T11:00:00Z" },
+  { id: "a3", type: "WITHDRAW", amount: 50, token: "USDC", createdAt: "2026-05-03T22:00:00Z" },
+  {
+    id: "a4",
+    type: "BACKSTOP_QUEUE",
+    amount: 10,
+    token: "BLND",
+    createdAt: "2026-05-03T20:00:00Z",
+  },
 ];
 
 beforeEach(() => {
@@ -73,6 +79,8 @@ describe("ActivityList", () => {
     });
 
     render(<ActivityList walletAddress="GA..." category="all" />);
-    expect(document.querySelectorAll('[data-testid="activity-skeleton-row"]').length).toBeGreaterThan(0);
+    expect(
+      document.querySelectorAll('[data-testid="activity-skeleton-row"]').length
+    ).toBeGreaterThan(0);
   });
 });

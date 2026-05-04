@@ -29,7 +29,7 @@ interface BackendEnvelope<T> {
 async function fetchLeaderboard(
   page: number,
   limit: number,
-  me: string | undefined,
+  me: string | undefined
 ): Promise<LeaderboardResponse> {
   const params = new URLSearchParams({
     page: String(page),

@@ -4,8 +4,8 @@ import { Clock, PanelLeft, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { ChatHistoryWrapper } from "@/shared/layout/chat-history-wrapper";
-import { TopNavBar } from "@/shared/layout/top-nav-bar";
 import { MobileSidebarContent } from "@/shared/layout/mobile-sidebar-content";
+import { TopNavBar } from "@/shared/layout/top-nav-bar";
 import {
   MultiSidebarProvider,
   MultiSidebarTrigger,
@@ -120,7 +120,7 @@ function DesktopLayout({
           <div
             className={cn(
               "h-full flex-shrink-0 overflow-hidden border-border border-l transition-all duration-300 ease-in-out",
-              rightSidebarOpen ? "w-80" : "w-0",
+              rightSidebarOpen ? "w-80" : "w-0"
             )}
           >
             <div className="h-full w-80">

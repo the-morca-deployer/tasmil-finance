@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("/quest leaderboard", () => {
   test("renders title and table or empty state", async ({ page }) => {
@@ -10,7 +10,10 @@ test.describe("/quest leaderboard", () => {
     const podium = page.locator('[data-testid^="podium-rank-"]');
     const empty = page.getByText(/No volume yet/i);
 
-    const hasPodium = await podium.first().isVisible({ timeout: 3000 }).catch(() => false);
+    const hasPodium = await podium
+      .first()
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
     const hasEmpty = await empty.isVisible({ timeout: 3000 }).catch(() => false);
 
     expect(hasPodium || hasEmpty).toBe(true);
@@ -19,7 +22,10 @@ test.describe("/quest leaderboard", () => {
   test("podium shows top 3 on page 1 when entries available", async ({ page }) => {
     await page.goto("/quest");
     const podium = page.locator('[data-testid^="podium-rank-"]');
-    const visible = await podium.first().isVisible({ timeout: 3000 }).catch(() => false);
+    const visible = await podium
+      .first()
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
     if (!visible) return;
 
     await expect(page.locator('[data-testid="podium-rank-1"]')).toBeVisible();

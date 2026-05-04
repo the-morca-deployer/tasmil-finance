@@ -69,7 +69,7 @@ describe("groupByDate", () => {
     // side were truncated by raw ms-arithmetic instead, both items would
     // collapse into one bucket.
     const items = [
-      { id: "late",  createdAt: "2026-05-03T23:59:00" }, // Yesterday
+      { id: "late", createdAt: "2026-05-03T23:59:00" }, // Yesterday
       { id: "early", createdAt: "2026-05-04T00:01:00" }, // Today
     ];
     const out = groupByDate(items);

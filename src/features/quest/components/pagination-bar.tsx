@@ -49,7 +49,7 @@ export function PaginationBar({ page, totalPages, onPageChange }: PaginationBarP
           >
             {p}
           </Button>
-        ),
+        )
       )}
       <Button
         variant="outline"

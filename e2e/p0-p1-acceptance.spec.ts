@@ -113,7 +113,10 @@ test.describe("T1 — Onboarding guide (P0)", () => {
 });
 
 test.describe("T2 — Farming UI (P0)", () => {
-  test("gradient hero card visible at /farming with CountUp-rendered USD value", async ({ page, context }) => {
+  test("gradient hero card visible at /farming with CountUp-rendered USD value", async ({
+    page,
+    context,
+  }) => {
     await context.clearCookies();
     await clearOnboardingState(page);
     const wallet = freshWallet();
@@ -123,7 +126,10 @@ test.describe("T2 — Farming UI (P0)", () => {
     // Dismiss onboarding modal if it auto-opened (T1 covers it; here we just need it gone)
     const dialog = page.getByRole("dialog");
     if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await page.getByRole("button", { name: /Skip|Get Started/i }).first().click();
+      await page
+        .getByRole("button", { name: /Skip|Get Started/i })
+        .first()
+        .click();
       await expect(dialog).not.toBeVisible({ timeout: 3000 });
     }
 
@@ -135,7 +141,10 @@ test.describe("T2 — Farming UI (P0)", () => {
     await expect(valueEl).toBeVisible({ timeout: 10_000 });
   });
 
-  test("total value text starts at $0 and increments to actual on first render", async ({ page, context }) => {
+  test("total value text starts at $0 and increments to actual on first render", async ({
+    page,
+    context,
+  }) => {
     await context.clearCookies();
     await clearOnboardingState(page);
     const wallet = freshWallet();
@@ -183,7 +192,10 @@ test.describe("T2 — Farming UI (P0)", () => {
     await expect(page.getByRole("tab", { name: /^Reward$/ })).toBeVisible();
   });
 
-  test("Reward sub-tab shows + prefixed rows OR No rewards yet empty state", async ({ page, context }) => {
+  test("Reward sub-tab shows + prefixed rows OR No rewards yet empty state", async ({
+    page,
+    context,
+  }) => {
     await context.clearCookies();
     await clearOnboardingState(page);
     const wallet = freshWallet();
@@ -212,7 +224,9 @@ test.describe("T2 — Farming UI (P0)", () => {
 test.describe("T3 — Credit mechanic (P1)", () => {
   const BACKEND = process.env.PLAYWRIGHT_BACKEND_URL ?? "http://localhost:6756";
 
-  async function fetchCreditMe(jwt: string): Promise<{ balance: number; ledger: { reason: string; deltaCredits: number }[] }> {
+  async function fetchCreditMe(
+    jwt: string
+  ): Promise<{ balance: number; ledger: { reason: string; deltaCredits: number }[] }> {
     const res = await fetch(`${BACKEND}/api/credit/me`, {
       headers: { authorization: `Bearer ${jwt}` },
     });
@@ -310,7 +324,10 @@ test.describe("T3 — Credit mechanic (P1)", () => {
 });
 
 test.describe("T4 — Protocol/Reward split (P1)", () => {
-  test("/portfolio?tab=history shows Wallet / Protocol / Reward sub-tabs", async ({ page, context }) => {
+  test("/portfolio?tab=history shows Wallet / Protocol / Reward sub-tabs", async ({
+    page,
+    context,
+  }) => {
     await context.clearCookies();
     await clearOnboardingState(page);
     await clearWatchlistState(page);
@@ -348,7 +365,10 @@ test.describe("T4 — Protocol/Reward split (P1)", () => {
     await expect(walletTab).toHaveAttribute("data-state", "active");
   });
 
-  test("Protocol sub-tab filters to PROTOCOL_TYPES only (no Harvest/Backstop)", async ({ page, context }) => {
+  test("Protocol sub-tab filters to PROTOCOL_TYPES only (no Harvest/Backstop)", async ({
+    page,
+    context,
+  }) => {
     await context.clearCookies();
     await clearOnboardingState(page);
     const wallet = freshWallet();
@@ -406,7 +426,10 @@ test.describe("T4 — Protocol/Reward split (P1)", () => {
     expect(emptyVisible || rowVisible).toBe(true);
   });
 
-  test("/farming activity also has the same 3 sub-tabs (regression check)", async ({ page, context }) => {
+  test("/farming activity also has the same 3 sub-tabs (regression check)", async ({
+    page,
+    context,
+  }) => {
     await context.clearCookies();
     await clearOnboardingState(page);
     const wallet = freshWallet();
@@ -428,7 +451,10 @@ test.describe("T4 — Protocol/Reward split (P1)", () => {
 });
 
 test.describe("T5 — History display Freighter-style (P1)", () => {
-  test("click row → expanded details panel visible (Tx Hash + ISO timestamp)", async ({ page, context }) => {
+  test("click row → expanded details panel visible (Tx Hash + ISO timestamp)", async ({
+    page,
+    context,
+  }) => {
     await context.clearCookies();
     await clearOnboardingState(page);
     const wallet = freshWallet();
@@ -488,7 +514,10 @@ test.describe("T5 — History display Freighter-style (P1)", () => {
     await expect(explorerLink).toBeVisible({ timeout: 5_000 });
   });
 
-  test("StatusDot color matches transaction_successful (green/red/none)", async ({ page, context }) => {
+  test("StatusDot color matches transaction_successful (green/red/none)", async ({
+    page,
+    context,
+  }) => {
     await context.clearCookies();
     await clearOnboardingState(page);
     const wallet = freshWallet();
@@ -534,7 +563,9 @@ test.describe("T6 — Asset selector (P1)", () => {
     await page.goto("/portfolio");
     await bypassOnboarding(page);
 
-    await expect(page.getByRole("button", { name: /Add Trustline/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("button", { name: /Add Trustline/i })).toBeVisible({
+      timeout: 10_000,
+    });
     await expect(page.getByRole("button", { name: /Watch Asset/i })).toBeVisible();
   });
 
@@ -560,7 +591,10 @@ test.describe("T6 — Asset selector (P1)", () => {
     await expect(page.getByRole("button", { name: /Open BLND in aggregator/i })).toBeVisible();
   });
 
-  test("click chip body → URL becomes /aggregator?tokenIn=BLND&chainIn=stellar", async ({ page, context }) => {
+  test("click chip body → URL becomes /aggregator?tokenIn=BLND&chainIn=stellar", async ({
+    page,
+    context,
+  }) => {
     await context.clearCookies();
     await clearOnboardingState(page);
     await clearWatchlistState(page);
@@ -573,7 +607,10 @@ test.describe("T6 — Asset selector (P1)", () => {
     await page.getByRole("button", { name: /Watch Asset/i }).click();
     await page.getByPlaceholder(/search/i).fill("BLND");
     await page.waitForTimeout(300);
-    await page.getByRole("button", { name: /^Watch$/ }).first().click();
+    await page
+      .getByRole("button", { name: /^Watch$/ })
+      .first()
+      .click();
 
     const chip = page.getByRole("button", { name: /Open BLND in aggregator/i });
     await expect(chip).toBeVisible();
@@ -595,7 +632,10 @@ test.describe("T6 — Asset selector (P1)", () => {
     await page.getByRole("button", { name: /Watch Asset/i }).click();
     await page.getByPlaceholder(/search/i).fill("BLND");
     await page.waitForTimeout(300);
-    await page.getByRole("button", { name: /^Watch$/ }).first().click();
+    await page
+      .getByRole("button", { name: /^Watch$/ })
+      .first()
+      .click();
     await expect(page.getByRole("button", { name: /Open BLND in aggregator/i })).toBeVisible();
 
     // Reload — chip persists

@@ -1,7 +1,7 @@
 "use client";
 
-import { useAccountControllerGetActivity } from "@/gen-backend/hooks";
 import type { ActivityItem } from "@/features/account/types";
+import { useAccountControllerGetActivity } from "@/gen-backend/hooks";
 
 export interface UseAccountActivityResult {
   activities: ActivityItem[];
@@ -17,16 +17,16 @@ export interface UseAccountActivityResult {
  * sub-tabs.
  */
 export function useAccountActivity(
-  walletAddress: string | null | undefined,
+  walletAddress: string | null | undefined
 ): UseAccountActivityResult {
   const query = useAccountControllerGetActivity(
     walletAddress ?? "",
     { limit: "50" },
-    { query: { enabled: !!walletAddress } },
+    { query: { enabled: !!walletAddress } }
   );
 
-  const activities: ActivityItem[] =
-    ((query.data as { data?: ActivityItem[] } | undefined)?.data ?? []) as ActivityItem[];
+  const activities: ActivityItem[] = ((query.data as { data?: ActivityItem[] } | undefined)?.data ??
+    []) as ActivityItem[];
 
   return {
     activities,

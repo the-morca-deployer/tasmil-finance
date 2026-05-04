@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { Trophy } from "lucide-react";
-import { Skeleton } from "@/shared/ui/skeleton";
+import { useState } from "react";
 import { useWallet } from "@/shared/context/wallet-context";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { useLeaderboard } from "../hooks/use-leaderboard";
-import { PodiumCard } from "./podium-card";
 import { LeaderboardTable } from "./leaderboard-table";
 import { PaginationBar } from "./pagination-bar";
+import { PodiumCard } from "./podium-card";
 
 const LIMIT = 50;
 

@@ -2,7 +2,7 @@
 
 import { Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TIER_STYLES, tierFromVolume, type Tier } from "../lib/tier";
+import { TIER_STYLES, type Tier, tierFromVolume } from "../lib/tier";
 
 interface PodiumCardProps {
   rank: 1 | 2 | 3;
@@ -45,7 +45,7 @@ export function PodiumCard({ rank, walletAddress, volumeUsd }: PodiumCardProps) 
       className={cn(
         "flex flex-1 flex-col items-center justify-end gap-3 rounded-2xl border p-4",
         RANK_GRADIENT[rank],
-        RANK_HEIGHT[rank],
+        RANK_HEIGHT[rank]
       )}
       data-testid={`podium-rank-${rank}`}
     >
@@ -57,7 +57,7 @@ export function PodiumCard({ rank, walletAddress, volumeUsd }: PodiumCardProps) 
         className={cn(
           "rounded-full px-2.5 py-0.5 text-xs font-semibold",
           tierStyle.bg,
-          tierStyle.text,
+          tierStyle.text
         )}
       >
         {tierStyle.label}
