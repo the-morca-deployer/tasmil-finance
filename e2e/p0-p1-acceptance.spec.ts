@@ -16,7 +16,7 @@
  */
 import { expect, test } from "@playwright/test";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
-import { applyCreditDelta, seedManagedAccount } from "./helpers/backend";
+import { applyCreditDelta, seedActivity, seedManagedAccount } from "./helpers/backend";
 import { clearOnboardingState, clearWatchlistState } from "./helpers/state";
 
 test.describe("T1 — Onboarding guide (P0)", () => {
@@ -384,6 +384,15 @@ test.describe("T4 — Protocol/Reward split (P1)", () => {
     await clearOnboardingState(page);
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
+    await seedManagedAccount(wallet);
+    // Mix of PROTOCOL + REWARD types so the filter assertion is meaningful.
+    await seedActivity(wallet, [
+      { type: "DEPOSIT",        amount: 100, token: "USDC" },
+      { type: "WITHDRAW",       amount: 50,  token: "USDC" },
+      { type: "REBALANCE",      detail: "drift rebalance" },
+      { type: "HARVEST",        amount: 5,   token: "BLND" },
+      { type: "BACKSTOP_QUEUE", amount: 10,  token: "BLND" },
+    ]);
     await page.goto("/portfolio?tab=history");
 
     const dialog = page.getByRole("dialog");
@@ -414,6 +423,13 @@ test.describe("T4 — Protocol/Reward split (P1)", () => {
     await clearOnboardingState(page);
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
+    await seedManagedAccount(wallet);
+    // At least one REWARD type so the "+" prefix branch is exercised.
+    await seedActivity(wallet, [
+      { type: "HARVEST",        amount: 5,  token: "BLND" },
+      { type: "BACKSTOP_EXIT",  amount: 12, token: "BLND" },
+      { type: "DEPOSIT",        amount: 100, token: "USDC" }, // protocol — must be hidden
+    ]);
     await page.goto("/portfolio?tab=history");
 
     const dialog = page.getByRole("dialog");
