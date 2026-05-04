@@ -8,15 +8,17 @@ const samplePool: DiscoveredPool = {
   id: "p1",
   protocol: "blend",
   poolAddress: "C...",
-  reserveIndex: 0,
   poolType: "lending",
+  asset: "USDC",
   assetSymbol: "USDC",
   pairedAssetSymbol: undefined,
   currentApy: 0.05,
   tvlUsd: 1_000_000,
   riskScore: 3,
   strategyContractAddress: "C...",
-} as DiscoveredPool;
+  enabled: true,
+  lastUpdated: new Date().toISOString(),
+};
 
 describe("FarmingPools", () => {
   it("skeleton + data rows share column template", () => {
