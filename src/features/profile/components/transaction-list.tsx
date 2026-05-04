@@ -10,44 +10,51 @@ import {
   Link2,
   Loader2,
   Lock,
+  type LucideIcon,
   Shield,
   TrendingUp,
   UserPlus,
-  type LucideIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useRef } from "react";
-import { Skeleton } from "@/shared/ui/skeleton";
-import { TokenImage } from "@/shared/components/token-image";
-import { getExplorerUrl } from "@/shared/config/stellar";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { CopyButton } from "@/shared/ui/copy-button";
+import { TokenImage } from "@/shared/components/token-image";
+import { activeNetwork, getExplorerUrl } from "@/shared/config/stellar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/shared/ui/collapsible";
+import { Skeleton } from "@/shared/ui/skeleton";
 import type { StellarOperation } from "../hooks/use-stellar-transactions";
 import { useStellarTransactions } from "../hooks/use-stellar-transactions";
+import { useTransactionDetail } from "../hooks/use-transaction-detail";
 
 // ─── Icon map ─────────────────────────────────────────────────────────────────
 // Icons chosen to be semantically obvious to non-devs
 
 const OP_ICONS: Record<string, { icon: LucideIcon; bg: string; fg: string }> = {
   // Directional transfers
-  payment_in:  { icon: ArrowDownLeft,  bg: "bg-emerald-500/10", fg: "text-emerald-400"      },
-  payment_out: { icon: ArrowUpRight,   bg: "bg-destructive/10", fg: "text-destructive"      },
+  payment_in: { icon: ArrowDownLeft, bg: "bg-emerald-500/10", fg: "text-emerald-400" },
+  payment_out: { icon: ArrowUpRight, bg: "bg-destructive/10", fg: "text-destructive" },
   // Swaps / path payments
-  swap:        { icon: ArrowLeftRight, bg: "bg-violet-500/10",  fg: "text-violet-400"       },
+  swap: { icon: ArrowLeftRight, bg: "bg-violet-500/10", fg: "text-violet-400" },
   // DEX order book — trending chart represents market activity
-  dex:         { icon: TrendingUp,     bg: "bg-amber-500/10",   fg: "text-amber-400"        },
+  dex: { icon: TrendingUp, bg: "bg-amber-500/10", fg: "text-amber-400" },
   // Account creation
-  create:      { icon: UserPlus,       bg: "bg-emerald-500/10", fg: "text-emerald-400"      },
+  create: { icon: UserPlus, bg: "bg-emerald-500/10", fg: "text-emerald-400" },
   // Trustline permission — shield = permission
-  trust:       { icon: Shield,         bg: "bg-blue-500/10",    fg: "text-blue-400"         },
+  trust: { icon: Shield, bg: "bg-blue-500/10", fg: "text-blue-400" },
   // Claim / receive a claimable balance — arrow down
-  claim:       { icon: ArrowDownLeft,  bg: "bg-emerald-500/10", fg: "text-emerald-400"      },
+  claim: { icon: ArrowDownLeft, bg: "bg-emerald-500/10", fg: "text-emerald-400" },
   // Lock funds as a claimable balance
-  lock:        { icon: Lock,           bg: "bg-amber-500/10",   fg: "text-amber-400"        },
+  lock: { icon: Lock, bg: "bg-amber-500/10", fg: "text-amber-400" },
   // Liquidity pool — water drops = liquidity
-  lp:          { icon: Droplets,       bg: "bg-violet-500/10",  fg: "text-violet-400"       },
+  lp: { icon: Droplets, bg: "bg-violet-500/10", fg: "text-violet-400" },
   // Smart contract call — layers = stacked protocol logic
-  contract:    { icon: Layers,         bg: "bg-muted/30",       fg: "text-muted-foreground" },
+  contract: { icon: Layers, bg: "bg-muted/30", fg: "text-muted-foreground" },
   // Account merge — link = joining two things
-  merge:       { icon: Link2,          bg: "bg-muted/30",       fg: "text-muted-foreground" },
+  merge: { icon: Link2, bg: "bg-muted/30", fg: "text-muted-foreground" },
 };
 
 function getIconKey(type: string, outgoing: boolean): keyof typeof OP_ICONS {
@@ -67,29 +74,26 @@ function getIconKey(type: string, outgoing: boolean): keyof typeof OP_ICONS {
 // ─── Labels ───────────────────────────────────────────────────────────────────
 
 const OP_LABELS: Record<string, string> = {
-  payment:                     "Payment",
-  path_payment_strict_send:    "Swap",
+  payment: "Payment",
+  path_payment_strict_send: "Swap",
   path_payment_strict_receive: "Swap",
-  create_account:              "Create Account",
-  manage_sell_offer:           "Sell Order",
-  manage_buy_offer:            "Buy Order",
-  create_passive_sell_offer:   "Passive Sell Order",
-  change_trust:                "Change Trustline",
-  allow_trust:                 "Allow Trustline",
-  set_trust_line_flags:        "Trustline Flags",
-  account_merge:               "Merge Account",
-  create_claimable_balance:    "Lock Balance",
-  claim_claimable_balance:     "Claim Balance",
-  liquidity_pool_deposit:      "Add Liquidity",
-  liquidity_pool_withdraw:     "Remove Liquidity",
-  invoke_contract:             "Contract Call",
+  create_account: "Create Account",
+  manage_sell_offer: "Sell Order",
+  manage_buy_offer: "Buy Order",
+  create_passive_sell_offer: "Passive Sell Order",
+  change_trust: "Change Trustline",
+  allow_trust: "Allow Trustline",
+  set_trust_line_flags: "Trustline Flags",
+  account_merge: "Merge Account",
+  create_claimable_balance: "Lock Balance",
+  claim_claimable_balance: "Claim Balance",
+  liquidity_pool_deposit: "Add Liquidity",
+  liquidity_pool_withdraw: "Remove Liquidity",
+  invoke_contract: "Contract Call",
 };
 
 function getOpLabel(type: string): string {
-  return (
-    OP_LABELS[type] ??
-    type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-  );
+  return OP_LABELS[type] ?? type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
@@ -132,28 +136,20 @@ function formatNum(amt: string): string {
 // ─── Row data helpers ─────────────────────────────────────────────────────────
 
 function isOutgoingOp(op: StellarOperation, address: string): boolean {
-  const outTypes = new Set([
-    "payment",
-    "path_payment_strict_send",
-    "path_payment_strict_receive",
-  ]);
+  const outTypes = new Set(["payment", "path_payment_strict_send", "path_payment_strict_receive"]);
   return outTypes.has(op.type) && op.from === address;
 }
 
 // Center column: signed+colored amount for transfers, plain asset for others
 interface CenterInfo {
   asset: string;
-  display: string;      // formatted number (possibly with sign)
-  color: string;        // tailwind color class
-  signed: boolean;      // whether to show +/- prefix
+  display: string; // formatted number (possibly with sign)
+  color: string; // tailwind color class
+  signed: boolean; // whether to show +/- prefix
 }
 
-function getCenterInfo(
-  op: StellarOperation,
-  address: string,
-): CenterInfo | null {
-  const isTransfer =
-    op.type === "payment" || op.type.startsWith("path_payment");
+function getCenterInfo(op: StellarOperation, address: string): CenterInfo | null {
+  const isTransfer = op.type === "payment" || op.type.startsWith("path_payment");
   const outgoing = isOutgoingOp(op, address);
 
   const rawAmt = op.type.startsWith("path_payment")
@@ -221,9 +217,7 @@ function getRightInfo(op: StellarOperation, address: string): RightInfo | null {
 
 // ─── Group by date ────────────────────────────────────────────────────────────
 
-function groupByDate(
-  ops: StellarOperation[],
-): { label: string; ops: StellarOperation[] }[] {
+function groupByDate(ops: StellarOperation[]): { label: string; ops: StellarOperation[] }[] {
   const map = new Map<string, StellarOperation[]>();
   for (const op of ops) {
     const key = new Date(op.createdAt).toDateString();
@@ -237,84 +231,190 @@ function groupByDate(
   }));
 }
 
+// ─── Status Dot + Details Panel ────────────────────────────────────────────────
+
+const explorerBase = activeNetwork.horizonUrl.includes("testnet")
+  ? "https://stellar.expert/explorer/testnet"
+  : "https://stellar.expert/explorer/public";
+
+function StatusDot({ successful }: { successful?: boolean }) {
+  if (successful === undefined) return null;
+  return (
+    <span
+      data-testid="status-dot"
+      data-status={successful ? "success" : "failed"}
+      title={successful ? "Confirmed" : "Failed"}
+      className={cn(
+        "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
+        successful ? "bg-emerald-400" : "bg-destructive",
+      )}
+      aria-label={successful ? "Confirmed" : "Failed"}
+    />
+  );
+}
+
+function DetailsPanel({
+  txHash,
+  createdAt,
+  enabled,
+}: {
+  txHash: string;
+  createdAt: string;
+  enabled: boolean;
+}) {
+  const { data, isLoading, error } = useTransactionDetail(txHash, enabled);
+  const explorerUrl = getExplorerUrl("tx", txHash);
+
+  return (
+    <div className="border-t border-border/40 bg-muted/10 px-5 py-4 text-xs">
+      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
+        <dt className="font-semibold uppercase tracking-wider text-muted-foreground">Tx Hash</dt>
+        <dd className="flex items-center gap-2">
+          <code className="font-mono break-all text-foreground">{txHash}</code>
+          <CopyButton text={txHash} />
+          <a
+            href={explorerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline whitespace-nowrap"
+          >
+            View ↗
+          </a>
+        </dd>
+
+        <dt className="font-semibold uppercase tracking-wider text-muted-foreground">Time</dt>
+        <dd className="text-foreground">{new Date(createdAt).toISOString()}</dd>
+
+        {isLoading && (
+          <>
+            <dt className="font-semibold uppercase tracking-wider text-muted-foreground">Loading…</dt>
+            <dd className="text-muted-foreground">Fetching tx details</dd>
+          </>
+        )}
+
+        {error && (
+          <>
+            <dt className="font-semibold uppercase tracking-wider text-muted-foreground">Error</dt>
+            <dd className="text-destructive">{error.message}</dd>
+          </>
+        )}
+
+        {data && (
+          <>
+            <dt className="font-semibold uppercase tracking-wider text-muted-foreground">Fee</dt>
+            <dd className="text-foreground">
+              {(Number(data.feeCharged) / 10_000_000).toFixed(7)} XLM
+            </dd>
+
+            <dt className="font-semibold uppercase tracking-wider text-muted-foreground">Ledger</dt>
+            <dd className="text-foreground">
+              <a
+                href={`${explorerBase}/ledger/${data.ledger}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                {data.ledger}
+              </a>
+            </dd>
+
+            {data.memo && (
+              <>
+                <dt className="font-semibold uppercase tracking-wider text-muted-foreground">Memo</dt>
+                <dd className="break-all text-foreground">
+                  {data.memo}
+                  {data.memoType ? ` (${data.memoType})` : ""}
+                </dd>
+              </>
+            )}
+          </>
+        )}
+      </dl>
+    </div>
+  );
+}
+
 // ─── Row ──────────────────────────────────────────────────────────────────────
 
 function TxRow({ op, address }: { op: StellarOperation; address: string }) {
+  const [open, setOpen] = useState(false);
   const outgoing = isOutgoingOp(op, address);
   const key = getIconKey(op.type, outgoing);
   const { icon: Icon, bg, fg } = OP_ICONS[key]!;
   const center = getCenterInfo(op, address);
   const right = getRightInfo(op, address);
-  const txLink = getExplorerUrl("tx", op.transactionHash);
 
   return (
-    <a
-      href={txLink}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-muted/20"
-    >
-      {/* Operation icon */}
-      <div
-        className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-          bg,
-        )}
-      >
-        <Icon className={cn("h-[15px] w-[15px]", fg)} />
-      </div>
-
-      {/* Op label + time */}
-      <div className="min-w-0 w-44 shrink-0">
-        <p className="truncate text-sm font-medium text-foreground">
-          {getOpLabel(op.type)}
-        </p>
-        <p className="text-xs text-muted-foreground">{formatTime(op.createdAt)}</p>
-      </div>
-
-      {/* Token + amount */}
-      <div className="flex flex-1 items-center gap-2.5">
-        {center ? (
-          <>
-            {/* Only show token circle when it's a real token asset, not for "show asset name as display" */}
-            {!center.signed && center.asset === center.display ? (
-              // Asset-name-only rows (trust changes, etc.)
-              <TokenImage
-                alt={center.asset}
-                className="h-7 w-7 shrink-0 rounded-full text-[10px]"
-              />
-            ) : (
-              <TokenImage
-                alt={center.asset}
-                className="h-7 w-7 shrink-0 rounded-full text-[10px]"
-              />
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger asChild>
+        <button
+          type="button"
+          className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-muted/20"
+        >
+          {/* Operation icon */}
+          <div
+            className={cn(
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+              bg,
             )}
-            <p className={cn("text-sm font-semibold leading-none", center.color)}>
-              {center.display}
-              {center.signed && (
-                <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                  {center.asset}
-                </span>
-              )}
-            </p>
-          </>
-        ) : null}
-      </div>
+          >
+            <Icon className={cn("h-[15px] w-[15px]", fg)} />
+          </div>
 
-      {/* Direction + address */}
-      {right ? (
-        <div className="flex w-40 shrink-0 flex-col items-end gap-0.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
-            {right.label}
-          </span>
-          <span className="font-mono text-xs text-muted-foreground">
-            {right.value}
-          </span>
-        </div>
-      ) : (
-        <div className="w-40 shrink-0" />
-      )}
-    </a>
+          {/* Op label + time */}
+          <div className="min-w-0 w-44 shrink-0">
+            <p className="truncate text-sm font-medium text-foreground">
+              {getOpLabel(op.type)}
+            </p>
+            <p className="text-xs text-muted-foreground">{formatTime(op.createdAt)}</p>
+          </div>
+
+          {/* Token + amount */}
+          <div className="flex flex-1 items-center gap-2.5">
+            {center ? (
+              <>
+                <TokenImage
+                  alt={center.asset}
+                  className="h-7 w-7 shrink-0 rounded-full text-[10px]"
+                />
+                <p className={cn("text-sm font-semibold leading-none", center.color)}>
+                  {center.display}
+                  {center.signed && (
+                    <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                      {center.asset}
+                    </span>
+                  )}
+                </p>
+              </>
+            ) : null}
+          </div>
+
+          {/* Direction + address */}
+          {right ? (
+            <div className="flex w-40 shrink-0 flex-col items-end gap-0.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                {right.label}
+              </span>
+              <span className="font-mono text-xs text-muted-foreground">
+                {right.value}
+              </span>
+            </div>
+          ) : (
+            <div className="w-40 shrink-0" />
+          )}
+
+          {/* Status dot */}
+          <StatusDot successful={op.successful} />
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <DetailsPanel
+          txHash={op.transactionHash}
+          createdAt={op.createdAt}
+          enabled={open}
+        />
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
@@ -339,7 +439,7 @@ export function TransactionList({ address }: { address: string }) {
       (entries) => {
         if (entries[0]?.isIntersecting) loadMore();
       },
-      { threshold: 0.1 },
+      { threshold: 0.1 }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -382,9 +482,7 @@ export function TransactionList({ address }: { address: string }) {
   if (allOps.length === 0) {
     return (
       <div className="flex flex-col gap-4">
-        <h2 className="text-xl font-semibold text-foreground">
-          Transaction History
-        </h2>
+        <h2 className="text-xl font-semibold text-foreground">Transaction History</h2>
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-card py-20">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted/20">
             <Clock className="h-8 w-8 text-muted-foreground opacity-50" />
@@ -403,20 +501,14 @@ export function TransactionList({ address }: { address: string }) {
     <div className="flex flex-col gap-2">
       {/* Heading */}
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-foreground">
-          Transaction History
-        </h2>
-        <span className="text-sm text-muted-foreground">
-          {allOps.length} operations
-        </span>
+        <h2 className="text-xl font-semibold text-foreground">Transaction History</h2>
+        <span className="text-sm text-muted-foreground">{allOps.length} operations</span>
       </div>
 
       {groups.map((group) => (
         <div key={group.label} className="flex flex-col gap-2">
           {/* Date label */}
-          <p className="px-1 pt-2 text-sm font-semibold text-muted-foreground">
-            {group.label}
-          </p>
+          <p className="px-1 pt-2 text-sm font-semibold text-muted-foreground">{group.label}</p>
           {/* Rows card */}
           <div className="overflow-hidden rounded-xl border border-border bg-card divide-y divide-border/60">
             {group.ops.map((op) => (
