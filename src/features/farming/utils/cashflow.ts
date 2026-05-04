@@ -8,6 +8,7 @@ export interface CashflowSummary {
   allTimePnlPercent: number;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: faithful extraction from useMemo; refactor deferred to avoid behavior risk
 export function computeCashflowSummary(
   position: PositionData | undefined,
   activities: ActivityItem[] | undefined
