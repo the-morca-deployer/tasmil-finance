@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useWelcomeReward } from "@/features/welcome-reward/hooks/use-welcome-reward";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
-import { checkTrustlineExists } from "@/features/protocols/hooks/use-trustline-check";
+import { checkTrustlineExists, addTrustline } from "@/features/protocols/hooks/use-trustline-check";
 import { useWallet } from "@/shared/context/wallet-context";
 
 // ─── Types matching MCP Stellar aggregator API ──────────────────
@@ -524,52 +524,29 @@ export function useAggregator(): AggregatorState {
   const addTrustlineFor = useCallback(
     async (sym: string) => {
       if (!sym || !stellarAddress) return;
+      const token = [tokenIn, tokenOut].find((t) => t?.symbol === sym);
+      if (!token) return;
+
       setIsAddingTrustline(true);
       setSigningTrustline(sym);
       try {
-        const res = await fetch(`/api/trustline/add`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address: stellarAddress, assetCode: sym }),
-        });
-        const data = await res.json();
-        if (!data.xdr) throw new Error(data.error || "Failed to build trustline tx");
-
-        await checkWalletNetwork();
-        const signedXdr = await signTransaction(data.xdr);
-
-        const submitRes = await fetch(`/api/aggregator/submit`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ signedXdr, protocol: "trustline" }),
-        });
-        const submitData = await submitRes.json();
-        if (!submitData.success) throw new Error(submitData.error || "Trustline tx failed");
-
-        // Remove from missing list
-        const remaining = missingTrustlines.filter((s) => s !== sym);
-        setMissingTrustlines(remaining);
-        setNeedsTrustline(remaining.length > 0);
-        setTrustlineToken(remaining[0] ?? null);
-      } catch (err) {
-        const msg = parseSigningError(err);
-        // Don't show error for user rejection
-        if (
-          !msg.toLowerCase().includes("cancel") &&
-          !msg.toLowerCase().includes("reject") &&
-          !msg.toLowerCase().includes("denied")
-        ) {
-          setExecuteError(msg);
+        const ok = await addTrustline(stellarAddress, token.addresses.stellar, sym);
+        if (ok) {
+          // Remove from missing list
+          const remaining = missingTrustlines.filter((s) => s !== sym);
+          setMissingTrustlines(remaining);
+          setNeedsTrustline(remaining.length > 0);
+          setTrustlineToken(remaining[0] ?? null);
         }
       } finally {
         setIsAddingTrustline(false);
         setSigningTrustline(null);
       }
     },
-    [missingTrustlines, stellarAddress, signTransaction]
+    [missingTrustlines, stellarAddress, tokenIn, tokenOut],
   );
 
-  const addTrustline = useCallback(() => {
+  const addFirstTrustline = useCallback(() => {
     const sym = missingTrustlines[0];
     if (sym) return addTrustlineFor(sym);
     return Promise.resolve();
@@ -785,7 +762,7 @@ export function useAggregator(): AggregatorState {
     needsTrustline,
     trustlineToken,
     missingTrustlines,
-    addTrustline,
+    addTrustline: addFirstTrustline,
     addTrustlineFor,
     isAddingTrustline,
     signingTrustline,
