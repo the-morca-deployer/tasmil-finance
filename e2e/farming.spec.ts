@@ -335,4 +335,33 @@ test.describe("Farming UI (Task 8)", () => {
     const emptyVisible = await emptyState.isVisible({ timeout: 2000 }).catch(() => false);
     expect(rewardVisible || emptyVisible).toBe(true);
   });
+
+  test("Overview tab does not render Pools section heading", async ({ page }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming");
+    await page.waitForTimeout(2000);
+    // Pools h2 lives inside the Pools tab; Overview should not show it.
+    const poolsHeading = page.getByRole("heading", { name: /^Pools$/, level: 2 });
+    await expect(poolsHeading).toHaveCount(0);
+  });
+
+  test("Pools tab still renders Pools heading", async ({ page }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming?tab=pools");
+    await page.waitForTimeout(2000);
+    await expect(page.getByRole("heading", { name: /^Pools$/, level: 2 }).first()).toBeVisible();
+  });
+
+  test("Mobile viewport — header value visible without horizontal scroll", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming");
+    await page.waitForTimeout(2000);
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1);
+  });
 });
