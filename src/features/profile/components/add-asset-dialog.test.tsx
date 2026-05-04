@@ -149,4 +149,37 @@ describe("AddAssetDialog", () => {
       expect(screen.getByText("BLND")).toBeInTheDocument();
     });
   });
+
+  it("refetches on reopen after a fetch error", async () => {
+    let attempts = 0;
+    global.fetch = jest.fn(() => {
+      attempts += 1;
+      if (attempts === 1) {
+        return Promise.resolve({ ok: false, json: () => Promise.resolve({}) });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(FAKE_REGISTRY),
+      });
+    }) as jest.Mock;
+
+    const { rerender } = render(<AddAssetDialog open={true} onOpenChange={() => {}} />);
+    // First open → error
+    await screen.findByRole("button", { name: /retry/i });
+
+    // Close
+    await act(async () => {
+      rerender(<AddAssetDialog open={false} onOpenChange={() => {}} />);
+    });
+
+    // Reopen → should refetch (succeed) instead of pinning the error
+    await act(async () => {
+      rerender(<AddAssetDialog open={true} onOpenChange={() => {}} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("BLND")).toBeInTheDocument();
+    });
+    expect(attempts).toBe(2);
+  });
 });

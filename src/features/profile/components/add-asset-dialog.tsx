@@ -68,9 +68,12 @@ export function AddAssetDialog({ open, onOpenChange }: AddAssetDialogProps) {
   }, []);
 
   useEffect(() => {
-    if (!open) return;
-    if (status !== "idle") return;
-    fetchTokens();
+    if (!open) {
+      setStatus("idle");
+      setQuery("");
+      return;
+    }
+    if (status === "idle") fetchTokens();
   }, [open, status, fetchTokens]);
 
   const filtered = useMemo(() => {
