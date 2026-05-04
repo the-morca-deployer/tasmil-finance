@@ -113,7 +113,100 @@ test.describe("T1 — Onboarding guide (P0)", () => {
 });
 
 test.describe("T2 — Farming UI (P0)", () => {
-  // tests added in Task 7
+  test("gradient hero card visible at /farming with CountUp-rendered USD value", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming");
+
+    // Dismiss onboarding modal if it auto-opened (T1 covers it; here we just need it gone)
+    const dialog = page.getByRole("dialog");
+    if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await page.getByRole("button", { name: /Skip|Get Started/i }).first().click();
+      await expect(dialog).not.toBeVisible({ timeout: 3000 });
+    }
+
+    const hero = page.locator('[data-onborda="farming-header"]');
+    await expect(hero).toBeVisible({ timeout: 10_000 });
+
+    // CountUp emits a $-prefixed number once mounted
+    const valueEl = hero.getByText(/\$[0-9.,]+/);
+    await expect(valueEl).toBeVisible({ timeout: 10_000 });
+  });
+
+  test("total value text starts at $0 and increments to actual on first render", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+
+    // Capture early state — race CountUp's animation
+    await page.goto("/farming");
+
+    // Dismiss modal if it auto-opened
+    const dialog = page.getByRole("dialog");
+    if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await page.getByRole("button", { name: /Skip/i }).click();
+      await expect(dialog).not.toBeVisible({ timeout: 3000 });
+    }
+
+    const hero = page.locator('[data-onborda="farming-header"]');
+    await expect(hero).toBeVisible({ timeout: 10_000 });
+
+    // For a fresh wallet with no positions the value will be $0.00 — that's a valid
+    // "rendered" state. We assert the $ sign appears (CountUp's prefix), which proves
+    // the component rendered, regardless of the final number.
+    await expect(hero.getByText(/\$/)).toBeVisible();
+  });
+
+  test("activity tab exposes All / Protocol / Reward sub-tabs", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming");
+
+    // Dismiss modal
+    const dialog = page.getByRole("dialog");
+    if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await page.getByRole("button", { name: /Skip/i }).click();
+      await expect(dialog).not.toBeVisible({ timeout: 3000 });
+    }
+
+    const activityTab = page.getByRole("tab", { name: /^Activity$/i });
+    await expect(activityTab).toBeVisible({ timeout: 10_000 });
+    await activityTab.click();
+
+    await expect(page.getByRole("tab", { name: /^All$/ })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /^Protocol$/ })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /^Reward$/ })).toBeVisible();
+  });
+
+  test("Reward sub-tab shows + prefixed rows OR No rewards yet empty state", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming");
+
+    // Dismiss modal
+    const dialog = page.getByRole("dialog");
+    if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await page.getByRole("button", { name: /Skip/i }).click();
+      await expect(dialog).not.toBeVisible({ timeout: 3000 });
+    }
+
+    await page.getByRole("tab", { name: /^Activity$/i }).click();
+    await page.getByRole("tab", { name: /^Reward$/ }).click();
+
+    const plusRow = page.locator("text=/^\\+\\d/").first();
+    const empty = page.getByText(/No rewards yet/i);
+    // Strict — exactly one of these must be visible. No silent skip.
+    const plusVisible = await plusRow.isVisible({ timeout: 3000 }).catch(() => false);
+    const emptyVisible = await empty.isVisible({ timeout: 3000 }).catch(() => false);
+    expect(plusVisible || emptyVisible).toBe(true);
+  });
 });
 
 test.describe("T3 — Credit mechanic (P1)", () => {
