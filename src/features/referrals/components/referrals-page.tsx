@@ -69,7 +69,7 @@ export function ReferralsBody() {
       >
         <h1 className="font-bold text-2xl tracking-tight">Referrals</h1>
         <p className="max-w-md text-muted-foreground text-sm">
-          Connect your wallet to view your referral code, share it on X, and claim credits when
+          Connect your wallet to view your referral code, share it on X, and earn points when
           friends join.
         </p>
         <p className="text-muted-foreground text-xs">
@@ -119,7 +119,7 @@ export function ReferralsBody() {
     );
   }
 
-  const { referralCode, totalEarnedCredits, joinClaimedAt, xLinked, recentEvents } = snapshot.data;
+  const { referralCode, totalEarnedPoints, joinClaimedAt, xLinked, recentEvents } = snapshot.data;
   const hasCode = !!referralCode;
   const shareUrl = hasCode ? buildShareUrl(referralCode as string) : "";
 
@@ -144,7 +144,7 @@ export function ReferralsBody() {
       <header>
         <h1 className="font-bold text-2xl tracking-tight">Referrals</h1>
         <p className="text-muted-foreground text-sm">
-          Share your code, get credits when friends join.
+          Share your code, earn points when friends join.
         </p>
       </header>
 
@@ -232,7 +232,7 @@ export function ReferralsBody() {
               data-testid="referrals-total-credits"
               className="font-semibold text-2xl tabular-nums"
             >
-              {totalEarnedCredits.toLocaleString()} credits
+              {totalEarnedPoints.toLocaleString()} points
             </p>
           </div>
           <div>

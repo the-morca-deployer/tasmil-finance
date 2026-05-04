@@ -10,7 +10,7 @@ export interface ReferralEvent {
 
 export interface ReferralSnapshot {
   referralCode: string | null;
-  totalEarnedCredits: number;
+  totalEarnedPoints: number;
   joinClaimedAt: string | null;
   xLinked: boolean;
   recentEvents: ReferralEvent[];
