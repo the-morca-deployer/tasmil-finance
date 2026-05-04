@@ -32,6 +32,7 @@ export function WithdrawModal({
 }: WithdrawModalProps) {
   const inputId = useId();
   const parsed = Number.parseFloat(amount);
+  const overLimit = !Number.isNaN(parsed) && parsed > availableUsd;
   const valid = !Number.isNaN(parsed) && parsed > 0 && parsed <= availableUsd;
 
   return (
@@ -74,6 +75,11 @@ export function WithdrawModal({
           </Button>
         </div>
       </div>
+      {overLimit && (
+        <p className="text-destructive text-xs">
+          Amount exceeds available balance ({formatUsd(availableUsd)}).
+        </p>
+      )}
       <Button
         variant="gradient"
         size="lg"
