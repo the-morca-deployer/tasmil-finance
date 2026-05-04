@@ -2,104 +2,84 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { activeNetwork } from "@/shared/config/stellar";
+import type { RawHorizonOp } from "../lib/decode-operation";
+import type { TxAttrs } from "../lib/types";
 
-export interface StellarOperation {
-  id: string;
-  type: string;
-  createdAt: string;
-  transactionHash: string;
-  pagingToken: string;
-  // payment / create_account
-  amount?: string;
-  assetCode?: string;
-  assetType?: string;
-  from?: string;
-  to?: string;
-  // path_payment
-  sourceAmount?: string;
-  sourceAsset?: string;
-  destinationAmount?: string;
-  destinationAsset?: string;
-  // manage_sell_offer / manage_buy_offer
-  price?: string;
-  // account_merge
-  into?: string;
-  // status (from transaction-level field, propagated to operation)
+export type { RawHorizonOp };
+
+interface HorizonTransactionAttrs {
+  fee_charged?: string;
+  memo?: string;
+  memo_type?: string;
+  ledger?: number;
+  envelope_xdr?: string;
+  operation_count?: number;
   successful?: boolean;
 }
 
-interface HorizonOperationRecord {
-  id: string;
-  type: string;
-  created_at: string;
-  transaction_hash: string;
-  paging_token: string;
-  amount?: string;
-  asset_code?: string;
-  asset_type?: string;
-  from?: string;
-  to?: string;
-  source_amount?: string;
-  source_asset_code?: string;
-  source_asset_type?: string;
-  destination_amount?: string;
-  destination_asset_code?: string;
-  destination_asset_type?: string;
-  price?: string;
-  into?: string;
-  transaction_successful?: boolean;
+interface HorizonOperationRecord extends RawHorizonOp {
+  transaction?: HorizonTransactionAttrs;
 }
 
 interface HorizonOperationsPage {
   _embedded: { records: HorizonOperationRecord[] };
 }
 
-interface OperationsPage {
-  operations: StellarOperation[];
+export interface OperationsPage {
+  ops: RawHorizonOp[];
+  attrsByTx: Record<string, TxAttrs>;
   nextCursor: string | null;
+}
+
+const PAGE_SIZE = 20;
+
+function attrsFromTx(tx: HorizonTransactionAttrs | undefined): TxAttrs {
+  if (!tx) return {};
+  const memoType = tx.memo_type === "none" ? null : (tx.memo_type ?? null);
+  return {
+    feeChargedStroops: tx.fee_charged,
+    memo: tx.memo ?? null,
+    memoType,
+    ledger: tx.ledger,
+    envelopeXdr: tx.envelope_xdr,
+    operationCount: tx.operation_count,
+  };
 }
 
 async function fetchOperations(address: string, cursor?: string): Promise<OperationsPage> {
   const params = new URLSearchParams({
     order: "desc",
-    limit: "20",
+    limit: String(PAGE_SIZE),
     include_failed: "true",
+    join: "transactions",
   });
   if (cursor) params.set("cursor", cursor);
 
   const res = await fetch(
-    `${activeNetwork.horizonUrl}/accounts/${address}/operations?${params.toString()}`
+    `${activeNetwork.horizonUrl}/accounts/${address}/operations?${params.toString()}`,
   );
-  if (!res.ok) return { operations: [], nextCursor: null };
+  if (!res.ok) return { ops: [], attrsByTx: {}, nextCursor: null };
 
   const data: HorizonOperationsPage = await res.json();
   const records = data._embedded?.records ?? [];
 
-  const operations: StellarOperation[] = records.map((r) => ({
-    id: r.id,
-    type: r.type,
-    createdAt: r.created_at,
-    transactionHash: r.transaction_hash,
-    pagingToken: r.paging_token,
-    amount: r.amount,
-    assetCode: r.asset_type === "native" ? "XLM" : r.asset_code,
-    assetType: r.asset_type,
-    from: r.from,
-    to: r.to,
-    sourceAmount: r.source_amount,
-    sourceAsset: r.source_asset_type === "native" ? "XLM" : r.source_asset_code,
-    destinationAmount: r.destination_amount,
-    destinationAsset: r.destination_asset_type === "native" ? "XLM" : r.destination_asset_code,
-    price: r.price,
-    into: r.into,
-    successful: r.transaction_successful,
-  }));
+  const attrsByTx: Record<string, TxAttrs> = {};
+  const ops: RawHorizonOp[] = records.map((r) => {
+    const { transaction, ...op } = r;
+    if (transaction && !attrsByTx[op.transaction_hash]) {
+      attrsByTx[op.transaction_hash] = attrsFromTx(transaction);
+    }
+    if (transaction?.successful !== undefined && op.transaction_successful === undefined) {
+      op.transaction_successful = transaction.successful;
+    }
+    return op;
+  });
 
   const lastPagingToken = records.at(-1)?.paging_token ?? null;
-
   return {
-    operations,
-    nextCursor: records.length === 20 ? lastPagingToken : null,
+    ops,
+    attrsByTx,
+    nextCursor: records.length === PAGE_SIZE ? lastPagingToken : null,
   };
 }
 
@@ -110,7 +90,9 @@ export function useStellarTransactions(address: string | null | undefined) {
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled: !!address,
-    staleTime: 8_000,
-    refetchInterval: 10_000,
+    staleTime: 30_000,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
   });
 }
