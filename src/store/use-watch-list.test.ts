@@ -76,4 +76,30 @@ describe("useWatchList", () => {
     expect(keyOf({ symbol: "EURT", chain: "stellar", issuer: "G_EURT" })).toBe("stellar:G_EURT");
     expect(keyOf({ symbol: "XLM", chain: "stellar" })).toBe("stellar:XLM");
   });
+
+  it("migrates v1 persisted items by defaulting chain to stellar", async () => {
+    // Seed localStorage with a v1-shaped fixture (no `chain` field, version: 1)
+    const v1Fixture = {
+      state: {
+        items: [
+          { symbol: "BLND", contractId: "C_BLND", addedAt: 1000 },
+          { symbol: "AQUA", addedAt: 2000 },
+        ],
+      },
+      version: 1,
+    };
+    localStorage.setItem("tasmil.watchlist", JSON.stringify(v1Fixture));
+
+    // Force the persist middleware to rehydrate from the seeded value
+    await useWatchList.persist.rehydrate();
+
+    const items = useWatchList.getState().items;
+    expect(items).toHaveLength(2);
+    expect(items[0]).toMatchObject({ symbol: "BLND", chain: "stellar", contractId: "C_BLND" });
+    expect(items[1]).toMatchObject({ symbol: "AQUA", chain: "stellar" });
+
+    // After rehydrate the persisted version must have been bumped
+    const raw = JSON.parse(localStorage.getItem("tasmil.watchlist")!);
+    expect(raw.version).toBe(2);
+  });
 });
