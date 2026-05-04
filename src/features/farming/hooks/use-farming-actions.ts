@@ -55,6 +55,7 @@ export function useFarmingActions(publicKey: string | undefined) {
     [publicKey, fundAccount, submitTx]
   );
 
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: faithful extraction from useMemo; refactor deferred
   const withdraw = useCallback(
     async (amount: number): Promise<boolean> => {
       if (!publicKey) return false;
