@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useWelcomeReward } from "@/features/welcome-reward/hooks/use-welcome-reward";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
+import { checkTrustlineExists } from "@/features/protocols/hooks/use-trustline-check";
 import { useWallet } from "@/shared/context/wallet-context";
 
 // ─── Types matching MCP Stellar aggregator API ──────────────────
@@ -477,17 +478,19 @@ export function useAggregator(): AggregatorState {
       return;
     }
 
-    // Check trustline for both tokenIn (need it to hold/send) and tokenOut (need it to receive)
-    const tokensToCheck: string[] = [];
-    if (tokenIn && chainIn === "stellar" && tokenIn.symbol !== "XLM")
-      tokensToCheck.push(tokenIn.symbol);
+    // Tokens we need to check trustlines for (Stellar non-XLM tokens)
+    const tokensToCheck: TokenInfo[] = [];
+    if (tokenIn && chainIn === "stellar" && tokenIn.symbol !== "XLM") {
+      tokensToCheck.push(tokenIn);
+    }
     if (
       tokenOut &&
       chainOut === "stellar" &&
       tokenOut.symbol !== "XLM" &&
       tokenOut.symbol !== tokenIn?.symbol
-    )
-      tokensToCheck.push(tokenOut.symbol);
+    ) {
+      tokensToCheck.push(tokenOut);
+    }
 
     if (tokensToCheck.length === 0) {
       setMissingTrustlines([]);
@@ -496,23 +499,26 @@ export function useAggregator(): AggregatorState {
       return;
     }
 
+    let cancelled = false;
+
     Promise.all(
-      tokensToCheck.map((sym) =>
-        fetch(`/api/trustline/check`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address: stellarAddress, assetCode: sym }),
-        })
-          .then((r) => r.json())
-          .then((d) => ({ symbol: sym, has: d.hasTrustline }))
-          .catch(() => ({ symbol: sym, has: false }))
-      )
+      tokensToCheck.map((t) =>
+        checkTrustlineExists(stellarAddress, t.addresses.stellar, t.symbol)
+          .then((has) => ({ symbol: t.symbol, has }))
+          // Aggregator policy: on Horizon failure, treat as MISSING so the user
+          // is prompted to add. The hook policy (assume true on error) is the
+          // opposite — see use-trustline-check.ts.
+          .catch(() => ({ symbol: t.symbol, has: false })),
+      ),
     ).then((results) => {
+      if (cancelled) return;
       const missing = results.filter((r) => !r.has).map((r) => r.symbol);
       setMissingTrustlines(missing);
       setNeedsTrustline(missing.length > 0);
       setTrustlineToken(missing[0] ?? null);
     });
+
+    return () => { cancelled = true; };
   }, [tokenIn, tokenOut, chainIn, chainOut, stellarAddress]);
 
   const addTrustlineFor = useCallback(
