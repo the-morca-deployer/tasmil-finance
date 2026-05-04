@@ -12,10 +12,12 @@ import { PackageGrid } from "@/features/topup/components/topup-page";
 import type { CreditPackage } from "@/features/topup/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button-v2";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { useWalletStore } from "@/store/use-wallet";
 import { useDefiPositions } from "../hooks/use-defi-positions";
 import { useSnapshotSubmitter } from "../hooks/use-snapshot-submitter";
 import { useWalletTokens } from "../hooks/use-wallet-tokens";
+import { ActivityList } from "./activity-list";
 import { HistorySidebar } from "./history-sidebar";
 import { NftPlaceholder } from "./nft-placeholder";
 import { PerformanceChart } from "./performance-chart";
@@ -219,7 +221,22 @@ function ProfileContent({ packages }: ProfileContentProps) {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.25 }}
               >
-                <TransactionList address={account} />
+                <Tabs defaultValue="wallet" className="flex flex-col gap-4">
+                  <TabsList>
+                    <TabsTrigger value="wallet">Wallet</TabsTrigger>
+                    <TabsTrigger value="protocol">Protocol</TabsTrigger>
+                    <TabsTrigger value="reward">Reward</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="wallet">
+                    <TransactionList address={account} />
+                  </TabsContent>
+                  <TabsContent value="protocol">
+                    <ActivityList walletAddress={account} category="protocol" />
+                  </TabsContent>
+                  <TabsContent value="reward">
+                    <ActivityList walletAddress={account} category="reward" />
+                  </TabsContent>
+                </Tabs>
               </motion.div>
             )}
 
