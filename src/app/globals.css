@@ -716,26 +716,6 @@
     cursor: not-allowed;
   }
 
-  /* Onborda tour overlay — prevent clipping of the large box-shadow overlay */
-  [data-radix-portal]:has([data-name="onborda-overlay"]) {
-    position: fixed;
-    inset: 0;
-    z-index: 999;
-    pointer-events: none;
-  }
-  [data-name="onborda-overlay"] {
-    position: fixed !important;
-    inset: 0 !important;
-    pointer-events: none;
-    overflow: visible !important;
-  }
-  [data-name="onborda-pointer"] {
-    pointer-events: auto;
-  }
-  [data-name="onborda-card"] {
-    pointer-events: auto;
-  }
-
   /* Custom Scrollbar Styles */
   *::-webkit-scrollbar,
   *::-webkit-scrollbar-thumb {
