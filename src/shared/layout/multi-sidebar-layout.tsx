@@ -3,20 +3,15 @@
 import { Clock, PanelLeft, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
-import { AppSidebar } from "@/shared/layout/app-sidebar";
 import { ChatHistoryWrapper } from "@/shared/layout/chat-history-wrapper";
 import { TopNavBar } from "@/shared/layout/top-nav-bar";
 import { MobileSidebarContent } from "@/shared/layout/mobile-sidebar-content";
-import { Button } from "@/shared/ui/button-v2";
 import {
   MultiSidebarProvider,
   MultiSidebarTrigger,
   useMultiSidebar,
 } from "@/shared/ui/multi-sidebar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/shared/ui/sheet";
-import { SidebarInset, SidebarProvider, useSidebar } from "@/shared/ui/sidebar";
-
-const useTopNav = process.env.NEXT_PUBLIC_USE_TOP_NAV === "true";
 
 interface MultiSidebarLayoutProps {
   children: React.ReactNode;
@@ -24,27 +19,6 @@ interface MultiSidebarLayoutProps {
   showRightSidebar?: boolean;
   showHeader?: boolean;
   sidebarData?: import("@/shared/layout/sidebar-data").SidebarData;
-}
-
-function Header({ title, showRightSidebar }: { title: string; showRightSidebar: boolean }) {
-  const { toggleSidebar } = useSidebar();
-
-  return (
-    <header className="flex flex-shrink-0 items-center justify-between bg-background px-4 py-3">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" onClick={toggleSidebar} className="!p-0">
-          <PanelLeft className="h-4 w-4" />
-        </Button>
-        <div className="mx-2 h-4 w-[1px] bg-foreground/30" />
-        <h1 className="font-semibold text-2xl">{title}</h1>
-      </div>
-      {showRightSidebar && (
-        <MultiSidebarTrigger side="right">
-          <Clock className="h-4 w-4" />
-        </MultiSidebarTrigger>
-      )}
-    </header>
-  );
 }
 
 function MobileHeader({ title, showRightSidebar }: { title: string; showRightSidebar: boolean }) {
@@ -124,8 +98,6 @@ function MobileLayout({
 function DesktopLayout({
   children,
   showRightSidebar,
-  showHeader,
-  title,
   sidebarData: customSidebarData,
 }: {
   children: React.ReactNode;
@@ -135,63 +107,29 @@ function DesktopLayout({
   sidebarData?: import("@/shared/layout/sidebar-data").SidebarData;
 }) {
   const { rightSidebarOpen } = useMultiSidebar();
+  if (!customSidebarData) return null;
 
-  if (useTopNav) {
-    if (!customSidebarData) return null;
-    return (
-      <div className="flex h-screen w-full flex-col overflow-hidden">
-        <TopNavBar sidebarData={customSidebarData} showRightSidebar={showRightSidebar} />
-        <div className="flex flex-1 overflow-hidden">
-          <main
-            data-onborda="main-content"
-            className="flex-1 overflow-y-auto"
-          >
-            {children}
-          </main>
-          {showRightSidebar && (
-            <div
-              className={cn(
-                "h-full flex-shrink-0 overflow-hidden border-border border-l transition-all duration-300 ease-in-out",
-                rightSidebarOpen ? "w-80" : "w-0",
-              )}
-            >
-              <div className="h-full w-80">
-                <ChatHistoryWrapper />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Legacy path — unchanged
   return (
-    <SidebarProvider defaultOpen={true}>
-      <AppSidebar sidebarData={customSidebarData} />
-
-      {/* Main Content Area - Header + Content */}
-      <SidebarInset className="flex h-screen flex-col">
-        {showHeader && <Header title={title} showRightSidebar={showRightSidebar} />}
+    <div className="flex h-screen w-full flex-col overflow-hidden">
+      <TopNavBar sidebarData={customSidebarData} showRightSidebar={showRightSidebar} />
+      <div className="flex flex-1 overflow-hidden">
         <main data-onborda="main-content" className="flex-1 overflow-y-auto">
           {children}
         </main>
-      </SidebarInset>
-
-      {/* Right Sidebar - Separate, full height with animation */}
-      {showRightSidebar && (
-        <div
-          className={cn(
-            "h-screen flex-shrink-0 overflow-hidden border-border border-l transition-all duration-300 ease-in-out",
-            rightSidebarOpen ? "w-80" : "w-0"
-          )}
-        >
-          <div className="h-full w-80">
-            <ChatHistoryWrapper />
+        {showRightSidebar && (
+          <div
+            className={cn(
+              "h-full flex-shrink-0 overflow-hidden border-border border-l transition-all duration-300 ease-in-out",
+              rightSidebarOpen ? "w-80" : "w-0",
+            )}
+          >
+            <div className="h-full w-80">
+              <ChatHistoryWrapper />
+            </div>
           </div>
-        </div>
-      )}
-    </SidebarProvider>
+        )}
+      </div>
+    </div>
   );
 }
 
