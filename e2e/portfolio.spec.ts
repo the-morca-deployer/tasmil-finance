@@ -299,6 +299,8 @@ test.describe("Portfolio (Tasks 5+6+7)", () => {
   });
 
   test("history row expands to show details panel", async ({ page }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
     await page.goto("/portfolio?tab=history");
 
     // Wait for at least one tx row with a status dot to render
@@ -315,12 +317,17 @@ test.describe("Portfolio (Tasks 5+6+7)", () => {
   });
 
   test("portfolio shows Add Trustline + Watch Asset buttons", async ({ page }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
     await page.goto("/portfolio");
     await expect(page.getByRole("button", { name: /Add Trustline/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Watch Asset/i })).toBeVisible();
   });
 
   test("watch asset add → chip → persist → remove", async ({ page, context }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+
     // Clear any previous watchlist state
     await context.clearCookies();
     await page.addInitScript(() => {
@@ -336,14 +343,11 @@ test.describe("Portfolio (Tasks 5+6+7)", () => {
     // Wait past the debounce
     await page.waitForTimeout(300);
 
-    // Click first matching Watch button
+    // Require BLND in registry — failing here surfaces a real registry
+    // regression instead of silently passing.
     const watchBtn = page.getByRole("button", { name: /^Watch$/ }).first();
-    if (await watchBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await watchBtn.click();
-    } else {
-      // Registry may not surface BLND in this environment — skip rest
-      return;
-    }
+    await expect(watchBtn).toBeVisible({ timeout: 5_000 });
+    await watchBtn.click();
 
     // Chip should appear
     const chip = page.getByRole("button", { name: /Open BLND in aggregator/i });

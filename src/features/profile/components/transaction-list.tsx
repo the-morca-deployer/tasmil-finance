@@ -17,14 +17,10 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { CopyButton } from "@/shared/ui/copy-button";
 import { TokenImage } from "@/shared/components/token-image";
 import { activeNetwork, getExplorerUrl } from "@/shared/config/stellar";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/shared/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui/collapsible";
+import { CopyButton } from "@/shared/ui/copy-button";
 import { Skeleton } from "@/shared/ui/skeleton";
 import type { StellarOperation } from "../hooks/use-stellar-transactions";
 import { useStellarTransactions } from "../hooks/use-stellar-transactions";
@@ -237,8 +233,8 @@ const explorerBase = activeNetwork.horizonUrl.includes("testnet")
   ? "https://stellar.expert/explorer/testnet"
   : "https://stellar.expert/explorer/public";
 
-function StatusDot({ successful }: { successful?: boolean }) {
-  if (successful === undefined) return null;
+function StatusDot({ successful }: { successful?: boolean | null }) {
+  if (successful !== true && successful !== false) return null;
   return (
     <span
       data-testid="status-dot"
@@ -246,7 +242,7 @@ function StatusDot({ successful }: { successful?: boolean }) {
       title={successful ? "Confirmed" : "Failed"}
       className={cn(
         "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
-        successful ? "bg-emerald-400" : "bg-destructive",
+        successful ? "bg-emerald-400" : "bg-destructive"
       )}
       aria-label={successful ? "Confirmed" : "Failed"}
     />
@@ -287,7 +283,9 @@ function DetailsPanel({
 
         {isLoading && (
           <>
-            <dt className="font-semibold uppercase tracking-wider text-muted-foreground">Loading…</dt>
+            <dt className="font-semibold uppercase tracking-wider text-muted-foreground">
+              Loading…
+            </dt>
             <dd className="text-muted-foreground">Fetching tx details</dd>
           </>
         )}
@@ -320,7 +318,9 @@ function DetailsPanel({
 
             {data.memo && (
               <>
-                <dt className="font-semibold uppercase tracking-wider text-muted-foreground">Memo</dt>
+                <dt className="font-semibold uppercase tracking-wider text-muted-foreground">
+                  Memo
+                </dt>
                 <dd className="break-all text-foreground">
                   {data.memo}
                   {data.memoType ? ` (${data.memoType})` : ""}
@@ -352,20 +352,13 @@ function TxRow({ op, address }: { op: StellarOperation; address: string }) {
           className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-muted/20"
         >
           {/* Operation icon */}
-          <div
-            className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-              bg,
-            )}
-          >
+          <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full", bg)}>
             <Icon className={cn("h-[15px] w-[15px]", fg)} />
           </div>
 
           {/* Op label + time */}
           <div className="min-w-0 w-44 shrink-0">
-            <p className="truncate text-sm font-medium text-foreground">
-              {getOpLabel(op.type)}
-            </p>
+            <p className="truncate text-sm font-medium text-foreground">{getOpLabel(op.type)}</p>
             <p className="text-xs text-muted-foreground">{formatTime(op.createdAt)}</p>
           </div>
 
@@ -395,9 +388,7 @@ function TxRow({ op, address }: { op: StellarOperation; address: string }) {
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
                 {right.label}
               </span>
-              <span className="font-mono text-xs text-muted-foreground">
-                {right.value}
-              </span>
+              <span className="font-mono text-xs text-muted-foreground">{right.value}</span>
             </div>
           ) : (
             <div className="w-40 shrink-0" />
@@ -408,11 +399,7 @@ function TxRow({ op, address }: { op: StellarOperation; address: string }) {
         </button>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <DetailsPanel
-          txHash={op.transactionHash}
-          createdAt={op.createdAt}
-          enabled={open}
-        />
+        <DetailsPanel txHash={op.transactionHash} createdAt={op.createdAt} enabled={open} />
       </CollapsibleContent>
     </Collapsible>
   );

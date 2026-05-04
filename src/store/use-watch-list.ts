@@ -23,7 +23,7 @@ export const useWatchList = create<WatchListState>()(
         set((state) =>
           state.items.some((i) => i.symbol === a.symbol)
             ? state
-            : { items: [...state.items, { ...a, addedAt: Date.now() }] },
+            : { items: [...state.items, { ...a, addedAt: Date.now() }] }
         ),
       removeAsset: (symbol) =>
         set((state) => ({
@@ -31,6 +31,13 @@ export const useWatchList = create<WatchListState>()(
         })),
       isWatched: (symbol) => get().items.some((i) => i.symbol === symbol),
     }),
-    { name: "tasmil.watchlist" },
-  ),
+    {
+      name: "tasmil.watchlist",
+      version: 1,
+      // Lock the schema contract early. Future changes that add fields to
+      // WatchedAsset must bump this version and provide a real migration so
+      // stale localStorage rows don't silently rehydrate without the new fields.
+      migrate: (persistedState, _version) => persistedState as WatchListState,
+    }
+  )
 );
