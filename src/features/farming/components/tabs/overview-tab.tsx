@@ -6,15 +6,11 @@ import type { ActivityItem, PositionData } from "@/features/account/types";
 import { Button } from "@/shared/ui/button-v2";
 import { FarmingActivitySidebar } from "../farming-activity";
 import { FarmingAllocation } from "../farming-allocation";
-import { FarmingPools } from "../farming-pools";
-import type { DiscoveredPool } from "../../types";
 
 interface OverviewTabProps {
   position: PositionData;
   activities: ActivityItem[] | undefined;
   activitiesLoading: boolean;
-  registryPools: DiscoveredPool[];
-  registryPoolsLoading: boolean;
   unallocatedWalletUsd: number;
   isRevoked: boolean;
   accountActionPending: boolean;
@@ -26,8 +22,6 @@ export function OverviewTab({
   position,
   activities,
   activitiesLoading,
-  registryPools,
-  registryPoolsLoading,
   unallocatedWalletUsd,
   isRevoked,
   accountActionPending,
@@ -75,8 +69,6 @@ export function OverviewTab({
           onSeeAll={onSeeAllActivity}
         />
       </div>
-
-      <FarmingPools pools={registryPools} isLoading={registryPoolsLoading} />
     </motion.div>
   );
 }

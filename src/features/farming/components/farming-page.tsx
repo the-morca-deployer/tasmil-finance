@@ -21,6 +21,7 @@ import { FarmingActivity } from "./farming-activity";
 import { FarmingHeader } from "./farming-header";
 import { FarmingModals, type FarmingModalTab } from "./farming-modals";
 import { FarmingPools } from "./farming-pools";
+import { FarmingStatusBanners } from "./farming-status-banners";
 import { OverviewTab } from "./tabs/overview-tab";
 import { StrategyTab } from "./tabs/strategy-tab";
 
@@ -222,27 +223,14 @@ function FarmingContent() {
             isLoading={false}
           />
 
-          {position.sessionKeyStale && (
-            <motion.div
-              className="flex items-start gap-3 rounded-lg border border-yellow-500/40 bg-yellow-500/10 p-3 text-xs"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Shield className="mt-0.5 h-4 w-4 shrink-0 text-yellow-500" />
-              <div className="flex-1">
-                <p className="font-medium text-foreground">New yield strategies available</p>
-                <p className="text-muted-foreground">
-                  Your session key was registered before we launched some pools. Refresh it to let
-                  the bot access the latest opportunities. Your funds stay in your keeper wallet —
-                  this just updates the bot's scope.
-                </p>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => openModal("security")}>
-                Refresh
-              </Button>
-            </motion.div>
-          )}
+          <FarmingStatusBanners
+            status={position.status as "DEPLOYING" | "AWAITING_FUND" | "ACTIVE" | "HALTED" | "REVOKED"}
+            balanceStale={Boolean(position.balanceStale)}
+            sessionKeyStale={Boolean(position.sessionKeyStale)}
+            onRefresh={() => openModal("security")}
+            onDeposit={() => openModal("fund")}
+          />
+
 
           <motion.div
             className="flex items-center gap-3"
@@ -325,8 +313,6 @@ function FarmingContent() {
                 position={position}
                 activities={activities}
                 activitiesLoading={activitiesLoading}
-                registryPools={registryPools}
-                registryPoolsLoading={registryPoolsLoading}
                 unallocatedWalletUsd={unallocatedWalletUsd}
                 isRevoked={isRevoked}
                 accountActionPending={actions.isPending}
