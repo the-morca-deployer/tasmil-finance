@@ -1,4 +1,4 @@
-import { Bot, LineChart, Tractor } from "lucide-react";
+import { Bot, LineChart, MessageSquare, Tractor, Trophy } from "lucide-react";
 import type { ComponentType } from "react";
 
 export interface WelcomeSlideData {
@@ -6,28 +6,43 @@ export interface WelcomeSlideData {
   title: string;
   description: string;
   gradient: string;
+  videoUrl?: string;
 }
 
 export const welcomeSlides: WelcomeSlideData[] = [
   {
     icon: Bot,
-    title: "Welcome to Tasmil Finance",
+    title: "Welcome to Tasmil",
     description:
-      "Your AI-powered DeFi portfolio manager on Stellar. We help you manage, optimize, and grow your digital assets — all in one place.",
+      "Your AI-powered DeFi portfolio manager on Stellar. Manage, optimize, and grow your assets in one place.",
     gradient: "from-sky-500 to-blue-600",
+    videoUrl: "",
+  },
+  {
+    icon: MessageSquare,
+    title: "Chat With Your Agent",
+    description:
+      "Natural-language DeFi: ask the agent to swap, bridge, or rebalance — it executes and explains.",
+    gradient: "from-violet-500 to-purple-600",
   },
   {
     icon: Tractor,
-    title: "Smart Yield Farming",
+    title: "Automated Yield Farming",
     description:
-      "AI agents automatically find the best yields across Blend, Soroswap, Aquarius, and more. Set your risk level and let the AI handle rebalancing for you.",
+      "AI agents find the best yields across Blend, Soroswap, and Aquarius. Set risk; the agent rebalances for you.",
     gradient: "from-emerald-500 to-teal-600",
   },
   {
     icon: LineChart,
-    title: "Track Everything",
+    title: "Track Everything, Earn Rewards",
     description:
-      "Monitor your complete DeFi portfolio in real-time. See your positions, P&L, APY performance, and activity history across all Stellar protocols.",
-    gradient: "from-violet-500 to-purple-600",
+      "Watch your portfolio in real time. Climb the Quest leaderboard. Earn welcome credits and task bonuses.",
+    gradient: "from-amber-500 to-orange-600",
+  },
+  {
+    icon: Trophy,
+    title: "Ready to Begin?",
+    description: "Connect your wallet and start earning. Powered by Stellar Soroban.",
+    gradient: "from-yellow-400 to-rose-500",
   },
 ];
