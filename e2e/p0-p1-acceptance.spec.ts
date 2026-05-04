@@ -188,7 +188,10 @@ test.describe("T2 — Farming UI (P0)", () => {
       await expect(dialog).not.toBeVisible({ timeout: 3000 });
     }
 
-    const activityTab = page.getByRole("tab", { name: /^Activity$/i });
+    // /farming top-level nav (Overview / Pools / Strategy / Activity) is a
+    // custom <button> group, not Radix tabs. The sub-tabs INSIDE the Activity
+    // panel (All / Protocol / Reward) are Radix Tabs with role="tab".
+    const activityTab = page.getByRole("button", { name: /^Activity$/i });
     await expect(activityTab).toBeVisible({ timeout: 10_000 });
     await activityTab.click();
 
@@ -215,7 +218,8 @@ test.describe("T2 — Farming UI (P0)", () => {
       await expect(dialog).not.toBeVisible({ timeout: 3000 });
     }
 
-    await page.getByRole("tab", { name: /^Activity$/i }).click();
+    // Top-level Activity nav is a button (see comment in the previous test).
+    await page.getByRole("button", { name: /^Activity$/i }).click();
     await page.getByRole("tab", { name: /^Reward$/ }).click();
 
     const plusRow = page.locator("text=/^\\+\\d/").first();
@@ -441,6 +445,7 @@ test.describe("T4 — Protocol/Reward split (P1)", () => {
     await clearOnboardingState(page);
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
+    await seedManagedAccount(wallet);
     await page.goto("/farming");
 
     const dialog = page.getByRole("dialog");
@@ -449,7 +454,8 @@ test.describe("T4 — Protocol/Reward split (P1)", () => {
       await expect(dialog).not.toBeVisible({ timeout: 3000 });
     }
 
-    await page.getByRole("tab", { name: /^Activity$/i }).click();
+    // Top-level nav is a button group; sub-tabs are Radix Tabs.
+    await page.getByRole("button", { name: /^Activity$/i }).click();
 
     await expect(page.getByRole("tab", { name: /^All$/ })).toBeVisible();
     await expect(page.getByRole("tab", { name: /^Protocol$/ })).toBeVisible();
