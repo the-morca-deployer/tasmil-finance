@@ -517,5 +517,99 @@ test.describe("T5 — History display Freighter-style (P1)", () => {
 });
 
 test.describe("T6 — Asset selector (P1)", () => {
-  // tests added in Task 11
+  async function bypassOnboarding(page: import("@playwright/test").Page) {
+    const dialog = page.getByRole("dialog");
+    if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await page.getByRole("button", { name: /Skip/i }).click();
+      await expect(dialog).not.toBeVisible({ timeout: 3000 });
+    }
+  }
+
+  test("portfolio shows both Add Trustline and Watch Asset buttons", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    await clearWatchlistState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/portfolio");
+    await bypassOnboarding(page);
+
+    await expect(page.getByRole("button", { name: /Add Trustline/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("button", { name: /Watch Asset/i })).toBeVisible();
+  });
+
+  test("Watch Asset → search BLND → click Watch → chip appears", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    await clearWatchlistState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/portfolio");
+    await bypassOnboarding(page);
+
+    await page.getByRole("button", { name: /Watch Asset/i }).click();
+
+    const search = page.getByPlaceholder(/search/i);
+    await search.fill("BLND");
+    await page.waitForTimeout(300); // 200ms debounce + buffer
+
+    const watchBtn = page.getByRole("button", { name: /^Watch$/ }).first();
+    await expect(watchBtn).toBeVisible({ timeout: 5_000 });
+    await watchBtn.click();
+
+    await expect(page.getByRole("button", { name: /Open BLND in aggregator/i })).toBeVisible();
+  });
+
+  test("click chip body → URL becomes /aggregator?tokenIn=BLND&chainIn=stellar", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    await clearWatchlistState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/portfolio");
+    await bypassOnboarding(page);
+
+    // Add BLND first
+    await page.getByRole("button", { name: /Watch Asset/i }).click();
+    await page.getByPlaceholder(/search/i).fill("BLND");
+    await page.waitForTimeout(300);
+    await page.getByRole("button", { name: /^Watch$/ }).first().click();
+
+    const chip = page.getByRole("button", { name: /Open BLND in aggregator/i });
+    await expect(chip).toBeVisible();
+    await chip.click();
+
+    await expect(page).toHaveURL(/\/aggregator\?.*tokenIn=BLND.*chainIn=stellar/);
+  });
+
+  test("click X on chip → chip removed; reload → still removed", async ({ page, context }) => {
+    await context.clearCookies();
+    await clearOnboardingState(page);
+    await clearWatchlistState(page);
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/portfolio");
+    await bypassOnboarding(page);
+
+    // Add BLND
+    await page.getByRole("button", { name: /Watch Asset/i }).click();
+    await page.getByPlaceholder(/search/i).fill("BLND");
+    await page.waitForTimeout(300);
+    await page.getByRole("button", { name: /^Watch$/ }).first().click();
+    await expect(page.getByRole("button", { name: /Open BLND in aggregator/i })).toBeVisible();
+
+    // Reload — chip persists
+    await page.reload();
+    await bypassOnboarding(page);
+    await expect(page.getByRole("button", { name: /Open BLND in aggregator/i })).toBeVisible();
+
+    // Remove
+    await page.getByRole("button", { name: /Remove BLND/i }).click();
+    await expect(page.getByRole("button", { name: /Open BLND in aggregator/i })).not.toBeVisible();
+
+    // Reload again — chip is still gone
+    await page.reload();
+    await bypassOnboarding(page);
+    await expect(page.getByRole("button", { name: /Open BLND in aggregator/i })).not.toBeVisible();
+  });
 });
