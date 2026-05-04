@@ -24,6 +24,8 @@ export interface StellarOperation {
   price?: string;
   // account_merge
   into?: string;
+  // status (from transaction-level field, propagated to operation)
+  successful?: boolean;
 }
 
 interface HorizonOperationRecord {
@@ -45,6 +47,7 @@ interface HorizonOperationRecord {
   destination_asset_type?: string;
   price?: string;
   into?: string;
+  transaction_successful?: boolean;
 }
 
 interface HorizonOperationsPage {
@@ -60,7 +63,7 @@ async function fetchOperations(address: string, cursor?: string): Promise<Operat
   const params = new URLSearchParams({
     order: "desc",
     limit: "20",
-    include_failed: "false",
+    include_failed: "true",
   });
   if (cursor) params.set("cursor", cursor);
 
@@ -89,6 +92,7 @@ async function fetchOperations(address: string, cursor?: string): Promise<Operat
     destinationAsset: r.destination_asset_type === "native" ? "XLM" : r.destination_asset_code,
     price: r.price,
     into: r.into,
+    successful: r.transaction_successful,
   }));
 
   const lastPagingToken = records.at(-1)?.paging_token ?? null;
@@ -102,8 +106,7 @@ async function fetchOperations(address: string, cursor?: string): Promise<Operat
 export function useStellarTransactions(address: string | null | undefined) {
   return useInfiniteQuery<OperationsPage, Error>({
     queryKey: ["profile", "transactions", address],
-    queryFn: ({ pageParam }) =>
-      fetchOperations(address!, pageParam as string | undefined),
+    queryFn: ({ pageParam }) => fetchOperations(address!, pageParam as string | undefined),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled: !!address,
