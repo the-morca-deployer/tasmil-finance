@@ -2,7 +2,7 @@
 
 import { Check, Copy, ExternalLink, LogOut, User, Wallet } from "lucide-react";
 import { useState } from "react";
-import { ReplayMenuItem } from "@/features/onboarding";
+import { ReplayMenuItem } from "./replay-menu-item";
 import { cn } from "@/lib/utils";
 import { getExplorerUrl, isMainnet } from "@/shared/config/stellar";
 import { useWallet } from "@/shared/context/wallet-context";
