@@ -40,14 +40,9 @@ const KIND_TO_CATEGORY: Record<OpKind, FilterCategory> = {
 function passesFilters(group: TxGroup, state: FilterState): boolean {
   if (state.filters.length > 0) {
     const cat = KIND_TO_CATEGORY[group.primary.kind];
-    const failedSelected = state.filters.includes("failed");
-    if (failedSelected && !group.successful) {
-      // pass through if failed filter is on; remaining checks fall through too
-    } else if (!group.successful && !failedSelected) {
-      return false;
-    } else if (!state.filters.includes(cat) && !failedSelected) {
-      return false;
-    }
+    const failedMatched = !group.successful && state.filters.includes("failed");
+    const catMatched = state.filters.includes(cat);
+    if (!failedMatched && !catMatched) return false;
   }
   if (state.query) {
     const q = state.query.toLowerCase();
