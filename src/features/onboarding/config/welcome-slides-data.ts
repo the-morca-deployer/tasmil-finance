@@ -5,7 +5,6 @@ export interface WelcomeSlideData {
   icon: ComponentType<{ className?: string }>;
   title: string;
   description: string;
-  gradient: string;
   /** Path under /public, e.g. "/onboarding/intro.mp4". Empty/undefined → no video slot. */
   videoSrc?: string;
   /** Path under /public, e.g. "/onboarding/intro-poster.png". Empty/undefined → no poster. */
@@ -22,7 +21,6 @@ export const welcomeSlides: WelcomeSlideData[] = [
     title: "Welcome to Tasmil",
     description:
       "Your AI-powered DeFi portfolio manager on Stellar. Manage, optimize, and grow your assets in one place.",
-    gradient: "from-sky-500 to-blue-600",
     videoSrc: "/onboarding/intro.mp4",
     videoPoster: "/onboarding/intro-poster.png",
   },
@@ -31,7 +29,6 @@ export const welcomeSlides: WelcomeSlideData[] = [
     title: "Chat With Your Agent",
     description:
       "Natural-language DeFi: ask the agent to swap, bridge, or rebalance — it executes and explains.",
-    gradient: "from-violet-500 to-purple-600",
     imageSrc: "/onboarding/chat.png",
     imageAlt: "Chat interface preview",
   },
@@ -40,7 +37,6 @@ export const welcomeSlides: WelcomeSlideData[] = [
     title: "Automated Yield Farming",
     description:
       "AI agents find the best yields across Blend, Soroswap, and Aquarius. Set risk; the agent rebalances for you.",
-    gradient: "from-emerald-500 to-teal-600",
     imageSrc: "/onboarding/farming.png",
     imageAlt: "Farming dashboard preview",
   },
@@ -49,7 +45,6 @@ export const welcomeSlides: WelcomeSlideData[] = [
     title: "Track Everything, Earn Rewards",
     description:
       "Watch your portfolio in real time. Climb the Quest leaderboard. Earn welcome credits and task bonuses.",
-    gradient: "from-amber-500 to-orange-600",
     imageSrc: "/onboarding/portfolio.png",
     imageAlt: "Portfolio overview preview",
   },
@@ -57,6 +52,5 @@ export const welcomeSlides: WelcomeSlideData[] = [
     icon: Trophy,
     title: "Ready to Begin?",
     description: "Connect your wallet and start earning. Powered by Stellar Soroban.",
-    gradient: "from-yellow-400 to-rose-500",
   },
 ];

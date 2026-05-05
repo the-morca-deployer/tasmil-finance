@@ -7,7 +7,6 @@ const baseSlide: WelcomeSlideData = {
   icon: Bot,
   title: "Test slide",
   description: "Test body",
-  gradient: "from-sky-500 to-blue-600",
 };
 
 describe("WelcomeSlide render branches", () => {
