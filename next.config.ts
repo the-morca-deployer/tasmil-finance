@@ -19,6 +19,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        // Tell reverse proxies (dev tunnels, CDN) not to compress —
+        // Next.js compress:false handles this, but tunnel proxies may
+        // add their own gzip layer that corrupts SSE streams.
+        source: "/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-transform" },
+        ],
+      },
+    ];
+  },
   async rewrites() {
     return [...getBackendProxyRewrites(), ...getAiProxyRewrites()];
   },
