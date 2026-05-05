@@ -108,6 +108,37 @@ export function ManageTab({
           </div>
         )}
 
+        {selectedPreset &&
+          selectedPreset?.toUpperCase() !== currentPreset?.toUpperCase() && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className={cn(
+                "sticky top-0 z-10 flex items-center justify-between gap-3 rounded-xl border border-primary/20 bg-card px-4 py-2.5",
+                (isRevoked || isUpdatingPreset) && "opacity-60",
+              )}
+            >
+              <p className="text-sm">
+                <span className="font-medium text-foreground">{selectedPreset} selected</span>
+                <span className="text-muted-foreground"> · current: {currentPresetLabel}</span>
+              </p>
+              <div className="flex items-center gap-3">
+                {actionError && <p className="text-destructive text-xs">{actionError}</p>}
+                <Button
+                  variant="gradient"
+                  size="sm"
+                  className="h-9 px-5"
+                  onClick={onApply}
+                  disabled={isRevoked || isUpdatingPreset}
+                >
+                  {isUpdatingPreset && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+                  Apply Strategy
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
         {presetsLoading ? (
           <div className="flex items-center justify-center py-10">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -125,24 +156,6 @@ export function ManageTab({
                   }}
                 />
               ))}
-            </div>
-            <div className="flex items-center justify-end gap-3">
-              {actionError && <p className="text-destructive text-sm">{actionError}</p>}
-              <Button
-                variant="gradient"
-                size="lg"
-                className="h-11 px-6"
-                onClick={onApply}
-                disabled={
-                  isRevoked ||
-                  !selectedPreset ||
-                  selectedPreset?.toUpperCase() === currentPreset?.toUpperCase() ||
-                  isUpdatingPreset
-                }
-              >
-                {isUpdatingPreset && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Apply Strategy
-              </Button>
             </div>
           </>
         ) : (

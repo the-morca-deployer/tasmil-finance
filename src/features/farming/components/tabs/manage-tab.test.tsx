@@ -135,3 +135,82 @@ describe("ManageTab asset toggle pool counts", () => {
     expect(screen.queryByText(/^Preview$/i)).toBeNull();
   });
 });
+
+describe("ManageTab sticky Apply bar", () => {
+  const baseProps = {
+    presets: [],
+    presetsLoading: false,
+    onSelectPreset: () => {},
+    previewAsset: "USDC" as const,
+    onChangePreviewAsset: () => {},
+    activeAssets: ["USDC"],
+    isRevoked: false,
+    isUpdatingPreset: false,
+    actionError: null,
+    pools: [],
+    poolsLoading: false,
+  };
+
+  it("hides Apply bar when no preset selected", () => {
+    render(
+      <ManageTab
+        {...baseProps}
+        selectedPreset={null}
+        currentPreset="BALANCED"
+        onApply={() => {}}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: /apply strategy/i })).toBeNull();
+  });
+
+  it("hides Apply bar when selected preset matches current", () => {
+    render(
+      <ManageTab
+        {...baseProps}
+        selectedPreset="Balanced"
+        currentPreset="BALANCED"
+        onApply={() => {}}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: /apply strategy/i })).toBeNull();
+  });
+
+  it("shows Apply bar when selected differs from current", () => {
+    render(
+      <ManageTab
+        {...baseProps}
+        selectedPreset="Aggressive"
+        currentPreset="BALANCED"
+        onApply={() => {}}
+      />,
+    );
+    expect(screen.getByRole("button", { name: /apply strategy/i })).toBeInTheDocument();
+  });
+
+  it("invokes onApply when Apply Strategy clicked from sticky bar", () => {
+    const onApply = jest.fn();
+    render(
+      <ManageTab
+        {...baseProps}
+        selectedPreset="Aggressive"
+        currentPreset="BALANCED"
+        onApply={onApply}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /apply strategy/i }));
+    expect(onApply).toHaveBeenCalled();
+  });
+
+  it("shows current preset label in sticky bar", () => {
+    render(
+      <ManageTab
+        {...baseProps}
+        selectedPreset="Aggressive"
+        currentPreset="BALANCED"
+        onApply={() => {}}
+      />,
+    );
+    expect(screen.getByText(/aggressive selected/i)).toBeInTheDocument();
+    expect(screen.getByText(/current: balanced/i)).toBeInTheDocument();
+  });
+});
