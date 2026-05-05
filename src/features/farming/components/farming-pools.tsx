@@ -40,9 +40,16 @@ interface FarmingPoolsProps {
   pools: DiscoveredPool[];
   isLoading: boolean;
   assetFilter?: "USDC" | "XLM";
+  /**
+   * FRAGILE: keys built as `${protocol.toLowerCase()}:${assetSymbol}${pair}` — the
+   * SAME shape backend uses for Position.poolName + protocol. Match relies on this
+   * derivation parity. Backend follow-up: add poolAddress to PositionResponse for
+   * type-safe match.
+   */
+  inPositionKeys?: Set<string>;
 }
 
-export function FarmingPools({ pools, isLoading, assetFilter }: FarmingPoolsProps) {
+export function FarmingPools({ pools, isLoading, assetFilter, inPositionKeys }: FarmingPoolsProps) {
   const depositable = pools.filter((p) => !!p.strategyContractAddress);
   const filtered = assetFilter
     ? depositable.filter((p) => p.assetSymbol === assetFilter)
@@ -153,10 +160,21 @@ export function FarmingPools({ pools, isLoading, assetFilter }: FarmingPoolsProp
                   )}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium text-foreground">
-                    {pool.assetSymbol}
-                    {pool.pairedAssetSymbol ? `/${pool.pairedAssetSymbol}` : ""}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-foreground">
+                      {pool.assetSymbol}
+                      {pool.pairedAssetSymbol ? `/${pool.pairedAssetSymbol}` : ""}
+                    </span>
+                    {inPositionKeys?.has(
+                      `${pool.protocol.toLowerCase()}:${pool.assetSymbol}${
+                        pool.pairedAssetSymbol ? `/${pool.pairedAssetSymbol}` : ""
+                      }`,
+                    ) && (
+                      <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400">
+                        Active
+                      </span>
+                    )}
+                  </div>
                   <span className="text-xs capitalize text-muted-foreground">{pool.protocol}</span>
                 </div>
               </div>

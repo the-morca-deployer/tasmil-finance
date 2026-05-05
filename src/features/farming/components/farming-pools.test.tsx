@@ -63,3 +63,65 @@ describe("FarmingPools assetFilter", () => {
     expect(screen.getByText(/no depositable pools/i)).toBeInTheDocument();
   });
 });
+
+describe("FarmingPools inPositionKeys", () => {
+  const blendUsdcPool = {
+    ...samplePool,
+    id: "p-blend",
+    protocol: "blend",
+    assetSymbol: "USDC",
+    pairedAssetSymbol: undefined,
+  } as unknown as DiscoveredPool;
+  const soroswapLpPool = {
+    ...samplePool,
+    id: "p-soro",
+    protocol: "soroswap",
+    assetSymbol: "USDC",
+    pairedAssetSymbol: "XLM",
+  } as unknown as DiscoveredPool;
+
+  it("renders Active pill for matching protocol+derived-name key", () => {
+    const inPositionKeys = new Set(["blend:USDC"]);
+    render(
+      <FarmingPools
+        pools={[blendUsdcPool, soroswapLpPool]}
+        isLoading={false}
+        inPositionKeys={inPositionKeys}
+      />,
+    );
+    expect(screen.getAllByText(/^Active$/).length).toBe(1);
+  });
+
+  it("renders Active pill for paired-asset LP key", () => {
+    const inPositionKeys = new Set(["soroswap:USDC/XLM"]);
+    render(
+      <FarmingPools
+        pools={[blendUsdcPool, soroswapLpPool]}
+        isLoading={false}
+        inPositionKeys={inPositionKeys}
+      />,
+    );
+    expect(screen.getAllByText(/^Active$/).length).toBe(1);
+  });
+
+  it("renders no Active pill when key does not match", () => {
+    const inPositionKeys = new Set(["aquarius:USDC"]);
+    render(
+      <FarmingPools
+        pools={[blendUsdcPool, soroswapLpPool]}
+        isLoading={false}
+        inPositionKeys={inPositionKeys}
+      />,
+    );
+    expect(screen.queryByText(/^Active$/)).toBeNull();
+  });
+
+  it("matches with case-insensitive protocol on the row side", () => {
+    const inPositionKeys = new Set(["blend:USDC"]);
+    const upperPool = { ...blendUsdcPool, protocol: "BLEND" } as unknown as DiscoveredPool;
+    render(
+      <FarmingPools pools={[upperPool]} isLoading={false} inPositionKeys={inPositionKeys} />,
+    );
+    expect(screen.getAllByText(/^Active$/).length).toBe(1);
+  });
+});
