@@ -410,4 +410,50 @@ test.describe("Farming UI (Task 8)", () => {
       await expect(page.getByText(/activity timeline/i)).toHaveCount(0);
     }
   });
+
+  test("Manage tab — clicking a pool row opens PoolDetailDrawer", async ({ page }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming?tab=manage");
+    await page.waitForLoadState("networkidle");
+    const row = page.locator('[data-pools-row="true"]').first();
+    const visible = await row.isVisible({ timeout: 5000 }).catch(() => false);
+    if (!visible) return; // empty pools state — skip
+    await row.click();
+    const deposit = page.getByRole("button", { name: /deposit|reactivate/i });
+    await expect(deposit.first()).toBeVisible({ timeout: 3000 });
+  });
+
+  test("Manage tab — asset toggle shows pool counts", async ({ page }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming?tab=manage");
+    await page.waitForLoadState("networkidle");
+    const usdcChip = page.getByRole("button", { name: /^USDC \(\d+ pool/ });
+    const xlmChip = page.getByRole("button", { name: /^XLM \(\d+ pool/ });
+    await expect(usdcChip).toBeVisible();
+    await expect(xlmChip).toBeVisible();
+  });
+
+  test("Manage tab — sticky Apply bar appears when preset selection differs from current", async ({
+    page,
+  }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await page.goto("/farming?tab=manage");
+    await page.waitForLoadState("networkidle");
+    const initialApply = await page
+      .getByRole("button", { name: /apply strategy/i })
+      .isVisible({ timeout: 1500 })
+      .catch(() => false);
+    expect(initialApply).toBe(false);
+
+    const aggressive = page.getByText(/aggressive/i).first();
+    const aggressiveVisible = await aggressive.isVisible({ timeout: 2000 }).catch(() => false);
+    if (!aggressiveVisible) return;
+    await aggressive.click();
+
+    const apply = page.getByRole("button", { name: /apply strategy/i });
+    await expect(apply).toBeVisible({ timeout: 2000 });
+  });
 });
