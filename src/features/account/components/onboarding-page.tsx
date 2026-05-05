@@ -6,6 +6,7 @@ import { useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { activeNetwork } from "@/shared/config/stellar";
 import { Button } from "@/shared/ui/button-v2";
+import { useWallet } from "@/shared/context/wallet-context";
 import { useWalletStore } from "@/store/use-wallet";
 
 import {
@@ -48,6 +49,7 @@ const DEFAULT_PRESET: RiskPreset = "Balanced";
 export function OnboardingPage() {
   const router = useRouter();
   const { account } = useWalletStore();
+  const { connect } = useWallet();
   const publicKey = account ?? null;
 
   // User's preset pick. Defaults to Balanced (most users should start here).
@@ -267,14 +269,46 @@ export function OnboardingPage() {
   // ---- Not connected ----
   if (!publicKey) {
     return (
-      <div className="mx-auto flex max-w-lg flex-col items-center py-24 text-center">
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted/20">
-          <Wallet className="h-8 w-8 text-muted-foreground" />
+      <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-6 px-6 py-16 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/15">
+          <Wallet className="h-8 w-8 text-primary" />
         </div>
-        <h2 className="mb-2 font-bold text-2xl text-foreground">Connect Your Wallet</h2>
-        <p className="text-muted-foreground">
-          Connect your Stellar wallet to create a smart account and get started.
-        </p>
+
+        <div className="flex flex-col gap-2">
+          <h1 className="font-bold text-2xl text-foreground">
+            Earn yield on Stellar, automated.
+          </h1>
+          <p className="max-w-md text-sm text-muted-foreground">
+            Connect your wallet to set up a Smart Account that lets the agent rebalance
+            your funds across audited yield pools.
+          </p>
+        </div>
+
+        <Button
+          variant="gradient"
+          size="lg"
+          className="h-11 px-8"
+          onClick={() => {
+            void connect();
+          }}
+        >
+          Connect Wallet
+        </Button>
+
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <ShieldCheck className="h-3 w-3 text-emerald-400" />
+            Self-custody
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <CheckCircle className="h-3 w-3 text-emerald-400" />
+            Revokable any time
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Zap className="h-3 w-3 text-emerald-400" />
+            Session-key automation
+          </span>
+        </div>
       </div>
     );
   }
