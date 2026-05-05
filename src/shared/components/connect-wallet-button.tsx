@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronDown, ExternalLink, LogOut, User } from "lucide-react";
+import { Check, ChevronDown, Copy, ExternalLink, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useCredits } from "@/features/credits/use-credits";
@@ -139,7 +139,7 @@ export function ConnectWalletButton({ variant = "sidebar" }: ConnectWalletButton
           {copied ? (
             <Check className="mr-2 h-4 w-4 text-emerald-400" />
           ) : (
-            <ExternalLink className="mr-2 h-4 w-4" />
+            <Copy className="mr-2 h-4 w-4" />
           )}
           {copied ? "Copied!" : "Copy Address"}
         </DropdownMenuItem>
