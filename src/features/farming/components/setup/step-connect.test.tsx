@@ -14,19 +14,19 @@ beforeEach(() => {
 });
 
 describe("StepConnect", () => {
-  it("renders Get started title and Continue orb button", () => {
+  it("renders Get started title and Connect Wallet orb button when disconnected", () => {
     render(<StepConnect onConnected={jest.fn()} />);
     expect(screen.getByRole("heading", { name: /get started/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /continue/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /connect wallet/i })).toBeInTheDocument();
   });
 
   it("calls connect() when disconnected and orb clicked", async () => {
     render(<StepConnect onConnected={jest.fn()} />);
-    await userEvent.click(screen.getByRole("button", { name: /continue/i }));
+    await userEvent.click(screen.getByRole("button", { name: /connect wallet/i }));
     expect(connect).toHaveBeenCalled();
   });
 
-  it("calls onConnected() when connected and orb clicked", async () => {
+  it("orb shows Continue and calls onConnected() when connected", async () => {
     const onConnected = jest.fn();
     mockUseWallet.mockReturnValue({ isConnected: true, connect });
     render(<StepConnect onConnected={onConnected} />);
