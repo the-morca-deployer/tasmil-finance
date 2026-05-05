@@ -14,13 +14,15 @@ import type { RiskPreset } from "@/features/account/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button-v2";
 import { useWalletStore } from "@/store/use-wallet";
-import { usePools } from "../hooks/use-farming-api";
 import { useFarmingActions } from "../hooks/use-farming-actions";
+import { usePools } from "../hooks/use-farming-api";
+import type { DiscoveredPool } from "../types";
 import { computeCashflowSummary } from "../utils/cashflow";
 import { ActivityDrawer } from "./activity-drawer";
 import { FarmingModals, type FarmingModalTab } from "./farming-modals";
 import { FarmingStatusBanners } from "./farming-status-banners";
 import { StatRow } from "./hero/stat-row";
+import { PoolDetailDrawer } from "./pool-detail-drawer";
 import { SettingsButton } from "./settings-button";
 import { ManageTab } from "./tabs/manage-tab";
 import { PerformanceTab } from "./tabs/performance-tab";
@@ -76,6 +78,7 @@ function FarmingContent() {
   })();
 
   const [activityDrawerOpen, setActivityDrawerOpen] = useState(false);
+  const [poolDrawer, setPoolDrawer] = useState<DiscoveredPool | null>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: open drawer once on mount when ?tab=activity
   useEffect(() => {
@@ -168,11 +171,37 @@ function FarmingContent() {
     [position, activities],
   );
 
-  const openModal = (tab: FarmingModalTab) => {
-    actions.setActionError(null);
-    setModalTab(tab);
-    setModalOpen(true);
-  };
+  const inPositionKeys = useMemo(
+    () =>
+      new Set(
+        (position?.positions ?? []).map(
+          (p) => `${p.protocol.toLowerCase()}:${p.poolName}`,
+        ),
+      ),
+    [position?.positions],
+  );
+
+  const userPositionUsd = useMemo(() => {
+    if (!poolDrawer) return 0;
+    const drawerName = `${poolDrawer.assetSymbol}${
+      poolDrawer.pairedAssetSymbol ? `/${poolDrawer.pairedAssetSymbol}` : ""
+    }`;
+    const match = position?.positions.find(
+      (p) =>
+        p.protocol.toLowerCase() === poolDrawer.protocol.toLowerCase()
+        && p.poolName === drawerName,
+    );
+    return match?.valueUsd ?? 0;
+  }, [poolDrawer, position?.positions]);
+
+  const openModal = useCallback(
+    (tab: FarmingModalTab) => {
+      actions.setActionError(null);
+      setModalTab(tab);
+      setModalOpen(true);
+    },
+    [actions],
+  );
 
   const handleFund = async (amount: number, token: "USDC" | "XLM") => {
     const ok = await actions.fund(amount, token);
@@ -201,19 +230,43 @@ function FarmingContent() {
     }
   };
 
-  const handleReactivate = async () => {
+  const handleReactivate = useCallback(async () => {
     const ok = await actions.reactivate();
     if (ok) {
       await Promise.all([refetchPosition(), refetchActivity()]);
       setModalOpen(false);
     }
-  };
+  }, [actions, refetchPosition, refetchActivity]);
 
   const handleApplyPreset = async () => {
     if (!selectedPreset) return;
     const ok = await actions.applyPreset(selectedPreset);
     if (ok) await refetchPosition();
   };
+
+  const handlePoolDeposit = useCallback(
+    (_pool: DiscoveredPool) => {
+      // pool argument unused by handler today; kept for Phase 2 per-pool routing
+      setPoolDrawer(null);
+      if (position?.status === "REVOKED") {
+        // Drawer button reads "Reactivate Session" when revoked; route accordingly.
+        void handleReactivate();
+        return;
+      }
+      openModal("fund");
+    },
+    [position?.status, handleReactivate, openModal],
+  );
+
+  const handlePoolWithdraw = useCallback(
+    (_pool: DiscoveredPool) => {
+      // pool argument unused by handler today; kept for Phase 2 per-pool routing
+      setWithdrawAmount(String(userPositionUsd.toFixed(2)));
+      setPoolDrawer(null);
+      openModal("withdraw");
+    },
+    [userPositionUsd, openModal],
+  );
 
   if (!publicKey) return <ConnectPrompt />;
 
@@ -336,6 +389,8 @@ function FarmingContent() {
                 onApply={handleApplyPreset}
                 pools={registryPools}
                 poolsLoading={registryPoolsLoading}
+                inPositionKeys={inPositionKeys}
+                onSelectPool={setPoolDrawer}
               />
             )}
           </AnimatePresence>
@@ -366,6 +421,18 @@ function FarmingContent() {
         onOpenChange={setActivityDrawerOpen}
         activities={activities}
         isLoading={activitiesLoading}
+      />
+
+      <PoolDetailDrawer
+        open={!!poolDrawer}
+        onOpenChange={(open) => {
+          if (!open) setPoolDrawer(null);
+        }}
+        pool={poolDrawer}
+        userPositionUsd={userPositionUsd}
+        isRevoked={isRevoked}
+        onDeposit={handlePoolDeposit}
+        onWithdraw={handlePoolWithdraw}
       />
     </div>
   );
