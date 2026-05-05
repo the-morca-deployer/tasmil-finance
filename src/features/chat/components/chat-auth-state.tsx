@@ -43,6 +43,7 @@ export function ChatAuthState({ mode, onConnect, onReconnect }: ChatAuthStatePro
       </div>
       {content.cta ? (
         <Button
+          type="button"
           variant="gradient"
           size="sm"
           onClick={() => onClick?.()}
