@@ -17,25 +17,6 @@ import { FarmingDashboard } from "./farming-dashboard";
 import { FarmingModals, type FarmingModalTab } from "./farming-modals";
 import { PoolDetailDrawer } from "./pool-detail-drawer";
 
-function ConnectPrompt() {
-  return (
-    <motion.div
-      className="mx-auto flex max-w-lg flex-col items-center py-24 text-center"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4 }}
-    >
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted/20">
-        <Wallet className="h-8 w-8 text-muted-foreground" />
-      </div>
-      <h2 className="mb-2 font-bold text-2xl text-foreground">Connect Your Wallet</h2>
-      <p className="text-muted-foreground">
-        Connect your Stellar wallet to view the farming agent.
-      </p>
-    </motion.div>
-  );
-}
-
 /**
  * Empty state shown to a connected user who has no Position yet (or whose
  * deploy is still in flight). Click the gradient CTA → routes to the
@@ -99,11 +80,14 @@ function FarmingContent() {
     refetch: refetchPosition,
   } = usePosition(publicKey);
 
-  // Redirect connected-but-no-account users to the dedicated /farming/setup
-  // full-page wizard. Guard waits for the position fetch to settle so we
-  // don't redirect before the API has confirmed there's no managed account.
+  // Redirect any user without an active managed account to /farming/setup.
+  // Disconnected users land on Step 1 (Connect). Connected-but-no-account
+  // users land on Step 2 once the position fetch settles.
   useEffect(() => {
-    if (!publicKey) return;
+    if (!publicKey) {
+      router.replace("/farming/setup");
+      return;
+    }
     if (positionLoading) return;
     if (!position) router.replace("/farming/setup");
   }, [publicKey, position, positionLoading, router]);
@@ -245,7 +229,13 @@ function FarmingContent() {
     [userPositionUsd, openModal]
   );
 
-  if (!publicKey) return <ConnectPrompt />;
+  if (!publicKey) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (registryPoolsLoading || positionLoading) {
     return (
