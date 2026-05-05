@@ -7,8 +7,8 @@ import { truncateAddress } from "@/shared/config/stellar";
 import { useResultData } from "../../hooks/use-result-data";
 import { formatNumber, formatPercent, formatPrice } from "../../lib/formatting";
 import { ProtocolCard, EmptyState } from "@/features/protocols/cards/base/protocol-card";
-import { MetricBox, Row, Stat } from "@/features/protocols/cards/base/indicators";
-import { DetailRow, ProtocolBadge, ScrollableList } from "../base/indicators";
+import { MetricBox, Row } from "@/features/protocols/cards/base/indicators";
+import { ProtocolBadge, ScrollableList } from "../base/indicators";
 
 interface AccountInfoCardProps {
   type?: string;

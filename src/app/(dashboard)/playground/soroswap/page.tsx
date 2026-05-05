@@ -23,12 +23,6 @@ import {
   SoroswapTxCard,
 } from "@/features/protocols/cards/soroswap";
 import { SwapExecuteCard } from "@/features/chat/actions/components/stellar/swap-execute-card";
-import {
-  normalizeSoroswapPoolsFromSdk,
-  normalizeSoroswapQuoteFromSdk,
-  normalizeSoroswapPositionsFromSdk,
-  normalizeSoroswapYieldFromSdk,
-} from "@/features/protocols/adapters/soroswap-from-sdk";
 import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";

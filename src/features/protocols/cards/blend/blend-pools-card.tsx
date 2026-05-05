@@ -36,15 +36,12 @@ export function BlendPoolsCard({ pools, mode = "playground" }: BlendPoolsCardPro
   }
 
   return (
-<<<<<<< HEAD
     <ProtocolCard
+      data-testid="card-blend-pools"
       mode={mode}
       title={mode === "chat" ? "Blend Pools" : undefined}
       icon={mode === "chat" ? Database : undefined}
     >
-=======
-    <ProtocolCard data-testid="card-blend-pools" mode={mode} title={mode === "chat" ? "Blend Pools" : undefined} icon={mode === "chat" ? Database : undefined}>
->>>>>>> efc3ff3e (Add unit tests for TasmilAdapter and TasmilApiClient with mocked HTTP responses)
       {mode === "playground" && (
         <CardHeader
           icon={<Database className="h-3.5 w-3.5" />}

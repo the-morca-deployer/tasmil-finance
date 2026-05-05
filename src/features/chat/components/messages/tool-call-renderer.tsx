@@ -40,7 +40,7 @@ type CardRendererResult =
 /** Tasmil strategy tool names — these render info cards even when others are hidden. */
 const TASMIL_INFO_TOOLS = new Set(["get_strategy_presets", "get_account_strategy"]);
 
-export function getCardRenderer(toolName: string, args?: Record<string, unknown>): CardRendererResult {
+export function getCardRenderer(toolName: string, _args?: Record<string, unknown>): CardRendererResult {
   // ─── Execute dispatcher — routes to protocol-specific TX cards ──
   if (toolName === EXECUTE_DISPATCHER.toolName) {
     return { kind: "shared-op", render: EXECUTE_DISPATCHER.render };

@@ -5,7 +5,6 @@ import { memo } from "react";
 import { useResultData } from "../../hooks/use-result-data";
 import { ProtocolCard, EmptyState } from "@/features/protocols/cards/base/protocol-card";
 import { Bar } from "@/features/protocols/cards/base/indicators";
-import { ScrollableList } from "../base/indicators";
 
 interface TasmilPreset {
   name: string;

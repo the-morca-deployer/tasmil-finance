@@ -11,6 +11,7 @@
  */
 
 import { ChevronDown, Loader2, RefreshCw, Zap } from "lucide-react";
+import { useMultiTrustlineCheck } from "@/features/protocols/hooks/use-multi-trustline-check";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StreamContext, type StreamContextType } from "@/features/chat/providers/stream-provider";
 import {
@@ -30,13 +31,6 @@ import {
   AquaTxCard,
 } from "@/features/protocols/cards/aquarius";
 import { SwapExecuteCard } from "@/features/chat/actions/components/stellar/swap-execute-card";
-import {
-  normalizeAquaPoolsFromSdk,
-  normalizeAquaPoolFromSdk,
-  normalizeAquaQuoteFromSdk,
-  normalizeAquaYieldFromSdk,
-  normalizeAquaPositionsFromSdk,
-} from "@/features/protocols/adapters/aquarius-from-sdk";
 import { TokenImage } from "@/shared/components/token-image";
 import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";

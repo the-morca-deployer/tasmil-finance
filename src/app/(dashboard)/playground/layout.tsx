@@ -1,13 +1,14 @@
 "use client";
 
-import { Bot } from "lucide-react";
+import { Bot, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   CATEGORY_LABELS,
   PROTOCOL_CONFIGS,
 } from "@/features/dev-playground/config/protocol-configs";
-import { Bot, LayoutGrid } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { TokenImage } from "@/shared/components/token-image";
 
 // ─── Sidebar ───────────────────────────────────────────────────
 

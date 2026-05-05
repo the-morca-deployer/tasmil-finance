@@ -30,14 +30,6 @@ import {
   normalizeAquaPositionsFromMcp,
   normalizeAquaTxFromMcp,
 } from "@/features/protocols/adapters/aquarius-from-mcp";
-import { useStreamContext } from "@/features/chat/hooks/use-stream";
-import type { TxStatus } from "@/features/chat/types/flow-messages";
-import {
-  normalizeAquaPoolFromMcp,
-  normalizeAquaPoolsFromMcp,
-  normalizeAquaPositionsFromMcp,
-  normalizeAquaTxFromMcp,
-} from "@/features/protocols/adapters/aquarius-from-mcp";
 import {
   normalizeBackstopBalanceFromMcp,
   normalizeBackstopFromMcp,
@@ -48,14 +40,6 @@ import {
   normalizeTxFromMcp,
   unwrapMcpResult,
 } from "@/features/protocols/adapters/from-mcp";
-import { normalizeSoroswapPoolsFromMcp } from "@/features/protocols/adapters/soroswap-from-mcp";
-// Shared Aquarius protocol cards
-import {
-  AquaPoolDetailCard,
-  AquaPoolsCard,
-  AquaPositionsCard,
-  AquaTxCard,
-} from "@/features/protocols/cards/aquarius";
 import { normalizeSoroswapPoolsFromMcp } from "@/features/protocols/adapters/soroswap-from-mcp";
 // Shared Aquarius protocol cards
 import {
@@ -75,7 +59,6 @@ import {
   BlendTxCard,
 } from "@/features/protocols/cards/blend";
 import { SoroswapPoolsCard } from "@/features/protocols/cards/soroswap";
-import { useWalletStore } from "@/store/use-wallet";
 import { useWalletStore } from "@/store/use-wallet";
 
 /**
@@ -170,16 +153,6 @@ export const INFO_TOOL_RENDERERS: Array<{
   // Allbridge
   { toolName: "allbridge_get_routes", type: "allbridge_routes", component: BridgeDiscoveryCard },
   { toolName: "allbridge_get_quote", type: "allbridge_quote", component: BridgeDiscoveryCard },
-  {
-    toolName: "allbridge_pool_deposit_quote",
-    type: "allbridge_deposit_quote",
-    component: PoolInfoCard,
-  },
-  {
-    toolName: "allbridge_pool_withdraw_quote",
-    type: "allbridge_withdraw_quote",
-    component: PoolInfoCard,
-  },
   {
     toolName: "allbridge_pool_deposit_quote",
     type: "allbridge_deposit_quote",
@@ -297,11 +270,6 @@ export const OPERATION_TOOL_RENDERERS: Array<{
   // DeFindex
   { toolName: "vault_deposit", operation: "vault_deposit", component: StellarExecuteCard },
   { toolName: "vault_withdraw", operation: "vault_withdraw", component: StellarExecuteCard },
-  {
-    toolName: "vault_withdraw_by_amounts",
-    operation: "vault_withdraw_by_amounts",
-    component: StellarExecuteCard,
-  },
   {
     toolName: "vault_withdraw_by_amounts",
     operation: "vault_withdraw_by_amounts",
@@ -489,9 +457,6 @@ export const AQUARIUS_SHARED_INFO: Array<{
         return (
           <PoolInfoCard type="aquarius_pool_info" result={props.result} status={props.status} />
         );
-        return (
-          <PoolInfoCard type="aquarius_pool_info" result={props.result} status={props.status} />
-        );
       return <AquaPoolDetailCard pool={pool} mode="playground" />;
     },
   },
@@ -520,7 +485,6 @@ function makeAquaOpRenderer(operation: string) {
       return <div className="text-muted-foreground text-xs">Failed to parse transaction data</div>;
     const txWithOp = { ...tx, operation: tx.operation || operation };
     return (
-      <AquaTxCard tx={txWithOp} mode="chat" toolCallId={props.toolCallId} respond={props.respond} />
       <AquaTxCard tx={txWithOp} mode="chat" toolCallId={props.toolCallId} respond={props.respond} />
     );
   };
@@ -563,11 +527,6 @@ const EXECUTE_ACTION_TO_BLEND_OP: Record<string, string> = {
 };
 
 const AQUARIUS_ACTIONS = new Set([
-  "add_liquidity",
-  "remove_liquidity",
-  "swap",
-  "claim_rewards",
-  "lock_aqua",
   "add_liquidity",
   "remove_liquidity",
   "swap",
@@ -808,13 +767,6 @@ export const EXECUTE_DISPATCHER = {
                 ? "complete"
                 : "executing"
           }
-          status={
-            props.status === "inProgress"
-              ? "pending"
-              : props.status === "complete"
-                ? "complete"
-                : "executing"
-          }
           respond={props.respond}
         />
       );
@@ -860,12 +812,6 @@ function usePreviousClarifyResponse(
     suggestions?: { label: string; value: Record<string, unknown> }[];
   }[],
   toolCallId?: string
-  questions: {
-    field_name: string;
-    input_type: string;
-    suggestions?: { label: string; value: Record<string, unknown> }[];
-  }[],
-  toolCallId?: string
 ) {
   const stream = useStreamContext();
   return useMemo(() => {
@@ -876,7 +822,6 @@ function usePreviousClarifyResponse(
     let startIdx = 0;
     if (toolCallId) {
       const toolIdx = msgs.findIndex(
-        (m) => m.type === "tool" && (m as any).tool_call_id === toolCallId
         (m) => m.type === "tool" && (m as any).tool_call_id === toolCallId
       );
       if (toolIdx >= 0) startIdx = toolIdx + 1;
@@ -896,7 +841,6 @@ function usePreviousClarifyResponse(
           if (q.input_type === "select" && q.suggestions) {
             const match = q.suggestions.find((s) =>
               Object.entries(s.value).every(([k, v]) => parsed[k] === v)
-              Object.entries(s.value).every(([k, v]) => parsed[k] === v)
             );
             if (match) answers[q.field_name] = match.value;
           } else if (q.input_type === "text" && parsed[q.field_name]) {
@@ -904,7 +848,6 @@ function usePreviousClarifyResponse(
           }
         }
         if (Object.keys(answers).length > 0) return answers;
-      } catch {}
       } catch {}
     }
     return null;
@@ -921,12 +864,6 @@ function FlowClarifyCardWithStream({
     field_name: string;
     question: string;
     input_type: "select" | "text";
-    suggestions?: {
-      label: string;
-      value: Record<string, unknown>;
-      tags?: string[];
-      description?: string;
-    }[];
     suggestions?: {
       label: string;
       value: Record<string, unknown>;
@@ -984,7 +921,6 @@ function FlowClarifyCardWithStream({
       }
     },
     [stream, questions, context, sent, walletAddress]
-    [stream, questions, context, sent, walletAddress]
   );
 
   return (
@@ -1007,13 +943,6 @@ function parseFlowResult(result: unknown): Record<string, unknown> | null {
   // Already an object with expected fields
   if (typeof result === "object" && !Array.isArray(result) && result !== null) {
     const obj = result as Record<string, unknown>;
-    if (
-      "kind" in obj ||
-      "question" in obj ||
-      "questions" in obj ||
-      "plan" in obj ||
-      "step" in obj
-    ) {
     if (
       "kind" in obj ||
       "question" in obj ||
@@ -1202,27 +1131,12 @@ export const FLOW_TOOL_RENDERERS: Array<{
             suggestions: (data.suggestions as any[]) ?? [],
           },
         ];
-        questions = [
-          {
-            field_name: "q0",
-            question: data.question as string,
-            input_type: "select",
-            suggestions: (data.suggestions as any[]) ?? [],
-          },
-        ];
       }
       if (!questions || questions.length === 0) {
         return <div className="text-muted-foreground text-xs">No questions</div>;
       }
 
       const context = (data._context ?? {}) as Record<string, unknown>;
-      return (
-        <FlowClarifyCardWithStream
-          questions={questions}
-          context={context}
-          toolCallId={props.toolCallId}
-        />
-      );
       return (
         <FlowClarifyCardWithStream
           questions={questions}
