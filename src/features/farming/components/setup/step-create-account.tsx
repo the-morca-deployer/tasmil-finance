@@ -69,7 +69,7 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
     ? "Signing…"
     : deployCompleted && !setupCompleted
       ? "Continue (2 of 2)"
-      : "Sign with your wallet";
+      : "Create";
 
   return (
     <div className="relative flex min-h-[calc(100vh-3.5rem)] w-full flex-col items-center bg-background px-6 pt-6">

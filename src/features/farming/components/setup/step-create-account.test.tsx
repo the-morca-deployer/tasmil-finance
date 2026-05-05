@@ -28,14 +28,14 @@ describe("StepCreateAccount", () => {
     render(<StepCreateAccount publicKey="GABC" preset="Balanced" onComplete={jest.fn()} />);
     expect(screen.getByRole("heading", { name: /create smart wallet/i })).toBeInTheDocument();
     expect(screen.getByText(/two transactions/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /sign with your wallet/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^create$/i })).toBeInTheDocument();
   });
 
   it("calls deploy() when Sign orb clicked", async () => {
     const deploy = jest.fn();
     mockHook.mockReturnValue({ ...idleState, deploy });
     render(<StepCreateAccount publicKey="GABC" preset="Balanced" onComplete={jest.fn()} />);
-    await userEvent.click(screen.getByRole("button", { name: /sign with your wallet/i }));
+    await userEvent.click(screen.getByRole("button", { name: /^create$/i }));
     expect(deploy).toHaveBeenCalled();
   });
 

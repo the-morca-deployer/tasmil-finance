@@ -34,7 +34,7 @@ export function StepConnect({ onConnected }: Props) {
             "0 0 120px rgba(0,191,255,0.4), inset 0 4px 60px rgba(255,255,255,0.3), inset 0 -10px 60px rgba(2,80,120,0.4)",
         }}
       >
-        Continue
+        {isConnected ? "Continue" : "Connect Wallet"}
       </button>
 
       <div className="pointer-events-none absolute bottom-6 left-6 max-w-[160px] text-xs text-muted-foreground/70 leading-snug">
