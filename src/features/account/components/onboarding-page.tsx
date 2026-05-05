@@ -17,6 +17,7 @@ import {
 } from "../hooks/use-account-api";
 import type { DeploySubStep, RiskPreset } from "../types";
 import { PresetCard } from "./preset-card";
+import { DeployStepper } from "./deploy-stepper";
 
 /** User-friendly labels for each sub-step */
 function getDeployStatusLabel(subStep: DeploySubStep): string {
@@ -485,17 +486,14 @@ export function OnboardingPage() {
         </div>
 
         {/* Progress / retry / error banners (inline, below CTA row) */}
-        {isDeploying && (
-          <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs">
-            <Loader2 className="h-3 w-3 animate-spin text-primary" />
-            <p className="font-medium text-primary">{getDeployStatusLabel(deploySubStep)}</p>
-            <p className="text-muted-foreground">· keep Freighter open</p>
-          </div>
-        )}
-        {deployCompleted && !setupCompleted && deploySubStep === "idle" && (
-          <div className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs">
-            <span className="font-medium text-amber-300">Deploy ✓ — one signature left.</span>{" "}
-            <span className="text-muted-foreground">Click the button to finish setup.</span>
+        {(isDeploying || deployCompleted) && deploySubStep !== "done" && (
+          <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
+            <DeployStepper
+              subStep={deploySubStep}
+              deployCompleted={deployCompleted}
+              setupCompleted={setupCompleted}
+              statusText={isDeploying ? getDeployStatusLabel(deploySubStep) : undefined}
+            />
           </div>
         )}
         {deployError && (
