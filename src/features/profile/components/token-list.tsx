@@ -1,16 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ExternalLink, Eye, Plus, Wallet } from "lucide-react";
+import { ExternalLink, Plus, Wallet } from "lucide-react";
 import { useState } from "react";
 import { TokenImage } from "@/shared/components/token-image";
 import { getExplorerUrl } from "@/shared/config/stellar";
 import { Button } from "@/shared/ui/button-v2";
 import { Skeleton } from "@/shared/ui/skeleton";
 import type { WalletToken } from "../hooks/use-wallet-tokens";
-import { AddAssetDialog } from "./add-asset-dialog";
 import { AddTrustlineDialog } from "./add-trustline-dialog";
-import { WatchListSection } from "./watch-list-section";
 
 function formatUsd(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -59,7 +57,6 @@ interface TokenListProps {
 
 export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
   const [trustlineOpen, setTrustlineOpen] = useState(false);
-  const [watchAssetOpen, setWatchAssetOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -124,15 +121,6 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
             variant="outline"
             size="sm"
             className="gap-1.5"
-            onClick={() => setWatchAssetOpen(true)}
-          >
-            <Eye className="h-3.5 w-3.5" />
-            Watch Asset
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5"
             onClick={() => setTrustlineOpen(true)}
           >
             <Plus className="h-3.5 w-3.5" />
@@ -140,8 +128,6 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
           </Button>
         </div>
       </div>
-
-      <WatchListSection />
 
       {tokens.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground">
@@ -235,8 +221,11 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
         </div>
       )}
 
-      <AddTrustlineDialog open={trustlineOpen} onOpenChange={setTrustlineOpen} />
-      <AddAssetDialog open={watchAssetOpen} onOpenChange={setWatchAssetOpen} />
+      <AddTrustlineDialog
+        open={trustlineOpen}
+        onOpenChange={setTrustlineOpen}
+        existingTokens={tokens}
+      />
     </motion.div>
   );
 }
