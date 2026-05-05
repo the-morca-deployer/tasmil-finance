@@ -83,7 +83,55 @@ describe("ManageTab", () => {
         poolsLoading={false}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: /^XLM$/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^XLM \(/ }));
     expect(onChangePreviewAsset).toHaveBeenCalledWith("XLM");
+  });
+});
+
+describe("ManageTab asset toggle pool counts", () => {
+  it("renders pool count next to each asset", () => {
+    render(
+      <ManageTab
+        presets={[]}
+        presetsLoading={false}
+        selectedPreset={null}
+        onSelectPreset={() => {}}
+        currentPreset="BALANCED"
+        previewAsset="USDC"
+        onChangePreviewAsset={() => {}}
+        activeAssets={["USDC"]}
+        isRevoked={false}
+        isUpdatingPreset={false}
+        actionError={null}
+        onApply={() => {}}
+        pools={[usdcPool, xlmPool, { ...usdcPool, id: "p-usdc-2" }]}
+        poolsLoading={false}
+      />,
+    );
+    // "(2 pools)" for USDC, "(1 pool)" for XLM
+    expect(screen.getByText(/\(2 pools\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/\(1 pool\)/i)).toBeInTheDocument();
+  });
+
+  it("does not render Preview micro-label", () => {
+    render(
+      <ManageTab
+        presets={[]}
+        presetsLoading={false}
+        selectedPreset={null}
+        onSelectPreset={() => {}}
+        currentPreset="BALANCED"
+        previewAsset="USDC"
+        onChangePreviewAsset={() => {}}
+        activeAssets={["USDC"]}
+        isRevoked={false}
+        isUpdatingPreset={false}
+        actionError={null}
+        onApply={() => {}}
+        pools={[]}
+        poolsLoading={false}
+      />,
+    );
+    expect(screen.queryByText(/^Preview$/i)).toBeNull();
   });
 });

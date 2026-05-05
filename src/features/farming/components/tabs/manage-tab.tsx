@@ -66,12 +66,12 @@ export function ManageTab({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] uppercase tracking-widest text-muted-foreground/70">
-              Preview
-            </span>
             {(["USDC", "XLM"] as const).map((asset) => {
               const isActive = previewAsset === asset;
               const isCurrentBase = activeAssetsUpper.includes(asset);
+              const poolCount = pools.filter(
+                (p) => p.assetSymbol === asset && !!p.strategyContractAddress,
+              ).length;
               return (
                 <button
                   type="button"
@@ -85,6 +85,9 @@ export function ManageTab({
                   )}
                 >
                   <span className="font-semibold">{asset}</span>
+                  <span className="text-[10px] text-muted-foreground/70">
+                    ({poolCount} pool{poolCount !== 1 ? "s" : ""})
+                  </span>
                   {isCurrentBase && (
                     <span className="rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] text-emerald-400">
                       active
