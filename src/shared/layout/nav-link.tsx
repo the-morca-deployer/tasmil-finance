@@ -14,13 +14,10 @@ export function NavLink({ item }: { item: NavItem }) {
       href={item.url}
       data-active={isActive ? "true" : "false"}
       className={cn(
-        "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-        isActive
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:text-foreground hover:bg-accent"
+        "text-sm font-medium transition-colors",
+        isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
       )}
     >
-      {item.icon && <item.icon className="h-4 w-4" />}
       {item.title}
     </Link>
   );
