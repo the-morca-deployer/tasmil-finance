@@ -1,6 +1,7 @@
 "use client";
 
 import { Wallet } from "lucide-react";
+import { Button } from "@/shared/ui/button-v2";
 
 type ChatAuthStateMode = "disconnected" | "authenticating" | "session-invalid";
 
@@ -41,13 +42,14 @@ export function ChatAuthState({ mode, onConnect, onReconnect }: ChatAuthStatePro
         <p className="max-w-xs text-sm text-muted-foreground">{content.body}</p>
       </div>
       {content.cta ? (
-        <button
-          type="button"
+        <Button
+          variant="gradient"
+          size="sm"
           onClick={() => onClick?.()}
-          className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
+          className="h-9 rounded-full px-4 font-bold text-sm"
         >
           {content.cta}
-        </button>
+        </Button>
       ) : null}
     </div>
   );
