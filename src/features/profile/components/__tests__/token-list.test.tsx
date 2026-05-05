@@ -1,11 +1,10 @@
-import { act, render, screen } from "@testing-library/react";
-import { useWatchList } from "@/store/use-watch-list";
+import { render, screen } from "@testing-library/react";
 import { TokenList } from "../token-list";
 import type { WalletToken } from "../../hooks/use-wallet-tokens";
 
-// Heavy children that do their own data fetching aren't relevant to this test.
-jest.mock("../add-asset-dialog", () => ({ AddAssetDialog: () => null }));
-jest.mock("../add-trustline-dialog", () => ({ AddTrustlineDialog: () => null }));
+jest.mock("../add-trustline-dialog", () => ({
+  AddTrustlineDialog: () => null,
+}));
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: jest.fn() }),
@@ -20,42 +19,24 @@ const SAMPLE_TOKEN: WalletToken = {
   valueUsd: 100,
 };
 
-beforeEach(() => {
-  localStorage.clear();
-  useWatchList.setState({ items: [] });
-  act(() => {
-    useWatchList.getState().addAsset({ symbol: "BLND" });
-  });
-});
-
 afterEach(() => {
   jest.resetAllMocks();
 });
 
 describe("TokenList", () => {
-  it("renders WatchListSection chip + empty-state copy when tokens array is empty", () => {
+  it("renders empty-state copy when tokens array is empty", () => {
     render(<TokenList tokens={[]} totalUsd={0} isLoading={false} />);
-
-    expect(screen.getByRole("button", { name: /Open BLND in aggregator/i })).toBeInTheDocument();
     expect(screen.getByText(/No token balances found/i)).toBeInTheDocument();
   });
 
-  it("renders WatchListSection chip + token row when tokens array is non-empty", () => {
+  it("renders token row when tokens array is non-empty", () => {
     render(<TokenList tokens={[SAMPLE_TOKEN]} totalUsd={100} isLoading={false} />);
-
-    expect(screen.getByRole("button", { name: /Open BLND in aggregator/i })).toBeInTheDocument();
     expect(screen.getAllByText(/USDC/).length).toBeGreaterThan(0);
   });
 
-  it("renders Watch Asset and Add Trustline buttons in BOTH branches", () => {
-    const { rerender } = render(<TokenList tokens={[]} totalUsd={0} isLoading={false} />);
-
-    expect(screen.getByRole("button", { name: /Watch Asset/i })).toBeInTheDocument();
+  it("renders only the Add Trustline button (no Watch Asset)", () => {
+    render(<TokenList tokens={[]} totalUsd={0} isLoading={false} />);
     expect(screen.getByRole("button", { name: /Add Trustline/i })).toBeInTheDocument();
-
-    rerender(<TokenList tokens={[SAMPLE_TOKEN]} totalUsd={100} isLoading={false} />);
-
-    expect(screen.getByRole("button", { name: /Watch Asset/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Add Trustline/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Watch Asset/i })).not.toBeInTheDocument();
   });
 });
