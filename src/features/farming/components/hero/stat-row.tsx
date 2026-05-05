@@ -34,22 +34,13 @@ export function StatRow({
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <StatCard
-        label="Total Value"
-        value={formatUsd(totalValueUsd)}
-        sparklineState="placeholder"
-      />
+      <StatCard label="Total Value" value={formatUsd(totalValueUsd)} />
       <StatCard
         label="All-Time P&L"
         value={`${sign}${formatUsd(allTimePnlUsd)}`}
         delta={{ text: `${sign}${allTimePnlPercent.toFixed(2)}%`, tone }}
-        sparklineState="placeholder"
       />
-      <StatCard
-        label="Current APY"
-        value={formatApy(currentApy)}
-        sparklineState="placeholder"
-      />
+      <StatCard label="Current APY" value={formatApy(currentApy)} />
     </div>
   );
 }
