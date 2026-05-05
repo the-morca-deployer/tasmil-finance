@@ -24,6 +24,9 @@ interface ManageTabProps {
   onApply: () => void;
   pools: DiscoveredPool[];
   poolsLoading: boolean;
+  /** Composite keys (`${protocol.toLowerCase()}:${assetSymbol}${pair}`) for in-position rows */
+  inPositionKeys?: Set<string>;
+  onSelectPool?: (pool: DiscoveredPool) => void;
 }
 
 export function ManageTab({
@@ -41,6 +44,8 @@ export function ManageTab({
   onApply,
   pools,
   poolsLoading,
+  inPositionKeys,
+  onSelectPool,
 }: ManageTabProps) {
   const currentPresetLabel = currentPreset
     ? currentPreset.charAt(0) + currentPreset.slice(1).toLowerCase()
@@ -167,7 +172,13 @@ export function ManageTab({
 
       <section className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-foreground">Available Pools</h2>
-        <FarmingPools pools={pools} isLoading={poolsLoading} assetFilter={previewAsset} />
+        <FarmingPools
+          pools={pools}
+          isLoading={poolsLoading}
+          assetFilter={previewAsset}
+          inPositionKeys={inPositionKeys}
+          onSelectPool={onSelectPool}
+        />
       </section>
     </motion.div>
   );
