@@ -469,22 +469,6 @@ export function OnboardingPage() {
           </div>
         </div>
 
-        {/* Inline trust chips */}
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-white/6 border-t pt-3 text-[11px] text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <ShieldCheck className="h-3 w-3 text-emerald-400" />
-            Self-custody — your keys, your funds
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Zap className="h-3 w-3 text-emerald-400" />
-            Session-key automation (scoped permissions)
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <CheckCircle className="h-3 w-3 text-emerald-400" />
-            Revokable any time
-          </span>
-        </div>
-
         {/* Progress / retry / error banners (inline, below CTA row) */}
         {(isDeploying || deployCompleted) && deploySubStep !== "done" && (
           <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
