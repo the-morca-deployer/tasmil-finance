@@ -13,14 +13,6 @@ jest.mock("@/shared/components/connect-wallet-button", () => ({
   ),
 }));
 
-jest.mock("@/shared/ui/multi-sidebar", () => ({
-  MultiSidebarTrigger: ({ children, side }: { side: string; children?: React.ReactNode }) => (
-    <button data-testid="multi-sidebar-trigger" data-side={side}>
-      {children}
-    </button>
-  ),
-}));
-
 jest.mock("@/shared/layout/nav-link", () => ({
   NavLink: ({ item }: { item: { title: string; url: string } }) => (
     <a data-testid="nav-link" href={item.url}>
@@ -48,7 +40,7 @@ describe("TopNavBar", () => {
   });
 
   it("renders the brand name without gradient class", () => {
-    render(<TopNavBar sidebarData={fakeData} showRightSidebar={false} />);
+    render(<TopNavBar sidebarData={fakeData} />);
     const brand = screen.getByText("Tasmil");
     expect(brand).toBeInTheDocument();
     expect(brand.className).not.toMatch(/gradient/);
@@ -56,7 +48,7 @@ describe("TopNavBar", () => {
   });
 
   it("renders nav links from sidebarData", () => {
-    render(<TopNavBar sidebarData={fakeData} showRightSidebar={false} />);
+    render(<TopNavBar sidebarData={fakeData} />);
     const links = screen.getAllByTestId("nav-link");
     expect(links).toHaveLength(2);
     expect(links[0]).toHaveAttribute("href", "/chat");
@@ -64,30 +56,18 @@ describe("TopNavBar", () => {
   });
 
   it("renders ConnectWalletButton with variant='topbar'", () => {
-    render(<TopNavBar sidebarData={fakeData} showRightSidebar={false} />);
+    render(<TopNavBar sidebarData={fakeData} />);
     expect(screen.getByTestId("connect-wallet-button")).toHaveAttribute("data-variant", "topbar");
   });
 
   it("does NOT render CreditsPill in the top bar", () => {
-    render(<TopNavBar sidebarData={fakeData} showRightSidebar={false} />);
+    render(<TopNavBar sidebarData={fakeData} />);
     expect(screen.queryByTestId("credits-pill")).toBeNull();
   });
 
-  it("renders Clock trigger on /chat route when showRightSidebar=true", () => {
+  it("does NOT render the Clock chat-history trigger on any route", () => {
     pathnameMock.mockReturnValue("/chat/new");
-    render(<TopNavBar sidebarData={fakeData} showRightSidebar={true} />);
-    expect(screen.getByTestId("multi-sidebar-trigger")).toHaveAttribute("data-side", "right");
-  });
-
-  it("hides Clock trigger on non-chat route even when showRightSidebar=true", () => {
-    pathnameMock.mockReturnValue("/portfolio");
-    render(<TopNavBar sidebarData={fakeData} showRightSidebar={true} />);
-    expect(screen.queryByTestId("multi-sidebar-trigger")).toBeNull();
-  });
-
-  it("hides Clock trigger when showRightSidebar=false even on /chat", () => {
-    pathnameMock.mockReturnValue("/chat/new");
-    render(<TopNavBar sidebarData={fakeData} showRightSidebar={false} />);
-    expect(screen.queryByTestId("multi-sidebar-trigger")).toBeNull();
+    const { container } = render(<TopNavBar sidebarData={fakeData} showRightSidebar={true} />);
+    expect(container.querySelector("svg.lucide-clock")).toBeNull();
   });
 });

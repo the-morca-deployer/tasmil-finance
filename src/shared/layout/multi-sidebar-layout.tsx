@@ -1,9 +1,8 @@
 "use client";
 
-import { Clock, PanelLeft, X } from "lucide-react";
+import { PanelLeft, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
@@ -12,11 +11,7 @@ import { MobileSidebarContent } from "@/shared/layout/mobile-sidebar-content";
 import type { SidebarData } from "@/shared/layout/sidebar-data";
 import { sidebarData as defaultSidebarData } from "@/shared/layout/sidebar-data";
 import { TopNavBar } from "@/shared/layout/top-nav-bar";
-import {
-  MultiSidebarProvider,
-  MultiSidebarTrigger,
-  useMultiSidebar,
-} from "@/shared/ui/multi-sidebar";
+import { MultiSidebarProvider, useMultiSidebar } from "@/shared/ui/multi-sidebar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/shared/ui/sheet";
 
 interface MultiSidebarLayoutProps {
@@ -29,16 +24,8 @@ interface MultiSidebarLayoutProps {
   sidebarData?: SidebarData;
 }
 
-function MobileHeader({
-  sidebarData,
-  showRightSidebar,
-}: {
-  sidebarData: SidebarData;
-  showRightSidebar: boolean;
-}) {
+function MobileHeader({ sidebarData }: { sidebarData: SidebarData }) {
   const { toggleLeftSidebar } = useMultiSidebar();
-  const pathname = usePathname();
-  const showClockTrigger = showRightSidebar && pathname.startsWith("/chat");
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-border border-b bg-background px-4">
@@ -56,11 +43,6 @@ function MobileHeader({
         </span>
       </Link>
       <div className="ml-auto flex items-center gap-2">
-        {showClockTrigger && (
-          <MultiSidebarTrigger side="right">
-            <Clock className="h-4 w-4" />
-          </MultiSidebarTrigger>
-        )}
         <ConnectWalletButton variant="topbar" />
       </div>
     </header>
@@ -84,7 +66,7 @@ function MobileLayout({
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden">
-      {showHeader && <MobileHeader sidebarData={data} showRightSidebar={showRightSidebar} />}
+      {showHeader && <MobileHeader sidebarData={data} />}
       <main className="flex-1 overflow-y-auto overscroll-contain">{children}</main>
 
       {/* Left sidebar sheet - no border, custom close button */}

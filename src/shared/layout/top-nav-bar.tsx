@@ -1,24 +1,22 @@
 "use client";
 
-import { Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
-import { MultiSidebarTrigger } from "@/shared/ui/multi-sidebar";
 import { NavLink } from "./nav-link";
 import type { SidebarData } from "./sidebar-data";
 
 interface TopNavBarProps {
   sidebarData: SidebarData;
-  showRightSidebar: boolean;
+  /**
+   * Retained for layout-API compatibility. The chat-history trigger has been
+   * removed from the header surface entirely; this prop is no longer consumed.
+   */
+  showRightSidebar?: boolean;
 }
 
-export function TopNavBar({ sidebarData, showRightSidebar }: TopNavBarProps) {
+export function TopNavBar({ sidebarData }: TopNavBarProps) {
   const items = sidebarData.navGroups.flatMap((g) => g.items);
-  const pathname = usePathname();
-  const onChatRoute = pathname.startsWith("/chat");
-  const showClockTrigger = showRightSidebar && onChatRoute;
 
   return (
     <nav
@@ -39,11 +37,6 @@ export function TopNavBar({ sidebarData, showRightSidebar }: TopNavBarProps) {
       </div>
 
       <div className="ml-auto flex items-center gap-3">
-        {showClockTrigger && (
-          <MultiSidebarTrigger side="right">
-            <Clock className="h-4 w-4" />
-          </MultiSidebarTrigger>
-        )}
         <ConnectWalletButton variant="topbar" />
       </div>
     </nav>
