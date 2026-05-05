@@ -444,7 +444,7 @@ export function OnboardingPage() {
               {selectedPreset} with {selectedBaseAsset} pays &lt;1% right now.
             </span>{" "}
             {selectedBaseAsset === "XLM"
-              ? "Mainnet XLM lending demand is low. Try Balanced/Aggressive or switch to USDC for 5–9% APY."
+              ? "Mainnet XLM lending demand is near zero. Balanced/Aggressive route through liquidity pools (3–5%), or switch to USDC for 5–9% APY."
               : "Pool yields fluctuate — you can change strategy any time."}
           </p>
         </div>
