@@ -296,7 +296,38 @@ export function OnboardingPage() {
     presets?.find((p) => p.name === selectedPreset)?.estimatedApy?.toFixed(2) ?? "—";
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-7xl flex-col justify-center gap-5 px-6 py-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-6 py-8">
+      {/* Header — page title + explainer + page-level trust chips */}
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1.5">
+          <h1 className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+            Set up your farming account
+          </h1>
+          <p className="max-w-2xl text-sm text-foreground">
+            A smart account on Stellar that lets the agent rebalance your funds across
+            yield pools.{" "}
+            <span className="text-muted-foreground">
+              You stay in custody and can revoke access any time.
+            </span>
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <ShieldCheck className="h-3 w-3 text-emerald-400" />
+            Self-custody — your keys, your funds
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Zap className="h-3 w-3 text-emerald-400" />
+            Session-key automation (scoped permissions)
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <CheckCircle className="h-3 w-3 text-emerald-400" />
+            Revokable any time
+          </span>
+        </div>
+      </div>
+
       {/* ── Row 1: asset picker (compact inline) ─────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3">
         <span className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-widest">
