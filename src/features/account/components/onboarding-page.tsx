@@ -75,6 +75,7 @@ export function OnboardingPage() {
   const [deployCompleted, setDeployCompleted] = useState(false);
   const [setupCompleted, setSetupCompleted] = useState(false);
   const [deployError, setDeployError] = useState<string | null>(null);
+  const [deployErrorWasRejection, setDeployErrorWasRejection] = useState(false);
 
   // Guard: prevent double-click while flow is in progress
   const flowInProgressRef = useRef(false);
@@ -196,6 +197,7 @@ export function OnboardingPage() {
 
     flowInProgressRef.current = true;
     setDeployError(null);
+    setDeployErrorWasRejection(false);
 
     let allDone = false;
     try {
@@ -231,22 +233,20 @@ export function OnboardingPage() {
         message.includes("declined") ||
         message.includes("cancelled");
       if (rejected) {
-        const step = !deployCompleted
-          ? "deploy"
-          : !setupCompleted
-            ? "session-key setup"
-            : "strategy update";
+        setDeployErrorWasRejection(true);
         setDeployError(
-          `Transaction signing was cancelled at the ${step} step. ` +
-            (deployCompleted && !setupCompleted
-              ? "Your account was deployed but session key setup didn't complete — click retry to finish."
-              : "Please try again.")
+          deployCompleted && !setupCompleted
+            ? "Signing was cancelled. Your account was deployed but session-key setup didn't complete — click Retry to finish."
+            : "Signing was cancelled in your wallet. Click Retry to try again.",
         );
       } else if (message.includes("insufficient") || message.includes("Insufficient")) {
+        setDeployErrorWasRejection(false);
         setDeployError("Insufficient XLM balance. Please fund your wallet and try again.");
       } else if (message.includes("timed out")) {
+        setDeployErrorWasRejection(false);
         setDeployError("Transaction confirmation timed out. Please try again.");
       } else {
+        setDeployErrorWasRejection(false);
         setDeployError(message);
       }
       setDeploySubStep("idle");
@@ -497,9 +497,36 @@ export function OnboardingPage() {
           </div>
         )}
         {deployError && (
-          <div className="mt-3 flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-xs">
-            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
-            <p className="text-destructive">{deployError}</p>
+          <div
+            className={cn(
+              "mt-3 flex items-start gap-2 rounded-lg px-3 py-2.5 text-xs",
+              deployErrorWasRejection
+                ? "border border-amber-500/20 bg-amber-500/5"
+                : "border border-destructive/20 bg-destructive/5",
+            )}
+          >
+            <AlertCircle
+              className={cn(
+                "mt-0.5 h-3.5 w-3.5 shrink-0",
+                deployErrorWasRejection ? "text-amber-400" : "text-destructive",
+              )}
+            />
+            <div className="flex-1">
+              <p className={deployErrorWasRejection ? "text-amber-200" : "text-destructive"}>
+                {deployError}
+              </p>
+            </div>
+            {deployErrorWasRejection && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 shrink-0 px-3 text-xs"
+                onClick={handleDeploy}
+                disabled={isDeploying}
+              >
+                Retry
+              </Button>
+            )}
           </div>
         )}
       </div>
