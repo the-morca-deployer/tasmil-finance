@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { TrendingUp } from "lucide-react";
+import { ChevronRight, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
 import { Skeleton } from "@/shared/ui/skeleton";
@@ -34,7 +34,7 @@ const TYPE_BADGE: Record<string, string> = {
   lp: "bg-primary/10 text-primary",
 };
 
-const POOLS_GRID = "grid grid-cols-[2fr_1fr_1fr_1fr_80px] items-center gap-x-4";
+const POOLS_GRID = "grid grid-cols-[2fr_1fr_1fr_1fr_80px_24px] items-center gap-x-4";
 
 interface FarmingPoolsProps {
   pools: DiscoveredPool[];
@@ -47,9 +47,16 @@ interface FarmingPoolsProps {
    * type-safe match.
    */
   inPositionKeys?: Set<string>;
+  onSelectPool?: (pool: DiscoveredPool) => void;
 }
 
-export function FarmingPools({ pools, isLoading, assetFilter, inPositionKeys }: FarmingPoolsProps) {
+export function FarmingPools({
+  pools,
+  isLoading,
+  assetFilter,
+  inPositionKeys,
+  onSelectPool,
+}: FarmingPoolsProps) {
   const depositable = pools.filter((p) => !!p.strategyContractAddress);
   const filtered = assetFilter
     ? depositable.filter((p) => p.assetSymbol === assetFilter)
@@ -82,6 +89,7 @@ export function FarmingPools({ pools, isLoading, assetFilter, inPositionKeys }: 
               <Skeleton className="h-4 w-14" />
               <Skeleton className="h-4 w-16" />
               <Skeleton className="ml-auto h-4 w-14" />
+              <div />
               <div />
             </motion.div>
           ))}
@@ -135,6 +143,7 @@ export function FarmingPools({ pools, isLoading, assetFilter, inPositionKeys }: 
           <span className="text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Risk
           </span>
+          <span />
         </div>
 
         {/* Pool rows */}
@@ -146,7 +155,23 @@ export function FarmingPools({ pools, isLoading, assetFilter, inPositionKeys }: 
             <div
               key={`${pool.id}-${idx}`}
               data-pools-row="true"
-              className={`${POOLS_GRID} border-t border-border px-6 py-3.5 transition-colors hover:bg-muted/20`}
+              role={onSelectPool ? "button" : undefined}
+              tabIndex={onSelectPool ? 0 : undefined}
+              onClick={onSelectPool ? () => onSelectPool(pool) : undefined}
+              onKeyDown={
+                onSelectPool
+                  ? (e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onSelectPool(pool);
+                      }
+                    }
+                  : undefined
+              }
+              className={cn(
+                `${POOLS_GRID} border-t border-border px-6 py-3.5 transition-colors hover:bg-muted/20`,
+                onSelectPool && "cursor-pointer",
+              )}
             >
               {/* Pool name + token pair images */}
               <div className="flex items-center gap-3">
@@ -208,6 +233,13 @@ export function FarmingPools({ pools, isLoading, assetFilter, inPositionKeys }: 
                 >
                   {risk.label}
                 </span>
+              </div>
+
+              {/* Chevron — affordance for click */}
+              <div className="flex justify-end">
+                {onSelectPool && (
+                  <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                )}
               </div>
             </div>
           );

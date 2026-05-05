@@ -1,8 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import type { DiscoveredPool } from "../types";
 import { FarmingPools } from "./farming-pools";
 
-const POOLS_GRID = "grid-cols-[2fr_1fr_1fr_1fr_80px]";
+const POOLS_GRID = "grid-cols-[2fr_1fr_1fr_1fr_80px_24px]";
 
 const samplePool: DiscoveredPool = {
   id: "p1",
@@ -123,5 +123,42 @@ describe("FarmingPools inPositionKeys", () => {
       <FarmingPools pools={[upperPool]} isLoading={false} inPositionKeys={inPositionKeys} />,
     );
     expect(screen.getAllByText(/^Active$/).length).toBe(1);
+  });
+});
+
+describe("FarmingPools onSelectPool", () => {
+  const pool = {
+    ...samplePool,
+    id: "p-click",
+    protocol: "blend",
+    assetSymbol: "USDC",
+  } as unknown as DiscoveredPool;
+
+  it("invokes onSelectPool when row is clicked", () => {
+    const onSelectPool = jest.fn();
+    const { container } = render(
+      <FarmingPools pools={[pool]} isLoading={false} onSelectPool={onSelectPool} />,
+    );
+    const row = container.querySelector('[data-pools-row="true"]') as HTMLElement;
+    fireEvent.click(row);
+    expect(onSelectPool).toHaveBeenCalledTimes(1);
+    expect(onSelectPool).toHaveBeenCalledWith(expect.objectContaining({ id: "p-click" }));
+  });
+
+  it("invokes onSelectPool when row receives Enter key", () => {
+    const onSelectPool = jest.fn();
+    const { container } = render(
+      <FarmingPools pools={[pool]} isLoading={false} onSelectPool={onSelectPool} />,
+    );
+    const row = container.querySelector('[data-pools-row="true"]') as HTMLElement;
+    fireEvent.keyDown(row, { key: "Enter" });
+    expect(onSelectPool).toHaveBeenCalledTimes(1);
+  });
+
+  it("row is not interactive when onSelectPool not provided", () => {
+    const { container } = render(<FarmingPools pools={[pool]} isLoading={false} />);
+    const row = container.querySelector('[data-pools-row="true"]') as HTMLElement;
+    expect(row.getAttribute("role")).not.toBe("button");
+    expect(row.getAttribute("tabindex")).toBeNull();
   });
 });
