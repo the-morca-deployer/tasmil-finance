@@ -22,8 +22,24 @@ export function SetupPage() {
   const { account } = useWalletStore();
   const publicKey = account ?? "";
 
-  const [state, setState] = useState<SetupState>(() => loadSetupState());
-  useEffect(() => saveSetupState(state), [state]);
+  const [state, setState] = useState<SetupState>(() => ({
+    step: 1,
+    asset: "USDC",
+    mode: "AUTO",
+    preset: "Balanced",
+    customMarkets: [],
+  }));
+  const [hydrated, setHydrated] = useState(false);
+
+  // Load persisted state after mount to avoid SSR/CSR hydration mismatch.
+  useEffect(() => {
+    setState(loadSetupState());
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (hydrated) saveSetupState(state);
+  }, [state, hydrated]);
   useEffect(() => {
     if (state.step === 5) clearSetupState();
   }, [state.step]);
