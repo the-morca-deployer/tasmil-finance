@@ -6,6 +6,6 @@ import { join } from "node:path";
  * Creates directories needed for screenshots and artifacts.
  */
 export default function globalSetup() {
-  const cardsDir = join(process.cwd(), "test-results", "cards");
+  const cardsDir = join(process.cwd(), "e2e", "test-results", "cards");
   mkdirSync(cardsDir, { recursive: true });
 }

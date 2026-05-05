@@ -7,8 +7,7 @@ import {
   CATEGORY_LABELS,
   PROTOCOL_CONFIGS,
 } from "@/features/dev-playground/config/protocol-configs";
-import { cn } from "@/lib/utils";
-import { TokenImage } from "@/shared/components/token-image";
+import { Bot, LayoutGrid } from "lucide-react";
 
 // ─── Sidebar ───────────────────────────────────────────────────
 
@@ -21,6 +20,7 @@ function PlaygroundSidebar({ currentPath }: { currentPath: string }) {
   }
 
   const demoAiActive = currentPath === "/playground/demo-ai";
+  const chatCardsActive = currentPath === "/playground/chat-cards";
 
   return (
     <aside className="w-52 shrink-0 space-y-5 py-6 pl-6">
@@ -41,6 +41,18 @@ function PlaygroundSidebar({ currentPath }: { currentPath: string }) {
           >
             <Bot className="h-4 w-4" />
             <span className="truncate">Demo AI</span>
+          </Link>
+          <Link
+            href="/playground/chat-cards"
+            className={cn(
+              "w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              chatCardsActive
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-muted/40 hover:text-foreground",
+            )}
+          >
+            <LayoutGrid className="h-4 w-4" />
+            <span className="truncate">Chat Cards</span>
           </Link>
         </div>
       </div>

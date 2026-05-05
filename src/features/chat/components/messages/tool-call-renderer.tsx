@@ -13,7 +13,7 @@ import {
   OPERATION_TOOL_RENDERERS,
   SUPERVISOR_AGENTS,
 } from "@/features/chat/hooks/use-defi-tool-renderers";
-import { findRegistryRenderer } from "@/features/protocols/registry/render-tool";
+// import { findRegistryRenderer } from "@/features/protocols/registry/render-tool";
 import { ToolStatusDispatcher } from "@/shared/components/tool-status-dispatcher";
 
 interface ToolCallData {
@@ -56,18 +56,15 @@ export function getCardRenderer(toolName: string, args?: Record<string, unknown>
     if (info) return { component: info.component, label: info.type, kind: "info" };
   }
 
-  // ─── TEMPORARILY HIDDEN: All other custom cards ───────────────
-  // Unified registry (card-registry.ts) — info/operation cards for all protocols
-  // const registryResult = findRegistryRenderer(toolName, args);
-  // if (registryResult) return registryResult;
-
-  // Generic info cards (discover, get_account, pool_info, swap_quote, bridge, etc.)
+  // ─── Generic info cards (discover, get_account, pool_info, swap_quote, bridge, etc.)
+  // Commented out: user prefers not to show these read-only data cards in chat.
+  // The ToolStatusDispatcher (spinner/check) still renders for these tools.
   // const info = INFO_TOOL_RENDERERS.find((r) => r.toolName === toolName);
   // if (info) return { component: info.component, label: info.type, kind: "info" };
 
-  // Generic operation cards (swap_build_transaction, sdex_swap, phoenix_swap, etc.)
-  // const op = OPERATION_TOOL_RENDERERS.find((r) => r.toolName === toolName);
-  // if (op) return { component: op.component, label: op.operation, kind: "operation" };
+  // ─── Generic operation cards (swap_build_transaction, sdex_swap, phoenix_swap, etc.)
+  const op = OPERATION_TOOL_RENDERERS.find((r) => r.toolName === toolName);
+  if (op) return { component: op.component, label: op.operation, kind: "operation" };
 
   return null;
 }
@@ -313,8 +310,12 @@ export function ToolCallRenderer({ message, messages }: { message: Message; mess
             />
 
             {/* Data card when tool call is complete */}
+            {/* Skip operation/tx cards when the result is an error — don't show
+                "Sign & Confirm" for failed transactions. Flow cards (kind=shared)
+                handle errors internally via their own render functions. */}
             {isComplete &&
               cardRenderer &&
+              !(result?.hasError && (cardRenderer.kind === "shared-op" || cardRenderer.kind === "operation")) &&
               (cardRenderer.kind === "shared-op" ? (
                 <div className="max-w-[360px]">
                   <BlendOpWithRespond

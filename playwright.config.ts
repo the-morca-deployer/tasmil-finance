@@ -10,6 +10,7 @@ import { config } from "dotenv";
 config({ path: resolve(__dirname, ".env.test") });
 
 const isDevTunnel = !!process.env.PLAYWRIGHT_BASE_URL;
+const runTimestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -44,8 +45,8 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
 
-    /* Take screenshot on failure */
-    screenshot: "only-on-failure",
+    /* Take full-page screenshot on failure */
+    screenshot: { mode: "only-on-failure", fullPage: true },
 
     /* Record video on failure */
     video: "retain-on-failure",
@@ -103,12 +104,15 @@ export default defineConfig({
       testDir: "./e2e",
       use: {
         ...devices["Desktop Chrome"],
-        actionTimeout: 60_000,
+        viewport: { width: 1440, height: 900 },
+        actionTimeout: 180_000,
         navigationTimeout: 60_000,
         ignoreHTTPSErrors: true,
         storageState: "./e2e/auth.json",
+        video: "on",
+        screenshot: { mode: "on", fullPage: true },
       },
-      timeout: 120_000,
+      timeout: 240_000,
     },
   ],
 
@@ -136,6 +140,6 @@ export default defineConfig({
     timeout: 5000,
   },
 
-  /* Output directory */
-  outputDir: "test-results/",
+  /* Output directory — timestamped so each run is preserved */
+  outputDir: `e2e/test-results/${runTimestamp}/`,
 });

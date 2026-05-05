@@ -2,11 +2,13 @@
 
 import { BarChart3, Gift, Globe, History, Key, Lock, User, Wallet } from "lucide-react";
 import { memo } from "react";
+import { TokenImage } from "@/shared/components/token-image";
 import { truncateAddress } from "@/shared/config/stellar";
 import { useResultData } from "../../hooks/use-result-data";
 import { formatNumber, formatPercent, formatPrice } from "../../lib/formatting";
+import { ProtocolCard, EmptyState } from "@/features/protocols/cards/base/protocol-card";
+import { MetricBox, Row, Stat } from "@/features/protocols/cards/base/indicators";
 import { DetailRow, ProtocolBadge, ScrollableList } from "../base/indicators";
-import { BaseInfoCard } from "../base/info-card";
 
 interface AccountInfoCardProps {
   type?: string;
@@ -44,10 +46,8 @@ function AccountInfoCardComponent({
     price_info: { title: "Price Info", icon: BarChart3 },
     market_discovery: { title: "Market Overview", icon: BarChart3 },
     discovery: { title: "Discovery", icon: BarChart3 },
-    // Blend-specific
     blend_user_position: { title: "Blend Position", icon: BarChart3 },
     blend_backstop_balance: { title: "Backstop Balance", icon: Wallet },
-    // Others
     user_positions: { title: "User Positions", icon: BarChart3 },
     liquidity_position: { title: "Liquidity Position", icon: BarChart3 },
     stake_info: { title: "Stake Info", icon: BarChart3 },
@@ -61,17 +61,18 @@ function AccountInfoCardComponent({
   const cfg = configMap[query] ?? configMap.info!;
 
   return (
-    <BaseInfoCard
+    <ProtocolCard
       data-testid="card-account-info"
-      title={cfg?.title}
-      icon={cfg?.icon}
-      iconColor="text-blue-500"
-      iconBg="bg-blue-500/10"
+      mode="chat"
+      title={cfg.title}
+      icon={cfg.icon}
+      iconColor="text-primary"
+      iconBg="bg-primary/10"
       isLoading={isLoading}
-      error={hasError ? errorMessage : null}
+      error={hasError ? errorMessage : undefined}
     >
       <QueryContent query={query} data={data} args={args} toolCallId={toolCallId} />
-    </BaseInfoCard>
+    </ProtocolCard>
   );
 }
 
@@ -86,7 +87,7 @@ function QueryContent({
   args?: Record<string, any>;
   toolCallId?: string;
 }) {
-  if (!data) return <div className="text-muted-foreground text-sm">No data available.</div>;
+  if (!data) return <EmptyState icon={Wallet} text="No data available" />;
 
   switch (query) {
     case "info":
@@ -124,99 +125,128 @@ function QueryContent({
   }
 }
 
+function resolveAssetName(token: any): string {
+  if (token.asset_type === "native" || token.assetType === "native") return "XLM";
+  return token.assetCode ?? token.asset_code ?? token.code ?? token.symbol ?? token.asset ?? "Unknown";
+}
+
+// ─── Account Info View ────────────────────────────────────────────
+
 function AccountInfoView({ data }: { data: any }) {
   const account = data.account ?? data;
   const balances = account.balances ?? [];
-  // Support both Horizon raw (id, subentry_count) and MCP normalized (address, subentryCount)
   const accountId = account.id ?? account.address;
   const subentries = account.subentry_count ?? account.subentryCount;
+
   return (
-    <div className="space-y-2">
-      {accountId && <DetailRow label="Address" value={truncateAddress(accountId)} mono />}
-      {account.sequence && <DetailRow label="Sequence" value={account.sequence} mono />}
-      {subentries != null && <DetailRow label="Subentries" value={subentries} />}
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-1.5">
+        <MetricBox label="Address" value={accountId ? truncateAddress(accountId) : "\u2014"} />
+        <MetricBox label="Subentries" value={String(subentries ?? 0)} />
+      </div>
+
+      {account.sequence && (
+        <Row label="Sequence" value={account.sequence} />
+      )}
+
       {balances.length > 0 && (
-        <div className="mt-2 space-y-1 border-t pt-2">
-          <div className="mb-1 text-muted-foreground text-xs">Balances ({balances.length})</div>
-          {balances.slice(0, 10).map((b: any, i: number) => (
-            <DetailRow
-              key={i}
-              label={
-                b.asset_type === "native" || b.assetType === "native"
-                  ? "XLM"
-                  : (b.assetCode ?? b.asset_code ?? b.code ?? "?")
-              }
-              value={Number.parseFloat(b.balance).toLocaleString(undefined, {
-                maximumFractionDigits: 4,
-              })}
-            />
-          ))}
+        <div className="border-t border-border pt-2">
+          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 px-0.5">
+            Balances ({balances.length})
+          </p>
+          <div className="space-y-0.5">
+            {balances.slice(0, 10).map((b: any, i: number) => {
+              const name = resolveAssetName(b);
+              return (
+                <div key={i} className="flex items-center py-1 px-0.5 rounded hover:bg-muted/20 transition-colors">
+                  <TokenImage src={null} alt={name} className="h-5 w-5 rounded-full mr-2" />
+                  <span className="text-xs font-medium text-foreground flex-1">{name}</span>
+                  <span className="text-xs text-foreground tabular-nums">
+                    {Number.parseFloat(b.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
   );
 }
 
+// ─── Balance View ─────────────────────────────────────────────────
+
 function BalanceView({ data }: { data: any }) {
   const token = data.token ?? data;
+  const assetName = resolveAssetName(token);
+
   return (
-    <div className="space-y-2">
-      <DetailRow label="Asset" value={token.asset ?? "?"} />
-      <DetailRow label="Balance" value={<span className="font-semibold">{token.balance}</span>} />
-      {token.limit && <DetailRow label="Trust Limit" value={token.limit} />}
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <TokenImage src={null} alt={assetName} className="h-8 w-8 rounded-full" />
+        <div>
+          <p className="font-semibold text-sm">{assetName}</p>
+          <p className="text-[10px] text-muted-foreground">
+            {token.asset_type === "native" || token.assetType === "native" ? "Native" : "Trustline"}
+          </p>
+        </div>
+      </div>
+      <MetricBox label="Balance" value={token.balance ?? "0"} />
+      {token.limit && <Row label="Trust Limit" value={token.limit} />}
     </div>
   );
 }
 
+// ─── Assets View ──────────────────────────────────────────────────
+
 function AssetsView({ data, toolCallId }: { data: any; toolCallId?: string }) {
-  // Support both MCP normalized shape ({assets}) and Horizon raw shape ({balances})
   const account = data.account ?? data;
   const assets = account.assets ?? account.balances ?? [];
   const address = data.address ?? account.id ?? account.address;
   const count = data.count ?? account.count ?? assets.length;
+
   return (
     <div className="space-y-2">
-      {address && <DetailRow label="Account" value={truncateAddress(address)} mono />}
-      <DetailRow label="Total Assets" value={count} />
+      <div className="grid grid-cols-2 gap-1.5">
+        <MetricBox label="Account" value={address ? truncateAddress(address) : "\u2014"} />
+        <MetricBox label="Total Assets" value={String(count)} />
+      </div>
       <ScrollableList id={`assets-${toolCallId}`} maxHeight={250}>
-        {assets.map((a: any, i: number) => (
-          <div
-            key={i}
-            className="flex items-center justify-between border-border/50 border-b py-1.5 text-sm last:border-0"
-          >
-            <span className="font-medium">
-              {a.type === "native" || a.assetType === "native" || a.asset_type === "native"
-                ? "XLM"
-                : (a.assetCode ?? a.asset_code ?? a.code ?? "?")}
-            </span>
-            <span>
-              {Number.parseFloat(a.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })}
-            </span>
-          </div>
-        ))}
+        {assets.map((a: any, i: number) => {
+          const name = resolveAssetName(a);
+          return (
+            <div key={i} className="flex items-center py-1.5 px-0.5 rounded hover:bg-muted/20 transition-colors">
+              <TokenImage src={null} alt={name} className="h-5 w-5 rounded-full mr-2" />
+              <span className="text-xs font-medium flex-1">{name}</span>
+              <span className="text-xs tabular-nums">
+                {Number.parseFloat(a.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })}
+              </span>
+            </div>
+          );
+        })}
       </ScrollableList>
     </div>
   );
 }
 
+// ─── History View ─────────────────────────────────────────────────
+
 function HistoryView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const ops = data.operations ?? [];
   return (
     <div className="space-y-2">
-      <DetailRow label="Operations" value={data.count ?? ops.length} />
+      <MetricBox label="Operations" value={String(data.count ?? ops.length)} />
       <ScrollableList id={`history-${toolCallId}`} maxHeight={280}>
         {ops.map((op: any, i: number) => (
-          <div key={op.id ?? i} className="space-y-1 rounded border p-2 text-xs">
+          <div key={op.id ?? i} className="space-y-1 rounded-lg border border-border p-2.5 text-xs hover:bg-muted/20 transition-colors">
             <div className="flex justify-between">
               <span className="font-medium capitalize">{op.type?.replace(/_/g, " ")}</span>
               <span className="text-muted-foreground">
                 {op.createdAt ? new Date(op.createdAt).toLocaleDateString() : ""}
               </span>
             </div>
-            {op.amount && (
-              <DetailRow label="Amount" value={`${op.amount} ${op.assetCode ?? "XLM"}`} />
-            )}
-            {op.to && <DetailRow label="To" value={truncateAddress(op.to)} mono />}
+            {op.amount && <Row label="Amount" value={`${op.amount} ${op.assetCode ?? "XLM"}`} />}
+            {op.to && <Row label="To" value={truncateAddress(op.to)} />}
           </div>
         ))}
       </ScrollableList>
@@ -224,73 +254,67 @@ function HistoryView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   );
 }
 
+// ─── Locked View ──────────────────────────────────────────────────
+
 function LockedView({ data }: { data: any }) {
   const locked = data.locked ?? {};
   return (
-    <div className="space-y-2">
-      <DetailRow
-        label="Total XLM"
-        value={<span className="font-semibold">{data.totalXlm} XLM</span>}
-      />
-      <DetailRow
-        label="Available"
-        value={<span className="font-semibold text-green-500">{data.available} XLM</span>}
-      />
-      <div className="mt-2 space-y-1 border-t pt-2">
-        <div className="mb-1 text-muted-foreground text-xs">Locked Breakdown</div>
-        <DetailRow label="Base Reserve" value={`${locked.baseReserve} XLM`} />
-        <DetailRow
-          label="Subentry Reserve"
-          value={`${locked.subentryReserve} XLM (${locked.subentryCount} entries)`}
-        />
-        {locked.sellingLiabilities !== "0" && (
-          <DetailRow label="Selling Liabilities" value={`${locked.sellingLiabilities} XLM`} />
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-1.5">
+        <MetricBox label="Total XLM" value={`${data.totalXlm ?? "\u2014"} XLM`} />
+        <MetricBox label="Available" value={`${data.available ?? "\u2014"} XLM`} />
+      </div>
+      <div className="border-t border-border pt-2 space-y-1">
+        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1 px-0.5">
+          Locked Breakdown
+        </p>
+        <Row label="Base Reserve" value={`${locked.baseReserve ?? 0} XLM`} />
+        <Row label="Subentry Reserve" value={`${locked.subentryReserve ?? 0} XLM`} />
+        {locked.sellingLiabilities !== "0" && locked.sellingLiabilities && (
+          <Row label="Selling Liabilities" value={`${locked.sellingLiabilities} XLM`} />
         )}
-        <DetailRow
-          label="Total Locked"
-          value={<span className="font-semibold">{locked.totalLocked} XLM</span>}
-        />
+        <Row label="Total Locked" value={`${locked.totalLocked ?? 0} XLM`} />
       </div>
     </div>
   );
 }
 
+// ─── Claimable View ───────────────────────────────────────────────
+
 function ClaimableView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const balances = data.claimableBalances ?? [];
   return (
     <div className="space-y-2">
-      <DetailRow label="Claimable" value={data.count ?? balances.length} />
+      <MetricBox label="Claimable" value={String(data.count ?? balances.length)} />
       <ScrollableList id={`claimable-${toolCallId}`} maxHeight={250}>
         {balances.map((b: any, i: number) => (
-          <div key={b.id ?? i} className="space-y-1 rounded border p-2 text-xs">
-            <DetailRow label="Asset" value={b.asset} />
-            <DetailRow label="Amount" value={<span className="font-semibold">{b.amount}</span>} />
-            <DetailRow label="Sponsor" value={truncateAddress(b.sponsor ?? "")} mono />
+          <div key={b.id ?? i} className="space-y-1 rounded-lg border border-border p-2.5 text-xs hover:bg-muted/20 transition-colors">
+            <Row label="Asset" value={b.asset} />
+            <Row label="Amount" value={b.amount} />
+            <Row label="Sponsor" value={truncateAddress(b.sponsor ?? "")} />
           </div>
         ))}
       </ScrollableList>
     </div>
   );
 }
+
+// ─── Offers View ──────────────────────────────────────────────────
 
 function OffersView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const offers = data.offers ?? [];
   return (
     <div className="space-y-2">
-      <DetailRow label="Open Orders" value={data.count ?? offers.length} />
+      <MetricBox label="Open Orders" value={String(data.count ?? offers.length)} />
       <ScrollableList id={`offers-${toolCallId}`} maxHeight={250}>
         {offers.map((o: any, i: number) => (
-          <div key={o.id ?? i} className="space-y-1 rounded border p-2 text-xs">
+          <div key={o.id ?? i} className="space-y-1 rounded-lg border border-border p-2.5 text-xs hover:bg-muted/20 transition-colors">
             <div className="flex justify-between">
-              <span>
-                Sell <span className="font-medium">{o.selling}</span>
-              </span>
-              <span>
-                Buy <span className="font-medium">{o.buying}</span>
-              </span>
+              <span>Sell <span className="font-medium">{o.selling}</span></span>
+              <span>Buy <span className="font-medium">{o.buying}</span></span>
             </div>
-            <DetailRow label="Amount" value={o.amount} />
-            <DetailRow label="Price" value={o.price} />
+            <Row label="Amount" value={o.amount} />
+            <Row label="Price" value={o.price} />
           </div>
         ))}
       </ScrollableList>
@@ -298,26 +322,24 @@ function OffersView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   );
 }
 
+// ─── Trades View ──────────────────────────────────────────────────
+
 function TradesView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const trades = data.trades ?? [];
   return (
     <div className="space-y-2">
-      <DetailRow label="Trades" value={data.count ?? trades.length} />
+      <MetricBox label="Trades" value={String(data.count ?? trades.length)} />
       <ScrollableList id={`trades-${toolCallId}`} maxHeight={250}>
         {trades.map((t: any, i: number) => (
-          <div key={t.id ?? i} className="space-y-1 rounded border p-2 text-xs">
+          <div key={t.id ?? i} className="space-y-1 rounded-lg border border-border p-2.5 text-xs hover:bg-muted/20 transition-colors">
             <div className="flex justify-between">
-              <span>
-                {t.baseAmount} {t.baseAsset}
-              </span>
-              <span className="text-muted-foreground">↔</span>
-              <span>
-                {t.counterAmount} {t.counterAsset}
-              </span>
+              <span>{t.baseAmount} {t.baseAsset}</span>
+              <span className="text-muted-foreground">{"\u2194"}</span>
+              <span>{t.counterAmount} {t.counterAsset}</span>
             </div>
-            {t.price && <DetailRow label="Price" value={t.price} />}
+            {t.price && <Row label="Price" value={t.price} />}
             {t.createdAt && (
-              <div className="text-muted-foreground">
+              <div className="text-muted-foreground text-[10px]">
                 {new Date(t.createdAt).toLocaleDateString()}
               </div>
             )}
@@ -328,35 +350,41 @@ function TradesView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   );
 }
 
+// ─── Price View ───────────────────────────────────────────────────
+
 function PriceView({ data }: { data: any }) {
   return (
-    <div className="space-y-2">
-      <DetailRow label="Asset" value={<span className="font-semibold">{data.asset ?? "?"}</span>} />
-      <DetailRow
-        label="Price"
-        value={<span className="font-bold text-lg">${formatPrice(data.price)}</span>}
-      />
-      <DetailRow label="Currency" value={data.currency ?? "USD"} />
-      <DetailRow label="Source" value={<ProtocolBadge name={data.source} />} />
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <TokenImage src={null} alt={data.asset ?? "?"} className="h-8 w-8 rounded-full" />
+        <div>
+          <p className="font-semibold text-sm">{data.asset ?? "?"}</p>
+          <p className="text-[10px] text-muted-foreground">{data.currency ?? "USD"}</p>
+        </div>
+      </div>
+      <MetricBox label="Price" value={`$${formatPrice(data.price)}`} />
+      <Row label="Source" value={data.source ?? "\u2014"} />
     </div>
   );
 }
+
+// ─── Positions View ───────────────────────────────────────────────
 
 function PositionsView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const positions = data.positions ?? [];
   return (
     <div className="space-y-2">
-      <DetailRow label="Positions" value={data.count ?? positions.length} />
+      <MetricBox label="Positions" value={String(data.count ?? positions.length)} />
       <ScrollableList id={`positions-${toolCallId}`} maxHeight={250}>
         {positions.map((p: any, i: number) => (
-          <div key={i} className="space-y-1 rounded border p-2 text-xs">
+          <div key={i} className="space-y-1 rounded-lg border border-border p-2.5 text-xs hover:bg-muted/20 transition-colors">
             <div className="flex items-center gap-2">
               <ProtocolBadge name={p.protocol} />
               <span className="text-muted-foreground">{p.type}</span>
             </div>
-            <DetailRow label="Pool" value={truncateAddress(p.pool ?? "")} mono />
-            <DetailRow label="Shares" value={p.shares} />
-            {p.value && <DetailRow label="Value" value={`$${formatNumber(p.value)}`} />}
+            <Row label="Pool" value={truncateAddress(p.pool ?? "")} />
+            <Row label="Shares" value={p.shares} />
+            {p.value && <Row label="Value" value={`$${formatNumber(p.value)}`} />}
           </div>
         ))}
       </ScrollableList>
@@ -364,35 +392,30 @@ function PositionsView({ data, toolCallId }: { data: any; toolCallId?: string })
   );
 }
 
+// ─── Signers View ─────────────────────────────────────────────────
+
 function SignersView({ data }: { data: any }) {
   const signers = data.signers ?? [];
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {data.isMultisig != null && (
-        <DetailRow label="Multisig" value={data.isMultisig ? "Yes" : "No"} />
+        <MetricBox label="Multisig" value={data.isMultisig ? "Yes" : "No"} />
       )}
-      <DetailRow label="Master Weight" value={data.masterWeight} />
       {data.thresholds && (
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          <div className="rounded bg-muted/30 p-2 text-center">
-            <div className="text-muted-foreground">Low</div>
-            <div className="font-semibold">{data.thresholds.low}</div>
-          </div>
-          <div className="rounded bg-muted/30 p-2 text-center">
-            <div className="text-muted-foreground">Med</div>
-            <div className="font-semibold">{data.thresholds.med}</div>
-          </div>
-          <div className="rounded bg-muted/30 p-2 text-center">
-            <div className="text-muted-foreground">High</div>
-            <div className="font-semibold">{data.thresholds.high}</div>
-          </div>
+        <div className="grid grid-cols-3 gap-1.5">
+          <MetricBox label="Low" value={String(data.thresholds.low)} />
+          <MetricBox label="Med" value={String(data.thresholds.med)} />
+          <MetricBox label="High" value={String(data.thresholds.high)} />
         </div>
       )}
-      <div className="mt-2 space-y-1 border-t pt-2">
+      <div className="border-t border-border pt-2 space-y-1">
+        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1 px-0.5">
+          Master Weight: {data.masterWeight}
+        </p>
         {signers.map((s: any, i: number) => (
-          <div key={i} className="flex justify-between text-xs">
+          <div key={i} className="flex justify-between text-xs py-0.5 px-0.5 rounded hover:bg-muted/20 transition-colors">
             <span className="font-mono">{truncateAddress(s.key)}</span>
-            <span>weight: {s.weight}</span>
+            <span className="text-muted-foreground">weight: {s.weight}</span>
           </div>
         ))}
       </div>
@@ -400,32 +423,19 @@ function SignersView({ data }: { data: any }) {
   );
 }
 
+// ─── Network View ─────────────────────────────────────────────────
+
 function NetworkView({ data }: { data: any }) {
   return (
     <div className="space-y-2">
-      <DetailRow
-        label="Network"
-        value={<span className="font-semibold capitalize">{data.network}</span>}
-      />
-      <DetailRow
-        label="RPC URL"
-        value={
-          <span className="inline-block max-w-[200px] truncate font-mono text-xs">
-            {data.rpcUrl}
-          </span>
-        }
-      />
-      <DetailRow
-        label="Horizon"
-        value={
-          <span className="inline-block max-w-[200px] truncate font-mono text-xs">
-            {data.horizonUrl}
-          </span>
-        }
-      />
+      <MetricBox label="Network" value={data.network ?? "\u2014"} />
+      <Row label="RPC URL" value={data.rpcUrl ?? "\u2014"} />
+      <Row label="Horizon" value={data.horizonUrl ?? "\u2014"} />
     </div>
   );
 }
+
+// ─── Blend Position View ──────────────────────────────────────────
 
 function BlendPositionView({ data, args }: { data: any; args?: Record<string, any> }) {
   const poolAddress = args?.poolAddress ?? data?.poolAddress;
@@ -433,7 +443,6 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
   const positions: any[] = data?.positions ?? [];
   const summary = data?.summary;
 
-  // Legacy fallback: old shape { position: { collateral, liabilities, supply } }
   const legacyPosition = data?.position;
   const legacyHas = legacyPosition
     ? Object.keys(legacyPosition.collateral ?? {}).length +
@@ -443,232 +452,116 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
     : false;
 
   const showEmpty = !hasPosition && !legacyHas;
-
   const supplied = positions.filter((p) => p.suppliedAmount != null);
   const borrowed = positions.filter((p) => p.borrowedAmount != null);
 
-  return (
-    <div className="space-y-2">
-      {poolAddress && <DetailRow label="Pool" value={truncateAddress(String(poolAddress))} mono />}
+  if (showEmpty) {
+    return (
+      <div className="space-y-2">
+        {poolAddress && <Row label="Pool" value={truncateAddress(String(poolAddress))} />}
+        <EmptyState icon={Wallet} text="No open position in this pool" />
+      </div>
+    );
+  }
 
-      {/* Summary Section */}
+  return (
+    <div className="space-y-3">
+      {poolAddress && <Row label="Pool" value={truncateAddress(String(poolAddress))} />}
+
       {summary && (
-        <div className="rounded-lg bg-muted/30 p-3 space-y-2 border border-border/50">
-          <div className="text-xs font-semibold text-foreground">Position Summary</div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
-            {summary.totalSuppliedUsd && (
-              <>
-                <span className="text-muted-foreground">Total Supplied</span>
-                <span className="text-green-400 font-medium">
-                  ${formatNumber(Number(summary.totalSuppliedUsd))}
-                </span>
-              </>
-            )}
-            {summary.totalBorrowedUsd && (
-              <>
-                <span className="text-muted-foreground">Total Borrowed</span>
-                <span className="text-orange-400 font-medium">
-                  ${formatNumber(Number(summary.totalBorrowedUsd))}
-                </span>
-              </>
-            )}
-            {summary.availableBorrowUsd && (
-              <>
-                <span className="text-muted-foreground">Available to Borrow</span>
-                <span className="text-blue-400 font-medium">
-                  ${formatNumber(Number(summary.availableBorrowUsd))}
-                </span>
-              </>
-            )}
-            {summary.healthFactor && (
-              <>
-                <span className="text-muted-foreground">Health Factor</span>
-                <span
-                  className={`font-medium ${Number(summary.healthFactor) > 1.5 ? "text-green-400" : Number(summary.healthFactor) > 1.1 ? "text-yellow-400" : "text-red-400"}`}
-                >
-                  {Number(summary.healthFactor).toFixed(2)}
-                </span>
-              </>
-            )}
-            {summary.claimableBlnd && Number(summary.claimableBlnd) > 0 && (
-              <>
-                <span className="text-muted-foreground">Claimable BLND</span>
-                <span className="text-purple-400 font-medium">
-                  {formatNumber(Number(summary.claimableBlnd))} BLND
-                </span>
-              </>
-            )}
-          </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          {summary.totalSuppliedUsd && <MetricBox label="Supplied" value={`$${formatNumber(Number(summary.totalSuppliedUsd))}`} />}
+          {summary.totalBorrowedUsd && <MetricBox label="Borrowed" value={`$${formatNumber(Number(summary.totalBorrowedUsd))}`} />}
+          {summary.availableBorrowUsd && <MetricBox label="Available" value={`$${formatNumber(Number(summary.availableBorrowUsd))}`} />}
+          {summary.healthFactor && <MetricBox label="Health" value={Number(summary.healthFactor).toFixed(2)} />}
         </div>
       )}
 
-      {showEmpty ? (
-        <div className="text-muted-foreground text-xs">No open position in this pool.</div>
-      ) : (
-        <>
-          {supplied.length > 0 && (
-            <div className="mt-2 space-y-1 border-t pt-2">
-              <div className="text-muted-foreground text-xs font-medium mb-1">Supplied</div>
-              {supplied.map((p, i) => (
-                <div key={i} className="rounded-lg bg-muted/20 p-2 space-y-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">{p.symbol ?? p.asset}</span>
-                    {p.isCollateral && (
-                      <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-blue-400 text-[10px]">
-                        Collateral
-                      </span>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-muted-foreground">
-                    <span>Amount</span>
-                    <span className="text-foreground font-medium">
-                      {formatNumber(Number(p.suppliedAmount))} {p.symbol}
-                    </span>
-                    {p.netApy != null && (
-                      <>
-                        <span>Net APY</span>
-                        <span
-                          className={`font-semibold ${Number(p.netApy) >= 0 ? "text-green-400" : "text-red-400"}`}
-                        >
-                          {Number(p.netApy) >= 0 ? "+" : ""}
-                          {formatPercent(p.netApy)}
-                        </span>
-                      </>
-                    )}
-                    {p.supplyApy != null && (
-                      <>
-                        <span>Supply APY</span>
-                        <span className="text-green-400">{formatPercent(p.supplyApy)}</span>
-                      </>
-                    )}
-                    {p.supplyEmissionApy != null && Number(p.supplyEmissionApy) > 0 && (
-                      <>
-                        <span className="text-[10px]">+ BLND Emission</span>
-                        <span className="text-purple-400 text-[10px]">
-                          +{Number(p.supplyEmissionApy).toFixed(2)}%
-                        </span>
-                      </>
-                    )}
-                    {p.borrowCapacityUsd != null && (
-                      <>
-                        <span>Borrow Capacity</span>
-                        <span className="text-foreground">
-                          ${formatNumber(Number(p.borrowCapacityUsd))}
-                        </span>
-                      </>
-                    )}
-                    {p.suppliedUsd != null && (
-                      <>
-                        <span>Value</span>
-                        <span className="text-foreground">
-                          ${formatNumber(Number(p.suppliedUsd))}
-                        </span>
-                      </>
-                    )}
-                    {p.assetPrice > 0 && (
-                      <>
-                        <span>Price</span>
-                        <span className="text-foreground">${formatPrice(p.assetPrice)}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {borrowed.length > 0 && (
-            <div className="mt-2 space-y-1 border-t pt-2">
-              <div className="text-muted-foreground text-xs font-medium mb-1">Borrowed</div>
-              {borrowed.map((p, i) => (
-                <div key={i} className="rounded-lg bg-muted/20 p-2 space-y-1 text-xs">
-                  <span className="font-semibold">{p.symbol ?? p.asset}</span>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-muted-foreground">
-                    <span>Amount</span>
-                    <span className="text-foreground font-medium">
-                      {formatNumber(Number(p.borrowedAmount))} {p.symbol}
-                    </span>
-                    {p.borrowApy != null && (
-                      <>
-                        <span>Borrow APY</span>
-                        <span className="text-orange-400">{formatPercent(p.borrowApy)}</span>
-                      </>
-                    )}
-                    {p.borrowEmissionApy != null && Number(p.borrowEmissionApy) > 0 && (
-                      <>
-                        <span className="text-[10px]">- BLND Rewards</span>
-                        <span className="text-purple-400 text-[10px]">
-                          -{Number(p.borrowEmissionApy).toFixed(2)}%
-                        </span>
-                      </>
-                    )}
-                    {p.borrowedUsd != null && (
-                      <>
-                        <span>Value</span>
-                        <span className="text-foreground">
-                          ${formatNumber(Number(p.borrowedUsd))}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
-
-function BlendBackstopBalanceView({ data }: { data: any }) {
-  const shares =
-    data?.sharesHuman ?? (data?.shares ? (Number(data.shares) / 1e7).toFixed(7) : null);
-  const queued: any[] = data?.queuedWithdrawals ?? [];
-  return (
-    <div className="space-y-2">
-      {data?.pool && <DetailRow label="Pool" value={truncateAddress(String(data.pool))} mono />}
-      {shares != null && (
-        <DetailRow
-          label="Backstop Shares"
-          value={<span className="font-semibold">{shares}</span>}
-        />
-      )}
-      {data?.hasPosition === false && (
-        <div className="text-muted-foreground text-xs">No backstop position in this pool.</div>
-      )}
-      {queued.length > 0 && (
-        <div className="mt-2 space-y-1 border-t pt-2">
-          <div className="mb-1 text-muted-foreground text-xs">
-            Queued Withdrawals ({queued.length})
-          </div>
-          {queued.map((q: any, i: number) => (
-            <div key={i} className="space-y-1 rounded border p-2 text-xs">
-              <DetailRow
-                label="Amount"
-                value={<span className="font-semibold">{q.amountHuman ?? q.amount}</span>}
-              />
-              {q.expiration != null && (
-                <DetailRow label="Expiration (ledger)" value={String(q.expiration)} />
+      {supplied.length > 0 && (
+        <div className="border-t border-border pt-2">
+          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1 px-0.5">Supplied</p>
+          {supplied.map((p, i) => (
+            <div key={i} className="flex items-center py-1.5 px-0.5 rounded hover:bg-muted/20 transition-colors">
+              <TokenImage src={null} alt={p.symbol ?? p.asset} className="h-5 w-5 rounded-full mr-2" />
+              <span className="text-xs font-medium flex-1">{p.symbol ?? p.asset}</span>
+              {p.isCollateral && (
+                <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] mr-2">Collateral</span>
+              )}
+              <span className="text-xs tabular-nums">{formatNumber(Number(p.suppliedAmount))}</span>
+              {p.netApy != null && (
+                <span className="text-[10px] ml-2 tabular-nums text-muted-foreground">
+                  {formatPercent(p.netApy)}
+                </span>
               )}
             </div>
           ))}
         </div>
       )}
-      {queued.length === 0 && data?.hasPosition && (
-        <div className="text-muted-foreground text-xs">No queued withdrawals.</div>
+
+      {borrowed.length > 0 && (
+        <div className="border-t border-border pt-2">
+          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1 px-0.5">Borrowed</p>
+          {borrowed.map((p, i) => (
+            <div key={i} className="flex items-center py-1.5 px-0.5 rounded hover:bg-muted/20 transition-colors">
+              <TokenImage src={null} alt={p.symbol ?? p.asset} className="h-5 w-5 rounded-full mr-2" />
+              <span className="text-xs font-medium flex-1">{p.symbol ?? p.asset}</span>
+              <span className="text-xs tabular-nums">{formatNumber(Number(p.borrowedAmount))}</span>
+              {p.borrowApy != null && (
+                <span className="text-[10px] ml-2 tabular-nums text-muted-foreground">{formatPercent(p.borrowApy)}</span>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
 }
 
+// ─── Backstop Balance View ────────────────────────────────────────
+
+function BlendBackstopBalanceView({ data }: { data: any }) {
+  const shares =
+    data?.sharesHuman ?? (data?.shares ? (Number(data.shares) / 1e7).toFixed(7) : null);
+  const queued: any[] = data?.queuedWithdrawals ?? [];
+
+  if (data?.hasPosition === false) {
+    return <EmptyState icon={Wallet} text="No backstop position in this pool" />;
+  }
+
+  return (
+    <div className="space-y-3">
+      {data?.pool && <Row label="Pool" value={truncateAddress(String(data.pool))} />}
+      {shares != null && <MetricBox label="Backstop Shares" value={String(shares)} />}
+      {queued.length > 0 && (
+        <div className="border-t border-border pt-2">
+          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1 px-0.5">
+            Queued Withdrawals ({queued.length})
+          </p>
+          {queued.map((q: any, i: number) => (
+            <div key={i} className="rounded-lg bg-secondary p-2.5 space-y-1 text-xs">
+              <Row label="Amount" value={q.amountHuman ?? q.amount} />
+              {q.expiration != null && <Row label="Expiration" value={String(q.expiration)} />}
+            </div>
+          ))}
+        </div>
+      )}
+      {queued.length === 0 && (
+        <div className="text-[10px] text-muted-foreground px-0.5">No queued withdrawals.</div>
+      )}
+    </div>
+  );
+}
+
+// ─── Generic View ─────────────────────────────────────────────────
+
 function GenericView({ data }: { data: any }) {
   if (data?.success !== undefined) {
     return (
       <div className="text-sm">
-        <span className={data.success ? "text-green-500" : "text-red-500"}>
+        <span className={data.success ? "text-foreground" : "text-destructive"}>
           {data.success ? "Success" : "Failed"}
         </span>
-        {data.error && <span className="ml-2 text-red-500">{data.error}</span>}
+        {data.error && <span className="ml-2 text-destructive">{data.error}</span>}
       </div>
     );
   }

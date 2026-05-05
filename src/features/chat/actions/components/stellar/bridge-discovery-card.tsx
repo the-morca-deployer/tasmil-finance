@@ -1,11 +1,12 @@
 "use client";
 
-import { Crown, Globe } from "lucide-react";
+import { ArrowRight, Clock, Crown, Globe } from "lucide-react";
 import { memo } from "react";
 import { useResultData } from "../../hooks/use-result-data";
 import { formatEstimatedTime } from "../../lib/formatting";
-import { DetailRow, ProtocolBadge, ScrollableList, StatusBadge } from "../base/indicators";
-import { BaseInfoCard } from "../base/info-card";
+import { ProtocolCard, EmptyState } from "@/features/protocols/cards/base/protocol-card";
+import { MetricBox, Stat } from "@/features/protocols/cards/base/indicators";
+import { ScrollableList } from "../base/indicators";
 
 interface BridgeQuote {
   provider: string;
@@ -46,88 +47,121 @@ function BridgeDiscoveryCardComponent({
   const fromChain = args?.fromChain ?? "?";
   const toChain = args?.toChain ?? "?";
   const tokenIn = args?.tokenIn ?? "";
+  const availableQuotes = data?.quotes?.filter((q) => q.status === "ok") ?? [];
 
   return (
-    <BaseInfoCard
+    <ProtocolCard
       data-testid="card-bridge-discovery"
+      mode="chat"
       title="Bridge Quotes"
-      subtitle={`${fromChain} → ${toChain}${tokenIn ? ` (${tokenIn})` : ""}`}
+      subtitle={`${fromChain} \u2192 ${toChain}${tokenIn ? ` (${tokenIn})` : ""}`}
       icon={Globe}
-      iconColor="text-purple-500"
-      iconBg="bg-purple-500/10"
+      iconColor="text-primary"
+      iconBg="bg-primary/10"
       isLoading={isLoading}
-      error={hasError ? errorMessage : null}
+      error={hasError ? errorMessage : undefined}
     >
       {data?.quotes && data.quotes.length > 0 ? (
-        <ScrollableList id={`bridge-quotes-${toolCallId}`} maxHeight={300}>
-          {data.quotes.map((quote, idx) => {
-            const isBest = quote.provider === data.best;
-            const isAvailable = quote.status === "ok";
+        <>
+          {/* Summary metrics */}
+          <div className="mb-3 grid grid-cols-3 gap-1.5">
+            <MetricBox label="Routes" value={String(data.quotes.length)} />
+            <MetricBox label="Best" value={data.best || "\u2014"} />
+            <MetricBox
+              label="Best Fee"
+              value={
+                availableQuotes.length > 0
+                  ? `${Math.min(...availableQuotes.map((q) => Number.parseFloat(q.feePercent) || 0)).toFixed(1)}%`
+                  : "\u2014"
+              }
+            />
+          </div>
 
-            return (
-              <div
-                key={`${quote.provider}-${idx}`}
-                className={`space-y-2 rounded-lg border p-3 ${
-                  isBest ? "border-green-500/40 bg-green-500/5" : "border-border"
-                } ${!isAvailable ? "opacity-50" : ""}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ProtocolBadge name={quote.provider} />
-                    {isBest && (
-                      <span className="flex items-center gap-1 font-medium text-green-500 text-xs">
-                        <Crown className="h-3 w-3" /> Best
-                      </span>
-                    )}
-                    {quote.crossChainSwap && (
-                      <span className="rounded-full bg-blue-500/10 px-1.5 py-0.5 text-blue-500 text-xs">
-                        cross-chain
-                      </span>
-                    )}
-                  </div>
-                  <StatusBadge status={quote.status} />
-                </div>
+          {/* Route direction */}
+          <div className="flex items-center gap-2 mb-2 px-0.5">
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+              {fromChain}
+            </span>
+            <ArrowRight className="h-3 w-3 text-muted-foreground/40" />
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+              {toChain}
+            </span>
+          </div>
 
-                {isAvailable && (
-                  <>
-                    <div className="space-y-1">
-                      <DetailRow label="Send" value={quote.amountIn} />
-                      <DetailRow
-                        label="Receive"
-                        value={<span className="font-semibold">{quote.amountOut}</span>}
-                      />
-                      <DetailRow label="Fee" value={`${quote.fee} (${quote.feePercent}%)`} />
-                      <DetailRow
-                        label="Est. Time"
-                        value={formatEstimatedTime(quote.estimatedTime)}
-                      />
+          <ScrollableList id={`bridge-quotes-${toolCallId}`} maxHeight={300}>
+            {data.quotes.map((quote, idx) => {
+              const isBest = quote.provider === data.best;
+              const isAvailable = quote.status === "ok";
+
+              return (
+                <div
+                  key={`${quote.provider}-${idx}`}
+                  className={`space-y-2 rounded-lg border p-3 transition-colors ${
+                    isBest ? "border-primary/30 bg-primary/5" : "border-border hover:bg-muted/20"
+                  } ${!isAvailable ? "opacity-50" : ""}`}
+                >
+                  {/* Provider header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="rounded-md bg-muted px-1.5 py-px text-[10px] font-medium text-foreground">
+                        {quote.provider}
+                      </span>
+                      {isBest && (
+                        <span className="flex items-center gap-0.5 font-medium text-primary text-[10px]">
+                          <Crown className="h-3 w-3" /> Best
+                        </span>
+                      )}
+                      {quote.crossChainSwap && (
+                        <span className="rounded-md bg-muted px-1.5 py-0.5 text-muted-foreground text-[10px]">
+                          cross-chain
+                        </span>
+                      )}
                     </div>
+                    <span className={`text-[10px] font-medium ${isAvailable ? "text-foreground" : "text-muted-foreground"}`}>
+                      {isAvailable ? "Available" : quote.status}
+                    </span>
+                  </div>
 
-                    {quote.depositAddress && (
-                      <div className="mt-2 border-t pt-2 text-muted-foreground text-xs">
-                        Deposit to: <span className="font-mono">{quote.depositAddress}</span>
-                        {quote.depositMemo && (
-                          <>
-                            {" "}
-                            | Memo: <span className="font-mono">{quote.depositMemo}</span>
-                          </>
-                        )}
+                  {isAvailable && (
+                    <>
+                      {/* Send / Receive stats */}
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
+                        <Stat label="Send" value={quote.amountIn} />
+                        <Stat label="Receive" value={quote.amountOut} />
                       </div>
-                    )}
-                  </>
-                )}
 
-                {!isAvailable && quote.error && (
-                  <div className="text-red-500 text-xs">{quote.error}</div>
-                )}
-              </div>
-            );
-          })}
-        </ScrollableList>
+                      {/* Fee + time */}
+                      <div className="flex justify-between text-[10px] text-muted-foreground px-0.5">
+                        <span>Fee: {quote.fee} ({quote.feePercent}%)</span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {formatEstimatedTime(quote.estimatedTime)}
+                        </span>
+                      </div>
+
+                      {quote.depositAddress && (
+                        <div className="border-t border-border pt-1.5 text-muted-foreground text-[10px] px-0.5">
+                          Deposit: <span className="font-mono">{quote.depositAddress}</span>
+                          {quote.depositMemo && (
+                            <> | Memo: <span className="font-mono">{quote.depositMemo}</span></>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {!isAvailable && quote.error && (
+                    <div className="text-destructive text-xs">{quote.error}</div>
+                  )}
+                </div>
+              );
+            })}
+          </ScrollableList>
+        </>
       ) : (
-        <div className="text-muted-foreground text-sm">No bridge routes available.</div>
+        <EmptyState icon={Globe} text="No direct bridge routes found \u2014 try a different token pair" />
       )}
-    </BaseInfoCard>
+    </ProtocolCard>
   );
 }
 

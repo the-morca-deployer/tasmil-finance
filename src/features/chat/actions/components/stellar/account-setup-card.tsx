@@ -3,7 +3,9 @@
 import { CheckCircle2, Circle, Loader2, Rocket, XCircle } from "lucide-react";
 import { memo } from "react";
 import { useResultData } from "../../hooks/use-result-data";
-import { BaseInfoCard } from "../base/info-card";
+import { ProtocolCard } from "@/features/protocols/cards/base/protocol-card";
+import { MetricBox } from "@/features/protocols/cards/base/indicators";
+
 
 interface AccountSetupData {
   has_account?: boolean;
@@ -53,13 +55,13 @@ function getStepStatus(stepKey: string, nextStep: string): StepStatus {
 function StepIcon({ status }: { status: StepStatus }) {
   switch (status) {
     case "done":
-      return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      return <CheckCircle2 className="h-5 w-5 text-foreground" />;
     case "in-progress":
       return <Loader2 className="h-5 w-5 animate-spin text-primary" />;
     case "error":
       return <XCircle className="h-5 w-5 text-destructive" />;
     default:
-      return <Circle className="h-5 w-5 text-muted-foreground/40" />;
+      return <Circle className="h-5 w-5 text-muted-foreground/30" />;
   }
 }
 
@@ -77,21 +79,23 @@ function AccountSetupCardComponent({
   const accountStatus = data?.status ?? "";
   const accountPreset = data?.preset ?? "";
   const totalValue = data?.total_value_usd ?? data?.totalValueUsd;
+  const currentApy = data?.current_apy ?? data?.currentApy;
 
-  // If no account, show setup steps
+  // No account — show setup steps
   if (!hasAccount && !isLoading) {
     return (
-      <BaseInfoCard
+      <ProtocolCard
         data-testid="card-account-setup"
+        mode="chat"
         title="Setting Up Your Smart Account"
-        subtitle="3 steps to start earning yield"
+        subtitle={`${STEPS.findIndex((s) => s.key === nextStep) + 1} of ${STEPS.length} steps`}
         icon={Rocket}
-        iconColor="text-violet-500"
-        iconBg="bg-violet-500/10"
+        iconColor="text-primary"
+        iconBg="bg-primary/10"
         isLoading={isLoading}
-        error={hasError ? errorMessage : null}
+        error={hasError ? errorMessage : undefined}
       >
-        <div className="space-y-3">
+        <div className="space-y-0">
           {STEPS.map((step, idx) => {
             const stepStatus = getStepStatus(step.key, nextStep);
             const isLast = idx === STEPS.length - 1;
@@ -102,21 +106,19 @@ function AccountSetupCardComponent({
                   <StepIcon status={stepStatus} />
                   {!isLast && (
                     <div
-                      className={`mt-1 w-px flex-1 ${
-                        stepStatus === "done"
-                          ? "bg-green-500/30"
-                          : "bg-muted-foreground/20"
+                      className={`mt-0.5 w-px flex-1 min-h-[16px] ${
+                        stepStatus === "done" ? "bg-primary/30" : "bg-border"
                       }`}
                     />
                   )}
                 </div>
-                <div className={`pb-3 ${stepStatus === "in-progress" ? "" : "opacity-60"}`}>
-                  <div className="font-medium text-sm">
+                <div className={`pb-3 ${stepStatus === "in-progress" ? "" : "opacity-50"}`}>
+                  <div className="font-medium text-xs">
                     {idx + 1}. {step.label}
                   </div>
-                  <div className="text-muted-foreground text-xs">{step.desc}</div>
+                  <div className="text-muted-foreground text-[10px]">{step.desc}</div>
                   {stepStatus === "in-progress" && (
-                    <div className="mt-1 font-medium text-primary text-xs animate-pulse">
+                    <div className="mt-0.5 font-medium text-primary text-[10px] animate-pulse">
                       Waiting for confirmation...
                     </div>
                   )}
@@ -126,60 +128,57 @@ function AccountSetupCardComponent({
           })}
 
           {data?.message && (
-            <div className="rounded bg-muted/30 p-2 text-muted-foreground text-xs">
+            <div className="rounded-lg bg-secondary p-2.5 text-muted-foreground text-[10px] mt-2">
               {data.message}
             </div>
           )}
         </div>
-      </BaseInfoCard>
+      </ProtocolCard>
     );
   }
 
-  // Has account — show current status
+  // Has account — show current status with metrics
   return (
-    <BaseInfoCard
+    <ProtocolCard
+      data-testid="card-account-setup"
+      mode="chat"
       title="Your Smart Account"
       subtitle={
         totalValue != null
-          ? `$${totalValue.toLocaleString()} · ${accountPreset}`
-          : `${accountStatus} · ${accountPreset}`
+          ? `$${totalValue.toLocaleString()} \u00B7 ${accountPreset}`
+          : accountPreset || "Active"
       }
       icon={Rocket}
-      iconColor="text-green-500"
-      iconBg="bg-green-500/10"
+      iconColor="text-primary"
+      iconBg="bg-primary/10"
       isLoading={isLoading}
-      error={hasError ? errorMessage : null}
+      error={hasError ? errorMessage : undefined}
     >
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Status</span>
-          <span className="font-medium">{accountStatus || "Unknown"}</span>
+      <div className="space-y-3">
+        {/* Status metrics */}
+        <div className="grid grid-cols-2 gap-1.5">
+          <MetricBox label="Status" value={accountStatus || "Unknown"} />
+          <MetricBox label="Preset" value={accountPreset || "BALANCED"} />
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Preset</span>
-          <span className="font-medium">{accountPreset || "BALANCED"}</span>
-        </div>
-        {totalValue != null && (
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Total Value</span>
-            <span className="font-medium">${totalValue.toLocaleString()}</span>
+
+        {(totalValue != null || currentApy != null) && (
+          <div className="grid grid-cols-2 gap-1.5">
+            {totalValue != null && (
+              <MetricBox label="Total Value" value={`$${totalValue.toLocaleString()}`} />
+            )}
+            {currentApy != null && (
+              <MetricBox label="Current APY" value={`${currentApy.toFixed(1)}%`} />
+            )}
           </div>
         )}
-        {data?.current_apy != null && (
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Current APY</span>
-            <span className="font-medium text-green-500">
-              {data.current_apy.toFixed(1)}%
-            </span>
-          </div>
-        )}
+
         {data?.message && (
-          <div className="rounded bg-muted/30 p-2 text-muted-foreground text-xs">
+          <div className="rounded-lg bg-secondary p-2.5 text-muted-foreground text-[10px]">
             {data.message}
           </div>
         )}
       </div>
-    </BaseInfoCard>
+    </ProtocolCard>
   );
 }
 

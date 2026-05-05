@@ -91,6 +91,17 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
 
+    // E2E test fast-path: skip StellarWalletsKit init entirely
+    const e2eWallet = typeof window !== "undefined" ? (window as any).__TASMIL_E2E_WALLET__ : null;
+    if (e2eWallet?.connected && e2eWallet?.publicKey) {
+      console.warn("[WalletContext] E2E fast-path: using mock wallet", e2eWallet.publicKey.slice(0, 8));
+      setAddress(e2eWallet.publicKey);
+      setIsConnected(true);
+      setWalletState({ connected: true, account: e2eWallet.publicKey });
+      setKitReady(true);
+      return;
+    }
+
     (async () => {
       try {
         const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
@@ -184,18 +195,13 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const walletState = useWalletStore.getState();
     if (!walletState.connected || !walletState.account) return;
 
-    // Test-only bypass: when window.__TASMIL_E2E_BYPASS_KIT__ is set, trust
-    // the persisted wallet-storage state without calling StellarWalletsKit.
-    // Playwright's loginAsWallet helper sets this flag so headless tests can
-    // exercise wallet-aware UI without integrating a real wallet kit. The
-    // flag is never written by production code paths.
-    const bypassKit =
-      typeof window !== "undefined" &&
-      (window as unknown as { __TASMIL_E2E_BYPASS_KIT__?: boolean })
-        .__TASMIL_E2E_BYPASS_KIT__ === true;
-    if (bypassKit) {
-      setAddress(walletState.account);
+    // E2E test bypass — when __TASMIL_E2E_WALLET__ is set, trust localStorage
+    // instead of querying StellarWalletsKit (no browser extension in Playwright)
+    const e2eWallet = (window as any).__TASMIL_E2E_WALLET__;
+    if (e2eWallet?.connected && e2eWallet?.publicKey) {
+      setAddress(e2eWallet.publicKey);
       setIsConnected(true);
+      setWalletState({ connected: true, account: e2eWallet.publicKey });
       return;
     }
 

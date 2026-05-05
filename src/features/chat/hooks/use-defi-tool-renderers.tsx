@@ -87,6 +87,36 @@ import { useWalletStore } from "@/store/use-wallet";
  */
 
 // ---------------------------------------------------------------------------
+// Helper: simplify raw contract/simulation error messages for the UI
+// ---------------------------------------------------------------------------
+
+function simplifyErrorMessage(raw: string): string {
+  // "All N steps failed. Errors: [{...}]" — extract the first error summary
+  const stepsMatch = raw.match(/All \d+ steps? failed/);
+  if (stepsMatch) {
+    // Try to extract user-friendly part from nested JSON
+    const simMatch = raw.match(/Contract simulation failed:\s*HostError:\s*Error\(Contract,\s*#(\d+)\)/);
+    if (simMatch) {
+      return `Transaction simulation failed (contract error #${simMatch[1]}). The AI will suggest an alternative.`;
+    }
+    return "Transaction simulation failed. The AI will suggest an alternative.";
+  }
+  // Generic contract simulation error
+  if (raw.includes("Contract simulation failed")) {
+    const codeMatch = raw.match(/Error\(Contract,\s*#(\d+)\)/);
+    if (codeMatch) {
+      return `Transaction simulation failed (contract error #${codeMatch[1]}).`;
+    }
+    return "Transaction simulation failed.";
+  }
+  // Keep short messages as-is, truncate very long ones
+  if (raw.length > 200) {
+    return `${raw.slice(0, 150)}…`;
+  }
+  return raw;
+}
+
+// ---------------------------------------------------------------------------
 // Helper to adapt render props to our card component props
 // ---------------------------------------------------------------------------
 
@@ -1235,9 +1265,12 @@ export const FLOW_TOOL_RENDERERS: Array<{
         );
       }
       if (data.kind === "error") {
+        // Show user-friendly error instead of raw contract/simulation errors
+        const rawMessage = (data.message as string) || "Transaction failed";
+        const friendlyMessage = simplifyErrorMessage(rawMessage);
         return (
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-            {(data.message as string) || "Transaction failed"}
+            {friendlyMessage}
           </div>
         );
       }
@@ -1298,9 +1331,11 @@ export const FLOW_TOOL_RENDERERS: Array<{
       }
       // Error response
       if (data.kind === "error") {
+        const rawMessage = (data.message as string) || "Transaction failed";
+        const friendlyMessage = simplifyErrorMessage(rawMessage);
         return (
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-            {(data.message as string) || "Transaction failed"}
+            {friendlyMessage}
           </div>
         );
       }

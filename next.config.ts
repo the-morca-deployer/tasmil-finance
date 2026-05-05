@@ -64,6 +64,17 @@ const nextConfig: NextConfig = {
         accounts: require.resolve("./src/lib/stubs/accounts.ts"),
       };
     }
+    // Exclude E2E test output from file watcher — Playwright writes screenshots
+    // and videos to e2e/test-results/ which triggers HMR recompiles mid-test.
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: [
+        ...(Array.isArray(config.watchOptions?.ignored) ? config.watchOptions.ignored : config.watchOptions?.ignored ? [config.watchOptions.ignored] : []),
+        '**/e2e/test-results/**',
+        '**/node_modules/**',
+      ],
+    };
+
     return config;
   },
 };

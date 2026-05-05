@@ -2,16 +2,12 @@
 
 import { TrendingUp } from "lucide-react";
 import { memo } from "react";
+import { TokenImage } from "@/shared/components/token-image";
 import { useResultData } from "../../hooks/use-result-data";
-import { formatNumber, formatPercent } from "../../lib/formatting";
-import {
-  APYDisplay,
-  DetailRow,
-  ProtocolBadge,
-  RiskBadge,
-  ScrollableList,
-} from "../base/indicators";
-import { BaseInfoCard } from "../base/info-card";
+import { ProtocolCard, EmptyState } from "@/features/protocols/cards/base/protocol-card";
+import { MetricBox, Bar, Stat } from "@/features/protocols/cards/base/indicators";
+import { fmt } from "@/features/protocols/lib/formatting";
+import { ScrollableList } from "../base/indicators";
 
 interface EarnOpportunity {
   protocol: string;
@@ -37,7 +33,6 @@ interface EarnData {
   opportunities: EarnOpportunity[];
   count: number;
   totalScanned: number;
-  // lending format
   markets?: Array<{
     protocol: string;
     asset: string;
@@ -66,7 +61,6 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
   const isLending = type === "staking_discovery" || data?.markets != null;
   const title = isLending ? "Lending Markets" : "Earn Opportunities";
 
-  // Normalize: lending markets → opportunities format
   const items: EarnOpportunity[] =
     data?.opportunities ??
     data?.markets?.map((m) => ({
@@ -86,38 +80,28 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
     })) ??
     [];
 
+  const validApys = items.map((o) => o.apy).filter((v): v is number => v != null && Number.isFinite(v));
+  const bestApy = validApys.length > 0 ? Math.max(...validApys) : null;
+  const protocols = new Set(items.map((o) => o.protocol));
+
   return (
-    <BaseInfoCard
+    <ProtocolCard
       data-testid="card-earn-discovery"
+      mode="chat"
       title={title}
       subtitle={`${items.length} result${items.length !== 1 ? "s" : ""} found`}
       icon={TrendingUp}
-      iconColor="text-green-500"
-      iconBg="bg-green-500/10"
+      iconColor="text-primary"
+      iconBg="bg-primary/10"
       isLoading={isLoading}
-      error={hasError ? errorMessage : null}
+      error={hasError ? errorMessage : undefined}
     >
-      {/* Stats overview */}
-      {items.length > 0 && (
-        <div className="mb-3 grid grid-cols-3 gap-2">
-          <div className="rounded bg-muted/30 p-2 text-center">
-            <div className="text-[10px] text-muted-foreground">Count</div>
-            <div className="font-semibold text-sm">{items.length}</div>
-          </div>
-          <div className="rounded bg-muted/30 p-2 text-center">
-            <div className="text-[10px] text-muted-foreground">Best APY</div>
-            <div className="font-semibold text-green-500 text-sm">
-              {Math.max(...items.map((o) => o.apy ?? 0)).toFixed(1)}%
-            </div>
-          </div>
-          <div className="rounded bg-muted/30 p-2 text-center">
-            <div className="text-[10px] text-muted-foreground">Protocols</div>
-            <div className="font-semibold text-sm">
-              {new Set(items.map((o) => o.protocol)).size}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Stats grid */}
+      <div className="mb-3 grid grid-cols-3 gap-1.5">
+        <MetricBox label="Count" value={String(items.length)} />
+        <MetricBox label="Best APY" value={bestApy != null ? `${bestApy.toFixed(1)}%` : "N/A"} />
+        <MetricBox label="Protocols" value={String(protocols.size)} />
+      </div>
 
       {items.length > 0 ? (
         <ScrollableList id={`earn-${toolCallId}`} maxHeight={350}>
@@ -127,72 +111,67 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
             .map((opp, idx) => (
               <div
                 key={`${opp.protocol}-${opp.name}-${idx}`}
-                className="space-y-2 rounded-lg border p-3"
+                className="space-y-2 rounded-lg border border-border p-3 hover:bg-muted/20 transition-colors"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <ProtocolBadge name={opp.protocol} />
-                    <span className="rounded-full bg-muted/50 px-1.5 py-0.5 text-muted-foreground text-xs">
-                      {opp.type}
-                    </span>
-                  </div>
-                  <RiskBadge risk={opp.risk} />
+                {/* Header row: protocol + type tags */}
+                <div className="flex items-center gap-1.5">
+                  <span className="rounded-md bg-muted px-1.5 py-px text-[10px] font-medium text-foreground">
+                    {opp.protocol}
+                  </span>
+                  <span className="rounded-md bg-muted px-1.5 py-px text-[10px] font-medium text-muted-foreground">
+                    {opp.type}
+                  </span>
+                  <span className="rounded-md bg-muted px-1.5 py-px text-[10px] font-medium text-muted-foreground">
+                    {opp.risk}
+                  </span>
                 </div>
 
+                {/* Pool name */}
                 <div className="truncate font-medium text-sm">{opp.name}</div>
 
-                <div className="flex flex-wrap items-center gap-1">
+                {/* Asset tokens with images */}
+                <div className="flex items-center gap-1.5">
                   {opp.assets.map((a) => (
-                    <span key={a} className="rounded bg-muted/40 px-1.5 py-0.5 text-xs">
-                      {a}
-                    </span>
+                    <div key={a} className="flex items-center gap-1">
+                      <TokenImage src={null} alt={a} className="h-4 w-4 rounded-full" />
+                      <span className="text-xs text-foreground">{a}</span>
+                    </div>
                   ))}
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                  <DetailRow
-                    label="APY"
-                    value={
-                      <span className="font-semibold">
-                        <APYDisplay value={opp.apy} />
-                      </span>
-                    }
-                  />
-                  {opp.tvl && <DetailRow label="TVL" value={`$${formatNumber(opp.tvl)}`} />}
-                  {opp.supplyApy != null && (
-                    <DetailRow
-                      label="Supply"
-                      value={<span className="font-semibold">{formatPercent(opp.supplyApy)}</span>}
-                    />
-                  )}
-                  {opp.borrowApy != null && (
-                    <DetailRow
-                      label="Borrow"
-                      value={
-                        <span className="text-orange-500">{formatPercent(opp.borrowApy)}</span>
-                      }
-                    />
-                  )}
-                  {opp.utilization != null && typeof opp.utilization === "number" && (
-                    <DetailRow label="Util." value={`${opp.utilization.toFixed(1)}%`} />
-                  )}
-                  {opp.collateralFactor != null && typeof opp.collateralFactor === "number" && (
-                    <DetailRow label="CF" value={`${(opp.collateralFactor * 100).toFixed(0)}%`} />
-                  )}
+                {/* Stats: compact grid */}
+                <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
+                  <Stat label="APY" value={opp.apy != null && Number.isFinite(opp.apy) ? `${opp.apy.toFixed(2)}%` : "N/A"} />
+                  {opp.tvl && <Stat label="TVL" value={`$${fmt(opp.tvl)}`} />}
+                  {opp.supplyApy != null && <Stat label="Supply" value={`${opp.supplyApy.toFixed(2)}%`} />}
+                  {opp.borrowApy != null && <Stat label="Borrow" value={`${opp.borrowApy.toFixed(2)}%`} />}
                 </div>
 
-                {opp.reserves && opp.reserves.length > 0 && (
-                  <div className="mt-1 border-t pt-1 text-muted-foreground text-xs">
-                    Reserves: {opp.reserves.map((r) => `${r.amount} ${r.symbol}`).join(", ")}
+                {/* Utilization bar */}
+                {opp.utilization != null && typeof opp.utilization === "number" && (
+                  <div className="space-y-0.5">
+                    <div className="flex justify-between text-[9px] text-muted-foreground">
+                      <span>Utilization</span>
+                      <span className="tabular-nums">{opp.utilization.toFixed(1)}%</span>
+                    </div>
+                    <Bar value={opp.utilization / 100} />
+                  </div>
+                )}
+
+                {/* Collateral factor */}
+                {opp.collateralFactor != null && typeof opp.collateralFactor === "number" && (
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
+                    <span>C-Factor</span>
+                    <span className="tabular-nums">{(opp.collateralFactor * 100).toFixed(0)}%</span>
                   </div>
                 )}
               </div>
             ))}
         </ScrollableList>
       ) : (
-        <div className="text-muted-foreground text-sm">No opportunities found.</div>
+        <EmptyState icon={TrendingUp} text="No opportunities found \u2014 try a different asset" />
       )}
-    </BaseInfoCard>
+    </ProtocolCard>
   );
 }
 

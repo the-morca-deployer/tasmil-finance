@@ -3,8 +3,9 @@
 import { BarChart3 } from "lucide-react";
 import { memo } from "react";
 import { useResultData } from "../../hooks/use-result-data";
-import { BaseInfoCard } from "../base/info-card";
-import { APYDisplay, ProtocolBadge, RiskBadge } from "../base/indicators";
+import { ProtocolCard, EmptyState } from "@/features/protocols/cards/base/protocol-card";
+import { MetricBox, Bar } from "@/features/protocols/cards/base/indicators";
+import { APYDisplay, RiskBadge, ProtocolBadge } from "../base/indicators";
 
 interface AccountPosition {
   poolName?: string;
@@ -77,108 +78,103 @@ function AccountStrategyCardComponent({
 
   if (!hasAccount) {
     return (
-      <BaseInfoCard
+      <ProtocolCard
         data-testid="card-account-strategy"
+        mode="chat"
         title="No Smart Account Found"
         subtitle="Create one to start earning yield"
         icon={BarChart3}
         iconColor="text-muted-foreground"
         iconBg="bg-muted/30"
         isLoading={isLoading}
-        error={hasError ? errorMessage : null}
+        error={hasError ? errorMessage : undefined}
       >
-        <p className="text-muted-foreground text-sm">
-          You don't have a Tasmil smart account yet. Deploy one to access
-          auto-rebalancing strategies across top Stellar DeFi protocols.
-        </p>
-      </BaseInfoCard>
+        <EmptyState icon={BarChart3} text="Deploy a smart account to access auto-rebalancing strategies" />
+      </ProtocolCard>
     );
   }
 
   return (
-    <BaseInfoCard
+    <ProtocolCard
       data-testid="card-account-strategy"
+      mode="chat"
       title="Your Smart Account"
-      subtitle={`${preset} · ${data?.status ?? "ACTIVE"}`}
+      subtitle={`${preset} \u00B7 ${data?.status ?? "ACTIVE"}`}
       icon={BarChart3}
       iconColor="text-violet-500"
       iconBg="bg-violet-500/10"
       isLoading={isLoading}
-      error={hasError ? errorMessage : null}
+      error={hasError ? errorMessage : undefined}
     >
-      {/* Overview stats */}
-      <div className="mb-3 grid grid-cols-2 gap-2">
+      {/* Overview metrics */}
+      <div className="mb-3 grid grid-cols-2 gap-1.5">
         {totalValue != null && (
-          <div className="rounded bg-muted/30 p-2">
-            <div className="text-muted-foreground text-[10px]">Total Value</div>
-            <div className="font-semibold text-sm">
-              ${totalValue.toLocaleString()}
-            </div>
-          </div>
+          <MetricBox label="Total Value" value={`$${totalValue.toLocaleString()}`} />
         )}
         {currentApy != null && (
-          <div className="rounded bg-muted/30 p-2">
-            <div className="text-muted-foreground text-[10px]">Current APY</div>
-            <div className="font-semibold text-green-500 text-sm">
+          <div className="rounded-lg bg-secondary px-2.5 py-2">
+            <p className="text-[10px] text-muted-foreground mb-0.5">Current APY</p>
+            <p className="text-sm font-semibold">
               <APYDisplay value={currentApy} />
-            </div>
+            </p>
           </div>
         )}
         {profitUsd != null && (
-          <div className="rounded bg-muted/30 p-2">
-            <div className="text-muted-foreground text-[10px]">P&amp;L</div>
-            <div
-              className={`font-semibold text-sm ${
-                profitUsd >= 0 ? "text-green-500" : "text-red-500"
-              }`}
-            >
+          <div className="rounded-lg bg-secondary px-2.5 py-2">
+            <p className="text-[10px] text-muted-foreground mb-0.5">P&L</p>
+            <p className={`text-sm font-semibold ${profitUsd >= 0 ? "text-emerald-400" : "text-red-400"}`}>
               {profitUsd >= 0 ? "+" : ""}${profitUsd.toLocaleString()}
               {profitPercent != null && ` (${profitPercent.toFixed(1)}%)`}
-            </div>
+            </p>
           </div>
         )}
-        <div className="rounded bg-muted/30 p-2">
-          <div className="text-muted-foreground text-[10px]">Preset</div>
-          <div className="flex items-center gap-1 font-semibold text-sm">
-            {preset}
+        <div className="rounded-lg bg-secondary px-2.5 py-2">
+          <p className="text-[10px] text-muted-foreground mb-0.5">Preset</p>
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm font-semibold">{preset}</span>
             <RiskBadge risk={PRESET_RISK[preset] ?? "medium"} />
           </div>
         </div>
       </div>
 
-      {/* Positions list */}
+      {/* Positions */}
       {positions.length > 0 && (
-        <div className="border-t pt-2">
-          <div className="mb-2 text-muted-foreground text-[10px] uppercase tracking-wide">
+        <div className="border-t border-border pt-2">
+          <p className="text-[9px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 px-0.5">
             Positions ({positions.length})
-          </div>
-          <div className="space-y-2">
+          </p>
+          <div className="space-y-1">
             {positions.map((pos, idx) => {
               const poolName = pos.poolName ?? pos.pool_name ?? "Unknown Pool";
               const valueUsd = pos.valueUsd ?? pos.value_usd ?? 0;
               const allocation = pos.allocationPercent ?? pos.allocation_percent ?? 0;
-              const apy = pos.apy ?? 0;
 
               return (
                 <div
                   key={idx}
-                  className="flex items-center justify-between rounded border bg-card/20 p-2 text-xs"
+                  className="rounded-lg border border-border p-2.5 hover:bg-muted/20 transition-colors"
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate font-medium">{poolName}</div>
-                    <div className="flex items-center gap-1 text-muted-foreground">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-1.5 min-w-0">
                       <ProtocolBadge name={pos.protocol} />
-                      {allocation > 0 && (
-                        <span>{allocation}% allocation</span>
-                      )}
+                      <span className="text-xs font-medium truncate">{poolName}</span>
+                    </div>
+                    <div className="text-right ml-2">
+                      <div className="text-xs font-semibold tabular-nums">${valueUsd.toLocaleString()}</div>
+                      <div className="text-[10px]">
+                        <APYDisplay value={pos.apy} />
+                      </div>
                     </div>
                   </div>
-                  <div className="ml-2 text-right">
-                    <div className="font-medium">${valueUsd.toLocaleString()}</div>
-                    <div className="text-green-500">
-                      <APYDisplay value={apy} />
+                  {allocation > 0 && (
+                    <div className="space-y-0.5">
+                      <div className="flex justify-between text-[9px] text-muted-foreground">
+                        <span>Allocation</span>
+                        <span className="tabular-nums">{allocation}%</span>
+                      </div>
+                      <Bar value={allocation / 100} />
                     </div>
-                  </div>
+                  )}
                 </div>
               );
             })}
@@ -187,11 +183,11 @@ function AccountStrategyCardComponent({
       )}
 
       {data?.message && (
-        <div className="mt-2 rounded bg-muted/30 p-2 text-muted-foreground text-xs">
+        <div className="rounded-lg bg-secondary p-2.5 text-muted-foreground text-[10px] mt-2">
           {data.message}
         </div>
       )}
-    </BaseInfoCard>
+    </ProtocolCard>
   );
 }
 
