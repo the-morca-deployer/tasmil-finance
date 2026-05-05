@@ -87,24 +87,16 @@ export function SetupPage() {
 
   if (state.step === 4) {
     return (
-      <SetupShell
-        currentStep={4}
-        totalSteps={5}
-        ctaLabel="Continue"
-        onCta={advance}
+      <StepDeposit
+        asset={state.asset}
+        preset={state.preset}
+        estimatedApy={reviewApy}
+        poolCount={poolCount}
+        balance={balanceForAsset}
+        isFunding={actions.isPending}
+        onFund={handleFund}
         onBack={back}
-        hideCta
-      >
-        <StepDeposit
-          asset={state.asset}
-          preset={state.preset}
-          estimatedApy={reviewApy}
-          poolCount={poolCount}
-          balance={balanceForAsset}
-          isFunding={actions.isPending}
-          onFund={handleFund}
-        />
-      </SetupShell>
+      />
     );
   }
 
