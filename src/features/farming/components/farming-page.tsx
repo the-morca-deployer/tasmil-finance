@@ -6,8 +6,15 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useActivity, usePosition, usePresets } from "@/features/account/hooks/use-account-api";
 import type { RiskPreset } from "@/features/account/types";
+import { SetupPage } from "@/features/farming/components/setup/setup-page";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button-v2";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/ui/dialog";
 import { useWalletStore } from "@/store/use-wallet";
 import { useFarmingActions } from "../hooks/use-farming-actions";
 import { usePools } from "../hooks/use-farming-api";
@@ -56,12 +63,43 @@ function ConnectPrompt() {
 }
 
 /**
- * Empty state shown to a connected user who has no Position yet (or whose
- * deploy is still in flight). Explicit CTA — clicking opens the multi-step
- * setup wizard at /farming/setup.
+ * Modal that hosts the multi-step setup wizard. Renders SetupPage inside a
+ * centered Dialog with a backdrop. Closing dismisses it; completing the
+ * flow (deploy + setup TXs done) auto-closes via the onComplete callback.
  */
-function GetStartedEmptyState({ resuming }: { resuming: boolean }) {
-  const router = useRouter();
+function SetupWizardDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (next: boolean) => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xl gap-0 p-0">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Set up your farming account</DialogTitle>
+        </DialogHeader>
+        <div className="p-6">
+          <SetupPage onComplete={() => onOpenChange(false)} />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * Empty state shown to a connected user who has no Position yet (or whose
+ * deploy is still in flight). Click the gradient CTA → opens the multi-step
+ * setup wizard inside a Dialog overlay (no URL change).
+ */
+function GetStartedEmptyState({
+  resuming,
+  onStart,
+}: {
+  resuming: boolean;
+  onStart: () => void;
+}) {
   return (
     <motion.div
       className="mx-auto flex max-w-lg flex-col items-center py-24 text-center"
@@ -69,7 +107,7 @@ function GetStartedEmptyState({ resuming }: { resuming: boolean }) {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted/20">
         <Wallet className="h-8 w-8 text-muted-foreground" />
       </div>
       <h2 className="mb-2 font-bold text-2xl text-foreground">
@@ -81,10 +119,11 @@ function GetStartedEmptyState({ resuming }: { resuming: boolean }) {
           : "Choose the asset and strategy your agent will use. Two wallet signatures, ~30 seconds."}
       </p>
       <Button
+        variant="gradient"
         size="lg"
         data-testid="setup-cta"
-        className="h-11 bg-foreground px-8 text-background hover:bg-foreground/90"
-        onClick={() => router.push("/farming/setup")}
+        className="h-11 px-8"
+        onClick={onStart}
       >
         {resuming ? "Resume setup" : "Get started"}
       </Button>
@@ -111,6 +150,7 @@ function FarmingContent() {
 
   const [activityDrawerOpen, setActivityDrawerOpen] = useState(false);
   const [poolDrawer, setPoolDrawer] = useState<DiscoveredPool | null>(null);
+  const [setupOpen, setSetupOpen] = useState(false);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: open drawer once on mount when ?tab=activity
   useEffect(() => {
@@ -306,7 +346,15 @@ function FarmingContent() {
   }
 
   if (!position || position.status === "DEPLOYING") {
-    return <GetStartedEmptyState resuming={position?.status === "DEPLOYING"} />;
+    return (
+      <>
+        <GetStartedEmptyState
+          resuming={position?.status === "DEPLOYING"}
+          onStart={() => setSetupOpen(true)}
+        />
+        <SetupWizardDialog open={setupOpen} onOpenChange={setSetupOpen} />
+      </>
+    );
   }
 
   const registryPools = registryPoolsData ?? [];

@@ -130,8 +130,9 @@ export function OnboardingPage() {
         </div>
 
         <Button
+          variant="gradient"
           size="lg"
-          className="h-11 bg-foreground px-8 text-background hover:bg-foreground/90"
+          className="h-11 px-8"
           onClick={() => {
             void connect();
           }}
@@ -306,8 +307,9 @@ export function OnboardingPage() {
           {/* CTA */}
           <div className="flex flex-col items-stretch gap-1 md:w-[260px]">
             <Button
+              variant="gradient"
               size="lg"
-              className="h-11 w-full bg-foreground text-background hover:bg-foreground/90"
+              className="h-11 w-full"
               onClick={handleDeploy}
               disabled={isDeploying || presetsLoading}
             >
