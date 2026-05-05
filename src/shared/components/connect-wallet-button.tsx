@@ -191,10 +191,10 @@ function TopbarWallet({
     return (
       <Button
         size="sm"
-        variant="outline"
+        variant="gradient"
         onClick={connect}
         data-testid="connect-wallet"
-        className="h-9 rounded-full px-4 font-medium text-sm"
+        className="h-9 rounded-full px-4 font-bold text-sm"
       >
         Connect Wallet
       </Button>

@@ -118,15 +118,18 @@ test.describe("User journey — wallet dropdown actions", () => {
   });
 });
 
-test.describe("User journey — wizard preset selection", () => {
-  // Drive the wizard from step 1 to step 3 (preset list).
+test.describe("User journey — wizard preset selection (in modal)", () => {
   async function gotoStepPreset(page: import("@playwright/test").Page) {
-    await page.goto("/farming/setup");
-    await page.getByRole("button", { name: /^Continue$/i }).click();
-    await page.getByRole("button", { name: /^Continue$/i }).click();
-    await expect(page.getByRole("heading", { name: /Pick risk preset/i })).toBeVisible({
+    await page.goto("/farming");
+    await page.getByTestId("setup-cta").click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible({ timeout: 5000 });
+    await dialog.getByRole("button", { name: /^Continue$/i }).click();
+    await dialog.getByRole("button", { name: /^Continue$/i }).click();
+    await expect(dialog.getByRole("heading", { name: /Pick risk preset/i })).toBeVisible({
       timeout: 10000,
     });
+    return dialog;
   }
 
   test("J12 — Aggressive selection updates aria-checked, deselects Balanced", async ({
@@ -135,10 +138,10 @@ test.describe("User journey — wizard preset selection", () => {
   }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
-    await gotoStepPreset(page);
+    const dialog = await gotoStepPreset(page);
 
-    const balanced = page.getByRole("radio", { name: /Balanced/ });
-    const aggressive = page.getByRole("radio", { name: /Aggressive/ });
+    const balanced = dialog.getByRole("radio", { name: /Balanced/ });
+    const aggressive = dialog.getByRole("radio", { name: /Aggressive/ });
 
     await expect(balanced).toHaveAttribute("aria-checked", "true");
     await aggressive.click();
@@ -149,9 +152,9 @@ test.describe("User journey — wizard preset selection", () => {
   test("J13 — Safe selection updates aria-checked", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
-    await gotoStepPreset(page);
+    const dialog = await gotoStepPreset(page);
 
-    const safe = page.getByRole("radio", { name: /Safe/ });
+    const safe = dialog.getByRole("radio", { name: /Safe/ });
     await safe.click();
     await expect(safe).toHaveAttribute("aria-checked", "true");
   });

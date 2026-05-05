@@ -21,10 +21,17 @@ import { StepPoolPicker } from "./step-pool-picker";
 import { StepPreset } from "./step-preset";
 import { StepStrategy } from "./step-strategy";
 
-export function SetupPage() {
+interface SetupPageProps {
+  /** Optional callback fired when the wizard finishes (deploy + setup done). */
+  onComplete?: () => void;
+  /** When true, derived from `?reconfigure=1` even outside the URL — modal callers can pass it explicitly. */
+  reconfigureOverride?: boolean;
+}
+
+export function SetupPage({ onComplete, reconfigureOverride }: SetupPageProps = {}) {
   const router = useRouter();
   const search = useSearchParams();
-  const reconfigure = search.get("reconfigure") === "1";
+  const reconfigure = reconfigureOverride ?? search.get("reconfigure") === "1";
   const { account } = useWalletStore();
   const publicKey = account ?? "";
 
@@ -44,8 +51,12 @@ export function SetupPage() {
 
   const goHome = useCallback(() => {
     clearSetupState();
+    if (onComplete) {
+      onComplete();
+      return;
+    }
     router.push("/farming/deposit");
-  }, [router]);
+  }, [router, onComplete]);
 
   const reviewApy =
     presets.data?.find((p) => p.name === state.preset)?.estimatedApy ?? 0;

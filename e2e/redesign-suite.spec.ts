@@ -64,38 +64,44 @@ test.describe("Redesign UI suite — Get Started empty state (authed, no Positio
   });
 });
 
-test.describe("Redesign UI suite — Setup wizard step 3 (StepPreset)", () => {
-  // Helper: drive the wizard from step 1 to step 3 where the preset list shows.
-  async function gotoStepPreset(page: import("@playwright/test").Page, context: import("@playwright/test").BrowserContext) {
+test.describe("Redesign UI suite — Setup wizard step 3 (StepPreset, in modal)", () => {
+  // Open the wizard Dialog and drive to step 3.
+  async function gotoStepPreset(
+    page: import("@playwright/test").Page,
+    context: import("@playwright/test").BrowserContext
+  ) {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
-    await page.goto("/farming/setup");
-    await page.getByRole("button", { name: /^Continue$/i }).click(); // 1 → 2
-    await page.getByRole("button", { name: /^Continue$/i }).click(); // 2 → 3
-    await expect(page.getByRole("heading", { name: /Pick risk preset/i })).toBeVisible({
+    await page.goto("/farming");
+    await page.getByTestId("setup-cta").click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible({ timeout: 5000 });
+    await dialog.getByRole("button", { name: /^Continue$/i }).click(); // 1 → 2
+    await dialog.getByRole("button", { name: /^Continue$/i }).click(); // 2 → 3
+    await expect(dialog.getByRole("heading", { name: /Pick risk preset/i })).toBeVisible({
       timeout: 10000,
     });
+    return dialog;
   }
 
   test("07 — three preset rows render: Safe, Balanced, Aggressive", async ({ page, context }) => {
-    await gotoStepPreset(page, context);
-    await expect(page.getByRole("radio", { name: /Safe/ })).toBeVisible();
-    await expect(page.getByRole("radio", { name: /Balanced/ })).toBeVisible();
-    await expect(page.getByRole("radio", { name: /Aggressive/ })).toBeVisible();
+    const dialog = await gotoStepPreset(page, context);
+    await expect(dialog.getByRole("radio", { name: /Safe/ })).toBeVisible();
+    await expect(dialog.getByRole("radio", { name: /Balanced/ })).toBeVisible();
+    await expect(dialog.getByRole("radio", { name: /Aggressive/ })).toBeVisible();
   });
 
   test("08 — Balanced row is preselected by default (aria-checked)", async ({ page, context }) => {
-    await gotoStepPreset(page, context);
-    await expect(page.getByRole("radio", { name: /Balanced/ })).toHaveAttribute(
+    const dialog = await gotoStepPreset(page, context);
+    await expect(dialog.getByRole("radio", { name: /Balanced/ })).toHaveAttribute(
       "aria-checked",
       "true"
     );
   });
 
   test("09 — each preset row shows pool count + risk hint", async ({ page, context }) => {
-    await gotoStepPreset(page, context);
-    // Each row text includes "N pools · {risk}" — assert the dot separator appears
-    const rows = page.getByRole("radio");
+    const dialog = await gotoStepPreset(page, context);
+    const rows = dialog.getByRole("radio");
     const count = await rows.count();
     expect(count).toBeGreaterThanOrEqual(3);
     for (let i = 0; i < 3; i++) {
@@ -104,19 +110,19 @@ test.describe("Redesign UI suite — Setup wizard step 3 (StepPreset)", () => {
   });
 
   test("10 — each preset row exposes a numeric APY value", async ({ page, context }) => {
-    await gotoStepPreset(page, context);
-    const rows = page.getByRole("radio");
+    const dialog = await gotoStepPreset(page, context);
+    const rows = dialog.getByRole("radio");
     for (let i = 0; i < 3; i++) {
       await expect(rows.nth(i)).toContainText(/%/);
     }
   });
 
   test("11 — clicking Aggressive flips aria-checked from Balanced", async ({ page, context }) => {
-    await gotoStepPreset(page, context);
-    const aggressive = page.getByRole("radio", { name: /Aggressive/ });
+    const dialog = await gotoStepPreset(page, context);
+    const aggressive = dialog.getByRole("radio", { name: /Aggressive/ });
     await aggressive.click();
     await expect(aggressive).toHaveAttribute("aria-checked", "true");
-    await expect(page.getByRole("radio", { name: /Balanced/ })).toHaveAttribute(
+    await expect(dialog.getByRole("radio", { name: /Balanced/ })).toHaveAttribute(
       "aria-checked",
       "false"
     );

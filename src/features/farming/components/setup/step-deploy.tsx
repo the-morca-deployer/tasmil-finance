@@ -65,8 +65,9 @@ export function StepDeploy({
       </dl>
 
       <Button
+        variant="gradient"
         size="lg"
-        className="h-11 w-full bg-foreground text-background hover:bg-foreground/90"
+        className="h-11 w-full"
         onClick={() => void deploy()}
         disabled={isDeploying}
       >
