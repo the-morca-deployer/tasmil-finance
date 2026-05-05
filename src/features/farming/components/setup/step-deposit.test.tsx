@@ -50,4 +50,17 @@ describe("StepDeposit", () => {
     await userEvent.type(screen.getByLabelText(/deposit amount/i), "9999");
     expect(screen.getByRole("button", { name: /deposit/i })).toBeDisabled();
   });
+
+  it("renders back button when onBack provided", async () => {
+    const onBack = jest.fn();
+    render(<StepDeposit {...baseProps} onBack={onBack} />);
+    await userEvent.click(screen.getByRole("button", { name: /back/i }));
+    expect(onBack).toHaveBeenCalled();
+  });
+
+  it("renders bottom corner copy", () => {
+    render(<StepDeposit {...baseProps} />);
+    expect(screen.getByText(/your portfolio keeps/i)).toBeInTheDocument();
+    expect(screen.getByText(/© 2026 Tasmil/i)).toBeInTheDocument();
+  });
 });
