@@ -21,10 +21,8 @@ export function WelcomeSlide({ slide }: { slide: WelcomeSlideData }) {
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="flex flex-col items-center px-6 py-8 text-center"
     >
-      <div
-        className={`mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${slide.gradient} shadow-lg`}
-      >
-        <Icon className="h-8 w-8 text-white" />
+      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-lg">
+        <Icon className="h-8 w-8 text-primary-foreground" />
       </div>
       <h2 className="mb-3 font-bold text-2xl text-foreground">{slide.title}</h2>
       <p className="mb-4 max-w-sm text-muted-foreground leading-relaxed">{slide.description}</p>
