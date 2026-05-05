@@ -56,18 +56,39 @@ function ConnectPrompt() {
 }
 
 /**
- * First-time user (no Position) is redirected from /farming → /farming/setup
- * where the multi-step wizard lives. Shows a brief loader during the swap.
+ * Empty state shown to a connected user who has no Position yet (or whose
+ * deploy is still in flight). Explicit CTA — clicking opens the multi-step
+ * setup wizard at /farming/setup.
  */
-function SetupRedirect() {
+function GetStartedEmptyState({ resuming }: { resuming: boolean }) {
   const router = useRouter();
-  useEffect(() => {
-    router.replace("/farming/setup");
-  }, [router]);
   return (
-    <div className="flex items-center justify-center py-24">
-      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-    </div>
+    <motion.div
+      className="mx-auto flex max-w-lg flex-col items-center py-24 text-center"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+        <Wallet className="h-8 w-8 text-muted-foreground" />
+      </div>
+      <h2 className="mb-2 font-bold text-2xl text-foreground">
+        {resuming ? "Resume your setup" : "Set up your farming account"}
+      </h2>
+      <p className="mb-6 max-w-md text-muted-foreground text-sm">
+        {resuming
+          ? "Your previous setup didn't finish. Pick up where you left off — your selections are saved."
+          : "Choose the asset and strategy your agent will use. Two wallet signatures, ~30 seconds."}
+      </p>
+      <Button
+        size="lg"
+        data-testid="setup-cta"
+        className="h-11 bg-foreground px-8 text-background hover:bg-foreground/90"
+        onClick={() => router.push("/farming/setup")}
+      >
+        {resuming ? "Resume setup" : "Get started"}
+      </Button>
+    </motion.div>
   );
 }
 
@@ -285,7 +306,7 @@ function FarmingContent() {
   }
 
   if (!position || position.status === "DEPLOYING") {
-    return <SetupRedirect />;
+    return <GetStartedEmptyState resuming={position?.status === "DEPLOYING"} />;
   }
 
   const registryPools = registryPoolsData ?? [];
