@@ -2,7 +2,7 @@
 
 import { AlertCircle, CheckCircle, Info, Loader2, ShieldCheck, Wallet, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { activeNetwork } from "@/shared/config/stellar";
 import { Button } from "@/shared/ui/button-v2";
@@ -295,6 +295,16 @@ export function OnboardingPage() {
   const selectedApy =
     presets?.find((p) => p.name === selectedPreset)?.estimatedApy?.toFixed(2) ?? "—";
 
+  const allocationSummary = useMemo(() => {
+    const preset = presets?.find((p) => p.name === selectedPreset);
+    const topPools = preset?.topPools ?? [];
+    if (topPools.length === 0) return "—";
+    return topPools
+      .slice(0, 3)
+      .map((p) => `${p.name} ${Math.round(p.weight)}%`)
+      .join(" · ");
+  }, [presets, selectedPreset]);
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-6 py-8">
       {/* Header — page title + explainer + page-level trust chips */}
@@ -412,26 +422,31 @@ export function OnboardingPage() {
       <div className="mt-1 rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-white/3 to-transparent p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
           {/* Selection summary */}
-          <div className="flex flex-1 items-center gap-6 text-sm">
+          <div className="flex flex-1 flex-wrap items-center gap-x-6 gap-y-3 text-sm">
             <div>
-              <p className="text-muted-foreground/60 text-[10px] uppercase tracking-widest">
-                Asset
-              </p>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Asset</p>
               <p className="font-semibold text-foreground">{selectedBaseAsset}</p>
             </div>
             <div className="h-6 w-px bg-white/8" />
             <div>
-              <p className="text-muted-foreground/60 text-[10px] uppercase tracking-widest">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">
                 Strategy
               </p>
               <p className="font-semibold text-foreground">{selectedPreset}</p>
             </div>
             <div className="h-6 w-px bg-white/8" />
             <div>
-              <p className="text-muted-foreground/60 text-[10px] uppercase tracking-widest">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">
                 Est. APY
               </p>
               <p className="font-mono font-semibold text-primary">{selectedApy}%</p>
+            </div>
+            <div className="h-6 w-px bg-white/8" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">
+                Allocation
+              </p>
+              <p className="truncate text-xs text-foreground">{allocationSummary}</p>
             </div>
           </div>
 
