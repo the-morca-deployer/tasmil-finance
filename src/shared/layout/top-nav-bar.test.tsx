@@ -7,12 +7,10 @@ jest.mock("next/navigation", () => ({
   usePathname: () => pathnameMock(),
 }));
 
-jest.mock("@/features/credits/credits-pill", () => ({
-  CreditsPill: () => <div data-testid="credits-pill" />,
-}));
-
 jest.mock("@/shared/components/connect-wallet-button", () => ({
-  ConnectWalletButton: () => <div data-testid="connect-wallet-button" />,
+  ConnectWalletButton: ({ variant }: { variant?: string }) => (
+    <div data-testid="connect-wallet-button" data-variant={variant ?? "default"} />
+  ),
 }));
 
 jest.mock("@/shared/ui/multi-sidebar", () => ({
@@ -46,12 +44,15 @@ const fakeData = {
 
 describe("TopNavBar", () => {
   beforeEach(() => {
-    pathnameMock.mockReturnValue("/chat");
+    pathnameMock.mockReturnValue("/farming");
   });
 
-  it("renders the brand name", () => {
+  it("renders the brand name without gradient class", () => {
     render(<TopNavBar sidebarData={fakeData} showRightSidebar={false} />);
-    expect(screen.getByText("Tasmil")).toBeInTheDocument();
+    const brand = screen.getByText("Tasmil");
+    expect(brand).toBeInTheDocument();
+    expect(brand.className).not.toMatch(/gradient/);
+    expect(brand.className).not.toMatch(/bg-clip-text/);
   });
 
   it("renders nav links from sidebarData", () => {
@@ -62,19 +63,30 @@ describe("TopNavBar", () => {
     expect(links[1]).toHaveAttribute("href", "/farming");
   });
 
-  it("renders right cluster: CreditsPill + ConnectWalletButton", () => {
+  it("renders ConnectWalletButton with variant='topbar'", () => {
     render(<TopNavBar sidebarData={fakeData} showRightSidebar={false} />);
-    expect(screen.getByTestId("credits-pill")).toBeInTheDocument();
-    expect(screen.getByTestId("connect-wallet-button")).toBeInTheDocument();
+    expect(screen.getByTestId("connect-wallet-button")).toHaveAttribute("data-variant", "topbar");
   });
 
-  it("renders chat-history trigger when showRightSidebar=true", () => {
+  it("does NOT render CreditsPill in the top bar", () => {
+    render(<TopNavBar sidebarData={fakeData} showRightSidebar={false} />);
+    expect(screen.queryByTestId("credits-pill")).toBeNull();
+  });
+
+  it("renders Clock trigger on /chat route when showRightSidebar=true", () => {
+    pathnameMock.mockReturnValue("/chat/new");
     render(<TopNavBar sidebarData={fakeData} showRightSidebar={true} />);
-    const trigger = screen.getByTestId("multi-sidebar-trigger");
-    expect(trigger).toHaveAttribute("data-side", "right");
+    expect(screen.getByTestId("multi-sidebar-trigger")).toHaveAttribute("data-side", "right");
   });
 
-  it("hides chat-history trigger when showRightSidebar=false", () => {
+  it("hides Clock trigger on non-chat route even when showRightSidebar=true", () => {
+    pathnameMock.mockReturnValue("/portfolio");
+    render(<TopNavBar sidebarData={fakeData} showRightSidebar={true} />);
+    expect(screen.queryByTestId("multi-sidebar-trigger")).toBeNull();
+  });
+
+  it("hides Clock trigger when showRightSidebar=false even on /chat", () => {
+    pathnameMock.mockReturnValue("/chat/new");
     render(<TopNavBar sidebarData={fakeData} showRightSidebar={false} />);
     expect(screen.queryByTestId("multi-sidebar-trigger")).toBeNull();
   });
