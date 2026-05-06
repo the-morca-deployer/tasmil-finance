@@ -137,7 +137,7 @@ export function FarmingAllocation({
                 animationDuration={800}
               >
                 {pieData.map((entry) => (
-                  <Cell key={entry.name} fill={entry.fill} />
+                  <Cell key={`${entry.protocol}-${entry.name}`} fill={entry.fill} />
                 ))}
               </Pie>
               <Tooltip
@@ -161,7 +161,7 @@ export function FarmingAllocation({
 
         <div className="flex flex-1 flex-col gap-2">
           {pieData.map((entry) => (
-            <div key={entry.name} className="flex items-center gap-3">
+            <div key={`${entry.protocol}-${entry.name}`} className="flex items-center gap-3">
               <div
                 data-protocol-swatch={entry.protocol}
                 className="h-3 w-3 shrink-0 rounded-full"
