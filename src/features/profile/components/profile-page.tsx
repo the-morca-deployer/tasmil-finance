@@ -14,8 +14,8 @@ import { useDefiPositions } from "../hooks/use-defi-positions";
 import { useSnapshotSubmitter } from "../hooks/use-snapshot-submitter";
 import { useWalletTokens } from "../hooks/use-wallet-tokens";
 import { HistorySidebar } from "./history-sidebar";
-import { ProtocolHistoryView } from "./protocol-history";
-import { RewardHistoryView } from "./reward-history";
+import { ProtocolOverview } from "./protocol-overview";
+import { RewardDistribution } from "./reward-distribution";
 import { NftPlaceholder } from "./nft-placeholder";
 import { PerformanceChart } from "./performance-chart";
 import { ProtocolPositions } from "./protocol-positions";
@@ -219,10 +219,10 @@ function ProfileContent({ packages }: ProfileContentProps) {
                     <TransactionList address={account} />
                   </TabsContent>
                   <TabsContent value="protocol">
-                    <ProtocolHistoryView walletAddress={account} />
+                    <ProtocolOverview walletAddress={account} />
                   </TabsContent>
                   <TabsContent value="reward">
-                    <RewardHistoryView walletAddress={account} />
+                    <RewardDistribution walletAddress={account} />
                   </TabsContent>
                 </Tabs>
               </motion.div>
