@@ -1,13 +1,7 @@
+import { ArrowRight, Coins, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "@/shared/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/card";
+import { cn } from "@/lib/utils";
+import { Card, CardContent, CardFooter, CardHeader } from "@/shared/ui/card";
 import type { CreditPackage } from "../types";
 
 const PACKAGE_TITLE: Record<string, string> = {
@@ -33,63 +27,110 @@ export function PackageCard({ pkg }: PackageCardProps) {
   const title = PACKAGE_TITLE[pkg.id] ?? pkg.id;
   const cryptoHref = `/topup/${pkg.id}/quote/crypto`;
   const fiatHref = `/topup/${pkg.id}/quote/fiat`;
+  const hasBonus = pkg.bonusPercent > 0;
+  const recommended = pkg.id === "pro";
 
   return (
     <Card
-      className="flex h-full flex-col border-border bg-card shadow-sm"
       data-testid={`package-card-${pkg.id}`}
+      className={cn(
+        "group relative flex h-full flex-col overflow-hidden border-border transition-all duration-200",
+        "hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_30px_-12px_hsl(203_100%_73%/0.25)]",
+        recommended && "border-primary/40 shadow-[0_4px_24px_-12px_hsl(203_100%_73%/0.35)]"
+      )}
     >
-      <CardHeader className="space-y-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl">{title}</CardTitle>
-          {pkg.bonusPercent > 0 ? (
-            <Badge
-              variant="secondary"
-              className="border border-primary/20 bg-primary/10 text-[11px] uppercase tracking-[0.16em] text-primary"
+      {/* Recommended ribbon — only on Pro */}
+      {recommended && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent"
+        />
+      )}
+
+      <CardHeader className="space-y-4 p-5 pb-3">
+        {/* Title row */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-base text-foreground">{title}</span>
+            {recommended && (
+              <span className="inline-flex h-5 items-center rounded-full border border-primary/30 bg-primary/10 px-2 font-mono font-semibold text-[9px] text-primary uppercase tracking-[0.12em]">
+                Recommended
+              </span>
+            )}
+          </div>
+          {hasBonus ? (
+            <span
               data-testid={`package-card-${pkg.id}-bonus`}
+              className="font-mono font-semibold text-[11px] text-primary tabular-nums"
             >
-              +{pkg.bonusPercent}% bonus
-            </Badge>
+              +{pkg.bonusPercent}%
+            </span>
           ) : null}
         </div>
-        <CardDescription>
+
+        {/* Price */}
+        <div className="flex items-baseline gap-1.5">
           <span
-            className="font-semibold text-3xl text-foreground"
             data-testid={`package-card-${pkg.id}-usd`}
+            className="font-bold text-4xl text-foreground tracking-tight tabular-nums"
           >
             {formatUsd(pkg.usd)}
           </span>
-        </CardDescription>
+          <span className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
+            USD
+          </span>
+        </div>
       </CardHeader>
 
-      <CardContent className="flex-1 space-y-2">
-        <div
-          className="flex justify-between text-sm"
-          data-testid={`package-card-${pkg.id}-credits`}
-        >
-          <span className="text-muted-foreground">Credits</span>
-          <span className="font-medium text-foreground">{formatNumber(pkg.credits)}</span>
-        </div>
-        <div className="flex justify-between text-sm" data-testid={`package-card-${pkg.id}-points`}>
-          <span className="text-muted-foreground">Points</span>
-          <span className="font-medium text-foreground">{formatNumber(pkg.points)}</span>
+      <CardContent className="flex-1 p-5 pt-0 pb-4">
+        <div className="rounded-md border border-border/60 bg-muted/20">
+          <div
+            className="flex items-center justify-between border-border/60 border-b px-3 py-2.5"
+            data-testid={`package-card-${pkg.id}-credits`}
+          >
+            <span className="inline-flex items-center gap-2 text-muted-foreground text-xs">
+              <Coins className="h-3.5 w-3.5" />
+              Credits
+            </span>
+            <span className="font-mono font-semibold text-foreground text-sm tabular-nums">
+              {formatNumber(pkg.credits)}
+            </span>
+          </div>
+          <div
+            className="flex items-center justify-between px-3 py-2.5"
+            data-testid={`package-card-${pkg.id}-points`}
+          >
+            <span className="inline-flex items-center gap-2 text-muted-foreground text-xs">
+              <Sparkles className="h-3.5 w-3.5" />
+              Points
+            </span>
+            <span className="font-mono font-semibold text-foreground text-sm tabular-nums">
+              {formatNumber(pkg.points)}
+            </span>
+          </div>
         </div>
       </CardContent>
 
-      <CardFooter className="flex flex-col gap-2 pt-0">
+      <CardFooter className="flex flex-col gap-2 p-5 pt-0">
         <Link
           href={cryptoHref}
           data-testid={`package-card-${pkg.id}-buy-crypto`}
-          className="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-3 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90"
+          className={cn(
+            "inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md font-semibold text-sm transition-all active:scale-[0.98]",
+            recommended
+              ? "bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black hover:from-[#C5F0FF] hover:to-[#1CCFFF]"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
+          )}
         >
           Buy with crypto
+          <ArrowRight className="h-3.5 w-3.5" />
         </Link>
         <Link
           href={fiatHref}
           data-testid={`package-card-${pkg.id}-buy-fiat`}
-          className="inline-flex h-10 w-full items-center justify-center rounded-md border border-input bg-transparent px-3 font-medium text-foreground text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+          className="inline-flex h-6 w-full items-center justify-center text-[11px] text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
         >
-          Buy with bank transfer
+          Pay with bank transfer
         </Link>
       </CardFooter>
     </Card>

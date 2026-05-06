@@ -635,7 +635,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
 
       {/* Header - no border */}
       <header className="relative z-10 flex shrink-0 items-center gap-3 px-4 py-3">
-        <span className="font-semibold text-foreground text-lg">{displayTitle}</span>
+        <span className="font-semibold text-foreground text-2xl">{displayTitle}</span>
         <div className="ml-auto flex items-center gap-1">
           {!rightSidebarOpen && (
             <>

@@ -7,7 +7,8 @@ const baseProps = {
   preset: "Balanced" as const,
   estimatedApy: 8.4,
   poolCount: 3,
-  balance: 250,
+  balances: { USDC: 250, XLM: 100 },
+  onAssetChange: jest.fn(),
   isFunding: false,
   onFund: jest.fn(),
 };
@@ -17,12 +18,13 @@ beforeEach(() => {
 });
 
 describe("StepDeposit", () => {
-  it("renders Your Deposit hero, available, APR and Markets cells", () => {
+  it("renders Your Deposit hero, available, APR and Markets cells", async () => {
     render(<StepDeposit {...baseProps} />);
     expect(screen.getByText(/your deposit/i)).toBeInTheDocument();
     expect(screen.getByText(/250.* available/i)).toBeInTheDocument();
-    expect(screen.getByText("8.4%")).toBeInTheDocument();
     expect(screen.getByText(/3 markets/i)).toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText(/deposit amount/i), "50");
+    expect(screen.getByText("8.4%")).toBeInTheDocument();
   });
 
   it("Max button fills input with full balance for USDC", async () => {

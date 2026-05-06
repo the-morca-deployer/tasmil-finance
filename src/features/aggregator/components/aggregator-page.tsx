@@ -434,7 +434,7 @@ export function AggregatorPage() {
     agg.filteredChainsIn.length > 0 ? agg.filteredChainsIn : agg.chains.map((c) => c.id);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen w-full overflow-y-auto px-4 py-16">
+    <div className="relative flex flex-col items-center justify-center min-h-full w-full overflow-y-auto px-4 py-16">
       <BackgroundRippleEffect rows={10} cols={22} cellSize={72} />
 
       {/* Hero text */}

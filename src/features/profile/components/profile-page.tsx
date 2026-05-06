@@ -5,7 +5,7 @@ import { Wallet } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback } from "react";
 import { ReferralsBody } from "@/features/referrals";
-import { PackageGrid } from "@/features/topup/components/topup-page";
+import { PackageCard } from "@/features/topup/components/package-card";
 import type { CreditPackage } from "@/features/topup/types";
 import { cn } from "@/lib/utils";
 import { useWalletStore } from "@/store/use-wallet";
@@ -126,7 +126,7 @@ function ProfileContent({ packages }: ProfileContentProps) {
                 {tab.label}
                 {activeTab === tab.value && (
                   <motion.div
-                    className="absolute inset-x-0 bottom-0 h-0.5 bg-primary"
+                    className="absolute inset-x-0 bottom-0 h-0.5 bg-primary shadow-[0_0_10px_hsl(203_100%_73%/0.5)]"
                     layoutId="profile-tab-indicator"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
@@ -199,16 +199,31 @@ function ProfileContent({ packages }: ProfileContentProps) {
             {activeTab === "credits" && (
               <motion.div
                 key="credits"
-                className="flex flex-col gap-10"
+                className="relative mx-auto flex w-full max-w-5xl flex-col gap-10"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.25 }}
               >
                 <ReferralsBody />
-                <section className="flex flex-col gap-4">
-                  <h2 className="font-semibold text-lg text-foreground">Top up credits</h2>
-                  <PackageGrid packages={packages} />
+                <section className="relative flex flex-col gap-5">
+                  <div className="flex flex-col gap-1.5">
+                    <h2 className="font-semibold text-2xl text-foreground tracking-tight">
+                      Top up credits
+                    </h2>
+                    <p className="text-muted-foreground text-sm">
+                      Choose a package below. Pay with crypto or bank transfer — credits never
+                      expire.
+                    </p>
+                  </div>
+                  <div
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+                    data-testid="topup-package-grid"
+                  >
+                    {packages.map((pkg) => (
+                      <PackageCard key={pkg.id} pkg={pkg} />
+                    ))}
+                  </div>
                 </section>
               </motion.div>
             )}

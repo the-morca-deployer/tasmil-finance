@@ -1,9 +1,6 @@
 import BigNumber from "bignumber.js";
 import type { AssetDelta, DecodedOp, OpKind, Protocol, TokenMetaLookup } from "./types";
-import { scaleByDecimals } from "./format-amount";
 import { lookupProtocol } from "./protocol-registry";
-
-const CLASSIC_DECIMALS = 7;
 
 const HARVEST_FN_NAMES = new Set(["claim", "claim_emissions", "claim_rewards", "harvest"]);
 
@@ -11,7 +8,7 @@ export interface AssetBalanceChange {
   type: "transfer" | "mint" | "burn" | "clawback";
   from?: string;
   to?: string;
-  amount: string; // raw stroops
+  amount: string; // human-readable decimal (e.g. "0.1000000"), as Horizon emits
   asset_type: string;
   asset_code?: string;
   asset_issuer?: string; // contract id for sac/contract assets
@@ -210,18 +207,21 @@ export function decodeOperation(
   return { ...emptyDecoded(op, "classic-other"), successful };
 }
 
-function resolveTokenMeta(
+function resolveCode(
   contractId: string | undefined,
   fallbackCode: string | undefined,
   tokenMeta: TokenMetaLookup,
-): { code: string; decimals: number } {
+): string {
   if (contractId) {
     const m = tokenMeta(contractId);
-    if (m) return { code: m.code, decimals: m.decimals };
+    if (m) return m.code;
   }
-  return { code: fallbackCode ?? "XLM", decimals: CLASSIC_DECIMALS };
+  return fallbackCode ?? "XLM";
 }
 
+// Horizon already emits `asset_balance_changes[*].amount` in decimal form
+// (e.g. "0.1000000"), not raw stroops — so we just canonicalize via BigNumber,
+// never scaleByDecimals.
 function abcToDelta(
   change: NonNullable<RawHorizonOp["asset_balance_changes"]>[number],
   isCredit: boolean,
@@ -229,14 +229,11 @@ function abcToDelta(
 ): AssetDelta {
   const isNative = change.asset_type === "native";
   const contractId = isNative ? undefined : change.asset_issuer;
-  const fallbackCode = isNative ? "XLM" : change.asset_code;
-  const { code, decimals } = isNative
-    ? { code: "XLM", decimals: CLASSIC_DECIMALS }
-    : resolveTokenMeta(contractId, fallbackCode, tokenMeta);
+  const code = isNative ? "XLM" : resolveCode(contractId, change.asset_code, tokenMeta);
   return {
     code,
     issuer: contractId,
-    amount: scaleByDecimals(change.amount, decimals),
+    amount: normalizeAmount(change.amount),
     isCredit,
     contractId,
   };

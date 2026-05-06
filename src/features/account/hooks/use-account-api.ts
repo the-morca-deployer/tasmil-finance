@@ -55,12 +55,32 @@ export function useActivity(publicKey: string | undefined) {
 
 // ─── Mutation hooks (backendAxios directly — mutations have no `select`) ─────────
 
+export interface DeployAccountResponse {
+  /** Unsigned XDR for the user to sign. Absent when `alreadyDeployed` is true. */
+  xdr?: string;
+  keeperWalletAddress: string;
+  /** True when the server short-circuited because an account already exists
+   *  for this pubkey. Caller should skip signing and continue with setup. */
+  alreadyDeployed?: boolean;
+  /** Account status when alreadyDeployed is true: DEPLOYING / AWAITING_FUND / ... */
+  status?: string;
+}
+
+export interface DeployAccountArgs {
+  publicKey: string;
+  /** Opt in to destructive cleanup of an existing DEPLOYING / unfunded
+   *  AWAITING_FUND row. Used by the "Reset deployment" recovery path. */
+  recover?: boolean;
+}
+
 export function useDeployAccount() {
   return useMutation({
-    mutationFn: async (publicKey: string) => {
-      const { data } = await backendAxios.post<{ data: { xdr: string } }>("/api/account/deploy", {
-        publicKey,
-      });
+    mutationFn: async (args: DeployAccountArgs | string) => {
+      const body = typeof args === "string" ? { publicKey: args } : args;
+      const { data } = await backendAxios.post<{ data: DeployAccountResponse }>(
+        "/api/account/deploy",
+        body
+      );
       return data.data;
     },
   });

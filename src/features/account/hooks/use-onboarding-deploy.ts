@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { activeNetwork } from "@/shared/config/stellar";
 import type { DeploySubStep, RiskPreset } from "../types";
 import {
   useDeployAccount,
+  usePosition,
   useSetupAccount,
   useSubmitTx,
   useUpdatePreset,
@@ -63,6 +64,13 @@ export function useOnboardingDeploy({
   const submitTx = useSubmitTx();
   const updatePreset = useUpdatePreset();
 
+  // Authoritative server view of the account. Used to seed completion flags
+  // on hydration so a page reload mid-flow doesn't lose progress and trigger
+  // a destructive redeploy. Refetches on the existing usePosition cadence —
+  // no extra network traffic.
+  const position = usePosition(publicKey ?? undefined);
+  const serverStatus = position.data?.status;
+
   const [deploySubStep, setDeploySubStep] = useState<DeploySubStep>("idle");
   const [deployCompleted, setDeployCompleted] = useState(false);
   const [setupCompleted, setSetupCompleted] = useState(false);
@@ -72,6 +80,38 @@ export function useOnboardingDeploy({
 
   const flowInProgressRef = useRef(false);
 
+  // Seed completion flags from server. We never *unset* a flag from server
+  // state — only flip false → true — so an in-flight local mutation that
+  // hasn't landed in the DB yet won't be clobbered by a stale fetch.
+  useEffect(() => {
+    if (!serverStatus) return;
+    if (flowInProgressRef.current) return;
+
+    if (
+      serverStatus === "DEPLOYING" ||
+      serverStatus === "AWAITING_FUND" ||
+      serverStatus === "ACTIVE" ||
+      serverStatus === "HALTED" ||
+      serverStatus === "REVOKED"
+    ) {
+      // TX 1 (deploy) confirmed in DB — keeper wallet exists on-chain.
+      setDeployCompleted((prev) => prev || true);
+    }
+
+    if (
+      serverStatus === "AWAITING_FUND" ||
+      serverStatus === "ACTIVE" ||
+      serverStatus === "HALTED"
+    ) {
+      // TX 2 (setup) confirmed in DB — session key registered & valid.
+      // REVOKED is excluded: the on-chain session key has been revoked, so
+      // the keeper can't act until the user re-signs setup via the separate
+      // reactivate flow. Don't pretend the flow is done.
+      setSetupCompleted((prev) => prev || true);
+      setAllDone((prev) => prev || true);
+    }
+  }, [serverStatus]);
+
   const getStellarKit = async () => {
     const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
     const passphrase = activeNetwork.networkPassphrase;
@@ -80,9 +120,48 @@ export function useOnboardingDeploy({
 
   const handleDeployTx = async (): Promise<boolean> => {
     if (!publicKey) return false;
+    await buildSignSubmitDeploy(false);
+    return true;
+  };
 
+  const isKeeperNotDeployedError = (err: unknown): boolean => {
+    const e = err as {
+      response?: { data?: { message?: unknown; code?: string } };
+      message?: string;
+    };
+    const data = e?.response?.data;
+    if (data?.code === "KEEPER_NOT_DEPLOYED") return true;
+    const detail =
+      typeof data?.message === "object" &&
+      data?.message !== null &&
+      "code" in (data.message as object)
+        ? (data.message as { code?: string }).code
+        : undefined;
+    if (detail === "KEEPER_NOT_DEPLOYED") return true;
+    const text = String(e?.message ?? "");
+    return (
+      text.includes("KEEPER_NOT_DEPLOYED") ||
+      text.includes("not fully deployed on-chain")
+    );
+  };
+
+  /** Build, sign, and submit the deploy TX. Optionally pass `recover: true`
+   *  to opt into the destructive cleanup path on the server. */
+  const buildSignSubmitDeploy = async (recover: boolean): Promise<void> => {
+    if (!publicKey) return;
     setDeploySubStep("building_deploy");
-    const result = await deployAccount.mutateAsync(publicKey);
+    const result = await deployAccount.mutateAsync({ publicKey, recover });
+
+    // With recover=true, the server always returns a fresh XDR (no
+    // alreadyDeployed short-circuit). The non-recover path may short-circuit
+    // when a valid deployed account already exists.
+    if (!recover && result?.alreadyDeployed) {
+      setDeployCompleted(true);
+      if (result.status && result.status !== "DEPLOYING") {
+        setSetupCompleted(true);
+      }
+      return;
+    }
 
     if (!result?.xdr) {
       throw new Error("No deploy transaction returned from server");
@@ -104,16 +183,32 @@ export function useOnboardingDeploy({
     });
 
     setDeployCompleted(true);
-    return true;
   };
 
   const handleSetupTx = async (): Promise<boolean> => {
     if (!publicKey) return false;
 
+    let setupResult;
     setDeploySubStep("building_setup");
-    const setupResult = await setupAccount.mutateAsync(publicKey);
-    const setupXdrs = setupResult?.setupTxs ?? [];
+    try {
+      setupResult = await setupAccount.mutateAsync(publicKey);
+    } catch (err) {
+      // Backend reports the keeper contract has no on-chain instance state.
+      // This is the legacy-bug stuck state — DB row references a keeper
+      // address that was never properly deployed. Auto-recover: run an
+      // explicit redeploy (recover=true wipes the stale row + returns a
+      // fresh deploy XDR), then rebuild the setup TX against the new keeper.
+      if (!isKeeperNotDeployedError(err)) throw err;
 
+      // Reset local flag — we're about to re-sign deploy TX 1.
+      setDeployCompleted(false);
+      await buildSignSubmitDeploy(true);
+
+      setDeploySubStep("building_setup");
+      setupResult = await setupAccount.mutateAsync(publicKey);
+    }
+
+    const setupXdrs = setupResult?.setupTxs ?? [];
     if (setupXdrs.length === 0) {
       throw new Error("No setup transaction returned from server");
     }

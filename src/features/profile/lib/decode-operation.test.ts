@@ -148,7 +148,7 @@ describe("decodeOperation — Soroban via asset_balance_changes", () => {
       type: "invoke_host_function",
       function: "HostFunctionTypeHostFunctionTypeInvokeContract",
       asset_balance_changes: [
-        { type: "transfer", from: OTHER, to: ADDR, amount: "12345678", asset_type: "credit_alphanum4", asset_issuer: "CC_USDC", asset_code: "USDC" },
+        { type: "transfer", from: OTHER, to: ADDR, amount: "1.2345678", asset_type: "credit_alphanum4", asset_issuer: "CC_USDC", asset_code: "USDC" },
       ],
     });
     const r = decodeOperation(op, ADDR, meta);
@@ -162,7 +162,7 @@ describe("decodeOperation — Soroban via asset_balance_changes", () => {
     const op = base({
       type: "invoke_host_function",
       asset_balance_changes: [
-        { type: "transfer", from: ADDR, to: OTHER, amount: "10000000", asset_type: "credit_alphanum4", asset_issuer: "CC_USDC", asset_code: "USDC" },
+        { type: "transfer", from: ADDR, to: OTHER, amount: "1.0000000", asset_type: "credit_alphanum4", asset_issuer: "CC_USDC", asset_code: "USDC" },
       ],
     });
     const r = decodeOperation(op, ADDR, meta);
@@ -174,8 +174,8 @@ describe("decodeOperation — Soroban via asset_balance_changes", () => {
     const op = base({
       type: "invoke_host_function",
       asset_balance_changes: [
-        { type: "transfer", from: ADDR, to: "C_ROUTER", amount: "100000000", asset_type: "native" },
-        { type: "transfer", from: "C_ROUTER", to: ADDR, amount: "23500000", asset_type: "credit_alphanum4", asset_issuer: "CC_USDC", asset_code: "USDC" },
+        { type: "transfer", from: ADDR, to: "C_ROUTER", amount: "10.0000000", asset_type: "native" },
+        { type: "transfer", from: "C_ROUTER", to: ADDR, amount: "2.3500000", asset_type: "credit_alphanum4", asset_issuer: "CC_USDC", asset_code: "USDC" },
       ],
     });
     const r = decodeOperation(op, ADDR, meta);
@@ -190,7 +190,7 @@ describe("decodeOperation — Soroban via asset_balance_changes", () => {
     const op = base({
       type: "invoke_host_function",
       asset_balance_changes: [
-        { type: "transfer", from: ADDR, to: "CDF37Z2B5JDF5UB3I3Y3COFTH3I3JF3ECKKIXDZBOUAVEO7LN5LH2SXN", amount: "1000000", asset_type: "credit_alphanum4", asset_code: "USDC", asset_issuer: "CC_USDC" },
+        { type: "transfer", from: ADDR, to: "CDF37Z2B5JDF5UB3I3Y3COFTH3I3JF3ECKKIXDZBOUAVEO7LN5LH2SXN", amount: "0.1000000", asset_type: "credit_alphanum4", asset_code: "USDC", asset_issuer: "CC_USDC" },
       ],
     });
     const orig = process.env.NEXT_PUBLIC_STELLAR_NETWORK;
@@ -224,21 +224,37 @@ describe("decodeOperation — Soroban via asset_balance_changes", () => {
       type: "invoke_host_function",
       function: "harvest",
       asset_balance_changes: [
-        { type: "transfer", from: OTHER, to: ADDR, amount: "5000000", asset_type: "credit_alphanum4", asset_issuer: "CC_BLND", asset_code: "BLND" },
+        { type: "transfer", from: OTHER, to: ADDR, amount: "0.5000000", asset_type: "credit_alphanum4", asset_issuer: "CC_BLND", asset_code: "BLND" },
       ],
     });
     const r = decodeOperation(op, ADDR, meta);
     expect(r.kind).toBe("harvest");
   });
 
-  it("uses 7-decimal fallback when token meta unknown", () => {
+  it("falls back to asset_code when token meta unknown", () => {
     const op = base({
       type: "invoke_host_function",
       asset_balance_changes: [
-        { type: "transfer", from: OTHER, to: ADDR, amount: "10000000", asset_type: "credit_alphanum4", asset_issuer: "CC_UNKNOWN", asset_code: "FOO" },
+        { type: "transfer", from: OTHER, to: ADDR, amount: "1.0000000", asset_type: "credit_alphanum4", asset_issuer: "CC_UNKNOWN", asset_code: "FOO" },
       ],
     });
     const r = decodeOperation(op, ADDR, () => undefined);
     expect(r.deltas[0]).toMatchObject({ code: "FOO", amount: "1" });
+  });
+
+  // Regression: Horizon's `asset_balance_changes[*].amount` is already
+  // human-readable (e.g. "0.1000000" for 0.1 XLM). Earlier code passed it
+  // through scaleByDecimals(_, 7), divided by 1e7, then formatAmount
+  // truncated the result to "0" — UI rendered "−0 XLM" for any small debit.
+  it("does not re-scale amounts that Horizon already returned in decimal form", () => {
+    const op = base({
+      type: "invoke_host_function",
+      asset_balance_changes: [
+        { type: "transfer", from: ADDR, to: OTHER, amount: "0.1000000", asset_type: "native" },
+      ],
+    });
+    const r = decodeOperation(op, ADDR, meta);
+    expect(r.kind).toBe("send");
+    expect(r.deltas[0]).toMatchObject({ code: "XLM", amount: "0.1", isCredit: false });
   });
 });
