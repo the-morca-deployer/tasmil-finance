@@ -9,6 +9,7 @@ import { TokenImage } from "@/shared/components/token-image";
 import { PROTOCOL_ICONS as CDN_PROTOCOL_ICONS } from "@/shared/constants/asset-manifest";
 import { Skeleton } from "@/shared/ui/skeleton";
 import type { PositionItem, ProtocolPositionGroup } from "../hooks/use-defi-positions";
+import { ProtocolRewardsCard } from "./protocol-rewards-card";
 
 // ─── Protocol icon mapping ───────────────────────────────────────────────────
 
@@ -382,6 +383,7 @@ export function ProtocolPositions({
     >
       <h2 className="font-semibold text-foreground text-xl">Protocol Positions</h2>
 
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       {/* Summary card with pie chart */}
       <motion.div
         className="overflow-hidden rounded-xl border border-border bg-card"
@@ -464,6 +466,9 @@ export function ProtocolPositions({
           </div>
         )}
       </motion.div>
+
+      <ProtocolRewardsCard groups={groups} />
+      </div>
 
       {/* Protocol cards — one card per protocol, pools as sub-sections */}
       {cards.map((card, cardIdx) => {
