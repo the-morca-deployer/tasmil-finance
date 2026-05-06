@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { Coins } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -93,66 +92,13 @@ function formatUsd(value: number): string {
   }).format(value);
 }
 
-// ─── Mock data for visual testing ─────────────────────────────────────────
-// Toggle via:
-//   ?mock=rewards   → full data (Aquarius + Blend mixed)
-//   ?mock=aquarius  → Aquarius-only (6 LP pools, scroll exercise)
-//   ?mock=empty     → no rewards
-//   (none)          → real data
-const aquaPool = (poolName: string, amount: number, amountUsd: number): PoolReward => ({
-  key: `aquarius:pool:${poolName}`,
-  protocol: "aquarius",
-  protocolName: "Aquarius",
-  poolName,
-  icon: PROTOCOL_ICONS.aquarius ?? null,
-  token: "AQUA",
-  amount,
-  amountUsd,
-});
-
-const blendPool = (poolName: string, amount: number, amountUsd: number): PoolReward => ({
-  key: `blend:group:${poolName}`,
-  protocol: "blend",
-  protocolName: "Blend",
-  poolName,
-  icon: PROTOCOL_ICONS.blend ?? null,
-  token: "BLND",
-  amount,
-  amountUsd,
-});
-
-const MOCK_REWARDS: PoolReward[] = [
-  aquaPool("XLM/USDC", 0.4253, 0.27),
-  aquaPool("XLM/EURC", 12.4881, 7.92),
-  aquaPool("USDC/EURC", 0.082, 0.05),
-  blendPool("Etherfuse Pool", 1.2345, 0.12),
-  blendPool("Fixed Pool", 0.0341, 0.0),
-];
-
-const MOCK_AQUARIUS_REWARDS: PoolReward[] = [
-  aquaPool("XLM/USDC", 4.523, 2.87),
-  aquaPool("XLM/EURC", 12.4881, 7.92),
-  aquaPool("AQUA/XLM", 8.0014, 5.08),
-  aquaPool("USDC/EURC", 0.082, 0.05),
-  aquaPool("yXLM/XLM", 0.4521, 0.29),
-  aquaPool("BTC/XLM", 0.0007, 0.0),
-];
-
 interface ProtocolRewardsCardProps {
   groups: ProtocolPositionGroup[];
   className?: string;
 }
 
 export function ProtocolRewardsCard({ groups, className }: ProtocolRewardsCardProps) {
-  const searchParams = useSearchParams();
-  const mockMode = searchParams.get("mock");
-
-  const rewards = useMemo(() => {
-    if (mockMode === "empty") return [] as PoolReward[];
-    if (mockMode === "rewards") return MOCK_REWARDS;
-    if (mockMode === "aquarius") return MOCK_AQUARIUS_REWARDS;
-    return expandRewards(groups);
-  }, [groups, mockMode]);
+  const rewards = useMemo(() => expandRewards(groups), [groups]);
   const totalUsd = rewards.reduce((s, r) => s + r.amountUsd, 0);
   const protocolCount = useMemo(
     () => new Set(rewards.map((r) => r.protocol)).size,
