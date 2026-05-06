@@ -1,7 +1,8 @@
 "use client";
 
-import { AlertCircle, Check, ChevronLeft, Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { Check, ChevronLeft, Loader2 } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { useOnboardingDeploy } from "@/features/account/hooks/use-onboarding-deploy";
 import type { DeploySubStep, RiskPreset } from "@/features/account/types";
 import { cn } from "@/lib/utils";
@@ -62,6 +63,23 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
     if (allDone) onComplete();
   }, [allDone, onComplete]);
 
+  const lastErrorRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!deployError) {
+      lastErrorRef.current = null;
+      return;
+    }
+    if (lastErrorRef.current === deployError) return;
+    lastErrorRef.current = deployError;
+    if (deployErrorWasRejection) {
+      toast.warning(deployError, {
+        action: { label: "Retry", onClick: () => void retry() },
+      });
+    } else {
+      toast.error(deployError);
+    }
+  }, [deployError, deployErrorWasRejection, retry]);
+
   const txDeploy = deployState(deploySubStep, deployCompleted);
   const txSetup = setupTxState(deploySubStep, setupCompleted, deployCompleted);
 
@@ -96,19 +114,13 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
           </p>
         </div>
 
-        <div className="flex items-center gap-3 md:gap-5">
-          <TxLabeledCircle index={1} label="Deploy" state={txDeploy} />
-          <div className="h-px w-12 bg-border md:w-20" />
-          <TxLabeledCircle index={2} label="Setup" state={txSetup} />
-        </div>
-
         <button
           type="button"
           onClick={() => (deployErrorWasRejection ? void retry() : void deploy())}
           disabled={isDeploying}
           aria-label={ctaLabel}
           className={cn(
-            "relative flex h-[240px] w-[240px] shrink-0 items-center justify-center rounded-full font-medium text-lg text-zinc-900 transition-transform duration-200 md:h-[320px] md:w-[320px] md:text-xl",
+            "relative flex h-[240px] w-[240px] shrink-0 items-center justify-center rounded-full font-medium text-lg text-zinc-900 transition-transform duration-200 md:h-[280px] md:w-[280px] md:text-xl",
             !isDeploying && "hover:scale-[1.02] active:scale-[0.99]",
             isDeploying && "cursor-not-allowed opacity-90"
           )}
@@ -122,42 +134,11 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
           {isDeploying ? <Loader2 className="h-7 w-7 animate-spin" /> : ctaLabel}
         </button>
 
-        {deployError && (
-          <div
-            className={cn(
-              "mx-auto flex max-w-md flex-col gap-2 rounded-lg px-4 py-3 text-sm",
-              deployErrorWasRejection
-                ? "border border-amber-500/30 bg-amber-500/10"
-                : "border border-destructive/30 bg-destructive/10"
-            )}
-          >
-            <div className="flex items-start gap-2">
-              <AlertCircle
-                className={cn(
-                  "mt-0.5 h-4 w-4 shrink-0",
-                  deployErrorWasRejection ? "text-amber-400" : "text-destructive"
-                )}
-              />
-              <p
-                className={cn(
-                  "leading-relaxed",
-                  deployErrorWasRejection ? "text-amber-200/95" : "text-destructive"
-                )}
-              >
-                {deployError}
-              </p>
-            </div>
-            {deployErrorWasRejection && (
-              <button
-                type="button"
-                onClick={() => void retry()}
-                className="self-end rounded-md border border-amber-500/40 bg-amber-500/15 px-3 py-1 font-medium text-amber-200 text-xs transition-colors hover:bg-amber-500/25"
-              >
-                Retry
-              </button>
-            )}
-          </div>
-        )}
+        <div className="flex items-center gap-3 md:gap-5">
+          <TxLabeledCircle index={1} label="Deploy" state={txDeploy} />
+          <div className="h-px w-12 bg-border md:w-20" />
+          <TxLabeledCircle index={2} label="Setup" state={txSetup} />
+        </div>
       </div>
     </div>
   );

@@ -1,9 +1,6 @@
 import BigNumber from "bignumber.js";
-import { scaleByDecimals } from "./format-amount";
-import { lookupProtocol } from "./protocol-registry";
 import type { AssetDelta, DecodedOp, OpKind, Protocol, TokenMetaLookup } from "./types";
-
-const CLASSIC_DECIMALS = 7;
+import { lookupProtocol } from "./protocol-registry";
 
 const HARVEST_FN_NAMES = new Set(["claim", "claim_emissions", "claim_rewards", "harvest"]);
 
@@ -11,7 +8,7 @@ export interface AssetBalanceChange {
   type: "transfer" | "mint" | "burn" | "clawback";
   from?: string;
   to?: string;
-  amount: string; // raw stroops
+  amount: string; // human-readable decimal (e.g. "0.1000000"), as Horizon emits
   asset_type: string;
   asset_code?: string;
   asset_issuer?: string; // contract id for sac/contract assets
@@ -77,7 +74,7 @@ function paymentDelta(
   isCredit: boolean,
   type: string | undefined,
   code: string | undefined,
-  issuer: string | undefined
+  issuer: string | undefined,
 ): AssetDelta {
   return {
     code: classicAssetCode(type, code),
@@ -104,7 +101,7 @@ function emptyDecoded(op: RawHorizonOp, kind: OpKind): DecodedOp {
 export function decodeOperation(
   op: RawHorizonOp,
   address: string,
-  tokenMeta: TokenMetaLookup
+  tokenMeta: TokenMetaLookup,
 ): DecodedOp {
   const successful = op.transaction_successful !== false;
 
@@ -117,7 +114,7 @@ export function decodeOperation(
       !outgoing,
       op.asset_type,
       op.asset_code,
-      op.asset_issuer
+      op.asset_issuer,
     );
     return {
       ...emptyDecoded(op, kind),
@@ -133,9 +130,15 @@ export function decodeOperation(
       false,
       op.source_asset_type,
       op.source_asset_code,
-      op.source_asset_issuer
+      op.source_asset_issuer,
     );
-    const dst = paymentDelta(op.amount ?? "0", true, op.asset_type, op.asset_code, op.asset_issuer);
+    const dst = paymentDelta(
+      op.amount ?? "0",
+      true,
+      op.asset_type,
+      op.asset_code,
+      op.asset_issuer,
+    );
     return {
       ...emptyDecoded(op, "swap"),
       successful,
@@ -204,33 +207,33 @@ export function decodeOperation(
   return { ...emptyDecoded(op, "classic-other"), successful };
 }
 
-function resolveTokenMeta(
+function resolveCode(
   contractId: string | undefined,
   fallbackCode: string | undefined,
-  tokenMeta: TokenMetaLookup
-): { code: string; decimals: number } {
+  tokenMeta: TokenMetaLookup,
+): string {
   if (contractId) {
     const m = tokenMeta(contractId);
-    if (m) return { code: m.code, decimals: m.decimals };
+    if (m) return m.code;
   }
-  return { code: fallbackCode ?? "XLM", decimals: CLASSIC_DECIMALS };
+  return fallbackCode ?? "XLM";
 }
 
+// Horizon already emits `asset_balance_changes[*].amount` in decimal form
+// (e.g. "0.1000000"), not raw stroops — so we just canonicalize via BigNumber,
+// never scaleByDecimals.
 function abcToDelta(
   change: NonNullable<RawHorizonOp["asset_balance_changes"]>[number],
   isCredit: boolean,
-  tokenMeta: TokenMetaLookup
+  tokenMeta: TokenMetaLookup,
 ): AssetDelta {
   const isNative = change.asset_type === "native";
   const contractId = isNative ? undefined : change.asset_issuer;
-  const fallbackCode = isNative ? "XLM" : change.asset_code;
-  const { code, decimals } = isNative
-    ? { code: "XLM", decimals: CLASSIC_DECIMALS }
-    : resolveTokenMeta(contractId, fallbackCode, tokenMeta);
+  const code = isNative ? "XLM" : resolveCode(contractId, change.asset_code, tokenMeta);
   return {
     code,
     issuer: contractId,
-    amount: scaleByDecimals(change.amount, decimals),
+    amount: normalizeAmount(change.amount),
     isCredit,
     contractId,
   };
@@ -240,7 +243,7 @@ function decodeSoroban(
   op: RawHorizonOp,
   address: string,
   tokenMeta: TokenMetaLookup,
-  successful: boolean
+  successful: boolean,
 ): DecodedOp {
   const fnName = op.function ?? undefined;
   const userChanges = (op.asset_balance_changes ?? []).filter(
@@ -258,7 +261,7 @@ function decodeSoroban(
   const deltas: AssetDelta[] = userChanges.map((c) => abcToDelta(c, c.to === address, tokenMeta));
 
   // Counterparty contract = the non-address side of the first change.
-  const counterParty = userChanges[0]?.to === address ? userChanges[0]?.from : userChanges[0]?.to;
+  const counterParty = userChanges[0]!.to === address ? userChanges[0]!.from : userChanges[0]!.to;
   const protocol: Protocol | undefined = lookupProtocol(counterParty);
 
   const credits = deltas.filter((d) => d.isCredit);
@@ -269,21 +272,14 @@ function decodeSoroban(
   if (debits.length > 0 && credits.length > 0) {
     kind = "swap";
   } else if (debits.length === 1 && credits.length === 0) {
-    kind =
-      protocol === "blend"
-        ? "lend-deposit"
-        : protocol === "soroswap" || protocol === "aquarius" || protocol === "phoenix"
-          ? "lp-deposit"
-          : "send";
+    kind = protocol === "blend" ? "lend-deposit"
+      : protocol === "soroswap" || protocol === "aquarius" || protocol === "phoenix" ? "lp-deposit"
+      : "send";
   } else if (credits.length === 1 && debits.length === 0) {
-    kind =
-      protocol === "blend"
-        ? "lend-withdraw"
-        : protocol === "soroswap" || protocol === "aquarius" || protocol === "phoenix"
-          ? "lp-withdraw"
-          : HARVEST_FN_NAMES.has(fnName ?? "")
-            ? "harvest"
-            : "receive";
+    kind = protocol === "blend" ? "lend-withdraw"
+      : protocol === "soroswap" || protocol === "aquarius" || protocol === "phoenix" ? "lp-withdraw"
+      : HARVEST_FN_NAMES.has(fnName ?? "") ? "harvest"
+      : "receive";
   } else if (debits.length > 1 && credits.length === 0) {
     kind = "lp-deposit";
   } else if (credits.length > 1 && debits.length === 0) {

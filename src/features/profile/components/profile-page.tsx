@@ -5,7 +5,7 @@ import { Wallet } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback } from "react";
 import { ReferralsBody } from "@/features/referrals";
-import { PackageGrid } from "@/features/topup/components/topup-page";
+import { PackageCard } from "@/features/topup/components/package-card";
 import type { CreditPackage } from "@/features/topup/types";
 import { cn } from "@/lib/utils";
 import { useWalletStore } from "@/store/use-wallet";
@@ -14,9 +14,7 @@ import { useSnapshotSubmitter } from "../hooks/use-snapshot-submitter";
 import { useWalletTokens } from "../hooks/use-wallet-tokens";
 import { HistorySidebar } from "./history-sidebar";
 import { PerformanceChart } from "./performance-chart";
-import { ProtocolHistoryView } from "./protocol-history";
 import { ProtocolPositions } from "./protocol-positions";
-import { RewardHistoryView } from "./reward-history";
 import { TokenList } from "./token-list";
 import { TransactionList } from "./transaction-list";
 import { WalletHeader } from "./wallet-header";
@@ -42,7 +40,7 @@ function ConnectPrompt() {
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted/20">
         <Wallet className="h-8 w-8 text-muted-foreground" />
       </div>
-      <h2 className="mb-2 font-bold text-2xl text-foreground">Connect Your Wallet</h2>
+      <h2 className="mb-2 text-2xl font-bold text-foreground">Connect Your Wallet</h2>
       <p className="text-muted-foreground">Connect your Stellar wallet to view your profile.</p>
     </motion.div>
   );
@@ -72,7 +70,7 @@ function ProfileContent({ packages }: ProfileContentProps) {
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname);
     },
-    [router, searchParams, pathname]
+    [router, searchParams]
   );
 
   const { data: walletData, isLoading: tokensLoading } = useWalletTokens(account);
@@ -109,7 +107,7 @@ function ProfileContent({ packages }: ProfileContentProps) {
 
           {/* Tab bar */}
           <motion.div
-            className="flex items-center gap-4 border-border border-b pb-0"
+            className="flex items-center gap-4 border-b border-border pb-0"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
@@ -119,7 +117,7 @@ function ProfileContent({ packages }: ProfileContentProps) {
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
                 className={cn(
-                  "relative pb-3 font-medium text-base transition-colors",
+                  "relative pb-3 text-base font-medium transition-colors",
                   activeTab === tab.value
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
@@ -128,7 +126,7 @@ function ProfileContent({ packages }: ProfileContentProps) {
                 {tab.label}
                 {activeTab === tab.value && (
                   <motion.div
-                    className="absolute inset-x-0 bottom-0 h-0.5 bg-primary"
+                    className="absolute inset-x-0 bottom-0 h-0.5 bg-primary shadow-[0_0_10px_hsl(203_100%_73%/0.5)]"
                     layoutId="profile-tab-indicator"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
@@ -201,16 +199,31 @@ function ProfileContent({ packages }: ProfileContentProps) {
             {activeTab === "credits" && (
               <motion.div
                 key="credits"
-                className="flex flex-col gap-10"
+                className="relative mx-auto flex w-full max-w-5xl flex-col gap-10"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.25 }}
               >
                 <ReferralsBody />
-                <section className="flex flex-col gap-4">
-                  <h2 className="font-semibold text-foreground text-lg">Top up credits</h2>
-                  <PackageGrid packages={packages} />
+                <section className="relative flex flex-col gap-5">
+                  <div className="flex flex-col gap-1.5">
+                    <h2 className="font-semibold text-2xl text-foreground tracking-tight">
+                      Top up credits
+                    </h2>
+                    <p className="text-muted-foreground text-sm">
+                      Choose a package below. Pay with crypto or bank transfer — credits never
+                      expire.
+                    </p>
+                  </div>
+                  <div
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+                    data-testid="topup-package-grid"
+                  >
+                    {packages.map((pkg) => (
+                      <PackageCard key={pkg.id} pkg={pkg} />
+                    ))}
+                  </div>
                 </section>
               </motion.div>
             )}

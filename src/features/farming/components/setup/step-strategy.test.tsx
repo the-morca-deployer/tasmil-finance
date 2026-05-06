@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { StepStrategy } from "./step-strategy";
 
 const defaultProps = {
-  mode: "AUTO" as const,
+  preset: "Balanced" as const,
   onSelect: jest.fn(),
 };
 
@@ -12,31 +12,45 @@ beforeEach(() => {
 });
 
 describe("StepStrategy", () => {
-  it("renders Agent Strategy title and Auto/Custom circles", () => {
+  it("renders Agent Strategy title and Safe/Balanced/Aggressive spheres", () => {
     render(<StepStrategy {...defaultProps} />);
     expect(screen.getByRole("heading", { name: /agent strategy/i })).toBeInTheDocument();
-    expect(screen.getByRole("radio", { name: /auto/i })).toBeInTheDocument();
-    expect(screen.getByRole("radio", { name: /custom/i })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: /safe/i })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: /balanced/i })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: /aggressive/i })).toBeInTheDocument();
   });
 
-  it("Auto circle reflects selected state when mode=AUTO", () => {
-    render(<StepStrategy {...defaultProps} mode="AUTO" />);
-    expect(screen.getByRole("radio", { name: /auto/i })).toHaveAttribute("aria-checked", "true");
-    expect(screen.getByRole("radio", { name: /custom/i })).toHaveAttribute("aria-checked", "false");
+  it("Balanced sphere reflects selected state when preset=Balanced", () => {
+    render(<StepStrategy {...defaultProps} preset="Balanced" />);
+    expect(screen.getByRole("radio", { name: /balanced/i })).toHaveAttribute(
+      "aria-checked",
+      "true"
+    );
+    expect(screen.getByRole("radio", { name: /safe/i })).toHaveAttribute("aria-checked", "false");
+    expect(screen.getByRole("radio", { name: /aggressive/i })).toHaveAttribute(
+      "aria-checked",
+      "false"
+    );
   });
 
-  it("clicking Custom calls onSelect with CUSTOM", async () => {
+  it("clicking Safe calls onSelect with Safe", async () => {
     const onSelect = jest.fn();
     render(<StepStrategy {...defaultProps} onSelect={onSelect} />);
-    await userEvent.click(screen.getByRole("radio", { name: /custom/i }));
-    expect(onSelect).toHaveBeenCalledWith("CUSTOM");
+    await userEvent.click(screen.getByRole("radio", { name: /safe/i }));
+    expect(onSelect).toHaveBeenCalledWith("Safe");
   });
 
-  it("clicking Auto calls onSelect with AUTO", async () => {
+  it("clicking Aggressive calls onSelect with Aggressive", async () => {
     const onSelect = jest.fn();
-    render(<StepStrategy {...defaultProps} mode="CUSTOM" onSelect={onSelect} />);
-    await userEvent.click(screen.getByRole("radio", { name: /auto/i }));
-    expect(onSelect).toHaveBeenCalledWith("AUTO");
+    render(<StepStrategy {...defaultProps} onSelect={onSelect} />);
+    await userEvent.click(screen.getByRole("radio", { name: /aggressive/i }));
+    expect(onSelect).toHaveBeenCalledWith("Aggressive");
+  });
+
+  it("hovering a sphere shows its description", async () => {
+    render(<StepStrategy {...defaultProps} preset="Balanced" />);
+    await userEvent.hover(screen.getByRole("radio", { name: /safe/i }));
+    expect(screen.getByText(/capital preservation/i)).toBeInTheDocument();
   });
 
   it("back button renders only when onBack provided", async () => {

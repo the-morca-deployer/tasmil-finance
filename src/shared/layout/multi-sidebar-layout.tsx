@@ -67,7 +67,7 @@ function MobileLayout({
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden">
       {showHeader && <MobileHeader sidebarData={data} />}
-      <main className="flex-1 overflow-y-auto overscroll-contain">{children}</main>
+      <main className="no-scrollbar flex-1 overflow-y-auto overscroll-contain">{children}</main>
 
       {/* Left sidebar sheet - no border, custom close button */}
       <Sheet open={leftSidebarOpen} onOpenChange={setLeftSidebarOpen}>
@@ -122,7 +122,7 @@ function DesktopLayout({
     <div className="flex h-screen w-full flex-col overflow-hidden">
       <TopNavBar sidebarData={data} showRightSidebar={showRightSidebar} />
       <div className="flex flex-1 overflow-hidden">
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="no-scrollbar flex-1 overflow-y-auto">{children}</main>
         {showRightSidebar && (
           <div
             className={cn(

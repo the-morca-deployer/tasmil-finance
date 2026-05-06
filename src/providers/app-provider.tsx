@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
-import { Toaster } from "sonner";
+import { Toaster } from "@/shared/ui/sonner";
 import { WalletProvider } from "@/shared/context/wallet-context";
 import { TooltipProvider } from "@/shared/ui/tooltip";
 import { OnboardingProvider } from "./onboarding-provider";
@@ -38,7 +38,7 @@ export function AppProvider({ children }: PropsWithChildren) {
             <OnboardingProvider>{children}</OnboardingProvider>
           </WalletProvider>
         </TooltipProvider>
-        <Toaster position="top-right" richColors />
+        <Toaster position="bottom-right" />
       </ThemeProvider>
       {process.env.NEXT_PUBLIC_APP_ENV === "development" && (
         <ReactQueryDevtools initialIsOpen={false} />

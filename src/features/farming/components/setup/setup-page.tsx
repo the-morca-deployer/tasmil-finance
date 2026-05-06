@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { usePresets } from "@/features/account/hooks/use-account-api";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePosition, usePresets } from "@/features/account/hooks/use-account-api";
 import { useStellarBalances } from "@/features/account/hooks/use-stellar-balance";
 import { useFarmingActions } from "@/features/farming/hooks/use-farming-actions";
 import { useWalletStore } from "@/store/use-wallet";
@@ -48,6 +48,29 @@ export function SetupPage() {
   const presets = usePresets(state.asset);
   const actions = useFarmingActions(publicKey);
 
+  // Server-authoritative recovery: when the user lands on /farming after
+  // having already deployed (e.g. signed TX 1 + 2 then reloaded), fast-forward
+  // past the create-account step so they never see a "Create" CTA that could
+  // accidentally trigger a destructive redeploy. Only runs once per mount.
+  const position = usePosition(publicKey || undefined);
+  const serverStatus = position.data?.status;
+  const fastForwardedRef = useRef(false);
+  useEffect(() => {
+    if (!hydrated) return;
+    if (fastForwardedRef.current) return;
+    if (!serverStatus) return;
+
+    let target: SetupState["step"] | null = null;
+    if (serverStatus === "AWAITING_FUND") target = 4;
+    else if (serverStatus === "ACTIVE" || serverStatus === "HALTED") target = 5;
+    // DEPLOYING / REVOKED → no fast-forward; existing flow handles them.
+
+    if (target !== null && state.step < target) {
+      fastForwardedRef.current = true;
+      setState((prev) => ({ ...prev, step: target! }));
+    }
+  }, [hydrated, serverStatus, state.step]);
+
   const set = useCallback(
     (patch: Partial<SetupState>) => setState((prev) => ({ ...prev, ...patch })),
     []
@@ -62,8 +85,10 @@ export function SetupPage() {
   const selectedPresetData = presets.data?.find((p) => p.name === state.preset);
   const reviewApy = selectedPresetData?.estimatedApy ?? 0;
   const poolCount = selectedPresetData?.poolCount ?? 0;
-  const balanceForAsset =
-    state.asset === "USDC" ? (balances.data?.usdc ?? 0) : (balances.data?.xlm ?? 0);
+  const balancesByAsset = {
+    USDC: balances.data?.usdc ?? 0,
+    XLM: balances.data?.xlm ?? 0,
+  };
 
   const handleFund = useCallback(
     async (amount: number, asset: "USDC" | "XLM") => {
@@ -80,9 +105,9 @@ export function SetupPage() {
   if (state.step === 2) {
     return (
       <StepStrategy
-        mode={state.mode}
-        onSelect={(mode) => {
-          set({ mode });
+        preset={state.preset}
+        onSelect={(preset) => {
+          set({ preset, mode: "AUTO" });
           advance();
         }}
         onBack={back}
@@ -108,7 +133,8 @@ export function SetupPage() {
         preset={state.preset}
         estimatedApy={reviewApy}
         poolCount={poolCount}
-        balance={balanceForAsset}
+        balances={balancesByAsset}
+        onAssetChange={(next) => set({ asset: next })}
         isFunding={actions.isPending}
         onFund={handleFund}
         onBack={back}
