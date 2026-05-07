@@ -6,9 +6,9 @@ import { useStellarBalances } from "@/features/account/hooks/use-stellar-balance
 import { useFarmingActions } from "@/features/farming/hooks/use-farming-actions";
 import { useWalletStore } from "@/store/use-wallet";
 import {
-  type SetupState,
   clearSetupState,
   loadSetupState,
+  type SetupState,
   saveSetupState,
 } from "../../utils/setup-state";
 import { SetupShell } from "./setup-shell";

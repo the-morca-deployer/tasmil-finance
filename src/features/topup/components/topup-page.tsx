@@ -21,8 +21,8 @@ interface TopupPageProps {
 
 export function TopupPage({ packages }: TopupPageProps) {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 lg:px-6 lg:py-10">
-      <div className="mb-8 space-y-2">
+    <div className="mx-auto max-w-5xl px-4 py-8 lg:px-6 lg:py-10">
+      <div className="mb-10 space-y-2">
         <h1 className="font-semibold text-3xl text-foreground" data-testid="topup-page-title">
           Top up your Tasmil credits
         </h1>

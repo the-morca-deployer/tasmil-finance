@@ -26,7 +26,7 @@ export function StepConnect({ onConnected }: Props) {
       <button
         type="button"
         onClick={handleClick}
-        className="relative mt-12 flex h-[280px] w-[280px] shrink-0 items-center justify-center rounded-full font-medium text-xl text-zinc-900 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99] md:mt-16 md:h-[400px] md:w-[400px] md:text-2xl"
+        className="relative mt-12 flex h-[284px] w-[284px] shrink-0 items-center justify-center rounded-full font-medium text-xl text-zinc-900 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99] md:mt-16 md:text-2xl"
         style={{
           background:
             "radial-gradient(circle at 30% 25%, rgba(197,240,255,0.95) 0%, rgba(125,217,255,0.92) 25%, rgba(56,182,240,0.88) 55%, rgba(0,140,200,0.85) 100%), radial-gradient(circle at 75% 75%, rgba(0,191,255,0.55), transparent 60%)",
@@ -47,8 +47,7 @@ export function StepConnect({ onConnected }: Props) {
 
       <div className="pointer-events-none absolute right-6 bottom-6 text-right text-xs text-muted-foreground/70 leading-snug">
         © 2026 Tasmil
-        <br />
-        X / Linkedin
+        <br />X / Linkedin
       </div>
     </div>
   );
