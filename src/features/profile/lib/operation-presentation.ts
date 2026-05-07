@@ -13,6 +13,48 @@ const FAILED_PRESENTATION = {
   amount: { kind: "none" },
 } as const;
 
+function humanizeOpType(rawType: string): string {
+  return rawType
+    .split("_")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+const TITLE_BY_KIND: Partial<Record<TxGroup["primary"]["kind"], string>> = {
+  "manage-buy-offer": "Manage Buy Offer",
+  "manage-sell-offer": "Manage Sell Offer",
+  "passive-sell-offer": "Create Passive Sell Offer",
+  "manage-data": "Manage Data",
+  "set-options": "Set Options",
+  "set-trustline-flags": "Set Trustline Flags",
+  "allow-trust": "Allow Trust",
+  "begin-sponsoring": "Begin Sponsoring Future Reserves",
+  "end-sponsoring": "End Sponsoring Future Reserves",
+  "revoke-sponsorship": "Revoke Sponsorship",
+  clawback: "Clawback",
+  "bump-sequence": "Bump Sequence",
+  inflation: "Inflation",
+  "extend-footprint-ttl": "Extend Footprint TTL",
+  "restore-footprint": "Restore Footprint",
+};
+
+function genericRow(title: string): {
+  title: string;
+  subline: string;
+  sublineGlyph: "generic";
+  avatar: { kind: "bordered-glyph"; glyph: "user" };
+  amount: { kind: "none" };
+} {
+  return {
+    title,
+    subline: "Operation",
+    sublineGlyph: "generic",
+    avatar: { kind: "bordered-glyph", glyph: "user" },
+    amount: { kind: "none" },
+  };
+}
+
 function moreOpsLabel(group: TxGroup): string | undefined {
   if (group.ops.length <= 1) return undefined;
   return ` + ${group.ops.length - 1} ops`;
@@ -210,13 +252,74 @@ export function presentRow(group: TxGroup, _viewer: string): RowPresentation {
           : { kind: "none" },
       });
     }
-    default:
+    case "contract-other": {
+      const distinct = new Set(deltas.map((d) => d.code));
+      const amount =
+        deltas.length === 0
+          ? ({ kind: "none" } as const)
+          : distinct.size > 1 || deltas.length > 1
+            ? ({ kind: "multiple" } as const)
+            : ({
+                kind: "single" as const,
+                value: deltas[0]!.amount,
+                code: deltas[0]!.code,
+                isCredit: deltas[0]!.isCredit,
+              });
       return withCommon({
-        title: primary.rawType,
-        subline: "Operation",
+        title: "Contract Function",
+        subline: "Interacted",
+        sublineGlyph: "contract",
+        avatar: { kind: "bordered-glyph", glyph: "user" },
+        amount,
+      });
+    }
+    case "soroban-token-mint": {
+      const isReceiving = !!deltas[0]?.isCredit;
+      if (isReceiving && deltas[0]) {
+        return withCommon({
+          title: deltas[0].code,
+          subline: "Received",
+          sublineGlyph: "received",
+          avatar: { kind: "token", code: deltas[0].code },
+          amount: {
+            kind: "single",
+            value: deltas[0].amount,
+            code: deltas[0].code,
+            isCredit: true,
+          },
+        });
+      }
+      return withCommon({
+        title: "Mint",
+        subline: "Minted",
         sublineGlyph: "generic",
         avatar: { kind: "bordered-glyph", glyph: "user" },
-        amount: { kind: "none" },
+        amount: deltas[0]
+          ? { kind: "single", value: deltas[0].amount, code: deltas[0].code, isCredit: false }
+          : { kind: "none" },
       });
+    }
+    case "manage-buy-offer":
+    case "manage-sell-offer":
+    case "passive-sell-offer":
+    case "manage-data":
+    case "set-options":
+    case "set-trustline-flags":
+    case "allow-trust":
+    case "begin-sponsoring":
+    case "end-sponsoring":
+    case "revoke-sponsorship":
+    case "clawback":
+    case "bump-sequence":
+    case "inflation":
+    case "extend-footprint-ttl":
+    case "restore-footprint": {
+      return withCommon(genericRow(TITLE_BY_KIND[primary.kind] ?? humanizeOpType(primary.rawType)));
+    }
+    case "classic-other": {
+      return withCommon(genericRow(humanizeOpType(primary.rawType)));
+    }
+    default:
+      return withCommon(genericRow(humanizeOpType(primary.rawType)));
   }
 }

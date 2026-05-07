@@ -238,3 +238,119 @@ describe("presentRow — defi / trustline / create-account / claim", () => {
     expect(row.subline).toBe("Sent");
   });
 });
+
+describe("presentRow — contract / classic-other / mint / multi-asset", () => {
+  it("contract-other shows 'Contract Function' + 'Interacted'", () => {
+    const g = makeGroup({
+      primary: { ...makeGroup().primary, kind: "contract-other", deltas: [], rawFnName: "exec" },
+    });
+    g.ops = [g.primary];
+    const row = presentRow(g, VIEWER);
+    expect(row.title).toBe("Contract Function");
+    expect(row.subline).toBe("Interacted");
+    expect(row.sublineGlyph).toBe("contract");
+    expect(row.avatar).toEqual({ kind: "bordered-glyph", glyph: "user" });
+  });
+
+  it("contract-other with single delta shows that amount", () => {
+    const g = makeGroup({
+      primary: {
+        ...makeGroup().primary,
+        kind: "contract-other",
+        deltas: [{ code: "USDC", amount: "0.1", isCredit: false }],
+      },
+    });
+    g.ops = [g.primary];
+    const row = presentRow(g, VIEWER);
+    expect(row.amount).toEqual({ kind: "single", value: "0.1", code: "USDC", isCredit: false });
+  });
+
+  it("contract-other with multiple deltas of distinct assets renders Multiple", () => {
+    const g = makeGroup({
+      primary: {
+        ...makeGroup().primary,
+        kind: "contract-other",
+        deltas: [
+          { code: "USDC", amount: "1", isCredit: false },
+          { code: "XLM", amount: "2", isCredit: true },
+        ],
+      },
+    });
+    g.ops = [g.primary];
+    const row = presentRow(g, VIEWER);
+    expect(row.amount).toEqual({ kind: "multiple" });
+  });
+
+  it("soroban-token-mint received shows asset-code title", () => {
+    const g = makeGroup({
+      primary: {
+        ...makeGroup().primary,
+        kind: "soroban-token-mint",
+        deltas: [{ code: "BLND", amount: "100", isCredit: true }],
+      },
+    });
+    g.ops = [g.primary];
+    const row = presentRow(g, VIEWER);
+    expect(row.title).toBe("BLND");
+    expect(row.subline).toBe("Received");
+  });
+
+  it("soroban-token-mint sent shows generic Mint avatar", () => {
+    const g = makeGroup({
+      primary: {
+        ...makeGroup().primary,
+        kind: "soroban-token-mint",
+        deltas: [{ code: "BLND", amount: "100", isCredit: false }],
+      },
+    });
+    g.ops = [g.primary];
+    const row = presentRow(g, VIEWER);
+    expect(row.title).toBe("Mint");
+    expect(row.subline).toBe("Minted");
+    expect(row.sublineGlyph).toBe("generic");
+    expect(row.avatar).toEqual({ kind: "bordered-glyph", glyph: "user" });
+  });
+
+  it.each([
+    ["manage-buy-offer", "Manage Buy Offer"],
+    ["manage-sell-offer", "Manage Sell Offer"],
+    ["passive-sell-offer", "Create Passive Sell Offer"],
+    ["manage-data", "Manage Data"],
+    ["set-options", "Set Options"],
+    ["set-trustline-flags", "Set Trustline Flags"],
+    ["allow-trust", "Allow Trust"],
+    ["begin-sponsoring", "Begin Sponsoring Future Reserves"],
+    ["end-sponsoring", "End Sponsoring Future Reserves"],
+    ["revoke-sponsorship", "Revoke Sponsorship"],
+    ["clawback", "Clawback"],
+    ["bump-sequence", "Bump Sequence"],
+    ["inflation", "Inflation"],
+    ["extend-footprint-ttl", "Extend Footprint TTL"],
+    ["restore-footprint", "Restore Footprint"],
+  ])("kind %s renders title %s with bordered user", (kind, title) => {
+    const g = makeGroup({
+      primary: { ...makeGroup().primary, kind: kind as TxGroup["primary"]["kind"], deltas: [] },
+    });
+    g.ops = [g.primary];
+    const row = presentRow(g, VIEWER);
+    expect(row.title).toBe(title);
+    expect(row.subline).toBe("Operation");
+    expect(row.sublineGlyph).toBe("generic");
+    expect(row.avatar).toEqual({ kind: "bordered-glyph", glyph: "user" });
+  });
+
+  it("classic-other humanizes the rawType", () => {
+    const g = makeGroup({
+      primary: {
+        ...makeGroup().primary,
+        kind: "classic-other",
+        deltas: [],
+        rawType: "some_unknown_op",
+      },
+    });
+    g.ops = [g.primary];
+    const row = presentRow(g, VIEWER);
+    expect(row.title).toBe("Some Unknown Op");
+    expect(row.subline).toBe("Operation");
+  });
+});
