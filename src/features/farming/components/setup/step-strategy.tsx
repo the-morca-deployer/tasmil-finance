@@ -121,7 +121,7 @@ function PresetSphere({ meta, selected, onHover, onClick }: PresetSphereProps) {
       onClick={onClick}
       style={showGradient ? { background: meta.gradient } : undefined}
       className={cn(
-        "flex h-[220px] w-[220px] items-center justify-center rounded-full font-medium text-2xl transition-all duration-300 md:h-[280px] md:w-[280px] md:text-3xl",
+        "flex h-[284px] w-[284px] items-center justify-center rounded-full font-medium text-2xl transition-all duration-300 md:text-3xl",
         showGradient
           ? cn("scale-105 shadow-2xl", meta.textColor)
           : "bg-zinc-800/70 text-foreground",

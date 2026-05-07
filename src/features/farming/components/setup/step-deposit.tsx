@@ -141,10 +141,10 @@ export function StepDeposit({
               placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="min-w-0 max-w-[320px] bg-transparent font-light text-5xl text-foreground tabular-nums outline-none placeholder:text-foreground/55 md:text-6xl"
+              className="min-w-0 max-w-[260px] bg-transparent font-light text-4xl text-foreground tabular-nums outline-none placeholder:text-foreground/55 md:text-5xl"
               size={6}
             />
-            <span className="font-light text-5xl text-foreground/55 md:text-6xl">{asset}</span>
+            <span className="font-light text-4xl text-foreground/55 md:text-5xl">{asset}</span>
             <button
               type="button"
               onClick={handleMax}
@@ -183,11 +183,11 @@ export function StepDeposit({
         {/* Bottom row: optimizer-locked notice + deposit orb */}
         <section className="flex items-center justify-between gap-8">
           <div className="max-w-md">
-            <h3 className="flex items-center gap-2 font-semibold text-foreground text-xl">
+            <h3 className="flex items-center gap-2 font-semibold text-base text-foreground">
               Optimizer locked
-              <Lock className="h-4 w-4 text-foreground/70" />
+              <Lock className="h-3.5 w-3.5 text-foreground/70" />
             </h3>
-            <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
+            <p className="mt-1.5 text-muted-foreground text-xs leading-relaxed">
               Fine-grained controls for exposure and diversification are available for deposits
               above {OPTIMIZER_THRESHOLD.toLocaleString("en-US")} USDC. System constraints take
               precedence.
@@ -239,8 +239,7 @@ export function StepDeposit({
 
       <div className="pointer-events-none absolute right-6 bottom-6 text-right text-muted-foreground/70 text-xs leading-snug">
         © 2026 Tasmil
-        <br />
-        X / Linkedin
+        <br />X / Linkedin
       </div>
     </div>
   );
@@ -260,12 +259,12 @@ function StatCell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
         <span>{label}</span>
-        {hint && <Info className="h-3.5 w-3.5 opacity-60" />}
+        {hint && <Info className="h-3 w-3 opacity-60" />}
       </div>
-      <p className="font-mono text-foreground tabular-nums">{children}</p>
+      <p className="font-mono text-foreground text-sm tabular-nums">{children}</p>
     </div>
   );
 }

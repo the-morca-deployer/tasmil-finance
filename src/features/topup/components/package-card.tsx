@@ -1,7 +1,6 @@
-import { ArrowRight, Coins, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardFooter, CardHeader } from "@/shared/ui/card";
 import type { CreditPackage } from "../types";
 
 const PACKAGE_TITLE: Record<string, string> = {
@@ -10,6 +9,8 @@ const PACKAGE_TITLE: Record<string, string> = {
   pro: "Pro",
   whale: "Whale",
 };
+
+const ACCENT = "#59C3FF";
 
 interface PackageCardProps {
   pkg: CreditPackage;
@@ -31,108 +32,104 @@ export function PackageCard({ pkg }: PackageCardProps) {
   const recommended = pkg.id === "pro";
 
   return (
-    <Card
+    <div
       data-testid={`package-card-${pkg.id}`}
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden border-border transition-all duration-200",
-        "hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_30px_-12px_hsl(203_100%_73%/0.25)]",
-        recommended && "border-primary/40 shadow-[0_4px_24px_-12px_hsl(203_100%_73%/0.35)]"
+        "relative flex h-full flex-col rounded-md border bg-[#1a1a1a] transition-colors",
+        recommended ? "border-[#59C3FF]/70" : "border-white/[0.06] hover:border-white/[0.12]"
       )}
+      style={
+        recommended
+          ? { boxShadow: `0 0 0 1px ${ACCENT}33, 0 8px 32px -16px ${ACCENT}40` }
+          : undefined
+      }
     >
-      {/* Recommended ribbon — only on Pro */}
+      {/* RECOMMENDED ribbon — sits on top edge of Pro card */}
       {recommended && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent"
-        />
+        <div className="-top-2.5 -translate-x-1/2 absolute left-1/2 z-10">
+          <span className="rounded-sm bg-[#59C3FF] px-2 py-0.5 font-semibold text-[10px] text-black uppercase tracking-[0.14em]">
+            Recommended
+          </span>
+        </div>
       )}
 
-      <CardHeader className="space-y-4 p-5 pb-3">
-        {/* Title row */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-base text-foreground">{title}</span>
-            {recommended && (
-              <span className="inline-flex h-5 items-center rounded-full border border-primary/30 bg-primary/10 px-2 font-mono font-semibold text-[9px] text-primary uppercase tracking-[0.12em]">
-                Recommended
-              </span>
-            )}
-          </div>
-          {hasBonus ? (
-            <span
-              data-testid={`package-card-${pkg.id}-bonus`}
-              className="font-mono font-semibold text-[11px] text-primary tabular-nums"
-            >
-              +{pkg.bonusPercent}%
-            </span>
-          ) : null}
-        </div>
+      {/* Header: tier name + bonus chip */}
+      <div className="flex items-center justify-between gap-2 px-5 pt-5 pb-3">
+        <span className="font-semibold text-[15px] text-white">{title}</span>
+        {hasBonus ? (
+          <span
+            data-testid={`package-card-${pkg.id}-bonus`}
+            className="rounded-sm border border-[#262626] px-1.5 py-0.5 font-mono font-semibold text-[10px] text-[#59C3FF] tracking-wider"
+          >
+            +{pkg.bonusPercent}%
+          </span>
+        ) : null}
+      </div>
 
-        {/* Price */}
+      {/* Price — big number, USD small + muted */}
+      <div className="px-5 pb-4">
         <div className="flex items-baseline gap-1.5">
           <span
             data-testid={`package-card-${pkg.id}-usd`}
-            className="font-bold text-4xl text-foreground tracking-tight tabular-nums"
+            className="font-bold text-3xl text-white tracking-tight tabular-nums"
           >
             {formatUsd(pkg.usd)}
           </span>
-          <span className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
-            USD
+          <span className="text-[#A3A3A3] text-sm">USD</span>
+        </div>
+      </div>
+
+      {/* Hairline divider before stats */}
+      <div className="mx-5 h-px bg-[#262626]" />
+
+      {/* Stats — Credits / Points rows */}
+      <div className="flex flex-1 flex-col gap-2.5 px-5 py-4">
+        <div
+          className="flex items-center justify-between text-sm"
+          data-testid={`package-card-${pkg.id}-credits`}
+        >
+          <span className="text-[#A3A3A3]">Credits</span>
+          <span className="font-mono font-medium text-white tabular-nums">
+            {formatNumber(pkg.credits)}
           </span>
         </div>
-      </CardHeader>
-
-      <CardContent className="flex-1 p-5 pt-0 pb-4">
-        <div className="rounded-md border border-border/60 bg-muted/20">
-          <div
-            className="flex items-center justify-between border-border/60 border-b px-3 py-2.5"
-            data-testid={`package-card-${pkg.id}-credits`}
-          >
-            <span className="inline-flex items-center gap-2 text-muted-foreground text-xs">
-              <Coins className="h-3.5 w-3.5" />
-              Credits
-            </span>
-            <span className="font-mono font-semibold text-foreground text-sm tabular-nums">
-              {formatNumber(pkg.credits)}
-            </span>
-          </div>
-          <div
-            className="flex items-center justify-between px-3 py-2.5"
-            data-testid={`package-card-${pkg.id}-points`}
-          >
-            <span className="inline-flex items-center gap-2 text-muted-foreground text-xs">
-              <Sparkles className="h-3.5 w-3.5" />
-              Points
-            </span>
-            <span className="font-mono font-semibold text-foreground text-sm tabular-nums">
-              {formatNumber(pkg.points)}
-            </span>
-          </div>
+        <div
+          className="flex items-center justify-between text-sm"
+          data-testid={`package-card-${pkg.id}-points`}
+        >
+          <span className="text-[#A3A3A3]">Points</span>
+          <span className="font-mono font-medium text-white tabular-nums">
+            {formatNumber(pkg.points)}
+          </span>
         </div>
-      </CardContent>
+      </div>
 
-      <CardFooter className="flex flex-col gap-2 p-5 pt-0">
+      {/* Hairline divider before action */}
+      <div className="mx-5 h-px bg-[#262626]" />
+
+      {/* Action — Pro = solid blue, others = dark gray */}
+      <div className="flex flex-col gap-2 p-5">
         <Link
           href={cryptoHref}
           data-testid={`package-card-${pkg.id}-buy-crypto`}
           className={cn(
-            "inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md font-semibold text-sm transition-all active:scale-[0.98]",
+            "inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-md font-semibold text-[13px] transition-colors",
             recommended
-              ? "bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black hover:from-[#C5F0FF] hover:to-[#1CCFFF]"
-              : "bg-primary text-primary-foreground hover:bg-primary/90"
+              ? "bg-[#59C3FF] text-black hover:bg-[#7ad0ff]"
+              : "bg-[#262626] text-white hover:bg-[#333333]"
           )}
         >
           Buy with crypto
-          <ArrowRight className="h-3.5 w-3.5" />
+          {recommended && <ArrowRight className="h-3.5 w-3.5" />}
         </Link>
         <Link
           href={fiatHref}
           data-testid={`package-card-${pkg.id}-buy-fiat`}
-          className="inline-flex h-6 w-full items-center justify-center text-[11px] text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+          className="self-center text-[#737373] text-xs underline-offset-4 transition-colors hover:text-white hover:underline"
         >
           Pay with bank transfer
         </Link>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }
