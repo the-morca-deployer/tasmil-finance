@@ -184,12 +184,50 @@ export function decodeOperation(
     return { ...emptyDecoded(op, "lock-balance"), successful };
   }
 
-  if (
-    op.type === "manage_sell_offer" ||
-    op.type === "manage_buy_offer" ||
-    op.type === "create_passive_sell_offer"
-  ) {
-    return { ...emptyDecoded(op, "dex-offer"), successful };
+  if (op.type === "manage_sell_offer") {
+    return { ...emptyDecoded(op, "manage-sell-offer"), successful };
+  }
+  if (op.type === "manage_buy_offer") {
+    return { ...emptyDecoded(op, "manage-buy-offer"), successful };
+  }
+  if (op.type === "create_passive_sell_offer") {
+    return { ...emptyDecoded(op, "passive-sell-offer"), successful };
+  }
+  if (op.type === "manage_data") {
+    return { ...emptyDecoded(op, "manage-data"), successful };
+  }
+  if (op.type === "set_options") {
+    return { ...emptyDecoded(op, "set-options"), successful };
+  }
+  if (op.type === "set_trust_line_flags") {
+    return { ...emptyDecoded(op, "set-trustline-flags"), successful };
+  }
+  if (op.type === "allow_trust") {
+    return { ...emptyDecoded(op, "allow-trust"), successful };
+  }
+  if (op.type === "begin_sponsoring_future_reserves") {
+    return { ...emptyDecoded(op, "begin-sponsoring"), successful };
+  }
+  if (op.type === "end_sponsoring_future_reserves") {
+    return { ...emptyDecoded(op, "end-sponsoring"), successful };
+  }
+  if (op.type === "revoke_sponsorship" || (op.type.startsWith("revoke_") && op.type.endsWith("_sponsorship"))) {
+    return { ...emptyDecoded(op, "revoke-sponsorship"), successful };
+  }
+  if (op.type === "clawback" || op.type === "clawback_claimable_balance") {
+    return { ...emptyDecoded(op, "clawback"), successful };
+  }
+  if (op.type === "bump_sequence") {
+    return { ...emptyDecoded(op, "bump-sequence"), successful };
+  }
+  if (op.type === "inflation") {
+    return { ...emptyDecoded(op, "inflation"), successful };
+  }
+  if (op.type === "extend_footprint_ttl") {
+    return { ...emptyDecoded(op, "extend-footprint-ttl"), successful };
+  }
+  if (op.type === "restore_footprint") {
+    return { ...emptyDecoded(op, "restore-footprint"), successful };
   }
 
   if (op.type === "liquidity_pool_deposit") {

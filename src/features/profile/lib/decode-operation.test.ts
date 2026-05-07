@@ -118,9 +118,19 @@ describe("decodeOperation — classic ops", () => {
     expect(r.successful).toBe(false);
   });
 
-  it("classifies manage_sell_offer as dex-offer", () => {
+  it("classifies manage_sell_offer as manage-sell-offer", () => {
     const r = decodeOperation(base({ type: "manage_sell_offer" }), ADDR, noMeta);
-    expect(r.kind).toBe("dex-offer");
+    expect(r.kind).toBe("manage-sell-offer");
+  });
+
+  it("classifies manage_buy_offer as manage-buy-offer", () => {
+    const op = base({ type: "manage_buy_offer" });
+    expect(decodeOperation(op, ADDR, noMeta).kind).toBe("manage-buy-offer");
+  });
+
+  it("classifies create_passive_sell_offer as passive-sell-offer", () => {
+    const op = base({ type: "create_passive_sell_offer" });
+    expect(decodeOperation(op, ADDR, noMeta).kind).toBe("passive-sell-offer");
   });
 
   it("classifies liquidity_pool_deposit as lp-deposit (stellar)", () => {
@@ -129,9 +139,9 @@ describe("decodeOperation — classic ops", () => {
     expect(r.protocol).toBe("stellar");
   });
 
-  it("classifies unknown classic type as classic-other", () => {
-    const r = decodeOperation(base({ type: "set_options" }), ADDR, noMeta);
-    expect(r.kind).toBe("classic-other");
+  it("classifies set_options as set-options", () => {
+    const op = base({ type: "set_options" });
+    expect(decodeOperation(op, ADDR, noMeta).kind).toBe("set-options");
   });
 });
 
@@ -256,5 +266,37 @@ describe("decodeOperation — Soroban via asset_balance_changes", () => {
     const r = decodeOperation(op, ADDR, meta);
     expect(r.kind).toBe("send");
     expect(r.deltas[0]).toMatchObject({ code: "XLM", amount: "0.1", isCredit: false });
+  });
+});
+
+describe("decodeOperation — extended Horizon ops", () => {
+  it.each([
+    ["manage_data", "manage-data"],
+    ["set_options", "set-options"],
+    ["set_trust_line_flags", "set-trustline-flags"],
+    ["allow_trust", "allow-trust"],
+    ["begin_sponsoring_future_reserves", "begin-sponsoring"],
+    ["end_sponsoring_future_reserves", "end-sponsoring"],
+    ["revoke_sponsorship", "revoke-sponsorship"],
+    ["revoke_account_sponsorship", "revoke-sponsorship"],
+    ["revoke_data_sponsorship", "revoke-sponsorship"],
+    ["revoke_offer_sponsorship", "revoke-sponsorship"],
+    ["revoke_signer_sponsorship", "revoke-sponsorship"],
+    ["revoke_trustline_sponsorship", "revoke-sponsorship"],
+    ["revoke_claimable_balance_sponsorship", "revoke-sponsorship"],
+    ["clawback", "clawback"],
+    ["clawback_claimable_balance", "clawback"],
+    ["bump_sequence", "bump-sequence"],
+    ["inflation", "inflation"],
+    ["extend_footprint_ttl", "extend-footprint-ttl"],
+    ["restore_footprint", "restore-footprint"],
+  ])("classifies %s as %s", (rawType, expected) => {
+    const op = base({ type: rawType });
+    expect(decodeOperation(op, ADDR, noMeta).kind).toBe(expected);
+  });
+
+  it("falls through to classic-other for genuinely unknown types", () => {
+    const op = base({ type: "totally_made_up" });
+    expect(decodeOperation(op, ADDR, noMeta).kind).toBe("classic-other");
   });
 });
