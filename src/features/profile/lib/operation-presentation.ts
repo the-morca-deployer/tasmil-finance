@@ -21,24 +21,68 @@ function moreOpsLabel(group: TxGroup): string | undefined {
 export function presentRow(group: TxGroup, _viewer: string): RowPresentation {
   const date = formatRowDate(new Date(group.createdAt));
   const more = moreOpsLabel(group);
-
-  if (!group.successful) {
-    return {
-      ...FAILED_PRESENTATION,
-      date,
-      ...(more !== undefined ? { moreOpsLabel: more } : {}),
-    };
-  }
-
-  // Subsequent tasks fill this in. For now, every successful group falls
-  // through to a placeholder generic row so the module compiles.
-  return {
-    title: group.primary.rawType,
-    subline: "Operation",
-    sublineGlyph: "generic",
-    avatar: { kind: "bordered-glyph", glyph: "user" },
-    amount: { kind: "none" },
+  const withCommon = <T extends Omit<RowPresentation, "date" | "moreOpsLabel">>(
+    base: T,
+  ): RowPresentation => ({
+    ...base,
     date,
     ...(more !== undefined ? { moreOpsLabel: more } : {}),
-  };
+  });
+
+  if (!group.successful) {
+    return withCommon({ ...FAILED_PRESENTATION });
+  }
+
+  const primary = group.primary;
+  const deltas = primary.deltas;
+  const dst = deltas.find((d) => d.isCredit) ?? deltas[0];
+  const src = deltas.find((d) => !d.isCredit) ?? deltas[0];
+
+  switch (primary.kind) {
+    case "send": {
+      const code = dst?.code ?? "XLM";
+      return withCommon({
+        title: code,
+        subline: "Sent",
+        sublineGlyph: "sent",
+        avatar: { kind: "token", code },
+        amount: dst
+          ? { kind: "single", value: dst.amount, code: dst.code, isCredit: false }
+          : { kind: "none" },
+      });
+    }
+    case "receive": {
+      const code = dst?.code ?? "XLM";
+      return withCommon({
+        title: code,
+        subline: "Received",
+        sublineGlyph: "received",
+        avatar: { kind: "token", code },
+        amount: dst
+          ? { kind: "single", value: dst.amount, code: dst.code, isCredit: true }
+          : { kind: "none" },
+      });
+    }
+    case "swap": {
+      const srcCode = src?.code ?? "XLM";
+      const dstCode = dst?.code ?? "XLM";
+      return withCommon({
+        title: `${srcCode} to ${dstCode}`,
+        subline: "Swapped",
+        sublineGlyph: "swap",
+        avatar: { kind: "swap-dual", src: srcCode, dst: dstCode },
+        amount: dst
+          ? { kind: "single", value: dst.amount, code: dst.code, isCredit: true }
+          : { kind: "none" },
+      });
+    }
+    default:
+      return withCommon({
+        title: primary.rawType,
+        subline: "Operation",
+        sublineGlyph: "generic",
+        avatar: { kind: "bordered-glyph", glyph: "user" },
+        amount: { kind: "none" },
+      });
+  }
 }
