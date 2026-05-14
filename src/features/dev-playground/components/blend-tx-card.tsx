@@ -297,7 +297,7 @@ export function BlendTxCard({ operation, result, form }: BlendTxCardProps) {
     try {
       await checkWalletNetwork();
       const signedXdr = await signTransaction(xdr);
-      const MCP_URL = process.env["NEXT_PUBLIC_MCP_STELLAR_URL"] ?? "http://localhost:3009";
+      const MCP_URL = process.env.NEXT_PUBLIC_MCP_STELLAR_URL || "http://localhost:3009";
       const submitRes = await fetch(`${MCP_URL}/api/aggregator/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
