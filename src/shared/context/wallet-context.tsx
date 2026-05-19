@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { getBrowserBackendBaseUrl } from "@/lib/runtime-urls";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { activeNetwork } from "@/shared/config/stellar";
+import { AuthBootstrap } from "@/shared/context/auth-bootstrap";
 import { type AuthUser, useAuthStore } from "@/store/use-auth";
 import { useWalletStore } from "@/store/use-wallet";
 
@@ -693,7 +694,12 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     forceReauth,
   };
 
-  return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
+  return (
+    <WalletContext.Provider value={value}>
+      <AuthBootstrap />
+      {children}
+    </WalletContext.Provider>
+  );
 };
 
 export const useWallet = () => {
