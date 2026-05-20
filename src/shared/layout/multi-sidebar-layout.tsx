@@ -28,7 +28,7 @@ function MobileHeader({ sidebarData }: { sidebarData: SidebarData }) {
   const { toggleLeftSidebar } = useMultiSidebar();
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
+    <header className="flex h-14 shrink-0 items-center gap-3 border-border border-b bg-background px-4">
       <button
         type="button"
         onClick={toggleLeftSidebar}

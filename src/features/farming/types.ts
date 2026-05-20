@@ -6,7 +6,7 @@ export interface RebalanceStatus {
 
 export interface DiscoveredPool {
   id: string;
-  protocol: "blend" | "soroswap" | "phoenix" | "aquarius" | "sdex";
+  protocol: "blend" | "soroswap" | "aquarius" | "sdex";
   poolType: "lending" | "backstop" | "lp";
   poolAddress: string;
   strategyContractAddress?: string;
