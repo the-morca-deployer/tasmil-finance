@@ -24,7 +24,6 @@ import { useRightSidebarTab } from "@/store/use-right-sidebar-tab";
 import { useWalletStore } from "@/store/use-wallet";
 import { AssistantMessage, AssistantMessageLoading } from "../components/messages/ai-message";
 import { HumanMessage } from "../components/messages/human-message";
-import { getAgentConfig } from "../config/agents.config";
 import { useChatState, useStreamContext } from "../hooks";
 import { type ChatProductError, classifyChatProductError } from "../lib/chat-product-error";
 import { ContentBlocksPreview } from "../thread/components/content-blocks-preview";
@@ -202,56 +201,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     );
   }, [agentId, searchAssistants, setAssistantInfo]);
 
-  const agentConfig = getAgentConfig(agentId);
-  const { threadTitle } = useChatState();
-
-  // Derive chat title: thread metadata title > agent name
-  const targetTitle = threadTitle ?? agentConfig.name;
   const isNewChat = messages.length === 0;
-
-  // Typewriter animation for title changes
-  const [displayTitle, setDisplayTitle] = useState(targetTitle);
-  const prevTargetRef = useRef(targetTitle);
-  const typewriterRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const isInitialMount = useRef(true);
-
-  useEffect(() => {
-    // On initial mount, show full text immediately
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      setDisplayTitle(targetTitle);
-      prevTargetRef.current = targetTitle;
-      return;
-    }
-
-    // Skip if title hasn't changed
-    if (targetTitle === prevTargetRef.current) return;
-    prevTargetRef.current = targetTitle;
-
-    // Clear any running typewriter
-    if (typewriterRef.current) clearInterval(typewriterRef.current);
-
-    // Animate: type out new title character by character
-    let i = 0;
-    setDisplayTitle("");
-    typewriterRef.current = setInterval(() => {
-      i++;
-      setDisplayTitle(targetTitle.slice(0, i));
-      if (i >= targetTitle.length) {
-        if (typewriterRef.current) {
-          clearInterval(typewriterRef.current);
-          typewriterRef.current = null;
-        }
-      }
-    }, 25);
-
-    return () => {
-      if (typewriterRef.current) {
-        clearInterval(typewriterRef.current);
-        typewriterRef.current = null;
-      }
-    };
-  }, [targetTitle]);
 
   // Use stream.isLoading directly for the stop button. Previous heuristics
   // (isAiResponseComplete) tried to hide the stop button early but caused
@@ -634,14 +584,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       </div> */}
 
       {/* Header - no border */}
-      <header className="relative z-10 flex shrink-0 items-start gap-3 px-16 pt-10 pb-6">
-        <div className="flex max-w-md flex-col gap-2">
-          <span className="font-bold text-4xl text-foreground leading-tight tracking-tight md:text-5xl">
-            {displayTitle}
-          </span>
-          <p className="text-muted-foreground text-sm md:text-base">{agentConfig.description}</p>
-        </div>
-        <div className="ml-auto flex items-center gap-1">
+      <header className="relative z-10 flex shrink-0 items-end justify-end gap-1 px-6 pt-4 pb-2">
+        <div className="flex items-center gap-1">
           {!rightSidebarOpen && (
             <>
               <Tooltip>

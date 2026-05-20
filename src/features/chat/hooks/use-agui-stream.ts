@@ -270,6 +270,10 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
       },
       options?: Record<string, unknown>
     ) => {
+      if (!config.defaultHeaders.Authorization) {
+        setError(new Error("Not authenticated — please reconnect your wallet."));
+        return;
+      }
       setError(undefined);
       setInterrupt(undefined);
       setIsLoading(true);

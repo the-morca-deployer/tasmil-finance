@@ -244,16 +244,20 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // Mock authentication function (replace with your actual API calls)
   const authenticateWithWallet = useCallback(
     async (walletAddress: string, isForced = false) => {
+      console.log("[auth] authenticateWithWallet called", { walletAddress, isForced, authInProgress: authInProgressRef.current });
       if (authInProgressRef.current) {
+        console.log("[auth] skipped: authInProgress");
         return;
       }
 
       if (!isForced) {
         if (isAuthValid(walletAddress)) {
+          console.log("[auth] skipped: isAuthValid=true");
           authAttemptedRef.current = walletAddress;
           return;
         }
         if (authAttemptedRef.current === walletAddress && isAuthenticated) {
+          console.log("[auth] skipped: already attempted + isAuthenticated");
           return;
         }
       }
@@ -361,7 +365,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
           const signingResult = await StellarWalletsKit.signMessage(authMessage, {
             address: signerAddress,
-            networkPassphrase: network,
+            networkPassphrase: activeNetwork.networkPassphrase,
           });
 
           const signed =
@@ -589,15 +593,19 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Connect via StellarWalletsKit built-in modal
   const connectWalletOnly = useCallback(async () => {
+    writeAuthIntent();
     try {
-      await openWalletModal();
+      const addr = await openWalletModal();
+      await authenticateWithWallet(addr);
+      clearAuthIntent();
     } catch (err) {
       console.error("Failed to connect wallet:", err);
       toast.error("Failed to connect wallet.", {
         description: parseSigningError(err),
       });
+      clearAuthIntent();
     }
-  }, [openWalletModal]);
+  }, [openWalletModal, authenticateWithWallet]);
 
   const connect = useCallback(async () => {
     // Mark that the user explicitly wants the full sign-in flow. If the sign

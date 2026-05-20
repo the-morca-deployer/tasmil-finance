@@ -22,9 +22,22 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Tell reverse proxies (dev tunnels, CDN) not to compress —
-        // Next.js compress:false handles this, but tunnel proxies may
-        // add their own gzip layer that corrupts SSE streams.
+        // SSE streaming routes — prevent dev tunnels/proxies from buffering
+        source: "/agui/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, no-transform" },
+          { key: "X-Accel-Buffering", value: "no" },
+          { key: "Content-Type", value: "text/event-stream" },
+        ],
+      },
+      {
+        source: "/assistants/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, no-transform" },
+          { key: "X-Accel-Buffering", value: "no" },
+        ],
+      },
+      {
         source: "/:path*",
         headers: [
           { key: "Cache-Control", value: "no-transform" },

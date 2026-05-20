@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { getBrowserBackendBaseUrl } from "@/lib/runtime-urls";
 import { useAuthStore } from "@/store/use-auth";
 
 /**
@@ -29,7 +28,7 @@ export function AuthBootstrap() {
     // Already have a token in memory — nothing to rehydrate.
     if (accessToken) return;
 
-    const url = `${getBrowserBackendBaseUrl()}/api/auth/me`;
+    const url = "/api/auth/me";
     void fetch(url, {
       method: "GET",
       credentials: "include",
