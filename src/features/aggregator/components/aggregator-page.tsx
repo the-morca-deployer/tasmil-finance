@@ -434,12 +434,12 @@ export function AggregatorPage() {
     agg.filteredChainsIn.length > 0 ? agg.filteredChainsIn : agg.chains.map((c) => c.id);
 
   return (
-    <div className="relative flex flex-col items-center justify-center xl:justify-start min-h-full w-full overflow-y-auto px-4 pt-8 pb-8 xl:pt-20">
+    <div className="relative flex flex-col items-center justify-center min-h-full w-full overflow-y-auto px-4 pt-8 pb-8 xl:justify-start xl:pt-16">
       <BackgroundRippleEffect rows={10} cols={22} cellSize={72} />
 
       {/* Hero — stacks above card normally. At ~1520px+ (enough room for
           card group + route panel), slides to absolute left rail to avoid overlap. */}
-      <div className="pointer-events-none z-20 mb-4 min-[1520px]:absolute min-[1520px]:top-1/2 min-[1520px]:left-8 min-[1520px]:mb-0 max-w-md min-[1520px]:max-w-[280px] 2xl:max-w-[300px] 2xl:left-12 space-y-3 text-center min-[1520px]:text-left min-[1520px]:-translate-y-[105%]">
+      <div className="pointer-events-none z-20 mb-10 max-w-md space-y-3 text-center">
         <Typography
           as="h1"
           variant="h1"
@@ -454,7 +454,7 @@ export function AggregatorPage() {
         </Typography>
       </div>
 
-      <div className="relative z-20 mx-auto flex w-fit items-start justify-center gap-3">
+      <div className="relative z-20 flex flex-col sm:flex-row w-full sm:w-fit items-center sm:items-start justify-center gap-3">
         <div ref={swapPanelRef} className="w-full sm:w-[480px] max-w-[480px]">
           <BorderGlow
             animated
@@ -944,14 +944,15 @@ export function AggregatorPage() {
         <AnimatePresence>
           {activeTab === "bridge" && showRoutePanel && (
             <motion.div
-              className="hidden sm:flex"
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: 360 }}
-              exit={{ opacity: 0, width: 0 }}
+              className="w-full sm:w-auto"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto", width: undefined }}
+              exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
-              style={{ overflow: "hidden", height: swapPanelHeight }}
+              style={{ overflow: "hidden" }}
             >
-              <AggregatorRoutePanel
+              <div className="sm:w-[360px]" style={{ height: swapPanelHeight ? `${swapPanelHeight}px` : undefined }}>
+                <AggregatorRoutePanel
                 quotes={agg.quotes}
                 bestQuote={agg.bestQuote}
                 isLoading={agg.isLoadingQuotes}
@@ -965,6 +966,7 @@ export function AggregatorPage() {
                 onSelectProtocol={setSelectedProtocol}
                 onRefresh={agg.refreshQuotes}
               />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

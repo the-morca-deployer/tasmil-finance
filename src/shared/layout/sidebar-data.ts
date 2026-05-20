@@ -56,7 +56,7 @@ const _sidebarData: SidebarData = {
   },
   header: {
     logo_url: "/images/logo.png",
-    brand_name: "Tasmil",
+    brand_name: "Tasmil Finance",
     tagline: "Your supreme agent",
   },
   navGroups: [
@@ -121,7 +121,7 @@ export const adminSidebarData: SidebarData = {
   },
   header: {
     logo_url: "/images/logo.png",
-    brand_name: "Tasmil",
+    brand_name: "Tasmil Finance",
     tagline: "Admin Panel",
   },
   navGroups: [

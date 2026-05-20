@@ -29,21 +29,21 @@ function MobileHeader({ sidebarData }: { sidebarData: SidebarData }) {
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-border border-b bg-background px-4">
-      <button
-        type="button"
-        onClick={toggleLeftSidebar}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground transition-colors hover:bg-accent"
-      >
-        <PanelLeft className="h-5 w-5" />
-      </button>
       <Link href="/chat/new" className="flex items-center gap-2">
-        <Image src={sidebarData.header.logo_url} width={24} height={24} alt="Logo" />
-        <span className="animate-shimmer-text bg-gradient-to-r from-[#b5eaff] via-white to-[#00bfff] bg-[length:200%_100%] bg-clip-text font-semibold text-sm text-transparent">
+        <Image src={sidebarData.header.logo_url} width={36} height={36} alt="Logo" />
+        <span className="animate-shimmer-text bg-gradient-to-r from-[#b5eaff] via-white to-[#00bfff] bg-[length:200%_100%] bg-clip-text font-bold text-lg text-transparent">
           {sidebarData.header.brand_name}
         </span>
       </Link>
       <div className="ml-auto flex items-center gap-2">
         <ConnectWalletButton variant="topbar" />
+        <button
+          type="button"
+          onClick={toggleLeftSidebar}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground transition-colors hover:bg-accent"
+        >
+          <PanelLeft className="h-5 w-5" />
+        </button>
       </div>
     </header>
   );
@@ -66,12 +66,13 @@ function MobileLayout({
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden">
-      {showHeader && <MobileHeader sidebarData={data} />}
+      {/* Always show header on mobile for sidebar access */}
+      <MobileHeader sidebarData={data} />
       <main className="no-scrollbar flex-1 overflow-y-auto overscroll-contain">{children}</main>
 
       {/* Left sidebar sheet - no border, custom close button */}
       <Sheet open={leftSidebarOpen} onOpenChange={setLeftSidebarOpen}>
-        <SheetContent side="left" className="w-[280px] border-r-0 p-0" hideCloseButton>
+        <SheetContent side="right" className="w-[280px] border-l-0 p-0" hideCloseButton>
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation</SheetTitle>
           </SheetHeader>

@@ -23,7 +23,7 @@ jest.mock("@/shared/layout/nav-link", () => ({
 
 const fakeData = {
   user: { name: "u", email: "e", avatar: "/a.svg" },
-  header: { logo_url: "/logo.png", brand_name: "Tasmil", tagline: "" },
+  header: { logo_url: "/logo.png", brand_name: "Tasmil Finance", tagline: "" },
   navGroups: [
     {
       items: [
@@ -41,7 +41,7 @@ describe("TopNavBar", () => {
 
   it("renders the brand name with shimmer animation classes", () => {
     render(<TopNavBar sidebarData={fakeData} />);
-    const brand = screen.getByText("Tasmil");
+    const brand = screen.getByText("Tasmil Finance");
     expect(brand).toBeInTheDocument();
     expect(brand.className).toMatch(/animate-shimmer-text/);
     expect(brand.className).toMatch(/bg-clip-text/);
