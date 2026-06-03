@@ -2,7 +2,7 @@
   <img src="./public/images/logo.png" alt="Tasmil Finance" width="120" />
 </p>
 
-<h1 align="center">Tasmil Finance — Frontend</h1>
+<h1 align="center">Tasmil Finance</h1>
 
 <p align="center">
   AI-powered DeFi portfolio management on Stellar/Soroban
