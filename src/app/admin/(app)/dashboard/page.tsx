@@ -200,7 +200,7 @@ function GrowthChart({ data }: { data: Array<{ date: string; count: number }> })
                 borderRadius: 6,
                 fontSize: 12,
               }}
-              labelFormatter={(label: string) => {
+              labelFormatter={(label) => {
                 const d = new Date(`${label}T00:00:00Z`);
                 return d.toLocaleDateString("en-US", {
                   month: "short",
