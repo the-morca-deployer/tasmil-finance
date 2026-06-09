@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter @tasmil/adapter-sdk build && pnpm build",
+  "buildCommand": "pnpm build",
   "outputDirectory": ".next",
   "framework": "nextjs"
 }
