@@ -1,5 +1,6 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
+import { Hanken_Grotesk } from "next/font/google";
 import localFont from "next/font/local";
 import { AppProvider } from "@/providers/app-provider";
 import { ServiceWorkerRegistrar } from "@/shared/components/service-worker-registrar";
@@ -8,6 +9,13 @@ import "./globals.css";
 const outfit = localFont({
   src: "../../public/fonts/PPNeueMontreal.otf",
   variable: "--font-outfit",
+  display: "swap",
+});
+
+const hankenGrotesk = Hanken_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-hanken",
   display: "swap",
 });
 
@@ -47,7 +55,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className={`${outfit.variable}`} lang="en" suppressHydrationWarning>
+    <html
+      className={`${outfit.variable} ${hankenGrotesk.variable} dark`}
+      lang="en"
+      suppressHydrationWarning
+    >
       <head>
         <meta name="color-scheme" content="dark light" />
         <script

@@ -13,11 +13,7 @@ import {
   openXShare,
 } from "@/features/whitelist/lib/share-to-x";
 import { useWallet } from "@/shared/context/wallet-context";
-import { Button } from "@/shared/ui/button-v2";
-import { Card, CardContent } from "@/shared/ui/card";
-import { Typography } from "@/shared/ui/typography";
 import { ProgressStepper, type Step } from "./ui/stepper";
-import { SuccessBanner } from "./ui/success-banner";
 
 interface WaitlistScreen3Props {
   /** Email submitted in Screen2 this session u2014 null if skipped */
@@ -89,82 +85,192 @@ export function WaitlistScreen3({ submittedEmail }: WaitlistScreen3Props) {
     );
   }
 
+  const S = {
+    lbl: {
+      fontSize: 10,
+      fontWeight: 700,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase" as const,
+      color: "rgba(245,248,252,0.34)",
+      marginBottom: 7,
+    },
+    val: {
+      fontSize: 25,
+      fontWeight: 800,
+      letterSpacing: "-0.03em",
+      lineHeight: 1,
+      color: "#F5F8FC",
+    },
+    sub: { marginTop: 6, fontSize: 12, color: "rgba(245,248,252,0.56)" },
+    box: {
+      border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: 16,
+      background: "#070b12",
+      padding: "15px 16px",
+    },
+    iconBtn: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: 34,
+      height: 34,
+      borderRadius: 99,
+      background: "rgba(255,255,255,0.04)",
+      border: "1px solid rgba(255,255,255,0.11)",
+      color: "#F5F8FC",
+      cursor: "pointer",
+      flexShrink: 0,
+    } as React.CSSProperties,
+  };
+
   return (
-    <div className="space-y-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <ProgressStepper steps={steps} />
 
       {/* Wallet identity */}
-      <div className="space-y-0.5 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3">
-        <p className="font-semibold text-foreground text-sm leading-tight">
-          Registered as <span className="font-mono">{displayAddress}</span>
+      <div
+        style={{
+          borderRadius: 14,
+          border: "1px solid rgba(255,255,255,0.08)",
+          background: "rgba(255,255,255,0.04)",
+          padding: "11px 14px",
+        }}
+      >
+        <p style={{ fontSize: 13, fontWeight: 600, color: "#F5F8FC", lineHeight: 1.3 }}>
+          Registered as <span style={{ fontFamily: "monospace" }}>{displayAddress}</span>
         </p>
-        <p className="text-muted-foreground text-xs leading-tight">Wallet verified.</p>
+        <p style={{ fontSize: 12, color: "rgba(245,248,252,0.56)", marginTop: 2 }}>
+          Wallet verified.
+        </p>
       </div>
 
       {/* Stats */}
-      <Card className="border-border bg-card">
-        <CardContent className="flex items-center justify-between p-4">
-          <div>
-            <Typography variant="small" className="text-muted-foreground">
-              Your queue rank
-            </Typography>
-            <Typography variant="h2" className="mt-0.5 font-bold">
-              {status?.queueRank != null ? `#${String(status.queueRank)}` : "u2014"}
-              {status?.totalEntries != null && status?.queueRank != null && (
-                <span className="ml-2 font-normal text-base text-muted-foreground">
-                  of {status.totalEntries}
-                </span>
-              )}
-            </Typography>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div style={S.box}>
+          <div style={S.lbl}>Queue rank</div>
+          <div style={S.val}>
+            {status?.queueRank != null ? `#${status.queueRank}` : "—"}
+            {status?.totalEntries != null && status?.queueRank != null && (
+              <small style={{ fontSize: 13, fontWeight: 600, color: "rgba(245,248,252,0.56)" }}>
+                {" "}
+                of {status.totalEntries}
+              </small>
+            )}
           </div>
-          <div className="text-right">
-            <Typography variant="small" className="text-muted-foreground">
-              Referrals
-            </Typography>
-            <Typography variant="h3" className="mt-0.5 font-semibold text-primary">
-              {status?.successfulReferralCount ?? 0}
-            </Typography>
+          <div style={S.sub}>Your position</div>
+        </div>
+        <div style={S.box}>
+          <div style={S.lbl}>Referrals</div>
+          <div style={{ ...S.val, color: "oklch(0.87 0.12 192)" }}>
+            {status?.successfulReferralCount ?? 0}
           </div>
-        </CardContent>
-      </Card>
+          <div style={S.sub}>Invite to climb</div>
+        </div>
+      </div>
 
       {/* Referral link */}
-      <Card className="border-border bg-card">
-        <CardContent className="p-4">
-          <Typography variant="small" className="mb-2 text-muted-foreground">
-            Your referral link
-          </Typography>
-          {referralUrl ? (
-            <div className="flex items-center gap-2">
-              <div className="min-w-0 flex-1 overflow-hidden text-ellipsis rounded-lg border border-border bg-background px-3 py-2 font-mono text-muted-foreground text-xs">
-                {referralUrl}
-              </div>
-              <Button size="icon" variant="outline" onClick={handleCopy} className="shrink-0">
-                {copied ? (
-                  <Check className="h-4 w-4 text-green-500" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
-              <Button size="icon" variant="outline" onClick={handleShareX} className="shrink-0">
-                <ExternalLink className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="rounded-lg border border-border bg-background px-3 py-2 font-mono text-muted-foreground text-xs italic">
-              Referral link will appear after registration sync completes.
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div>
+        <div
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.16em",
+            textTransform: "uppercase" as const,
+            color: "rgba(245,248,252,0.34)",
+            marginBottom: 8,
+          }}
+        >
+          Your referral link
+        </div>
+        {referralUrl ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "6px 6px 6px 15px",
+              borderRadius: 99,
+              background: "#070b12",
+              border: "1px solid rgba(255,255,255,0.11)",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "monospace",
+                fontSize: 12,
+                color: "rgba(245,248,252,0.56)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                flex: 1,
+              }}
+            >
+              {referralUrl}
+            </span>
+            <button style={S.iconBtn} onClick={handleCopy}>
+              {copied ? <Check size={14} color="#6EE7B7" /> : <Copy size={14} />}
+            </button>
+            <button style={S.iconBtn} onClick={handleShareX}>
+              <ExternalLink size={14} />
+            </button>
+          </div>
+        ) : (
+          <div
+            style={{
+              padding: "10px 15px",
+              borderRadius: 12,
+              background: "#070b12",
+              border: "1px solid rgba(255,255,255,0.06)",
+              fontFamily: "monospace",
+              fontSize: 12,
+              color: "rgba(245,248,252,0.34)",
+              fontStyle: "italic",
+            }}
+          >
+            Syncing referral link…
+          </div>
+        )}
+      </div>
 
-      {/* Success banner if email was submitted */}
-      {hasEmailCompleted && <SuccessBanner email={attachedEmail ?? ""} />}
+      {/* Email confirmed */}
+      {hasEmailCompleted && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 14px",
+            borderRadius: 12,
+            background: "rgba(110,231,183,0.08)",
+            border: "1px solid rgba(110,231,183,0.2)",
+            fontSize: 13,
+            color: "#6EE7B7",
+          }}
+        >
+          <Check size={14} />
+          Email confirmed: {attachedEmail ?? ""}
+        </div>
+      )}
 
       {/* Share CTA */}
-      <Button variant="gradient" size="lg" onClick={handleShareX} className="w-full">
+      <button
+        onClick={handleShareX}
+        style={{
+          width: "100%",
+          padding: "16px 30px",
+          fontSize: 15,
+          fontWeight: 700,
+          background: "linear-gradient(135deg, oklch(0.87 0.12 192), oklch(0.65 0.16 192))",
+          color: "oklch(0.18 0.04 192)",
+          border: "none",
+          borderRadius: 99,
+          cursor: "pointer",
+          marginTop: 2,
+          letterSpacing: "-0.01em",
+        }}
+      >
         Share on X to climb the queue
-      </Button>
+      </button>
     </div>
   );
 }

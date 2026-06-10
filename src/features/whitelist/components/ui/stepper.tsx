@@ -1,8 +1,6 @@
 "use client";
 
-import { Check } from "lucide-react";
 import React from "react";
-import { cn } from "@/lib/utils";
 
 export type StepState = "inactive" | "active" | "done";
 
@@ -17,57 +15,120 @@ interface ProgressStepperProps {
   className?: string;
 }
 
-export function ProgressStepper({ steps, className }: ProgressStepperProps) {
+const ACCENT = "oklch(0.87 0.12 192)";
+const ACCENT_SOFT = "oklch(0.87 0.12 192 / 0.12)";
+const ACCENT_LINE = "oklch(0.87 0.12 192 / 0.26)";
+const GRAD =
+  "linear-gradient(108deg, #ffffff 0%, oklch(0.87 0.12 192) 50%, oklch(0.70 0.15 192) 100%)";
+
+function CheckIcon() {
   return (
-    <div className={cn("w-full", className)}>
-      {/* Row 1: dots + connectors at the same level */}
-      <div className="flex w-full items-center">
-        {steps.map((step, i) => (
-          <React.Fragment key={step.id}>
-            <div
-              data-step={step.id}
-              className={cn(
-                "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 font-semibold text-xs transition-all duration-300",
-                step.state === "done" &&
-                  "animate-stepper-pop border-green-500 bg-green-500 text-white",
-                step.state === "active" && "border-primary bg-primary/10 text-primary",
-                step.state === "inactive" && "border-border bg-background text-muted-foreground"
-              )}
-            >
-              {step.state === "done" ? <Check className="h-4 w-4" /> : <span>{i + 1}</span>}
-            </div>
+    <svg
+      viewBox="0 0 14 14"
+      width={14}
+      height={14}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="2,7 5.5,10.5 12,3.5" />
+    </svg>
+  );
+}
 
-            {/* Connector between this dot and the next */}
-            {i < steps.length - 1 && (
-              <div className="h-0.5 flex-1 overflow-hidden rounded-full">
-                <div
-                  className={cn(
-                    "h-full w-full rounded-full transition-all duration-500 ease-out",
-                    step.state === "done" ? "bg-green-500" : "bg-border"
-                  )}
-                />
+export function ProgressStepper({ steps }: ProgressStepperProps) {
+  return (
+    <div style={{ width: "100%", marginBottom: 28 }}>
+      <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+        {steps.map((step, i) => {
+          const isDone = step.state === "done";
+          const isActive = step.state === "active";
+          const nodeStyle: React.CSSProperties = {
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            display: "grid",
+            placeItems: "center",
+            fontSize: 12.5,
+            fontWeight: 700,
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+            flexShrink: 0,
+            transition: "all 0.3s",
+            ...(isDone
+              ? {
+                  background: ACCENT_SOFT,
+                  border: `1px solid ${ACCENT_LINE}`,
+                  color: ACCENT,
+                }
+              : isActive
+                ? {
+                    background: GRAD,
+                    border: "1px solid transparent",
+                    color: "oklch(0.18 0.04 192)",
+                    boxShadow: `0 0 0 4px ${ACCENT_SOFT}, 0 0 18px -2px oklch(0.84 0.13 192 / 0.55)`,
+                  }
+                : {
+                    background: "transparent",
+                    border: "1px solid rgba(255,255,255,0.11)",
+                    color: "rgba(245,248,252,0.34)",
+                  }),
+          };
+          return (
+            <React.Fragment key={step.id}>
+              <div data-step={step.id} style={nodeStyle}>
+                {isDone ? <CheckIcon /> : <span>{i + 1}</span>}
               </div>
-            )}
-          </React.Fragment>
-        ))}
+              {i < steps.length - 1 && (
+                <div
+                  style={{
+                    flex: 1,
+                    height: 1,
+                    margin: "0 2px",
+                    background: "rgba(255,255,255,0.11)",
+                    overflow: "hidden",
+                    borderRadius: 999,
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      width: isDone ? "100%" : "0%",
+                      background: ACCENT,
+                      transition: "width 0.5s ease",
+                      boxShadow: isDone ? "0 0 8px oklch(0.84 0.13 192 / 0.55)" : "none",
+                    }}
+                  />
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
-
-      {/* Row 2: labels mirror dot-row structure so each label centers under its dot */}
-      <div className="mt-2 flex w-full items-start">
+      <div style={{ display: "flex", alignItems: "flex-start", width: "100%", marginTop: 9 }}>
         {steps.map((step, i) => (
           <React.Fragment key={step.id}>
             <span
-              className={cn(
-                "w-9 shrink-0 text-center font-medium text-xs leading-tight",
-                step.state === "done" && "text-green-600",
-                step.state === "active" && "text-primary",
-                step.state === "inactive" && "text-muted-foreground"
-              )}
+              style={{
+                width: 32,
+                flexShrink: 0,
+                textAlign: "center",
+                fontSize: 10.5,
+                fontWeight: 600,
+                letterSpacing: "0.05em",
+                color:
+                  step.state === "done"
+                    ? ACCENT
+                    : step.state === "active"
+                      ? "#F5F8FC"
+                      : "rgba(245,248,252,0.34)",
+                transition: "color 0.3s",
+              }}
             >
               {step.label}
             </span>
-            {/* spacer mirrors the connector flex-1 */}
-            {i < steps.length - 1 && <div className="flex-1" />}
+            {i < steps.length - 1 && <div style={{ flex: 1 }} />}
           </React.Fragment>
         ))}
       </div>

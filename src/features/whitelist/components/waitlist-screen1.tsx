@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2, Wallet } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import {
   useRegisterWallet,
@@ -9,9 +9,55 @@ import {
   useWalletStatus,
 } from "@/features/whitelist/hooks/use-wallet-waitlist";
 import { useWallet } from "@/shared/context/wallet-context";
-import { Button } from "@/shared/ui/button-v2";
-import { Typography } from "@/shared/ui/typography";
 import { ProgressStepper, type Step } from "./ui/stepper";
+
+function WalletAnim() {
+  return (
+    <div className="tw-wallet-anim">
+      <span className="wa-glow" />
+      <svg
+        viewBox="0 0 120 120"
+        fill="none"
+        style={{ width: 96, height: 96, position: "relative", zIndex: 1, overflow: "visible" }}
+      >
+        <defs>
+          <linearGradient
+            id="wa-card-grad"
+            x1="34"
+            y1="22"
+            x2="86"
+            y2="56"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#ffffff" />
+            <stop offset="1" stopColor="oklch(0.87 0.12 192)" />
+          </linearGradient>
+          <clipPath id="wa-clip">
+            <rect x="20" y="20" width="80" height="46" rx="6" />
+          </clipPath>
+        </defs>
+        <g clipPath="url(#wa-clip)">
+          <g className="tw-wa-card">
+            <rect x="38" y="18" width="44" height="29" rx="6" fill="url(#wa-card-grad)" />
+            <rect x="44" y="36" width="15" height="3" rx="1.5" fill="rgba(0,0,0,0.32)" />
+            <circle cx="74" cy="26" r="3.4" fill="rgba(0,0,0,0.22)" />
+          </g>
+        </g>
+        <g
+          style={{ filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.55))" }}
+          stroke="oklch(0.87 0.12 192)"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="26" y="50" width="68" height="46" rx="13" fill="#0B0F18" />
+          <path d="M26 64 H94" />
+          <circle cx="80" cy="80" r="4.2" fill="oklch(0.87 0.12 192)" stroke="none" />
+        </g>
+      </svg>
+    </div>
+  );
+}
 
 interface WaitlistScreen1Props {
   referredByCode?: string | null;
@@ -125,116 +171,147 @@ export function WaitlistScreen1({ referredByCode, onJoined }: WaitlistScreen1Pro
 
   const isPending = requestChallenge.isPending || registerWallet.isPending;
 
+  const btnStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "16px 30px",
+    fontSize: 15,
+    fontWeight: 700,
+    background:
+      "linear-gradient(108deg, #ffffff 0%, oklch(0.87 0.12 192) 50%, oklch(0.70 0.15 192) 100%)",
+    color: "oklch(0.18 0.04 192)",
+    border: "none",
+    borderRadius: 999,
+    cursor: "pointer",
+    marginTop: 22,
+    letterSpacing: "-0.01em",
+    boxShadow: "0 1px 0 rgba(255,255,255,0.4) inset, 0 10px 30px -12px oklch(0.84 0.13 192 / 0.55)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  };
+
   if (!isConnected || !address) {
     return (
-      <div className="flex flex-col gap-4">
+      <div style={{ display: "flex", flexDirection: "column" }}>
         <ProgressStepper steps={STEPS} />
-
-        <div className="text-center">
-          <Typography variant="h4" className="text-center font-bold uppercase tracking-wide">
-            Join the Waitlist
-          </Typography>
-          <Typography variant="small" className="mt-1 text-center text-muted-foreground">
-            Connect your Stellar wallet to secure your spot.
-          </Typography>
+        <div style={{ marginTop: 28, textAlign: "center" }}>
+          <WalletAnim />
+          <h3
+            style={{
+              fontSize: 21,
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              color: "#F5F8FC",
+              margin: 0,
+            }}
+          >
+            Connect your wallet
+          </h3>
+          <p
+            style={{
+              marginTop: 8,
+              fontSize: 14,
+              color: "rgba(245,248,252,0.56)",
+              lineHeight: 1.55,
+              maxWidth: 320,
+              margin: "8px auto 0",
+            }}
+          >
+            Join the Tasmil waitlist with your Stellar wallet — claim your place in the queue.
+          </p>
+          <button
+            style={
+              isAuthenticating ? { ...btnStyle, opacity: 0.5, cursor: "not-allowed" } : btnStyle
+            }
+            onClick={connect}
+            disabled={isAuthenticating}
+          >
+            {isAuthenticating ? (
+              <>
+                <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" />
+                Connecting…
+              </>
+            ) : (
+              "Connect Stellar Wallet"
+            )}
+          </button>
         </div>
-
-        <div className="rounded-xl border border-border bg-card/80 p-5 text-center">
-          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
-            <Wallet className="h-5 w-5 text-primary" />
-          </div>
-          <Typography variant="p" className="text-center font-medium text-foreground text-sm">
-            Connect your Stellar wallet
-          </Typography>
-          <Typography variant="small" className="mt-1 text-center text-muted-foreground">
-            Wallet-based verification. We&apos;ll ask for your email after registration.
-          </Typography>
-        </div>
-
-        <Button
-          variant="gradient"
-          size="lg"
-          onClick={connect}
-          disabled={isAuthenticating}
-          className="w-full"
-        >
-          {isAuthenticating ? (
-            <span className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Connecting...
-            </span>
-          ) : (
-            "Connect Stellar Wallet"
-          )}
-        </Button>
-
-        <Typography variant="small" className="text-center text-muted-foreground">
-          Powered by Freighter, Albedo, or any Stellar-compatible wallet.
-        </Typography>
       </div>
     );
   }
 
-  // Wallet connected u2014 show join button
   return (
-    <div className="flex flex-col gap-4">
+    <div style={{ display: "flex", flexDirection: "column" }}>
       <ProgressStepper steps={STEPS} />
-
-      <div className="text-center">
-        <Typography variant="h4" className="text-center font-bold uppercase tracking-wide">
-          Join the Waitlist
-        </Typography>
-        <Typography variant="small" className="mt-1 text-center text-muted-foreground">
-          Your wallet is connected. Confirm to register.
-        </Typography>
-      </div>
-
-      <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/10 p-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20">
-          <Wallet className="h-5 w-5 text-primary" />
-        </div>
-        <div>
-          <Typography variant="p" className="font-medium text-foreground text-sm">
-            Wallet connected
-          </Typography>
-          <Typography variant="small" className="text-muted-foreground">
-            {displayAddress}
-          </Typography>
-        </div>
-      </div>
-
-      {referredByCode && (
-        <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-2">
-          <Typography variant="small" className="text-muted-foreground">
-            You&apos;ll be credited to your referrer after registration.
-          </Typography>
-        </div>
-      )}
-
-      {isPending ? (
-        <Button variant="gradient" size="lg" disabled className="w-full">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {requestChallenge.isPending ? "Preparing..." : "Registering..."}
-        </Button>
-      ) : (
-        <Button
-          variant="gradient"
-          size="lg"
-          onClick={handleRegister}
-          disabled={isAuthenticating || !!walletStatus}
-          className="w-full"
+      <div style={{ marginTop: 28, textAlign: "center" }}>
+        <WalletAnim />
+        <h3
+          style={{
+            fontSize: 21,
+            fontWeight: 700,
+            letterSpacing: "-0.03em",
+            color: "#F5F8FC",
+            margin: 0,
+          }}
         >
-          {registerWallet.isError
-            ? "Try again u2014 Join waitlist"
-            : "Join waitlist with this wallet"}
-        </Button>
-      )}
-
-      {registerWallet.isError && (
-        <p className="text-center text-red-500 text-xs">
-          {registerWallet.error?.message ?? "Registration failed. Please try again."}
+          Connect your wallet
+        </h3>
+        <p
+          style={{
+            marginTop: 8,
+            fontSize: 14,
+            color: "rgba(245,248,252,0.56)",
+            lineHeight: 1.55,
+            maxWidth: 320,
+            margin: "8px auto 0",
+          }}
+        >
+          Connected as{" "}
+          <span
+            style={{
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+              color: "#F5F8FC",
+            }}
+          >
+            {displayAddress}
+          </span>
+          . Sign to join.
         </p>
-      )}
+
+        {referredByCode && (
+          <p style={{ marginTop: 6, fontSize: 12, color: "oklch(0.87 0.12 192)" }}>
+            Referred by <span style={{ fontFamily: "monospace" }}>{referredByCode}</span>
+          </p>
+        )}
+
+        {isPending ? (
+          <button style={{ ...btnStyle, opacity: 0.5, cursor: "not-allowed" }} disabled>
+            <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" />
+            {requestChallenge.isPending ? "Preparing…" : "Registering…"}
+          </button>
+        ) : (
+          <button
+            style={
+              isAuthenticating || !!walletStatus
+                ? { ...btnStyle, opacity: 0.5, cursor: "not-allowed" }
+                : btnStyle
+            }
+            onClick={handleRegister}
+            disabled={isAuthenticating || !!walletStatus}
+          >
+            {registerWallet.isError
+              ? "Try again — Join waitlist"
+              : "Join waitlist with this wallet"}
+          </button>
+        )}
+
+        {registerWallet.isError && (
+          <p style={{ marginTop: 8, fontSize: 12, color: "#FB7185" }}>
+            {registerWallet.error?.message ?? "Registration failed. Please try again."}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

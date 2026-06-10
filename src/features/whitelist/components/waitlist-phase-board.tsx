@@ -44,7 +44,15 @@ export function WaitlistPhaseBoard({ referredByCode }: WaitlistPhaseBoardProps) 
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card/80 p-6 shadow-sm backdrop-blur-sm">
+    <div
+      style={{
+        background: "rgba(10,14,22,0.94)",
+        border: "1px solid rgba(255,255,255,0.07)",
+        borderRadius: 22,
+        padding: "28px 26px 30px",
+        backdropFilter: "blur(18px)",
+      }}
+    >
       {showLoadingSpinner ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
