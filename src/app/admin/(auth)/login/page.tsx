@@ -70,7 +70,6 @@ export default function AdminLoginPage() {
     setWalletError("");
     try {
       const { signMessage } = await import("@stellar/freighter-api");
-      // @ts-ignore
       const result = await signMessage(nonce, { address: walletAddress });
       const signedChallenge = result?.signedMessage ?? result;
 
