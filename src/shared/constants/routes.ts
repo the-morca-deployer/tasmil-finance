@@ -14,6 +14,7 @@ export const PATHS = {
   STRATEGIES: "/strategies",
   DEMO: "/demo",
   DEFI_AGENT: "/defi-agent",
+  WAITLIST: "/waitlist",
   DOCS: "https://tasmil.gitbook.io/tasmil-docs",
 
   LANDING_PAGE: "/",

@@ -291,9 +291,9 @@ const MainNavbar = ({
       {/* CTA Button (Desktop) - Right side */}
       <div className="hidden md:block">
         <Link
-          aria-label="Launch Tasmil Finance"
+          aria-label="Join Waitlist"
           className="cursor-pointer"
-          href={PATHS.CHAT_NEW}
+          href={PATHS.WAITLIST}
           rel="noopener noreferrer"
           tabIndex={0}
         >
@@ -302,7 +302,7 @@ const MainNavbar = ({
             size="default"
             variant="gradient"
           >
-            LAUNCH APP
+            JOIN WAITLIST
           </Button>
         </Link>
       </div>
@@ -351,14 +351,15 @@ const MainNavbar = ({
               </div>
 
               {/* {activeAccount?.address ? ( */}
-              <Button
-                className="font-mono font-semibold text-black text-sm uppercase tracking-tight transition-all duration-300 hover:tracking-wider"
-                size="default"
-                variant="gradient"
-                // onClick={handleLaunchApp}
-              >
-                LAUNCH TERMINAL
-              </Button>
+              <Link href={PATHS.WAITLIST} aria-label="Join Waitlist">
+                <Button
+                  className="font-mono font-semibold text-black text-sm uppercase tracking-tight transition-all duration-300 hover:tracking-wider"
+                  size="default"
+                  variant="gradient"
+                >
+                  JOIN WAITLIST
+                </Button>
+              </Link>
             </header>
 
             {/* Navigation menu */}
