@@ -1,0 +1,1 @@
+{"type":"object","properties":{"walletAddress":{"type":"string","example":"GABC...XYZ"},"signedChallenge":{"type":"string","description":"Base64-encoded ed25519 signature of the nonce"},"pin":{"type":"string","description":"Admin PIN"}},"required":["walletAddress","signedChallenge","pin"],"x-readme-ref-name":"AdminWalletLoginDto"}

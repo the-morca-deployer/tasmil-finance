@@ -1,0 +1,1 @@
+{"type":"object","properties":{"packageId":{"type":"string","example":"starter"},"rail":{"type":"string","enum":["CRYPTO","FIAT"],"example":"CRYPTO"}},"required":["packageId","rail"],"x-readme-ref-name":"CreateTopupQuoteDto"}
