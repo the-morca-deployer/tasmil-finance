@@ -8,7 +8,7 @@
  * /api/tokens, /api/tokens/filter, and /api/aggregator/quote.
  */
 
-import { createTasmilClient } from "@tasmil/adapter-sdk";
+import { createTasmilClient } from "@tasmil-finance/adapter-sdk";
 import { STELLAR_NETWORK } from "@/shared/config/stellar-server";
 
 export const sdk = createTasmilClient({ network: STELLAR_NETWORK });

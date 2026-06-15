@@ -11,6 +11,7 @@ import { getBrowserBackendBaseUrl } from "@/lib/runtime-urls";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { activeNetwork } from "@/shared/config/stellar";
 import { AuthBootstrap } from "@/shared/context/auth-bootstrap";
+import { getKitModulesUtils, getKitSdk, getKitTypes } from "@/shared/lib/stellar-kit";
 import { type AuthUser, useAuthStore } from "@/store/use-auth";
 import { useWalletStore } from "@/store/use-wallet";
 
@@ -115,9 +116,9 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     (async () => {
       try {
-        const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-        const { defaultModules } = await import("@creit.tech/stellar-wallets-kit/modules/utils");
-        const { Networks, KitEventType } = await import("@creit.tech/stellar-wallets-kit/types");
+        const { StellarWalletsKit } = await getKitSdk();
+        const { defaultModules } = await getKitModulesUtils();
+        const { Networks, KitEventType } = await getKitTypes();
 
         const network = activeNetwork.networkPassphrase as (typeof Networks)[keyof typeof Networks];
 
@@ -218,7 +219,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     (async () => {
       try {
-        const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
+        const { StellarWalletsKit } = await getKitSdk();
         const { address: addr } = await StellarWalletsKit.getAddress();
         if (addr) {
           setAddress(addr);
@@ -244,7 +245,11 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // Mock authentication function (replace with your actual API calls)
   const authenticateWithWallet = useCallback(
     async (walletAddress: string, isForced = false) => {
-      console.log("[auth] authenticateWithWallet called", { walletAddress, isForced, authInProgress: authInProgressRef.current });
+      console.log("[auth] authenticateWithWallet called", {
+        walletAddress,
+        isForced,
+        authInProgress: authInProgressRef.current,
+      });
       if (authInProgressRef.current) {
         console.log("[auth] skipped: authInProgress");
         return;
@@ -301,7 +306,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
         setSigning(true);
         await checkWalletNetwork();
-        const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
+        const { StellarWalletsKit } = await getKitSdk();
 
         const withReconnect = async <T,>(
           signFn: (signerAddress: string) => Promise<T>
@@ -546,7 +551,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [address, authenticateWithWallet]);
 
   const openWalletModal = useCallback(async () => {
-    const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
+    const { StellarWalletsKit } = await getKitSdk();
     const { address: addr } = await StellarWalletsKit.authModal();
     setAddress(addr);
     setIsConnected(true);
@@ -656,7 +661,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const disconnect = useCallback(async () => {
     try {
-      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
+      const { StellarWalletsKit } = await getKitSdk();
       await StellarWalletsKit.disconnect();
     } catch {
       // ignore disconnect errors
@@ -674,8 +679,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     async (xdr: string): Promise<string> => {
       if (!address) throw new Error("Wallet not connected");
 
-      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-      const { activeNetwork } = await import("@/shared/config/stellar");
+      const { StellarWalletsKit } = await getKitSdk();
+
       const { signedTxXdr } = await StellarWalletsKit.signTransaction(xdr, {
         address,
         networkPassphrase: activeNetwork.networkPassphrase,

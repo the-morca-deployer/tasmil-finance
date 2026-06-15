@@ -2,7 +2,7 @@
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
-import { getTokenPoolRegistry } from "@tasmil/adapter-sdk";
+import { getTokenPoolRegistry } from "@tasmil-finance/adapter-sdk";
 import { type NextRequest, NextResponse } from "next/server";
 import { STELLAR_NETWORK } from "@/shared/config/stellar-server";
 
