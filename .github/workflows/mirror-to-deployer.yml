@@ -21,6 +21,8 @@ jobs:
 
           git config user.name "the-morca-deployer"
           git config user.email "the-morca-deployer@users.noreply.github.com"
-          git commit --allow-empty -m "chore: deploy"
+          git config credential.helper store
+          printf 'https://the-morca-deployer:%s@github.com\n' "$PAT_CLEAN" > ~/.git-credentials
 
-          git push "https://the-morca-deployer:${PAT_CLEAN}@github.com/the-morca-deployer/tasmil-finance.git" HEAD:refs/heads/main --force
+          git commit --allow-empty -m "chore: deploy"
+          git push https://github.com/the-morca-deployer/tasmil-finance.git HEAD:refs/heads/main --force
