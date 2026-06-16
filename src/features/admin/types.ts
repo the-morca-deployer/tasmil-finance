@@ -17,3 +17,19 @@ export const WAITLIST_STATUSES: WaitlistStatus[] = [
   "UNSUBSCRIBED",
   "BOUNCED",
 ];
+
+export interface EmailDispatch {
+  id: string;
+  templateType: string;
+  status: string;
+  providerMessageId: string | null;
+  errorMessage: string | null;
+  sentAt: string | null;
+  createdAt: string;
+}
+
+export interface BulkSendResult {
+  sent: number;
+  failed: number;
+  errors: { id: string; reason: string }[];
+}
