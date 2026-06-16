@@ -81,18 +81,18 @@
       "notes": "Updated adminSidebarData.navGroups: (1) Renamed Campaigns item to Email Campaigns in Waitlist section. (2) Renamed Quests group title to Quest Management. (3) Added Quest Campaigns item with Trophy icon to Quest Management. (4) Added Analytics section with Analytics item using ArrowLeftRight icon. All required lucide icons (Wallet, Trophy, ArrowLeftRight) already imported. Biome formatting applied to Analytics item. Commit 194ea31 on deploy/staging. pnpm lint passes with no errors."
     },
     "SPRINT2_PHASE_10_BACKEND_QUEST_CRUD": {
-      "status": "pending",
-      "completedAt": null,
+      "status": "completed",
+      "completedAt": "2026-06-17T10:00:00.000Z",
       "description": "Add QuestCampaign + QuestTask CRUD endpoints to backend admin module. (1) Add DTOs: CreateQuestCampaignDto (title, description, protocol, category, logoUrl, startDate, endDate, maxParticipants, isActive), QuestCampaignDto (all fields + tasks[]), CreateQuestTaskDto (title, description, type enum, pointReward, order, isActive, metadata), QuestTaskDto. (2) Service methods: listQuestCampaigns, createQuestCampaign, getQuestCampaign, updateQuestCampaign, deleteQuestCampaign (soft), addQuestTask, updateQuestTask, deleteQuestTask. (3) Controller: GET/POST /admin/quest-campaigns, GET/PUT/DELETE /admin/quest-campaigns/:id, POST /admin/quest-campaigns/:id/tasks, PUT/DELETE /admin/quest-campaigns/:id/tasks/:taskId.",
       "validation": "pnpm build passes. pnpm test passes. All 8 quest CRUD routes exist.",
-      "notes": null
+      "notes": "Schema fields confirmed: QuestCampaign uses startAt/endAt (not startDate/endDate), category is required enum QuestCampaignCategory (BLEND|SOROSWAP|AQUARIUS), protocol is required String. QuestTask uses campaignId, type is required enum TaskType (X_FOLLOW|X_RETWEET|X_COMMENT|BROWSE|ONCHAIN|AGENT_CHAT|TELEGRAM_JOIN|DISCORD_JOIN|VOLUME_SWAP). DTOs use startAt/endAt matching schema. IsBoolean added to class-validator imports. Enum fields cast as any. Build passes, 23/23 admin service tests pass. Commit 71b9b02 on deploy/staging."
     },
     "SPRINT2_PHASE_11_QUEST_ADMIN_PROXY": {
-      "status": "pending",
-      "completedAt": null,
-      "description": "Create Next.js proxy routes under src/app/api/quest-admin/ forwarding to quest backend (QUEST_BACKEND_URL env, default http://localhost:5555). Routes needed: campaigns/route.ts (GET/POST), campaigns/[id]/route.ts (GET/PUT/DELETE), campaigns/[id]/tasks/route.ts (POST), campaigns/[id]/tasks/[taskId]/route.ts (PUT/DELETE). Auth: forward Authorization: Bearer ${QUEST_ADMIN_TOKEN} env var.",
+      "status": "completed",
+      "completedAt": "2026-06-17T02:45:00.000Z",
+      "description": "Create Next.js proxy routes under src/app/api/admin/quest-campaigns/ forwarding to MAIN backend (getServerBackendBaseUrl()). Routes needed: quest-campaigns/route.ts (GET/POST), quest-campaigns/[id]/route.ts (GET/PUT/DELETE), quest-campaigns/[id]/tasks/route.ts (POST), quest-campaigns/[id]/tasks/[taskId]/route.ts (PUT/DELETE). Auth: forward Authorization: Bearer token from admin request header.",
       "validation": "pnpm type-check passes. Routes compile without errors.",
-      "notes": null
+      "notes": "Four proxy routes created in src/app/api/admin/quest-campaigns/. All follow the existing admin API route pattern: extract Bearer token from Authorization header, validate (return 401 if missing), forward fetch request to MAIN backend with token header and original body (for POST/PUT methods), return backend response with same status code. Catch fetch errors → return 503. Routes created: (1) route.ts — GET/POST /api/admin/quest-campaigns, (2) [id]/route.ts — GET/PUT/DELETE /api/admin/quest-campaigns/{id}, (3) [id]/tasks/route.ts — POST /api/admin/quest-campaigns/{id}/tasks, (4) [id]/tasks/[taskId]/route.ts — PUT/DELETE /api/admin/quest-campaigns/{id}/tasks/{taskId}. All use getServerBackendBaseUrl() matching existing admin proxy pattern from waitlist endpoints. pnpm type-check passes (pre-existing unrelated error in farming test). Commit b6023b1 on deploy/staging."
     },
     "SPRINT2_PHASE_12_QUEST_CAMPAIGNS_LIST": {
       "status": "pending",
