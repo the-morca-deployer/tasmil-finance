@@ -23,9 +23,10 @@ export const AGENTS: Record<string, AgentConfig> = {
     supportedChains: ["Stellar"],
     testnetAvailable: true,
     suggestions: [
-      "supply 0.1 XLM to Fixed Pool in Blend",
-      "swap 0.1 XLM to USDC via soroswap",
-      "swap 0.1 XLM to AQUA via aquarius",
+      "supply 1 USDC to Fixed Pool in Blend",
+      "supply 25 XLM to Etherfuse Pool in Blend",
+      "swap 25 XLM to USDC via soroswap",
+      "swap 25 XLM to USDC via aquarius",
     ],
     capabilities: [
       "swap",
