@@ -66,7 +66,11 @@ export function useSendCampaign() {
   const token = useAdminAuthStore((s) => s.token);
   const queryClient = useQueryClient();
 
-  return useMutation<{ campaignId: string; targeted: number }, Error, { name: string }>({
+  return useMutation<
+    { campaignId: string; targeted: number },
+    Error,
+    { name: string; targetEmails?: string }
+  >({
     mutationFn: async (dto) => {
       const response = await fetch("/api/admin/campaign/send", {
         method: "POST",

@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, X } from "lucide-react";
 import { useState } from "react";
 import {
   type CampaignRun,
@@ -72,12 +72,23 @@ function ActiveCampaignCard({ campaign }: { campaign: CampaignRun }) {
 
 function NewCampaignForm() {
   const [name, setName] = useState("");
+  const [sendMode, setSendMode] = useState<"all" | "emails">("all");
+  const [emailList, setEmailList] = useState("");
   const sendCampaign = useSendCampaign();
 
   async function handleSend() {
     if (!name.trim()) return;
-    await sendCampaign.mutateAsync({ name });
+    const payload: { name: string; targetEmails?: string } = { name };
+    if (sendMode === "emails" && emailList.trim()) {
+      payload.targetEmails = emailList
+        .split("\n")
+        .map((e) => e.trim())
+        .filter(Boolean)
+        .join(",");
+    }
+    await sendCampaign.mutateAsync(payload);
     setName("");
+    setEmailList("");
   }
 
   return (
@@ -91,6 +102,30 @@ function NewCampaignForm() {
         </p>
       </div>
       <Input placeholder="Campaign name" value={name} onChange={(e) => setName(e.target.value)} />
+      <div className="space-y-2">
+        <p className="text-muted-foreground text-xs font-medium">Send to:</p>
+        {(["all", "emails"] as const).map((mode) => (
+          <label key={mode} className="flex items-center gap-2 cursor-pointer text-sm">
+            <input
+              type="radio"
+              name="sendMode"
+              value={mode}
+              checked={sendMode === mode}
+              onChange={() => setSendMode(mode)}
+            />
+            {mode === "all" ? "All CONFIRMED entries" : "Paste emails manually"}
+          </label>
+        ))}
+      </div>
+      {sendMode === "emails" && (
+        <textarea
+          placeholder={"email1@example.com\nemail2@example.com"}
+          value={emailList}
+          onChange={(e) => setEmailList(e.target.value)}
+          rows={4}
+          className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none resize-none"
+        />
+      )}
       <Button
         variant="gradient"
         onClick={handleSend}
@@ -113,8 +148,121 @@ function NewCampaignForm() {
   );
 }
 
+function CampaignDetailDrawer({
+  campaign,
+  onClose,
+}: {
+  campaign: CampaignRun;
+  onClose: () => void;
+}) {
+  const progress =
+    campaign.targetedCount > 0
+      ? Math.round((campaign.sentCount / campaign.targetedCount) * 100)
+      : 0;
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        right: 0,
+        top: 0,
+        bottom: 0,
+        width: 360,
+        background: "#131720",
+        borderLeft: "1px solid rgba(255,255,255,0.08)",
+        padding: 24,
+        zIndex: 50,
+        overflowY: "auto",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 20,
+        }}
+      >
+        <h2 style={{ fontSize: 16, fontWeight: 700 }}>{campaign.name}</h2>
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            background: "none",
+            border: "none",
+            color: "rgba(245,248,252,0.6)",
+            cursor: "pointer",
+          }}
+        >
+          <X size={18} />
+        </button>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 12,
+          marginBottom: 20,
+        }}
+      >
+        {[
+          { label: "Targeted", value: campaign.targetedCount, color: "#F5F8FC" },
+          { label: "Sent", value: campaign.sentCount, color: "#34D399" },
+          { label: "Failed", value: campaign.failedCount, color: "#FB7185" },
+          { label: "Skipped", value: campaign.skippedCount, color: "rgba(245,248,252,0.4)" },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            style={{
+              padding: 12,
+              borderRadius: 8,
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.06)",
+            }}
+          >
+            <div style={{ fontSize: 10, color: "rgba(245,248,252,0.4)", marginBottom: 4 }}>
+              {stat.label}
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: stat.color }}>{stat.value}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginBottom: 8, fontSize: 12, color: "rgba(245,248,252,0.4)" }}>
+        Progress: {progress}%
+      </div>
+      <div
+        style={{
+          height: 6,
+          borderRadius: 4,
+          background: "rgba(255,255,255,0.06)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            width: `${progress}%`,
+            borderRadius: 4,
+            background: "linear-gradient(90deg, #00BFFF, #0080FF)",
+            transition: "width 0.3s",
+          }}
+        />
+      </div>
+      <div style={{ marginTop: 16, fontSize: 12, color: "rgba(245,248,252,0.5)" }}>
+        {campaign.startedAt && (
+          <div>Started: {new Date(campaign.startedAt).toLocaleDateString()}</div>
+        )}
+        {campaign.completedAt && (
+          <div>Completed: {new Date(campaign.completedAt).toLocaleDateString()}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminCampaignsPage() {
   const { data: campaigns, isLoading } = useCampaignHistory();
+  const [drawerCampaign, setDrawerCampaign] = useState<CampaignRun | null>(null);
 
   const activeCampaign = campaigns?.find((c) => c.status === "RUNNING");
 
@@ -123,7 +271,7 @@ export default function AdminCampaignsPage() {
       {/* Left panel */}
       <div className="w-72 flex-shrink-0 space-y-6">
         <Typography variant="h2" className="font-bold text-xl">
-          Campaigns
+          Email Campaigns
         </Typography>
 
         {activeCampaign && <ActiveCampaignCard campaign={activeCampaign} />}
@@ -131,7 +279,7 @@ export default function AdminCampaignsPage() {
         <NewCampaignForm />
       </div>
 
-      {/* Right panel u2014 history table */}
+      {/* Right panel — history table */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <Typography variant="h2" className="mb-4 font-bold text-xl">
           Campaign History
@@ -157,7 +305,12 @@ export default function AdminCampaignsPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {campaigns?.map((c) => (
-                  <tr key={c.id} className="hover:bg-muted/30">
+                  <tr
+                    key={c.id}
+                    className="hover:bg-muted/30"
+                    onClick={() => setDrawerCampaign(c)}
+                    style={{ cursor: "pointer" }}
+                  >
                     <td className="px-4 py-3 font-medium">{c.name}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={c.status} />
@@ -183,6 +336,13 @@ export default function AdminCampaignsPage() {
           </div>
         )}
       </div>
+
+      {drawerCampaign && (
+        <CampaignDetailDrawer
+          campaign={drawerCampaign}
+          onClose={() => setDrawerCampaign(null)}
+        />
+      )}
     </div>
   );
 }
