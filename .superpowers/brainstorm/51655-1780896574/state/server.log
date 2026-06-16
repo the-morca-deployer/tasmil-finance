@@ -1,0 +1,8 @@
+{"type":"server-started","port":56214,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:56214","screen_dir":"/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/tasmil-finance/.superpowers/brainstorm/51655-1780896574/content","state_dir":"/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/tasmil-finance/.superpowers/brainstorm/51655-1780896574/state"}
+{"type":"screen-added","file":"/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/tasmil-finance/.superpowers/brainstorm/51655-1780896574/content/architecture.html"}
+{"type":"screen-added","file":"/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/tasmil-finance/.superpowers/brainstorm/51655-1780896574/content/admin-auth.html"}
+{"type":"screen-added","file":"/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/tasmil-finance/.superpowers/brainstorm/51655-1780896574/content/admin-dashboard.html"}
+{"type":"screen-added","file":"/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/tasmil-finance/.superpowers/brainstorm/51655-1780896574/content/email-flow.html"}
+{"type":"screen-added","file":"/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/tasmil-finance/.superpowers/brainstorm/51655-1780896574/content/full-design-v2.html"}
+{"type":"screen-added","file":"/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/tasmil-finance/.superpowers/brainstorm/51655-1780896574/content/full-design-v3.html"}
+{"type":"server-stopped","reason":"idle timeout"}

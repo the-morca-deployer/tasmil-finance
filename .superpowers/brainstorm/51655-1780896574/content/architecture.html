@@ -1,0 +1,73 @@
+<h2>Design Section 1: Architecture Overview</h2>
+<p class="subtitle">Waitlist + Admin Dashboard — Approach A (Minimal, build only what's missing)</p>
+
+<div class="section">
+  <h3>System Flow</h3>
+  <div style="background:#0f1117;border-radius:12px;padding:24px;font-family:monospace;font-size:13px;line-height:2;color:#e2e8f0">
+    <div style="color:#94a3b8;margin-bottom:8px">── USER ENTRY POINT ──────────────────────────────────────</div>
+    <div>Browser → <span style="color:#60a5fa">tasmil-finance.xyz/*</span></div>
+    <div style="padding-left:20px">↓ Next.js Middleware</div>
+    <div style="padding-left:20px">├─ <span style="color:#fbbf24">WAITLIST_MODE=true</span> + no valid access token?</div>
+    <div style="padding-left:40px">→ redirect <span style="color:#34d399">/waitlist</span> (3-step flow: wallet → email → status)</div>
+    <div style="padding-left:20px">├─ has valid access code cookie?</div>
+    <div style="padding-left:40px">→ bypass → <span style="color:#34d399">/app/*</span> (normal app)</div>
+    <div style="padding-left:20px">└─ route starts with <span style="color:#a78bfa">/admin</span>?</div>
+    <div style="padding-left:40px">→ check admin JWT cookie → <span style="color:#34d399">/admin/dashboard</span></div>
+
+    <div style="color:#94a3b8;margin:16px 0 8px">── WAITLIST FLOW (already exists, minor updates) ─────────</div>
+    <div>Screen 1: Connect Stellar wallet → sign challenge → register</div>
+    <div>Screen 2: Enter email (optional)</div>
+    <div>Screen 3: Waitlist status + referral code + queue rank</div>
+    <div style="padding-left:20px">↳ <span style="color:#fbbf24">NEW:</span> "Enter Access Code" field → validate → set cookie → enter app</div>
+
+    <div style="color:#94a3b8;margin:16px 0 8px">── ADMIN FLOW (new) ───────────────────────────────────────</div>
+    <div><span style="color:#a78bfa">/admin/login</span></div>
+    <div style="padding-left:20px">1. Connect Stellar wallet → sign challenge</div>
+    <div style="padding-left:20px">2. Enter PIN/Password → POST /api/admin/auth/login</div>
+    <div style="padding-left:20px">3. Backend: verify wallet in AdminUser table + bcrypt PIN</div>
+    <div style="padding-left:20px">4. Return JWT_ADMIN_SECRET signed token → httpOnly cookie</div>
+    <div><span style="color:#a78bfa">/admin/dashboard</span> (protected by middleware + JWT guard)</div>
+    <div style="padding-left:20px">Tabs: Overview · Waitlist Entries · Access Codes · Email Campaigns</div>
+
+    <div style="color:#94a3b8;margin:16px 0 8px">── BACKEND NEW ENDPOINTS ─────────────────────────────────</div>
+    <div><span style="color:#f87171">POST</span>  /admin/auth/login             → wallet + PIN → JWT</div>
+    <div><span style="color:#60a5fa">GET</span>   /admin/dashboard/stats        → aggregate counts</div>
+    <div><span style="color:#60a5fa">GET</span>   /admin/waitlist/entries       → paginated list + filters</div>
+    <div><span style="color:#f87171">POST</span>  /admin/access-codes/individual → code for 1 user</div>
+    <div><span style="color:#f87171">POST</span>  /admin/access-codes/shared    → shared code (N uses)</div>
+    <div><span style="color:#f87171">POST</span>  /admin/access-codes/batch     → bulk individual codes</div>
+    <div><span style="color:#f87171">POST</span>  /admin/access-codes/send-email → send via Resend</div>
+    <div><span style="color:#60a5fa">GET</span>   /admin/access-codes           → list all codes</div>
+    <div><span style="color:#fbbf24">PATCH</span> /admin/access-codes/:id/revoke → revoke code</div>
+    <div><span style="color:#f87171">POST</span>  /waitlist/redeem              → validate code → set session</div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Phần nào build mới vs giữ nguyên?</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div style="background:#052e16;border:1px solid #16a34a;border-radius:8px;padding:16px">
+      <div style="color:#4ade80;font-weight:bold;margin-bottom:8px">✅ Giữ nguyên</div>
+      <div style="color:#bbf7d0;font-size:13px;line-height:1.8">
+        • waitlist.controller/service (toàn bộ)<br>
+        • access-codes.service (generateSecureCode)<br>
+        • Frontend 3-step flow (screens 1-3)<br>
+        • All gen-backend hooks<br>
+        • Prisma models (không migration mới)
+      </div>
+    </div>
+    <div style="background:#1e1b4b;border:1px solid #6366f1;border-radius:8px;padding:16px">
+      <div style="color:#a5b4fc;font-weight:bold;margin-bottom:8px">🔨 Build mới</div>
+      <div style="color:#c7d2fe;font-size:13px;line-height:1.8">
+        • Next.js middleware (waitlist gate + admin guard)<br>
+        • AdminModule backend (auth + CRUD endpoints)<br>
+        • ResendService (email delivery)<br>
+        • Screen 3: thêm "Enter Access Code" field<br>
+        • /admin/* pages (login + dashboard 4 tabs)<br>
+        • /waitlist/redeem endpoint
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:16px">Phần này trông ổn chưa? Xác nhận để tiếp tục sang Admin Auth detail.</p>

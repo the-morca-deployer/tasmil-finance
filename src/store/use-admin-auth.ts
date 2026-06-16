@@ -28,10 +28,8 @@ export const useAdminAuthStore = create<AdminAuthState>()(
     }),
     {
       name: "admin-auth-storage",
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          useAdminAuthStore.setState({ hasHydrated: true });
-        }
+      onRehydrateStorage: () => () => {
+        useAdminAuthStore.setState({ hasHydrated: true });
       },
     }
   )

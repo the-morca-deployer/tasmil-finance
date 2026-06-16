@@ -951,21 +951,24 @@ export function AggregatorPage() {
               transition={{ duration: 0.4, ease: "easeOut" }}
               style={{ overflow: "hidden" }}
             >
-              <div className="sm:w-[360px]" style={{ height: swapPanelHeight ? `${swapPanelHeight}px` : undefined }}>
+              <div
+                className="sm:w-[360px]"
+                style={{ height: swapPanelHeight ? `${swapPanelHeight}px` : undefined }}
+              >
                 <AggregatorRoutePanel
-                quotes={agg.quotes}
-                bestQuote={agg.bestQuote}
-                isLoading={agg.isLoadingQuotes}
-                tokenInSymbol={agg.tokenIn?.symbol ?? ""}
-                tokenOutSymbol={agg.tokenOut?.symbol ?? ""}
-                decimalsIn={agg.tokenIn?.decimals ?? 7}
-                decimals={agg.tokenOut?.decimals ?? 7}
-                chainIn={agg.chainIn}
-                chainOut={agg.chainOut}
-                selectedProtocol={selectedProtocol}
-                onSelectProtocol={setSelectedProtocol}
-                onRefresh={agg.refreshQuotes}
-              />
+                  quotes={agg.quotes}
+                  bestQuote={agg.bestQuote}
+                  isLoading={agg.isLoadingQuotes}
+                  tokenInSymbol={agg.tokenIn?.symbol ?? ""}
+                  tokenOutSymbol={agg.tokenOut?.symbol ?? ""}
+                  decimalsIn={agg.tokenIn?.decimals ?? 7}
+                  decimals={agg.tokenOut?.decimals ?? 7}
+                  chainIn={agg.chainIn}
+                  chainOut={agg.chainOut}
+                  selectedProtocol={selectedProtocol}
+                  onSelectProtocol={setSelectedProtocol}
+                  onRefresh={agg.refreshQuotes}
+                />
               </div>
             </motion.div>
           )}
@@ -1189,13 +1192,9 @@ function WalletHub({
 /* ── Exchange Tab: Deposit USDC/XLM from CEX ── */
 
 const EXCHANGES = [
-  {
-    id: "binance",
-    name: "Binance",
-    logo: "https://cryptologos.cc/logos/binance-coin-bnb-logo.svg",
-  },
-  { id: "coinbase", name: "Coinbase", logo: "https://cryptologos.cc/logos/usd-coin-usdc-logo.svg" },
-  { id: "kraken", name: "Kraken", logo: "https://cryptologos.cc/logos/stellar-xlm-logo.svg" },
+  { id: "binance", name: "Binance", logo: "/chains/bsc.png" },
+  { id: "coinbase", name: "Coinbase", logo: "/chains/usdc.png" },
+  { id: "kraken", name: "Kraken", logo: "/chains/stellar.png" },
   { id: "other", name: "Other Exchange", logo: "" },
 ];
 
@@ -1234,11 +1233,7 @@ function ExchangeTab({ stellarAddress }: { stellarAddress: string | null }) {
               }}
             >
               <TokenImage
-                src={
-                  t === "USDC"
-                    ? "https://stellar.expert/explorer/public/asset/USDC-GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN/icon"
-                    : "https://stellar.expert/explorer/public/asset/native/icon"
-                }
+                src={t === "USDC" ? "/chains/usdc.png" : "/chains/stellar.png"}
                 alt={t}
                 className="h-5 w-5 rounded-full"
               />

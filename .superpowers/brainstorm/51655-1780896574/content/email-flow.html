@@ -1,0 +1,122 @@
+<h2>Design Section 4: Email & Access Code Flow</h2>
+<p class="subtitle">Resend integration · 2 email templates · delivery tracking</p>
+
+<div class="section">
+  <h3>Backend: ResendService</h3>
+  <div style="background:#0f1117;border-radius:12px;padding:20px;font-family:monospace;font-size:13px;color:#e2e8f0;line-height:1.9">
+    <div style="color:#94a3b8;margin-bottom:8px">── src/modules/email/resend.service.ts ───────────────────</div>
+    <div><span style="color:#60a5fa">sendAccessCode</span>(to: string, code: string, type: 'individual'|'shared')</div>
+    <div style="padding-left:20px;color:#94a3b8">→ Template: ACCESS_RELEASE · tạo EmailDispatch PENDING→SENT/FAILED</div>
+    <div style="margin-top:6px"><span style="color:#60a5fa">sendWaitlistConfirmation</span>(to: string, referralCode: string, rank: number)</div>
+    <div style="padding-left:20px;color:#94a3b8">→ Template: WAITLIST_CONFIRMATION · gửi khi user attach email</div>
+    <div style="margin-top:6px"><span style="color:#60a5fa">sendBulkCampaign</span>(campaignRunId: string)</div>
+    <div style="padding-left:20px;color:#94a3b8">→ Loop từng entry → sendAccessCode → update CampaignRun counts</div>
+    <div style="padding-left:20px;color:#94a3b8">→ Rate-limit: 10 emails/giây (Resend free = 100/day, pro = 50k/day)</div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Email Templates (2 loại)</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+    <div style="background:#0f1117;border-radius:12px;overflow:hidden;border:1px solid #1e293b">
+      <div style="background:#1e293b;padding:10px 16px;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Template 1: ACCESS_RELEASE</div>
+      <div style="padding:16px">
+        <div style="background:#0a0e17;border-radius:8px;padding:16px;border:1px solid #1e293b">
+          <div style="text-align:center;margin-bottom:12px">
+            <div style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#a78bfa);border-radius:8px;margin:0 auto 8px"></div>
+            <div style="color:#e2e8f0;font-weight:700;font-size:14px">You're in!</div>
+            <div style="color:#64748b;font-size:11px;margin-top:4px">Your Tasmil access code is ready</div>
+          </div>
+          <div style="background:#1e1b4b;border-radius:8px;padding:14px;text-align:center;margin:12px 0">
+            <div style="color:#94a3b8;font-size:10px;letter-spacing:2px;margin-bottom:6px">ACCESS CODE</div>
+            <div style="color:#a78bfa;font-size:20px;font-weight:700;letter-spacing:4px">ABCD-1234</div>
+          </div>
+          <div style="background:#1e293b;border-radius:6px;padding:10px;text-align:center">
+            <span style="color:#6366f1;font-size:12px;font-weight:600">Enter App →</span>
+          </div>
+          <div style="color:#475569;font-size:10px;text-align:center;margin-top:8px">Code expires in 30 days · 1-time use</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#0f1117;border-radius:12px;overflow:hidden;border:1px solid #1e293b">
+      <div style="background:#1e293b;padding:10px 16px;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Template 2: WAITLIST_CONFIRMATION</div>
+      <div style="padding:16px">
+        <div style="background:#0a0e17;border-radius:8px;padding:16px;border:1px solid #1e293b">
+          <div style="text-align:center;margin-bottom:12px">
+            <div style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#a78bfa);border-radius:8px;margin:0 auto 8px"></div>
+            <div style="color:#e2e8f0;font-weight:700;font-size:14px">You're on the waitlist!</div>
+            <div style="color:#64748b;font-size:11px;margin-top:4px">Tasmil Finance — Early Access</div>
+          </div>
+          <div style="background:#1e293b;border-radius:8px;padding:12px;margin:10px 0">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="color:#94a3b8;font-size:11px">Queue position</span>
+              <span style="color:#4ade80;font-size:11px;font-weight:600">#247</span>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span style="color:#94a3b8;font-size:11px">Referral code</span>
+              <span style="color:#60a5fa;font-size:11px;font-weight:600">REF-XY8Z</span>
+            </div>
+          </div>
+          <div style="color:#475569;font-size:10px;text-align:center">Share your referral code to move up the queue</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Access Code Redemption Flow (User)</h3>
+  <div style="background:#0f1117;border-radius:12px;padding:20px">
+    <div style="display:flex;align-items:center;gap:0;flex-wrap:nowrap;overflow-x:auto">
+      <div style="text-align:center;min-width:110px">
+        <div style="width:40px;height:40px;background:#1e293b;border:2px solid #6366f1;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;color:#a78bfa;font-weight:700;font-size:13px">1</div>
+        <div style="color:#94a3b8;font-size:11px;margin-top:8px">Screen 3<br>Nhập code</div>
+      </div>
+      <div style="flex:1;height:2px;background:#1e293b;min-width:20px"></div>
+      <div style="text-align:center;min-width:130px">
+        <div style="width:40px;height:40px;background:#1e293b;border:2px solid #6366f1;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;color:#a78bfa;font-weight:700;font-size:13px">2</div>
+        <div style="color:#94a3b8;font-size:11px;margin-top:8px">POST /waitlist/redeem<br>{ code, walletAddress }</div>
+      </div>
+      <div style="flex:1;height:2px;background:#1e293b;min-width:20px"></div>
+      <div style="text-align:center;min-width:130px">
+        <div style="width:40px;height:40px;background:#1e293b;border:2px solid #6366f1;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;color:#a78bfa;font-weight:700;font-size:13px">3</div>
+        <div style="color:#94a3b8;font-size:11px;margin-top:8px">Validate code<br>increment activationCount</div>
+      </div>
+      <div style="flex:1;height:2px;background:#1e293b;min-width:20px"></div>
+      <div style="text-align:center;min-width:130px">
+        <div style="width:40px;height:40px;background:#1e293b;border:2px solid #6366f1;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;color:#a78bfa;font-weight:700;font-size:13px">4</div>
+        <div style="color:#94a3b8;font-size:11px;margin-top:8px">Set cookie<br>tasmil_access (JWT 30d)</div>
+      </div>
+      <div style="flex:1;height:2px;background:#1e293b;min-width:20px"></div>
+      <div style="text-align:center;min-width:110px">
+        <div style="width:40px;height:40px;background:#052e16;border:2px solid #4ade80;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;color:#4ade80;font-weight:700;font-size:16px">✓</div>
+        <div style="color:#4ade80;font-size:11px;margin-top:8px">Redirect<br>vào app</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:#1e293b;border-radius:8px;padding:12px;font-size:12px">
+        <div style="color:#fbbf24;margin-bottom:6px">Error cases:</div>
+        <div style="color:#94a3b8;line-height:1.8">
+          • Code không tồn tại → 404<br>
+          • Code EXHAUSTED (hết uses) → 409<br>
+          • Code REVOKED → 410<br>
+          • Wallet chưa register waitlist → 403
+        </div>
+      </div>
+      <div style="background:#1e293b;border-radius:8px;padding:12px;font-size:12px">
+        <div style="color:#60a5fa;margin-bottom:6px">EmailDispatch tracking:</div>
+        <div style="color:#94a3b8;line-height:1.8">
+          • Mỗi email gửi → tạo EmailDispatch record<br>
+          • PENDING → SENT / FAILED<br>
+          • Resend webhook → update BOUNCED<br>
+          • Admin thấy failed count trong dashboard
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:16px">Email flow này ổn chưa? Xác nhận → tôi tổng hợp toàn bộ và viết spec doc.</p>

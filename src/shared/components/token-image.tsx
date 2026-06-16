@@ -27,6 +27,37 @@ const CHAIN_IMAGES: Record<string, string> = {
   OPTIMISM: "/chains/optimism.png",
 };
 
+// Local token overrides take priority over CDN manifest entries.
+// Ensures common tokens always display even when the CDN is unreachable.
+const LOCAL_TOKEN_OVERRIDES: Record<string, string> = {
+  XLM: "/chains/stellar.png",
+  USDC: "/chains/usdc.png",
+  USDT: "/chains/usdt.png",
+  ETH: "/chains/ethereum.png",
+  ARB: "/chains/arbitrum.png",
+  SOL: "/chains/solana.png",
+  BNB: "/chains/bsc.png",
+  BSC: "/chains/bsc.png",
+  AVAX: "/chains/avalanche.png",
+  MATIC: "/chains/polygon.png",
+  POL: "/chains/polygon.png",
+  BASE: "/chains/base.png",
+  OP: "/chains/optimism.png",
+};
+
+// Local protocol logo overrides — use bundled agent SVGs instead of CDN.
+const LOCAL_PROTOCOL_OVERRIDES: Record<string, string> = {
+  allbridge: "/agents/allbridge-agent.svg",
+  aquarius: "/agents/aquarius-agent.svg",
+  blend: "/agents/blend-agent.svg",
+  defindex: "/agents/defindex-agent.svg",
+  phoenix: "/agents/phoenix-agent.svg",
+  sdex: "/agents/sdex-agent.svg",
+  soroswap: "/agents/soroswap-agent.svg",
+  tasmil: "/images/logo.png",
+  templar: "/agents/templar-agent.svg",
+};
+
 // Deterministic color from string so the same token always gets the same color
 const FALLBACK_COLORS = [
   "bg-blue-500/20 text-blue-400",
@@ -47,11 +78,18 @@ function colorFor(label: string): string {
   return FALLBACK_COLORS[Math.abs(hash) % FALLBACK_COLORS.length] ?? "bg-blue-500/20 text-blue-400";
 }
 
-/** Resolve the manifest CDN URL or local fallback for the given alt label. */
+/** Resolve the local override, manifest CDN URL, or chain image for the given alt label. */
 function localImageFor(alt: string): string | null {
   const upperKey = alt?.toUpperCase() ?? "";
   const lowerKey = alt?.toLowerCase() ?? "";
-  return TOKEN_ICONS[upperKey] ?? CHAIN_IMAGES[upperKey] ?? PROTOCOL_ICONS[lowerKey] ?? null;
+  return (
+    LOCAL_TOKEN_OVERRIDES[upperKey] ??
+    LOCAL_PROTOCOL_OVERRIDES[lowerKey] ??
+    TOKEN_ICONS[upperKey] ??
+    CHAIN_IMAGES[upperKey] ??
+    PROTOCOL_ICONS[lowerKey] ??
+    null
+  );
 }
 
 /** Whether the given URL points at an absolute remote host (vs. a /public path). */

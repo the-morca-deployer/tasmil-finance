@@ -1,0 +1,73 @@
+<h2>Design Section 2: Admin Authentication</h2>
+<p class="subtitle">Wallet + PIN → JWT — flow chi tiết</p>
+
+<div class="section">
+  <h3>Login Flow (2 bước)</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+    <div style="background:#0f1117;border-radius:12px;padding:20px">
+      <div style="color:#a78bfa;font-weight:bold;font-size:12px;letter-spacing:1px;margin-bottom:12px">BƯỚC 1 — WALLET CHALLENGE</div>
+      <div style="background:#1e1b4b;border-radius:8px;padding:14px;margin-bottom:10px;font-size:13px;color:#c7d2fe;line-height:1.8">
+        Frontend gọi <code style="color:#60a5fa">POST /admin/auth/challenge</code><br>
+        Body: <code>{ walletAddress }</code><br>
+        → Backend trả <code>{ nonce, expiresAt }</code><br><br>
+        Frontend yêu cầu Freighter ký nonce<br>
+        → <code>signedChallenge = wallet.sign(nonce)</code>
+      </div>
+      <div style="background:#052e16;border-radius:6px;padding:10px;font-size:12px;color:#4ade80">
+        ✓ Dùng lại y chang waitlist challenge flow<br>
+        ✓ TTL 5 phút, nonce random UUID<br>
+        ✓ Stellar SDK ed25519 verify
+      </div>
+    </div>
+
+    <div style="background:#0f1117;border-radius:12px;padding:20px">
+      <div style="color:#a78bfa;font-weight:bold;font-size:12px;letter-spacing:1px;margin-bottom:12px">BƯỚC 2 — PIN VERIFY + JWT</div>
+      <div style="background:#1e1b4b;border-radius:8px;padding:14px;margin-bottom:10px;font-size:13px;color:#c7d2fe;line-height:1.8">
+        Frontend gọi <code style="color:#60a5fa">POST /admin/auth/login</code><br>
+        Body: <code>{ walletAddress, signedChallenge, pin }</code><br><br>
+        Backend:<br>
+        1. Verify ed25519 signature<br>
+        2. Lookup AdminUser by walletAddress<br>
+        3. <code>bcrypt.compare(pin, passwordHash)</code><br>
+        4. Sign JWT với <code>JWT_ADMIN_SECRET</code><br>
+        5. Set httpOnly cookie: <code>tasmil_admin</code> (7d)
+      </div>
+      <div style="background:#052e16;border-radius:6px;padding:10px;font-size:12px;color:#4ade80">
+        ✓ JWT_ADMIN_SECRET đã có trong .env<br>
+        ✓ AdminUser model đã có (role, passwordHash)<br>
+        ✓ ADMIN_PASSWORD đã có → dùng làm PIN seed
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Admin Bootstrap (Prisma Seed)</h3>
+  <div style="background:#0f1117;border-radius:12px;padding:20px;font-family:monospace;font-size:13px;color:#e2e8f0;line-height:2">
+    <div style="color:#94a3b8">Env vars cần thêm:</div>
+    <div style="padding-left:20px"><span style="color:#fbbf24">ADMIN_WALLET_ADDRESS</span>=G... (Stellar public key của admin)</div>
+    <div style="padding-left:20px"><span style="color:#fbbf24">RESEND_API_KEY</span>=re_... (cần thêm)</div>
+    <div style="color:#94a3b8;margin-top:8px">Seed upsert AdminUser:</div>
+    <div style="padding-left:20px;color:#34d399">walletAddress = ADMIN_WALLET_ADDRESS</div>
+    <div style="padding-left:20px;color:#34d399">passwordHash = bcrypt(ADMIN_PASSWORD)</div>
+    <div style="padding-left:20px;color:#34d399">role = SUPER_ADMIN</div>
+    <div style="color:#94a3b8;margin-top:8px">SUPER_ADMIN tạo thêm admin khác qua:</div>
+    <div><span style="color:#f87171">POST</span> /admin/users → <code>{ walletAddress, pin, role }</code></div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Middleware Guard Logic</h3>
+  <div style="background:#0f1117;border-radius:12px;padding:20px;font-family:monospace;font-size:13px;color:#e2e8f0;line-height:1.9">
+    <span style="color:#60a5fa">if</span> pathname.startsWith(<span style="color:#34d399">'/admin'</span>) {<br>
+    <span style="padding-left:20px"></span><span style="color:#60a5fa">if</span> !tasmil_admin cookie → redirect <span style="color:#a78bfa">/admin/login</span><br>
+    } <span style="color:#60a5fa">else if</span> (WAITLIST_MODE && !tasmil_access cookie) {<br>
+    <span style="padding-left:20px"></span><span style="color:#60a5fa">if</span> !pathname.startsWith(<span style="color:#34d399">'/waitlist'</span>) →<br>
+    <span style="padding-left:40px"></span>redirect <span style="color:#a78bfa">/waitlist</span><br>
+    } <span style="color:#60a5fa">else</span> → next()<br><br>
+    <span style="color:#94a3b8">// Public routes không bị chặn: /waitlist/*, /admin/login, /api/*</span>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:16px">Admin auth section này ổn chưa? Xác nhận để sang Section 3: Admin Dashboard UI.</p>

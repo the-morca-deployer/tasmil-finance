@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tasmil Waitlist + Admin — Design Preview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #09090b;
+    color: #fafafa;
+    font-family: 'Outfit', sans-serif;
+    padding: 32px 24px;
+    line-height: 1.6;
+  }
+  :root {
+    --cyan: #52e5ff;
+    --sky: #36b1ff;
+    --card: #18181b;
+    --border: #27272a;
+    --muted: #a1a1aa;
+    --input: #3f3f46;
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #52e5ff, #36b1ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .card { background: #18181b; border: 1px solid #27272a; border-radius: 12px; }
+  .section { margin-bottom: 48px; }
+  .page-label {
+    font-size: 11px; color: #52e5ff; text-transform: uppercase;
+    letter-spacing: 2px; margin-bottom: 20px;
+    padding-bottom: 10px; border-bottom: 1px solid #27272a;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+  .divider { border: none; border-top: 1px solid #27272a; margin: 40px 0; }
+  h1 { font-size: 30px; font-weight: 700; }
+  h2 { font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+  h3 { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: #e4e4e7; }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a1a1aa; margin-bottom: 6px; }
+
+  /* Nav */
+  .nav {
+    background: #111113; border: 1px solid #27272a; border-radius: 12px;
+    padding: 14px 24px; display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 20px;
+  }
+  .logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, #52e5ff, #36b1ff);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; color: #09090b; font-size: 14px;
+  }
+
+  /* Badge */
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-cyan { background: rgba(82,229,255,0.1); border: 1px solid rgba(82,229,255,0.25); color: #52e5ff; }
+  .badge-green { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: #10b981; }
+  .badge-amber { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: #f59e0b; }
+  .badge-muted { background: rgba(161,161,170,0.1); border: 1px solid #3f3f46; color: #71717a; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* Input */
+  .input {
+    background: #27272a; border: 1px solid #3f3f46; color: #fafafa;
+    border-radius: 8px; padding: 10px 14px; font-size: 13px;
+    width: 100%; font-family: 'Outfit', sans-serif; outline: none;
+  }
+  .input::placeholder { color: #71717a; }
+  select.input { cursor: pointer; }
+
+  /* Buttons */
+  .btn { border-radius: 8px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; border: none; }
+  .btn-primary { background: linear-gradient(135deg, #52e5ff, #36b1ff); color: #09090b; }
+  .btn-ghost { background: transparent; border: 1px solid #27272a; color: #a1a1aa; }
+  .btn-purple { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fafafa; }
+  .btn-blue { background: linear-gradient(135deg, #36b1ff, #1a6fd4); color: #fafafa; }
+
+  /* Stat card */
+  .stat { background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px; }
+  .stat-val { font-size: 26px; font-weight: 700; margin: 6px 0 4px; }
+
+  /* Tabs */
+  .tabs { display: flex; border-bottom: 1px solid #27272a; padding: 0 24px; }
+  .tab { padding: 12px 18px; font-size: 13px; font-weight: 500; color: #71717a; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+  .tab.active { color: #52e5ff; border-bottom-color: #52e5ff; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { color: #71717a; font-weight: 500; text-align: left; padding: 10px 16px; border-bottom: 1px solid #27272a; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #e4e4e7; }
+
+  /* Code */
+  .code { background: rgba(82,229,255,0.07); border: 1px solid rgba(82,229,255,0.2); border-radius: 6px; padding: 5px 10px; font-family: monospace; font-size: 13px; letter-spacing: 2px; color: #52e5ff; }
+
+  /* Chart */
+  .chart { display: flex; align-items: flex-end; gap: 5px; height: 72px; }
+  .bar { flex: 1; border-radius: 4px 4px 0 0; }
+  .bar-default { background: linear-gradient(to top, #27272a, #3f3f46); }
+  .bar-active { background: linear-gradient(to top, #36b1ff, #52e5ff); }
+
+  /* Flow */
+  .flow { display: flex; align-items: center; }
+  .flow-node { text-align: center; min-width: 90px; }
+  .flow-circle {
+    width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 8px;
+    border: 2px solid #36b1ff; background: rgba(54,177,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; color: #52e5ff;
+  }
+  .flow-circle.done { border-color: #10b981; background: rgba(16,185,129,0.1); color: #10b981; font-size: 16px; }
+  .flow-line { flex: 1; height: 2px; background: #27272a; min-width: 12px; }
+  .flow-text { font-size: 11px; color: #a1a1aa; line-height: 1.4; }
+
+  /* Email card */
+  .email-card { background: #111113; border: 1px solid #27272a; border-radius: 12px; padding: 28px 24px; }
+  .email-logo { width: 44px; height: 44px; background: linear-gradient(135deg, #52e5ff, #36b1ff); border-radius: 10px; margin: 0 auto 14px; }
+  .code-big { background: rgba(82,229,255,0.08); border: 1px solid rgba(82,229,255,0.2); border-radius: 10px; padding: 18px; text-align: center; }
+  .code-big span { font-family: monospace; font-size: 24px; font-weight: 700; letter-spacing: 6px; color: #52e5ff; }
+</style>
+</head>
+<body>
+<div style="max-width:920px;margin:0 auto">
+
+  <!-- Header -->
+  <div style="margin-bottom:48px">
+    <div style="font-size:11px;color:#52e5ff;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">TASMIL FINANCE — DESIGN SPEC v2</div>
+    <h1><span class="gradient-text">Waitlist + Admin Dashboard</span></h1>
+    <p style="color:#a1a1aa;font-size:14px;margin-top:8px">Brand colors: <code style="color:#52e5ff">#52e5ff → #36b1ff</code> · Dark: <code style="color:#a1a1aa">#09090b</code> · Font: Outfit</p>
+  </div>
+
+  <!-- ── 1. WAITLIST SCREEN 3 ── -->
+  <div class="section">
+    <div class="page-label">1 · /waitlist — Screen 3: Status + Access Code</div>
+    <div class="card" style="padding:32px;max-width:460px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+        <div class="logo" style="width:26px;height:26px;font-size:11px">T</div>
+        <span style="font-weight:600;font-size:14px">Tasmil Finance</span>
+        <span class="badge badge-cyan" style="margin-left:auto"><span class="dot"></span>Waitlist Active</span>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:22px;font-weight:700;margin-bottom:6px">You're on the list 🎉</div>
+        <div style="font-size:13px;color:#a1a1aa">Queue position <span style="color:#52e5ff;font-weight:600">#247</span> · <span style="color:#10b981">12 referrals</span></div>
+      </div>
+      <div style="background:#27272a;border-radius:8px;padding:16px;margin-bottom:20px">
+        <div class="label">Your Referral Code</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+          <span style="font-size:18px;font-weight:700;letter-spacing:3px;color:#52e5ff">REF-XY8Z</span>
+          <span style="font-size:12px;color:#71717a;cursor:pointer">Copy link ↗</span>
+        </div>
+      </div>
+      <div style="border-top:1px solid #27272a;padding-top:20px;margin-top:4px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Have an access code?</div>
+        <div style="display:flex;gap:8px">
+          <input class="input" placeholder="Enter code (e.g. ABCD-1234)" style="flex:1">
+          <button class="btn btn-primary" style="white-space:nowrap">Enter App →</button>
+        </div>
+        <div style="font-size:11px;color:#71717a;margin-top:8px">Access codes are sent by the Tasmil team via email</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 2. ADMIN LOGIN ── -->
+  <div class="section">
+    <div class="page-label">2 · /admin/login — Wallet + PIN</div>
+    <div class="card" style="padding:40px;max-width:400px">
+      <div style="text-align:center;margin-bottom:32px">
+        <div class="logo" style="width:52px;height:52px;margin:0 auto 14px;font-size:20px;border-radius:14px">T</div>
+        <h2 style="margin-bottom:4px">Admin Access</h2>
+        <p style="color:#a1a1aa;font-size:13px">Tasmil Finance · Restricted Area</p>
+      </div>
+      <div style="margin-bottom:16px">
+        <div class="label" style="margin-bottom:8px">Step 1 — Connect Wallet</div>
+        <div style="background:#27272a;border:1px solid #3f3f46;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#52e5ff,#36b1ff);display:flex;align-items:center;justify-content:center;font-size:11px;color:#09090b;font-weight:700">F</div>
+          <span style="font-size:13px">G...A3X · Freighter</span>
+          <span class="badge badge-green" style="margin-left:auto">Signed ✓</span>
+        </div>
+      </div>
+      <div style="margin-bottom:24px">
+        <div class="label" style="margin-bottom:8px">Step 2 — Enter PIN</div>
+        <input class="input" type="password" placeholder="••••••••" style="letter-spacing:6px;font-size:18px">
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:13px;font-size:14px">Sign In to Admin →</button>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 3. ADMIN DASHBOARD ── -->
+  <div class="section">
+    <div class="page-label">3 · /admin/dashboard — Overview Tab</div>
+
+    <div class="nav">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="logo">T</div>
+        <span style="font-weight:600;font-size:14px">Tasmil <span class="gradient-text">Admin</span></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;font-size:13px">
+        <div style="display:flex;align-items:center;gap:6px;color:#a1a1aa">
+          <div style="width:8px;height:8px;border-radius:50%;background:#10b981"></div>
+          G...A3X
+        </div>
+        <span class="badge badge-cyan">SUPER_ADMIN</span>
+        <span style="color:#71717a;cursor:pointer;font-size:12px">Logout</span>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:20px">
+      <div class="stat">
+        <div class="label">Total Waitlist</div>
+        <div class="stat-val gradient-text">1,247</div>
+        <div style="font-size:12px;color:#10b981">+38 today</div>
+      </div>
+      <div class="stat">
+        <div class="label">Codes Issued</div>
+        <div class="stat-val">84</div>
+        <div style="font-size:12px;color:#52e5ff">61 active · 23 used</div>
+      </div>
+      <div class="stat">
+        <div class="label">Emails Sent</div>
+        <div class="stat-val">72</div>
+        <div style="font-size:12px;color:#f59e0b">3 failed</div>
+      </div>
+      <div class="stat">
+        <div class="label">Waitlist Mode</div>
+        <div style="margin-top:10px"><span class="badge badge-cyan"><span class="dot"></span>ACTIVE</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <div class="tab active">Overview</div>
+        <div class="tab">Waitlist Entries</div>
+        <div class="tab">Access Codes</div>
+        <div class="tab">Email Campaigns</div>
+      </div>
+      <div style="padding:24px">
+        <div class="grid-2">
+          <div>
+            <h3>Signups — Last 7 days</h3>
+            <div class="chart">
+              <div class="bar bar-default" style="height:38%"></div>
+              <div class="bar bar-default" style="height:52%"></div>
+              <div class="bar bar-default" style="height:44%"></div>
+              <div class="bar bar-default" style="height:68%"></div>
+              <div class="bar bar-default" style="height:58%"></div>
+              <div class="bar bar-default" style="height:82%"></div>
+              <div class="bar bar-active" style="height:100%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:#71717a">
+              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span style="color:#52e5ff">Sun</span>
+            </div>
+          </div>
+          <div>
+            <h3>Top Referrers</h3>
+            <table>
+              <thead><tr><th>Wallet</th><th>Refs</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td style="color:#a1a1aa;font-size:12px">G...A3X</td>
+                  <td style="color:#52e5ff;font-weight:600">12</td>
+                  <td><span class="badge badge-cyan" style="font-size:10px;padding:2px 8px">CONFIRMED</span></td>
+                </tr>
+                <tr>
+                  <td style="color:#a1a1aa;font-size:12px">G...B7Y</td>
+                  <td style="color:#52e5ff;font-weight:600">9</td>
+                  <td><span class="badge badge-green" style="font-size:10px;padding:2px 8px">ACCESS_SENT</span></td>
+                </tr>
+                <tr>
+                  <td style="color:#a1a1aa;font-size:12px">G...C2Z</td>
+                  <td style="color:#52e5ff;font-weight:600">7</td>
+                  <td><span class="badge badge-amber" style="font-size:10px;padding:2px 8px">PENDING</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 4. ACCESS CODES TAB ── -->
+  <div class="section">
+    <div class="page-label">4 · Tab: Access Codes — 3 Panels</div>
+    <div class="grid-3" style="margin-bottom:16px">
+      <div class="card" style="padding:20px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#52e5ff;margin-bottom:10px">Individual</div>
+        <div style="font-size:12px;color:#71717a;margin-bottom:14px">1 code · 1 user · 1 use</div>
+        <select class="input" style="margin-bottom:10px"><option>Select waitlist entry...</option></select>
+        <div style="background:#27272a;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#a1a1aa">
+          G...A3X · alice@mail.com · #247
+        </div>
+        <button class="btn btn-primary" style="width:100%">Generate + Send Email</button>
+      </div>
+
+      <div class="card" style="padding:20px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#36b1ff;margin-bottom:10px">Shared (Group)</div>
+        <div style="font-size:12px;color:#71717a;margin-bottom:14px">1 code · N users · max uses</div>
+        <input class="input" placeholder="Label (e.g. KOL Group A)" style="margin-bottom:10px">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input class="input" placeholder="Max uses" style="width:90px">
+          <input class="input" placeholder="Expires (days)">
+        </div>
+        <button class="btn btn-blue" style="width:100%">Create Shared Code</button>
+      </div>
+
+      <div class="card" style="padding:20px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#8b5cf6;margin-bottom:10px">Batch</div>
+        <div style="font-size:12px;color:#71717a;margin-bottom:14px">Generate N individual codes</div>
+        <input class="input" placeholder="Number of codes (e.g. 50)" style="margin-bottom:10px">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button class="btn btn-ghost" style="flex:1;font-size:12px">Export CSV</button>
+          <button class="btn btn-ghost" style="flex:1;font-size:12px">Send Emails</button>
+        </div>
+        <button class="btn btn-purple" style="width:100%">Generate Batch</button>
+      </div>
+    </div>
+
+    <div class="card" style="overflow:hidden">
+      <div style="padding:14px 20px;border-bottom:1px solid #27272a;display:flex;align-items:center;justify-content:space-between">
+        <h3 style="margin:0">All Codes</h3>
+        <input class="input" placeholder="Search..." style="width:180px">
+      </div>
+      <table>
+        <thead><tr><th>Code</th><th>Type</th><th>Uses</th><th>Status</th><th>Issued To</th><th></th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="code">ABCD-1234</span></td>
+            <td style="color:#a1a1aa">Individual</td>
+            <td style="color:#52e5ff">0 / 1</td>
+            <td><span class="badge badge-cyan" style="font-size:10px">ACTIVE</span></td>
+            <td style="color:#a1a1aa;font-size:12px">alice@mail.com</td>
+            <td><span style="color:#ef4444;font-size:12px;cursor:pointer">Revoke</span></td>
+          </tr>
+          <tr>
+            <td><span class="code">KLMX-9999</span></td>
+            <td style="color:#a1a1aa">Shared</td>
+            <td style="color:#f59e0b">8 / 10</td>
+            <td><span class="badge badge-cyan" style="font-size:10px">ACTIVE</span></td>
+            <td style="color:#a1a1aa;font-size:12px">KOL Group A</td>
+            <td><span style="color:#ef4444;font-size:12px;cursor:pointer">Revoke</span></td>
+          </tr>
+          <tr>
+            <td><span class="code" style="opacity:0.4">ZZZZ-0001</span></td>
+            <td style="color:#a1a1aa">Individual</td>
+            <td style="color:#71717a">1 / 1</td>
+            <td><span class="badge badge-muted" style="font-size:10px">EXHAUSTED</span></td>
+            <td style="color:#a1a1aa;font-size:12px">bob@mail.com</td>
+            <td><span style="color:#3f3f46;font-size:12px">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 5. EMAIL TEMPLATES ── -->
+  <div class="section">
+    <div class="page-label">5 · Email Templates (via Resend)</div>
+    <div class="grid-2">
+      <div>
+        <div class="label" style="margin-bottom:10px">ACCESS_RELEASE</div>
+        <div class="email-card">
+          <div style="text-align:center;margin-bottom:20px">
+            <div class="email-logo"></div>
+            <div style="font-size:18px;font-weight:700;margin-bottom:4px">You're in! <span class="gradient-text">Welcome.</span></div>
+            <div style="font-size:12px;color:#71717a">Your Tasmil Finance access code is ready</div>
+          </div>
+          <div class="code-big" style="margin-bottom:16px">
+            <div style="font-size:10px;letter-spacing:2px;color:#a1a1aa;margin-bottom:10px;text-transform:uppercase">Access Code</div>
+            <span>ABCD-1234</span>
+          </div>
+          <div style="background:linear-gradient(135deg,#52e5ff,#36b1ff);border-radius:8px;padding:12px;text-align:center;margin-bottom:12px">
+            <span style="color:#09090b;font-weight:700;font-size:14px">Enter Tasmil Finance →</span>
+          </div>
+          <div style="font-size:11px;color:#71717a;text-align:center">Valid 30 days · 1-time use only</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="label" style="margin-bottom:10px">WAITLIST_CONFIRMATION</div>
+        <div class="email-card">
+          <div style="text-align:center;margin-bottom:20px">
+            <div class="email-logo"></div>
+            <div style="font-size:18px;font-weight:700;margin-bottom:4px"><span class="gradient-text">You're on the list!</span></div>
+            <div style="font-size:12px;color:#71717a">Tasmil Finance — Early Access</div>
+          </div>
+          <div style="background:#27272a;border-radius:10px;padding:16px;margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid #3f3f46">
+              <span style="font-size:13px;color:#a1a1aa">Queue position</span>
+              <span style="font-size:13px;font-weight:700;color:#52e5ff">#247</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid #3f3f46">
+              <span style="font-size:13px;color:#a1a1aa">Referral code</span>
+              <span style="font-size:13px;font-weight:700;color:#10b981">REF-XY8Z</span>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span style="font-size:13px;color:#a1a1aa">Total waitlist</span>
+              <span style="font-size:13px;font-weight:700">1,247</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#71717a;text-align:center;line-height:1.6">Share your referral code to move up the queue.<br>We'll email you when your access code is ready.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── 6. REDEMPTION FLOW ── -->
+  <div class="section">
+    <div class="page-label">6 · Access Code Redemption Flow</div>
+    <div class="card" style="padding:28px">
+      <div class="flow">
+        <div class="flow-node">
+          <div class="flow-circle">1</div>
+          <div class="flow-text">Screen 3<br>Enter code</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-node">
+          <div class="flow-circle">2</div>
+          <div class="flow-text">POST /waitlist<br>/redeem</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-node">
+          <div class="flow-circle">3</div>
+          <div class="flow-text">Validate +<br>increment uses</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-node">
+          <div class="flow-circle">4</div>
+          <div class="flow-text">Set cookie<br>tasmil_access</div>
+        </div>
+        <div class="flow-line"></div>
+        <div class="flow-node">
+          <div class="flow-circle done">✓</div>
+          <div class="flow-text" style="color:#10b981">Redirect<br>into app</div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:24px">
+        <div style="background:#27272a;border-radius:8px;padding:14px;font-size:12px">
+          <div style="color:#f59e0b;margin-bottom:8px;font-weight:600">Error cases</div>
+          <div style="color:#a1a1aa;line-height:1.9">
+            • Code not found → 404<br>
+            • Code EXHAUSTED → 409<br>
+            • Code REVOKED → 410<br>
+            • Wallet not on waitlist → 403
+          </div>
+        </div>
+        <div style="background:#27272a;border-radius:8px;padding:14px;font-size:12px">
+          <div style="color:#52e5ff;margin-bottom:8px;font-weight:600">Email tracking</div>
+          <div style="color:#a1a1aa;line-height:1.9">
+            • Each send → EmailDispatch record<br>
+            • PENDING → SENT / FAILED<br>
+            • Resend webhook → BOUNCED<br>
+            • Admin sees failed count in dashboard
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
