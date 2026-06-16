@@ -95,11 +95,11 @@
       "notes": "Four proxy routes created in src/app/api/admin/quest-campaigns/. All follow the existing admin API route pattern: extract Bearer token from Authorization header, validate (return 401 if missing), forward fetch request to MAIN backend with token header and original body (for POST/PUT methods), return backend response with same status code. Catch fetch errors → return 503. Routes created: (1) route.ts — GET/POST /api/admin/quest-campaigns, (2) [id]/route.ts — GET/PUT/DELETE /api/admin/quest-campaigns/{id}, (3) [id]/tasks/route.ts — POST /api/admin/quest-campaigns/{id}/tasks, (4) [id]/tasks/[taskId]/route.ts — PUT/DELETE /api/admin/quest-campaigns/{id}/tasks/{taskId}. All use getServerBackendBaseUrl() matching existing admin proxy pattern from waitlist endpoints. pnpm type-check passes (pre-existing unrelated error in farming test). Commit b6023b1 on deploy/staging."
     },
     "SPRINT2_PHASE_12_QUEST_CAMPAIGNS_LIST": {
-      "status": "pending",
-      "completedAt": null,
+      "status": "completed",
+      "completedAt": "2026-06-17",
       "description": "Create src/app/admin/(app)/quest-campaigns/page.tsx. Table columns: Name, Backend badge (MAIN/QUEST), Status, Tasks count, Period. Filter: All | Main | Quest tabs. Search input. + New Campaign dropdown (Main System / Quest System). Create modal with form. Row click → navigate to /admin/quest-campaigns/[id]. Create hook file src/features/admin/hooks/use-admin-quest-campaigns.ts with useQuestCampaigns, useCreateQuestCampaign.",
       "validation": "pnpm type-check passes. Page renders at /admin/quest-campaigns.",
-      "notes": null
+      "notes": "Hooks file created at src/features/admin/hooks/use-admin-quest-campaigns.ts with useQuestCampaigns, useQuestCampaignDetail, useCreateQuestCampaign, useUpdateQuestCampaign, useDeleteQuestCampaign, useAddQuestTask, useUpdateQuestTask, useDeleteQuestTask. All use adminFetch utility and useAdminAuthStore for token-gating. Page created at src/app/admin/(app)/quest-campaigns/page.tsx with table (Name, Protocol, Category, Tasks, Status, Period), search input, and CreateCampaignModal. pnpm type-check passes (one pre-existing unrelated error in farming test only)."
     },
     "SPRINT2_PHASE_13_QUEST_CAMPAIGN_DETAIL": {
       "status": "pending",
