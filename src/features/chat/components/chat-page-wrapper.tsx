@@ -1,6 +1,7 @@
 "use client";
 
 import { useWallet } from "@/shared/context/wallet-context";
+import { useAuthStore } from "@/store/use-auth";
 import { ChatProvider } from "../providers";
 import { ChatAuthState } from "./chat-auth-state";
 import { ChatClient } from "./chat-client";
@@ -11,10 +12,15 @@ interface ChatPageWrapperProps {
 }
 
 export function ChatPageWrapper({ agentId, chatId }: ChatPageWrapperProps) {
-  const { isConnected, connectWalletOnly } = useWallet();
+  const { isConnected, connectWalletOnly, forceReauth } = useWallet();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   if (!isConnected) {
     return <ChatAuthState mode="disconnected" onConnect={() => void connectWalletOnly()} />;
+  }
+
+  if (!isAuthenticated) {
+    return <ChatAuthState mode="session-invalid" onReconnect={() => void forceReauth()} />;
   }
 
   const initialThreadId = chatId === "new" ? undefined : chatId;

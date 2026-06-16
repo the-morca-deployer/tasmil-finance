@@ -41,7 +41,12 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [
           { key: "Cache-Control", value: "no-transform" },
-          { key: "X-Frame-Options", value: "DENY" },
+          // Replaces X-Frame-Options: DENY — allows quest frontend to embed pages
+          // for visit task tracking. Set QUEST_FRONTEND_URL in .env for production.
+          {
+            key: "Content-Security-Policy",
+            value: `frame-ancestors 'self' ${process.env.QUEST_FRONTEND_URL || "http://localhost:3001"}`,
+          },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
@@ -100,9 +105,13 @@ const nextConfig: NextConfig = {
     config.watchOptions = {
       ...config.watchOptions,
       ignored: [
-        ...(Array.isArray(config.watchOptions?.ignored) ? config.watchOptions.ignored : config.watchOptions?.ignored ? [config.watchOptions.ignored] : []),
-        '**/e2e/test-results/**',
-        '**/node_modules/**',
+        ...(Array.isArray(config.watchOptions?.ignored)
+          ? config.watchOptions.ignored
+          : config.watchOptions?.ignored
+            ? [config.watchOptions.ignored]
+            : []),
+        "**/e2e/test-results/**",
+        "**/node_modules/**",
       ],
     };
 

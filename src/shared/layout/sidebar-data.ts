@@ -6,6 +6,7 @@ import {
   ListChecks,
   Mail,
   Tractor,
+  Trophy,
   Wallet,
 } from "lucide-react";
 
@@ -145,6 +146,10 @@ export const adminSidebarData: SidebarData = {
         { title: "Access Codes", url: "/admin/codes", icon: KeyRound },
         { title: "Campaigns", url: "/admin/campaigns", icon: Mail },
       ],
+    },
+    {
+      title: "Quests",
+      items: [{ title: "Quest Wallets", url: "/admin/quests", icon: Trophy }],
     },
   ],
 };

@@ -14,8 +14,8 @@ import {
   YAxis,
 } from "recharts";
 import { useAdminDashboard } from "@/features/admin-whitelist/hooks/use-admin-dashboard";
+import { type QuestStats, useQuestStats } from "@/features/admin-whitelist/hooks/use-quest-stats";
 import { useRegistrationStats } from "@/features/admin-whitelist/hooks/use-registration-stats";
-import { useQuestStats, type QuestStats } from "@/features/admin-whitelist/hooks/use-quest-stats";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button-v2";
 import { Card, CardContent } from "@/shared/ui/card";
@@ -631,9 +631,21 @@ function QuestStatsSection({ data }: { data: QuestStats }) {
         Quest Performance
       </h2>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <KpiCard label="Quest Wallets" value={data.questWallets.toLocaleString()} sub="connected to quest app" />
-        <KpiCard label="Main App Wallets" value={data.mainAppWallets.toLocaleString()} sub="connected to tasmil-finance" />
-        <KpiCard label="Onchain Completers" value={data.onchainCompleters.toLocaleString()} sub="≥1 onchain task verified" />
+        <KpiCard
+          label="Quest Wallets"
+          value={data.questWallets.toLocaleString()}
+          sub="connected to quest app"
+        />
+        <KpiCard
+          label="Main App Wallets"
+          value={data.mainAppWallets.toLocaleString()}
+          sub="connected to tasmil-finance"
+        />
+        <KpiCard
+          label="Onchain Completers"
+          value={data.onchainCompleters.toLocaleString()}
+          sub="≥1 onchain task verified"
+        />
         <KpiCard
           label="Full Completers"
           value={data.fullOnchainCompleters.toLocaleString()}

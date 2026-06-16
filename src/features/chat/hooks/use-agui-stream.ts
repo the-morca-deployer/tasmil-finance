@@ -15,6 +15,7 @@ import type { Message as AguiMessage, CustomEvent } from "@ag-ui/core";
 import type { Message } from "@langchain/langgraph-sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useAuthStore } from "@/store/use-auth";
 import type { StreamContextType } from "../providers/stream-provider";
 import type { StateType } from "../types";
 
@@ -271,7 +272,12 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
       options?: Record<string, unknown>
     ) => {
       if (!config.defaultHeaders.Authorization) {
-        setError(new Error("Not authenticated — please reconnect your wallet."));
+        if (typeof window !== "undefined") {
+          const fresh = !useAuthStore.getState().isTokenExpired();
+          window.dispatchEvent(
+            new window.CustomEvent("auth:session-invalid", { detail: { fresh, url: "chat-submit" } })
+          );
+        }
         return;
       }
       setError(undefined);

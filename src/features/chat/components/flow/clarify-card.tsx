@@ -124,7 +124,7 @@ function MultiClarifyCardStepper({
     if (contentRef.current) {
       setContentHeight(contentRef.current.scrollHeight);
     }
-  }, []);
+  }, [step]);
 
   const setAnswer = useCallback((fieldName: string, value: unknown) => {
     setAnswers((prev) => ({ ...prev, [fieldName]: value }));
@@ -169,7 +169,9 @@ function MultiClarifyCardStepper({
         className="overflow-hidden transition-[height] duration-250 ease-in-out"
       >
         <div ref={contentRef}>
-          {current.input_type === "select" && current.suggestions ? (
+          {current.input_type === "select" &&
+          current.suggestions &&
+          current.suggestions.length > 0 ? (
             <div className="flex flex-col">
               {current.suggestions.map((s, i) => (
                 <OptionRow
@@ -188,6 +190,10 @@ function MultiClarifyCardStepper({
                   }
                 />
               ))}
+            </div>
+          ) : current.input_type === "select" ? (
+            <div className="border-border border-t px-4 py-3 text-[12px] text-muted-foreground">
+              No options available. Please try again.
             </div>
           ) : current.input_type === "text" ? (
             <div className="border-border border-t px-4 py-3">
