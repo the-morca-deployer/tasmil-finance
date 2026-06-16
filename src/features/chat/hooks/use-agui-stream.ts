@@ -275,7 +275,9 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
         if (typeof window !== "undefined") {
           const fresh = !useAuthStore.getState().isTokenExpired();
           window.dispatchEvent(
-            new window.CustomEvent("auth:session-invalid", { detail: { fresh, url: "chat-submit" } })
+            new window.CustomEvent("auth:session-invalid", {
+              detail: { fresh, url: "chat-submit" },
+            })
           );
         }
         return;

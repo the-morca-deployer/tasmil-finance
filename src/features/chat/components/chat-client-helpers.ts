@@ -2,6 +2,17 @@ import type { Message } from "@langchain/langgraph-sdk";
 
 export const DO_NOT_RENDER_PREFIXES = ["__do_not_render__", "__hidden__"];
 
+// Flow tools that produce UI cards — never filter mid-stream even if tool result
+// hasn't arrived yet (it arrives milliseconds later in the same SSE stream).
+const FLOW_CARD_TOOLS = new Set([
+  "flow_clarify",
+  "flow_compose_plan",
+  "flow_execute_plan",
+  "flow_plan_strategy",
+  "flow_plan_preview",
+  "flow_compose_and_execute",
+]);
+
 export const getContentLength = (content: any): number => {
   if (typeof content === "string") return content.length;
   if (Array.isArray(content)) return content.length;
@@ -74,6 +85,11 @@ export const shouldFilterMessage = (
       return false; // Keep — tool UI needs this message
     }
 
+    // Never filter flow card tools mid-stream — the tool result arrives
+    // milliseconds later; filtering now causes the card to miss the result.
+    const hasFlowCardTool = aiMsg.tool_calls.some((tc: any) => FLOW_CARD_TOOLS.has(tc.name));
+    if (hasFlowCardTool) return false;
+
     // Only filter supervisor-internal tool calls (call_*_agent) without results
     const allAreSupervisorCalls = aiMsg.tool_calls.every(
       (tc: any) => tc.name?.startsWith("call_") && tc.name?.endsWith("_agent")
@@ -130,8 +146,10 @@ export const mergeMessagesWithCache = (cached: Message[], incoming: Message[]): 
       const newContentLength = getContentLength(newMsg.content);
       const cachedContentLength = getContentLength(cachedMsg.content);
 
-      // Never replace non-empty content with empty content (prevents loss during new stream)
-      if (newContentLength === 0 && cachedContentLength > 0) {
+      // Never replace non-empty content with empty content UNLESS the new message
+      // carries tool_calls (flow tool AI messages have empty content by design).
+      const newHasToolCalls = (newMsg as any).tool_calls?.length > 0;
+      if (newContentLength === 0 && cachedContentLength > 0 && !newHasToolCalls) {
         return;
       }
 
@@ -163,11 +181,15 @@ export const mergeMessagesWithCache = (cached: Message[], incoming: Message[]): 
                     .map((c: any) => c.text ?? "")
                     .join("")
                 : "";
-          // Only restore tool_calls when the new content is an extension of
-          // the cached content (prefix match = streaming append).  If the
-          // content was completely replaced, the backend middleware
-          // intentionally stripped the tool_calls.
-          if (cachedContentStr && newContentStr.startsWith(cachedContentStr)) {
+          // Restore tool_calls when:
+          // 1. New content starts with cached content (streaming append dropped them temporarily)
+          // 2. Both are empty — Guard 4 middleware replaces the tool-call-only AI message with
+          //    content="" to prevent re-execution, but the frontend still needs tool_calls to
+          //    keep the TX card visible.  When Guard 1 (flow_clarify) intentionally strips
+          //    tool_calls, the replacement content is non-empty ("Please select an option..."),
+          //    so that case is excluded by the bothEmpty check.
+          const bothEmpty = !cachedContentStr && !newContentStr;
+          if (bothEmpty || (cachedContentStr && newContentStr.startsWith(cachedContentStr))) {
             (newMsg as any).tool_calls = cachedToolCalls;
           }
         }

@@ -45,7 +45,7 @@ const nextConfig: NextConfig = {
           // for visit task tracking. Set QUEST_FRONTEND_URL in .env for production.
           {
             key: "Content-Security-Policy",
-            value: `frame-ancestors 'self' ${process.env.QUEST_FRONTEND_URL || "http://localhost:3001"}`,
+            value: "frame-ancestors 'self' https://quest.tasmil-finance.xyz",
           },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
