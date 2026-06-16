@@ -11,6 +11,7 @@ export interface QuestCampaign {
   title: string;
   protocol: string;
   category: string;
+  description: string | null;
   isActive: boolean;
   startAt: string | null;
   endAt: string | null;
