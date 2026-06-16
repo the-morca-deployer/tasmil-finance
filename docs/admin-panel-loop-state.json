@@ -74,11 +74,11 @@
       "notes": "Added X to lucide imports, renamed title to Email Campaigns, added drawerCampaign state, added CampaignDetailDrawer component, updated NewCampaignForm with sendMode/emailList state and radio UI, made table rows clickable. Also updated useSendCampaign hook mutation type to accept optional targetEmails field. Pre-existing unrelated TS error in performance-section.test.tsx not caused by this change."
     },
     "SPRINT1_PHASE_9_SIDEBAR": {
-      "status": "pending",
-      "completedAt": null,
+      "status": "completed",
+      "completedAt": "2026-06-17T23:59:00.000Z",
       "description": "Update src/shared/layout/sidebar-data.ts adminSidebarData.navGroups: rename Campaigns → Email Campaigns, add Quest Management section with Quest Campaigns (/admin/quest-campaigns) and Quest Wallets (/admin/quests), add Analytics section (/admin/analytics). Add Wallet and Trophy icons from lucide-react imports.",
       "validation": "pnpm type-check + pnpm lint pass. Sidebar shows new sections.",
-      "notes": null
+      "notes": "Updated adminSidebarData.navGroups: (1) Renamed Campaigns item to Email Campaigns in Waitlist section. (2) Renamed Quests group title to Quest Management. (3) Added Quest Campaigns item with Trophy icon to Quest Management. (4) Added Analytics section with Analytics item using ArrowLeftRight icon. All required lucide icons (Wallet, Trophy, ArrowLeftRight) already imported. Biome formatting applied to Analytics item. Commit 194ea31 on deploy/staging. pnpm lint passes with no errors."
     },
     "SPRINT2_PHASE_10_BACKEND_QUEST_CRUD": {
       "status": "pending",
