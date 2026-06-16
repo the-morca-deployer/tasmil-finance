@@ -14,6 +14,7 @@ import { createContext, type ReactNode, useContext, useEffect, useMemo, useRef }
 import { toast } from "sonner";
 import { buildAiIdentityHeaders } from "@/lib/ai-auth";
 import { getApiKey } from "@/lib/api-key";
+import backendAxios from "@/lib/kubb-backend";
 import { getBrowserAiBaseUrl } from "@/lib/runtime-urls";
 import { useWallet } from "@/shared/context/wallet-context";
 import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
@@ -112,7 +113,11 @@ const StreamSession = ({
     threadId: threadId ?? null,
     defaultHeaders,
     fetchStateHistory: true,
-    onFinish: () => {},
+    onFinish: () => {
+      backendAxios
+        .post("/api/chat-usage/deduct", { runId: `${threadId ?? "unknown"}:${Date.now()}` })
+        .catch(() => {});
+    },
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev: any) => {

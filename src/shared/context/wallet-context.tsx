@@ -515,6 +515,22 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         });
 
         toast.success("Wallet connected successfully!");
+
+        // Auto-complete quest tasks for wallet_connect + sign_message
+        const apiBase = getBrowserBackendBaseUrl();
+        void Promise.all([
+          fetch(`${apiBase}/api/quest/complete-by-action`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+            body: JSON.stringify({ action: "wallet_connect" }),
+          }),
+          fetch(`${apiBase}/api/quest/complete-by-action`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+            body: JSON.stringify({ action: "sign_message" }),
+          }),
+        ]).catch(() => {});
+
         authInProgressRef.current = false;
         setLoading(false);
         setSigning(false);

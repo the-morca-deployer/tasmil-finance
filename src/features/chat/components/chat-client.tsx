@@ -437,6 +437,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         // pollute backend state with do-not-render messages.
         messages: [newHumanMessage],
         ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
+        charge_usage: true,
       },
       {
         streamMode: ["values", "custom"],
@@ -485,6 +486,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       {
         messages: [newHumanMessage],
         ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
+        charge_usage: true,
       },
       {
         // Use parentCheckpoint directly (not ?? null). The SDK treats null as "no checkpoint"
@@ -555,6 +557,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         // Only send the new human message — same rationale as handleSubmit.
         messages: [newHumanMessage],
         ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
+        charge_usage: true,
       },
       {
         streamMode: ["values", "custom"],

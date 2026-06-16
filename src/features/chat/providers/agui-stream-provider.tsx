@@ -14,6 +14,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { creditQueryKey } from "@/features/credits/use-credits";
 import { buildAiIdentityHeaders } from "@/lib/ai-auth";
+import backendAxios from "@/lib/kubb-backend";
 import { getBrowserAiBaseUrl } from "@/lib/runtime-urls";
 import { useWallet } from "@/shared/context/wallet-context";
 import { LangGraphLogoSVG } from "@/shared/icons/langgraph";
@@ -122,6 +123,14 @@ function AguiStreamSession({
         () => queryClient.invalidateQueries({ queryKey: creditQueryKey(null) }),
         800
       );
+
+      // Deduct one chat turn on successful run completion.
+      if (wasLoading && !isLoadingNow && !errorAppeared) {
+        backendAxios
+          .post("/api/chat-usage/deduct", { runId: `${threadId ?? "unknown"}:${Date.now()}` })
+          .catch(() => {});
+      }
+
       return () => clearTimeout(t);
     }
     return undefined;
