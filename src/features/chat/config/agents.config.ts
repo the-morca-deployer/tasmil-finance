@@ -23,24 +23,9 @@ export const AGENTS: Record<string, AgentConfig> = {
     supportedChains: ["Stellar"],
     testnetAvailable: true,
     suggestions: [
-      // ── Beginner: earn money ────────────────────────────
-      "I have $100, what can I do?",
-      "How can I grow my savings?",
-      "I want to earn passive income",
-      "Where can I get the best returns?",
-      "Start with just $5",
-      // ── Beginner: safety + learn ─────────────────────────
-      "Show me the safest option",
-      "What is yield farming? Simple explain",
-      "How do I get started? Step by step",
-      "Is it safe to put money here?",
-      "What can this platform do for me?",
-      // ── Multi-step actions ───────────────────────────────
-      "Swap 200 XLM to USDC then earn yield",
-      "Bridge 100 USDC from Ethereum and put it to work",
-      "Swap half my XLM to USDC and earn on both",
-      "Find the highest yield and auto-deposit $50",
-      "Convert all my USDC to XLM then stake",
+      "supply 0.1 XLM to Fixed Pool in Blend",
+      "swap 0.1 XLM to USDC via soroswap",
+      "swap 0.1 XLM to AQUA via aquarius",
     ],
     capabilities: [
       "swap",
