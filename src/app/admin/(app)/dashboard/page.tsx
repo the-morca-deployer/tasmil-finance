@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import { useAdminDashboard } from "@/features/admin-whitelist/hooks/use-admin-dashboard";
 import { useRegistrationStats } from "@/features/admin-whitelist/hooks/use-registration-stats";
+import { useQuestStats, type QuestStats } from "@/features/admin-whitelist/hooks/use-quest-stats";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button-v2";
 import { Card, CardContent } from "@/shared/ui/card";
@@ -620,7 +621,57 @@ function CampaignsSection({
   );
 }
 
-// u2500u2500 Error state u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500
+// ── Quest Stats ─────────────────────────────────────────────────────────────
+
+function QuestStatsSection({ data }: { data: QuestStats }) {
+  const { volumeByProtocol: vol, topDepositors } = data;
+  return (
+    <section className="space-y-4">
+      <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+        Quest Performance
+      </h2>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <KpiCard label="Quest Wallets" value={data.questWallets.toLocaleString()} sub="connected to quest app" />
+        <KpiCard label="Main App Wallets" value={data.mainAppWallets.toLocaleString()} sub="connected to tasmil-finance" />
+        <KpiCard label="Onchain Completers" value={data.onchainCompleters.toLocaleString()} sub="≥1 onchain task verified" />
+        <KpiCard
+          label="Full Completers"
+          value={data.fullOnchainCompleters.toLocaleString()}
+          sub="all 4 protocols interacted"
+          badge={
+            data.onchainCompleters > 0
+              ? {
+                  label: `${Math.round((data.fullOnchainCompleters / data.onchainCompleters) * 100)}%`,
+                  variant: "green" as const,
+                }
+              : undefined
+          }
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <MiniStat label="Vault (DeFindex)" value={`$${vol.defindex.toFixed(0)}`} />
+        <MiniStat label="Blend" value={`$${vol.blend.toFixed(0)}`} />
+        <MiniStat label="SoroSwap" value={`$${vol.soroswap.toFixed(0)}`} />
+        <MiniStat label="Aquarius" value={`$${vol.aquarius.toFixed(0)}`} />
+      </div>
+      {topDepositors.length > 0 && (
+        <div className="rounded border p-4 space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">Top Depositors</p>
+          {topDepositors.map((d, i) => (
+            <div key={d.walletAddress} className="flex justify-between text-sm">
+              <span className="font-mono text-xs">
+                {i + 1}. {d.walletAddress.slice(0, 6)}…{d.walletAddress.slice(-4)}
+              </span>
+              <span className="font-semibold">${d.totalUsd.toFixed(2)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ── Error state ───────────────────────────────────────────────────────────────
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
@@ -641,6 +692,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 export default function AdminDashboardPage() {
   const { data: stats, isLoading, isFetching, isError, refetch } = useAdminDashboard();
   const { data: registrationStats } = useRegistrationStats(30);
+  const questStats = useQuestStats();
 
   if (isLoading || isFetching) {
     return (
@@ -669,6 +721,8 @@ export default function AdminDashboardPage() {
       </div>
 
       <KpiRow walletStats={walletStats} emailDispatches={emailDispatches} />
+
+      {questStats.data && <QuestStatsSection data={questStats.data} />}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <GrowthChart data={registrationStats ?? []} />
