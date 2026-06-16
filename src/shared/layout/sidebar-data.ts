@@ -144,12 +144,19 @@ export const adminSidebarData: SidebarData = {
       items: [
         { title: "Waitlist", url: "/admin/waitlist", icon: ListChecks },
         { title: "Access Codes", url: "/admin/codes", icon: KeyRound },
-        { title: "Campaigns", url: "/admin/campaigns", icon: Mail },
+        { title: "Email Campaigns", url: "/admin/campaigns", icon: Mail },
       ],
     },
     {
-      title: "Quests",
-      items: [{ title: "Quest Wallets", url: "/admin/quests", icon: Trophy }],
+      title: "Quest Management",
+      items: [
+        { title: "Quest Campaigns", url: "/admin/quest-campaigns", icon: Trophy },
+        { title: "Quest Wallets", url: "/admin/quests", icon: Wallet },
+      ],
+    },
+    {
+      title: "Analytics",
+      items: [{ title: "Analytics", url: "/admin/analytics", icon: ArrowLeftRight }],
     },
   ],
 };
