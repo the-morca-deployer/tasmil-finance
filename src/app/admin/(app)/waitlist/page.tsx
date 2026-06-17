@@ -388,7 +388,7 @@ export default function WaitlistPage() {
                     <div
                       style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}
                     >
-                      {e.email && e.status !== "CONFIRMED" && (
+                      {e.email && e.status === "PENDING" && (
                         <button
                           type="button"
                           title="Send Access Email"
