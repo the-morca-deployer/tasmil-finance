@@ -177,9 +177,11 @@ export default function WaitlistPage() {
     });
   }
 
+  const pendingItems = items.filter((e) => e.status === "PENDING");
+
   function toggleAll() {
-    if (selected.size === items.length) setSelected(new Set());
-    else setSelected(new Set(items.map((e) => e.id)));
+    if (selected.size === pendingItems.length && pendingItems.length > 0) setSelected(new Set());
+    else setSelected(new Set(pendingItems.map((e) => e.id)));
   }
 
   async function handleBulkSend() {
@@ -344,9 +346,10 @@ export default function WaitlistPage() {
               <th style={{ padding: "8px 10px", width: 32 }}>
                 <input
                   type="checkbox"
-                  aria-label="Select all"
-                  checked={selected.size === items.length && items.length > 0}
+                  aria-label="Select all pending"
+                  checked={selected.size === pendingItems.length && pendingItems.length > 0}
                   onChange={toggleAll}
+                  disabled={pendingItems.length === 0}
                 />
               </th>
               <th style={{ padding: "8px 10px" }}>Wallet</th>
@@ -367,6 +370,7 @@ export default function WaitlistPage() {
                       aria-label={`Select ${e.id}`}
                       checked={selected.has(e.id)}
                       onChange={() => toggleSelect(e.id)}
+                      disabled={e.status !== "PENDING"}
                     />
                   </td>
                   <td style={{ padding: "10px", fontFamily: "monospace" }}>
