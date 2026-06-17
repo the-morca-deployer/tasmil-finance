@@ -5,17 +5,23 @@ const BACKEND_URL = getServerBackendBaseUrl();
 
 function getAdminToken(request: NextRequest): string | null {
   const authHeader = request.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) return authHeader.slice(7);
+  if (authHeader?.startsWith("Bearer ")) {
+    return authHeader.slice(7);
+  }
   return null;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token = getAdminToken(request);
-  if (!token) return NextResponse.json({ message: "No admin token" }, { status: 401 });
+  if (!token) {
+    return NextResponse.json({ message: "No admin token" }, { status: 401 });
+  }
+
+  const { id } = await params;
 
   try {
     const body = await request.json();
-    const response = await fetch(`${BACKEND_URL}/api/admin/codes/generate`, {
+    const response = await fetch(`${BACKEND_URL}/api/admin/quest-campaigns/${id}/tasks`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -23,6 +29,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify(body),
     });
+
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch {

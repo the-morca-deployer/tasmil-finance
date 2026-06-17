@@ -1,9 +1,8 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Copy, Download, Loader2 } from "lucide-react";
+import { Copy, Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAdminQuestWallets } from "@/features/admin/hooks/use-admin-quest-wallets";
-import { TIER_STYLES, tierFromVolume } from "@/features/quest/lib/tier";
 
 const LIMIT = 50;
 
@@ -11,12 +10,19 @@ function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text).catch(() => null);
 }
 
-function exportCsv(rows: { rank: number; walletAddress: string; volumeUsd: number }[]) {
-  const header = "rank,wallet_address,volume_usd,tier";
-  const lines = rows.map((r) => {
-    const tier = tierFromVolume(r.volumeUsd).toUpperCase();
-    return `${r.rank},${r.walletAddress},${r.volumeUsd},${tier}`;
-  });
+function exportCsv(
+  rows: {
+    rank: number;
+    walletAddress: string;
+    username: string | null;
+    totalPoints: number;
+    tier: string | null;
+  }[]
+) {
+  const header = "rank,wallet_address,username,total_points,tier";
+  const lines = rows.map(
+    (r) => `${r.rank},${r.walletAddress},${r.username ?? ""},${r.totalPoints},${r.tier ?? ""}`
+  );
   const blob = new Blob([[header, ...lines].join("\n")], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -27,24 +33,19 @@ function exportCsv(rows: { rank: number; walletAddress: string; volumeUsd: numbe
 }
 
 export default function AdminQuestWalletsPage() {
-  const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      setSearch(searchInput);
-      setPage(1);
-    }, 350);
+    const t = setTimeout(() => setSearch(searchInput), 350);
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  const { data, isLoading, isError, error, refetch } = useAdminQuestWallets(page, LIMIT, search);
+  const { data, isLoading, isError, error, refetch } = useAdminQuestWallets(LIMIT, search);
 
   const entries = data?.entries ?? [];
   const total = data?.total ?? 0;
-  const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 
   function handleCopy(addr: string) {
     copyToClipboard(addr);
@@ -113,80 +114,68 @@ export default function AdminQuestWalletsPage() {
             <tr style={{ textAlign: "left", color: "rgba(245,248,252,0.4)" }}>
               <th style={{ padding: "8px 10px" }}>#</th>
               <th style={{ padding: "8px 10px" }}>Wallet</th>
+              <th style={{ padding: "8px 10px" }}>Username</th>
               <th style={{ padding: "8px 10px" }}>Tier</th>
-              <th style={{ padding: "8px 10px", textAlign: "right" }}>Volume (USD)</th>
+              <th style={{ padding: "8px 10px", textAlign: "right" }}>Points</th>
             </tr>
           </thead>
           <tbody>
-            {entries.map((e) => {
-              const tier = tierFromVolume(e.volumeUsd);
-              const style = TIER_STYLES[tier];
-              return (
-                <tr key={e.walletAddress} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                  <td style={{ padding: "10px", color: "rgba(245,248,252,0.4)" }}>{e.rank}</td>
-                  <td style={{ padding: "10px", fontFamily: "monospace" }}>
-                    <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      {e.walletAddress}
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(e.walletAddress)}
-                        title="Copy address"
-                        style={{
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          color: copied === e.walletAddress ? "#4ADE80" : "rgba(245,248,252,0.4)",
-                          padding: 2,
-                        }}
-                      >
-                        <Copy size={13} />
-                      </button>
-                    </span>
-                  </td>
-                  <td style={{ padding: "10px" }}>
+            {entries.map((e) => (
+              <tr key={e.walletAddress} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <td style={{ padding: "10px", color: "rgba(245,248,252,0.4)" }}>{e.rank}</td>
+                <td style={{ padding: "10px", fontFamily: "monospace" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {e.walletAddress.length > 12
+                      ? `${e.walletAddress.slice(0, 6)}…${e.walletAddress.slice(-6)}`
+                      : e.walletAddress}
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(e.walletAddress)}
+                      title="Copy address"
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        color: copied === e.walletAddress ? "#4ADE80" : "rgba(245,248,252,0.4)",
+                        padding: 2,
+                      }}
+                    >
+                      <Copy size={13} />
+                    </button>
+                  </span>
+                </td>
+                <td style={{ padding: "10px", color: "rgba(245,248,252,0.6)", fontSize: 12 }}>
+                  {e.username ?? "—"}
+                </td>
+                <td style={{ padding: "10px" }}>
+                  {e.tier ? (
                     <span
                       style={{
                         padding: "3px 10px",
                         borderRadius: 20,
                         fontSize: 11,
                         fontWeight: 600,
+                        background: "rgba(99,102,241,0.15)",
+                        color: "#a5b4fc",
                       }}
-                      className={`${style.bg} ${style.text}`}
                     >
-                      {style.label}
+                      {e.tier}
                     </span>
-                  </td>
-                  <td style={{ padding: "10px", textAlign: "right" }}>
-                    $
-                    {e.volumeUsd.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </td>
-                </tr>
-              );
-            })}
+                  ) : (
+                    <span style={{ color: "rgba(245,248,252,0.3)" }}>—</span>
+                  )}
+                </td>
+                <td style={{ padding: "10px", textAlign: "right", fontWeight: 600 }}>
+                  {e.totalPoints.toLocaleString()}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       )}
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          gap: 10,
-        }}
-      >
-        <span style={{ fontSize: 12, color: "rgba(245,248,252,0.4)" }}>
-          Page {page} / {totalPages} · {total} total wallets
-        </span>
-        <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-          <ChevronLeft size={16} />
-        </button>
-        <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-          <ChevronRight size={16} />
-        </button>
+      <div style={{ fontSize: 12, color: "rgba(245,248,252,0.4)", textAlign: "right" }}>
+        {total} total wallets
       </div>
     </div>
   );

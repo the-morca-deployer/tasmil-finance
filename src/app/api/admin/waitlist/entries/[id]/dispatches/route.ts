@@ -5,20 +5,28 @@ const BACKEND_URL = getServerBackendBaseUrl();
 
 function getAdminToken(request: NextRequest): string | null {
   const authHeader = request.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) return authHeader.slice(7);
+  if (authHeader?.startsWith("Bearer ")) {
+    return authHeader.slice(7);
+  }
   return null;
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token = getAdminToken(request);
-  if (!token) return NextResponse.json({ message: "No admin token" }, { status: 401 });
+  if (!token) {
+    return NextResponse.json({ message: "No admin token" }, { status: 401 });
+  }
 
-  const days = new URL(request.url).searchParams.get("days") ?? "30";
+  const { id } = await params;
 
   try {
-    const response = await fetch(`${BACKEND_URL}/api/admin/stats/registrations?days=${days}`, {
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    const response = await fetch(`${BACKEND_URL}/api/admin/waitlist/entries/${id}/dispatches`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
+
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch {
