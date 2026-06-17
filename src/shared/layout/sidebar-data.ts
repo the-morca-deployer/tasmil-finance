@@ -154,9 +154,5 @@ export const adminSidebarData: SidebarData = {
         { title: "Quest Wallets", url: "/admin/quests", icon: Wallet },
       ],
     },
-    {
-      title: "Analytics",
-      items: [{ title: "Analytics", url: "/admin/analytics", icon: ArrowLeftRight }],
-    },
   ],
 };
