@@ -684,8 +684,12 @@ function VolumeChart({ vol }: { vol: QuestStats["volumeByProtocol"] }) {
       <CardContent className="p-6">
         <div className="mb-4 flex items-start justify-between">
           <div>
-            <Typography variant="h3" className="font-semibold text-base">Volume by Protocol</Typography>
-            <Typography variant="p" className="text-muted-foreground text-xs">Total deposits by protocol (USD)</Typography>
+            <Typography variant="h3" className="font-semibold text-base">
+              Volume by Protocol
+            </Typography>
+            <Typography variant="p" className="text-muted-foreground text-xs">
+              Total deposits by protocol (USD)
+            </Typography>
           </div>
           <div className="text-right">
             <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Total</p>

@@ -1,6 +1,6 @@
 "use client";
 
-import { type LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -98,9 +98,7 @@ export function AdminSidebar() {
           <span className="truncate font-medium text-sidebar-foreground text-sm">
             {displayName}
           </span>
-          <span className="truncate text-sidebar-foreground/60 text-xs">
-            {admin?.email ?? ""}
-          </span>
+          <span className="truncate text-sidebar-foreground/60 text-xs">{admin?.email ?? ""}</span>
         </div>
       </div>
     </aside>
