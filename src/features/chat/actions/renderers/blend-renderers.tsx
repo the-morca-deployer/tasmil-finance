@@ -3,9 +3,7 @@
 import { AccountInfoCard } from "@/features/chat/actions/components/stellar/account-info-card";
 import { PoolInfoCard } from "@/features/chat/actions/components/stellar/pool-info-card";
 import type { RendererEntry, SharedRenderProps } from "@/features/chat/lib/tool-renderer-registry";
-import {
-  normalizeAquaPoolsFromMcp,
-} from "@/features/protocols/adapters/aquarius-from-mcp";
+import { normalizeAquaPoolsFromMcp } from "@/features/protocols/adapters/aquarius-from-mcp";
 import {
   normalizeBackstopBalanceFromMcp,
   normalizeBackstopFromMcp,
@@ -16,6 +14,7 @@ import {
   normalizeTxFromMcp,
 } from "@/features/protocols/adapters/from-mcp";
 import { normalizeSoroswapPoolsFromMcp } from "@/features/protocols/adapters/soroswap-from-mcp";
+import { AquaPoolsCard } from "@/features/protocols/cards/aquarius";
 import {
   BlendBackstopBalanceCard,
   BlendBackstopInfoCard,
@@ -25,6 +24,7 @@ import {
   BlendReserveCard,
   BlendTxCard,
 } from "@/features/protocols/cards/blend";
+import { SoroswapPoolsCard } from "@/features/protocols/cards/soroswap";
 
 const BLEND_OPS = [
   { toolName: "blend_deposit", operation: "blend_supply" },
@@ -53,14 +53,10 @@ export const BLEND_RENDERER_ENTRIES: {
         const protocol = (props.args as Record<string, string>)?.protocol;
         if (protocol === "aquarius") {
           const pools = normalizeAquaPoolsFromMcp(props.result);
-          if (pools.length > 0) {
-            return <PoolInfoCard type="pool_discovery" result={props.result} status={props.status} />;
-          }
+          if (pools.length > 0) return <AquaPoolsCard pools={pools} mode="playground" />;
         } else if (protocol === "soroswap") {
           const pools = normalizeSoroswapPoolsFromMcp(props.result);
-          if (pools.length > 0) {
-            return <PoolInfoCard type="pool_discovery" result={props.result} status={props.status} />;
-          }
+          if (pools.length > 0) return <SoroswapPoolsCard pools={pools} mode="playground" />;
         } else {
           const pools = normalizePoolsFromMcp(props.result);
           if (pools.length > 0) return <BlendPoolsCard pools={pools} mode="playground" />;
@@ -76,7 +72,9 @@ export const BLEND_RENDERER_ENTRIES: {
       render: (props: SharedRenderProps) => {
         const pool = normalizePoolFromMcp(props.result);
         if (!pool)
-          return <PoolInfoCard type="blend_pool_info" result={props.result} status={props.status} />;
+          return (
+            <PoolInfoCard type="blend_pool_info" result={props.result} status={props.status} />
+          );
         return <BlendPoolDetailCard pool={pool} mode="playground" />;
       },
     },
