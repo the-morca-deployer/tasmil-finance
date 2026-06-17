@@ -58,4 +58,22 @@ describe("parseFlowResult", () => {
   it("returns null for unparseable string", () => {
     expect(parseFlowResult("not json")).toBeNull();
   });
+
+  it("returns null for JSON string containing an array", () => {
+    expect(parseFlowResult(JSON.stringify([1, 2, 3]))).toBeNull();
+  });
+
+  it("returns null for content string containing an array", () => {
+    expect(parseFlowResult({ content: JSON.stringify([1, 2, 3]) })).toBeNull();
+  });
+
+  it("returns object with 'question' key directly", () => {
+    const obj = { question: "Which pool?" };
+    expect(parseFlowResult(obj)).toBe(obj);
+  });
+
+  it("returns object with 'step' key directly", () => {
+    const obj = { step: 1, description: "do thing" };
+    expect(parseFlowResult(obj)).toBe(obj);
+  });
 });

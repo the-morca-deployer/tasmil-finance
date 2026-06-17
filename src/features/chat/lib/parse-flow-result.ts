@@ -8,16 +8,19 @@ function textFromBlocks(blocks: unknown[]): string | undefined {
 }
 
 export function parseFlowResult(result: unknown): Record<string, unknown> | null {
-  if (!result) return null;
+  if (result == null) return null;
+  if (typeof result === "string" && result.trim() === "") return null;
 
   if (typeof result === "object" && !Array.isArray(result)) {
     const obj = result as Record<string, unknown>;
+    // Objects that already have flow shape are returned directly; content-unwrapping only applies to wrappers without flow keys.
     if (Object.keys(obj).some((k) => FLOW_KEYS.has(k))) return obj;
     if ("content" in obj && Array.isArray(obj.content)) {
       const text = textFromBlocks(obj.content as unknown[]);
       if (text) {
         try {
-          return JSON.parse(text);
+          const val = JSON.parse(text);
+          if (typeof val === "object" && val !== null && !Array.isArray(val)) return val as Record<string, unknown>;
         } catch {
           /* fall */
         }
@@ -25,7 +28,8 @@ export function parseFlowResult(result: unknown): Record<string, unknown> | null
     }
     if ("content" in obj && typeof obj.content === "string") {
       try {
-        return JSON.parse(obj.content);
+        const val = JSON.parse(obj.content);
+        if (typeof val === "object" && val !== null && !Array.isArray(val)) return val as Record<string, unknown>;
       } catch {
         /* fall */
       }
@@ -44,12 +48,14 @@ export function parseFlowResult(result: unknown): Record<string, unknown> | null
       const parsed = JSON.parse(raw);
       if (typeof parsed === "string") {
         try {
-          return JSON.parse(parsed);
+          const val = JSON.parse(parsed);
+          if (typeof val === "object" && val !== null && !Array.isArray(val)) return val as Record<string, unknown>;
+          return null;
         } catch {
           return null;
         }
       }
-      if (typeof parsed === "object" && parsed !== null) return parsed;
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) return parsed as Record<string, unknown>;
       return null;
     } catch {
       return null;
