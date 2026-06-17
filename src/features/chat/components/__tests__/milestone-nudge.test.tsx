@@ -1,8 +1,10 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MilestoneNudge } from "../milestone-nudge";
 
 test("five-dollar shows top percent", () => {
-  render(<MilestoneNudge type="five-dollar" topPercent={15} spotsLeft={0} onReinvest={jest.fn()} />);
+  render(
+    <MilestoneNudge type="five-dollar" topPercent={15} spotsLeft={0} onReinvest={jest.fn()} />
+  );
   expect(screen.getByText(/\$5/)).toBeInTheDocument();
   expect(screen.getByText(/15%/)).toBeInTheDocument();
 });

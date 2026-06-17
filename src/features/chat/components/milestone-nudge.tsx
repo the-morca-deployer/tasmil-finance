@@ -18,8 +18,8 @@ export function MilestoneNudge({ type, topPercent, spotsLeft, onReinvest }: Mile
     return (
       <div className="rounded-xl border border-[#00C278]/30 bg-[#00C278]/5 px-4 py-3 space-y-2">
         <p className="text-sm text-[#f0f2f1]">
-          Your vesting is{" "}
-          <span className="font-semibold text-[#00C278]">fully unlocked</span>. Ready to compound?
+          Your vesting is <span className="font-semibold text-[#00C278]">fully unlocked</span>.
+          Ready to compound?
         </p>
         <button
           type="button"

@@ -210,8 +210,8 @@ export const Greeting = ({
       return (
         <div className="rounded-xl border border-[#00C278]/30 bg-[#00C278]/5 p-4 space-y-3">
           <p className="text-sm text-[#f0f2f1] font-medium">
-            Your pool earned{" "}
-            <span className="font-bold text-[#00C278]">${lastPoolEarnings}</span>. Want to reinvest?
+            Your pool earned <span className="font-bold text-[#00C278]">${lastPoolEarnings}</span>.
+            Want to reinvest?
           </p>
           <div className="flex gap-3">
             <button
