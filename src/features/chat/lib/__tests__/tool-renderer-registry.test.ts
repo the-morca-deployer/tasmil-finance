@@ -1,3 +1,4 @@
+import React from "react";
 import { ToolRendererRegistry } from "../tool-renderer-registry";
 
 const MockComp = () => null;
@@ -25,13 +26,19 @@ describe("ToolRendererRegistry", () => {
   });
 
   it("registers and retrieves a shared entry", () => {
-    r.register("t_sh", { kind: "shared", render: () => null as any });
-    expect(r.get("t_sh")?.kind).toBe("shared");
+    const renderFn = () => React.createElement("span");
+    r.register("t_sh", { kind: "shared", render: renderFn });
+    const e = r.get("t_sh");
+    expect(e?.kind).toBe("shared");
+    if (e?.kind === "shared") expect(e.render).toBe(renderFn);
   });
 
   it("registers and retrieves a shared-op entry", () => {
-    r.register("t_sop", { kind: "shared-op", render: () => null as any });
-    expect(r.get("t_sop")?.kind).toBe("shared-op");
+    const renderFn = () => React.createElement("span");
+    r.register("t_sop", { kind: "shared-op", render: renderFn });
+    const e = r.get("t_sop");
+    expect(e?.kind).toBe("shared-op");
+    if (e?.kind === "shared-op") expect(e.render).toBe(renderFn);
   });
 
   it("has() returns true/false correctly", () => {
@@ -41,10 +48,10 @@ describe("ToolRendererRegistry", () => {
   });
 
   it("size() reflects registration count", () => {
-    expect(r.size()).toBe(0);
+    expect(r.size).toBe(0);
     r.register("a", { kind: "info", component: MockComp, label: "a" });
     r.register("b", { kind: "info", component: MockComp, label: "b" });
-    expect(r.size()).toBe(2);
+    expect(r.size).toBe(2);
   });
 
   it("later registration overwrites earlier", () => {
