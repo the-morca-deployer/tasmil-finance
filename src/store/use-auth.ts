@@ -16,8 +16,11 @@ interface AuthState {
   user: AuthUser | null;
   isLoading: boolean;
   expiresAt: number | null;
+  accessCodeRequired: boolean;
   setAuthState: (state: { accessToken: string; user: AuthUser }) => void;
   setLoading: (loading: boolean) => void;
+  setAccessCodeRequired: (val: boolean) => void;
+  logoutAccessDenied: () => void;
   logout: () => void;
   isTokenExpired: () => boolean;
 }
@@ -47,6 +50,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isLoading: false,
       expiresAt: null,
+      accessCodeRequired: false,
       setAuthState: ({ accessToken, user }) => {
         const jwtExp = parseJwtExp(accessToken);
         // Fallback: 23h after now if the JWT has no parseable exp claim.
@@ -58,9 +62,20 @@ export const useAuthStore = create<AuthState>()(
           user,
           isLoading: false,
           expiresAt,
+          accessCodeRequired: false,
         });
       },
       setLoading: (isLoading) => set({ isLoading }),
+      setAccessCodeRequired: (val) => set({ accessCodeRequired: val }),
+      logoutAccessDenied: () =>
+        set({
+          isAuthenticated: false,
+          accessToken: null,
+          user: null,
+          isLoading: false,
+          expiresAt: null,
+          accessCodeRequired: true,
+        }),
       logout: () =>
         set({
           isAuthenticated: false,
@@ -68,6 +83,7 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           isLoading: false,
           expiresAt: null,
+          accessCodeRequired: false,
         }),
       isTokenExpired: () => {
         const { expiresAt } = get();
@@ -84,7 +100,16 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
         user: state.user,
         expiresAt: state.expiresAt,
+        accessCodeRequired: state.accessCodeRequired,
       }),
+      onRehydrateStorage: () => (state) => {
+        // isAuthenticated:true + accessCodeRequired:true is a contradictory stale
+        // state (successful login clears accessCodeRequired, but old localStorage
+        // may have both set). Clear the flag so AuthBootstrap can resolve correctly.
+        if (state?.isAuthenticated && state.accessCodeRequired) {
+          state.accessCodeRequired = false;
+        }
+      },
     }
   )
 );

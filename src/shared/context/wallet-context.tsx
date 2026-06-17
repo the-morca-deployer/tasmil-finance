@@ -453,6 +453,29 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         let response = await verifyWithPayload(verifyPayload);
         if (!response.ok) {
+          if (response.status === 403) {
+            let body: Record<string, unknown> = {};
+            try {
+              body = await response.json();
+            } catch {
+              /* ignore */
+            }
+            if (body?.message === "ACCESS_CODE_REQUIRED") {
+              useAuthStore.getState().setAccessCodeRequired(true);
+              authInProgressRef.current = false;
+              setLoading(false);
+              setSigning(false);
+              toast.error("This wallet doesn't have access. Please enter an access code first.", {
+                duration: 4000,
+              });
+              if (typeof window !== "undefined" && window.location.pathname !== "/") {
+                setTimeout(() => {
+                  window.location.href = "/";
+                }, 1500);
+              }
+              return;
+            }
+          }
           let backendMessage = await extractBackendMessage(response);
 
           const shouldFallbackToTx =
@@ -682,6 +705,11 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     } catch {
       // ignore disconnect errors
     }
+    // Clear the httpOnly auth cookie server-side
+    void fetch(`${getBrowserBackendBaseUrl()}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    }).catch(() => {});
     setAddress(null);
     setIsConnected(false);
     resetWallet();
@@ -689,6 +717,9 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     authAttemptedRef.current = null;
     authInProgressRef.current = false;
     autoAuthFiredForRef.current = null;
+    if (typeof window !== "undefined" && window.location.pathname !== "/") {
+      window.location.replace("/");
+    }
   }, [authLogout, resetWallet]);
 
   const signTransaction = useCallback(

@@ -22,8 +22,7 @@ export function AuthBootstrap() {
     if (ranRef.current) return;
     ranRef.current = true;
 
-    const { accessToken, setAuthState, logout } =
-      useAuthStore.getState();
+    const { accessToken, setAuthState, logout } = useAuthStore.getState();
 
     // Already have a token in memory — nothing to rehydrate.
     if (accessToken) return;
@@ -35,8 +34,25 @@ export function AuthBootstrap() {
       headers: { Accept: "application/json" },
     })
       .then(async (res) => {
+        const onProtectedPage = typeof window !== "undefined" && window.location.pathname !== "/";
+
         if (res.status === 401) {
-          logout();
+          const { isAuthenticated } = useAuthStore.getState();
+          if (isAuthenticated) {
+            logout();
+          }
+          // On a protected page with no valid session → send back to gate
+          if (onProtectedPage) {
+            window.location.replace("/");
+          }
+          return;
+        }
+        if (res.status === 403) {
+          useAuthStore.getState().logoutAccessDenied();
+          // On a protected page with no access code → send back to gate
+          if (onProtectedPage) {
+            window.location.replace("/");
+          }
           return;
         }
         if (!res.ok) return; // transient error — leave state alone

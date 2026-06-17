@@ -22,6 +22,12 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Auth gate: require tasmil_auth cookie for all protected routes
+  const authCookie = request.cookies.get("tasmil_auth");
+  if (!authCookie?.value) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
   // Faucet: testnet only
   const isTestnet = process.env.NEXT_PUBLIC_STELLAR_NETWORK === "testnet";
   if ((pathname === "/faucet" || pathname.startsWith("/faucet/")) && !isTestnet) {
