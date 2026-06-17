@@ -1,9 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { adminFetch } from "../lib/admin-fetch";
 import { useAdminAuthStore } from "@/store/use-admin-auth";
-
+import { adminFetch } from "../lib/admin-fetch";
 
 export interface QuestWalletEntry {
   rank: number;
