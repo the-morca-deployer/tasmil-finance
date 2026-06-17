@@ -623,6 +623,13 @@ function CampaignsSection({
 
 // ── Quest Stats ─────────────────────────────────────────────────────────────
 
+function fmtUsd(n: number): string {
+  if (n === 0) return "0";
+  if (n < 1) return n.toFixed(2);
+  if (n < 1000) return n.toFixed(0);
+  return (n / 1000).toFixed(1) + "k";
+}
+
 function QuestStatsSection({ data }: { data: QuestStats }) {
   const { volumeByProtocol: vol, topDepositors } = data;
   return (
@@ -661,10 +668,10 @@ function QuestStatsSection({ data }: { data: QuestStats }) {
         />
       </div>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <MiniStat label="Vault (DeFindex)" value={`$${vol.defindex.toFixed(0)}`} />
-        <MiniStat label="Blend" value={`$${vol.blend.toFixed(0)}`} />
-        <MiniStat label="SoroSwap" value={`$${vol.soroswap.toFixed(0)}`} />
-        <MiniStat label="Aquarius" value={`$${vol.aquarius.toFixed(0)}`} />
+        <MiniStat label="Vault (DeFindex)" value={`$${fmtUsd(vol.defindex)}`} />
+        <MiniStat label="Blend" value={`$${fmtUsd(vol.blend)}`} />
+        <MiniStat label="SoroSwap" value={`$${fmtUsd(vol.soroswap)}`} />
+        <MiniStat label="Aquarius" value={`$${fmtUsd(vol.aquarius)}`} />
       </div>
       {topDepositors.length > 0 && (
         <div className="rounded border p-4 space-y-2">
