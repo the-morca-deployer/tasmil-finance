@@ -10,10 +10,18 @@ function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text).catch(() => null);
 }
 
-function exportCsv(rows: { rank: number; walletAddress: string; username: string | null; totalPoints: number; tier: string | null }[]) {
+function exportCsv(
+  rows: {
+    rank: number;
+    walletAddress: string;
+    username: string | null;
+    totalPoints: number;
+    tier: string | null;
+  }[]
+) {
   const header = "rank,wallet_address,username,total_points,tier";
-  const lines = rows.map((r) =>
-    `${r.rank},${r.walletAddress},${r.username ?? ""},${r.totalPoints},${r.tier ?? ""}`
+  const lines = rows.map(
+    (r) => `${r.rank},${r.walletAddress},${r.username ?? ""},${r.totalPoints},${r.tier ?? ""}`
   );
   const blob = new Blob([[header, ...lines].join("\n")], { type: "text/csv" });
   const url = URL.createObjectURL(blob);

@@ -1,9 +1,9 @@
 "use client";
 
-import { useAdminAuthStore } from "@/store/use-admin-auth";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAdminAuthStore } from "@/store/use-admin-auth";
 
 function isTokenExpired(token: string): boolean {
   try {
