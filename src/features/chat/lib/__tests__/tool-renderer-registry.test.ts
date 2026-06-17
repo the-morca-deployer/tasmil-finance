@@ -4,7 +4,9 @@ const MockComp = () => null;
 
 describe("ToolRendererRegistry", () => {
   let r: ToolRendererRegistry;
-  beforeEach(() => { r = new ToolRendererRegistry(); });
+  beforeEach(() => {
+    r = new ToolRendererRegistry();
+  });
 
   it("returns null for unknown tool", () => {
     expect(r.get("nope")).toBeNull();
