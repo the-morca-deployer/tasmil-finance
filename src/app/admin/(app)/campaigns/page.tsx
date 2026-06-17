@@ -338,10 +338,7 @@ export default function AdminCampaignsPage() {
       </div>
 
       {drawerCampaign && (
-        <CampaignDetailDrawer
-          campaign={drawerCampaign}
-          onClose={() => setDrawerCampaign(null)}
-        />
+        <CampaignDetailDrawer campaign={drawerCampaign} onClose={() => setDrawerCampaign(null)} />
       )}
     </div>
   );

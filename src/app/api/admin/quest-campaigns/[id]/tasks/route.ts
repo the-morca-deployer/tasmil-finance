@@ -11,10 +11,7 @@ function getAdminToken(request: NextRequest): string | null {
   return null;
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token = getAdminToken(request);
   if (!token) {
     return NextResponse.json({ message: "No admin token" }, { status: 401 });
@@ -24,17 +21,14 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const response = await fetch(
-      `${BACKEND_URL}/api/admin/quest-campaigns/${id}/tasks`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      }
-    );
+    const response = await fetch(`${BACKEND_URL}/api/admin/quest-campaigns/${id}/tasks`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });

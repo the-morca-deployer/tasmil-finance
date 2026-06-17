@@ -1,21 +1,28 @@
 "use client";
 
-import { Loader2, Plus, Trash2, Pencil } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
+  type QuestTask,
+  useAddQuestTask,
+  useDeleteQuestCampaign,
+  useDeleteQuestTask,
   useQuestCampaignDetail,
   useUpdateQuestCampaign,
-  useDeleteQuestCampaign,
-  useAddQuestTask,
   useUpdateQuestTask,
-  useDeleteQuestTask,
-  type QuestTask,
 } from "@/features/admin/hooks/use-admin-quest-campaigns";
 
 const TASK_TYPES = [
-  "X_FOLLOW", "X_RETWEET", "X_COMMENT", "BROWSE", "ONCHAIN",
-  "AGENT_CHAT", "TELEGRAM_JOIN", "DISCORD_JOIN", "VOLUME_SWAP",
+  "X_FOLLOW",
+  "X_RETWEET",
+  "X_COMMENT",
+  "BROWSE",
+  "ONCHAIN",
+  "AGENT_CHAT",
+  "TELEGRAM_JOIN",
+  "DISCORD_JOIN",
+  "VOLUME_SWAP",
 ];
 const CATEGORIES = ["BLEND", "SOROSWAP", "AQUARIUS"];
 
@@ -82,8 +89,7 @@ function TaskForm({
   isPending: boolean;
 }) {
   const [form, setForm] = useState(initial);
-  const set = (k: keyof TaskFormState, v: unknown) =>
-    setForm((f) => ({ ...f, [k]: v }));
+  const set = (k: keyof TaskFormState, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
 
   return (
     <div
@@ -116,7 +122,11 @@ function TaskForm({
           style={inputStyle}
           aria-label="Task type"
         >
-          {TASK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+          {TASK_TYPES.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
         </select>
         <input
           type="number"
@@ -134,7 +144,14 @@ function TaskForm({
         />
       </div>
       <div>
-        <label style={{ fontSize: 12, color: "rgba(245,248,252,0.5)", display: "block", marginBottom: 4 }}>
+        <label
+          style={{
+            fontSize: 12,
+            color: "rgba(245,248,252,0.5)",
+            display: "block",
+            marginBottom: 4,
+          }}
+        >
           Metadata (JSON)
         </label>
         <textarea
@@ -144,7 +161,9 @@ function TaskForm({
           style={{ ...inputStyle, resize: "none", fontFamily: "monospace", fontSize: 11 }}
         />
       </div>
-      <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, cursor: "pointer" }}>
+      <label
+        style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, cursor: "pointer" }}
+      >
         <input
           type="checkbox"
           checked={form.isActive}
@@ -165,10 +184,13 @@ function TaskForm({
           type="button"
           onClick={onCancel}
           style={{
-            padding: "8px 12px", borderRadius: 8,
+            padding: "8px 12px",
+            borderRadius: 8,
             border: "1px solid rgba(255,255,255,0.1)",
-            background: "transparent", color: "rgba(245,248,252,0.6)",
-            cursor: "pointer", fontSize: 13,
+            background: "transparent",
+            color: "rgba(245,248,252,0.6)",
+            cursor: "pointer",
+            fontSize: 13,
           }}
         >
           Cancel
@@ -259,14 +281,22 @@ export default function QuestCampaignDetailPage() {
         <button
           type="button"
           onClick={() => router.push("/admin/quest-campaigns")}
-          style={{ background: "none", border: "none", color: "rgba(245,248,252,0.5)", cursor: "pointer", fontSize: 13 }}
+          style={{
+            background: "none",
+            border: "none",
+            color: "rgba(245,248,252,0.5)",
+            cursor: "pointer",
+            fontSize: 13,
+          }}
         >
           ← Back
         </button>
         <h1 style={{ fontSize: 22, fontWeight: 800 }}>{campaign.title}</h1>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}
+      >
         {/* Left panel: campaign form */}
         <div
           style={{
@@ -290,7 +320,14 @@ export default function QuestCampaignDetailPage() {
             ] satisfies { label: string; key: keyof CampaignFormState; type: string }[]
           ).map(({ label, key, type }) => (
             <div key={key}>
-              <label style={{ fontSize: 11, color: "rgba(245,248,252,0.4)", display: "block", marginBottom: 4 }}>
+              <label
+                style={{
+                  fontSize: 11,
+                  color: "rgba(245,248,252,0.4)",
+                  display: "block",
+                  marginBottom: 4,
+                }}
+              >
                 {label}
               </label>
               <input
@@ -302,7 +339,14 @@ export default function QuestCampaignDetailPage() {
             </div>
           ))}
           <div>
-            <label style={{ fontSize: 11, color: "rgba(245,248,252,0.4)", display: "block", marginBottom: 4 }}>
+            <label
+              style={{
+                fontSize: 11,
+                color: "rgba(245,248,252,0.4)",
+                display: "block",
+                marginBottom: 4,
+              }}
+            >
               Category
             </label>
             <select
@@ -311,10 +355,22 @@ export default function QuestCampaignDetailPage() {
               style={inputStyle}
               aria-label="Category"
             >
-              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
             </select>
           </div>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, cursor: "pointer" }}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
             <input
               type="checkbox"
               checked={(form.isActive as boolean) ?? true}
@@ -329,17 +385,24 @@ export default function QuestCampaignDetailPage() {
               disabled={updateCampaign.isPending || !campaignForm}
               style={primaryBtnStyle}
             >
-              {updateCampaign.isPending ? <Loader2 size={14} className="animate-spin" /> : "Save Changes"}
+              {updateCampaign.isPending ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                "Save Changes"
+              )}
             </button>
             <button
               type="button"
               onClick={handleDeleteCampaign}
               disabled={deleteCampaign.isPending}
               style={{
-                padding: "8px 16px", borderRadius: 8,
+                padding: "8px 16px",
+                borderRadius: 8,
                 border: "1px solid rgba(251,113,133,0.3)",
                 background: "rgba(251,113,133,0.08)",
-                color: "#FB7185", cursor: "pointer", fontSize: 13,
+                color: "#FB7185",
+                cursor: "pointer",
+                fontSize: 13,
               }}
             >
               Delete Campaign
@@ -365,7 +428,13 @@ export default function QuestCampaignDetailPage() {
               type="button"
               onClick={() => setAddingTask(true)}
               disabled={addingTask}
-              style={{ ...primaryBtnStyle, display: "flex", alignItems: "center", gap: 6, padding: "6px 12px" }}
+              style={{
+                ...primaryBtnStyle,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 12px",
+              }}
             >
               <Plus size={14} /> Add Task
             </button>
@@ -381,7 +450,14 @@ export default function QuestCampaignDetailPage() {
           )}
 
           {campaign.tasks.length === 0 && !addingTask && (
-            <div style={{ color: "rgba(245,248,252,0.3)", fontSize: 13, textAlign: "center", padding: 20 }}>
+            <div
+              style={{
+                color: "rgba(245,248,252,0.3)",
+                fontSize: 13,
+                textAlign: "center",
+                padding: 20,
+              }}
+            >
               No tasks yet
             </div>
           )}
@@ -414,25 +490,39 @@ export default function QuestCampaignDetailPage() {
                     gap: 10,
                   }}
                 >
-                  <span style={{ color: "rgba(245,248,252,0.3)", fontSize: 12, minWidth: 20 }}>{idx + 1}.</span>
+                  <span style={{ color: "rgba(245,248,252,0.3)", fontSize: 12, minWidth: 20 }}>
+                    {idx + 1}.
+                  </span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 600, fontSize: 13 }}>{task.title}</div>
                     <div style={{ fontSize: 11, color: "rgba(245,248,252,0.4)" }}>
                       {task.type} · {task.pointReward} pts
-                      {!task.isActive && <span style={{ color: "#FB7185", marginLeft: 6 }}>(inactive)</span>}
+                      {!task.isActive && (
+                        <span style={{ color: "#FB7185", marginLeft: 6 }}>(inactive)</span>
+                      )}
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => setEditingTaskId(task.id)}
-                    style={{ background: "none", border: "none", color: "rgba(245,248,252,0.4)", cursor: "pointer" }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "rgba(245,248,252,0.4)",
+                      cursor: "pointer",
+                    }}
                   >
                     <Pencil size={14} />
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDeleteTask(task.id)}
-                    style={{ background: "none", border: "none", color: "rgba(251,113,133,0.6)", cursor: "pointer" }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "rgba(251,113,133,0.6)",
+                      cursor: "pointer",
+                    }}
                   >
                     <Trash2 size={14} />
                   </button>

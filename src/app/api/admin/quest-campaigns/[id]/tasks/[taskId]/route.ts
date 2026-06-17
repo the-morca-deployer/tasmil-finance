@@ -24,17 +24,14 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const response = await fetch(
-      `${BACKEND_URL}/api/admin/quest-campaigns/${id}/tasks/${taskId}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      }
-    );
+    const response = await fetch(`${BACKEND_URL}/api/admin/quest-campaigns/${id}/tasks/${taskId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
@@ -55,16 +52,13 @@ export async function DELETE(
   const { id, taskId } = await params;
 
   try {
-    const response = await fetch(
-      `${BACKEND_URL}/api/admin/quest-campaigns/${id}/tasks/${taskId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch(`${BACKEND_URL}/api/admin/quest-campaigns/${id}/tasks/${taskId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });

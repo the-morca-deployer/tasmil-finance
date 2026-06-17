@@ -11,10 +11,7 @@ function getAdminToken(request: NextRequest): string | null {
   return null;
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token = getAdminToken(request);
   if (!token) {
     return NextResponse.json({ message: "No admin token" }, { status: 401 });
@@ -23,15 +20,12 @@ export async function GET(
   const { id } = await params;
 
   try {
-    const response = await fetch(
-      `${BACKEND_URL}/api/admin/waitlist/entries/${id}/dispatches`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch(`${BACKEND_URL}/api/admin/waitlist/entries/${id}/dispatches`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });

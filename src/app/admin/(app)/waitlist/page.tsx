@@ -18,11 +18,7 @@ import {
   useWaitlistDispatches,
   useWaitlistEntries,
 } from "@/features/admin/hooks/use-admin-waitlist";
-import {
-  WAITLIST_STATUSES,
-  type EmailDispatch,
-  type WaitlistStatus,
-} from "@/features/admin/types";
+import { type EmailDispatch, WAITLIST_STATUSES, type WaitlistStatus } from "@/features/admin/types";
 import { useAdminDashboard } from "@/features/admin-whitelist/hooks/use-admin-dashboard";
 
 const LIMIT = 20;
@@ -116,9 +112,7 @@ function DispatchHistory({ entryId, email }: { entryId: string; email: string | 
             <tbody>
               {dispatches.map((d: EmailDispatch) => (
                 <tr key={d.id}>
-                  <td style={{ padding: "4px 8px", fontFamily: "monospace" }}>
-                    {d.templateType}
-                  </td>
+                  <td style={{ padding: "4px 8px", fontFamily: "monospace" }}>{d.templateType}</td>
                   <td
                     style={{
                       padding: "4px 8px",
@@ -135,9 +129,7 @@ function DispatchHistory({ entryId, email }: { entryId: string; email: string | 
                   <td style={{ padding: "4px 8px", color: "rgba(245,248,252,0.5)" }}>
                     {d.sentAt ? new Date(d.sentAt).toLocaleString() : "—"}
                   </td>
-                  <td style={{ padding: "4px 8px", color: "#FB7185" }}>
-                    {d.errorMessage ?? "—"}
-                  </td>
+                  <td style={{ padding: "4px 8px", color: "#FB7185" }}>{d.errorMessage ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -412,9 +404,7 @@ export default function WaitlistPage() {
                     <StatusPill status={e.status} />
                   </td>
                   <td style={{ padding: "10px" }}>{e.successfulReferralCount}</td>
-                  <td style={{ padding: "10px" }}>
-                    {new Date(e.createdAt).toLocaleDateString()}
-                  </td>
+                  <td style={{ padding: "10px" }}>{new Date(e.createdAt).toLocaleDateString()}</td>
                   <td style={{ padding: "10px" }}>
                     <div
                       style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}
@@ -479,18 +469,12 @@ export default function WaitlistPage() {
                           fontSize: 12,
                         }}
                       >
-                        {expandedId === e.id ? (
-                          <ChevronUp size={12} />
-                        ) : (
-                          <ChevronDown size={12} />
-                        )}
+                        {expandedId === e.id ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                       </button>
                     </div>
                   </td>
                 </tr>
-                {expandedId === e.id && (
-                  <DispatchHistory entryId={e.id} email={e.email} />
-                )}
+                {expandedId === e.id && <DispatchHistory entryId={e.id} email={e.email} />}
               </Fragment>
             ))}
           </tbody>
