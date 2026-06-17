@@ -1,10 +1,12 @@
 "use client";
 
-import { Bot, type LucideIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { adminSidebarData } from "@/shared/layout/sidebar-data";
+import { useAdminAuthStore } from "@/store/use-admin-auth";
 
 function AdminNavItem({
   title,
@@ -44,14 +46,22 @@ function AdminNavItem({
 }
 
 export function AdminSidebar() {
+  const admin = useAdminAuthStore((s) => s.admin);
+  const displayName = admin?.email?.split("@")[0] ?? "Admin";
+  const initial = (admin?.email?.[0] ?? "A").toUpperCase();
+
   return (
     <aside className="flex h-screen w-64 flex-col border-sidebar-border border-r bg-sidebar">
       {/* Header */}
       <div className="flex h-14 items-center gap-2 border-sidebar-border border-b px-4">
         <Link href="/admin/dashboard" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
-            <Bot className="h-4 w-4 text-white" />
-          </div>
+          <Image
+            src="/images/logo.png"
+            alt="Tasmil Finance"
+            width={32}
+            height={32}
+            className="rounded-lg"
+          />
           <div className="flex flex-col">
             <span className="font-semibold text-sidebar-foreground text-sm">
               {adminSidebarData.header.brand_name}
@@ -82,14 +92,14 @@ export function AdminSidebar() {
       {/* Footer */}
       <div className="flex items-center gap-2 border-sidebar-border border-t p-4">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary font-semibold text-sm text-white">
-          A
+          {initial}
         </div>
         <div className="flex min-w-0 flex-col">
           <span className="truncate font-medium text-sidebar-foreground text-sm">
-            {adminSidebarData.user.name}
+            {displayName}
           </span>
           <span className="truncate text-sidebar-foreground/60 text-xs">
-            {adminSidebarData.user.email}
+            {admin?.email ?? ""}
           </span>
         </div>
       </div>
