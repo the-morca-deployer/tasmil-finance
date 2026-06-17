@@ -5,42 +5,56 @@ import { useQuery } from "@tanstack/react-query";
 export interface QuestWalletEntry {
   rank: number;
   walletAddress: string;
-  volumeUsd: number;
+  username: string | null;
+  totalPoints: number;
+  tier: string | null;
 }
 
-interface BackendEnvelope<T> {
-  success: boolean;
-  data: T;
+interface RawEntry {
+  id: string;
+  username: string | null;
+  totalPoints: number;
+  tier: string | null;
+  avatarUrl: string | null;
+  walletAddress: string | null;
 }
 
 interface LeaderboardResponse {
   entries: QuestWalletEntry[];
   total: number;
-  page: number;
-  limit: number;
 }
 
-async function fetchQuestWallets(
-  page: number,
-  limit: number,
-  search: string
-): Promise<LeaderboardResponse> {
+async function fetchQuestWallets(limit: number, search: string): Promise<LeaderboardResponse> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
-  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-  if (search) params.set("search", search);
+  const params = new URLSearchParams({ limit: String(limit) });
 
-  const res = await fetch(`${apiUrl}/api/leaderboard?${params.toString()}`);
+  const res = await fetch(`${apiUrl}/leaderboard/global?${params.toString()}`);
   if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
 
-  const env = (await res.json()) as BackendEnvelope<LeaderboardResponse>;
-  if (!env.success) throw new Error("Backend reported failure");
-  return env.data;
+  const raw = (await res.json()) as RawEntry[];
+  const all: QuestWalletEntry[] = raw.map((r, i) => ({
+    rank: i + 1,
+    walletAddress: r.walletAddress ?? r.id,
+    username: r.username,
+    totalPoints: r.totalPoints,
+    tier: r.tier,
+  }));
+
+  const filtered = search
+    ? all.filter(
+        (e) =>
+          e.walletAddress.toLowerCase().includes(search.toLowerCase()) ||
+          (e.username ?? "").toLowerCase().includes(search.toLowerCase())
+      )
+    : all;
+
+  return { entries: filtered, total: filtered.length };
 }
 
-export function useAdminQuestWallets(page: number, limit: number, search: string) {
+export function useAdminQuestWallets(limit: number, search: string) {
   return useQuery<LeaderboardResponse, Error>({
-    queryKey: ["admin", "quest-wallets", { page, limit, search }],
-    queryFn: () => fetchQuestWallets(page, limit, search),
+    queryKey: ["admin", "quest-wallets", { limit, search }],
+    queryFn: () => fetchQuestWallets(limit, search),
     staleTime: 30_000,
   });
 }
