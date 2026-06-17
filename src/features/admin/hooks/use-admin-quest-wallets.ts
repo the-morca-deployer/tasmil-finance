@@ -28,7 +28,7 @@ async function fetchQuestWallets(limit: number, search: string): Promise<Leaderb
   const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
   const params = new URLSearchParams({ limit: String(limit) });
 
-  const res = await fetch(`${apiUrl}/leaderboard/global?${params.toString()}`);
+  const res = await fetch(`${apiUrl}/api/leaderboard/global?${params.toString()}`);
   if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
 
   const raw = (await res.json()) as RawEntry[];
