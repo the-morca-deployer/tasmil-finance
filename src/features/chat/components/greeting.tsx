@@ -160,6 +160,68 @@ export const Greeting = ({ agentId }: GreetingProps) => {
     AGENT_GREETING_CONTENT[config.id] ?? AGENT_GREETING_CONTENT.default ?? DEFAULT_GREETING;
   const logo = config.icon || "/agents/supervisor-agent.png";
 
+  const phaseCard = (() => {
+    if (phase === "beta" && isFirstLogin) {
+      return (
+        <div className="rounded-xl border border-yellow-700/40 bg-yellow-950/30 p-4 space-y-3">
+          <p className="text-sm text-yellow-200 font-medium">
+            You're one of the earliest users. A reward has been reserved for you.
+          </p>
+          <a
+            href="/claim"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-black hover:bg-yellow-400"
+          >
+            Claim reward
+          </a>
+        </div>
+      );
+    }
+    if (phase === "mainnet" && isFirstLogin) {
+      return (
+        <div className="rounded-xl border border-[#00C278]/30 bg-[#00C278]/5 p-4">
+          <p className="text-sm text-[#00C278] font-medium">
+            You're on mainnet. Real funds, real yield.
+          </p>
+        </div>
+      );
+    }
+    if (
+      phase === "mainnet" &&
+      !isFirstLogin &&
+      (daysSinceLastStake ?? 0) >= 7 &&
+      lastPoolEarnings != null
+    ) {
+      return (
+        <div className="rounded-xl border border-[#00C278]/30 bg-[#00C278]/5 p-4 space-y-3">
+          <p className="text-sm text-[#f0f2f1] font-medium">
+            Your pool earned <span className="font-bold text-[#00C278]">${lastPoolEarnings}</span>.
+            Want to reinvest?
+          </p>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onReinvest}
+              className="rounded-lg bg-[#00C278] px-4 py-2 text-sm font-semibold text-black hover:bg-[#00a866]"
+            >
+              Reinvest now
+            </button>
+            <button
+              type="button"
+              onClick={onSnooze}
+              className="rounded-lg border border-[#00C278]/30 px-4 py-2 text-sm text-[#9aada4] hover:text-[#f0f2f1]"
+            >
+              Remind me in 7 days
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  })();
+
+
   return (
     <motion.div
       animate={{ opacity: 1, y: 0 }}
