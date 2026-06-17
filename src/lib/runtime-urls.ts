@@ -31,15 +31,6 @@ export function getServerAiBaseUrl(env: NodeJS.ProcessEnv = process.env): string
   return "http://localhost:8001";
 }
 
-export function getQuestBackendBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
-  const url = env["QUEST_BACKEND_INTERNAL_URL"] ?? env["NEXT_PUBLIC_API_URL"];
-  if (url) return trimTrailingSlash(url);
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("Missing required environment variable: QUEST_BACKEND_INTERNAL_URL");
-  }
-  return "http://localhost:5555";
-}
-
 export function getServerBackendBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
   const url = env["BACKEND_INTERNAL_URL"] ?? env["NEXT_PUBLIC_BACKEND_URL"];
   if (url) return trimTrailingSlash(url);
