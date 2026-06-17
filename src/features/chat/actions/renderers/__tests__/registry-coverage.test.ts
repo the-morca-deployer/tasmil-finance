@@ -55,16 +55,39 @@ jest.mock("@/features/protocols/cards/soroswap", () => ({
   SoroswapPositionsCard: () => null,
   SoroswapTxCard: () => null,
 }));
-// Mock the hook that imports ClarifyCard / PlanPreviewCard / useStreamContext
+// Mock hooks/components imported by flow-renderers that pull in Stellar SDK
+jest.mock("@/features/chat/hooks/use-flow-signing", () => ({
+  useFlowSigning: () => ({
+    signFlow: async () => ({ success: true }),
+    stepResults: [],
+    currentStep: 0,
+    totalSteps: 0,
+  }),
+}));
+jest.mock("@/features/chat/hooks/use-stream", () => ({
+  useStreamContext: () => ({ messages: [], submit: async () => {} }),
+}));
+jest.mock("@/features/chat/components/flow/clarify-card", () => ({
+  ClarifyCard: () => null,
+}));
+jest.mock("@/features/chat/components/flow/execution-card", () => ({
+  ExecutionCard: () => null,
+}));
+jest.mock("@/features/chat/components/flow/plan-preview-card", () => ({
+  PlanPreviewCard: () => null,
+}));
+jest.mock("@/features/chat/actions/components/stellar/account-setup-card", () => ({
+  AccountSetupCard: () => null,
+}));
+jest.mock("@/store/use-wallet", () => ({
+  useWalletStore: () => null,
+}));
+jest.mock("@/features/chat/lib/parse-flow-result", () => ({
+  parseFlowResult: () => null,
+}));
+// Keep legacy mock in case any remaining code still imports it
 jest.mock("@/features/chat/hooks/use-defi-tool-renderers", () => ({
-  FLOW_TOOL_RENDERERS: [
-    { toolName: "flow_clarify", render: () => null },
-    { toolName: "flow_plan_preview", render: () => null },
-    { toolName: "flow_compose_plan", render: () => null },
-    { toolName: "flow_compose_and_execute", render: () => null },
-    { toolName: "flow_execution_update", render: () => null },
-    { toolName: "flow_check_account_status", render: () => null },
-  ],
+  FLOW_TOOL_RENDERERS: [],
   EXECUTE_DISPATCHER: { toolName: "execute", render: () => null },
 }));
 // Mock Stellar SDK-dependent adapters
