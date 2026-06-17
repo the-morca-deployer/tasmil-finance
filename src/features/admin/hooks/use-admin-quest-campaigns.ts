@@ -3,8 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { adminFetch } from "../lib/admin-fetch";
 import { useAdminAuthStore } from "@/store/use-admin-auth";
+import { adminFetch } from "../lib/admin-fetch";
 
 export interface QuestCampaign {
   id: string;
@@ -91,8 +91,7 @@ export function useDeleteQuestCampaign() {
   const queryClient = useQueryClient();
   const router = useRouter();
   return useMutation<unknown, Error, string>({
-    mutationFn: (id) =>
-      adminFetch(`/api/admin/quest-campaigns/${id}`, { method: "DELETE" }),
+    mutationFn: (id) => adminFetch(`/api/admin/quest-campaigns/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-quest-campaigns"] });
       toast.success("Campaign deleted");

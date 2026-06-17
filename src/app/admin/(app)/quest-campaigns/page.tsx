@@ -1,12 +1,12 @@
 "use client";
 
 import { Loader2, Plus } from "lucide-react";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
-  useQuestCampaigns,
-  useCreateQuestCampaign,
   type QuestCampaign,
+  useCreateQuestCampaign,
+  useQuestCampaigns,
 } from "@/features/admin/hooks/use-admin-quest-campaigns";
 
 const CATEGORIES = ["BLEND", "SOROSWAP", "AQUARIUS"];
@@ -104,7 +104,9 @@ function CreateCampaignModal({ onClose }: { onClose: () => void }) {
           aria-label="Category"
         >
           {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
         <textarea

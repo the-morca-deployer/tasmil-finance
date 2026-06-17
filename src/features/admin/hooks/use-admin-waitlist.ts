@@ -5,10 +5,10 @@ import { toast } from "sonner";
 import { useAdminAuthStore } from "@/store/use-admin-auth";
 import { adminFetch } from "../lib/admin-fetch";
 import type {
+  BulkSendResult,
+  EmailDispatch,
   WaitlistEntriesResponse,
   WaitlistStatus,
-  EmailDispatch,
-  BulkSendResult,
 } from "../types";
 
 export interface WaitlistQuery {
@@ -55,8 +55,7 @@ export function useWaitlistDispatches(entryId: string | null) {
   const token = useAdminAuthStore((s) => s.token);
   return useQuery<EmailDispatch[]>({
     queryKey: ["admin-waitlist-dispatches", entryId],
-    queryFn: () =>
-      adminFetch<EmailDispatch[]>(`/api/admin/waitlist/entries/${entryId}/dispatches`),
+    queryFn: () => adminFetch<EmailDispatch[]>(`/api/admin/waitlist/entries/${entryId}/dispatches`),
     enabled: !!token && !!entryId,
   });
 }

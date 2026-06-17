@@ -2,10 +2,10 @@
 
 import { Loader2 } from "lucide-react";
 import {
-  AreaChart,
   Area,
-  BarChart,
+  AreaChart,
   Bar,
+  BarChart,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
@@ -21,15 +21,7 @@ import { Typography } from "@/shared/ui/typography";
 
 // ────── KPI Card ──────────────────────────────────────────────────────────
 
-function KpiCard({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string | number;
-  sub: string;
-}) {
+function KpiCard({ label, value, sub }: { label: string; value: string | number; sub: string }) {
   return (
     <Card className="border-border border-t-2 border-t-blue-500/60 bg-card">
       <CardContent className="p-4">
@@ -259,7 +251,11 @@ function VolumeChart({ questStats }: { questStats?: QuestStats }) {
 
 // ────── Top Wallets by Volume ──────────────────────────────────────────────
 
-function TopWalletsByVolume({ topDepositors }: { topDepositors?: Array<{ walletAddress: string; totalUsd: number }> }) {
+function TopWalletsByVolume({
+  topDepositors,
+}: {
+  topDepositors?: Array<{ walletAddress: string; totalUsd: number }>;
+}) {
   return (
     <Card className="border-border bg-card">
       <CardContent className="p-6">
@@ -386,7 +382,9 @@ function SummaryStats({
       <MiniStat
         label="Email Failures"
         value={dashboard.emailDispatches.confirmationFailed}
-        valueColor={dashboard.emailDispatches.confirmationFailed > 0 ? "text-red-400" : "text-green-400"}
+        valueColor={
+          dashboard.emailDispatches.confirmationFailed > 0 ? "text-red-400" : "text-green-400"
+        }
       />
       <MiniStat
         label="Full Completers"
