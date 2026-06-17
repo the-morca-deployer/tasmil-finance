@@ -9,8 +9,8 @@ export type SharedRenderProps = {
 };
 
 export type RendererEntry =
-  | { kind: "info"; component: React.ComponentType<object>; label: string }
-  | { kind: "operation"; component: React.ComponentType<object>; label: string }
+  | { kind: "info"; component: React.ComponentType<never>; label: string }
+  | { kind: "operation"; component: React.ComponentType<never>; label: string }
   | { kind: "shared"; render: (props: SharedRenderProps) => React.ReactElement }
   | { kind: "shared-op"; render: (props: SharedRenderProps) => React.ReactElement };
 
