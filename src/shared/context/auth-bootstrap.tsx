@@ -34,7 +34,8 @@ export function AuthBootstrap() {
       headers: { Accept: "application/json" },
     })
       .then(async (res) => {
-        const onProtectedPage = typeof window !== "undefined" && window.location.pathname !== "/";
+        const path = typeof window !== "undefined" ? window.location.pathname : "/";
+        const onProtectedPage = path !== "/" && !path.startsWith("/admin");
 
         if (res.status === 401) {
           const { isAuthenticated } = useAuthStore.getState();

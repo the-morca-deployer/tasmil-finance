@@ -14,11 +14,10 @@ import { StatusPill } from "@/features/admin/components/status-pill";
 import {
   useBulkSendAccess,
   useSendAccessToEntry,
-  useUpdateWaitlistEntry,
   useWaitlistDispatches,
   useWaitlistEntries,
 } from "@/features/admin/hooks/use-admin-waitlist";
-import { type EmailDispatch, WAITLIST_STATUSES, type WaitlistStatus } from "@/features/admin/types";
+import { type EmailDispatch } from "@/features/admin/types";
 import { useAdminDashboard } from "@/features/admin-whitelist/hooks/use-admin-dashboard";
 
 const LIMIT = 20;
@@ -142,7 +141,6 @@ function DispatchHistory({ entryId, email }: { entryId: string; email: string | 
 
 export default function WaitlistPage() {
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<string>("");
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -160,10 +158,9 @@ export default function WaitlistPage() {
   const { data, isLoading, isError, error, refetch } = useWaitlistEntries({
     page,
     limit: LIMIT,
-    status: statusFilter || undefined,
+    status: undefined,
     search: search || undefined,
   });
-  const update = useUpdateWaitlistEntry();
   const sendAccess = useSendAccessToEntry();
   const bulkSend = useBulkSendAccess();
 
@@ -323,28 +320,6 @@ export default function WaitlistPage() {
             color: "#F5F8FC",
           }}
         />
-        <select
-          aria-label="Filter by status"
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setPage(1);
-          }}
-          style={{
-            padding: "9px 12px",
-            borderRadius: 10,
-            border: "1px solid rgba(255,255,255,0.08)",
-            background: "rgba(255,255,255,0.04)",
-            color: "#F5F8FC",
-          }}
-        >
-          <option value="">All statuses</option>
-          {WAITLIST_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
       </div>
 
       {isLoading ? (
@@ -409,29 +384,7 @@ export default function WaitlistPage() {
                     <div
                       style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}
                     >
-                      <select
-                        aria-label={`Status for ${e.id}`}
-                        value={e.status}
-                        disabled={update.isPending}
-                        onChange={(ev) =>
-                          update.mutate({ id: e.id, status: ev.target.value as WaitlistStatus })
-                        }
-                        style={{
-                          padding: "5px 8px",
-                          borderRadius: 8,
-                          border: "1px solid rgba(255,255,255,0.08)",
-                          background: "rgba(255,255,255,0.04)",
-                          color: "#F5F8FC",
-                          fontSize: 12,
-                        }}
-                      >
-                        {WAITLIST_STATUSES.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                      {e.email && (e.status === "PENDING" || e.status === "CONFIRMED") && (
+                      {e.email && e.status !== "CONFIRMED" && (
                         <button
                           type="button"
                           title="Send Access Email"
