@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { getServerBackendBaseUrl } from "@/lib/runtime-urls";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://backend.tasmil-finance.xyz";
+const BACKEND_URL = getServerBackendBaseUrl();
 
 function getAdminToken(request: NextRequest): string | null {
   const authHeader = request.headers.get("authorization");
