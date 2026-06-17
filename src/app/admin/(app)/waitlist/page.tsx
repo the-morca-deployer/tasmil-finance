@@ -17,7 +17,7 @@ import {
   useWaitlistDispatches,
   useWaitlistEntries,
 } from "@/features/admin/hooks/use-admin-waitlist";
-import { type EmailDispatch } from "@/features/admin/types";
+import type { EmailDispatch } from "@/features/admin/types";
 import { useAdminDashboard } from "@/features/admin-whitelist/hooks/use-admin-dashboard";
 
 const LIMIT = 20;
