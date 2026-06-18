@@ -24,7 +24,7 @@ describe("PositionValueCard", () => {
         ]}
         onAddFunds={jest.fn()}
         onDeactivate={jest.fn()}
-      />,
+      />
     );
     expect(screen.getByText(/position value/i)).toBeInTheDocument();
     expect(screen.getByText(/53,920.55/)).toBeInTheDocument();
@@ -43,7 +43,7 @@ describe("PositionValueCard", () => {
         chartSeries={[]}
         onAddFunds={onAddFunds}
         onDeactivate={jest.fn()}
-      />,
+      />
     );
     await userEvent.click(screen.getByRole("button", { name: /add funds/i }));
     expect(onAddFunds).toHaveBeenCalled();
@@ -60,7 +60,7 @@ describe("PositionValueCard", () => {
         chartSeries={[]}
         onAddFunds={jest.fn()}
         onDeactivate={onDeactivate}
-      />,
+      />
     );
     await userEvent.click(screen.getByRole("button", { name: /deactivate/i }));
     expect(onDeactivate).toHaveBeenCalled();
@@ -76,7 +76,7 @@ describe("PositionValueCard", () => {
         chartSeries={[]}
         onAddFunds={jest.fn()}
         onDeactivate={jest.fn()}
-      />,
+      />
     );
     expect(screen.getByText(/history building/i)).toBeInTheDocument();
   });

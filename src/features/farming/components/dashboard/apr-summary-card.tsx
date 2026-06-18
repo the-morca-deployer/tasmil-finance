@@ -53,7 +53,9 @@ export function AprSummaryCard({
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Total Deposits</p>
-          <p className="mt-1 font-mono text-foreground tabular-nums">{fmtUsd(totalDepositsUsd)} USDC</p>
+          <p className="mt-1 font-mono text-foreground tabular-nums">
+            {fmtUsd(totalDepositsUsd)} USDC
+          </p>
         </div>
       </div>
     </div>

@@ -19,9 +19,7 @@ describe("SectionHeader", () => {
 
   it("renders a right-side action when provided", () => {
     render(
-      <SectionHeader action={<button type="button">Show all</button>}>
-        Activity
-      </SectionHeader>
+      <SectionHeader action={<button type="button">Show all</button>}>Activity</SectionHeader>
     );
     expect(screen.getByRole("button", { name: "Show all" })).toBeInTheDocument();
   });

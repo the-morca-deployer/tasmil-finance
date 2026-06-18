@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { PerformanceSection } from "./performance-section";
 import type { HistoryPoint } from "../../hooks/use-portfolio-history";
+import { PerformanceSection } from "./performance-section";
 
 const data: HistoryPoint[] = Array.from({ length: 7 }).map((_, i) => ({
   ts: Date.parse(`2026-04-${20 + i}T00:00:00Z`),
