@@ -275,10 +275,7 @@ export function AssistantMessage({
                     </div>
                   )}
                   {hasToolCalls && message && (
-                    <ToolCallRenderer
-                      message={message}
-                      messages={allMessages ?? thread.messages}
-                    />
+                    <ToolCallRenderer message={message} messages={allMessages ?? thread.messages} />
                   )}
                 </>
               );
