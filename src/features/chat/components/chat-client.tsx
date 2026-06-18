@@ -658,10 +658,7 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
               })();
               const currentTurnStart = lastHumanIdx + 1;
               const displayMessages = effectiveIsLoading
-                ? filtered.filter(
-                    (m, i, arr) =>
-                      m.type === "human" || i < currentTurnStart || i === arr.length - 1
-                  )
+                ? filtered.filter((_, i, arr) => i < currentTurnStart || i === arr.length - 1)
                 : filtered;
 
               return displayMessages.map((message, index, arr) => {
