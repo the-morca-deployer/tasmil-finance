@@ -648,8 +648,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                 (m, index, arr) => !shouldFilterMessage(m, index, arr, uiComponents, messages)
               );
 
-              // Turn collapse: suppress intermediate AI messages while loading
-              // so "Thinking..." always precedes text, never follows it.
+              // Turn collapse: while loading, hide intermediate AI messages in the
+              // current turn so "Thinking..." always precedes text, never follows it.
               const lastHumanIdx = (() => {
                 for (let i = filtered.length - 1; i >= 0; i--) {
                   if (filtered[i]?.type === "human") return i;
@@ -657,19 +657,14 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                 return -1;
               })();
               const currentTurnStart = lastHumanIdx + 1;
-              const collapsingTurn = effectiveIsLoading;
+              const displayMessages = effectiveIsLoading
+                ? filtered.filter(
+                    (m, i, arr) =>
+                      m.type === "human" || i < currentTurnStart || i === arr.length - 1
+                  )
+                : filtered;
 
-              return filtered.map((message, index, arr) => {
-                // Hide intermediate AI messages in the current turn while loading.
-                // The last message is never suppressed — it shows Thinking... or streams text.
-                if (
-                  collapsingTurn &&
-                  index >= currentTurnStart &&
-                  index < arr.length - 1 &&
-                  message.type !== "human"
-                ) {
-                  return null;
-                }
+              return displayMessages.map((message, index, arr) => {
                 const prevMessage = index > 0 ? arr[index - 1] : undefined;
                 // Check if there's ANY human message between prev and current
                 // in the FULL unfiltered thread. If so, treat as new turn → show avatar.
