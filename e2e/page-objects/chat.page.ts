@@ -133,18 +133,24 @@ export class ChatPage {
   ): Promise<Locator> {
     const { timeout = 15000 } = opts;
     if (typeof matcher === "string") {
-      const card = this.page.getByTestId(matcher);
-      await card.first().waitFor({ state: "visible", timeout });
-      return card.first();
+      const card = this.page.getByTestId(matcher).first();
+      await card.waitFor({ state: "visible", timeout });
+      return card;
     }
     const start = Date.now();
     while (Date.now() - start < timeout) {
       const candidates = this.page.locator('[data-testid^="card-"]');
       const count = await candidates.count();
       for (let i = 0; i < count; i++) {
-        const el = candidates.nth(i);
-        const tid = (await el.getAttribute("data-testid")) ?? "";
-        if (matcher.test(tid) && (await el.isVisible())) return el;
+        try {
+          const el = candidates.nth(i);
+          const tid = (await el.getAttribute("data-testid")) ?? "";
+          if (matcher.global) matcher.lastIndex = 0;
+          if (matcher.test(tid) && (await el.isVisible())) return el;
+        } catch {
+          // Element detached mid-scan (streaming UI). Skip and continue polling.
+          continue;
+        }
       }
       await this.page.waitForTimeout(250);
     }
@@ -157,7 +163,7 @@ export class ChatPage {
     const count = await bubbles.count();
     const parts: string[] = [];
     for (let i = 0; i < count; i++) {
-      parts.push((await bubbles.nth(i).innerText()) ?? "");
+      parts.push(await bubbles.nth(i).innerText());
     }
     return parts.join("\n");
   }
