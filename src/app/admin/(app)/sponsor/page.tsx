@@ -3,9 +3,12 @@
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import {
+  useSponsorBalance,
   useSponsorConfig,
   useSponsorLogs,
   useSponsorStats,
+  useResetSponsorSlots,
+  useTestTelegramAlert,
   useUpdateSponsorConfig,
 } from "@/features/admin/hooks/use-admin-sponsor";
 
@@ -39,6 +42,116 @@ const input: React.CSSProperties = {
   width: 120,
 };
 
+function BalanceCard() {
+  const { data, isLoading, refetch, isFetching } = useSponsorBalance();
+  const { data: cfg } = useSponsorConfig();
+  const threshold = (cfg as { xlmAlertThreshold?: number } | undefined)?.xlmAlertThreshold ?? 5;
+  const balance = data?.balance ?? 0;
+
+  let badgeColor: string;
+  if (balance > 0 && balance <= threshold) {
+    badgeColor = "#f87171";
+  } else if (balance > 0 && balance <= threshold * 2) {
+    badgeColor = "#fbbf24";
+  } else {
+    badgeColor = "#4ade80";
+  }
+
+  return (
+    <div style={card}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 16,
+        }}
+      >
+        <h2 style={{ fontWeight: 600, fontSize: 15, margin: 0 }}>Sponsor Account Balance</h2>
+        <button
+          onClick={() => refetch()}
+          disabled={isFetching}
+          style={{
+            fontSize: 12,
+            background: "transparent",
+            border: "none",
+            color: "#38bdf8",
+            cursor: isFetching ? "not-allowed" : "pointer",
+            opacity: isFetching ? 0.5 : 1,
+          }}
+        >
+          {isFetching ? "Refreshing..." : "Refresh"}
+        </button>
+      </div>
+      {isLoading ? (
+        <Loader2 className="animate-spin" size={16} />
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 22, fontWeight: 700, color: badgeColor }}>
+            {balance.toFixed(4)} XLM
+          </span>
+          {data?.publicKey && (
+            <span style={{ fontSize: 12, fontFamily: "monospace", color: "rgba(245,248,252,0.4)" }}>
+              {data.publicKey.slice(0, 6)}...{data.publicKey.slice(-6)}
+            </span>
+          )}
+        </div>
+      )}
+      <p style={{ fontSize: 12, color: "rgba(245,248,252,0.3)", margin: "8px 0 0" }}>
+        Alert threshold: {threshold} XLM
+      </p>
+    </div>
+  );
+}
+
+function TestAlertButton() {
+  const { mutate, isPending } = useTestTelegramAlert();
+  return (
+    <button
+      onClick={() => mutate()}
+      disabled={isPending}
+      style={{
+        fontSize: 13,
+        padding: "6px 14px",
+        borderRadius: 8,
+        border: "1px solid rgba(255,255,255,0.15)",
+        background: "transparent",
+        color: "inherit",
+        cursor: isPending ? "not-allowed" : "pointer",
+        opacity: isPending ? 0.5 : 1,
+      }}
+    >
+      {isPending ? "Sending..." : "Test Alert"}
+    </button>
+  );
+}
+
+function ResetSlotsButton() {
+  const { mutate, isPending } = useResetSponsorSlots();
+  return (
+    <button
+      onClick={() => {
+        if (window.confirm("Reset slot counter to 0? This allows new users to be sponsored.")) {
+          mutate();
+        }
+      }}
+      disabled={isPending}
+      style={{
+        fontSize: 13,
+        padding: "6px 14px",
+        borderRadius: 8,
+        border: "1px solid rgba(239,68,68,0.3)",
+        background: "transparent",
+        color: "#f87171",
+        cursor: isPending ? "not-allowed" : "pointer",
+        opacity: isPending ? 0.5 : 1,
+      }}
+    >
+      {isPending ? "Resetting..." : "Reset Slot Counter"}
+    </button>
+  );
+}
+
 function ConfigCard() {
   const { data: cfg, isLoading } = useSponsorConfig();
   const update = useUpdateSponsorConfig();
@@ -46,18 +159,31 @@ function ConfigCard() {
   const [slots, setSlots] = useState("");
   const [txPerDay, setTxPerDay] = useState("");
   const [active, setActive] = useState(true);
+  const [xlmAlertThreshold, setXlmAlertThreshold] = useState("");
+  const [telegramChatId, setTelegramChatId] = useState("");
 
   function startEdit() {
     if (!cfg) return;
     setSlots(String(cfg.maxSlots));
     setTxPerDay(String(cfg.maxTxPerUserPerDay));
     setActive(cfg.active);
+    const cfgAny = cfg as Record<string, unknown>;
+    setXlmAlertThreshold(String(cfgAny.xlmAlertThreshold ?? ""));
+    setTelegramChatId(String(cfgAny.telegramChatId ?? ""));
     setEditing(true);
   }
 
   function save() {
+    const extra: Record<string, unknown> = {};
+    if (xlmAlertThreshold !== "") extra.xlmAlertThreshold = parseFloat(xlmAlertThreshold);
+    if (telegramChatId !== "") extra.telegramChatId = telegramChatId;
     update.mutate(
-      { maxSlots: Number(slots), maxTxPerUserPerDay: Number(txPerDay), active },
+      {
+        maxSlots: Number(slots),
+        maxTxPerUserPerDay: Number(txPerDay),
+        active,
+        ...extra,
+      } as Parameters<typeof update.mutate>[0],
       { onSuccess: () => setEditing(false) }
     );
   }
@@ -152,6 +278,27 @@ function ConfigCard() {
                 />
                 <span style={{ fontSize: 13 }}>{active ? "Enabled" : "Paused"}</span>
               </div>
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={label}>Alert Threshold (XLM)</span>
+              <input
+                style={input}
+                type="number"
+                step="0.1"
+                min="0"
+                value={xlmAlertThreshold}
+                onChange={(e) => setXlmAlertThreshold(e.target.value)}
+              />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={label}>Telegram Chat ID</span>
+              <input
+                style={{ ...input, width: 180, fontFamily: "monospace" }}
+                type="text"
+                placeholder="-100xxxxxxxxx"
+                value={telegramChatId}
+                onChange={(e) => setTelegramChatId(e.target.value)}
+              />
             </label>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -395,7 +542,12 @@ export default function SponsorAdminPage() {
   return (
     <div style={{ padding: "24px 32px", maxWidth: 960 }}>
       <h1 style={{ fontWeight: 700, fontSize: 22, margin: "0 0 20px" }}>Gas Sponsor</h1>
+      <BalanceCard />
       <ConfigCard />
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <TestAlertButton />
+        <ResetSlotsButton />
+      </div>
       <StatsCard />
       <LogsTable />
     </div>

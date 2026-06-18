@@ -135,7 +135,12 @@ export function useSponsorStats() {
       const onboarding = res.byType.find((b) => b.txType === "onboarding")?.count ?? 0;
       const ai_chat = res.byType.find((b) => b.txType === "ai_chat")?.count ?? 0;
       const slotUsage = res.maxSlots > 0 ? res.usedSlots / res.maxSlots : 0;
-      return { total: res.totalSponsored, totalFeeXlm: res.totalFeeXlm, byType: { onboarding, ai_chat }, slotUsage };
+      return {
+        total: res.totalSponsored,
+        totalFeeXlm: res.totalFeeXlm,
+        byType: { onboarding, ai_chat },
+        slotUsage,
+      };
     },
     enabled: !!token,
     refetchInterval: 30000,
@@ -154,5 +159,46 @@ export function useSponsorLogs(page: number, limit: number) {
     },
     enabled: !!token,
     placeholderData: (prev) => prev,
+  });
+}
+
+export interface SponsorBalance {
+  balance: number;
+  publicKey: string;
+}
+
+export function useSponsorBalance() {
+  const token = useAdminAuthStore((s) => s.token);
+  return useQuery<SponsorBalance>({
+    queryKey: ["admin-sponsor-balance"],
+    queryFn: () => adminFetch<SponsorBalance>("/api/admin/sponsor/balance"),
+    enabled: !!token,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useResetSponsorSlots() {
+  const queryClient = useQueryClient();
+  return useMutation<{ reset: boolean; configId: number }, Error>({
+    mutationFn: () =>
+      adminFetch<{ reset: boolean; configId: number }>("/api/admin/sponsor/reset-slots", {
+        method: "POST",
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-sponsor-config"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-sponsor-stats"] });
+      toast.success("Slot counter reset to 0");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+}
+
+export function useTestTelegramAlert() {
+  return useMutation<{ sent: boolean }, Error>({
+    mutationFn: () =>
+      adminFetch<{ sent: boolean }>("/api/admin/sponsor/test-alert", { method: "POST" }),
+    onSuccess: () => toast.success("Test alert sent — check your Telegram"),
+    onError: (err) => toast.error(`Alert failed: ${err.message}`),
   });
 }
