@@ -19,7 +19,9 @@ test.describe("Auth rehydrate (/api/auth/me)", () => {
     expect(meResponse?.status()).toBe(200);
   });
 
-  test("chat call after rehydrate sends Authorization header and is not 403/500", async ({ page }) => {
+  test("chat call after rehydrate sends Authorization header and is not 403/500", async ({
+    page,
+  }) => {
     const wallet = freshWallet();
     await loginViaCookieOnly(page, wallet);
 

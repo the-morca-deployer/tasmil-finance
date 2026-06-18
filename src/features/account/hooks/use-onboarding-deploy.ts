@@ -139,10 +139,7 @@ export function useOnboardingDeploy({
         : undefined;
     if (detail === "KEEPER_NOT_DEPLOYED") return true;
     const text = String(e?.message ?? "");
-    return (
-      text.includes("KEEPER_NOT_DEPLOYED") ||
-      text.includes("not fully deployed on-chain")
-    );
+    return text.includes("KEEPER_NOT_DEPLOYED") || text.includes("not fully deployed on-chain");
   };
 
   /** Build, sign, and submit the deploy TX. Optionally pass `recover: true`

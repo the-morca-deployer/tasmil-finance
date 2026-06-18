@@ -210,7 +210,11 @@ test.describe("User journey — mobile interactions", () => {
     const sheet = page.getByRole("dialog");
     await expect(sheet).toBeVisible({ timeout: 5000 });
     // Custom close button (X) inside the sheet
-    await sheet.locator("button").filter({ has: page.locator("svg.lucide-x") }).first().click();
+    await sheet
+      .locator("button")
+      .filter({ has: page.locator("svg.lucide-x") })
+      .first()
+      .click();
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
 

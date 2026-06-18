@@ -1,15 +1,14 @@
 "use client";
 
 import { AlertCircle, CheckCircle, Info, Loader2, ShieldCheck, Wallet, Zap } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button-v2";
 import { useWalletStore } from "@/store/use-wallet";
-
-import { useOnboardingDeploy } from "../hooks/use-onboarding-deploy";
 import { usePresets } from "../hooks/use-account-api";
+import { useOnboardingDeploy } from "../hooks/use-onboarding-deploy";
 import type { DeploySubStep, RiskPreset } from "../types";
 import { DeployStepper } from "./deploy-stepper";
 import { PresetCard } from "./preset-card";

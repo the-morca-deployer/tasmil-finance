@@ -23,9 +23,16 @@ export function proxy(request: NextRequest) {
   }
 
   // Auth gate: require tasmil_auth cookie for all protected routes
-  const authCookie = request.cookies.get("tasmil_auth");
-  if (!authCookie?.value) {
-    return NextResponse.redirect(new URL("/", request.url));
+  if (
+    !(
+      process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === "true" &&
+      process.env.NEXT_PUBLIC_APP_ENV !== "production"
+    )
+  ) {
+    const authCookie = request.cookies.get("tasmil_auth");
+    if (!authCookie?.value) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 
   // Faucet: testnet only

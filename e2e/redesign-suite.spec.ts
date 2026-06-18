@@ -16,9 +16,7 @@ import { freshWallet, loginAsWallet } from "./helpers/auth";
 test.describe("Redesign UI suite — disconnected /farming", () => {
   test("01 — ConnectPrompt heading 'Connect Your Wallet' renders", async ({ page }) => {
     await page.goto("/farming");
-    await expect(
-      page.getByRole("heading", { name: /^Connect Your Wallet$/i })
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Connect Your Wallet$/i })).toBeVisible();
   });
 
   test("02 — top-bar Connect Wallet button visible when disconnected", async ({ page }) => {
@@ -40,18 +38,18 @@ test.describe("Redesign UI suite — Get Started empty state (authed, no Positio
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
-    await expect(
-      page.getByRole("heading", { name: /Set up your farming account/i })
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole("heading", { name: /Set up your farming account/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("05 — explainer mentions asset + strategy + signatures", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
-    await expect(
-      page.getByText(/Choose the asset and strategy your agent will use/i)
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/Choose the asset and strategy your agent will use/i)).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("06 — Get started CTA button visible and links into wizard", async ({ page, context }) => {
