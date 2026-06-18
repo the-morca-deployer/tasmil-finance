@@ -1,5 +1,6 @@
 "use client";
 
+import { DEV_BYPASS } from "@/lib/dev-bypass";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useAuthStore } from "@/store/use-auth";
 import { ChatProvider } from "../providers";
@@ -15,12 +16,13 @@ export function ChatPageWrapper({ agentId, chatId }: ChatPageWrapperProps) {
   const { isConnected, connectWalletOnly, forceReauth } = useWallet();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
-  if (!isConnected) {
-    return <ChatAuthState mode="disconnected" onConnect={() => void connectWalletOnly()} />;
-  }
-
-  if (!isAuthenticated) {
-    return <ChatAuthState mode="session-invalid" onReconnect={() => void forceReauth()} />;
+  if (!DEV_BYPASS) {
+    if (!isConnected) {
+      return <ChatAuthState mode="disconnected" onConnect={() => void connectWalletOnly()} />;
+    }
+    if (!isAuthenticated) {
+      return <ChatAuthState mode="session-invalid" onReconnect={() => void forceReauth()} />;
+    }
   }
 
   const initialThreadId = chatId === "new" ? undefined : chatId;

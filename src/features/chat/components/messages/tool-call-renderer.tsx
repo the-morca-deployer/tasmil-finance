@@ -5,15 +5,15 @@ import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { SupervisorAgentCallCard } from "@/features/chat/actions/components/stellar/supervisor-agent-call-card";
-import { useStreamContext } from "@/features/chat/hooks/use-stream";
-import { parseToolResult } from "@/features/chat/lib/parse-tool-result";
-import type { RendererEntry, SharedRenderProps } from "@/features/chat/lib/tool-renderer-registry";
-import { ToolStatusDispatcher } from "@/shared/components/tool-status-dispatcher";
 import {
   SUPERVISOR_AGENTS,
   TASMIL_INFO_TOOLS,
   toolRendererRegistry,
 } from "@/features/chat/actions/renderers/index";
+import { useStreamContext } from "@/features/chat/hooks/use-stream";
+import { parseToolResult } from "@/features/chat/lib/parse-tool-result";
+import type { RendererEntry, SharedRenderProps } from "@/features/chat/lib/tool-renderer-registry";
+import { ToolStatusDispatcher } from "@/shared/components/tool-status-dispatcher";
 
 interface ToolCallData {
   id: string;
@@ -42,22 +42,25 @@ function BlendOpWithRespond({
       const success = Boolean(result.success);
       try {
         if (stream.interrupt) {
-          await stream.submit({}, {
-            command: {
-              update: {
-                messages: [
-                  {
-                    type: "tool",
-                    tool_call_id: toolCallId,
-                    id: `__do_not_render__${uuidv4()}`,
-                    name: toolName,
-                    content: JSON.stringify(result),
-                  },
-                ],
+          await stream.submit(
+            {},
+            {
+              command: {
+                update: {
+                  messages: [
+                    {
+                      type: "tool",
+                      tool_call_id: toolCallId,
+                      id: `__do_not_render__${uuidv4()}`,
+                      name: toolName,
+                      content: JSON.stringify(result),
+                    },
+                  ],
+                },
+                resume: { decisions: [{ type: success ? "approve" : "reject" }] },
               },
-              resume: { decisions: [{ type: success ? "approve" : "reject" }] },
-            },
-          });
+            }
+          );
         } else {
           const msg = success
             ? `Transaction confirmed for ${toolName}`
@@ -65,7 +68,9 @@ function BlendOpWithRespond({
               ? String(result.reason)
               : "I want to cancel this transaction";
           await stream.submit({
-            messages: [{ type: "human" as const, content: msg, id: `__hidden__respond-${uuidv4()}` }],
+            messages: [
+              { type: "human" as const, content: msg, id: `__hidden__respond-${uuidv4()}` },
+            ],
           });
         }
         if (!success) toast.info("Transaction cancelled");
@@ -73,18 +78,12 @@ function BlendOpWithRespond({
         console.error("[BlendOpWithRespond] Error resuming graph:", error);
       }
     },
-    [stream, toolCallId, toolName],
+    [stream, toolCallId, toolName]
   );
   return entry.render({ ...renderProps, respond });
 }
 
-export function ToolCallRenderer({
-  message,
-  messages,
-}: {
-  message: Message;
-  messages: Message[];
-}) {
+export function ToolCallRenderer({ message, messages }: { message: Message; messages: Message[] }) {
   const toolCalls: ToolCallData[] =
     message && "tool_calls" in message ? ((message.tool_calls as ToolCallData[]) ?? []) : [];
 
@@ -122,7 +121,7 @@ export function ToolCallRenderer({
         if (prev.type !== "ai" || !prev.tool_calls?.length) continue;
         if (
           prev.tool_calls.some(
-            (pc: any) => pc.name === tc.name && JSON.stringify(pc.args) === argsKey,
+            (pc: any) => pc.name === tc.name && JSON.stringify(pc.args) === argsKey
           )
         ) {
           dupes.add(tc.id);
@@ -158,7 +157,8 @@ export function ToolCallRenderer({
 
         // O(1) registry lookup — replaces 3 separate O(n) .find() calls
         const entry = isComplete ? toolRendererRegistry.get(tc.name) : null;
-        const shouldRenderCard = entry && !(entry.kind === "info" && !TASMIL_INFO_TOOLS.has(tc.name));
+        const shouldRenderCard =
+          entry && !(entry.kind === "info" && !TASMIL_INFO_TOOLS.has(tc.name));
         const status = result?.hasError ? "error" : isComplete ? "complete" : "calling";
         const renderProps: SharedRenderProps = {
           status: "complete",
@@ -177,28 +177,27 @@ export function ToolCallRenderer({
             />
             {isComplete &&
               shouldRenderCard &&
-              !(result?.hasError && (entry.kind === "shared-op" || entry.kind === "operation")) && (
-                entry.kind === "shared-op" || entry.kind === "shared" ? (
-                  <div className="max-w-[360px]">
-                    <BlendOpWithRespond
-                      toolCallId={tc.id}
-                      toolName={tc.name}
-                      renderProps={renderProps}
-                      entry={entry as RendererEntry & { kind: "shared" | "shared-op" }}
-                    />
-                  </div>
-                ) : (
-                  <entry.component
-                    type={entry.kind === "info" ? entry.label : undefined}
-                    operation={entry.kind === "operation" ? entry.label : undefined}
-                    toolName={tc.name}
-                    args={tc.args}
-                    result={result?.content}
-                    status="complete"
+              !(result?.hasError && (entry.kind === "shared-op" || entry.kind === "operation")) &&
+              (entry.kind === "shared-op" || entry.kind === "shared" ? (
+                <div className="max-w-[360px]">
+                  <BlendOpWithRespond
                     toolCallId={tc.id}
+                    toolName={tc.name}
+                    renderProps={renderProps}
+                    entry={entry as RendererEntry & { kind: "shared" | "shared-op" }}
                   />
-                )
-              )}
+                </div>
+              ) : (
+                <entry.component
+                  type={entry.kind === "info" ? entry.label : undefined}
+                  operation={entry.kind === "operation" ? entry.label : undefined}
+                  toolName={tc.name}
+                  args={tc.args}
+                  result={result?.content}
+                  status="complete"
+                  toolCallId={tc.id}
+                />
+              ))}
           </div>
         );
       })}

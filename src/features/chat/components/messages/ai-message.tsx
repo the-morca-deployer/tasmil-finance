@@ -128,7 +128,7 @@ export function AssistantMessage({
       const m = thread.messages[i];
       if (!m) continue;
       if (m.type === "human") return true;
-      if (m.type === "ai") return false;
+      if (m.type === "ai" || (m.type as string) === "assistant") return false;
     }
     return true;
   })();
@@ -136,14 +136,14 @@ export function AssistantMessage({
   const hasReasoning = !!reasoningContent && isFirstAiInTurn;
   const isLastMessage =
     thread.messages.length > 0 && thread.messages[thread.messages.length - 1]?.id === message?.id;
-  const hasNoAIOrToolMessages = !thread.messages.find((m) => m.type === "ai" || m.type === "tool");
+  const hasNoAIOrToolMessages = !thread.messages.find((m) => m.type === "ai" || (m.type as string) === "assistant" || m.type === "tool");
   // Check if next non-tool message is also an AI message (i.e. this is an intermediate message)
   const currentIdx = message ? thread.messages.findIndex((m) => m.id === message.id) : -1;
   const nextVisibleMessage =
     currentIdx >= 0
       ? thread.messages.slice(currentIdx + 1).find((m) => m.type !== "tool")
       : undefined;
-  const isIntermediateAiMessage = !isLastMessage && nextVisibleMessage?.type === "ai";
+  const isIntermediateAiMessage = !isLastMessage && (nextVisibleMessage?.type === "ai" || (nextVisibleMessage?.type as string) === "assistant");
   const meta = message ? thread.getMessagesMetadata?.(message) : undefined;
   const threadInterrupt = thread.interrupt;
 
@@ -165,13 +165,17 @@ export function AssistantMessage({
     return null;
   }
 
-  // parse_user_intent is now shown as a visible step (like demo-ai)
-
   // Whether this message has tool calls that produce UI
   const hasToolCalls = !!(allToolCalls && allToolCalls.length > 0);
 
+  // Intermediate text-only messages (supervisor saying "Let me check…" before tool calls)
+  // are hidden — they create a confusing thinking/content loop for the user.
+  if (isIntermediateAiMessage && !hasToolCalls && contentString.length > 0) {
+    return null;
+  }
+
   return (
-    <div className="group mr-auto flex w-full flex-col items-start gap-2 overflow-hidden md:flex-row md:gap-3">
+    <div data-testid="ai-message" className="group mr-auto flex w-full flex-col items-start gap-2 overflow-hidden md:flex-row md:gap-3">
       <div className="w-10 shrink-0">{!hideAvatar && <AgentAvatar />}</div>
       <div className="flex w-full min-w-0 flex-1 flex-col gap-1">
         {isToolResult ? (

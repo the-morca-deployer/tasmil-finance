@@ -20,7 +20,8 @@ export function parseFlowResult(result: unknown): Record<string, unknown> | null
       if (text) {
         try {
           const val = JSON.parse(text);
-          if (typeof val === "object" && val !== null && !Array.isArray(val)) return val as Record<string, unknown>;
+          if (typeof val === "object" && val !== null && !Array.isArray(val))
+            return val as Record<string, unknown>;
         } catch {
           /* fall */
         }
@@ -29,7 +30,8 @@ export function parseFlowResult(result: unknown): Record<string, unknown> | null
     if ("content" in obj && typeof obj.content === "string") {
       try {
         const val = JSON.parse(obj.content);
-        if (typeof val === "object" && val !== null && !Array.isArray(val)) return val as Record<string, unknown>;
+        if (typeof val === "object" && val !== null && !Array.isArray(val))
+          return val as Record<string, unknown>;
       } catch {
         /* fall */
       }
@@ -49,13 +51,15 @@ export function parseFlowResult(result: unknown): Record<string, unknown> | null
       if (typeof parsed === "string") {
         try {
           const val = JSON.parse(parsed);
-          if (typeof val === "object" && val !== null && !Array.isArray(val)) return val as Record<string, unknown>;
+          if (typeof val === "object" && val !== null && !Array.isArray(val))
+            return val as Record<string, unknown>;
           return null;
         } catch {
           return null;
         }
       }
-      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) return parsed as Record<string, unknown>;
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed))
+        return parsed as Record<string, unknown>;
       return null;
     } catch {
       return null;

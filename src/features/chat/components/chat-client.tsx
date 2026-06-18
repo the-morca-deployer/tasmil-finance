@@ -286,7 +286,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const lastAiMessageIdRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    if (messages?.length && messages[messages.length - 1]?.type === "ai") {
+    const lastMsgType = messages[messages.length - 1]?.type;
+    if (messages?.length && (lastMsgType === "ai" || (lastMsgType as string) === "assistant")) {
       const lastAiMsg = messages[messages.length - 1];
       const messageId = lastAiMsg?.id;
 
@@ -648,8 +649,10 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                 (m, index, arr) => !shouldFilterMessage(m, index, arr, uiComponents, messages)
               );
 
-              // Turn collapse: while loading, hide intermediate AI messages in the
-              // current turn so "Thinking..." always precedes text, never follows it.
+              // Turn collapse: hide intermediate AI messages whenever the last
+              // AI message in the current turn has no content yet. This covers both
+              // the loading phase AND the brief gap between sub-agent steps where
+              // effectiveIsLoading drops to false between runs.
               const lastHumanIdx = (() => {
                 for (let i = filtered.length - 1; i >= 0; i--) {
                   if (filtered[i]?.type === "human") return i;
@@ -657,9 +660,38 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                 return -1;
               })();
               const currentTurnStart = lastHumanIdx + 1;
-              const displayMessages = effectiveIsLoading
+              const lastTurnMsg = filtered[filtered.length - 1];
+              const lastTurnMsgHasContent = (() => {
+                if (!lastTurnMsg || lastTurnMsg.type === "human") return false;
+                const c = (lastTurnMsg as any)?.content;
+                if (typeof c === "string") return c.trim().length > 0;
+                if (Array.isArray(c))
+                  return c
+                    .filter((x: any) => x.type === "text")
+                    .some((x: any) => (x.text ?? "").trim().length > 0);
+                return false;
+              })();
+              const collapsingTurn = effectiveIsLoading || !lastTurnMsgHasContent;
+              const displayMessages = collapsingTurn
                 ? filtered.filter((_, i, arr) => i < currentTurnStart || i === arr.length - 1)
                 : filtered;
+
+              const aiInDisplay = displayMessages.filter((m) => m.type === "ai" || (m.type as string) === "assistant");
+              if (aiInDisplay.length > 1) {
+                console.warn("[render-debug] MULTI-AI in displayMessages", {
+                  effectiveIsLoading,
+                  collapsingTurn,
+                  lastTurnMsgHasContent,
+                  filteredLen: filtered.length,
+                  displayLen: displayMessages.length,
+                  aiTexts: aiInDisplay.map((m) => {
+                    const c = (m as any)?.content;
+                    if (typeof c === "string") return c.slice(0, 40);
+                    if (Array.isArray(c)) return c.filter((x: any) => x.type === "text").map((x: any) => x.text?.slice(0, 40)).join("|");
+                    return "(no text)";
+                  }),
+                });
+              }
 
               return displayMessages.map((message, index, arr) => {
                 const prevMessage = index > 0 ? arr[index - 1] : undefined;
@@ -731,11 +763,37 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                 const lastHumanIdx = messages.findLastIndex((m) => m.type === "human");
                 const hasNewAIMessage = messages
                   .slice(lastHumanIdx + 1)
-                  .some((m) => m.type === "ai");
+                  .some((m) => m.type === "ai" || (m.type as string) === "assistant");
                 if (hasNewAIMessage) {
                   return null;
                 }
 
+                // Also suppress if any AI message in the current turn already has
+                // visible text content — showing AssistantMessageLoading alongside
+                // streaming supervisor text creates the exact regression we're fixing.
+                const hasStreamingContent = messages
+                  .slice(lastHumanIdx + 1)
+                  .some((m) => {
+                    if (m.type !== "ai" && (m.type as string) !== "assistant") return false;
+                    const c = (m as any)?.content;
+                    if (typeof c === "string") return c.trim().length > 0;
+                    if (Array.isArray(c))
+                      return c
+                        .filter((x: any) => x.type === "text")
+                        .some((x: any) => (x.text ?? "").trim().length > 0);
+                    return false;
+                  });
+                if (hasStreamingContent) return null;
+
+                const afterHuman = messages.slice(lastHumanIdx + 1);
+                const summary = afterHuman.map((m) => {
+                  const c = (m as any)?.content;
+                  let ct = "(no-text)";
+                  if (typeof c === "string") ct = c.slice(0, 30);
+                  else if (Array.isArray(c)) ct = c.filter((x: any) => x.type === "text").map((x: any) => (x.text ?? "").slice(0, 30)).join("|");
+                  return `${m.type}:${m.id?.slice(-6)}:"${ct}"`;
+                }).join(" | ");
+                console.warn(`[render-debug] AssistantMessageLoading WILL render (${afterHuman.length} msgs after human): ${summary}`);
                 return <AssistantMessageLoading />;
               })()}
           </div>

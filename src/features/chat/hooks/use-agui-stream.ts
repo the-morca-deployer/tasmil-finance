@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useAuthStore } from "@/store/use-auth";
 import { AguiEventProcessor } from "../lib/agui-event-processor";
 import type { StreamContextType } from "../providers/stream-provider";
+import type { ChatAgentMessage, ToolCallSlot } from "../stores/chat-agent-store";
 import { useChatAgentStore } from "../stores/chat-agent-store";
 
 export interface AguiStreamConfig {
@@ -108,8 +109,8 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
           messages: msgs,
           headers: config.defaultHeaders,
           forwardedProps: {
-            wallet_address: payload.wallet_address,
             charge_usage: payload.charge_usage,
+            ...(payload.wallet_address && { wallet_address: payload.wallet_address }),
           },
         });
       } finally {
@@ -153,18 +154,59 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function _toStreamMessages(
-  messages: ReturnType<typeof useChatAgentStore>["messages"],
-  slots: ReturnType<typeof useChatAgentStore>["toolCallSlots"]
+  messages: ChatAgentMessage[],
+  slots: Record<string, ToolCallSlot>
 ): any[] {
-  return messages.map((m) => ({
-    id: m.id,
-    type: m.role,
-    content: m.content,
-    tool_calls: m.toolCalls.map((id) => {
-      const slot = slots[id];
-      return { id, name: slot?.toolName ?? "", args: slot?.args ?? {} };
-    }),
-  }));
+  const result: any[] = [];
+  for (const m of messages) {
+    result.push({
+      id: m.id,
+      type: m.role,
+      content: m.content,
+      tool_calls: m.toolCalls.map((id) => {
+        const slot = slots[id];
+        return { id, name: slot?.toolName ?? "", args: slot?.args ?? {} };
+      }),
+    });
+    // Synthesize tool result messages so ToolCallRenderer can mark steps complete.
+    // The store tracks results in toolCallSlots but never emits them as message objects;
+    // without this, resultMap in ToolCallRenderer is always empty and every step shows
+    // "calling" (spinner) even after the agent finishes.
+    for (const toolCallId of m.toolCalls) {
+      const slot = slots[toolCallId];
+      if (slot && (slot.status === "done" || slot.status === "error") && slot.result !== null) {
+        result.push({
+          id: `__tool_result__${toolCallId}`,
+          type: "tool",
+          tool_call_id: toolCallId,
+          name: slot.toolName,
+          content: typeof slot.result === "string" ? slot.result : JSON.stringify(slot.result),
+        });
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * LangGraph persists message content as either a plain string or an array of
+ * content blocks like `[{ type: "text", text: "..." }, ...]`. The original
+ * replay code only kept string content, so reloaded threads showed empty AI
+ * messages even when the conversation had real text. Walk both shapes here.
+ */
+function _extractText(content: unknown): string {
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return "";
+  return content
+    .map((block: any) => {
+      if (typeof block === "string") return block;
+      if (block && typeof block === "object") {
+        if (typeof block.text === "string") return block.text;
+        if (block.type === "text" && typeof block.value === "string") return block.value;
+      }
+      return "";
+    })
+    .join("");
 }
 
 function _populateFromHistory(rawMessages: any[]): void {
@@ -183,14 +225,15 @@ function _populateFromHistory(rawMessages: any[]): void {
     if (msg.type === "system") continue;
 
     if (msg.type === "human") {
-      store.addHumanMessage(msg.id, typeof msg.content === "string" ? msg.content : "");
+      store.addHumanMessage(msg.id, _extractText(msg.content));
     } else if (msg.type === "ai") {
       store.applyEvent({ type: "TEXT_MESSAGE_START", messageId: msg.id, role: "assistant" });
-      if (msg.content) {
+      const text = _extractText(msg.content);
+      if (text) {
         store.applyEvent({
           type: "TEXT_MESSAGE_CONTENT",
           messageId: msg.id,
-          delta: typeof msg.content === "string" ? msg.content : "",
+          delta: text,
         });
       }
       store.applyEvent({ type: "TEXT_MESSAGE_END", messageId: msg.id });
@@ -205,6 +248,15 @@ function _populateFromHistory(rawMessages: any[]): void {
           type: "TOOL_CALL_ARGS",
           toolCallId: tc.id,
           delta: JSON.stringify(tc.args ?? {}),
+        });
+        // On history replay there's no separate TOOL_CALL_END event, so mark
+        // the slot complete immediately — otherwise reloaded conversations
+        // show every past tool call stuck on a spinner.
+        store.applyEvent({
+          type: "TOOL_CALL_RESULT",
+          toolCallId: tc.id,
+          content: "",
+          isError: false,
         });
       }
     } else if (msg.type === "tool" && msg.tool_call_id) {

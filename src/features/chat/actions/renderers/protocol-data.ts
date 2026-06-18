@@ -185,98 +185,100 @@ export const INFO_ENTRIES: { toolName: string; entry: RendererEntry & { kind: "i
   },
 ];
 
-export const OPERATION_ENTRIES: { toolName: string; entry: RendererEntry & { kind: "operation" } }[] =
-  [
-    {
-      toolName: "swap_build_transaction",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "swap_execute" },
+export const OPERATION_ENTRIES: {
+  toolName: string;
+  entry: RendererEntry & { kind: "operation" };
+}[] = [
+  {
+    toolName: "swap_build_transaction",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "swap_execute" },
+  },
+  {
+    toolName: "swap_add_liquidity",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "add_liquidity" },
+  },
+  {
+    toolName: "swap_remove_liquidity",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "remove_liquidity" },
+  },
+  {
+    toolName: "sdex_swap",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "sdex_swap_execute" },
+  },
+  {
+    toolName: "phoenix_swap",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "phoenix_swap_execute" },
+  },
+  {
+    toolName: "phoenix_provide_liquidity",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "provide_liquidity" },
+  },
+  {
+    toolName: "phoenix_withdraw_liquidity",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "withdraw_liquidity" },
+  },
+  {
+    toolName: "phoenix_stake_bond",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "stake_bond" },
+  },
+  {
+    toolName: "phoenix_stake_unbond",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "stake_unbond" },
+  },
+  {
+    toolName: "phoenix_stake_claim_rewards",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "claim_rewards" },
+  },
+  {
+    toolName: "bridge_build_transaction",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "bridge_execute" },
+  },
+  {
+    toolName: "allbridge_build_transaction",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "allbridge_execute" },
+  },
+  {
+    toolName: "templar_swap_execute",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "templar_swap" },
+  },
+  {
+    toolName: "templar_supply",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "templar_supply" },
+  },
+  {
+    toolName: "templar_borrow",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "templar_borrow" },
+  },
+  {
+    toolName: "execute_swap",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "swap_execute" },
+  },
+  {
+    toolName: "execute_bridge",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "bridge_execute" },
+  },
+  {
+    toolName: "execute_earn",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "earn_execute" },
+  },
+  {
+    toolName: "execute_lending",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "lending_execute" },
+  },
+  {
+    toolName: "vault_deposit",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "vault_deposit" },
+  },
+  {
+    toolName: "vault_withdraw",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "vault_withdraw" },
+  },
+  {
+    toolName: "vault_withdraw_by_amounts",
+    entry: {
+      kind: "operation",
+      component: StellarExecuteCard,
+      label: "vault_withdraw_by_amounts",
     },
-    {
-      toolName: "swap_add_liquidity",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "add_liquidity" },
-    },
-    {
-      toolName: "swap_remove_liquidity",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "remove_liquidity" },
-    },
-    {
-      toolName: "sdex_swap",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "sdex_swap_execute" },
-    },
-    {
-      toolName: "phoenix_swap",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "phoenix_swap_execute" },
-    },
-    {
-      toolName: "phoenix_provide_liquidity",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "provide_liquidity" },
-    },
-    {
-      toolName: "phoenix_withdraw_liquidity",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "withdraw_liquidity" },
-    },
-    {
-      toolName: "phoenix_stake_bond",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "stake_bond" },
-    },
-    {
-      toolName: "phoenix_stake_unbond",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "stake_unbond" },
-    },
-    {
-      toolName: "phoenix_stake_claim_rewards",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "claim_rewards" },
-    },
-    {
-      toolName: "bridge_build_transaction",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "bridge_execute" },
-    },
-    {
-      toolName: "allbridge_build_transaction",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "allbridge_execute" },
-    },
-    {
-      toolName: "templar_swap_execute",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "templar_swap" },
-    },
-    {
-      toolName: "templar_supply",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "templar_supply" },
-    },
-    {
-      toolName: "templar_borrow",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "templar_borrow" },
-    },
-    {
-      toolName: "execute_swap",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "swap_execute" },
-    },
-    {
-      toolName: "execute_bridge",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "bridge_execute" },
-    },
-    {
-      toolName: "execute_earn",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "earn_execute" },
-    },
-    {
-      toolName: "execute_lending",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "lending_execute" },
-    },
-    {
-      toolName: "vault_deposit",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "vault_deposit" },
-    },
-    {
-      toolName: "vault_withdraw",
-      entry: { kind: "operation", component: StellarExecuteCard, label: "vault_withdraw" },
-    },
-    {
-      toolName: "vault_withdraw_by_amounts",
-      entry: {
-        kind: "operation",
-        component: StellarExecuteCard,
-        label: "vault_withdraw_by_amounts",
-      },
-    },
-  ];
+  },
+];
