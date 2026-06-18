@@ -22,7 +22,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Auth gate: require tasmil_auth cookie for all protected routes
+  // Auth gate: require tasmil_auth cookie for all protected routes.
+  // DEV_BYPASS_AUTH=true skips the gate (non-production only) so the loop
+  // runner can drive /chat without going through wallet login.
   if (
     !(
       process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === "true" &&

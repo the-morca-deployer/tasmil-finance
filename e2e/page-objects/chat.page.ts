@@ -126,20 +126,54 @@ export class ChatPage {
     await this.scrollToBottom();
   }
 
-  /** Wait for a specific card type to appear in the chat. */
-  async waitForCard(cardType: CardType, timeout = 90_000): Promise<Locator> {
-    const selector = `[data-testid="${cardType}"]`;
-    await this.page.waitForSelector(selector, { timeout });
-    return this.page.locator(selector).last();
+  /** Wait for a specific card type (string testid) or a regex matching any testid. */
+  async waitForCard(matcher: string | RegExp, opts: { timeout?: number } = {}): Promise<Locator> {
+    const { timeout = 15000 } = opts;
+    if (typeof matcher === "string") {
+      const card = this.page.getByTestId(matcher).first();
+      await card.waitFor({ state: "visible", timeout });
+      return card;
+    }
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      const candidates = this.page.locator('[data-testid^="card-"]');
+      const count = await candidates.count();
+      for (let i = 0; i < count; i++) {
+        try {
+          const el = candidates.nth(i);
+          const tid = (await el.getAttribute("data-testid")) ?? "";
+          if (matcher.global) matcher.lastIndex = 0;
+          if (matcher.test(tid) && (await el.isVisible())) return el;
+        } catch {
+          // Element detached mid-scan (streaming UI). Skip and continue polling.
+          continue;
+        }
+      }
+      await this.page.waitForTimeout(250);
+    }
+    throw new Error(`waitForCard: no card matched ${matcher} within ${timeout}ms`);
   }
 
-  /** Wait for any card to appear (returns the last one). */
-  async waitForAnyCard(timeout = 90_000): Promise<{ type: CardType; locator: Locator }> {
-    const cardSelector = '[data-testid^="card-"]';
-    await this.page.waitForSelector(cardSelector, { timeout });
-    const lastCard = this.page.locator(cardSelector).last();
-    const testId = await lastCard.getAttribute("data-testid");
-    return { type: testId as CardType, locator: lastCard };
+  /** Concatenated text of all assistant message bubbles in the chat transcript. */
+  async transcriptText(): Promise<string> {
+    const bubbles = this.page.locator('[data-role="assistant"]');
+    const count = await bubbles.count();
+    const parts: string[] = [];
+    for (let i = 0; i < count; i++) {
+      parts.push(await bubbles.nth(i).innerText());
+    }
+    return parts.join("\n");
+  }
+
+  /** Wait for any card to appear (returns the first visible one). */
+  async waitForAnyCard(
+    opts: { timeout?: number } = {}
+  ): Promise<{ type: string; locator: Locator }> {
+    const { timeout = 15000 } = opts;
+    const candidate = this.page.locator('[data-testid^="card-"]').first();
+    await candidate.waitFor({ state: "visible", timeout });
+    const type = (await candidate.getAttribute("data-testid")) ?? "";
+    return { type, locator: candidate };
   }
 
   /** Get all cards currently visible in the chat. */
