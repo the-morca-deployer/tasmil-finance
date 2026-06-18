@@ -676,7 +676,9 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                 ? filtered.filter((_, i, arr) => i < currentTurnStart || i === arr.length - 1)
                 : filtered;
 
-              const aiInDisplay = displayMessages.filter((m) => m.type === "ai" || (m.type as string) === "assistant");
+              const aiInDisplay = displayMessages.filter(
+                (m) => m.type === "ai" || (m.type as string) === "assistant"
+              );
               if (aiInDisplay.length > 1) {
                 console.warn("[render-debug] MULTI-AI in displayMessages", {
                   effectiveIsLoading,
@@ -687,7 +689,11 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                   aiTexts: aiInDisplay.map((m) => {
                     const c = (m as any)?.content;
                     if (typeof c === "string") return c.slice(0, 40);
-                    if (Array.isArray(c)) return c.filter((x: any) => x.type === "text").map((x: any) => x.text?.slice(0, 40)).join("|");
+                    if (Array.isArray(c))
+                      return c
+                        .filter((x: any) => x.type === "text")
+                        .map((x: any) => x.text?.slice(0, 40))
+                        .join("|");
                     return "(no text)";
                   }),
                 });
@@ -771,29 +777,35 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                 // Also suppress if any AI message in the current turn already has
                 // visible text content — showing AssistantMessageLoading alongside
                 // streaming supervisor text creates the exact regression we're fixing.
-                const hasStreamingContent = messages
-                  .slice(lastHumanIdx + 1)
-                  .some((m) => {
-                    if (m.type !== "ai" && (m.type as string) !== "assistant") return false;
-                    const c = (m as any)?.content;
-                    if (typeof c === "string") return c.trim().length > 0;
-                    if (Array.isArray(c))
-                      return c
-                        .filter((x: any) => x.type === "text")
-                        .some((x: any) => (x.text ?? "").trim().length > 0);
-                    return false;
-                  });
+                const hasStreamingContent = messages.slice(lastHumanIdx + 1).some((m) => {
+                  if (m.type !== "ai" && (m.type as string) !== "assistant") return false;
+                  const c = (m as any)?.content;
+                  if (typeof c === "string") return c.trim().length > 0;
+                  if (Array.isArray(c))
+                    return c
+                      .filter((x: any) => x.type === "text")
+                      .some((x: any) => (x.text ?? "").trim().length > 0);
+                  return false;
+                });
                 if (hasStreamingContent) return null;
 
                 const afterHuman = messages.slice(lastHumanIdx + 1);
-                const summary = afterHuman.map((m) => {
-                  const c = (m as any)?.content;
-                  let ct = "(no-text)";
-                  if (typeof c === "string") ct = c.slice(0, 30);
-                  else if (Array.isArray(c)) ct = c.filter((x: any) => x.type === "text").map((x: any) => (x.text ?? "").slice(0, 30)).join("|");
-                  return `${m.type}:${m.id?.slice(-6)}:"${ct}"`;
-                }).join(" | ");
-                console.warn(`[render-debug] AssistantMessageLoading WILL render (${afterHuman.length} msgs after human): ${summary}`);
+                const summary = afterHuman
+                  .map((m) => {
+                    const c = (m as any)?.content;
+                    let ct = "(no-text)";
+                    if (typeof c === "string") ct = c.slice(0, 30);
+                    else if (Array.isArray(c))
+                      ct = c
+                        .filter((x: any) => x.type === "text")
+                        .map((x: any) => (x.text ?? "").slice(0, 30))
+                        .join("|");
+                    return `${m.type}:${m.id?.slice(-6)}:"${ct}"`;
+                  })
+                  .join(" | ");
+                console.warn(
+                  `[render-debug] AssistantMessageLoading WILL render (${afterHuman.length} msgs after human): ${summary}`
+                );
                 return <AssistantMessageLoading />;
               })()}
           </div>

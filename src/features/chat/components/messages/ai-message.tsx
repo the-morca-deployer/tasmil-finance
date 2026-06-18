@@ -136,14 +136,18 @@ export function AssistantMessage({
   const hasReasoning = !!reasoningContent && isFirstAiInTurn;
   const isLastMessage =
     thread.messages.length > 0 && thread.messages[thread.messages.length - 1]?.id === message?.id;
-  const hasNoAIOrToolMessages = !thread.messages.find((m) => m.type === "ai" || (m.type as string) === "assistant" || m.type === "tool");
+  const hasNoAIOrToolMessages = !thread.messages.find(
+    (m) => m.type === "ai" || (m.type as string) === "assistant" || m.type === "tool"
+  );
   // Check if next non-tool message is also an AI message (i.e. this is an intermediate message)
   const currentIdx = message ? thread.messages.findIndex((m) => m.id === message.id) : -1;
   const nextVisibleMessage =
     currentIdx >= 0
       ? thread.messages.slice(currentIdx + 1).find((m) => m.type !== "tool")
       : undefined;
-  const isIntermediateAiMessage = !isLastMessage && (nextVisibleMessage?.type === "ai" || (nextVisibleMessage?.type as string) === "assistant");
+  const isIntermediateAiMessage =
+    !isLastMessage &&
+    (nextVisibleMessage?.type === "ai" || (nextVisibleMessage?.type as string) === "assistant");
   const meta = message ? thread.getMessagesMetadata?.(message) : undefined;
   const threadInterrupt = thread.interrupt;
 
@@ -175,7 +179,10 @@ export function AssistantMessage({
   }
 
   return (
-    <div data-testid="ai-message" className="group mr-auto flex w-full flex-col items-start gap-2 overflow-hidden md:flex-row md:gap-3">
+    <div
+      data-testid="ai-message"
+      className="group mr-auto flex w-full flex-col items-start gap-2 overflow-hidden md:flex-row md:gap-3"
+    >
       <div className="w-10 shrink-0">{!hideAvatar && <AgentAvatar />}</div>
       <div className="flex w-full min-w-0 flex-1 flex-col gap-1">
         {isToolResult ? (
