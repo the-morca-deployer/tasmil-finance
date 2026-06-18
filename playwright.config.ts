@@ -129,7 +129,8 @@ export default defineConfig({
         actionTimeout: 180_000,
         navigationTimeout: 60_000,
         ignoreHTTPSErrors: true,
-        storageState: "./e2e/auth.json",
+        // No storageState: mock-track tests stub /accounts/me directly; real-AI
+        // tests in deposit-intent-extraction.spec.ts run loginAsWallet themselves.
         video: "on",
         screenshot: { mode: "on", fullPage: true },
       },
