@@ -751,8 +751,16 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
               />
             )}
 
-            {effectiveIsLoading &&
-              !firstTokenReceived &&
+            {(() => {
+              // Show Thinking whenever the last message is human and no AI
+              // response has streamed in yet. On a brand-new chat the URL
+              // navigates /chat/new → /chat/<id> and the component remounts,
+              // wiping isSubmitting before stream.isLoading flips true — so
+              // gating only on effectiveIsLoading misses the first turn.
+              const lastMsg = messages[messages.length - 1];
+              const lastMsgIsHuman = lastMsg?.type === "human";
+              return (effectiveIsLoading || lastMsgIsHuman) && !firstTokenReceived;
+            })() &&
               (() => {
                 // Check if there are any tool-status UI messages
                 // If yes, don't show "Thinking..." - the tool status UI is already showing
