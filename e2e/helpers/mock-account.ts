@@ -23,7 +23,7 @@ export async function mockAccount(page: Page, opts: MockAccountOptions): Promise
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({ success: true, data: merged }),
-    }),
+    })
   );
   await page.addInitScript((state) => {
     window.localStorage.setItem("tasmil-auth", JSON.stringify(state));

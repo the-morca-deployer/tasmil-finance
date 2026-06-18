@@ -127,10 +127,7 @@ export class ChatPage {
   }
 
   /** Wait for a specific card type (string testid) or a regex matching any testid. */
-  async waitForCard(
-    matcher: string | RegExp,
-    opts: { timeout?: number } = {},
-  ): Promise<Locator> {
+  async waitForCard(matcher: string | RegExp, opts: { timeout?: number } = {}): Promise<Locator> {
     const { timeout = 15000 } = opts;
     if (typeof matcher === "string") {
       const card = this.page.getByTestId(matcher).first();
@@ -170,7 +167,7 @@ export class ChatPage {
 
   /** Wait for any card to appear (returns the first visible one). */
   async waitForAnyCard(
-    opts: { timeout?: number } = {},
+    opts: { timeout?: number } = {}
   ): Promise<{ type: string; locator: Locator }> {
     const { timeout = 15000 } = opts;
     const candidate = this.page.locator('[data-testid^="card-"]').first();
