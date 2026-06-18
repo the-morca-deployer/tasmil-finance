@@ -1,0 +1,26 @@
+# Auto-generated. Regenerate via generate-e2e-list.sh
+- id: e2e-chat
+  type: e2e_replay
+  layer_hint: [frontend]
+  spec_path: e2e/chat.spec.ts
+  expect: {}
+- id: e2e-journey-new-user
+  type: e2e_replay
+  layer_hint: [frontend]
+  spec_path: e2e/journey-new-user.spec.ts
+  expect: {}
+- id: e2e-journey-returning-user
+  type: e2e_replay
+  layer_hint: [frontend]
+  spec_path: e2e/journey-returning-user.spec.ts
+  expect: {}
+- id: e2e-onboarding
+  type: e2e_replay
+  layer_hint: [frontend]
+  spec_path: e2e/onboarding.spec.ts
+  expect: {}
+- id: e2e-setup-flow
+  type: e2e_replay
+  layer_hint: [frontend]
+  spec_path: e2e/setup-flow.spec.ts
+  expect: {}

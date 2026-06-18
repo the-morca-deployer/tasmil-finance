@@ -86,10 +86,7 @@ export const useChatAgentStore = create<ChatAgentStoreState>()((set, get) => ({
             const last = m.segments[m.segments.length - 1];
             const segments: AssistantContentBlock[] =
               last?.kind === "text"
-                ? [
-                    ...m.segments.slice(0, -1),
-                    { kind: "text", text: last.text + event.delta },
-                  ]
+                ? [...m.segments.slice(0, -1), { kind: "text", text: last.text + event.delta }]
                 : [...m.segments, { kind: "text", text: event.delta }];
             return { ...m, content: m.content + event.delta, segments };
           }),
@@ -123,10 +120,7 @@ export const useChatAgentStore = create<ChatAgentStoreState>()((set, get) => ({
               ? {
                   ...m,
                   toolCalls: [...m.toolCalls, event.toolCallId],
-                  segments: [
-                    ...m.segments,
-                    { kind: "tool", toolCallId: event.toolCallId },
-                  ],
+                  segments: [...m.segments, { kind: "tool", toolCallId: event.toolCallId }],
                 }
               : m
           ),
