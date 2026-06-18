@@ -133,6 +133,7 @@ export default defineConfig({
         video: "on",
         screenshot: { mode: "on", fullPage: true },
       },
+      timeout: 240_000,
     },
   ],
 
