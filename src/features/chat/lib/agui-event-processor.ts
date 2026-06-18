@@ -230,7 +230,9 @@ export class AguiEventProcessor {
           if (msg?.type !== "tool" || !msg.tool_call_id) continue;
           const state = useChatAgentStore.getState();
           // Direct ID match (works when backend emits same ID for START + result)
-          let targetId: string | null = state.toolCallSlots[msg.tool_call_id] ? msg.tool_call_id : null;
+          let targetId: string | null = state.toolCallSlots[msg.tool_call_id]
+            ? msg.tool_call_id
+            : null;
           // Fallback: backend often emits TOOL_CALL_START with UUID but tool
           // messages in the snapshot use the LLM's call_XX_* IDs. Match by
           // toolName against any still-empty running slot (FIFO).
@@ -270,7 +272,20 @@ export class AguiEventProcessor {
         break;
       }
 
-      // RUN_STARTED: no store state needed
+      case "RUN_STARTED": {
+        // Expose run identifiers on `window` so the overnight loop Sweeper can
+        // capture them and later look up the LangSmith trace by thread_id.
+        // Loop expects `__TASMIL_THREAD_ID__` (langgraph thread id) and
+        // `__LANGSMITH_RUN_ID__` (AG-UI run id — Sweeper queries LangSmith by
+        // thread_id metadata since AG-UI runId is not the same as LangSmith
+        // run id, but exposing it allows manual cross-referencing).
+        if (typeof window !== "undefined") {
+          (window as any).__TASMIL_THREAD_ID__ = event.threadId ?? null;
+          (window as any).__LANGSMITH_RUN_ID__ = event.runId ?? null;
+        }
+        break;
+      }
+
       default:
         break;
     }
