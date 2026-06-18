@@ -227,12 +227,42 @@ export class AguiEventProcessor {
             ? event.snapshot.messages
             : [];
         for (const msg of snapshotMessages) {
-          if (msg?.type === "tool" && msg.tool_call_id) {
+          if (msg?.type !== "tool" || !msg.tool_call_id) continue;
+          const state = useChatAgentStore.getState();
+          // Direct ID match (works when backend emits same ID for START + result)
+          let targetId: string | null = state.toolCallSlots[msg.tool_call_id] ? msg.tool_call_id : null;
+          // Fallback: backend often emits TOOL_CALL_START with UUID but tool
+          // messages in the snapshot use the LLM's call_XX_* IDs. Match by
+          // toolName against any still-empty running slot (FIFO).
+          if (!targetId && typeof msg.name === "string") {
+            const candidate = Object.values(state.toolCallSlots).find(
+              (slot) => slot.toolName === msg.name && slot.result === null
+            );
+            if (candidate) targetId = candidate.id;
+          }
+          if (!targetId) continue;
+          store.applyEvent({
+            type: "TOOL_CALL_RESULT",
+            toolCallId: targetId,
+            content:
+              typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content ?? ""),
+            isError: false,
+          });
+        }
+        break;
+      }
+
+      case "RUN_FINISHED": {
+        // Safety net: stream ended but some slots may still be "running" because
+        // their TOOL_CALL_RESULT used a mismatched ID. Force them done so no
+        // spinner is left hanging after the agent's final text appears.
+        const state = useChatAgentStore.getState();
+        for (const [id, slot] of Object.entries(state.toolCallSlots)) {
+          if (slot.status === "running") {
             store.applyEvent({
               type: "TOOL_CALL_RESULT",
-              toolCallId: msg.tool_call_id,
-              content:
-                typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content ?? ""),
+              toolCallId: id,
+              content: "",
               isError: false,
             });
           }
@@ -240,7 +270,7 @@ export class AguiEventProcessor {
         break;
       }
 
-      // RUN_STARTED, RUN_FINISHED: no store state needed
+      // RUN_STARTED: no store state needed
       default:
         break;
     }
