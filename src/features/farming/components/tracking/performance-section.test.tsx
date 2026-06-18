@@ -36,7 +36,7 @@ describe("PerformanceSection", () => {
       />
     );
     const pills = screen.getAllByRole("button", { name: "30d" });
-    await userEvent.click(pills[0]);
+    await userEvent.click(pills[0]!);
     expect(onRangeChange).toHaveBeenCalledWith("30d");
   });
 });
