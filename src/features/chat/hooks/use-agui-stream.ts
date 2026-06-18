@@ -167,6 +167,9 @@ function _toStreamMessages(
         const slot = slots[id];
         return { id, name: slot?.toolName ?? "", args: slot?.args ?? {} };
       }),
+      // Carry the in-event-order timeline so AssistantMessage can interleave
+      // text + tool segments instead of grouping all tools above content.
+      segments: m.segments,
     });
     // Synthesize tool result messages so ToolCallRenderer can mark steps complete.
     // The store tracks results in toolCallSlots but never emits them as message objects;

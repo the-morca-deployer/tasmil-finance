@@ -9,11 +9,16 @@ export interface ToolCallSlot {
   parentMessageId: string;
 }
 
+export type AssistantContentBlock =
+  | { kind: "text"; text: string }
+  | { kind: "tool"; toolCallId: string };
+
 export interface ChatAgentMessage {
   id: string;
   role: "human" | "assistant";
   content: string;
   toolCalls: string[];
+  segments: AssistantContentBlock[];
   isStreaming: boolean;
 }
 
@@ -65,6 +70,7 @@ export const useChatAgentStore = create<ChatAgentStoreState>()((set, get) => ({
               role: "assistant" as const,
               content: "",
               toolCalls: [],
+              segments: [],
               isStreaming: true,
             },
           ],
@@ -75,9 +81,18 @@ export const useChatAgentStore = create<ChatAgentStoreState>()((set, get) => ({
 
       case "TEXT_MESSAGE_CONTENT":
         set((s) => ({
-          messages: s.messages.map((m) =>
-            m.id === event.messageId ? { ...m, content: m.content + event.delta } : m
-          ),
+          messages: s.messages.map((m) => {
+            if (m.id !== event.messageId) return m;
+            const last = m.segments[m.segments.length - 1];
+            const segments: AssistantContentBlock[] =
+              last?.kind === "text"
+                ? [
+                    ...m.segments.slice(0, -1),
+                    { kind: "text", text: last.text + event.delta },
+                  ]
+                : [...m.segments, { kind: "text", text: event.delta }];
+            return { ...m, content: m.content + event.delta, segments };
+          }),
         }));
         break;
 
@@ -105,7 +120,14 @@ export const useChatAgentStore = create<ChatAgentStoreState>()((set, get) => ({
           },
           messages: s.messages.map((m) =>
             m.id === event.parentMessageId
-              ? { ...m, toolCalls: [...m.toolCalls, event.toolCallId] }
+              ? {
+                  ...m,
+                  toolCalls: [...m.toolCalls, event.toolCallId],
+                  segments: [
+                    ...m.segments,
+                    { kind: "tool", toolCallId: event.toolCallId },
+                  ],
+                }
               : m
           ),
         }));
@@ -181,7 +203,7 @@ export const useChatAgentStore = create<ChatAgentStoreState>()((set, get) => ({
     set((s) => ({
       messages: [
         ...s.messages,
-        { id, role: "human" as const, content, toolCalls: [], isStreaming: false },
+        { id, role: "human" as const, content, toolCalls: [], segments: [], isStreaming: false },
       ],
     }));
   },
