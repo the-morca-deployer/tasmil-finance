@@ -161,7 +161,10 @@ function _toStreamMessages(
   for (const m of messages) {
     result.push({
       id: m.id,
-      type: m.role,
+      // Map store role ("human" | "assistant") → LangChain stream message
+      // type ("human" | "ai") so consumers reading `type === "ai"` see
+      // assistant messages instead of categorising them as 0.
+      type: m.role === "assistant" ? "ai" : m.role,
       content: m.content,
       tool_calls: m.toolCalls.map((id) => {
         const slot = slots[id];
