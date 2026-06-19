@@ -4,10 +4,46 @@ import { useEffect } from "react";
 
 export function useLandingScripts() {
   useEffect(() => {
-    if (typeof window === "undefined" || (window as any).__tasmilLandingInit) return;
-    (window as any).__tasmilLandingInit = true;
+    if (typeof window === "undefined") return;
 
     document.querySelector(".landing-page")?.classList.add("anim");
+
+    // Make every listener/timer below tear down on unmount so the scroll
+    // animations re-bind to fresh DOM on client-side navigation back to /.
+    // Shadowing the globals threads the abort signal/ids without editing each call.
+    const ac = new AbortController();
+    const signal = ac.signal;
+    const timeouts: number[] = [];
+    const intervals: number[] = [];
+    const rafs: number[] = [];
+    const addEventListener = (type: string, fn: any, opts?: any) =>
+      window.addEventListener(
+        type,
+        fn,
+        typeof opts === "object"
+          ? { ...opts, signal }
+          : opts === true
+            ? { capture: true, signal }
+            : { signal }
+      );
+    const setTimeout = (fn: any, ms?: number) => {
+      const id = window.setTimeout(fn, ms);
+      timeouts.push(id);
+      return id;
+    };
+    const setInterval = (fn: any, ms?: number) => {
+      const id = window.setInterval(fn, ms);
+      intervals.push(id);
+      return id;
+    };
+    const requestAnimationFrame = (fn: any) => {
+      const id = window.requestAnimationFrame(fn);
+      rafs.push(id);
+      return id;
+    };
+    // Silence "unused" for the shadowed helpers that some branches may not hit.
+    void setInterval;
+    void requestAnimationFrame;
 
     /* ===== nav + progress ===== */
     const nav = document.getElementById("nav"),
@@ -770,5 +806,12 @@ export function useLandingScripts() {
         hero.classList.add("done");
       }
     }, 1400);
+
+    return () => {
+      ac.abort();
+      timeouts.forEach((id) => window.clearTimeout(id));
+      intervals.forEach((id) => window.clearInterval(id));
+      rafs.forEach((id) => window.cancelAnimationFrame(id));
+    };
   }, []);
 }
