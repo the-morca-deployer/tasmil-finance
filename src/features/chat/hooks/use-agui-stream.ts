@@ -153,8 +153,8 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function _toStreamMessages(
-  messages: ReturnType<typeof useChatAgentStore>["messages"],
-  slots: ReturnType<typeof useChatAgentStore>["toolCallSlots"]
+  messages: ReturnType<typeof useChatAgentStore.getState>["messages"],
+  slots: ReturnType<typeof useChatAgentStore.getState>["toolCallSlots"]
 ): any[] {
   return messages.map((m) => ({
     id: m.id,

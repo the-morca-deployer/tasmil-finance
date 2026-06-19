@@ -36,7 +36,7 @@ export class AguiEventProcessor {
             });
           return;
         }
-        await sleep(RETRY_DELAYS_MS[attempt]);
+        await sleep(RETRY_DELAYS_MS[attempt]!);
       }
     }
   }

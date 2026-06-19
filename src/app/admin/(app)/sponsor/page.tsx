@@ -167,7 +167,7 @@ function ConfigCard() {
     setSlots(String(cfg.maxSlots));
     setTxPerDay(String(cfg.maxTxPerUserPerDay));
     setActive(cfg.active);
-    const cfgAny = cfg as Record<string, unknown>;
+    const cfgAny = cfg as unknown as Record<string, unknown>;
     setXlmAlertThreshold(String(cfgAny.xlmAlertThreshold ?? ""));
     setTelegramChatId(String(cfgAny.telegramChatId ?? ""));
     setEditing(true);

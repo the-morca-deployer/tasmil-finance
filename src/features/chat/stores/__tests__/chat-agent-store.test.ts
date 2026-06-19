@@ -39,7 +39,7 @@ describe("TEXT_MESSAGE_CONTENT", () => {
         .getState()
         .applyEvent({ type: "TEXT_MESSAGE_CONTENT", messageId: "msg-1", delta: "World" });
     });
-    expect(useChatAgentStore.getState().messages[0].content).toBe("Hello World");
+    expect(useChatAgentStore.getState().messages[0]!.content).toBe("Hello World");
   });
 
   it("ignores delta for unknown messageId", () => {
@@ -60,7 +60,7 @@ describe("TEXT_MESSAGE_END", () => {
         .applyEvent({ type: "TEXT_MESSAGE_START", messageId: "msg-1", role: "assistant" });
       useChatAgentStore.getState().applyEvent({ type: "TEXT_MESSAGE_END", messageId: "msg-1" });
     });
-    expect(useChatAgentStore.getState().messages[0].isStreaming).toBe(false);
+    expect(useChatAgentStore.getState().messages[0]!.isStreaming).toBe(false);
     expect(useChatAgentStore.getState().isStreaming).toBe(false);
   });
 });
@@ -78,7 +78,7 @@ describe("TOOL_CALL_START", () => {
         parentMessageId: "msg-1",
       });
     });
-    const slot = useChatAgentStore.getState().toolCallSlots["tc-1"];
+    const slot = useChatAgentStore.getState().toolCallSlots["tc-1"]!;
     expect(slot.status).toBe("running");
     expect(slot.toolName).toBe("bash");
     expect(slot.args).toBeNull();
@@ -98,7 +98,7 @@ describe("TOOL_CALL_START", () => {
           parentMessageId: "msg-1",
         });
     });
-    expect(useChatAgentStore.getState().messages[0].toolCalls).toContain("tc-1");
+    expect(useChatAgentStore.getState().messages[0]!.toolCalls).toContain("tc-1");
   });
 });
 
@@ -120,7 +120,7 @@ describe("TOOL_CALL_ARGS", () => {
         .getState()
         .applyEvent({ type: "TOOL_CALL_ARGS", toolCallId: "tc-1", delta: '{"command":"ls"}' });
     });
-    expect(useChatAgentStore.getState().toolCallSlots["tc-1"].args).toEqual({ command: "ls" });
+    expect(useChatAgentStore.getState().toolCallSlots["tc-1"]!.args).toEqual({ command: "ls" });
   });
 });
 
@@ -147,7 +147,7 @@ describe("TOOL_CALL_RESULT", () => {
           isError: false,
         });
     });
-    const slot = useChatAgentStore.getState().toolCallSlots["tc-1"];
+    const slot = useChatAgentStore.getState().toolCallSlots["tc-1"]!;
     expect(slot.status).toBe("done");
     expect(slot.result).toBe("ok output");
   });
@@ -174,7 +174,7 @@ describe("TOOL_CALL_RESULT", () => {
           isError: true,
         });
     });
-    expect(useChatAgentStore.getState().toolCallSlots["tc-1"].status).toBe("error");
+    expect(useChatAgentStore.getState().toolCallSlots["tc-1"]!.status).toBe("error");
   });
 });
 
@@ -197,7 +197,7 @@ describe("RUN_ERROR", () => {
         .applyEvent({ type: "RUN_ERROR", code: "internal", message: "went wrong" });
     });
     expect(useChatAgentStore.getState().error).toEqual({ code: "internal", message: "went wrong" });
-    expect(useChatAgentStore.getState().toolCallSlots["tc-1"].status).toBe("aborted");
+    expect(useChatAgentStore.getState().toolCallSlots["tc-1"]!.status).toBe("aborted");
     expect(useChatAgentStore.getState().isStreaming).toBe(false);
   });
 });
@@ -225,7 +225,7 @@ describe("session cache", () => {
     });
     const { messages } = useChatAgentStore.getState();
     expect(messages).toHaveLength(1);
-    expect(messages[0].id).toBe("msg-1");
+    expect(messages[0]!.id).toBe("msg-1");
   });
 
   it("starts empty for uncached thread", () => {
