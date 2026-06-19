@@ -15,6 +15,7 @@ import { join } from "node:path";
 describe("Feature Module Organization Property Tests", () => {
   const FEATURES_DIR = join(__dirname, "..");
   const EXPECTED_FEATURES = [
+    "access",
     "account",
     "admin",
     "admin-auth",

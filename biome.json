@@ -120,7 +120,8 @@
         "public/**",
         "scripts/**",
         "src/app/(dashboard)/playground/**",
-        "src/app/(dashboard)/faucet/**"
+        "src/app/(dashboard)/faucet/**",
+        "src/features/landing/**"
       ],
       "linter": { "enabled": false }
     }
