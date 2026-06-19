@@ -35,6 +35,7 @@ describe("Feature Module Organization Property Tests", () => {
     "referrals",
     "strategies",
     "topup",
+    "waitlist",
     "welcome-reward",
     "whitelist",
   ];

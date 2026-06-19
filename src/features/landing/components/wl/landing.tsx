@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import React from "react";
-import { WaitlistPhaseBoard } from "@/features/whitelist/components/waitlist-phase-board";
+import { WaitlistPhaseBoard } from "@/features/waitlist/components/waitlist-phase-board";
 import { BeamsBg, Ico, LINKS } from "./shared";
 
 /* landing.jsx — Hero, ReferralLoop, WhyJoin */

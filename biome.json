@@ -123,6 +123,7 @@
         "src/app/(dashboard)/faucet/**",
         "src/features/landing/**",
         "src/features/quest/**",
+        "src/features/waitlist/**",
         "src/gen-quest/**"
       ],
       "linter": { "enabled": false }
