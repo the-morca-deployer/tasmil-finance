@@ -87,9 +87,15 @@ interface WithdrawalIntent {
   reinvestProjection: { amount: number; byDate: string } | null;
 }
 
-export function ChatClient({ agentId, chatId, phaseProfile }: ChatClientProps) {
+export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClientProps) {
   const profile = phaseProfile ?? DEFAULT_PHASE_PROFILE;
-  const { phase, isFirstLogin, hasPositions, daysSinceLastStake, lastPoolEarnings } = profile;
+  const {
+    phase,
+    isFirstLogin,
+    hasPositions: _hasPositions,
+    daysSinceLastStake,
+    lastPoolEarnings,
+  } = profile;
   const isMobile = useIsMobile();
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);

@@ -8,10 +8,9 @@ import { useChatState } from "@/features/chat/hooks";
 
 interface AgentAvatarProps {
   size?: "sm" | "md" | "lg";
-  showBorder?: boolean;
 }
 
-export function AgentAvatar({ size = "md", showBorder = false }: AgentAvatarProps) {
+export function AgentAvatar({ size = "md" }: AgentAvatarProps) {
   const { agentId } = useChatState();
   const [error, setError] = useState(false);
 
