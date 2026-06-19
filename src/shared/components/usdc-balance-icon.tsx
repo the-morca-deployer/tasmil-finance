@@ -1,7 +1,7 @@
 "use client";
 
 import { TokenImage } from "@/shared/components/token-image";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { Typography } from "@/shared/ui/typography";
 

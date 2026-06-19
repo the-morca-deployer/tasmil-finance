@@ -1,7 +1,7 @@
 "use client";
 
 import { TokenImage } from "@/shared/components/token-image";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/shared/ui/sheet";
 import type { DiscoveredPool } from "../types";
 

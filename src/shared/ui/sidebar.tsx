@@ -5,7 +5,7 @@ import { PanelLeft } from "lucide-react";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
-import { Button } from "./button-v2";
+import { Button } from "./button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "./sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 

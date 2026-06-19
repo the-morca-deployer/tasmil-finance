@@ -9,7 +9,7 @@ import {
   useWalletStatus,
 } from "@/features/whitelist/hooks/use-wallet-waitlist";
 import { useWallet } from "@/shared/context/wallet-context";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
 import { ProgressStepper, type Step } from "./ui/stepper";
 

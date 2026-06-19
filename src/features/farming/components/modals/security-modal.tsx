@@ -1,7 +1,7 @@
 "use client";
 
 import { Info, Loader2, Shield, ShieldOff } from "lucide-react";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 
 interface SecurityModalProps {
   onRefresh: () => void;

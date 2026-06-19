@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useWallet } from "@/shared/context/wallet-context";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { useWalletStore } from "@/store/use-wallet";
 import { usePresets } from "../hooks/use-account-api";
 import { useOnboardingDeploy } from "../hooks/use-onboarding-deploy";

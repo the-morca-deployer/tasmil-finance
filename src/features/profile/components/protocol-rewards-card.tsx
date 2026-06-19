@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { PROTOCOL_ICONS as CDN_PROTOCOL_ICONS } from "@/shared/constants/asset-manifest";
 import { useWallet } from "@/shared/context/wallet-context";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { useWalletStore } from "@/store/use-wallet";
 import { ClaimAuthError, type ClaimProtocol, useClaimRewards } from "../hooks/use-claim-rewards";
 import type { ProtocolPositionGroup } from "../hooks/use-defi-positions";

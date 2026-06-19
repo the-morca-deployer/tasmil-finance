@@ -11,7 +11,7 @@ import {
 } from "@/features/landing/components/animations/svg-anims";
 import { Stepper } from "@/features/landing/components/ui/stepper";
 import { useWallet } from "@/shared/context/wallet-context";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 
 type Screen = "connect" | "verify" | "code" | "done";

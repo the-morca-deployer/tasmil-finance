@@ -68,7 +68,7 @@ export function WelcomeRewardDialog({ open, status, onDismiss, onOpen }: Welcome
               </div>
               <div className="h-1 overflow-hidden rounded-full bg-muted/30">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#B5EAFF] to-[#00BFFF] transition-all duration-500"
+                  className="h-full rounded-full bg-[image:var(--brand-grad)] transition-all duration-500"
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -78,7 +78,7 @@ export function WelcomeRewardDialog({ open, status, onDismiss, onOpen }: Welcome
             <button
               type="button"
               onClick={onOpen}
-              className="relative flex w-full items-center justify-center gap-1.5 overflow-hidden rounded-xl bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] px-4 py-2.5 font-bold text-black text-xs transition-all duration-300 hover:scale-[1.02] hover:from-[#C5F0FF] hover:to-[#1CCFFF]"
+              className="relative flex w-full items-center justify-center gap-1.5 overflow-hidden rounded-xl bg-[image:var(--brand-grad)] px-4 py-2.5 font-bold text-black text-xs transition-all duration-300 hover:scale-[1.02] hover:bg-[image:var(--brand-grad-hover)]"
             >
               View reward details
               <ArrowUpRight className="h-3 w-3" />

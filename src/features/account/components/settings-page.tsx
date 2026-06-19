@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useId, useMemo, useState } from "react";
 import { activeNetwork } from "@/shared/config/stellar";
 
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Separator } from "@/shared/ui/separator";
 import { useWalletStore } from "@/store/use-wallet";

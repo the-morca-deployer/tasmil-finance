@@ -477,7 +477,7 @@ export function BlendTxCard({ operation, result, form }: BlendTxCardProps) {
             </button>
             <button
               type="button"
-              className="flex-1 rounded-lg py-2 text-xs font-semibold bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black hover:from-[#C5F0FF] hover:to-[#1CCFFF] transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+              className="flex-1 rounded-lg py-2 text-xs font-semibold bg-[image:var(--brand-grad)] text-black hover:bg-[image:var(--brand-grad-hover)] transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
               onClick={() => {
                 if (cfg.sign) {
                   handleSign();

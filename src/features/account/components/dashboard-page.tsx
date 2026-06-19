@@ -7,7 +7,7 @@ import { useEffect } from "react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Separator } from "@/shared/ui/separator";
 import { useWalletStore } from "@/store/use-wallet";

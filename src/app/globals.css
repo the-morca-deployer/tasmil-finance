@@ -87,6 +87,37 @@
   /* border radius unit */
   --radius: 0.5rem;
   --sidebar: hsl(0 0% 98%);
+
+  /* ── Tasmil brand gradient (design system) — shared landing + in-app ── */
+  --brand-accent: #67e8f9;
+  --brand-accent-2: #0ea5e9;
+  --brand-ink: #04141a;
+  --brand-glow: rgba(103, 232, 249, 0.5);
+  --brand-grad: linear-gradient(110deg, #ffffff 0%, #67e8f9 52%, #0ea5e9 100%);
+  --brand-grad-hover: linear-gradient(110deg, #d9fbff 0%, #67e8f9 45%, #0ea5e9 100%);
+}
+
+/* Canonical brand gradient surface — buttons, tabs, progress, etc. all use this
+   so the gradient is identical from landing through the app. */
+.brand-gradient {
+  background-image: var(--brand-grad);
+  color: var(--brand-ink);
+}
+.brand-gradient-interactive {
+  background-image: var(--brand-grad);
+  color: var(--brand-ink);
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    background-image 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.brand-gradient-interactive:hover {
+  background-image: var(--brand-grad-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px -8px var(--brand-glow);
+}
+.brand-gradient-interactive:active {
+  transform: translateY(0);
 }
 
 /* DeFi Agent specific styles */

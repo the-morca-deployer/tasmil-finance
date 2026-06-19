@@ -13,7 +13,7 @@ import {
   openXShare,
 } from "@/features/whitelist/lib/share-to-x";
 import { useWallet } from "@/shared/context/wallet-context";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Typography } from "@/shared/ui/typography";
 import { ProgressStepper, type Step } from "./ui/stepper";

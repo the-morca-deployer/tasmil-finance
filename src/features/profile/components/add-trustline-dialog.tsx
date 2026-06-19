@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { activeNetwork } from "@/shared/config/stellar";
 import { useWallet } from "@/shared/context/wallet-context";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import {
   Dialog,
   DialogContent,

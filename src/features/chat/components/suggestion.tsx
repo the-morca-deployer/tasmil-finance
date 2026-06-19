@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { RippleContainer, useRipple } from "@/shared/ui/ripple-effect";
 
 export type SuggestionProps = Omit<ComponentProps<typeof Button>, "onClick"> & {
