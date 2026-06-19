@@ -381,7 +381,10 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
         throw new Error((err as { message?: string }).message ?? "Submit failed");
       }
 
-      return res.json() as Promise<{ txHash: string; sponsored: boolean }>;
+      const body = (await res.json()) as
+        | { txHash: string; sponsored: boolean }
+        | { success: boolean; data: { txHash: string; sponsored: boolean } };
+      return "data" in body ? body.data : body;
     } finally {
       clearTimeout(timeoutId);
     }
