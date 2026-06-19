@@ -8,3 +8,8 @@ test("landing page renders and exposes a launch entry point", async ({ page }) =
     page.getByRole("link", { name: /join waitlist|launch|app|get started/i }).first()
   ).toBeVisible();
 });
+
+test("access page renders the connect step", async ({ page }) => {
+  await page.goto("/access");
+  await expect(page.getByRole("button", { name: /connect/i }).first()).toBeVisible();
+});
