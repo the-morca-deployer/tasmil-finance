@@ -4,7 +4,7 @@ import { milestoneNudgeEvent, mockAgUiStream } from "../helpers/mock-sse";
 
 async function bootMainnetWithNudge(
   page: import("@playwright/test").Page,
-  event: ReturnType<typeof milestoneNudgeEvent>,
+  event: ReturnType<typeof milestoneNudgeEvent>
 ) {
   await mockAccount(page, { phase: "mainnet", hasPositions: true, isFirstLogin: false });
   await mockAgUiStream(page, [event]);

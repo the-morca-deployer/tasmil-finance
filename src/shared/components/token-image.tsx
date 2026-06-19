@@ -136,12 +136,13 @@ interface TokenImageProps {
  */
 export function TokenImage({ src, alt, className, width = 40, height = 40 }: TokenImageProps) {
   const [primaryFailed, setPrimaryFailed] = useState(false);
+  const [localFailed, setLocalFailed] = useState(false);
 
   const local = localImageFor(alt);
 
   // Primary: explicit src (unless it already failed)
-  // Fallback: manifest/local file matched by alt label
-  const activeSrc = !primaryFailed && src ? src : local;
+  // Fallback: manifest/local file matched by alt label (unless that also failed)
+  const activeSrc = !primaryFailed && src ? src : localFailed ? null : local;
 
   if (activeSrc) {
     const unoptimized = isAbsoluteUrl(activeSrc) && !isWhitelistedHost(activeSrc);
@@ -155,10 +156,10 @@ export function TokenImage({ src, alt, className, width = 40, height = 40 }: Tok
         unoptimized={unoptimized}
         onError={() => {
           if (!primaryFailed && src) {
-            // External src failed — switch to local fallback (re-render handled by state)
             setPrimaryFailed(true);
+          } else {
+            setLocalFailed(true);
           }
-          // If local fallback also fails (shouldn't happen for /public files), nothing to do
         }}
       />
     );

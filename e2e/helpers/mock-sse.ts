@@ -20,7 +20,7 @@ export type AgUiEvent =
   | {
       type: "milestone-nudge";
       data: {
-        variant: "five-dollar" | "day-30" | "pool-full";
+        nudgeType: "five-dollar" | "day-30" | "pool-full";
         topPercent?: number;
         spotsLeft?: number;
       };
@@ -46,10 +46,10 @@ export function clarifyCardEvent(kind: "asset" | "pool", options: string[]): AgU
 }
 
 export function milestoneNudgeEvent(
-  variant: "five-dollar" | "day-30" | "pool-full",
+  nudgeType: "five-dollar" | "day-30" | "pool-full",
   extra: { topPercent?: number; spotsLeft?: number } = {}
 ): AgUiEvent {
-  return { type: "milestone-nudge", data: { variant, ...extra } };
+  return { type: "milestone-nudge", data: { nudgeType, ...extra } };
 }
 
 export function withdrawalIntentEvent(

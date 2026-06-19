@@ -238,7 +238,7 @@ export const Greeting = ({
   return (
     <motion.div
       animate={{ opacity: 1, y: 0 }}
-      className="mt-8 flex flex-col items-start gap-4 px-4"
+      className="pointer-events-auto mt-8 flex flex-col items-start gap-4 px-4"
       exit={{ opacity: 0, y: -12, scale: 0.98, height: 0, marginBottom: 0 }}
       initial={{ opacity: 0, y: 10 }}
       key="greeting"

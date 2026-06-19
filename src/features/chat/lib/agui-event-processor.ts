@@ -286,6 +286,29 @@ export class AguiEventProcessor {
         break;
       }
 
+      case "milestone-nudge": {
+        const data = event.data ?? {};
+        const nudgeType = data.nudgeType;
+        if (nudgeType !== "five-dollar" && nudgeType !== "day-30" && nudgeType !== "pool-full") {
+          break;
+        }
+        store.addNudge({
+          id: uuidv4(),
+          nudgeType,
+          topPercent: typeof data.topPercent === "number" ? data.topPercent : 0,
+          spotsLeft: typeof data.spotsLeft === "number" ? data.spotsLeft : 0,
+        });
+        break;
+      }
+
+      case "withdrawal-intent": {
+        if (typeof window !== "undefined") {
+          (window as any).__TASMIL_OPEN_WITHDRAWAL_MODAL__ = event.data;
+          window.dispatchEvent(new CustomEvent("tasmil:open-withdrawal-modal"));
+        }
+        break;
+      }
+
       default:
         break;
     }

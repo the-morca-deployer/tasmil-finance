@@ -12,15 +12,16 @@ const VESTING = {
 async function openModal(
   page: import("@playwright/test").Page,
   phase: "beta" | "mainnet",
-  reinvest: { amount: number; byDate: string } | null,
+  reinvest: { amount: number; byDate: string } | null
 ) {
   await mockAccount(page, { phase, hasPositions: true, isFirstLogin: false });
   await page.addInitScript(
     (payload) => {
-      (window as unknown as { __TASMIL_OPEN_WITHDRAWAL_MODAL__: unknown }).__TASMIL_OPEN_WITHDRAWAL_MODAL__ =
-        payload;
+      (
+        window as unknown as { __TASMIL_OPEN_WITHDRAWAL_MODAL__: unknown }
+      ).__TASMIL_OPEN_WITHDRAWAL_MODAL__ = payload;
     },
-    { vesting: VESTING, reinvestProjection: reinvest },
+    { vesting: VESTING, reinvestProjection: reinvest }
   );
   await page.goto("/chat/new");
 }

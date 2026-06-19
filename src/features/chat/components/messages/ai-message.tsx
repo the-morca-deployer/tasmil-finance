@@ -181,6 +181,7 @@ export function AssistantMessage({
   return (
     <div
       data-testid="ai-message"
+      data-role="assistant"
       className="group mr-auto flex w-full flex-col items-start gap-2 overflow-hidden md:flex-row md:gap-3"
     >
       <div className="w-10 shrink-0">{!hideAvatar && <AgentAvatar />}</div>

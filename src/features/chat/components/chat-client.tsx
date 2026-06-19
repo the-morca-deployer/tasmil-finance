@@ -26,10 +26,16 @@ import { AssistantMessage, AssistantMessageLoading } from "../components/message
 import { HumanMessage } from "../components/messages/human-message";
 import { useChatState, useStreamContext } from "../hooks";
 import { type ChatProductError, classifyChatProductError } from "../lib/chat-product-error";
+import { useChatAgentStore } from "../stores/chat-agent-store";
 import { ContentBlocksPreview } from "../thread/components/content-blocks-preview";
 import { mergeMessagesWithCache, shouldFilterMessage } from "./chat-client-helpers";
+import type { PhaseProfile } from "./chat-page-wrapper";
 import { Greeting } from "./greeting";
+import { InfoBar } from "./info-bar";
+import { MilestoneNudge } from "./milestone-nudge";
 import { SuggestedActions } from "./suggested-actions";
+import { SuggestedPrompts } from "./suggested-prompts";
+import { WithdrawalWarningModal } from "./withdrawal-warning-modal";
 
 // Mapping from short agent IDs to API graph_ids
 const AGENT_TO_GRAPH_ID: Record<string, string> = {
@@ -60,9 +66,31 @@ function toGraphId(agentId: string): string {
 interface ChatClientProps {
   agentId: string;
   chatId: string;
+  phaseProfile?: PhaseProfile;
 }
 
-export function ChatClient({ agentId, chatId }: ChatClientProps) {
+const DEFAULT_PHASE_PROFILE: PhaseProfile = {
+  phase: "beta",
+  isFirstLogin: false,
+  hasPositions: false,
+  daysSinceLastStake: 0,
+  lastPoolEarnings: null,
+};
+
+interface WithdrawalIntent {
+  vesting: {
+    currentWeek: number;
+    totalWeeks: number;
+    lockedPercent: number;
+    lockedAmount: number;
+    unlockDate: string;
+  };
+  reinvestProjection: { amount: number; byDate: string } | null;
+}
+
+export function ChatClient({ agentId, chatId, phaseProfile }: ChatClientProps) {
+  const profile = phaseProfile ?? DEFAULT_PHASE_PROFILE;
+  const { phase, isFirstLogin, hasPositions, daysSinceLastStake, lastPoolEarnings } = profile;
   const isMobile = useIsMobile();
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -73,6 +101,14 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   const [isInteractingWithContent, setIsInteractingWithContent] = useState(false);
   const lastMessageCountRef = useRef(0);
+
+  // Withdrawal warning modal: opened via window hook in non-prod (tests) or
+  // via the AG-UI "withdrawal-intent" event dispatched by the stream processor.
+  const [withdrawalOpen, setWithdrawalOpen] = useState(false);
+  const [withdrawalIntent, setWithdrawalIntent] = useState<WithdrawalIntent | null>(null);
+
+  // Milestone nudges streamed via AG-UI custom event type "milestone-nudge".
+  const nudges = useChatAgentStore((s) => s.nudges);
 
   // File upload hook
   const { contentBlocks, setContentBlocks, dropRef, removeBlock, dragOver } = useFileUpload();
@@ -134,9 +170,39 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     return uiCache.current;
   }, [stream.values]);
 
-  // Reset firstTokenReceived when switching chats
+  // Reset firstTokenReceived when switching chats. Also clear any milestone
+  // nudges (and seen-types dedup ledger) so a fresh /chat/new starts clean
+  // across navigations and tests.
   useEffect(() => {
     setFirstTokenReceived(false);
+    useChatAgentStore.setState({ nudges: [], seenNudgeTypes: [] });
+  }, []);
+
+  // Open WithdrawalWarningModal when either:
+  //  (a) a test pre-set window.__TASMIL_OPEN_WITHDRAWAL_MODAL__ before navigation
+  //  (b) the AG-UI processor dispatches "tasmil:open-withdrawal-modal" from a
+  //      "withdrawal-intent" stream event
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const open = (payload?: WithdrawalIntent) => {
+      const data =
+        payload ??
+        ((window as unknown as Record<string, unknown>).__TASMIL_OPEN_WITHDRAWAL_MODAL__ as
+          | WithdrawalIntent
+          | undefined);
+      if (!data?.vesting) return;
+      setWithdrawalIntent(data);
+      setWithdrawalOpen(true);
+    };
+    if (process.env.NODE_ENV !== "production") {
+      open();
+    }
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as WithdrawalIntent | undefined;
+      open(detail);
+    };
+    window.addEventListener("tasmil:open-withdrawal-modal", handler);
+    return () => window.removeEventListener("tasmil:open-withdrawal-modal", handler);
   }, []);
 
   // Clear isSubmitting when stream actually starts loading
@@ -587,8 +653,10 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         />
       </div> */}
 
+      {/* <InfoBar currentApy={8.2} marketApy={6.5} /> */}
+
       {/* Header - no border */}
-      <header className="relative z-10 flex shrink-0 items-end justify-end gap-1 px-6 pt-4 pb-2">
+      <header className="absolute top-0 right-0 z-20 flex items-end justify-end gap-1 px-6 pt-4 pb-2">
         <div className="flex items-center gap-1">
           {!rightSidebarOpen && (
             <>
@@ -631,8 +699,30 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       <div ref={messagesContainerRef} className="relative z-10 flex-1 overflow-y-auto">
         <div className="pointer-events-none mx-auto max-w-3xl px-4 pt-6 pb-4">
           <AnimatePresence initial={false}>
-            {showGreeting && <Greeting agentId={agentId} />}
+            {showGreeting && (
+              <Greeting
+                agentId={agentId}
+                phase={phase}
+                isFirstLogin={isFirstLogin}
+                daysSinceLastStake={daysSinceLastStake}
+                lastPoolEarnings={lastPoolEarnings}
+                onReinvest={() => handleSendSuggestion("Reinvest my rewards")}
+                onSnooze={() => {
+                  /* snooze handled in profile state — no-op for now */
+                }}
+              />
+            )}
           </AnimatePresence>
+
+          {showGreeting && (
+            <div className="pointer-events-auto mt-6 px-4">
+              <SuggestedPrompts
+                onSelect={handleSendSuggestion}
+                phase={phase}
+                hasPositions={hasPositions}
+              />
+            </div>
+          )}
 
           <div className="pointer-events-auto flex flex-col gap-2">
             {(() => {
@@ -818,6 +908,25 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
               })()}
           </div>
 
+          {nudges.length > 0 && (
+            <div className="pointer-events-auto mt-3 flex flex-col gap-2">
+              {nudges.map((n) => (
+                <MilestoneNudge
+                  key={n.id}
+                  type={n.nudgeType}
+                  topPercent={n.topPercent}
+                  spotsLeft={n.spotsLeft}
+                  onReinvest={() => {
+                    useChatAgentStore.setState((s) => ({
+                      nudges: s.nudges.filter((x) => x.id !== n.id),
+                    }));
+                    handleSendSuggestion("Reinvest my rewards");
+                  }}
+                />
+              ))}
+            </div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
 
@@ -986,6 +1095,19 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
           status={welcomeRewardStatus}
           onDismiss={() => void markSeen()}
           onOpen={() => void openRewardPage()}
+        />
+      )}
+
+      {withdrawalOpen && withdrawalIntent && (
+        <WithdrawalWarningModal
+          phase={phase}
+          vesting={withdrawalIntent.vesting}
+          reinvestProjection={withdrawalIntent.reinvestProjection}
+          onKeepEarning={() => setWithdrawalOpen(false)}
+          onWithdraw={() => {
+            setWithdrawalOpen(false);
+            handleSendSuggestion("Withdraw my position");
+          }}
         />
       )}
     </div>

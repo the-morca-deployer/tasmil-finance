@@ -36,10 +36,21 @@ export type AGUIEvent =
   | { type: "TOOL_CALL_RESULT"; toolCallId: string; content: string; isError: boolean }
   | { type: "RUN_ERROR"; code: string; message: string };
 
+export interface MilestoneNudgeRecord {
+  id: string;
+  nudgeType: "five-dollar" | "day-30" | "pool-full";
+  topPercent: number;
+  spotsLeft: number;
+}
+
 interface ChatAgentStoreState {
   threadId: string | null;
   messages: ChatAgentMessage[];
   toolCallSlots: Record<string, ToolCallSlot>;
+  nudges: MilestoneNudgeRecord[];
+  // Tracks every nudge type seen this session so dismissing a nudge does not
+  // make it re-appear when the same SSE event is replayed.
+  seenNudgeTypes: string[];
   isStreaming: boolean;
   error: { code: string; message: string } | null;
   interrupt: unknown | null;
@@ -47,6 +58,7 @@ interface ChatAgentStoreState {
   applyEvent: (event: AGUIEvent) => void;
   setThreadId: (id: string) => void;
   addHumanMessage: (id: string, content: string) => void;
+  addNudge: (nudge: MilestoneNudgeRecord) => void;
   reset: () => void;
 }
 
@@ -54,6 +66,8 @@ export const useChatAgentStore = create<ChatAgentStoreState>()((set, get) => ({
   threadId: null,
   messages: [],
   toolCallSlots: {},
+  nudges: [],
+  seenNudgeTypes: [],
   isStreaming: false,
   error: null,
   interrupt: null,
@@ -202,10 +216,24 @@ export const useChatAgentStore = create<ChatAgentStoreState>()((set, get) => ({
     }));
   },
 
+  addNudge: (nudge) => {
+    set((s) => {
+      // Dedupe by nudgeType against ALL types seen this session, so dismissing
+      // a nudge does not bring it back when the same SSE event is replayed.
+      if (s.seenNudgeTypes.includes(nudge.nudgeType)) return s;
+      return {
+        nudges: [...s.nudges, nudge],
+        seenNudgeTypes: [...s.seenNudgeTypes, nudge.nudgeType],
+      };
+    });
+  },
+
   reset: () =>
     set({
       messages: [],
       toolCallSlots: {},
+      nudges: [],
+      seenNudgeTypes: [],
       isStreaming: false,
       error: null,
       threadId: null,
