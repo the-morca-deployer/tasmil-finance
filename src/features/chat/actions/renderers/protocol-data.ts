@@ -250,6 +250,10 @@ export const OPERATION_ENTRIES: {
     entry: { kind: "operation", component: StellarExecuteCard, label: "templar_borrow" },
   },
   {
+    toolName: "execute",
+    entry: { kind: "operation", component: StellarExecuteCard, label: "execute" },
+  },
+  {
     toolName: "execute_swap",
     entry: { kind: "operation", component: StellarExecuteCard, label: "swap_execute" },
   },
