@@ -9,9 +9,9 @@
   body {
     background: #000;
   }
-  html {
-    overflow-x: hidden;
-  }
+  /* Do NOT set overflow-x on <html>: any non-visible value (hidden OR clip)
+     on the root breaks page-level position:sticky (.statement-pin / .cta-sticky).
+     Horizontal overflow is clipped on <body> (overflow-x: clip) in globals.css. */
   body {
     margin: 0;
   }
@@ -2262,53 +2262,93 @@ svg {
   }
 }
 .landing-page .security {
-  background: var(--bg-2);
+  background: var(--bg);
   border-top: 1px solid var(--line);
   --deny: #fca5a5;
   --deny-soft: rgba(252, 165, 165, 0.1);
   --deny-line: rgba(252, 165, 165, 0.26);
 }
+/* ===== Security ledger — "permission boundary" redesign ===== */
 .landing-page .sec-ledger {
+  position: relative;
+  isolation: isolate;
   margin-top: 50px;
   display: grid;
-  grid-template-columns: 1fr 1px 1fr;
-  border: 1px solid var(--line);
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--line-2);
   border-radius: 24px;
   background: var(--surface);
   overflow: hidden;
+}
+/* glowing central security boundary */
+.landing-page .sec-ledger::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  bottom: 22px;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    180deg,
+    var(--accent) 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    var(--deny) 100%
+  );
+  opacity: 0.55;
+  z-index: 1;
+}
+/* lock seal sitting on the boundary */
+.landing-page .ledger-seal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text);
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  box-shadow:
+    0 0 0 6px var(--bg),
+    0 10px 34px rgba(0, 0, 0, 0.6),
+    0 0 26px -8px var(--accent-glow);
+  z-index: 2;
+}
+.landing-page .ledger-seal svg {
+  width: 20px;
+  height: 20px;
 }
 @media (max-width: 760px) {
   .landing-page .sec-ledger {
     grid-template-columns: 1fr;
   }
-  .landing-page .ledger-div {
+  .landing-page .sec-ledger::before,
+  .landing-page .ledger-seal {
     display: none;
   }
 }
 .landing-page .ledger-col {
-  padding: 34px 36px;
+  padding: 32px 34px;
   position: relative;
 }
-.landing-page .ledger-col::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 2px;
-}
-.landing-page .ledger-col.allow::before {
-  background: linear-gradient(90deg, var(--accent), transparent);
-}
-.landing-page .ledger-col.deny::before {
-  background: linear-gradient(90deg, var(--deny), transparent);
+.landing-page .ledger-col.allow {
+  padding-right: 46px;
 }
 .landing-page .ledger-col.deny {
-  background: linear-gradient(180deg, var(--deny-soft), transparent 38%);
+  padding-left: 46px;
 }
-.landing-page .ledger-col.allow {
-  background: linear-gradient(180deg, var(--accent-soft), transparent 38%);
-}
-.landing-page .ledger-div {
-  background: var(--line);
+@media (max-width: 760px) {
+  .landing-page .ledger-col.allow,
+  .landing-page .ledger-col.deny {
+    padding: 28px 26px;
+  }
+  .landing-page .ledger-col.deny {
+    border-top: 1px solid var(--line);
+  }
 }
 .landing-page .ledger-h {
   display: flex;
@@ -2319,7 +2359,7 @@ svg {
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .landing-page .ledger-h .badge {
   width: 7px;
@@ -2338,22 +2378,36 @@ svg {
 }
 .landing-page .deny .ledger-h .badge {
   background: var(--deny);
+  box-shadow: 0 0 10px rgba(252, 165, 165, 0.5);
 }
 .landing-page .ledger-sub {
   font-size: 13px;
   color: var(--dim);
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
+/* rows as interactive pills */
 .landing-page .ledger-row {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 16px 0;
+  padding: 13px 14px;
+  margin: 0 -14px;
   font-size: 16px;
-  border-top: 1px solid var(--line);
+  border-radius: 12px;
+  transition:
+    background 0.25s var(--ease),
+    transform 0.25s var(--ease);
 }
-.landing-page .ledger-row:first-of-type {
-  border-top: none;
+.landing-page .ledger-row + .ledger-row {
+  margin-top: 4px;
+}
+.landing-page .allow .ledger-row:hover {
+  background: var(--accent-soft);
+  transform: translateX(2px);
+}
+.landing-page .deny .ledger-row:hover {
+  background: var(--deny-soft);
+  transform: translateX(-2px);
 }
 .landing-page .ledger-ic {
   width: 30px;
@@ -2367,6 +2421,7 @@ svg {
 .landing-page .allow .ledger-ic {
   border-color: var(--accent-line);
   background: var(--accent-soft);
+  box-shadow: 0 0 16px -5px var(--accent-glow);
 }
 .landing-page .deny .ledger-ic {
   border-color: var(--deny-line);

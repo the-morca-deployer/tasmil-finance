@@ -64,7 +64,26 @@ export default function Security() {
                 Sign within a scoped session key
               </div>
             </div>
-            <div className="ledger-div"></div>
+            <div className="ledger-seal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect
+                  x="5"
+                  y="10.5"
+                  width="14"
+                  height="9.5"
+                  rx="2.2"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                ></rect>
+                <path
+                  d="M8 10.5V8a4 4 0 0 1 8 0v2.5"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                ></path>
+                <circle cx="12" cy="15" r="1.3" fill="currentColor"></circle>
+              </svg>
+            </div>
             <div className="ledger-col deny">
               <div className="ledger-h">The bot cannot</div>
               <div className="ledger-sub">Hard-blocked on-chain</div>

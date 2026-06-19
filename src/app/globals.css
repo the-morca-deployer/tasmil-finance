@@ -299,12 +299,15 @@
 
   body {
     @apply bg-background text-foreground;
-    overflow-x: hidden;
+    /* Horizontal-overflow guard lives on BODY, as `clip` (not `hidden`):
+       `clip` doesn't create a scroll container, so descendant `position: sticky`
+       still pins. The root <html> MUST stay overflow: visible — any non-visible
+       overflow-x on the root (even `clip`) breaks page-level sticky. */
+    overflow-x: clip;
     position: relative;
   }
 
   html {
-    overflow-x: hidden;
     font-size: 16px;
   }
 }
@@ -716,9 +719,8 @@
   * {
     @apply border-border;
   }
-  html {
-    @apply overflow-x-hidden;
-  }
+  /* NOTE: do NOT set overflow-x on <html> — it breaks page-level position:sticky.
+     Horizontal overflow is clipped on <body> (overflow-x: clip) above. */
   body {
     @apply min-h-svh w-full bg-background text-foreground;
   }
