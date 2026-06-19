@@ -50,7 +50,7 @@ export function ThreadProvider({ children, agentId }: { children: ReactNode; age
   const getThreads = useCallback(
     async (assistantId?: string): Promise<Thread[]> => {
       const finalAssistantId = assistantId || agentId;
-      if (!apiUrl || !finalAssistantId) return [];
+      if (!apiUrl || !finalAssistantId || !accessToken) return [];
 
       const client = createClient(apiUrl, {
         apiKey: getApiKey() ?? undefined,
