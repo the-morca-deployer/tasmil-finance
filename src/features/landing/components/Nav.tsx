@@ -1,5 +1,8 @@
 // @ts-nocheck
+import { APP_ENTRY, isWaitlistMode } from "@/lib/waitlist-mode";
+
 export default function Nav() {
+  const waitlist = isWaitlistMode();
   return (
     <>
       <nav className="nav" id="nav">
@@ -14,20 +17,32 @@ export default function Nav() {
           <a href="#fees">Fees</a>
         </div>
         <div className="nav-actions">
-          <a
-            className="btn btn-ghost"
-            href="/access"
-            style={{ padding: "11px 18px", fontSize: "14px" }}
-          >
-            Have a code?
-          </a>
-          <a
-            className="btn btn-primary"
-            href="/waitlist"
-            style={{ padding: "11px 22px", fontSize: "14px" }}
-          >
-            Join Waitlist <span className="arr">→</span>
-          </a>
+          {waitlist ? (
+            <>
+              <a
+                className="btn btn-ghost"
+                href="/access"
+                style={{ padding: "11px 18px", fontSize: "14px" }}
+              >
+                Have a code?
+              </a>
+              <a
+                className="btn btn-primary"
+                href="/waitlist"
+                style={{ padding: "11px 22px", fontSize: "14px" }}
+              >
+                Join Waitlist <span className="arr">→</span>
+              </a>
+            </>
+          ) : (
+            <a
+              className="btn btn-primary"
+              href={APP_ENTRY}
+              style={{ padding: "11px 22px", fontSize: "14px" }}
+            >
+              Launch App <span className="arr">→</span>
+            </a>
+          )}
         </div>
         <button
           className="nav-burger"

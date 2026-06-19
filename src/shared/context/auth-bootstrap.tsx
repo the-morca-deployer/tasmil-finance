@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { gateDecision } from "@/lib/waitlist-mode";
 import { useAuthStore } from "@/store/use-auth";
 
 /**
@@ -35,23 +36,25 @@ export function AuthBootstrap() {
     })
       .then(async (res) => {
         const path = typeof window !== "undefined" ? window.location.pathname : "/";
-        const onProtectedPage = path !== "/" && !path.startsWith("/admin");
+        // Mirror the proxy gate: only routes the gate would bounce to "/" should
+        // redirect here. Public routes (/waitlist, /access, /), admin/quest, and
+        // every route in waitlist-OFF mode are left alone.
+        const gatedToRoot =
+          gateDecision({ pathname: path, hasAuthCookie: false, devBypass: false }) === "/";
 
         if (res.status === 401) {
           const { isAuthenticated } = useAuthStore.getState();
           if (isAuthenticated) {
             logout();
           }
-          // On a protected page with no valid session → send back to gate
-          if (onProtectedPage) {
+          if (gatedToRoot) {
             window.location.replace("/");
           }
           return;
         }
         if (res.status === 403) {
           useAuthStore.getState().logoutAccessDenied();
-          // On a protected page with no access code → send back to gate
-          if (onProtectedPage) {
+          if (gatedToRoot) {
             window.location.replace("/");
           }
           return;

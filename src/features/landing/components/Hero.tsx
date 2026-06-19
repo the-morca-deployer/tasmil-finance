@@ -1,5 +1,8 @@
 // @ts-nocheck
+import { APP_ENTRY, isWaitlistMode } from "@/lib/waitlist-mode";
+
 export default function Hero() {
+  const waitlist = isWaitlistMode();
   return (
     <>
       <header className="hero" id="top">
@@ -26,8 +29,16 @@ export default function Hero() {
               Auto-rebalancing yield, non-custodial, always yours.
             </p>
             <div className="hero-cta">
-              <a className="btn btn-primary btn-lg" href="/waitlist">
-                Join Waitlist <span className="arr">→</span>
+              <a className="btn btn-primary btn-lg" href={waitlist ? "/waitlist" : APP_ENTRY}>
+                {waitlist ? (
+                  <>
+                    Join Waitlist <span className="arr">→</span>
+                  </>
+                ) : (
+                  <>
+                    Launch App <span className="arr">→</span>
+                  </>
+                )}
               </a>
               <a className="btn btn-ghost btn-lg" href="#features">
                 See how it works
