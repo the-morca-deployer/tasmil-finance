@@ -5,6 +5,7 @@ import {
   KeyRound,
   ListChecks,
   Mail,
+  Shield,
   Tractor,
   Trophy,
   Wallet,
@@ -162,6 +163,10 @@ export const adminSidebarData: SidebarData = {
         { title: "Quest Campaigns", url: "/admin/quest-campaigns", icon: Trophy },
         { title: "Quest Wallets", url: "/admin/quests", icon: Wallet },
       ],
+    },
+    {
+      title: "Gas Sponsor",
+      items: [{ title: "Sponsor", url: "/admin/sponsor", icon: Shield }],
     },
   ],
 };

@@ -9,6 +9,7 @@ import {
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { activeNetwork, getExplorerUrl } from "@/shared/config/stellar";
 import { useWallet } from "@/shared/context/wallet-context";
+import { useAuthStore } from "@/store/use-auth";
 import type { CardMode } from "../schemas/common.schema";
 
 // Persisted cache: survives component remounts AND page reloads (same tab).
@@ -229,13 +230,14 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
 
         toast.info("Submitting to network...");
 
-        const { TransactionBuilder } = await import("@stellar/stellar-sdk");
-        const { getSorobanClient } = await import("@/lib/stellar-client");
-        const soroban = getSorobanClient();
-        const signedTx = TransactionBuilder.fromXDR(signedTxXdr, activeNetwork.networkPassphrase);
-        const response = await soroban.sendTransaction(signedTx as any);
+        const { txHash, sponsored } = await submitViaBackend(signedTxXdr, walletAddress ?? "");
+        const response = { hash: txHash };
 
-        if (response.status === "PENDING") {
+        if (sponsored) {
+          toast.success("Gas covered by Tasmil", { duration: 3000 });
+        }
+
+        if (response.hash) {
           const { hash } = response;
           const cardResult = { success: true, hash, message: "Transaction successful!" };
           cacheTxResult(cardResult);
@@ -279,7 +281,7 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
           return { success: true, hash };
         }
 
-        throw new Error(`Transaction failed with status: ${response.status}`);
+        throw new Error("Transaction submission failed: no hash returned");
       } catch (error) {
         const msg = parseSigningError(error);
         const isRejection =
@@ -354,6 +356,39 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
       volumeContext,
     ]
   );
+
+  const submitViaBackend = async (
+    signedXdr: string,
+    publicKey: string,
+  ): Promise<{ txHash: string; sponsored: boolean }> => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    try {
+      const token = useAuthStore.getState().accessToken;
+      const res = await fetch("/api/account/submit-ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ signedXdr, publicKey }),
+        signal: controller.signal,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: "Submit failed" }));
+        throw new Error((err as { message?: string }).message ?? "Submit failed");
+      }
+
+      const body = (await res.json()) as
+        | { txHash: string; sponsored: boolean }
+        | { success: boolean; data: { txHash: string; sponsored: boolean } };
+      return "data" in body ? body.data : body;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  };
 
   return { sign, cancel, signing, txResult, txError, resetResult };
 }
