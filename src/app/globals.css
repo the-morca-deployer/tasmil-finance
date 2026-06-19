@@ -152,8 +152,11 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
 
-  /* Quest brand accent — mapped to the app primary so ported quest UI reskins to app theme */
-  --color-brand-mid: var(--primary);
+  /* Quest design tokens (used only by ported quest UI under .quest-scope). Quest's
+     original palette — accent is white, not the app aqua — to match quest 1:1. */
+  --color-brand-mid: #f4f7fb;
+  --color-surface: #111111;
+  --color-accent-ink: #0d111a;
 
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);

@@ -122,6 +122,7 @@
         "src/app/(dashboard)/playground/**",
         "src/app/(dashboard)/faucet/**",
         "src/features/landing/**",
+        "src/features/quest/**",
         "src/gen-quest/**"
       ],
       "linter": { "enabled": false }

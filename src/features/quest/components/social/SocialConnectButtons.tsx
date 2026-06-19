@@ -1,30 +1,27 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Loader2, X } from "lucide-react";
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
+import { Button } from "@/features/quest/components/ui/button";
 import { toast } from "sonner";
+import { CheckCircle2, Loader2, X } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
-import { Button } from "@/shared/ui/button";
 
 // Social Icons
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 127.14 96.36" className={className} fill="currentColor">
-    <title>Discord</title>
     <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.11,77.11,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.89,105.89,0,0,0,126.6,80.22c2.36-24.44-5.42-48.18-18.9-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
   </svg>
 );
 
 const XIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-    <title>X (Twitter)</title>
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
   </svg>
 );
 
 const TelegramIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-    <title>Telegram</title>
     <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
   </svg>
 );
@@ -79,7 +76,7 @@ export const SocialConnectCard: React.FC<SocialConnectCardProps> = ({
 }) => {
   const config = providerConfig[provider];
   const Icon = config.icon;
-  const isLinked = !!linkedAccount;
+  const isConnected = !!linkedAccount;
 
   return (
     <div className="bg-[#151617] border border-border rounded-xl p-4 flex items-center justify-between group hover:border-white/20 transition-all">
@@ -91,15 +88,15 @@ export const SocialConnectCard: React.FC<SocialConnectCardProps> = ({
         </div>
         <div>
           <div className="font-bold text-sm">{config.label}</div>
-          <div className={`text-xs ${isLinked ? config.iconClass : "text-muted"}`}>
-            {isLinked ? linkedAccount.username || "Connected" : "Not connected"}
+          <div className={`text-xs ${isConnected ? config.iconClass : "text-muted"}`}>
+            {isConnected ? linkedAccount.username || "Connected" : "Not connected"}
           </div>
         </div>
       </div>
 
       {isLoading ? (
         <Loader2 className="w-5 h-5 animate-spin text-muted" />
-      ) : isLinked ? (
+      ) : isConnected ? (
         <div className="flex items-center gap-2">
           <CheckCircle2 size={20} className="text-success" />
           <Button
@@ -149,9 +146,7 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
         if (event.data.success) {
           toast.success("Account connected successfully!");
           onRefetch();
-          queryClient.invalidateQueries({
-            queryKey: ["social-accounts-controller-get-social-accounts"],
-          });
+          queryClient.invalidateQueries({ queryKey: ["social-accounts-controller-get-social-accounts"] });
         }
       }
     };
@@ -230,22 +225,10 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
     document.body.appendChild(container);
 
     // Alternative: Use Telegram's window.TelegramLogin
-    if (
-      (
-        window as unknown as {
-          Telegram?: {
-            Login?: { auth: (opts: object, cb: (data: Record<string, string>) => void) => void };
-          };
-        }
-      ).Telegram?.Login
-    ) {
-      (
-        window as unknown as {
-          Telegram?: {
-            Login?: { auth: (opts: object, cb: (data: Record<string, string>) => void) => void };
-          };
-        }
-      ).Telegram!.Login!.auth(
+    // @ts-ignore
+    if (window.Telegram?.Login) {
+      // @ts-ignore
+      window.Telegram.Login.auth(
         { bot_id: botUsername, request_access: "write" },
         (data: Record<string, string>) => {
           if (data) {
@@ -305,9 +288,7 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
 
         toast.success(`${provider} account disconnected`);
         onRefetch();
-        queryClient.invalidateQueries({
-          queryKey: ["social-accounts-controller-get-social-accounts"],
-        });
+        queryClient.invalidateQueries({ queryKey: ["social-accounts-controller-get-social-accounts"] });
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Failed to disconnect account");
       } finally {
@@ -339,3 +320,4 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
 };
 
 export default SocialConnectSection;
+

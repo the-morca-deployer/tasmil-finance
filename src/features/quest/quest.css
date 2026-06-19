@@ -1,0 +1,236 @@
+/* Quest design system, ported 1:1 from the quest frontend and scoped to /quest.
+   Imported only by the (quest) route group layout; the .quest-scope wrapper
+   overrides the shared CSS variables to quest's original palette so the ported
+   quest UI renders identically to the standalone quest site without affecting
+   the rest of the app. */
+
+.quest-scope {
+  /* Quest palette (overrides the app's tokens within the quest routes only) */
+  --background: #000000;
+  --foreground: #f4f7fb;
+  --card: #1c1c1c;
+  --card-foreground: #f4f7fb;
+  --popover: #1c1c1c;
+  --popover-foreground: #f4f7fb;
+  --primary: #f4f7fb;
+  --primary-foreground: #0d111a;
+  --secondary: #0a0a0a;
+  --secondary-foreground: #f4f7fb;
+  --muted: rgba(244, 247, 251, 0.58);
+  --muted-foreground: rgba(244, 247, 251, 0.34);
+  --accent: #f4f7fb;
+  --accent-foreground: #0d111a;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: #1c1c1c;
+  --ring: rgba(255, 255, 255, 0.4);
+  --destructive: #ef4444;
+  --destructive-foreground: #f4f7fb;
+
+  background-color: #000;
+  background-image: radial-gradient(
+    1100px 620px at 82% -6%,
+    rgba(255, 255, 255, 0.04),
+    transparent 60%
+  );
+  color: #f4f7fb;
+  letter-spacing: -0.01em;
+}
+
+/* Brand gradient text (quest .text-grad) */
+.quest-scope .text-grad {
+  background: linear-gradient(110deg, #ffffff 0%, #67e8f9 52%, #0ea5e9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.quest-scope ::selection {
+  background: #0ea5e9;
+  color: #fff;
+}
+
+/* ── Quest Footer ── */
+.qf {
+  position: relative;
+  padding: 64px 0 0;
+  background: #000;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 80px;
+  overflow: hidden;
+  min-height: clamp(320px, 38vw, 520px);
+}
+.qf-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-inline: clamp(20px, 4vw, 48px);
+}
+.qf-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: flex-start;
+  gap: clamp(48px, 8vw, 120px);
+}
+.qf-nav-group {
+  display: flex;
+  gap: clamp(40px, 5vw, 80px);
+}
+.qf-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  max-width: 380px;
+}
+.qf-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.qf-brand-name {
+  font-size: 17px;
+  font-weight: 700;
+  background: linear-gradient(110deg, #fff 0%, #67e8f9 52%, #0ea5e9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.qf-brand-desc {
+  font-size: 13px;
+  line-height: 1.62;
+  color: rgba(244, 247, 251, 0.45);
+}
+.qf-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.qf-col-head {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(244, 247, 251, 0.9);
+  margin-bottom: 2px;
+}
+.qf-col a {
+  font-size: 14px;
+  color: rgba(244, 247, 251, 0.65);
+  transition: color 0.25s;
+  text-decoration: none;
+}
+.qf-col a:hover {
+  color: #f4f7fb;
+}
+.qf-bottom-wrap {
+  margin-top: 48px;
+  position: relative;
+  z-index: 2;
+  padding-bottom: clamp(80px, 12%, 130px);
+}
+.qf-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.qf-social {
+  display: flex;
+  gap: 10px;
+}
+.qf-social-ic {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(244, 247, 251, 0.8);
+  transition: color 0.25s, border-color 0.25s, background 0.25s;
+  text-decoration: none;
+}
+.qf-social-ic:hover {
+  color: #f4f7fb;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.qf-social-ic svg {
+  width: 17px;
+  height: 17px;
+}
+.qf-sep {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 4px 0;
+}
+.qf-copy-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.qf-copy {
+  font-family: ui-monospace, monospace;
+  font-size: 12.5px;
+  color: rgba(244, 247, 251, 0.45);
+}
+.qf-copy-links {
+  display: flex;
+  gap: 24px;
+}
+.qf-copy-links a {
+  font-size: 12px;
+  color: rgba(244, 247, 251, 0.35);
+  transition: color 0.25s;
+  text-decoration: none;
+}
+.qf-copy-links a:hover {
+  color: #f4f7fb;
+}
+.qf-mark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(10px, 2.5%, 36px);
+  z-index: 1;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 11.6vw;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 0.86;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+  user-select: none;
+}
+@media (max-width: 768px) {
+  .qf-grid {
+    flex-direction: column;
+    gap: 36px;
+  }
+  .qf-brand {
+    max-width: 100%;
+  }
+  .qf-nav-group {
+    gap: clamp(24px, 6vw, 48px);
+  }
+}
+@media (max-width: 480px) {
+  .qf {
+    min-height: auto;
+    padding-bottom: 40px;
+  }
+  .qf-nav-group {
+    flex-direction: column;
+    gap: 28px;
+  }
+  .qf-copy-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .qf-mark {
+    display: none;
+  }
+}

@@ -1,61 +1,75 @@
+// @ts-nocheck
 "use client";
 
-import {
-  CheckCircle2,
-  Copy,
-  Crown,
-  Edit2,
-  Loader2,
-  Shield,
-  Trophy,
-  Upload,
-  Wallet,
-  X,
-  Zap,
-} from "lucide-react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import type React from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Copy,
+  CheckCircle2,
+  Edit2,
+  Upload,
+  Users,
+  Shield,
+  Crown,
+  Zap,
+  Trophy,
+  Loader2,
+  X,
+  Wallet,
+} from "lucide-react";
+import { Button } from "@/features/quest/components/ui/button";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/features/quest/components/ui/tabs";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/features/quest/components/ui/card-v2";
+import { Avatar, AvatarImage, AvatarFallback } from "@/features/quest/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/features/quest/components/ui/dialog";
+import { Input } from "@/features/quest/components/ui/input";
+import { Separator } from "@/features/quest/components/ui/separator";
+import { Badge } from "@/features/quest/components/ui/badge";
 import { toast } from "sonner";
 import { useWallet } from "@/features/quest/context/wallet-context";
-import { mapApiCampaignToCampaign } from "@/features/quest/lib/campaign-mapper";
-import { withAuth } from "@/features/quest/lib/kubb-config";
 import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
-import {
+import { 
   useSocialAccountsControllerFindAll,
   useSocialAccountsControllerLinkAccount,
   useSocialAccountsControllerUnlinkAccount,
-  useUsersControllerGetMyCampaigns,
   useUsersControllerUpdateProfile,
+  useUsersControllerGetMyCampaigns,
 } from "@/gen-quest/hooks";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
-import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button-v2";
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
-import { Input } from "@/shared/ui/input";
-import { Separator } from "@/shared/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { withAuth } from "@/features/quest/lib/kubb-config";
+import { mapApiCampaignToCampaign } from "@/features/quest/lib/campaign-mapper";
 import { TelegramButton } from "./TelegramButton";
 
 // Social SVGs
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 127.14 96.36" className={className} fill="currentColor">
-    <title>Discord</title>
     <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.11,77.11,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.89,105.89,0,0,0,126.6,80.22c2.36-24.44-5.42-48.18-18.9-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
   </svg>
 );
 
 const XIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-    <title>X (Twitter)</title>
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
   </svg>
 );
 
 const TelegramIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-    <title>Telegram</title>
     <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
   </svg>
 );
@@ -91,19 +105,24 @@ const Profile: React.FC = () => {
 
   // Get current avatar URL
   const currentAvatar =
-    user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${address || "default"}`;
+    user?.avatarUrl ||
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${address || "default"}`;
 
   // Format display address
-  const displayAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : null;
+  const displayAddress = address
+    ? `${address.slice(0, 6)}...${address.slice(-4)}`
+    : null;
 
   // Fetch social accounts
-  const { data: socialAccountsData, refetch: refetchSocialAccounts } =
-    useSocialAccountsControllerFindAll({
-      ...withAuth,
-      query: {
-        enabled: isAuthenticated,
-      },
-    });
+  const {
+    data: socialAccountsData,
+    refetch: refetchSocialAccounts,
+  } = useSocialAccountsControllerFindAll({
+    ...withAuth,
+    query: {
+    enabled: isAuthenticated,
+    },
+  });
 
   const socialAccounts: SocialAccount[] = useMemo(
     () => (socialAccountsData?.data || socialAccountsData || []) as SocialAccount[],
@@ -114,8 +133,8 @@ const Profile: React.FC = () => {
   const linkAccountMutation = useSocialAccountsControllerLinkAccount({
     ...withAuth,
     mutation: {
-      onSuccess: () => {
-        refetchSocialAccounts();
+    onSuccess: () => {
+      refetchSocialAccounts();
       },
     },
   });
@@ -124,8 +143,8 @@ const Profile: React.FC = () => {
   const unlinkAccountMutation = useSocialAccountsControllerUnlinkAccount({
     ...withAuth,
     mutation: {
-      onSuccess: () => {
-        refetchSocialAccounts();
+    onSuccess: () => {
+      refetchSocialAccounts();
       },
     },
   });
@@ -158,25 +177,22 @@ const Profile: React.FC = () => {
 
     setIsUpdatingAvatar(true);
     try {
-      updateProfileMutation.mutate(
-        {
-          data: {
-            avatarUrl: avatarToSave,
-          },
+      updateProfileMutation.mutate({
+        data: {
+        avatarUrl: avatarToSave,
         },
-        {
-          onSuccess: () => {
-            updateUser({ avatarUrl: avatarToSave });
-            setIsAvatarModalOpen(false);
-            setSelectedAvatar(null);
-            setPreviewImage(null);
-            setIsUpdatingAvatar(false);
-          },
-          onError: () => {
-            setIsUpdatingAvatar(false);
-          },
-        }
-      );
+      }, {
+        onSuccess: () => {
+      updateUser({ avatarUrl: avatarToSave });
+      setIsAvatarModalOpen(false);
+      setSelectedAvatar(null);
+      setPreviewImage(null);
+          setIsUpdatingAvatar(false);
+        },
+        onError: () => {
+          setIsUpdatingAvatar(false);
+        },
+      });
     } catch (error) {
       console.error("Failed to update avatar:", error);
       setIsUpdatingAvatar(false);
@@ -210,41 +226,48 @@ const Profile: React.FC = () => {
     }
 
     setIsUpdatingUsername(true);
-    updateProfileMutation.mutate(
-      {
-        data: {
-          username: newUsername.trim(),
-        },
+    updateProfileMutation.mutate({
+      data: {
+        username: newUsername.trim(),
       },
-      {
-        onSuccess: () => {
-          updateUser({ username: newUsername.trim() });
-          setIsUsernameModalOpen(false);
-          setNewUsername("");
-          setIsUpdatingUsername(false);
-        },
-        onError: (error: unknown) => {
-          console.error("Failed to update username:", error);
-          if (error && typeof error === "object" && "response" in error) {
-            const axiosError = error as { response?: { status?: number } };
-            if (axiosError.response?.status === 409) {
-              toast.error("Username is already taken");
-            } else {
-              toast.error("Failed to update username");
-            }
-          } else {
-            toast.error("Failed to update username");
-          }
-          setIsUpdatingUsername(false);
-        },
+    }, {
+      onSuccess: () => {
+      updateUser({ username: newUsername.trim() });
+      setIsUsernameModalOpen(false);
+      setNewUsername("");
+        setIsUpdatingUsername(false);
+      },
+      onError: (error: unknown) => {
+      console.error("Failed to update username:", error);
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 409) {
+          toast.error("Username is already taken");
+        } else {
+          toast.error("Failed to update username");
+        }
+      } else {
+        toast.error("Failed to update username");
       }
-    );
+      setIsUpdatingUsername(false);
+    },
+  });
   };
+  
 
   const copyAddress = () => {
     if (address) {
       navigator.clipboard.writeText(address);
       toast.success("Address copied!");
+    }
+  };
+
+  const copyReferral = () => {
+    const code = user?.referralCode || user?.username;
+    if (code) {
+      const link = `https://quest.tasmil.finance/r/${code}`;
+      navigator.clipboard.writeText(link);
+      toast.success("Referral link copied!");
     }
   };
 
@@ -256,18 +279,15 @@ const Profile: React.FC = () => {
   };
 
   const handleDisconnectSocial = async (platform: string) => {
-    unlinkAccountMutation.mutate(
-      { platform: platform as "X" | "Discord" | "Telegram" },
-      {
-        onSuccess: () => {
-          toast.success(`${platform} account disconnected`);
-        },
-        onError: (error) => {
-          console.error("Failed to disconnect social account:", error);
-          toast.error(`Failed to disconnect ${platform}`);
-        },
-      }
-    );
+    unlinkAccountMutation.mutate({ platform: platform as "X" | "Discord" | "Telegram" }, {
+      onSuccess: () => {
+      toast.success(`${platform} account disconnected`);
+      },
+      onError: (error) => {
+      console.error("Failed to disconnect social account:", error);
+      toast.error(`Failed to disconnect ${platform}`);
+      },
+    });
   };
 
   // Handle OAuth redirect-back: read query params and link account
@@ -292,79 +312,31 @@ const Profile: React.FC = () => {
 
     window.history.replaceState({}, "", window.location.pathname);
 
-    linkAccountMutation.mutate(
-      { platform, data: accountData } as Parameters<typeof linkAccountMutation.mutate>[0],
-      {
-        onSuccess: () => {
-          toast.success(`${platform} account linked successfully!`);
-          refetchSocialAccounts();
-        },
-        onError: (error: unknown) => {
-          const axiosError = error as { response?: { status?: number } };
-          if (axiosError.response?.status === 409) {
-            toast.info("Account is already linked");
-          } else {
-            toast.error("Failed to link account");
-            console.error("Link account error:", error);
-          }
-          refetchSocialAccounts();
-        },
-      }
-    );
+    linkAccountMutation.mutate({ platform, data: accountData } as any, {
+      onSuccess: () => {
+        toast.success(`${platform} account linked successfully!`);
+        refetchSocialAccounts();
+      },
+      onError: (error: unknown) => {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 409) {
+          toast.info("Account is already linked");
+        } else {
+          toast.error("Failed to link account");
+          console.error("Link account error:", error);
+        }
+        refetchSocialAccounts();
+      },
+    });
   }, []);
 
   // 50 Avatars
   const AVATAR_SEEDS = [
-    "Felix",
-    "Aneka",
-    "Zoe",
-    "Jack",
-    "Callie",
-    "Sam",
-    "Milo",
-    "Bella",
-    "Lola",
-    "Rocky",
-    "Ginger",
-    "Abby",
-    "Bailey",
-    "Bandit",
-    "Bear",
-    "Blue",
-    "Bo",
-    "Boomer",
-    "Brady",
-    "Brody",
-    "Bruno",
-    "Buster",
-    "Casey",
-    "Champ",
-    "Chance",
-    "Charlie",
-    "Chase",
-    "Chester",
-    "Chico",
-    "Coco",
-    "Cody",
-    "Cooper",
-    "Copper",
-    "Daisy",
-    "Dexter",
-    "Diesel",
-    "Duke",
-    "Elvis",
-    "Finn",
-    "Frankie",
-    "George",
-    "Gizmo",
-    "Gunner",
-    "Gus",
-    "Hank",
-    "Harley",
-    "Harvey",
-    "Hazel",
-    "Heidi",
-    "Henry",
+    "Felix", "Aneka", "Zoe", "Jack", "Callie", "Sam", "Milo", "Bella", "Lola", "Rocky",
+    "Ginger", "Abby", "Bailey", "Bandit", "Bear", "Blue", "Bo", "Boomer", "Brady", "Brody",
+    "Bruno", "Buster", "Casey", "Champ", "Chance", "Charlie", "Chase", "Chester", "Chico", "Coco",
+    "Cody", "Cooper", "Copper", "Daisy", "Dexter", "Diesel", "Duke", "Elvis", "Finn", "Frankie",
+    "George", "Gizmo", "Gunner", "Gus", "Hank", "Harley", "Harvey", "Hazel", "Heidi", "Henry",
   ];
 
   // State for active tab
@@ -433,15 +405,11 @@ const Profile: React.FC = () => {
     if (!responseData) return [];
 
     // Handle wrapped response from ResponseInterceptor
-    const wrappedResponse = responseData as {
-      success?: boolean;
-      data?: { items?: unknown[] };
-      items?: unknown[];
-    };
+    const wrappedResponse = responseData as any;
     if (wrappedResponse?.success && wrappedResponse?.data?.items) {
       return wrappedResponse.data.items;
     }
-
+    
     // Fallback: direct structure
     if (wrappedResponse?.items) {
       return wrappedResponse.items;
@@ -460,7 +428,9 @@ const Profile: React.FC = () => {
   const progressPercent = Math.min((userPoints / NEXT_RANK_POINTS) * 100, 100);
 
   const getSocialAccount = (platform: string) => {
-    return socialAccounts.find((acc) => acc.platform.toUpperCase() === platform.toUpperCase());
+    return socialAccounts.find(
+      (acc) => acc.platform.toUpperCase() === platform.toUpperCase()
+    );
   };
 
   if (!isAuthenticated) {
@@ -472,7 +442,9 @@ const Profile: React.FC = () => {
           </div>
           <div className="space-y-2">
             <h2 className="text-2xl font-bold">Connect your wallet</h2>
-            <p className="text-muted-foreground">View your quests, points, and rewards.</p>
+            <p className="text-muted-foreground">
+              View your quests, points, and rewards.
+            </p>
           </div>
           <Button variant="gradient" size="lg" onClick={connect} className="gap-2">
             <Wallet size={18} />
@@ -494,7 +466,9 @@ const Profile: React.FC = () => {
               <div className="relative group">
                 <Avatar className="w-28 h-28 border-4 border-card bg-background overflow-hidden relative z-10">
                   <AvatarImage src={currentAvatar} className="object-cover" />
-                  <AvatarFallback>{user?.username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                  <AvatarFallback>
+                    {user?.username?.charAt(0).toUpperCase() || "U"}
+                  </AvatarFallback>
                 </Avatar>
 
                 <button
@@ -539,6 +513,35 @@ const Profile: React.FC = () => {
             </div>
           </Card>
 
+          {/* Referral Section - temporarily hidden */}
+          {/* <Card className="p-6 space-y-4">
+            <div className="flex flex-col gap-1">
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                <Users size={20} className="text-brand-mid" />
+                Referral Program
+              </h3>
+              <p className="text-sm text-muted">
+                Invite friends and earn 10% of their quest points forever.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Input
+                readOnly
+                value={`https://quest.tasmil.finance/r/${user?.referralCode || user?.username || ""}`}
+                className="bg-background/50 h-9 font-mono text-xs"
+              />
+              <Button
+                size="icon"
+                className="h-9 w-9 shrink-0"
+                variant="gradient"
+                onClick={copyReferral}
+              >
+                <Copy size={14} />
+              </Button>
+            </div>
+          </Card> */}
+
           {/* Social Accounts */}
           <div className="space-y-4">
             <h3 className="font-bold text-lg px-2">Social Accounts</h3>
@@ -555,9 +558,7 @@ const Profile: React.FC = () => {
                       <div>
                         <div className="font-bold text-sm">Discord</div>
                         <div className="text-xs text-[#5865F2]">
-                          {discordAccount?.username ||
-                            discordAccount?.displayName ||
-                            "Not connected"}
+                          {discordAccount?.username || discordAccount?.displayName || "Not connected"}
                         </div>
                       </div>
                     </div>
@@ -598,9 +599,7 @@ const Profile: React.FC = () => {
                       <div>
                         <div className="font-bold text-sm">X</div>
                         <div className="text-xs text-muted">
-                          {xAccount?.username
-                            ? `@${xAccount.username}`
-                            : xAccount?.displayName || "Not connected"}
+                          {xAccount?.username ? `@${xAccount.username}` : xAccount?.displayName || "Not connected"}
                         </div>
                       </div>
                     </div>
@@ -641,9 +640,7 @@ const Profile: React.FC = () => {
                       <div>
                         <div className="font-bold text-sm">Telegram</div>
                         <div className="text-xs text-[#24A1DE]">
-                          {telegramAccount?.username
-                            ? `@${telegramAccount.username}`
-                            : telegramAccount?.displayName || "Not connected"}
+                          {telegramAccount?.username ? `@${telegramAccount.username}` : telegramAccount?.displayName || "Not connected"}
                         </div>
                       </div>
                     </div>
@@ -664,33 +661,28 @@ const Profile: React.FC = () => {
                           variant="outline"
                           onSuccess={(accountData) => {
                             if (accountData) {
-                              linkAccountMutation.mutate(
-                                {
-                                  platform: "Telegram",
-                                  data: { platformUserId: accountData.id, ...accountData },
-                                } as unknown as Parameters<typeof linkAccountMutation.mutate>[0],
-                                {
-                                  onSuccess: () => {
-                                    toast.success("Telegram account linked successfully!");
-                                    refetchSocialAccounts();
-                                  },
-                                  onError: (error: unknown) => {
-                                    const axiosError = error as { response?: { status?: number } };
-                                    if (axiosError.response?.status === 409) {
-                                      toast.info("Telegram account is already linked");
-                                    } else {
-                                      toast.error("Failed to link Telegram account");
-                                      console.error("Link account error:", error);
-                                    }
-                                    refetchSocialAccounts();
-                                  },
-                                }
-                              );
+                              linkAccountMutation.mutate({
+                                platform: "Telegram",
+                                data: accountData,
+                              } as any, {
+                                onSuccess: () => {
+                                  toast.success("Telegram account linked successfully!");
+                                  refetchSocialAccounts();
+                                },
+                                onError: (error: unknown) => {
+                                  const axiosError = error as { response?: { status?: number } };
+                                  if (axiosError.response?.status === 409) {
+                                    toast.info("Telegram account is already linked");
+                                  } else {
+                                    toast.error("Failed to link Telegram account");
+                                    console.error("Link account error:", error);
+                                  }
+                                  refetchSocialAccounts();
+                                },
+                              });
                             }
                           }}
-                          disabled={
-                            linkAccountMutation.isPending || unlinkAccountMutation.isPending
-                          }
+                          disabled={linkAccountMutation.isPending || unlinkAccountMutation.isPending}
                         />
                       </div>
                     )}
@@ -709,7 +701,7 @@ const Profile: React.FC = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {/* Enhanced Progress Card (Full Width) */}
               <div className="col-span-2 sm:col-span-4 bg-[#151617] border border-border rounded-xl p-6 relative overflow-hidden group shadow-sm">
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-mid/5 to-transparent opacity-50" />
+                <div className="absolute inset-0 bg-gradient-to-r from-brand-mid/5 to-transparent opacity-50"></div>
                 <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
                   {/* Current Rank */}
                   <div className="flex flex-col items-center gap-2 min-w-[100px]">
@@ -720,16 +712,21 @@ const Profile: React.FC = () => {
                       <div className="text-xs text-muted font-bold uppercase tracking-wider">
                         Current
                       </div>
-                      <div className="font-bold text-white">{user?.tier || "Bronze"}</div>
+                      <div className="font-bold text-white">
+                        {user?.tier || "Bronze"}
+                      </div>
                     </div>
                   </div>
 
                   {/* Progress Bar Area */}
                   <div className="flex-1 w-full space-y-3">
                     <div className="flex justify-between items-end">
-                      <span className="text-sm font-medium text-brand-mid">Level Progress</span>
+                      <span className="text-sm font-medium text-brand-mid">
+                        Level Progress
+                      </span>
                       <span className="text-sm font-bold text-white">
-                        {userPoints.toLocaleString()} / {NEXT_RANK_POINTS.toLocaleString()} PTS
+                        {userPoints.toLocaleString()} /{" "}
+                        {NEXT_RANK_POINTS.toLocaleString()} PTS
                       </span>
                     </div>
                     <div className="h-4 bg-black/40 rounded-full border border-white/5 overflow-hidden relative">
@@ -737,7 +734,7 @@ const Profile: React.FC = () => {
                         className="h-full bg-brand-gradient rounded-full shadow-[0_0_15px_rgba(54,177,255,0.5)] transition-all duration-1000 ease-out relative overflow-hidden"
                         style={{ width: `${progressPercent}%` }}
                       >
-                        <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]" />
+                        <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]"></div>
                       </div>
                     </div>
                     <div className="text-xs text-muted text-center">
@@ -764,25 +761,34 @@ const Profile: React.FC = () => {
               </div>
 
               <Card className="p-4 space-y-1 hover:border-white/20 transition-colors">
-                <div className="text-muted text-xs font-medium uppercase tracking-wide">Points</div>
+                <div className="text-muted text-xs font-medium uppercase tracking-wide">
+                  Points
+                </div>
                 <div className="text-2xl font-bold text-[#C7FF2C] flex items-center gap-2">
                   {userPoints.toLocaleString()}
                 </div>
               </Card>
               <Card className="p-4 space-y-1 hover:border-white/20 transition-colors">
-                <div className="text-muted text-xs font-medium uppercase tracking-wide">Streak</div>
+                <div className="text-muted text-xs font-medium uppercase tracking-wide">
+                  Streak
+                </div>
                 <div className="text-2xl font-bold text-[#FF9F1C] flex items-center gap-2">
-                  <Zap size={20} className="fill-current" /> {user?.loginStreak || 0}
+                  <Zap size={20} className="fill-current" />{" "}
+                  {user?.loginStreak || 0}
                 </div>
               </Card>
               <Card className="p-4 space-y-1 hover:border-white/20 transition-colors">
-                <div className="text-muted text-xs font-medium uppercase tracking-wide">Tier</div>
+                <div className="text-muted text-xs font-medium uppercase tracking-wide">
+                  Tier
+                </div>
                 <div className="text-2xl font-bold text-white flex items-center gap-2">
                   {user?.tier || "Bronze"}
                 </div>
               </Card>
               <Card className="p-4 space-y-1 hover:border-white/20 transition-colors">
-                <div className="text-muted text-xs font-medium uppercase tracking-wide">Role</div>
+                <div className="text-muted text-xs font-medium uppercase tracking-wide">
+                  Role
+                </div>
                 <div className="text-2xl font-bold text-white flex items-center gap-2 capitalize">
                   {user?.role || "User"}
                 </div>
@@ -793,8 +799,8 @@ const Profile: React.FC = () => {
           {/* Quests Tabs */}
           <div className="space-y-4">
             <h3 className="font-bold text-lg px-2">My Quests</h3>
-            <Tabs
-              value={activeTab}
+            <Tabs 
+              value={activeTab} 
               onValueChange={(value) => setActiveTab(value as "pending" | "claimable" | "claimed")}
               className="space-y-6"
             >
@@ -821,8 +827,7 @@ const Profile: React.FC = () => {
 
               {(["pending", "claimable", "claimed"] as const).map((status) => {
                 const campaigns = getCampaignsForTab(status as "pending" | "claimable" | "claimed");
-                const { isLoading } =
-                  status === activeTab ? getCurrentTabData() : { isLoading: false };
+                const { isLoading } = status === activeTab ? getCurrentTabData() : { isLoading: false };
                 const isCurrentTab = activeTab === status;
 
                 return (
@@ -834,35 +839,24 @@ const Profile: React.FC = () => {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {(campaigns as unknown[]).map((campaign) => {
-                          const c = campaign as {
-                            id: string;
-                            title: string;
-                            description?: string;
-                            rewardPoints?: number;
-                            metadata?: { rewardPoints?: number };
-                            logoUrl?: string;
-                            coverUrl?: string;
-                            avatars?: string[];
-                            questersCount?: number;
-                          };
+                        {campaigns.map((campaign: any) => {
                           const mappedCampaign = mapApiCampaignToCampaign(campaign);
-                          const totalPoints =
-                            c.rewardPoints ||
-                            (c.metadata as { rewardPoints?: number })?.rewardPoints ||
-                            0;
-                          const coverImage = c.logoUrl || c.coverUrl || mappedCampaign.banner;
+                          const totalPoints = campaign.rewardPoints || (campaign.metadata as any)?.rewardPoints || 0;
+                          const coverImage = campaign.logoUrl || campaign.coverUrl || mappedCampaign.banner;
 
                           return (
                             <Card
-                              key={c.id}
-                              onClick={() => router.push(`/campaign/${c.id}`)}
-                              className="flex flex-col h-full overflow-hidden border-border cursor-pointer hover:border-white/20 transition-all"
+                              key={campaign.id}
+                              hoverEffect
+                              onClick={() =>
+                                router.push(`/quest/campaign/${campaign.id}`)
+                              }
+                              className="flex flex-col h-full overflow-hidden border-border"
                             >
                               <div className="relative h-40 w-full border-b border-border">
                                 <img
                                   src={coverImage}
-                                  alt={c.title}
+                                  alt={campaign.title}
                                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                                 />
                                 <div className="absolute top-4 left-4">
@@ -874,10 +868,10 @@ const Profile: React.FC = () => {
 
                               <CardHeader className="flex-grow pb-4">
                                 <CardTitle className="text-lg line-clamp-1 mb-2">
-                                  {c.title}
+                                  {campaign.title}
                                 </CardTitle>
                                 <CardDescription className="line-clamp-2">
-                                  {c.description || ""}
+                                  {campaign.description || ""}
                                 </CardDescription>
                               </CardHeader>
 
@@ -888,26 +882,23 @@ const Profile: React.FC = () => {
                               <CardFooter className="pt-4 justify-between text-sm">
                                 <div className="flex items-center gap-4">
                                   <div className="flex -space-x-2 items-center">
-                                    {c.avatars && c.avatars.length > 0
-                                      ? c.avatars.slice(0, 3).map((avatar: string, i: number) => (
-                                          <Avatar key={i} className="w-6 h-6 border-2 border-card">
-                                            <AvatarImage src={avatar} />
-                                            <AvatarFallback>U</AvatarFallback>
-                                          </Avatar>
-                                        ))
-                                      : null}
+                                    {campaign.avatars && campaign.avatars.length > 0 ? (
+                                      campaign.avatars.slice(0, 3).map((avatar: string, i: number) => (
+                                        <Avatar
+                                          key={i}
+                                          className="w-6 h-6 border-2 border-card"
+                                        >
+                                          <AvatarImage src={avatar} />
+                                          <AvatarFallback>U</AvatarFallback>
+                                        </Avatar>
+                                      ))
+                                    ) : null}
                                     {(() => {
-                                      const shown =
-                                        c.avatars && c.avatars.length > 0
-                                          ? Math.min(c.avatars.length, 3)
-                                          : 0;
-                                      const remaining = (c.questersCount || 0) - shown;
+                                      const shown = campaign.avatars?.length > 0 ? Math.min(campaign.avatars.length, 3) : 0;
+                                      const remaining = (campaign.questersCount || 0) - shown;
                                       return remaining > 0 ? (
                                         <div className="w-6 h-6 rounded-full border-2 border-card bg-muted/10 flex items-center justify-center text-[8px] font-bold text-muted">
-                                          +
-                                          {remaining > 999
-                                            ? `${Math.floor(remaining / 1000)}k`
-                                            : remaining}
+                                          +{remaining > 999 ? `${Math.floor(remaining / 1000)}k` : remaining}
                                         </div>
                                       ) : null;
                                     })()}
@@ -944,7 +935,10 @@ const Profile: React.FC = () => {
             <DialogTitle>Change Avatar</DialogTitle>
           </DialogHeader>
 
-          <Tabs defaultValue="style" className="flex-1 flex flex-col min-h-0 mt-4 overflow-hidden">
+          <Tabs
+            defaultValue="style"
+            className="flex-1 flex flex-col min-h-0 mt-4 overflow-hidden"
+          >
             <TabsList className="grid w-full grid-cols-2 bg-muted/20 p-1 mb-6 rounded-lg shrink-0">
               <TabsTrigger value="style">Pick your style</TabsTrigger>
               <TabsTrigger value="upload">Upload image</TabsTrigger>
@@ -968,10 +962,17 @@ const Profile: React.FC = () => {
                       onClick={() => handleAvatarSelect(seed)}
                       className={`relative aspect-square rounded-full overflow-hidden border-2 transition-all hover:scale-110 ${isSelected ? "border-brand-mid ring-4 ring-brand-mid/20" : "border-transparent hover:border-white/20"}`}
                     >
-                      <img src={avatarUrl} alt={seed} className="w-full h-full object-cover" />
+                      <img
+                        src={avatarUrl}
+                        alt={seed}
+                        className="w-full h-full object-cover"
+                      />
                       {isSelected && (
                         <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                          <CheckCircle2 size={24} className="text-white drop-shadow-md" />
+                          <CheckCircle2
+                            size={24}
+                            className="text-white drop-shadow-md"
+                          />
                         </div>
                       )}
                     </button>
@@ -998,14 +999,23 @@ const Profile: React.FC = () => {
                 />
 
                 {previewImage ? (
-                  <img src={previewImage} alt="Preview" className="w-full h-full object-contain" />
+                  <img
+                    src={previewImage}
+                    alt="Preview"
+                    className="w-full h-full object-contain"
+                  />
                 ) : (
                   <>
                     <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Upload size={24} className="text-muted group-hover:text-white" />
+                      <Upload
+                        size={24}
+                        className="text-muted group-hover:text-white"
+                      />
                     </div>
                     <p className="font-medium text-lg">Click to upload</p>
-                    <p className="text-sm text-muted mt-2">SVG, PNG, JPG or GIF (max. 2MB)</p>
+                    <p className="text-sm text-muted mt-2">
+                      SVG, PNG, JPG or GIF (max. 2MB)
+                    </p>
                   </>
                 )}
 
@@ -1023,11 +1033,7 @@ const Profile: React.FC = () => {
               onClick={handleConfirmAvatar}
               variant="gradient"
               size="lg"
-              disabled={
-                isUpdatingAvatar ||
-                updateProfileMutation.isPending ||
-                (!selectedAvatar && !previewImage)
-              }
+              disabled={isUpdatingAvatar || updateProfileMutation.isPending || (!selectedAvatar && !previewImage)}
             >
               {isUpdatingAvatar ? (
                 <>
@@ -1058,19 +1064,22 @@ const Profile: React.FC = () => {
                 placeholder="Enter new username"
                 maxLength={50}
               />
-              <p className="text-xs text-muted">Username must be unique and max 50 characters.</p>
+              <p className="text-xs text-muted">
+                Username must be unique and max 50 characters.
+              </p>
             </div>
 
             <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={() => setIsUsernameModalOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsUsernameModalOpen(false)}
+              >
                 Cancel
               </Button>
               <Button
                 variant="gradient"
                 onClick={handleUpdateUsername}
-                disabled={
-                  isUpdatingUsername || updateProfileMutation.isPending || !newUsername.trim()
-                }
+                disabled={isUpdatingUsername || updateProfileMutation.isPending || !newUsername.trim()}
               >
                 {isUpdatingUsername ? (
                   <>
