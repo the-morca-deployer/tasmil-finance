@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getNetwork, getSoroswapClient } from "../_sdk";
 import { requireEnv } from "@/lib/env";
+import { getNetwork, getSoroswapClient } from "../_sdk";
 
 const MCP_URL = requireEnv("NEXT_PUBLIC_MCP_STELLAR_URL", "http://localhost:3009");
 

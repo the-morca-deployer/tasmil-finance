@@ -2,7 +2,9 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 const BACKEND_URL =
-  process.env.BACKEND_INTERNAL_URL ?? process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:6756";
+  process.env.BACKEND_INTERNAL_URL ??
+  process.env.NEXT_PUBLIC_BACKEND_URL ??
+  "http://localhost:6756";
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -11,7 +13,7 @@ export async function GET() {
   if (!token) {
     return NextResponse.json(
       { success: false, statusCode: 401, message: "No token provided", error: "Unauthorized" },
-      { status: 401 },
+      { status: 401 }
     );
   }
 

@@ -41,7 +41,9 @@ describe("parseFlowResult", () => {
   });
 
   it("unwraps object with content array", () => {
-    const input = { content: [{ type: "text", text: JSON.stringify({ kind: "cross_chain_plan" }) }] };
+    const input = {
+      content: [{ type: "text", text: JSON.stringify({ kind: "cross_chain_plan" }) }],
+    };
     expect(parseFlowResult(input)).toEqual({ kind: "cross_chain_plan" });
   });
 

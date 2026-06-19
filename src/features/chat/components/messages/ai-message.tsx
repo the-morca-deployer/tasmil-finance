@@ -128,7 +128,7 @@ export function AssistantMessage({
       const m = thread.messages[i];
       if (!m) continue;
       if (m.type === "human") return true;
-      if (m.type === "ai") return false;
+      if (m.type === "ai" || (m.type as string) === "assistant") return false;
     }
     return true;
   })();
@@ -136,14 +136,18 @@ export function AssistantMessage({
   const hasReasoning = !!reasoningContent && isFirstAiInTurn;
   const isLastMessage =
     thread.messages.length > 0 && thread.messages[thread.messages.length - 1]?.id === message?.id;
-  const hasNoAIOrToolMessages = !thread.messages.find((m) => m.type === "ai" || m.type === "tool");
+  const hasNoAIOrToolMessages = !thread.messages.find(
+    (m) => m.type === "ai" || (m.type as string) === "assistant" || m.type === "tool"
+  );
   // Check if next non-tool message is also an AI message (i.e. this is an intermediate message)
   const currentIdx = message ? thread.messages.findIndex((m) => m.id === message.id) : -1;
   const nextVisibleMessage =
     currentIdx >= 0
       ? thread.messages.slice(currentIdx + 1).find((m) => m.type !== "tool")
       : undefined;
-  const isIntermediateAiMessage = !isLastMessage && nextVisibleMessage?.type === "ai";
+  const isIntermediateAiMessage =
+    !isLastMessage &&
+    (nextVisibleMessage?.type === "ai" || (nextVisibleMessage?.type as string) === "assistant");
   const meta = message ? thread.getMessagesMetadata?.(message) : undefined;
   const threadInterrupt = thread.interrupt;
 
@@ -165,13 +169,21 @@ export function AssistantMessage({
     return null;
   }
 
-  // parse_user_intent is now shown as a visible step (like demo-ai)
-
   // Whether this message has tool calls that produce UI
   const hasToolCalls = !!(allToolCalls && allToolCalls.length > 0);
 
+  // Intermediate text-only messages (supervisor saying "Let me check…" before tool calls)
+  // are hidden — they create a confusing thinking/content loop for the user.
+  if (isIntermediateAiMessage && !hasToolCalls && contentString.length > 0) {
+    return null;
+  }
+
   return (
-    <div className="group mr-auto flex w-full flex-col items-start gap-2 overflow-hidden md:flex-row md:gap-3">
+    <div
+      data-testid="ai-message"
+      data-role="assistant"
+      className="group mr-auto flex w-full flex-col items-start gap-2 overflow-hidden md:flex-row md:gap-3"
+    >
       <div className="w-10 shrink-0">{!hideAvatar && <AgentAvatar />}</div>
       <div className="flex w-full min-w-0 flex-1 flex-col gap-1">
         {isToolResult ? (
@@ -215,17 +227,60 @@ export function AssistantMessage({
               <AIReasoning isStreaming={isReasoningStreaming}>{reasoningContent}</AIReasoning>
             )}
 
-            {/* 2. AI Text Response - Show BEFORE tool calls (text streams first, then tool is called) */}
-            {contentString.length > 0 && (
-              <div className="fade-in animate-in py-1 duration-200">
-                <MarkdownText>{contentString}</MarkdownText>
-              </div>
-            )}
-
-            {/* 3. Tool calls: status indicator + data cards (frontend-driven, no backend UI state needed) */}
-            {hasToolCalls && message && (
-              <ToolCallRenderer message={message} messages={allMessages ?? thread.messages} />
-            )}
+            {/* 2-3. Interleaved text + tool segments in event-stream order.
+                When AG-UI segments are present (live stream), walk them in
+                order so the user sees tool A → text → tool B → text instead
+                of all tools grouped before text. Fall back to the legacy
+                text-then-tools layout for messages loaded from history that
+                have no segment timeline. */}
+            {(() => {
+              const segments = (message as any)?.segments as
+                | { kind: "text"; text: string }[]
+                | { kind: "tool"; toolCallId: string }[]
+                | undefined;
+              if (segments && segments.length > 0 && message) {
+                return (segments as any[]).map((seg, i) => {
+                  if (seg.kind === "text") {
+                    const cleaned = stripReasoningSections(seg.text);
+                    if (!cleaned.trim()) return null;
+                    return (
+                      <div key={`t-${i}`} className="fade-in animate-in py-1 duration-200">
+                        <MarkdownText>{cleaned}</MarkdownText>
+                      </div>
+                    );
+                  }
+                  if (seg.kind === "tool") {
+                    const tc = allToolCalls?.find((x: any) => x.id === seg.toolCallId);
+                    if (!tc) return null;
+                    const singleMessage = {
+                      ...(message as any),
+                      content: "",
+                      tool_calls: [tc],
+                    };
+                    return (
+                      <ToolCallRenderer
+                        key={`c-${seg.toolCallId}`}
+                        message={singleMessage as Message}
+                        messages={allMessages ?? thread.messages}
+                      />
+                    );
+                  }
+                  return null;
+                });
+              }
+              return (
+                <>
+                  {contentString.length > 0 && (
+                    <div className="fade-in animate-in py-1 duration-200">
+                      <MarkdownText>{contentString}</MarkdownText>
+                    </div>
+                  )}
+                  {hasToolCalls && message && (
+                    <ToolCallRenderer message={message} messages={allMessages ?? thread.messages} />
+                  )}
+                </>
+              );
+            })()}
 
             {/* 4. Supervisor coordination indicator (only for supervisor agent calls without sub-cards) */}
             {isSupervisorDelegating && !hasToolCalls && (

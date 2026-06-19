@@ -9,6 +9,8 @@ export function NavLink({ item }: { item: NavItem }) {
   const pathname = usePathname();
   const isActive = pathname === item.url || pathname.startsWith(`${item.url}/`);
 
+  const isExternal = item.url.startsWith("http");
+
   return (
     <Link
       href={item.url}
@@ -17,6 +19,7 @@ export function NavLink({ item }: { item: NavItem }) {
         "font-medium text-base transition-colors",
         isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
       )}
+      {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
     >
       {item.title}
     </Link>

@@ -21,9 +21,9 @@ describe("parseToolResult", () => {
   });
 
   it("unwraps MCP wrapper {content:[{type:text,...}]}", () => {
-    expect(
-      parseToolResult({ content: [{ type: "text", text: '{"result":1}' }] })
-    ).toEqual({ result: 1 });
+    expect(parseToolResult({ content: [{ type: "text", text: '{"result":1}' }] })).toEqual({
+      result: 1,
+    });
   });
 
   it("returns plain object as-is when no MCP content", () => {

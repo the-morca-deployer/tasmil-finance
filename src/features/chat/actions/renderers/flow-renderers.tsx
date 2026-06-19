@@ -2,23 +2,26 @@
 
 import type React from "react";
 import { useCallback, useMemo, useState } from "react";
+import { AccountSetupCard } from "@/features/chat/actions/components/stellar/account-setup-card";
 import { ClarifyCard } from "@/features/chat/components/flow/clarify-card";
 import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
 import { PlanPreviewCard } from "@/features/chat/components/flow/plan-preview-card";
-import { AccountSetupCard } from "@/features/chat/actions/components/stellar/account-setup-card";
 import { useFlowSigning } from "@/features/chat/hooks/use-flow-signing";
 import { useStreamContext } from "@/features/chat/hooks/use-stream";
-import type { TxStatus } from "@/features/chat/types/flow-messages";
 import { parseFlowResult } from "@/features/chat/lib/parse-flow-result";
 import type { SharedRenderProps } from "@/features/chat/lib/tool-renderer-registry";
+import type { TxStatus } from "@/features/chat/types/flow-messages";
 import { useWalletStore } from "@/store/use-wallet";
 import { executeDispatchRender } from "./execute-dispatcher";
 
 function simplifyErrorMessage(raw: string): string {
   const stepsMatch = raw.match(/All \d+ steps? failed/);
   if (stepsMatch) {
-    const simMatch = raw.match(/Contract simulation failed:\s*HostError:\s*Error\(Contract,\s*#(\d+)\)/);
-    if (simMatch) return `Transaction simulation failed (contract error #${simMatch[1]}). The AI will suggest an alternative.`;
+    const simMatch = raw.match(
+      /Contract simulation failed:\s*HostError:\s*Error\(Contract,\s*#(\d+)\)/
+    );
+    if (simMatch)
+      return `Transaction simulation failed (contract error #${simMatch[1]}). The AI will suggest an alternative.`;
     return "Transaction simulation failed. The AI will suggest an alternative.";
   }
   if (raw.includes("Contract simulation failed")) {
@@ -33,7 +36,12 @@ type ClarifyQuestion = {
   field_name: string;
   question: string;
   input_type: "select" | "text";
-  suggestions?: { label: string; value: Record<string, unknown>; tags?: string[]; description?: string }[];
+  suggestions?: {
+    label: string;
+    value: Record<string, unknown>;
+    tags?: string[];
+    description?: string;
+  }[];
   placeholder?: string;
 };
 
@@ -43,7 +51,9 @@ function usePreviousClarifyResponse(questions: ClarifyQuestion[], toolCallId?: s
     const msgs = stream.messages ?? [];
     let startIdx = 0;
     if (toolCallId) {
-      const idx = msgs.findIndex((m) => m.type === "tool" && (m as any).tool_call_id === toolCallId);
+      const idx = msgs.findIndex(
+        (m) => m.type === "tool" && (m as any).tool_call_id === toolCallId
+      );
       if (idx >= 0) startIdx = idx + 1;
     }
     for (let i = startIdx; i < msgs.length; i++) {
@@ -57,7 +67,9 @@ function usePreviousClarifyResponse(questions: ClarifyQuestion[], toolCallId?: s
         const answers: Record<string, unknown> = {};
         for (const q of questions) {
           if (q.input_type === "select" && q.suggestions) {
-            const match = q.suggestions.find((s) => Object.entries(s.value).every(([k, v]) => parsed[k] === v));
+            const match = q.suggestions.find((s) =>
+              Object.entries(s.value).every(([k, v]) => parsed[k] === v)
+            );
             if (match) answers[q.field_name] = match.value;
           } else if (q.input_type === "text" && parsed[q.field_name]) {
             answers[q.field_name] = parsed[q.field_name];
@@ -91,7 +103,8 @@ function FlowClarifyCardWithStream({
       const payload: Record<string, unknown> = { type: "clarify_response" };
       for (const q of questions) {
         const answer = answers[q.field_name];
-        if (q.input_type === "select" && answer && typeof answer === "object") Object.assign(payload, answer);
+        if (q.input_type === "select" && answer && typeof answer === "object")
+          Object.assign(payload, answer);
         else if (q.input_type === "text" && typeof answer === "string" && answer.trim())
           payload[q.field_name] = answer.trim();
       }
@@ -110,7 +123,7 @@ function FlowClarifyCardWithStream({
         setSent(false);
       }
     },
-    [stream, questions, context, sent, walletAddress],
+    [stream, questions, context, sent, walletAddress]
   );
 
   return (
@@ -293,7 +306,8 @@ export const FLOW_RENDERER_ENTRIES: {
     toolName: "flow_plan_preview",
     render: (props) => {
       const data = parseFlowResult(props.result);
-      if (!data?.plan) return <div className="text-muted-foreground text-xs">Invalid plan data</div>;
+      if (!data?.plan)
+        return <div className="text-muted-foreground text-xs">Invalid plan data</div>;
       return (
         <PlanPreviewCard
           plan={data.plan as any}

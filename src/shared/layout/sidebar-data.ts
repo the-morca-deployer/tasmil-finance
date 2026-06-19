@@ -116,6 +116,15 @@ const _sidebarData: SidebarData = {
         },
       ],
     },
+    {
+      items: [
+        {
+          title: "Tasmil Quest",
+          url: "https://quest.tasmil-finance.xyz",
+          icon: Trophy,
+        },
+      ],
+    },
   ],
 };
 

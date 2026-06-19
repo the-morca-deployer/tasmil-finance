@@ -14,7 +14,9 @@ test.describe("Header bar — Morpho-style strip (desktop)", () => {
   test("nav links are text-only — no svg icons", async ({ page }) => {
     await page.goto("/farming");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
-    const navLinks = topNav.getByRole("link").filter({ hasText: /chat|farming|aggregator|portfolio/i });
+    const navLinks = topNav
+      .getByRole("link")
+      .filter({ hasText: /chat|farming|aggregator|portfolio/i });
     const count = await navLinks.count();
     expect(count).toBeGreaterThan(0);
     for (let i = 0; i < count; i++) {
@@ -54,19 +56,19 @@ test.describe("Header bar — Clock chat-history trigger (desktop)", () => {
     await page.goto("/portfolio");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     await expect(topNav).toBeVisible();
-    await expect(topNav.locator('button:has(svg.lucide-clock)')).toHaveCount(0);
+    await expect(topNav.locator("button:has(svg.lucide-clock)")).toHaveCount(0);
   });
 
   test("Clock trigger does NOT render on /farming", async ({ page }) => {
     await page.goto("/farming");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
-    await expect(topNav.locator('button:has(svg.lucide-clock)')).toHaveCount(0);
+    await expect(topNav.locator("button:has(svg.lucide-clock)")).toHaveCount(0);
   });
 
   test("Clock trigger does NOT render on /aggregator", async ({ page }) => {
     await page.goto("/aggregator");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
-    await expect(topNav.locator('button:has(svg.lucide-clock)')).toHaveCount(0);
+    await expect(topNav.locator("button:has(svg.lucide-clock)")).toHaveCount(0);
   });
 });
 

@@ -15,7 +15,15 @@ const FLOW_CARD_TOOLS = new Set([
 
 export const getContentLength = (content: any): number => {
   if (typeof content === "string") return content.length;
-  if (Array.isArray(content)) return content.length;
+  if (Array.isArray(content)) {
+    // AG-UI content-block array: sum the text of each block so the merge guards
+    // compare actual text length, not block count.
+    return content.reduce((sum: number, block: any) => {
+      if (typeof block === "string") return sum + block.length;
+      if (block && typeof block.text === "string") return sum + block.text.length;
+      return sum;
+    }, 0);
+  }
   return 0;
 };
 
@@ -191,6 +199,42 @@ export const mergeMessagesWithCache = (cached: Message[], incoming: Message[]): 
           const bothEmpty = !cachedContentStr && !newContentStr;
           if (bothEmpty || (cachedContentStr && newContentStr.startsWith(cachedContentStr))) {
             (newMsg as any).tool_calls = cachedToolCalls;
+          }
+        }
+        // Preserve the AG-UI `segments` timeline when the server snapshot
+        // replaces the message without it. Without this guard the renderer
+        // flips from the interleaved segment branch to the text-then-tools
+        // fallback, causing already-mounted cards to unmount and a fresh
+        // layout to slam in. Mirror the streaming-append rule used above
+        // for tool_calls so historical replacements still go through.
+        const cachedSegments = (cachedMsg as any).segments;
+        const newSegments = (newMsg as any).segments;
+        if (
+          Array.isArray(cachedSegments) &&
+          cachedSegments.length > 0 &&
+          (!Array.isArray(newSegments) || newSegments.length === 0)
+        ) {
+          const cachedStr =
+            typeof cachedMsg.content === "string"
+              ? cachedMsg.content
+              : Array.isArray(cachedMsg.content)
+                ? cachedMsg.content
+                    .filter((c: any) => c.type === "text")
+                    .map((c: any) => c.text ?? "")
+                    .join("")
+                : "";
+          const newStr =
+            typeof newMsg.content === "string"
+              ? newMsg.content
+              : Array.isArray(newMsg.content)
+                ? newMsg.content
+                    .filter((c: any) => c.type === "text")
+                    .map((c: any) => c.text ?? "")
+                    .join("")
+                : "";
+          const bothEmpty = !cachedStr && !newStr;
+          if (bothEmpty || (cachedStr && newStr.startsWith(cachedStr))) {
+            (newMsg as any).segments = cachedSegments;
           }
         }
         merged[idx] = newMsg;

@@ -89,14 +89,12 @@ describe("TOOL_CALL_START", () => {
       useChatAgentStore
         .getState()
         .applyEvent({ type: "TEXT_MESSAGE_START", messageId: "msg-1", role: "assistant" });
-      useChatAgentStore
-        .getState()
-        .applyEvent({
-          type: "TOOL_CALL_START",
-          toolCallId: "tc-1",
-          toolCallName: "bash",
-          parentMessageId: "msg-1",
-        });
+      useChatAgentStore.getState().applyEvent({
+        type: "TOOL_CALL_START",
+        toolCallId: "tc-1",
+        toolCallName: "bash",
+        parentMessageId: "msg-1",
+      });
     });
     expect(useChatAgentStore.getState().messages[0]!.toolCalls).toContain("tc-1");
   });
@@ -108,14 +106,12 @@ describe("TOOL_CALL_ARGS", () => {
       useChatAgentStore
         .getState()
         .applyEvent({ type: "TEXT_MESSAGE_START", messageId: "msg-1", role: "assistant" });
-      useChatAgentStore
-        .getState()
-        .applyEvent({
-          type: "TOOL_CALL_START",
-          toolCallId: "tc-1",
-          toolCallName: "bash",
-          parentMessageId: "msg-1",
-        });
+      useChatAgentStore.getState().applyEvent({
+        type: "TOOL_CALL_START",
+        toolCallId: "tc-1",
+        toolCallName: "bash",
+        parentMessageId: "msg-1",
+      });
       useChatAgentStore
         .getState()
         .applyEvent({ type: "TOOL_CALL_ARGS", toolCallId: "tc-1", delta: '{"command":"ls"}' });
@@ -130,22 +126,18 @@ describe("TOOL_CALL_RESULT", () => {
       useChatAgentStore
         .getState()
         .applyEvent({ type: "TEXT_MESSAGE_START", messageId: "msg-1", role: "assistant" });
-      useChatAgentStore
-        .getState()
-        .applyEvent({
-          type: "TOOL_CALL_START",
-          toolCallId: "tc-1",
-          toolCallName: "bash",
-          parentMessageId: "msg-1",
-        });
-      useChatAgentStore
-        .getState()
-        .applyEvent({
-          type: "TOOL_CALL_RESULT",
-          toolCallId: "tc-1",
-          content: "ok output",
-          isError: false,
-        });
+      useChatAgentStore.getState().applyEvent({
+        type: "TOOL_CALL_START",
+        toolCallId: "tc-1",
+        toolCallName: "bash",
+        parentMessageId: "msg-1",
+      });
+      useChatAgentStore.getState().applyEvent({
+        type: "TOOL_CALL_RESULT",
+        toolCallId: "tc-1",
+        content: "ok output",
+        isError: false,
+      });
     });
     const slot = useChatAgentStore.getState().toolCallSlots["tc-1"]!;
     expect(slot.status).toBe("done");
@@ -157,22 +149,18 @@ describe("TOOL_CALL_RESULT", () => {
       useChatAgentStore
         .getState()
         .applyEvent({ type: "TEXT_MESSAGE_START", messageId: "msg-1", role: "assistant" });
-      useChatAgentStore
-        .getState()
-        .applyEvent({
-          type: "TOOL_CALL_START",
-          toolCallId: "tc-1",
-          toolCallName: "bash",
-          parentMessageId: "msg-1",
-        });
-      useChatAgentStore
-        .getState()
-        .applyEvent({
-          type: "TOOL_CALL_RESULT",
-          toolCallId: "tc-1",
-          content: "error msg",
-          isError: true,
-        });
+      useChatAgentStore.getState().applyEvent({
+        type: "TOOL_CALL_START",
+        toolCallId: "tc-1",
+        toolCallName: "bash",
+        parentMessageId: "msg-1",
+      });
+      useChatAgentStore.getState().applyEvent({
+        type: "TOOL_CALL_RESULT",
+        toolCallId: "tc-1",
+        content: "error msg",
+        isError: true,
+      });
     });
     expect(useChatAgentStore.getState().toolCallSlots["tc-1"]!.status).toBe("error");
   });
@@ -184,14 +172,12 @@ describe("RUN_ERROR", () => {
       useChatAgentStore
         .getState()
         .applyEvent({ type: "TEXT_MESSAGE_START", messageId: "msg-1", role: "assistant" });
-      useChatAgentStore
-        .getState()
-        .applyEvent({
-          type: "TOOL_CALL_START",
-          toolCallId: "tc-1",
-          toolCallName: "bash",
-          parentMessageId: "msg-1",
-        });
+      useChatAgentStore.getState().applyEvent({
+        type: "TOOL_CALL_START",
+        toolCallId: "tc-1",
+        toolCallName: "bash",
+        parentMessageId: "msg-1",
+      });
       useChatAgentStore
         .getState()
         .applyEvent({ type: "RUN_ERROR", code: "internal", message: "went wrong" });

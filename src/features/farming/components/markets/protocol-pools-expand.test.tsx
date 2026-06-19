@@ -36,11 +36,11 @@ const pools: DiscoveredPool[] = [
 
 describe("ProtocolPoolsExpand", () => {
   it("renders one row per pool with checkbox state", () => {
-    render(
-      <ProtocolPoolsExpand pools={pools} excluded={[]} onChange={jest.fn()} />
-    );
+    render(<ProtocolPoolsExpand pools={pools} excluded={[]} onChange={jest.fn()} />);
     expect(screen.getAllByRole("checkbox")).toHaveLength(2);
-    expect(screen.getAllByRole("checkbox").every((c) => (c as HTMLInputElement).checked)).toBe(true);
+    expect(screen.getAllByRole("checkbox").every((c) => (c as HTMLInputElement).checked)).toBe(
+      true
+    );
   });
 
   it("emits the new excluded list on un-check", async () => {

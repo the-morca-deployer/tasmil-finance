@@ -43,7 +43,7 @@ export function PositionValueCard({
             onClick={() => setTab("value")}
             className={cn(
               "rounded-full px-3 py-1 transition-colors",
-              tab === "value" ? "bg-background text-foreground" : "text-muted-foreground",
+              tab === "value" ? "bg-background text-foreground" : "text-muted-foreground"
             )}
           >
             Position Value
@@ -53,7 +53,7 @@ export function PositionValueCard({
             onClick={() => setTab("yield")}
             className={cn(
               "rounded-full px-3 py-1 transition-colors",
-              tab === "yield" ? "bg-background text-foreground" : "text-muted-foreground",
+              tab === "yield" ? "bg-background text-foreground" : "text-muted-foreground"
             )}
           >
             Yield Projection

@@ -5,15 +5,15 @@ import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { SupervisorAgentCallCard } from "@/features/chat/actions/components/stellar/supervisor-agent-call-card";
-import { useStreamContext } from "@/features/chat/hooks/use-stream";
-import { parseToolResult } from "@/features/chat/lib/parse-tool-result";
-import type { RendererEntry, SharedRenderProps } from "@/features/chat/lib/tool-renderer-registry";
-import { ToolStatusDispatcher } from "@/shared/components/tool-status-dispatcher";
 import {
   SUPERVISOR_AGENTS,
   TASMIL_INFO_TOOLS,
   toolRendererRegistry,
 } from "@/features/chat/actions/renderers/index";
+import { useStreamContext } from "@/features/chat/hooks/use-stream";
+import { parseToolResult } from "@/features/chat/lib/parse-tool-result";
+import type { RendererEntry, SharedRenderProps } from "@/features/chat/lib/tool-renderer-registry";
+import { ToolStatusDispatcher } from "@/shared/components/tool-status-dispatcher";
 
 interface ToolCallData {
   id: string;
@@ -42,22 +42,25 @@ function BlendOpWithRespond({
       const success = Boolean(result.success);
       try {
         if (stream.interrupt) {
-          await stream.submit({}, {
-            command: {
-              update: {
-                messages: [
-                  {
-                    type: "tool",
-                    tool_call_id: toolCallId,
-                    id: `__do_not_render__${uuidv4()}`,
-                    name: toolName,
-                    content: JSON.stringify(result),
-                  },
-                ],
+          await stream.submit(
+            {},
+            {
+              command: {
+                update: {
+                  messages: [
+                    {
+                      type: "tool",
+                      tool_call_id: toolCallId,
+                      id: `__do_not_render__${uuidv4()}`,
+                      name: toolName,
+                      content: JSON.stringify(result),
+                    },
+                  ],
+                },
+                resume: { decisions: [{ type: success ? "approve" : "reject" }] },
               },
-              resume: { decisions: [{ type: success ? "approve" : "reject" }] },
-            },
-          });
+            }
+          );
         } else {
           const msg = success
             ? `Transaction confirmed for ${toolName}`
@@ -65,7 +68,9 @@ function BlendOpWithRespond({
               ? String(result.reason)
               : "I want to cancel this transaction";
           await stream.submit({
-            messages: [{ type: "human" as const, content: msg, id: `__hidden__respond-${uuidv4()}` }],
+            messages: [
+              { type: "human" as const, content: msg, id: `__hidden__respond-${uuidv4()}` },
+            ],
           });
         }
         if (!success) toast.info("Transaction cancelled");
@@ -73,18 +78,12 @@ function BlendOpWithRespond({
         console.error("[BlendOpWithRespond] Error resuming graph:", error);
       }
     },
-    [stream, toolCallId, toolName],
+    [stream, toolCallId, toolName]
   );
   return entry.render({ ...renderProps, respond });
 }
 
-export function ToolCallRenderer({
-  message,
-  messages,
-}: {
-  message: Message;
-  messages: Message[];
-}) {
+export function ToolCallRenderer({ message, messages }: { message: Message; messages: Message[] }) {
   const toolCalls: ToolCallData[] =
     message && "tool_calls" in message ? ((message.tool_calls as ToolCallData[]) ?? []) : [];
 
@@ -122,7 +121,7 @@ export function ToolCallRenderer({
         if (prev.type !== "ai" || !prev.tool_calls?.length) continue;
         if (
           prev.tool_calls.some(
-            (pc: any) => pc.name === tc.name && JSON.stringify(pc.args) === argsKey,
+            (pc: any) => pc.name === tc.name && JSON.stringify(pc.args) === argsKey
           )
         ) {
           dupes.add(tc.id);
@@ -131,6 +130,79 @@ export function ToolCallRenderer({
       }
     }
     return dupes;
+  }, [messages, message?.id, toolCalls]);
+
+  // Several flow tools render the same Confirm Supply card: flow_compose_plan
+  // and flow_compose_and_execute auto-run the execute engine and return its
+  // result, while the MCP `execute` tool also renders one. When more than one
+  // card-producing call exists — repeated compose attempts after the user
+  // refines the request, or a compose followed by a redundant execute — only
+  // the latest one is actionable. Keep every status row but suppress the
+  // stale signing cards so only the latest card is shown.
+  const supersededCardCalls = useMemo(() => {
+    // Across the current turn (last human message → end) multiple tools can
+    // render the same Confirm Supply card: flow_compose_plan builds a rich
+    // card (amount/APY/fee), `execute` only a bare "Protocol" wrapper, and
+    // flow_compose_and_execute is the combined form. The LLM sometimes fires
+    // compose + execute in parallel; both eventually produce a card.
+    //
+    // Pick exactly one WINNER for the whole turn by priority (lower index =
+    // richer card) and suppress every other card render in the turn — even
+    // when the calls are spread across multiple AI messages. The associated
+    // status rows are untouched, only the card render is gated.
+    const PRIORITY: string[] = ["flow_compose_plan", "flow_compose_and_execute", "execute"];
+    const CARD_TOOL_NAMES = new Set(PRIORITY);
+    const priorityOf = (name: string) => {
+      const idx = PRIORITY.indexOf(name);
+      return idx === -1 ? Number.POSITIVE_INFINITY : idx;
+    };
+    const stale = new Set<string>();
+    const msgIdx = messages.findIndex((m) => m.id === message?.id);
+    if (msgIdx === -1) return stale;
+    const myCardCalls = toolCalls.filter((tc) => CARD_TOOL_NAMES.has(tc.name));
+    if (myCardCalls.length === 0) return stale;
+
+    // Find the start of the current turn — last human message at or before me.
+    let turnStart = 0;
+    for (let i = msgIdx; i >= 0; i--) {
+      if ((messages[i] as any)?.type === "human") {
+        turnStart = i + 1;
+        break;
+      }
+    }
+
+    // Collect every card call in the turn with its (priority, message index,
+    // position in tool_calls). Lower priority wins; ties broken by LATER
+    // message and LATER position so successive supersedes work.
+    type Candidate = { id: string; prio: number; msgIdx: number; pos: number };
+    const candidates: Candidate[] = [];
+    for (let i = turnStart; i < messages.length; i++) {
+      const m = messages[i] as any;
+      if (m?.type !== "ai" || !Array.isArray(m.tool_calls)) continue;
+      m.tool_calls.forEach((tc: any, pos: number) => {
+        if (!tc?.id || !CARD_TOOL_NAMES.has(tc.name)) return;
+        candidates.push({ id: tc.id, prio: priorityOf(tc.name), msgIdx: i, pos });
+      });
+    }
+    if (candidates.length <= 1) return stale;
+
+    let winner = candidates[0]!;
+    for (let i = 1; i < candidates.length; i++) {
+      const c = candidates[i]!;
+      if (
+        c.prio < winner.prio ||
+        (c.prio === winner.prio && c.msgIdx > winner.msgIdx) ||
+        (c.prio === winner.prio && c.msgIdx === winner.msgIdx && c.pos > winner.pos)
+      ) {
+        winner = c;
+      }
+    }
+    for (const c of candidates) {
+      if (c.id !== winner.id && myCardCalls.some((tc) => tc.id === c.id)) {
+        stale.add(c.id);
+      }
+    }
+    return stale;
   }, [messages, message?.id, toolCalls]);
 
   if (toolCalls.length === 0) return null;
@@ -158,7 +230,8 @@ export function ToolCallRenderer({
 
         // O(1) registry lookup — replaces 3 separate O(n) .find() calls
         const entry = isComplete ? toolRendererRegistry.get(tc.name) : null;
-        const shouldRenderCard = entry && !(entry.kind === "info" && !TASMIL_INFO_TOOLS.has(tc.name));
+        const shouldRenderCard =
+          entry && !(entry.kind === "info" && !TASMIL_INFO_TOOLS.has(tc.name));
         const status = result?.hasError ? "error" : isComplete ? "complete" : "calling";
         const renderProps: SharedRenderProps = {
           status: "complete",
@@ -177,28 +250,28 @@ export function ToolCallRenderer({
             />
             {isComplete &&
               shouldRenderCard &&
-              !(result?.hasError && (entry.kind === "shared-op" || entry.kind === "operation")) && (
-                entry.kind === "shared-op" || entry.kind === "shared" ? (
-                  <div className="max-w-[360px]">
-                    <BlendOpWithRespond
-                      toolCallId={tc.id}
-                      toolName={tc.name}
-                      renderProps={renderProps}
-                      entry={entry as RendererEntry & { kind: "shared" | "shared-op" }}
-                    />
-                  </div>
-                ) : (
-                  <entry.component
-                    type={entry.kind === "info" ? entry.label : undefined}
-                    operation={entry.kind === "operation" ? entry.label : undefined}
-                    toolName={tc.name}
-                    args={tc.args}
-                    result={result?.content}
-                    status="complete"
+              !supersededCardCalls.has(tc.id) &&
+              !(result?.hasError && (entry.kind === "shared-op" || entry.kind === "operation")) &&
+              (entry.kind === "shared-op" || entry.kind === "shared" ? (
+                <div className="max-w-[360px]">
+                  <BlendOpWithRespond
                     toolCallId={tc.id}
+                    toolName={tc.name}
+                    renderProps={renderProps}
+                    entry={entry as RendererEntry & { kind: "shared" | "shared-op" }}
                   />
-                )
-              )}
+                </div>
+              ) : (
+                <entry.component
+                  type={entry.kind === "info" ? entry.label : undefined}
+                  operation={entry.kind === "operation" ? entry.label : undefined}
+                  toolName={tc.name}
+                  args={tc.args}
+                  result={result?.content}
+                  status="complete"
+                  toolCallId={tc.id}
+                />
+              ))}
           </div>
         );
       })}

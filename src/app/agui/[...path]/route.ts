@@ -1,6 +1,7 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
-const AI_URL = process.env.AI_INTERNAL_URL ?? process.env.NEXT_PUBLIC_AI_URL ?? "http://localhost:8001";
+const AI_URL =
+  process.env.AI_INTERNAL_URL ?? process.env.NEXT_PUBLIC_AI_URL ?? "http://localhost:8001";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
     method: "POST",
     headers,
     body,
+    signal: req.signal,
   });
 
   if (!upstream.ok || !upstream.body) {
