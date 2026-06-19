@@ -1,0 +1,1 @@
+{"type":"object","properties":{"username":{"type":"string"},"walletAddress":{"type":"string","description":"Stellar public key (G...)"},"signedMessage":{"type":"string","description":"Signed message (hex or base64)"}},"required":["username","walletAddress","signedMessage"],"x-readme-ref-name":"UsernameLoginDto"}
