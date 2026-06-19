@@ -19,6 +19,7 @@ import { activeNetwork } from "@/features/quest/lib/stellar";
 import { type AuthUser, useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
 import { useQuestWalletStore } from "@/features/quest/store/use-quest-wallet";
 import { useAuthControllerLogout, useUsersControllerGetMe } from "@/gen-quest/hooks";
+import { connectWallet, disconnectAll } from "@/shared/lib/wallet-session";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -39,19 +40,22 @@ interface WalletContextType {
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [address, setAddress] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  // Seed connection from the shared wallet store so a wallet connected on any
+  // other surface (or via dev-bypass) is reflected here immediately on mount.
+  const [address, setAddress] = useState<string | null>(
+    () => useQuestWalletStore.getState().account
+  );
+  const [isConnected, setIsConnected] = useState(() => useQuestWalletStore.getState().connected);
   const [signing, setSigning] = useState(false);
   const [kitReady, setKitReady] = useState(false);
 
   // useQueryClient kept for future cache invalidation needs
   useQueryClient();
-  const { setWalletState, reset: resetWallet } = useQuestWalletStore();
+  const { setWalletState } = useQuestWalletStore();
   const {
     isAuthenticated,
     user,
     setAuthState,
-    logout: authLogout,
     setLoading,
     isLoading: isAuthenticating,
   } = useQuestAuthStore();
@@ -59,6 +63,16 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const authAttemptedRef = useRef<string | null>(null);
   const authInProgressRef = useRef(false);
   const skipAutoAuthRef = useRef(false);
+
+  // Keep local connection state in sync with the shared wallet store so connect
+  // / disconnect on any surface (landing, chat, dev-bypass) reflects in quest.
+  useEffect(() => {
+    const unsubscribe = useQuestWalletStore.subscribe((s) => {
+      setAddress(s.account);
+      setIsConnected(s.connected);
+    });
+    return unsubscribe;
+  }, []);
 
   // ─── Init StellarWalletsKit (browser-only) ───────────────────────────────
 
@@ -330,12 +344,11 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     authAttemptedRef.current = null;
 
     try {
-      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-      const { address: publicKey } = await StellarWalletsKit.authModal();
+      // Canonical global connect (shared kit + shared wallet store).
+      const publicKey = await connectWallet();
       if (!publicKey) return;
       setAddress(publicKey);
       setIsConnected(true);
-      setWalletState({ connected: true, account: publicKey });
       await authenticateWithWallet(publicKey);
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "";
@@ -343,7 +356,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         toast.error("Failed to open wallet selector.");
       }
     }
-  }, [setWalletState, authenticateWithWallet]);
+  }, [authenticateWithWallet]);
 
   // ─── Disconnect ──────────────────────────────────────────────────────────
 
@@ -351,21 +364,18 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     skipAutoAuthRef.current = true;
     authAttemptedRef.current = null;
 
+    // Revoke the quest refresh token server-side (best-effort) before the
+    // canonical sign-out clears the client tokens.
     const { refreshToken } = useQuestAuthStore.getState();
     if (refreshToken) logoutMutation.mutate(undefined);
 
-    authLogout();
-    resetWallet();
     setAddress(null);
     setIsConnected(false);
 
-    try {
-      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
-      await (StellarWalletsKit as unknown as { disconnect?: () => Promise<void> }).disconnect?.();
-    } catch {
-      /* ignore */
-    }
-  }, [authLogout, resetWallet, logoutMutation]);
+    // Canonical global sign-out: kit disconnect + clear BOTH backend sessions
+    // (quest + main) + reset shared wallet store + redirect home.
+    await disconnectAll();
+  }, [logoutMutation]);
 
   // ─── Derived ─────────────────────────────────────────────────────────────
 
