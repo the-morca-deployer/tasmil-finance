@@ -19,7 +19,7 @@ export const AbstractSection = () => {
     <section className="relative h-[50vh] w-full overflow-hidden bg-transparent py-20 md:h-screen">
       <div className="absolute bottom-0 left-0 flex h-1/3 w-full items-center justify-center">
         <VelocityScroll
-          className="font-bold text-6xl text-white/15 md:text-10xl"
+          className="font-bold text-6xl text-white/10 md:text-9xl"
           defaultVelocity={1}
           numRows={3}
         >

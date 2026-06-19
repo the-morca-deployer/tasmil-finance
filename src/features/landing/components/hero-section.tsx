@@ -131,7 +131,7 @@ export const HeroSection = () => {
               <Link
                 aria-label="Launch Tasmil Finance"
                 className="cursor-pointer"
-                href={PATHS.CHAT_NEW}
+                href={PATHS.WAITLIST}
                 rel="noopener noreferrer"
                 tabIndex={0}
               >
@@ -143,7 +143,7 @@ export const HeroSection = () => {
                   size="lg"
                   variant="gradient"
                 >
-                  LAUNCH TASMIL FINANCE
+                  JOIN WAITLIST
                 </Button>
               </Link>
             </div>
@@ -183,7 +183,7 @@ export const HeroSection = () => {
                 <Link
                   aria-label="Launch Tasmil Finance"
                   className="cursor-pointer"
-                  href={PATHS.CHAT_NEW}
+                  href={PATHS.WAITLIST}
                   rel="noopener noreferrer"
                   tabIndex={0}
                 >
@@ -195,7 +195,7 @@ export const HeroSection = () => {
                     size="lg"
                     variant="gradient"
                   >
-                    LAUNCH TASMIL FINANCE
+                    JOIN WAITLIST
                   </Button>
                 </Link>
               </div>
@@ -217,19 +217,6 @@ export const HeroSection = () => {
           </button>
         </div>
       </div>
-
-      {/* Custom CSS for floating animation */}
-      <style global jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-20px);
-          }
-        }
-      `}</style>
     </div>
   );
 };

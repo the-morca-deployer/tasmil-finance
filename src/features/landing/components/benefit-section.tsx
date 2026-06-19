@@ -3,7 +3,6 @@
 import { Globe, MessageCircle, Wrench } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
 import { Typography } from "@/shared/ui/typography";
 
 const BENEFIT_IMAGES = {
@@ -155,57 +154,30 @@ export const BenefitSection = () => {
                   index > 0 ? "border-[#ffffff1a] border-t md:border-t-0 md:border-l" : ""
                 } ${cardsLoaded[index] ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"}`}
                 key={feature.label}
-                style={{
-                  transitionDelay: `${index * 200}ms`,
-                }}
+                style={{ transitionDelay: `${index * 200}ms` }}
               >
-                <div className="relative flex h-[400px] flex-col bg-[#00000080]/60 p-6 backdrop-blur-[100px] transition-all duration-500 group-hover:bg-[#00000080]/80 md:h-[400px] md:p-8">
-                  {/* Icon and label */}
-                  <div className="relative z-20 mb-6 flex items-center gap-3">
-                    <div
-                      className={`relative overflow-hidden rounded-md transition-all duration-500 ${
-                        cardsLoaded[index] ? "scale-100 opacity-100" : "scale-50 opacity-0"
-                      } group-hover:scale-110`}
-                      style={{ transitionDelay: `${600 + index * 100}ms` }}
-                    >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-md border border-white/20 bg-white/10 backdrop-blur-sm">
-                        <feature.icon className="h-6 w-6 text-white transition-transform duration-500" />
-                      </div>
-                    </div>
-                    <div style={{ transitionDelay: `${700 + index * 100}ms` }}>
-                      <Typography
-                        className={`text-sm text-white transition-all duration-500 ${
-                          cardsLoaded[index]
-                            ? "translate-x-0 opacity-100"
-                            : "-translate-x-4 opacity-0"
-                        }`}
-                      >
-                        {feature.label}
-                      </Typography>
-                    </div>
-                  </div>
-
-                  {/* Background image - 275px height, positioned based on index */}
+                <div className="relative h-[420px] overflow-hidden bg-black/50 backdrop-blur-3xl transition-all duration-500 group-hover:bg-black/60 md:h-[440px]">
+                  {/* Background image */}
                   <div
-                    className={`absolute inset-0 h-full w-full overflow-hidden transition-all duration-1000 ${
-                      cardsLoaded[index] ? "opacity-80" : "opacity-0"
-                    } group-hover:opacity-100`}
+                    className={`absolute inset-0 transition-all duration-1000 ${
+                      cardsLoaded[index] ? "opacity-70" : "opacity-0"
+                    } group-hover:opacity-90`}
                     style={{ transitionDelay: `${500 + index * 100}ms` }}
                   >
                     <div
                       className={`relative flex h-full w-full ${
                         index === 1
-                          ? "items-end justify-center" // Middle card: bottom position, more padding
-                          : "items-start justify-center pt-14" // First and last cards: top position
+                          ? "items-end justify-center pb-16"
+                          : "items-center justify-center"
                       }`}
                     >
-                      <div className="relative h-[200px] w-full">
+                      <div className="relative h-[220px] w-full">
                         <Image
                           alt="Card background"
                           className={`object-contain object-center transition-all duration-500 ${
                             index === 1
-                              ? "group-hover:translate-y-[-15px]" // Middle card: move up on hover
-                              : "group-hover:translate-y-[-10px]" // First and last: move down on hover
+                              ? "group-hover:-translate-y-3"
+                              : "group-hover:-translate-y-2"
                           } group-hover:scale-105`}
                           fill
                           src={feature.background}
@@ -214,25 +186,50 @@ export const BenefitSection = () => {
                     </div>
                   </div>
 
-                  {/* Card content - positioned at the bottom */}
+                  {/* Bottom gradient overlay for readability */}
+                  <div className="absolute right-0 bottom-0 left-0 h-48 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+
+                  {/* Icon and label — top left */}
+                  <div className="absolute top-6 left-6 z-20 flex items-center gap-3 md:top-7 md:left-7">
+                    <div
+                      className={`transition-all duration-500 ${
+                        cardsLoaded[index] ? "scale-100 opacity-100" : "scale-50 opacity-0"
+                      } group-hover:scale-110`}
+                      style={{ transitionDelay: `${600 + index * 100}ms` }}
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-md border border-white/20 bg-white/10 backdrop-blur-sm">
+                        <feature.icon className="h-5 w-5 text-white" />
+                      </div>
+                    </div>
+                    <span
+                      className={`text-sm text-white/80 transition-all duration-500 ${
+                        cardsLoaded[index]
+                          ? "translate-x-0 opacity-100"
+                          : "-translate-x-4 opacity-0"
+                      }`}
+                      style={{ transitionDelay: `${700 + index * 100}ms` }}
+                    >
+                      {feature.label}
+                    </span>
+                  </div>
+
+                  {/* Card content — pinned to bottom */}
                   <div
-                    className={cn(
-                      "relative z-20 mt-auto transition-all duration-500",
-                      index === 1 && "mt-0",
-                      cardsLoaded[index] ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-                    )}
+                    className={`absolute right-0 bottom-0 left-0 z-20 p-6 transition-all duration-500 md:p-7 ${
+                      cardsLoaded[index] ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+                    }`}
                     style={{ transitionDelay: `${800 + index * 100}ms` }}
                   >
                     <Typography
                       as="h3"
-                      className="mb-3 font-semibold text-white text-xl transition-all duration-500 md:text-2xl"
+                      className="mb-2 font-semibold text-white text-xl md:text-2xl"
                       weight="semibold"
                     >
                       {feature.title}
                     </Typography>
                     <Typography
                       as="p"
-                      className="text-[#b1bab4bf] text-base leading-5 transition-all duration-500"
+                      className="text-sm text-white/60 leading-relaxed md:text-base"
                     >
                       {feature.description}
                     </Typography>

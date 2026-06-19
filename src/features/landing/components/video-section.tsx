@@ -48,36 +48,57 @@ export const VideoSection = () => {
         </div>
 
         {/* Additional Features */}
-        <div className="mt-8 grid w-full grid-cols-1 gap-8 md:grid-cols-3">
-          <div className="text-center">
-            <Typography className="mb-4 font-semibold text-2xl text-white md:text-3xl" variant="h3">
-              AI-Powered Trading
-            </Typography>
-            <Typography className="text-base text-gray-400 leading-relaxed md:text-lg" variant="p">
-              Experience intelligent trading decisions with our advanced AI algorithms that analyze
-              market trends in real-time.
-            </Typography>
-          </div>
-
-          <div className="text-center">
-            <Typography className="mb-4 font-semibold text-2xl text-white md:text-3xl" variant="h3">
-              Stellar Ecosystem Integration
-            </Typography>
-            <Typography className="text-base text-gray-400 leading-relaxed md:text-lg" variant="p">
-              Connect with Blend, Soroswap, Aquarius, Phoenix, and the native SDEX. Manage your
-              entire Stellar DeFi portfolio from a single, intuitive interface.
-            </Typography>
-          </div>
-
-          <div className="text-center">
-            <Typography className="mb-4 font-semibold text-2xl text-white md:text-3xl" variant="h3">
-              Real-Time Stellar Analytics
-            </Typography>
-            <Typography className="text-base text-gray-400 leading-relaxed md:text-lg" variant="p">
-              Get instant insights into XLM market conditions, Soroban contract analytics, and yield
-              opportunities across Blend, Aquarius, and Soroswap pools.
-            </Typography>
-          </div>
+        <div className="mt-4 grid w-full grid-cols-1 gap-4 md:grid-cols-3">
+          {[
+            {
+              num: "01",
+              title: "AI-Powered Trading",
+              desc: "Intelligent trading decisions with advanced AI algorithms that analyze Stellar market trends in real-time.",
+            },
+            {
+              num: "02",
+              title: "Stellar Ecosystem Integration",
+              desc: "Connect with Blend, Soroswap, Aquarius, Phoenix, and SDEX. Manage your entire Stellar DeFi portfolio from one interface.",
+            },
+            {
+              num: "03",
+              title: "Real-Time Analytics",
+              desc: "Instant insights into XLM market conditions, Soroban contract analytics, and yield opportunities across all pools.",
+            },
+          ].map((item) => (
+            <div
+              key={item.num}
+              className="group relative overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1"
+              style={{
+                background: "linear-gradient(160deg, rgba(14,19,29,0.8), rgba(10,14,22,0.5))",
+                border: "1px solid rgba(255,255,255,0.07)",
+              }}
+            >
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(ellipse 60% 50% at 50% -10%, var(--tint), transparent 70%)",
+                }}
+              />
+              <span
+                className="mb-3 block font-mono text-[11px] font-bold uppercase tracking-[0.2em]"
+                style={{ color: "rgba(245,248,252,0.34)" }}
+              >
+                {item.num}
+              </span>
+              <Typography
+                as="h3"
+                className="mb-2 font-semibold text-lg text-white md:text-xl"
+                weight="semibold"
+              >
+                {item.title}
+              </Typography>
+              <p className="text-sm leading-relaxed" style={{ color: "rgba(245,248,252,0.56)" }}>
+                {item.desc}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

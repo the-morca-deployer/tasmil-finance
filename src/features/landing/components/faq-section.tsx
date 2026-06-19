@@ -124,7 +124,7 @@ export const FAQSection = () => {
 
   return (
     <section className="w-full bg-transparent">
-      <div className="mx-auto w-full px-4 py-12 md:px-10 md:py-16">
+      <div className="mx-auto w-full max-w-4xl px-4 py-12 md:px-10 md:py-16">
         <div className="mb-12 text-center">
           <Typography as="p" className="mb-2 text-center text-xl" gradient={true} weight="semibold">
             / FAQS
@@ -140,23 +140,30 @@ export const FAQSection = () => {
           </Typography>
         </div>
 
-        <div className="mx-auto w-full rounded-2xl bg-white">
+        <div
+          className="mx-auto w-full overflow-hidden rounded-2xl"
+          style={{
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
           {faqs.map((faq, index) => {
-            const isFirst = index === 0;
             const isLast = index === faqs.length - 1;
             const isOpen = openFAQ === faq.id;
 
             return (
               <div
-                className={`${!isLast || isOpen ? "border-[#E5E5E5] border-b" : ""} ${
-                  isFirst && isOpen ? "rounded-t-2xl" : ""
-                } ${isLast && isOpen ? "rounded-b-2xl" : ""}`}
                 key={faq.id}
+                style={!isLast ? { borderBottom: "1px solid rgba(255,255,255,0.08)" } : {}}
               >
                 <div
                   aria-controls={`faq-answer-${faq.id}`}
                   aria-expanded={isOpen}
-                  className="flex cursor-pointer items-center justify-between px-6 py-6"
+                  className="flex cursor-pointer items-center justify-between px-6 py-5 transition-colors duration-200"
+                  style={{
+                    background: isOpen ? "rgba(255,255,255,0.04)" : "transparent",
+                  }}
                   onClick={() => toggleFAQ(faq.id)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -167,19 +174,36 @@ export const FAQSection = () => {
                   role="button"
                   tabIndex={0}
                 >
-                  <div className="flex items-center">
-                    <Typography as="span" className="mr-6 font-mono text-[#9A9BA0]">
+                  <div className="flex items-center gap-5 pr-4">
+                    <span
+                      className="shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.2em]"
+                      style={{ color: "rgba(245,248,252,0.3)" }}
+                    >
                       {faq.id}
-                    </Typography>
-                    <Typography className="mb-1 text-black text-lg md:text-xl" weight="medium">
+                    </span>
+                    <Typography
+                      className={`text-base transition-colors duration-200 md:text-lg ${
+                        isOpen ? "text-white" : "text-white/80"
+                      }`}
+                      weight="medium"
+                    >
                       {faq.question}
                     </Typography>
                   </div>
-                  <button className="flex h-8 w-8 items-center justify-center" type="button">
+                  <button
+                    aria-hidden="true"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-all duration-200"
+                    style={{
+                      background: isOpen ? "var(--accent-soft)" : "rgba(255,255,255,0.05)",
+                      borderColor: isOpen ? "var(--accent-line)" : "rgba(255,255,255,0.15)",
+                      color: isOpen ? "var(--accent)" : "rgba(255,255,255,0.6)",
+                    }}
+                    type="button"
+                  >
                     {isOpen ? (
-                      <X className="h-6 w-6 text-black transition-transform duration-300" />
+                      <X className="h-3.5 w-3.5 transition-transform duration-300" />
                     ) : (
-                      <Plus className="h-6 w-6 text-black transition-transform duration-300" />
+                      <Plus className="h-3.5 w-3.5 transition-transform duration-300" />
                     )}
                   </button>
                 </div>
@@ -191,10 +215,19 @@ export const FAQSection = () => {
                   }}
                 >
                   <div
-                    className="mx-6 mb-6 rounded-2xl bg-[#111111] p-6 pr-8 pl-16"
+                    className="mx-6 mb-5 rounded-xl p-5 pl-14"
                     ref={setAnswerRef(faq.id)}
+                    style={{
+                      background: "rgba(255,255,255,0.025)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                    }}
                   >
-                    <Typography className="text-lg text-white">{faq.answer}</Typography>
+                    <p
+                      className="text-base leading-relaxed"
+                      style={{ color: "rgba(245,248,252,0.65)" }}
+                    >
+                      {faq.answer}
+                    </p>
                   </div>
                 </div>
               </div>
