@@ -1,9 +1,9 @@
 import {
+  clearSetupState,
+  loadSetupState,
   type SetupState,
   STORAGE_KEY,
-  loadSetupState,
   saveSetupState,
-  clearSetupState,
 } from "./setup-state";
 
 describe("setup-state", () => {

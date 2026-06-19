@@ -3,6 +3,7 @@
 interface SuggestedPromptsProps {
   onSelect: (prompt: string) => void;
   hasPositions?: boolean;
+  phase?: "beta" | "mainnet";
 }
 
 const FIRST_TIME_PROMPTS = [
@@ -21,8 +22,22 @@ const RETURNING_PROMPTS = [
   "Rebalance my portfolio",
 ];
 
-export function SuggestedPrompts({ onSelect, hasPositions = false }: SuggestedPromptsProps) {
-  const prompts = hasPositions ? RETURNING_PROMPTS : FIRST_TIME_PROMPTS;
+const MAINNET_RETURNING_PROMPTS = [
+  "What did my portfolio earn this week?",
+  "Which pool is performing best right now?",
+  "Reinvest my rewards automatically",
+  "Show my referral earnings",
+];
+
+export function SuggestedPrompts({ onSelect, hasPositions = false, phase }: SuggestedPromptsProps) {
+  let prompts: string[];
+  if (phase === "mainnet" && hasPositions) {
+    prompts = MAINNET_RETURNING_PROMPTS;
+  } else if (hasPositions) {
+    prompts = RETURNING_PROMPTS;
+  } else {
+    prompts = FIRST_TIME_PROMPTS;
+  }
 
   return (
     <div className="flex flex-wrap gap-2">

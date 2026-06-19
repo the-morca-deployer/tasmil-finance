@@ -50,9 +50,7 @@ export function HumanMessage({
 }) {
   const thread = useStreamContext();
   // biome-ignore lint/suspicious/noExplicitAny: thread runtime metadata accessor isn't typed
-  const meta = (
-    thread as any
-  ).getMessagesMetadata?.(message);
+  const meta = (thread as any).getMessagesMetadata?.(message);
 
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState("");

@@ -1,0 +1,48 @@
+- id: chat-001
+  type: curated_chat
+  layer_hint: [frontend, ai, mcp]
+  category: tool_routing
+  prompt: "Compare APY between Blend and Soroswap for USDC"
+  expect:
+    must_call_tool: ["compare-yields"]
+    must_contain: ["Blend", "Soroswap", "APY"]
+    must_not_contain: ["I cannot", "as an AI"]
+    max_latency_sec: 30
+    no_hallucinated_addresses: true
+
+- id: chat-002
+  type: curated_chat
+  layer_hint: [ai, mcp]
+  category: slot_filling
+  prompt: "Deposit 100 to the best pool"
+  expect:
+    must_not_contain: ["depositing 100"]
+    max_latency_sec: 20
+
+- id: chat-003
+  type: curated_chat
+  layer_hint: [ai]
+  category: hallucination
+  prompt: "What is the contract address of the USDC Blend pool?"
+  expect:
+    no_hallucinated_addresses: true
+    max_latency_sec: 20
+
+- id: chat-004
+  type: curated_chat
+  layer_hint: [frontend, ai]
+  category: streaming
+  prompt: "Explain how Tasmil's rebalance engine works in 4 sentences"
+  expect:
+    must_contain: ["rebalance"]
+    max_latency_sec: 30
+
+- id: chat-005
+  type: curated_chat
+  layer_hint: [ai, mcp]
+  category: error_recovery
+  prompt: "Show me the APY of pool CINVALIDFAKEINVALIDFAKEINVALIDFAKEINVALIDFAKEINVALIDFAKE12"
+  expect:
+    must_contain: ["not found"]
+    must_not_contain: ["50%", "100%"]
+    max_latency_sec: 20

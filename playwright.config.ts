@@ -114,6 +114,28 @@ export default defineConfig({
       },
       timeout: 240_000,
     },
+
+    {
+      name: "e2e-phase",
+      testDir: "./e2e",
+      testMatch: [
+        "phase2-phase3/**/*.spec.ts",
+        "flows/phase-aware-flow.spec.ts",
+        "flows/deposit-intent-extraction.spec.ts",
+      ],
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 900 },
+        actionTimeout: 180_000,
+        navigationTimeout: 60_000,
+        ignoreHTTPSErrors: true,
+        // No storageState: mock-track tests stub /accounts/me directly; real-AI
+        // tests in deposit-intent-extraction.spec.ts run loginAsWallet themselves.
+        video: "on",
+        screenshot: { mode: "on", fullPage: true },
+      },
+      timeout: 240_000,
+    },
   ],
 
   /* Run local dev server only when not using an external URL (dev tunnel) */

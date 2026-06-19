@@ -5,9 +5,10 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
-import { Toaster } from "@/shared/ui/sonner";
 import { WalletProvider } from "@/shared/context/wallet-context";
+import { Toaster } from "@/shared/ui/sonner";
 import { TooltipProvider } from "@/shared/ui/tooltip";
+import { DevBypassProvider } from "./dev-bypass-provider";
 import { OnboardingProvider } from "./onboarding-provider";
 import { ThemeStorageMigration } from "./theme-storage-migration";
 
@@ -35,7 +36,9 @@ export function AppProvider({ children }: PropsWithChildren) {
         <ThemeStorageMigration />
         <TooltipProvider>
           <WalletProvider>
-            <OnboardingProvider>{children}</OnboardingProvider>
+            <DevBypassProvider>
+              <OnboardingProvider>{children}</OnboardingProvider>
+            </DevBypassProvider>
           </WalletProvider>
         </TooltipProvider>
         <Toaster position="bottom-right" />

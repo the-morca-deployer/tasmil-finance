@@ -153,7 +153,8 @@ export async function loginViaCookieOnly(
           version: 0,
         })
       );
-      (window as unknown as { __TASMIL_E2E_BYPASS_KIT__?: boolean }).__TASMIL_E2E_BYPASS_KIT__ = true;
+      (window as unknown as { __TASMIL_E2E_BYPASS_KIT__?: boolean }).__TASMIL_E2E_BYPASS_KIT__ =
+        true;
       localStorage.setItem(
         "tasmil-onboarding",
         JSON.stringify({ state: { hasCompletedWelcome: true }, version: 0 })

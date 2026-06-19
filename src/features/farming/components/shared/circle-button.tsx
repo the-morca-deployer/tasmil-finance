@@ -9,8 +9,7 @@ type Size = "sm" | "md" | "lg";
 
 const VARIANT: Record<Variant, string> = {
   "solid-white": "bg-white text-[#111] hover:bg-white/90",
-  "radial-cyan":
-    "bg-[radial-gradient(circle_at_30%_30%,_#7ed9ff,_#38b6f0_70%)] text-[#001f30]",
+  "radial-cyan": "bg-[radial-gradient(circle_at_30%_30%,_#7ed9ff,_#38b6f0_70%)] text-[#001f30]",
   ghost: "bg-transparent border border-[#2a2a2a] text-[#ddd] hover:border-[#444]",
 };
 

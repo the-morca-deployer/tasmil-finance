@@ -26,10 +26,15 @@ import { AssistantMessage, AssistantMessageLoading } from "../components/message
 import { HumanMessage } from "../components/messages/human-message";
 import { useChatState, useStreamContext } from "../hooks";
 import { type ChatProductError, classifyChatProductError } from "../lib/chat-product-error";
+import { useChatAgentStore } from "../stores/chat-agent-store";
 import { ContentBlocksPreview } from "../thread/components/content-blocks-preview";
 import { mergeMessagesWithCache, shouldFilterMessage } from "./chat-client-helpers";
+import type { PhaseProfile } from "./chat-page-wrapper";
 import { Greeting } from "./greeting";
+import { MilestoneNudge } from "./milestone-nudge";
 import { SuggestedActions } from "./suggested-actions";
+// import { SuggestedPrompts } from "./suggested-prompts"; // re-enable when greeting chips return
+import { WithdrawalWarningModal } from "./withdrawal-warning-modal";
 
 // Mapping from short agent IDs to API graph_ids
 const AGENT_TO_GRAPH_ID: Record<string, string> = {
@@ -60,9 +65,31 @@ function toGraphId(agentId: string): string {
 interface ChatClientProps {
   agentId: string;
   chatId: string;
+  phaseProfile?: PhaseProfile;
 }
 
-export function ChatClient({ agentId, chatId }: ChatClientProps) {
+const DEFAULT_PHASE_PROFILE: PhaseProfile = {
+  phase: "beta",
+  isFirstLogin: false,
+  hasPositions: false,
+  daysSinceLastStake: 0,
+  lastPoolEarnings: null,
+};
+
+interface WithdrawalIntent {
+  vesting: {
+    currentWeek: number;
+    totalWeeks: number;
+    lockedPercent: number;
+    lockedAmount: number;
+    unlockDate: string;
+  };
+  reinvestProjection: { amount: number; byDate: string } | null;
+}
+
+export function ChatClient({ agentId, chatId, phaseProfile }: ChatClientProps) {
+  const profile = phaseProfile ?? DEFAULT_PHASE_PROFILE;
+  const { phase, isFirstLogin, hasPositions, daysSinceLastStake, lastPoolEarnings } = profile;
   const isMobile = useIsMobile();
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -73,6 +100,14 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   const [isInteractingWithContent, setIsInteractingWithContent] = useState(false);
   const lastMessageCountRef = useRef(0);
+
+  // Withdrawal warning modal: opened via window hook in non-prod (tests) or
+  // via the AG-UI "withdrawal-intent" event dispatched by the stream processor.
+  const [withdrawalOpen, setWithdrawalOpen] = useState(false);
+  const [withdrawalIntent, setWithdrawalIntent] = useState<WithdrawalIntent | null>(null);
+
+  // Milestone nudges streamed via AG-UI custom event type "milestone-nudge".
+  const nudges = useChatAgentStore((s) => s.nudges);
 
   // File upload hook
   const { contentBlocks, setContentBlocks, dropRef, removeBlock, dragOver } = useFileUpload();
@@ -87,24 +122,29 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const messagesCache = useRef<Message[]>([]);
   // Cache UI to prevent UI loss during streaming
   const uiCache = useRef<any[]>([]);
-  // Track chatId to detect thread switches and clear caches
-  const prevChatIdRef = useRef(chatId);
+  // Track active threadId (from ChatStateProvider, kept in sync with the URL)
+  // to detect thread switches. Using chatId from props doesn't work because
+  // the `[[...slug]]` catch-all route reuses the same page across thread switches.
+  const { threadId: activeThreadId } = useChatState();
+  const prevThreadIdRef = useRef(activeThreadId);
   // Force re-render trigger for instant user message display
   const [, forceUpdate] = useState({});
 
   const messages = useMemo(() => {
-    // Clear cache when chatId changes (e.g. navigating to "new")
-    if (prevChatIdRef.current !== chatId) {
+    // Clear cache when leaving an existing thread (going back to /chat/new
+    // or switching to a different thread). Skip the initial null → uuid
+    // transition so the just-sent human message survives the new-thread wipe.
+    if (prevThreadIdRef.current !== activeThreadId && prevThreadIdRef.current !== null) {
       messagesCache.current = [];
       uiCache.current = [];
-      prevChatIdRef.current = chatId;
     }
+    prevThreadIdRef.current = activeThreadId;
 
     const incoming = stream.messages || [];
     const merged = mergeMessagesWithCache(messagesCache.current, incoming);
     messagesCache.current = merged;
     return merged;
-  }, [stream.messages, chatId]);
+  }, [stream.messages, activeThreadId]);
 
   const uiComponents = useMemo(() => {
     const incoming = (stream.values?.ui as any[] | undefined) || [];
@@ -134,9 +174,49 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
     return uiCache.current;
   }, [stream.values]);
 
-  // Reset firstTokenReceived when switching chats
+  // Reset firstTokenReceived when switching chats. Also clear any milestone
+  // nudges (and seen-types dedup ledger) so a fresh /chat/new starts clean
+  // across navigations and tests.
   useEffect(() => {
     setFirstTokenReceived(false);
+    useChatAgentStore.setState({ nudges: [], seenNudgeTypes: [] });
+  }, []);
+
+  // Also reset transient UI flags when the user navigates back to /chat/new
+  // (activeThreadId → null). The component does not remount on this transition
+  // because the [[...slug]] catch-all reuses the same page.
+  useEffect(() => {
+    if (activeThreadId === null) {
+      setFirstTokenReceived(false);
+      setIsSubmitting(false);
+    }
+  }, [activeThreadId]);
+
+  // Open WithdrawalWarningModal when either:
+  //  (a) a test pre-set window.__TASMIL_OPEN_WITHDRAWAL_MODAL__ before navigation
+  //  (b) the AG-UI processor dispatches "tasmil:open-withdrawal-modal" from a
+  //      "withdrawal-intent" stream event
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const open = (payload?: WithdrawalIntent) => {
+      const data =
+        payload ??
+        ((window as unknown as Record<string, unknown>).__TASMIL_OPEN_WITHDRAWAL_MODAL__ as
+          | WithdrawalIntent
+          | undefined);
+      if (!data?.vesting) return;
+      setWithdrawalIntent(data);
+      setWithdrawalOpen(true);
+    };
+    if (process.env.NODE_ENV !== "production") {
+      open();
+    }
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as WithdrawalIntent | undefined;
+      open(detail);
+    };
+    window.addEventListener("tasmil:open-withdrawal-modal", handler);
+    return () => window.removeEventListener("tasmil:open-withdrawal-modal", handler);
   }, []);
 
   // Clear isSubmitting when stream actually starts loading
@@ -286,7 +366,8 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
   const lastAiMessageIdRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    if (messages?.length && messages[messages.length - 1]?.type === "ai") {
+    const lastMsgType = messages[messages.length - 1]?.type;
+    if (messages?.length && (lastMsgType === "ai" || (lastMsgType as string) === "assistant")) {
       const lastAiMsg = messages[messages.length - 1];
       const messageId = lastAiMsg?.id;
 
@@ -586,8 +667,10 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
         />
       </div> */}
 
+      {/* <InfoBar currentApy={8.2} marketApy={6.5} /> */}
+
       {/* Header - no border */}
-      <header className="relative z-10 flex shrink-0 items-end justify-end gap-1 px-6 pt-4 pb-2">
+      <header className="absolute top-0 right-0 z-20 flex items-end justify-end gap-1 px-6 pt-4 pb-2">
         <div className="flex items-center gap-1">
           {!rightSidebarOpen && (
             <>
@@ -630,8 +713,32 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
       <div ref={messagesContainerRef} className="relative z-10 flex-1 overflow-y-auto">
         <div className="pointer-events-none mx-auto max-w-3xl px-4 pt-6 pb-4">
           <AnimatePresence initial={false}>
-            {showGreeting && <Greeting agentId={agentId} />}
+            {showGreeting && (
+              <Greeting
+                agentId={agentId}
+                phase={phase}
+                isFirstLogin={isFirstLogin}
+                daysSinceLastStake={daysSinceLastStake}
+                lastPoolEarnings={lastPoolEarnings}
+                onReinvest={() => handleSendSuggestion("Reinvest my rewards")}
+                onSnooze={() => {
+                  /* snooze handled in profile state — no-op for now */
+                }}
+              />
+            )}
           </AnimatePresence>
+
+          {/* Hidden per request — re-enable when the greeting chips should return.
+          {showGreeting && (
+            <div className="pointer-events-auto mt-6 px-4">
+              <SuggestedPrompts
+                onSelect={handleSendSuggestion}
+                phase={phase}
+                hasPositions={hasPositions}
+              />
+            </div>
+          )}
+          */}
 
           <div className="pointer-events-auto flex flex-col gap-2">
             {(() => {
@@ -648,7 +755,15 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                 (m, index, arr) => !shouldFilterMessage(m, index, arr, uiComponents, messages)
               );
 
-              return filtered.map((message, index, arr) => {
+              // Show every message in stream-arrival order. Earlier turn-collapse
+              // logic hid intermediate AI messages while streaming to fight a
+              // Thinking→text reorder bug; that is now handled by the segment
+              // timeline + segments preservation in mergeMessagesWithCache, so
+              // collapsing only causes the chaotic "build → disappear → rebuild"
+              // flicker the user sees when one turn spans multiple AI messages.
+              const displayMessages = filtered;
+
+              return displayMessages.map((message, index, arr) => {
                 const prevMessage = index > 0 ? arr[index - 1] : undefined;
                 // Check if there's ANY human message between prev and current
                 // in the FULL unfiltered thread. If so, treat as new turn → show avatar.
@@ -700,8 +815,16 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
               />
             )}
 
-            {effectiveIsLoading &&
-              !firstTokenReceived &&
+            {(() => {
+              // Show Thinking whenever the last message is human and no AI
+              // response has streamed in yet. On a brand-new chat the URL
+              // navigates /chat/new → /chat/<id> and the component remounts,
+              // wiping isSubmitting before stream.isLoading flips true — so
+              // gating only on effectiveIsLoading misses the first turn.
+              const lastMsg = messages[messages.length - 1];
+              const lastMsgIsHuman = lastMsg?.type === "human";
+              return (effectiveIsLoading || lastMsgIsHuman) && !firstTokenReceived;
+            })() &&
               (() => {
                 // Check if there are any tool-status UI messages
                 // If yes, don't show "Thinking..." - the tool status UI is already showing
@@ -718,14 +841,65 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
                 const lastHumanIdx = messages.findLastIndex((m) => m.type === "human");
                 const hasNewAIMessage = messages
                   .slice(lastHumanIdx + 1)
-                  .some((m) => m.type === "ai");
+                  .some((m) => m.type === "ai" || (m.type as string) === "assistant");
                 if (hasNewAIMessage) {
                   return null;
                 }
 
+                // Also suppress if any AI message in the current turn already has
+                // visible text content — showing AssistantMessageLoading alongside
+                // streaming supervisor text creates the exact regression we're fixing.
+                const hasStreamingContent = messages.slice(lastHumanIdx + 1).some((m) => {
+                  if (m.type !== "ai" && (m.type as string) !== "assistant") return false;
+                  const c = (m as any)?.content;
+                  if (typeof c === "string") return c.trim().length > 0;
+                  if (Array.isArray(c))
+                    return c
+                      .filter((x: any) => x.type === "text")
+                      .some((x: any) => (x.text ?? "").trim().length > 0);
+                  return false;
+                });
+                if (hasStreamingContent) return null;
+
+                const afterHuman = messages.slice(lastHumanIdx + 1);
+                const summary = afterHuman
+                  .map((m) => {
+                    const c = (m as any)?.content;
+                    let ct = "(no-text)";
+                    if (typeof c === "string") ct = c.slice(0, 30);
+                    else if (Array.isArray(c))
+                      ct = c
+                        .filter((x: any) => x.type === "text")
+                        .map((x: any) => (x.text ?? "").slice(0, 30))
+                        .join("|");
+                    return `${m.type}:${m.id?.slice(-6)}:"${ct}"`;
+                  })
+                  .join(" | ");
+                console.warn(
+                  `[render-debug] AssistantMessageLoading WILL render (${afterHuman.length} msgs after human): ${summary}`
+                );
                 return <AssistantMessageLoading />;
               })()}
           </div>
+
+          {nudges.length > 0 && (
+            <div className="pointer-events-auto mt-3 flex flex-col gap-2">
+              {nudges.map((n) => (
+                <MilestoneNudge
+                  key={n.id}
+                  type={n.nudgeType}
+                  topPercent={n.topPercent}
+                  spotsLeft={n.spotsLeft}
+                  onReinvest={() => {
+                    useChatAgentStore.setState((s) => ({
+                      nudges: s.nudges.filter((x) => x.id !== n.id),
+                    }));
+                    handleSendSuggestion("Reinvest my rewards");
+                  }}
+                />
+              ))}
+            </div>
+          )}
 
           <div ref={messagesEndRef} />
         </div>
@@ -895,6 +1069,19 @@ export function ChatClient({ agentId, chatId }: ChatClientProps) {
           status={welcomeRewardStatus}
           onDismiss={() => void markSeen()}
           onOpen={() => void openRewardPage()}
+        />
+      )}
+
+      {withdrawalOpen && withdrawalIntent && (
+        <WithdrawalWarningModal
+          phase={phase}
+          vesting={withdrawalIntent.vesting}
+          reinvestProjection={withdrawalIntent.reinvestProjection}
+          onKeepEarning={() => setWithdrawalOpen(false)}
+          onWithdraw={() => {
+            setWithdrawalOpen(false);
+            handleSendSuggestion("Withdraw my position");
+          }}
         />
       )}
     </div>

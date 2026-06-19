@@ -27,12 +27,9 @@ export function AgentAvatar({ size = "md", showBorder = false }: AgentAvatarProp
   };
 
   const config = sizeConfig[size];
-  const borderClass = showBorder ? "border border-border/60 bg-muted/30" : "";
 
   return (
-    <div
-      className={`flex ${config.container} shrink-0 items-center justify-center overflow-hidden rounded-full ${borderClass}`}
-    >
+    <div className={`flex ${config.container} shrink-0 items-center justify-center`}>
       {error ? (
         <Bot className="h-1/2 w-1/2 text-muted-foreground" />
       ) : (
@@ -41,7 +38,7 @@ export function AgentAvatar({ size = "md", showBorder = false }: AgentAvatarProp
           alt="AI Assistant"
           width={config.image}
           height={config.image}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
           onError={() => setError(true)}
         />
       )}

@@ -11,7 +11,10 @@ const Command = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive
     ref={ref}
-    className={cn("flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground", className)}
+    className={cn(
+      "flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
+      className
+    )}
     {...props}
   />
 ));
@@ -27,7 +30,7 @@ const CommandInput = React.forwardRef<
       ref={ref}
       className={cn(
         "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
-        className,
+        className
       )}
       {...props}
     />
@@ -49,10 +52,7 @@ const CommandList = React.forwardRef<
       e.stopPropagation();
       onTouchMove?.(e);
     }}
-    className={cn(
-      "max-h-[300px] overflow-y-auto overflow-x-hidden overscroll-contain",
-      className,
-    )}
+    className={cn("max-h-[300px] overflow-y-auto overflow-x-hidden overscroll-contain", className)}
     {...props}
   />
 ));
@@ -62,7 +62,11 @@ const CommandEmpty = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Empty>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>
 >((props, ref) => (
-  <CommandPrimitive.Empty ref={ref} className="py-6 text-center text-sm text-muted-foreground" {...props} />
+  <CommandPrimitive.Empty
+    ref={ref}
+    className="py-6 text-center text-sm text-muted-foreground"
+    {...props}
+  />
 ));
 CommandEmpty.displayName = CommandPrimitive.Empty.displayName;
 
@@ -86,7 +90,7 @@ const CommandItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-muted/40 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
-      className,
+      className
     )}
     {...props}
   />

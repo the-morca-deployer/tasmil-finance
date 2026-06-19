@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getBlendClient, getNetwork } from "../_sdk";
 import { requireEnv } from "@/lib/env";
+import { getBlendClient, getNetwork } from "../_sdk";
 
 const MCP_URL = requireEnv("NEXT_PUBLIC_MCP_STELLAR_URL", "http://localhost:3009");
 

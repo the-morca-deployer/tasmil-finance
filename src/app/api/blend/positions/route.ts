@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getBlendClient } from "../_sdk";
 import { requireEnv } from "@/lib/env";
+import { getBlendClient } from "../_sdk";
 
 export async function GET(req: NextRequest) {
   const pool = req.nextUrl.searchParams.get("pool");

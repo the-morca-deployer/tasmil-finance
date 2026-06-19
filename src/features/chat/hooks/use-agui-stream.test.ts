@@ -5,7 +5,7 @@
  * 3. isLoading guard — prevents concurrent streams
  */
 
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 
 // Mock HttpAgent
 const mockRunAgent = jest.fn().mockImplementation((_params: any, subscriber: any) => {
@@ -107,7 +107,10 @@ describe("useAguiStream lifecycle", () => {
       // Make runAgent hang (never resolve, never call onRunFinalized) to keep isLoading true
       let resolveAgent: () => void;
       mockRunAgent.mockImplementation(
-        () => new Promise<void>((r) => { resolveAgent = r; })
+        () =>
+          new Promise<void>((r) => {
+            resolveAgent = r;
+          })
       );
 
       const { result } = renderHook(() => useAguiStream(baseConfig));

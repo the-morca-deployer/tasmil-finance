@@ -63,9 +63,9 @@ test.describe("Setup wizard — full-page flow", () => {
     await loginAsWallet(page, wallet);
     await primeConnectedSetup(page, wallet);
     await page.goto("/farming/setup");
-    await expect(
-      page.getByRole("heading", { name: /Tasmil Agent Strategy/i })
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /Tasmil Agent Strategy/i })).toBeVisible({
+      timeout: 15000,
+    });
     await expect(page.getByText(/Step 2 of 5/i)).toBeVisible();
   });
 
@@ -74,13 +74,13 @@ test.describe("Setup wizard — full-page flow", () => {
     await loginAsWallet(page, wallet);
     await primeConnectedSetup(page, wallet);
     await page.goto("/farming/setup");
-    await expect(
-      page.getByRole("heading", { name: /Tasmil Agent Strategy/i })
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /Tasmil Agent Strategy/i })).toBeVisible({
+      timeout: 15000,
+    });
     await page.getByRole("button", { name: /^Continue$/i }).click();
-    await expect(
-      page.getByRole("heading", { name: /Create your smart account/i })
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole("heading", { name: /Create your smart account/i })).toBeVisible({
+      timeout: 10000,
+    });
     await expect(page.getByText(/Step 3 of 5/i)).toBeVisible();
   });
 
@@ -110,9 +110,9 @@ test.describe("Setup wizard — full-page flow", () => {
     await context.clearCookies();
     // No loginAsWallet — wallet stays disconnected.
     await page.goto("/farming/setup");
-    await expect(
-      page.getByRole("heading", { name: /Get started/i })
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole("heading", { name: /Get started/i })).toBeVisible({
+      timeout: 10000,
+    });
     // Two Connect Wallet buttons exist (top-nav + hero). The hero one lives
     // inside <main>; scope to that to avoid strict-mode collision.
     await expect(

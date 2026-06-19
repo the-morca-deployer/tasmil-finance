@@ -64,6 +64,13 @@ export default function RootLayout({
             __html: THEME_COLOR_SCRIPT,
           }}
         />
+        {process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === "true" && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.__TASMIL_E2E_WALLET__ = { connected: true, publicKey: "GDQI7LOGDRQRM5OXEIEY7TDHUYEHGQ7RX3KOJU3FNUP6HBDHUGWA3I6R" };`,
+            }}
+          />
+        )}
       </head>
       <body className={`${outfit.className} antialiased`}>
         <ServiceWorkerRegistrar />

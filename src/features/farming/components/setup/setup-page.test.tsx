@@ -1,10 +1,10 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useStellarBalances } from "@/features/account/hooks/use-stellar-balance";
 import { usePresets } from "@/features/account/hooks/use-account-api";
-import { useWalletStore } from "@/store/use-wallet";
+import { useStellarBalances } from "@/features/account/hooks/use-stellar-balance";
 import { useFarmingActions } from "@/features/farming/hooks/use-farming-actions";
+import { useWalletStore } from "@/store/use-wallet";
 import { SetupPage } from "./setup-page";
 
 const replace = jest.fn();
@@ -42,7 +42,14 @@ beforeEach(() => {
     data: [
       { name: "Safe", estimatedApy: 3.1, poolCount: 1, poolTypes: [], risks: [], topPools: [] },
       { name: "Balanced", estimatedApy: 5.4, poolCount: 3, poolTypes: [], risks: [], topPools: [] },
-      { name: "Aggressive", estimatedApy: 8.8, poolCount: 4, poolTypes: [], risks: [], topPools: [] },
+      {
+        name: "Aggressive",
+        estimatedApy: 8.8,
+        poolCount: 4,
+        poolTypes: [],
+        risks: [],
+        topPools: [],
+      },
     ],
   });
   (useFarmingActions as jest.Mock).mockReturnValue({
