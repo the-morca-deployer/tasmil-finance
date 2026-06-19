@@ -15,9 +15,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
           // visibly separates from the pitch-black page on dark theme.
           // Sonner sets inline styles from these vars, so Tailwind classes
           // alone are not enough — set both layers.
-          "--normal-bg": "hsl(var(--card))",
-          "--normal-text": "hsl(var(--card-foreground))",
-          "--normal-border": "hsl(var(--border))",
+          "--normal-bg": "var(--card)",
+          "--normal-text": "var(--card-foreground)",
+          "--normal-border": "var(--border)",
         } as CSSProperties
       }
       toastOptions={{
