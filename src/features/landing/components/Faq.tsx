@@ -24,7 +24,7 @@ export default function Faq() {
                 id="faqSearch"
                 type="text"
                 placeholder="Search questions"
-                autocomplete="off"
+                autoComplete="off"
                 aria-label="Search FAQ"
               />
             </div>
