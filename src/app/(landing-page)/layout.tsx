@@ -8,9 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default function LandingLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="wl-page" data-grid="on" data-motion="on">
-      {children}
-    </div>
-  );
+  // Each landing route provides its own root wrapper (LandingClient -> .landing-page,
+  // access/waitlist -> .wl-page), so the layout only scopes the stylesheet.
+  return <>{children}</>;
 }
