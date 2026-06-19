@@ -31,10 +31,9 @@ import { ContentBlocksPreview } from "../thread/components/content-blocks-previe
 import { mergeMessagesWithCache, shouldFilterMessage } from "./chat-client-helpers";
 import type { PhaseProfile } from "./chat-page-wrapper";
 import { Greeting } from "./greeting";
-import { InfoBar } from "./info-bar";
 import { MilestoneNudge } from "./milestone-nudge";
 import { SuggestedActions } from "./suggested-actions";
-import { SuggestedPrompts } from "./suggested-prompts";
+// import { SuggestedPrompts } from "./suggested-prompts"; // re-enable when greeting chips return
 import { WithdrawalWarningModal } from "./withdrawal-warning-modal";
 
 // Mapping from short agent IDs to API graph_ids
@@ -123,24 +122,29 @@ export function ChatClient({ agentId, chatId, phaseProfile }: ChatClientProps) {
   const messagesCache = useRef<Message[]>([]);
   // Cache UI to prevent UI loss during streaming
   const uiCache = useRef<any[]>([]);
-  // Track chatId to detect thread switches and clear caches
-  const prevChatIdRef = useRef(chatId);
+  // Track active threadId (from ChatStateProvider, kept in sync with the URL)
+  // to detect thread switches. Using chatId from props doesn't work because
+  // the `[[...slug]]` catch-all route reuses the same page across thread switches.
+  const { threadId: activeThreadId } = useChatState();
+  const prevThreadIdRef = useRef(activeThreadId);
   // Force re-render trigger for instant user message display
   const [, forceUpdate] = useState({});
 
   const messages = useMemo(() => {
-    // Clear cache when chatId changes (e.g. navigating to "new")
-    if (prevChatIdRef.current !== chatId) {
+    // Clear cache when leaving an existing thread (going back to /chat/new
+    // or switching to a different thread). Skip the initial null → uuid
+    // transition so the just-sent human message survives the new-thread wipe.
+    if (prevThreadIdRef.current !== activeThreadId && prevThreadIdRef.current !== null) {
       messagesCache.current = [];
       uiCache.current = [];
-      prevChatIdRef.current = chatId;
     }
+    prevThreadIdRef.current = activeThreadId;
 
     const incoming = stream.messages || [];
     const merged = mergeMessagesWithCache(messagesCache.current, incoming);
     messagesCache.current = merged;
     return merged;
-  }, [stream.messages, chatId]);
+  }, [stream.messages, activeThreadId]);
 
   const uiComponents = useMemo(() => {
     const incoming = (stream.values?.ui as any[] | undefined) || [];
@@ -177,6 +181,16 @@ export function ChatClient({ agentId, chatId, phaseProfile }: ChatClientProps) {
     setFirstTokenReceived(false);
     useChatAgentStore.setState({ nudges: [], seenNudgeTypes: [] });
   }, []);
+
+  // Also reset transient UI flags when the user navigates back to /chat/new
+  // (activeThreadId → null). The component does not remount on this transition
+  // because the [[...slug]] catch-all reuses the same page.
+  useEffect(() => {
+    if (activeThreadId === null) {
+      setFirstTokenReceived(false);
+      setIsSubmitting(false);
+    }
+  }, [activeThreadId]);
 
   // Open WithdrawalWarningModal when either:
   //  (a) a test pre-set window.__TASMIL_OPEN_WITHDRAWAL_MODAL__ before navigation
@@ -714,6 +728,7 @@ export function ChatClient({ agentId, chatId, phaseProfile }: ChatClientProps) {
             )}
           </AnimatePresence>
 
+          {/* Hidden per request — re-enable when the greeting chips should return.
           {showGreeting && (
             <div className="pointer-events-auto mt-6 px-4">
               <SuggestedPrompts
@@ -723,6 +738,7 @@ export function ChatClient({ agentId, chatId, phaseProfile }: ChatClientProps) {
               />
             </div>
           )}
+          */}
 
           <div className="pointer-events-auto flex flex-col gap-2">
             {(() => {
@@ -739,55 +755,13 @@ export function ChatClient({ agentId, chatId, phaseProfile }: ChatClientProps) {
                 (m, index, arr) => !shouldFilterMessage(m, index, arr, uiComponents, messages)
               );
 
-              // Turn collapse: hide intermediate AI messages whenever the last
-              // AI message in the current turn has no content yet. This covers both
-              // the loading phase AND the brief gap between sub-agent steps where
-              // effectiveIsLoading drops to false between runs.
-              const lastHumanIdx = (() => {
-                for (let i = filtered.length - 1; i >= 0; i--) {
-                  if (filtered[i]?.type === "human") return i;
-                }
-                return -1;
-              })();
-              const currentTurnStart = lastHumanIdx + 1;
-              const lastTurnMsg = filtered[filtered.length - 1];
-              const lastTurnMsgHasContent = (() => {
-                if (!lastTurnMsg || lastTurnMsg.type === "human") return false;
-                const c = (lastTurnMsg as any)?.content;
-                if (typeof c === "string") return c.trim().length > 0;
-                if (Array.isArray(c))
-                  return c
-                    .filter((x: any) => x.type === "text")
-                    .some((x: any) => (x.text ?? "").trim().length > 0);
-                return false;
-              })();
-              const collapsingTurn = effectiveIsLoading || !lastTurnMsgHasContent;
-              const displayMessages = collapsingTurn
-                ? filtered.filter((_, i, arr) => i < currentTurnStart || i === arr.length - 1)
-                : filtered;
-
-              const aiInDisplay = displayMessages.filter(
-                (m) => m.type === "ai" || (m.type as string) === "assistant"
-              );
-              if (aiInDisplay.length > 1) {
-                console.warn("[render-debug] MULTI-AI in displayMessages", {
-                  effectiveIsLoading,
-                  collapsingTurn,
-                  lastTurnMsgHasContent,
-                  filteredLen: filtered.length,
-                  displayLen: displayMessages.length,
-                  aiTexts: aiInDisplay.map((m) => {
-                    const c = (m as any)?.content;
-                    if (typeof c === "string") return c.slice(0, 40);
-                    if (Array.isArray(c))
-                      return c
-                        .filter((x: any) => x.type === "text")
-                        .map((x: any) => x.text?.slice(0, 40))
-                        .join("|");
-                    return "(no text)";
-                  }),
-                });
-              }
+              // Show every message in stream-arrival order. Earlier turn-collapse
+              // logic hid intermediate AI messages while streaming to fight a
+              // Thinking→text reorder bug; that is now handled by the segment
+              // timeline + segments preservation in mergeMessagesWithCache, so
+              // collapsing only causes the chaotic "build → disappear → rebuild"
+              // flicker the user sees when one turn spans multiple AI messages.
+              const displayMessages = filtered;
 
               return displayMessages.map((message, index, arr) => {
                 const prevMessage = index > 0 ? arr[index - 1] : undefined;

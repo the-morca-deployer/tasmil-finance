@@ -56,7 +56,7 @@ interface ChatAgentStoreState {
   interrupt: unknown | null;
   sessionCache: Record<string, SessionSnapshot>;
   applyEvent: (event: AGUIEvent) => void;
-  setThreadId: (id: string) => void;
+  setThreadId: (id: string | null) => void;
   addHumanMessage: (id: string, content: string) => void;
   addNudge: (nudge: MilestoneNudgeRecord) => void;
   reset: () => void;
@@ -197,13 +197,14 @@ export const useChatAgentStore = create<ChatAgentStoreState>()((set, get) => ({
         },
       }));
     }
-    const cached = s.sessionCache[id];
+    const cached = id ? s.sessionCache[id] : undefined;
     set({
       threadId: id,
       messages: cached?.messages ?? [],
       toolCallSlots: cached?.toolCallSlots ?? {},
       isStreaming: false,
       error: null,
+      interrupt: null,
     });
   },
 

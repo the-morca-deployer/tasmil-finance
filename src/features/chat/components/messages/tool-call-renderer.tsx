@@ -132,6 +132,79 @@ export function ToolCallRenderer({ message, messages }: { message: Message; mess
     return dupes;
   }, [messages, message?.id, toolCalls]);
 
+  // Several flow tools render the same Confirm Supply card: flow_compose_plan
+  // and flow_compose_and_execute auto-run the execute engine and return its
+  // result, while the MCP `execute` tool also renders one. When more than one
+  // card-producing call exists — repeated compose attempts after the user
+  // refines the request, or a compose followed by a redundant execute — only
+  // the latest one is actionable. Keep every status row but suppress the
+  // stale signing cards so only the latest card is shown.
+  const supersededCardCalls = useMemo(() => {
+    // Across the current turn (last human message → end) multiple tools can
+    // render the same Confirm Supply card: flow_compose_plan builds a rich
+    // card (amount/APY/fee), `execute` only a bare "Protocol" wrapper, and
+    // flow_compose_and_execute is the combined form. The LLM sometimes fires
+    // compose + execute in parallel; both eventually produce a card.
+    //
+    // Pick exactly one WINNER for the whole turn by priority (lower index =
+    // richer card) and suppress every other card render in the turn — even
+    // when the calls are spread across multiple AI messages. The associated
+    // status rows are untouched, only the card render is gated.
+    const PRIORITY: string[] = ["flow_compose_plan", "flow_compose_and_execute", "execute"];
+    const CARD_TOOL_NAMES = new Set(PRIORITY);
+    const priorityOf = (name: string) => {
+      const idx = PRIORITY.indexOf(name);
+      return idx === -1 ? Number.POSITIVE_INFINITY : idx;
+    };
+    const stale = new Set<string>();
+    const msgIdx = messages.findIndex((m) => m.id === message?.id);
+    if (msgIdx === -1) return stale;
+    const myCardCalls = toolCalls.filter((tc) => CARD_TOOL_NAMES.has(tc.name));
+    if (myCardCalls.length === 0) return stale;
+
+    // Find the start of the current turn — last human message at or before me.
+    let turnStart = 0;
+    for (let i = msgIdx; i >= 0; i--) {
+      if ((messages[i] as any)?.type === "human") {
+        turnStart = i + 1;
+        break;
+      }
+    }
+
+    // Collect every card call in the turn with its (priority, message index,
+    // position in tool_calls). Lower priority wins; ties broken by LATER
+    // message and LATER position so successive supersedes work.
+    type Candidate = { id: string; prio: number; msgIdx: number; pos: number };
+    const candidates: Candidate[] = [];
+    for (let i = turnStart; i < messages.length; i++) {
+      const m = messages[i] as any;
+      if (m?.type !== "ai" || !Array.isArray(m.tool_calls)) continue;
+      m.tool_calls.forEach((tc: any, pos: number) => {
+        if (!tc?.id || !CARD_TOOL_NAMES.has(tc.name)) return;
+        candidates.push({ id: tc.id, prio: priorityOf(tc.name), msgIdx: i, pos });
+      });
+    }
+    if (candidates.length <= 1) return stale;
+
+    let winner = candidates[0]!;
+    for (let i = 1; i < candidates.length; i++) {
+      const c = candidates[i]!;
+      if (
+        c.prio < winner.prio ||
+        (c.prio === winner.prio && c.msgIdx > winner.msgIdx) ||
+        (c.prio === winner.prio && c.msgIdx === winner.msgIdx && c.pos > winner.pos)
+      ) {
+        winner = c;
+      }
+    }
+    for (const c of candidates) {
+      if (c.id !== winner.id && myCardCalls.some((tc) => tc.id === c.id)) {
+        stale.add(c.id);
+      }
+    }
+    return stale;
+  }, [messages, message?.id, toolCalls]);
+
   if (toolCalls.length === 0) return null;
 
   return (
@@ -177,6 +250,7 @@ export function ToolCallRenderer({ message, messages }: { message: Message; mess
             />
             {isComplete &&
               shouldRenderCard &&
+              !supersededCardCalls.has(tc.id) &&
               !(result?.hasError && (entry.kind === "shared-op" || entry.kind === "operation")) &&
               (entry.kind === "shared-op" || entry.kind === "shared" ? (
                 <div className="max-w-[360px]">

@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, type ReactNode, useCallback, useContext, useState } from "react";
+import { usePathname } from "next/navigation";
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import type { AssistantInfo } from "../types";
 
 interface ChatStateContextType {
@@ -37,6 +46,27 @@ export function ChatStateProvider({
   const [assistantInfo, setAssistantInfo] = useState<AssistantInfo | null>(null);
   const [agentId, setAgentId] = useState<string | undefined>(initialAgentId);
   const [threadTitle, setThreadTitle] = useState<string | null>(null);
+
+  // Sync threadId with the URL. `[[...slug]]` reuses the same page across
+  // /chat/<id> ↔ /chat/new so useParams() doesn't change on Link navigation;
+  // usePathname() does. Reset state when the user navigates to /chat or /chat/new,
+  // and adopt the id from the URL when navigating to /chat/<id> (e.g. browser back).
+  const pathname = usePathname();
+  const prevPathnameRef = useRef(pathname);
+  useEffect(() => {
+    const prev = prevPathnameRef.current;
+    prevPathnameRef.current = pathname;
+    if (prev === pathname) return;
+    if (pathname === "/chat" || pathname === "/chat/new") {
+      setThreadId(null);
+      setThreadTitle(null);
+      return;
+    }
+    if (pathname.startsWith("/chat/")) {
+      const id = pathname.slice("/chat/".length).split("/")[0];
+      if (id) setThreadId(id);
+    }
+  }, [pathname]);
 
   const handleSetChatHistoryOpen = useCallback((value: boolean | ((prev: boolean) => boolean)) => {
     if (typeof value === "function") {

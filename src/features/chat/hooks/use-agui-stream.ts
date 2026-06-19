@@ -28,9 +28,11 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
   const processorRef = useRef(new AguiEventProcessor());
   const isLoadingRef = useRef(false);
 
-  // Sync thread ID into store on navigation
+  // Sync thread ID into store on navigation. Passing null clears the
+  // active session so a fresh /chat/new doesn't render leftover messages
+  // from the previous thread (sessionCache is preserved).
   useEffect(() => {
-    if (config.threadId) store.setThreadId(config.threadId);
+    store.setThreadId(config.threadId ?? null);
   }, [config.threadId]);
 
   // Abort on unmount

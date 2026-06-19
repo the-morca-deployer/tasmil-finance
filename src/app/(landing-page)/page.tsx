@@ -32,7 +32,7 @@ export default function Home() {
         />
         <h1 className="text-2xl font-bold text-white">Tasmil Finance</h1>
         <p className="text-sm text-zinc-400 max-w-xs">
-          Access is gated. You need a valid access code to enter the app.
+          Connect your wallet and sign the challenge to enter the app.
         </p>
       </div>
 
@@ -45,6 +45,7 @@ export default function Home() {
         >
           {isAuthenticating ? "Connecting..." : "Connect Wallet"}
         </Button>
+        {/* TEMPORARY: access-code program disabled — hide the redeem link.
         <p className="text-xs text-zinc-500">
           Don&apos;t have an access code?{" "}
           <a
@@ -54,6 +55,7 @@ export default function Home() {
             Enter access code
           </a>
         </p>
+        */}
       </div>
     </div>
   );
