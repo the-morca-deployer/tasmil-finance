@@ -125,12 +125,35 @@
   --sidebar-ring: #71717a;
 }
 
+/* Gas-sponsorship starfield twinkle animation */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+.animate-twinkle {
+  animation: twinkle 4s ease-in-out infinite;
+}
+
 /* define theme */
 @theme {
   --font-sans: var(--font-outfit);
   --font-mono: var(--font-outfit);
 
   --breakpoint-toast-mobile: 600px;
+
+  /* Gas-sponsorship palette (matches ref/Gas Sponsorship/*.html) */
+  --color-sponsor-accent: #67e8f9;
+  --color-sponsor-accent-2: #0ea5e9;
+  --color-sponsor-accent-deep: #0369a1;
+  --color-sponsor-accent-soft: rgba(103, 232, 249, 0.14);
+  --color-sponsor-accent-line: rgba(103, 232, 249, 0.32);
+  --color-sponsor-gold: #fbc54a;
+  --color-sponsor-gold-hi: #fff0c2;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
