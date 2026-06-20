@@ -568,7 +568,7 @@ export function GasSponsorshipDetailClient() {
               className="flex flex-col"
               style={{ marginTop: 18, borderTop: `1px solid ${T.line}` }}
             >
-              {data && data.recentTxs.length === 0 ? (
+              {data && data.recentTxs.length === 0 && (data.recentFallbacks?.length ?? 0) === 0 ? (
                 <div
                   style={{
                     padding: "26px 4px",
@@ -659,6 +659,73 @@ export function GasSponsorshipDetailClient() {
                   </div>
                 ))
               )}
+              {/* Fallback rows — TX attempts that didn't get sponsored */}
+              {data?.recentFallbacks?.map((f, i) => (
+                <div
+                  key={`${f.txHash ?? "no-hash"}-${i}`}
+                  className="flex items-center"
+                  style={{
+                    gap: 14,
+                    padding: "15px 4px",
+                    borderBottom: `1px solid ${T.line}`,
+                  }}
+                >
+                  <span
+                    className="grid place-items-center"
+                    style={{
+                      flex: "none",
+                      width: 34,
+                      height: 34,
+                      borderRadius: "50%",
+                      color: T.gold,
+                      background: T.goldSoft,
+                      border: `1px solid ${T.goldLine}`,
+                    }}
+                  >
+                    {I.tickWarn}
+                  </span>
+                  <div className="flex flex-col" style={{ minWidth: 0, flex: 1, gap: 3 }}>
+                    <span
+                      style={{
+                        fontSize: 14.5,
+                        fontWeight: 600,
+                        letterSpacing: "-0.01em",
+                      }}
+                    >
+                      Not sponsored — {fallbackLabel(f.reason)}
+                    </span>
+                    <span
+                      className="flex items-center"
+                      style={{ gap: 8, fontSize: 12, color: T.dim }}
+                    >
+                      {f.txHash && (
+                        <span style={{ fontFamily: T.mono }}>{truncateHash(f.txHash)}</span>
+                      )}
+                      <span>{new Date(f.createdAt).toLocaleDateString()}</span>
+                    </span>
+                  </div>
+                  {f.txHash && (
+                    <a
+                      href={txExplorerUrl(cfg.network, f.txHash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="View on Stellar Expert"
+                      className="grid place-items-center transition-colors"
+                      style={{
+                        flex: "none",
+                        width: 30,
+                        height: 30,
+                        borderRadius: "50%",
+                        color: T.dim,
+                        background: "rgba(255,255,255,0.04)",
+                        border: `1px solid ${T.line2}`,
+                      }}
+                    >
+                      {I.ext}
+                    </a>
+                  )}
+                </div>
+              ))}
             </div>
           </Section>
         )}
@@ -857,6 +924,31 @@ function deriveState(data: SponsorshipMe | undefined, isLoading: boolean): Spons
   if (used === 0) return "fresh";
   if (used >= data.config.maxTxPerUser) return "exhausted";
   return "active";
+}
+
+function fallbackLabel(reason: string): string {
+  switch (reason) {
+    case "fee_over_cap":
+      return "fee exceeded sponsor cap";
+    case "sponsor_balance_low":
+      return "sponsor account low on XLM";
+    case "tx_quota_exhausted":
+      return "your sponsored TX quota is full";
+    case "not_enrolled":
+      return "wallet not enrolled in the cohort";
+    case "disabled":
+      return "sponsorship temporarily disabled";
+    case "sponsor_sign_failed":
+      return "sponsor signing failed";
+    case "feebump_submit_failed":
+      return "fee-bump submission rejected";
+    case "horizon_error":
+      return "network error";
+    case "feebump_indirect_success":
+      return "TX landed without fee-bump";
+    default:
+      return reason;
+  }
 }
 
 function heroSub(state: SponsorshipDetailState, cohortSize: number): string {

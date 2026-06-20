@@ -20,6 +20,23 @@ export interface RecentTx {
   createdAt: string;
 }
 
+export type SponsorFallbackReason =
+  | "not_enrolled"
+  | "disabled"
+  | "tx_quota_exhausted"
+  | "fee_over_cap"
+  | "sponsor_balance_low"
+  | "sponsor_sign_failed"
+  | "feebump_submit_failed"
+  | "horizon_error"
+  | "feebump_indirect_success";
+
+export interface RecentFallback {
+  reason: SponsorFallbackReason | string;
+  txHash: string | null;
+  createdAt: string;
+}
+
 export interface SponsorshipMe {
   enrolled: boolean;
   rank: number | null;
@@ -39,6 +56,7 @@ export interface SponsorshipMe {
     lastSponsoredAt: string | null;
   } | null;
   recentTxs: RecentTx[];
+  recentFallbacks?: RecentFallback[];
 }
 
 export interface TxSubmitResult {

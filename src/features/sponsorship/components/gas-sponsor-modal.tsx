@@ -118,7 +118,7 @@ export function GasSponsorModal({
   maxXlmPerTx,
   onClose,
   onPrimaryCta,
-  onDetail,
+  onDetail: _onDetail,
 }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const medalRef = useRef<HTMLDivElement>(null);
