@@ -11,8 +11,28 @@ import { useStreamContext } from "@/features/chat/hooks/use-stream";
 import { parseFlowResult } from "@/features/chat/lib/parse-flow-result";
 import type { SharedRenderProps } from "@/features/chat/lib/tool-renderer-registry";
 import type { TxStatus } from "@/features/chat/types/flow-messages";
+import type { SponsorTxMeta } from "@/features/sponsorship";
 import { useWalletStore } from "@/store/use-wallet";
 import { executeDispatchRender } from "./execute-dispatcher";
+
+// Hardcoded fallback while ai/ + mcp-stellar/ are not yet emitting metas[]
+// alongside xdrs[]. Once both repos return {xdr, meta} pairs the AI agent
+// should populate simulationReport.metas and this placeholder becomes dead.
+const DEFAULT_TX_META: SponsorTxMeta = { action: "DEPOSIT", protocol: "TASMIL_VAULT" };
+
+function deriveMetasFromSteps(
+  steps: Record<string, unknown>[] | undefined,
+  count: number
+): SponsorTxMeta[] {
+  return Array.from({ length: count }, (_, i) => {
+    const s = steps?.[i] ?? {};
+    const action = (s.action as SponsorTxMeta["action"]) ?? DEFAULT_TX_META.action;
+    const protocol = (s.protocol as SponsorTxMeta["protocol"]) ?? DEFAULT_TX_META.protocol;
+    const asset = (s.asset as string | undefined) ?? (s.assetCode as string | undefined);
+    const poolLabel = (s.poolLabel as string | undefined) ?? (s.description as string | undefined);
+    return { action, protocol, asset, poolLabel };
+  });
+}
 
 function simplifyErrorMessage(raw: string): string {
   const stepsMatch = raw.match(/All \d+ steps? failed/);
@@ -147,17 +167,25 @@ function FlowPlanWithSigning({
   const [phase, setPhase] = useState<"preview" | "signing" | "done" | "error">("preview");
   const [error, setError] = useState<string | undefined>();
   const xdrs = (simulationReport?.xdrs as string[]) || [];
+  // Prefer metas[] from the AI simulation report when present; otherwise
+  // derive per-step meta from plan.steps (action/protocol/asset/poolLabel).
+  const metas = useMemo<SponsorTxMeta[]>(() => {
+    const fromReport = simulationReport?.metas as SponsorTxMeta[] | undefined;
+    if (fromReport && fromReport.length === xdrs.length) return fromReport;
+    const steps = (plan as { steps?: Record<string, unknown>[] })?.steps;
+    return deriveMetasFromSteps(steps, xdrs.length);
+  }, [simulationReport, plan, xdrs.length]);
 
   const handleConfirm = useCallback(async () => {
     if (xdrs.length === 0) return;
     setPhase("signing");
-    const result = await signFlow(xdrs);
+    const result = await signFlow(xdrs, metas);
     if (result.success) setPhase("done");
     else {
       setPhase("error");
       setError(result.error || "Transaction failed");
     }
-  }, [xdrs, signFlow]);
+  }, [xdrs, metas, signFlow]);
 
   if (phase !== "preview") {
     const latestResult = stepResults[currentStep] || stepResults[stepResults.length - 1];
