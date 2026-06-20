@@ -1,13 +1,21 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  type CohortFallbackRow,
+  type CohortMember,
+  useCohortConfig,
+  useCohortFallbackLog,
+  useCohortMembers,
+  useUpdateCohortConfig,
+} from "@/features/admin/hooks/use-admin-cohort-sponsor";
+import {
+  useResetSponsorSlots,
   useSponsorBalance,
   useSponsorConfig,
   useSponsorLogs,
   useSponsorStats,
-  useResetSponsorSlots,
   useTestTelegramAlert,
   useUpdateSponsorConfig,
 } from "@/features/admin/hooks/use-admin-sponsor";
@@ -45,16 +53,22 @@ const input: React.CSSProperties = {
 function BalanceCard() {
   const { data, isLoading, refetch, isFetching } = useSponsorBalance();
   const { data: cfg } = useSponsorConfig();
-  const threshold = (cfg as { xlmAlertThreshold?: number } | undefined)?.xlmAlertThreshold ?? 5;
+  const cfgAny = cfg as { xlmAlertThreshold?: number; xlmCriticalThreshold?: number } | undefined;
+  const warnThreshold = cfgAny?.xlmAlertThreshold ?? 10;
+  const critThreshold = cfgAny?.xlmCriticalThreshold ?? 5;
   const balance = data?.balance ?? 0;
 
   let badgeColor: string;
-  if (balance > 0 && balance <= threshold) {
+  let badgeLabel: string;
+  if (balance > 0 && balance < critThreshold) {
     badgeColor = "#f87171";
-  } else if (balance > 0 && balance <= threshold * 2) {
+    badgeLabel = "CRITICAL";
+  } else if (balance > 0 && balance < warnThreshold) {
     badgeColor = "#fbbf24";
+    badgeLabel = "WARNING";
   } else {
     badgeColor = "#4ade80";
+    badgeLabel = "OK";
   }
 
   return (
@@ -90,6 +104,18 @@ function BalanceCard() {
           <span style={{ fontSize: 22, fontWeight: 700, color: badgeColor }}>
             {balance.toFixed(4)} XLM
           </span>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              padding: "2px 8px",
+              borderRadius: 99,
+              background: `${badgeColor}22`,
+              color: badgeColor,
+            }}
+          >
+            {badgeLabel}
+          </span>
           {data?.publicKey && (
             <span style={{ fontSize: 12, fontFamily: "monospace", color: "rgba(245,248,252,0.4)" }}>
               {data.publicKey.slice(0, 6)}...{data.publicKey.slice(-6)}
@@ -98,7 +124,7 @@ function BalanceCard() {
         </div>
       )}
       <p style={{ fontSize: 12, color: "rgba(245,248,252,0.3)", margin: "8px 0 0" }}>
-        Alert threshold: {threshold} XLM
+        Warning &lt; {warnThreshold} XLM · Critical &lt; {critThreshold} XLM
       </p>
     </div>
   );
@@ -160,6 +186,7 @@ function ConfigCard() {
   const [txPerDay, setTxPerDay] = useState("");
   const [active, setActive] = useState(true);
   const [xlmAlertThreshold, setXlmAlertThreshold] = useState("");
+  const [xlmCriticalThreshold, setXlmCriticalThreshold] = useState("");
   const [telegramChatId, setTelegramChatId] = useState("");
 
   function startEdit() {
@@ -169,6 +196,7 @@ function ConfigCard() {
     setActive(cfg.active);
     const cfgAny = cfg as unknown as Record<string, unknown>;
     setXlmAlertThreshold(String(cfgAny.xlmAlertThreshold ?? ""));
+    setXlmCriticalThreshold(String(cfgAny.xlmCriticalThreshold ?? ""));
     setTelegramChatId(String(cfgAny.telegramChatId ?? ""));
     setEditing(true);
   }
@@ -176,6 +204,15 @@ function ConfigCard() {
   function save() {
     const extra: Record<string, unknown> = {};
     if (xlmAlertThreshold !== "") extra.xlmAlertThreshold = parseFloat(xlmAlertThreshold);
+    if (xlmCriticalThreshold !== "") extra.xlmCriticalThreshold = parseFloat(xlmCriticalThreshold);
+    if (
+      extra.xlmAlertThreshold !== undefined &&
+      extra.xlmCriticalThreshold !== undefined &&
+      (extra.xlmCriticalThreshold as number) >= (extra.xlmAlertThreshold as number)
+    ) {
+      alert("Critical threshold must be lower than warning threshold");
+      return;
+    }
     if (telegramChatId !== "") extra.telegramChatId = telegramChatId;
     update.mutate(
       {
@@ -194,7 +231,46 @@ function ConfigCard() {
         <Loader2 className="animate-spin" size={16} />
       </div>
     );
-  if (!cfg) return null;
+
+  if (!cfg) {
+    return (
+      <div style={card}>
+        <h2 style={{ fontWeight: 600, fontSize: 15, margin: "0 0 8px" }}>Sponsor Config</h2>
+        <p style={{ fontSize: 13, color: "rgba(245,248,252,0.5)", margin: "0 0 12px" }}>
+          No sponsor config exists yet. Create one to enable Telegram alerts and configure
+          warning/critical XLM thresholds.
+        </p>
+        <button
+          onClick={() =>
+            update.mutate({
+              maxSlots: 100,
+              maxTxPerUserPerDay: 10,
+              active: true,
+              rule: "first_n_users",
+              xlmAlertThreshold: 10,
+              xlmCriticalThreshold: 5,
+            })
+          }
+          disabled={update.isPending}
+          style={{
+            fontSize: 13,
+            padding: "6px 16px",
+            borderRadius: 8,
+            border: "none",
+            background: "#0ea5e9",
+            color: "#fff",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          {update.isPending && <Loader2 size={13} className="animate-spin" />}
+          Initialize Sponsor Config
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={card}>
@@ -280,7 +356,7 @@ function ConfigCard() {
               </div>
             </label>
             <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={label}>Alert Threshold (XLM)</span>
+              <span style={label}>Warning Threshold (XLM)</span>
               <input
                 style={input}
                 type="number"
@@ -288,6 +364,17 @@ function ConfigCard() {
                 min="0"
                 value={xlmAlertThreshold}
                 onChange={(e) => setXlmAlertThreshold(e.target.value)}
+              />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={label}>Critical Threshold (XLM)</span>
+              <input
+                style={input}
+                type="number"
+                step="0.1"
+                min="0"
+                value={xlmCriticalThreshold}
+                onChange={(e) => setXlmCriticalThreshold(e.target.value)}
               />
             </label>
             <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -354,6 +441,19 @@ function ConfigCard() {
           <div>
             <div style={label}>Rule</div>
             <div style={{ fontSize: 14, fontWeight: 500, marginTop: 2 }}>{cfg.rule}</div>
+          </div>
+          <div>
+            <div style={label}>Warning Threshold</div>
+            <div style={value}>
+              {(cfg as unknown as { xlmAlertThreshold?: number }).xlmAlertThreshold ?? "—"} XLM
+            </div>
+          </div>
+          <div>
+            <div style={label}>Critical Threshold</div>
+            <div style={value}>
+              {(cfg as unknown as { xlmCriticalThreshold?: number }).xlmCriticalThreshold ?? "—"}{" "}
+              XLM
+            </div>
           </div>
         </div>
       )}
@@ -538,6 +638,227 @@ function LogsTable() {
   );
 }
 
+// ===========================================================================
+// Cohort sponsor (v2) — new gas-sponsorship module
+// ===========================================================================
+
+function stroopsToXlm(stroops: string | bigint | number): string {
+  const n = typeof stroops === "string" ? Number(stroops) : Number(stroops);
+  if (!Number.isFinite(n)) return "0";
+  return (n / 1e7).toFixed(7);
+}
+
+function CohortConfigCard() {
+  const { data, isLoading } = useCohortConfig();
+  const mutation = useUpdateCohortConfig();
+  const [cohortSize, setCohortSize] = useState<string>("");
+  const [maxTxPerUser, setMaxTxPerUser] = useState<string>("");
+  const [maxXlmPerTx, setMaxXlmPerTx] = useState<string>("");
+  const [enabled, setEnabled] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (!data) return;
+    setCohortSize(String(data.cohortSize ?? ""));
+    setMaxTxPerUser(String(data.maxTxPerUser ?? ""));
+    setMaxXlmPerTx(String(data.maxXlmPerTx ?? ""));
+    setEnabled(Boolean(data.enabled));
+  }, [data]);
+
+  if (isLoading || !data) {
+    return (
+      <div style={card}>
+        <Loader2 size={16} className="animate-spin" />
+      </div>
+    );
+  }
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutation.mutate({
+      cohortSize: Number(cohortSize),
+      maxTxPerUser: Number(maxTxPerUser),
+      maxXlmPerTx,
+      enabled,
+    });
+  };
+
+  return (
+    <div style={card} data-testid="cohort-config-card">
+      <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>
+        Cohort sponsor (v2) — config
+      </h2>
+      <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+          <div>
+            <div style={label}>Cohort size</div>
+            <input
+              data-testid="cohort-cohort-size"
+              type="number"
+              min={0}
+              value={cohortSize}
+              onChange={(e) => setCohortSize(e.target.value)}
+              style={input}
+            />
+          </div>
+          <div>
+            <div style={label}>Max TX / user</div>
+            <input
+              data-testid="cohort-max-tx-per-user"
+              type="number"
+              min={0}
+              value={maxTxPerUser}
+              onChange={(e) => setMaxTxPerUser(e.target.value)}
+              style={input}
+            />
+          </div>
+          <div>
+            <div style={label}>Max XLM / TX</div>
+            <input
+              data-testid="cohort-max-xlm-per-tx"
+              type="text"
+              value={maxXlmPerTx}
+              onChange={(e) => setMaxXlmPerTx(e.target.value)}
+              style={input}
+            />
+          </div>
+          <div>
+            <div style={label}>Network</div>
+            <div style={value}>{data.network}</div>
+          </div>
+        </div>
+        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+          <input
+            data-testid="cohort-enabled"
+            type="checkbox"
+            checked={enabled}
+            onChange={(e) => setEnabled(e.target.checked)}
+          />
+          Enabled
+        </label>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button
+            data-testid="cohort-save"
+            type="submit"
+            disabled={mutation.isPending}
+            style={{
+              padding: "6px 16px",
+              borderRadius: 8,
+              border: "1px solid rgba(255,255,255,0.12)",
+              background: "rgba(103,232,249,0.12)",
+              color: "inherit",
+              cursor: mutation.isPending ? "not-allowed" : "pointer",
+              opacity: mutation.isPending ? 0.6 : 1,
+            }}
+          >
+            {mutation.isPending ? "Saving…" : "Save"}
+          </button>
+          <span style={{ fontSize: 11, color: "rgba(245,248,252,0.4)" }}>
+            v{data.version} · updated {new Date(data.updatedAt).toLocaleString()}
+          </span>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function CohortMembersTable() {
+  const { data, isLoading } = useCohortMembers(100);
+  if (isLoading || !data) {
+    return (
+      <div style={card}>
+        <Loader2 size={16} className="animate-spin" />
+      </div>
+    );
+  }
+  return (
+    <div style={card} data-testid="cohort-members-card">
+      <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>
+        Cohort members ({(data.members ?? []).length})
+      </h2>
+      {(data.members ?? []).length === 0 ? (
+        <p style={{ fontSize: 13, color: "rgba(245,248,252,0.5)" }}>No members yet.</p>
+      ) : (
+        <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ textAlign: "left", color: "rgba(245,248,252,0.4)" }}>
+              <th style={{ padding: "6px 8px" }}>Rank</th>
+              <th style={{ padding: "6px 8px" }}>User ID</th>
+              <th style={{ padding: "6px 8px" }}>Assigned</th>
+              <th style={{ padding: "6px 8px" }}>Modal seen</th>
+              <th style={{ padding: "6px 8px" }}>TX count</th>
+              <th style={{ padding: "6px 8px" }}>XLM sponsored</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(data.members ?? []).map((m: CohortMember) => (
+              <tr key={m.userId} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <td style={{ padding: "6px 8px", fontWeight: 600 }}>#{m.rank}</td>
+                <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                  {m.userId.slice(0, 12)}…
+                </td>
+                <td style={{ padding: "6px 8px" }}>
+                  {new Date(m.assignedAt).toLocaleDateString()}
+                </td>
+                <td style={{ padding: "6px 8px" }}>
+                  {m.modalSeenAt ? "✓" : <span style={{ opacity: 0.4 }}>—</span>}
+                </td>
+                <td style={{ padding: "6px 8px" }}>{m.txCount}</td>
+                <td style={{ padding: "6px 8px" }}>{stroopsToXlm(m.xlmSponsoredStroops)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+function CohortFallbackLogTable() {
+  const { data, isLoading } = useCohortFallbackLog(50);
+  if (isLoading || !data) {
+    return (
+      <div style={card}>
+        <Loader2 size={16} className="animate-spin" />
+      </div>
+    );
+  }
+  return (
+    <div style={card} data-testid="cohort-fallback-card">
+      <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>
+        Cohort fallback log ({(data.rows ?? []).length})
+      </h2>
+      {(data.rows ?? []).length === 0 ? (
+        <p style={{ fontSize: 13, color: "rgba(245,248,252,0.5)" }}>No fallback events recorded.</p>
+      ) : (
+        <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ textAlign: "left", color: "rgba(245,248,252,0.4)" }}>
+              <th style={{ padding: "6px 8px" }}>When</th>
+              <th style={{ padding: "6px 8px" }}>Reason</th>
+              <th style={{ padding: "6px 8px" }}>User</th>
+              <th style={{ padding: "6px 8px" }}>TX</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(data.rows ?? []).map((r: CohortFallbackRow) => (
+              <tr key={r.id} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <td style={{ padding: "6px 8px" }}>{new Date(r.createdAt).toLocaleString()}</td>
+                <td style={{ padding: "6px 8px" }}>{r.reason}</td>
+                <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                  {r.userId ? `${r.userId.slice(0, 12)}…` : "—"}
+                </td>
+                <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                  {r.txHash ? `${r.txHash.slice(0, 10)}…` : "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
 export default function SponsorAdminPage() {
   return (
     <div style={{ padding: "24px 32px", maxWidth: 960 }}>
@@ -550,6 +871,17 @@ export default function SponsorAdminPage() {
       </div>
       <StatsCard />
       <LogsTable />
+
+      <hr
+        style={{
+          border: "none",
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          margin: "32px 0 20px",
+        }}
+      />
+      <CohortConfigCard />
+      <CohortMembersTable />
+      <CohortFallbackLogTable />
     </div>
   );
 }

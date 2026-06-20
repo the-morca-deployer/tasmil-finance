@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { SponsorIndicator } from "@/features/sponsorship/components/sponsor-indicator";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { NavLink } from "./nav-link";
 import type { SidebarData } from "./sidebar-data";
@@ -37,6 +38,7 @@ export function TopNavBar({ sidebarData }: TopNavBarProps) {
       </div>
 
       <div className="ml-auto flex items-center gap-3">
+        <SponsorIndicator />
         <ConnectWalletButton variant="topbar" />
       </div>
     </nav>

@@ -9,7 +9,7 @@ import {
   useSendCampaign,
 } from "@/features/admin-whitelist/hooks/use-campaigns";
 import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Typography } from "@/shared/ui/typography";
 

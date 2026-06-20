@@ -16,6 +16,7 @@ const config: Config = {
 
   // Module name mapping for path aliases
   moduleNameMapper: {
+    "^react-markdown$": "<rootDir>/src/lib/test-utils/react-markdown-mock.tsx",
     "^@/(.*)$": "<rootDir>/src/$1",
     "^@/features/(.*)$": "<rootDir>/src/features/$1",
     "^@/shared/(.*)$": "<rootDir>/src/shared/$1",

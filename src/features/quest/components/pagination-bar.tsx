@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 
 interface PaginationBarProps {
   page: number;

@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useFileUpload } from "@/shared/hooks/use-file-upload";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { useMultiSidebar } from "@/shared/ui/multi-sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { useRightSidebarTab } from "@/store/use-right-sidebar-tab";
@@ -302,8 +302,12 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
   // Show suggestions when: new chat OR agent finished responding
   // Use isAiResponseComplete as a faster indicator that AI is done
   const showSuggestions = isNewChat || (!effectiveIsLoading && messages.length > 0);
+  // Welcome reward disabled locally — kept the condition for traceability.
   const showWelcomeRewardDialog =
-    isNewChat && Boolean(welcomeRewardStatus?.reserved) && !welcomeRewardStatus?.welcomeCardSeen;
+    false &&
+    isNewChat &&
+    Boolean(welcomeRewardStatus?.reserved) &&
+    !welcomeRewardStatus?.welcomeCardSeen;
   const [productError, setProductError] = useState<ChatProductError | null>(null);
 
   // Error handling

@@ -473,7 +473,7 @@ export function StellarExecuteCard({
             </button>
             <button
               type="button"
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] py-2 font-semibold text-black text-xs transition-all hover:from-[#C5F0FF] hover:to-[#1CCFFF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[image:var(--brand-grad)] py-2 font-semibold text-black text-xs transition-all hover:bg-[image:var(--brand-grad-hover)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
               onClick={handleSign}
               disabled={signing || !xdr}
             >

@@ -7,7 +7,11 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const TEMP_FILES = ["temp-openapi.json", "temp-openapi-backend.json"];
+const TEMP_FILES = [
+  "temp-openapi.json",
+  "temp-openapi-backend.json",
+  "temp-openapi-quest.json",
+];
 
 function cleanTempFiles() {
   let cleaned = 0;

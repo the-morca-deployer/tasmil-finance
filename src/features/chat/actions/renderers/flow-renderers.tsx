@@ -11,8 +11,59 @@ import { useStreamContext } from "@/features/chat/hooks/use-stream";
 import { parseFlowResult } from "@/features/chat/lib/parse-flow-result";
 import type { SharedRenderProps } from "@/features/chat/lib/tool-renderer-registry";
 import type { TxStatus } from "@/features/chat/types/flow-messages";
+import type { SponsorTxMeta } from "@/features/sponsorship";
 import { useWalletStore } from "@/store/use-wallet";
 import { executeDispatchRender } from "./execute-dispatcher";
+
+// Fallback used only when the AI step has no protocol/action at all.
+const DEFAULT_TX_META: SponsorTxMeta = { action: "DEPOSIT", protocol: "TASMIL_VAULT" };
+
+// AI agent emits lowercase protocols ("blend", "soroswap", …) matching the
+// MCP execute-tool param. Sponsor backend stores uppercase enum values, so
+// we normalize here. Unknown / "stellar" (trustline) falls back to vault.
+const PROTOCOL_MAP: Record<string, SponsorTxMeta["protocol"]> = {
+  blend: "BLEND",
+  soroswap: "SOROSWAP",
+  aquarius: "AQUARIUS",
+  phoenix: "PHOENIX",
+  defindex: "DEFINDEX",
+  stellar: "TASMIL_VAULT",
+};
+
+// AI emits many fine-grained actions (deposit / supply_collateral / swap /
+// stake / add_liquidity / withdraw / unstake / remove_liquidity /
+// add_trustline / …). Collapse onto the 4 sponsor enum buckets.
+function normalizeAction(raw: string | undefined): SponsorTxMeta["action"] {
+  if (!raw) return DEFAULT_TX_META.action;
+  const lower = raw.toLowerCase();
+  if (lower.includes("withdraw") || lower.includes("unstake") || lower.includes("remove")) {
+    return "WITHDRAW";
+  }
+  if (lower.includes("harvest") || lower.includes("claim")) return "HARVEST";
+  if (lower.includes("rebalance")) return "REBALANCE";
+  // deposit, supply_collateral, swap, stake, add_liquidity, add_trustline,
+  // and other onboarding-shaped ops all map to DEPOSIT.
+  return "DEPOSIT";
+}
+
+function normalizeProtocol(raw: string | undefined): SponsorTxMeta["protocol"] {
+  if (!raw) return DEFAULT_TX_META.protocol;
+  return PROTOCOL_MAP[raw.toLowerCase()] ?? DEFAULT_TX_META.protocol;
+}
+
+function deriveMetasFromSteps(
+  steps: Record<string, unknown>[] | undefined,
+  count: number
+): SponsorTxMeta[] {
+  return Array.from({ length: count }, (_, i) => {
+    const s = steps?.[i] ?? {};
+    const action = normalizeAction(s.action as string | undefined);
+    const protocol = normalizeProtocol(s.protocol as string | undefined);
+    const asset = (s.asset as string | undefined) ?? (s.assetCode as string | undefined);
+    const poolLabel = (s.poolLabel as string | undefined) ?? (s.description as string | undefined);
+    return { action, protocol, asset, poolLabel };
+  });
+}
 
 function simplifyErrorMessage(raw: string): string {
   const stepsMatch = raw.match(/All \d+ steps? failed/);
@@ -147,17 +198,25 @@ function FlowPlanWithSigning({
   const [phase, setPhase] = useState<"preview" | "signing" | "done" | "error">("preview");
   const [error, setError] = useState<string | undefined>();
   const xdrs = (simulationReport?.xdrs as string[]) || [];
+  // Prefer metas[] from the AI simulation report when present; otherwise
+  // derive per-step meta from plan.steps (action/protocol/asset/poolLabel).
+  const metas = useMemo<SponsorTxMeta[]>(() => {
+    const fromReport = simulationReport?.metas as SponsorTxMeta[] | undefined;
+    if (fromReport && fromReport.length === xdrs.length) return fromReport;
+    const steps = (plan as { steps?: Record<string, unknown>[] })?.steps;
+    return deriveMetasFromSteps(steps, xdrs.length);
+  }, [simulationReport, plan, xdrs.length]);
 
   const handleConfirm = useCallback(async () => {
     if (xdrs.length === 0) return;
     setPhase("signing");
-    const result = await signFlow(xdrs);
+    const result = await signFlow(xdrs, metas);
     if (result.success) setPhase("done");
     else {
       setPhase("error");
       setError(result.error || "Transaction failed");
     }
-  }, [xdrs, signFlow]);
+  }, [xdrs, metas, signFlow]);
 
   if (phase !== "preview") {
     const latestResult = stepResults[currentStep] || stepResults[stepResults.length - 1];

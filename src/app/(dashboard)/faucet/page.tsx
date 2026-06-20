@@ -109,7 +109,7 @@ export default function FaucetPage() {
           type="button"
           onClick={handleClaim}
           disabled={!isConnected || loading}
-          className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] px-12 py-4 text-base font-bold text-black transition-all hover:scale-105 hover:from-[#C5F0FF] hover:to-[#1CCFFF] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="relative w-full overflow-hidden rounded-2xl bg-[image:var(--brand-grad)] px-12 py-4 text-base font-bold text-black transition-all hover:scale-105 hover:bg-[image:var(--brand-grad-hover)] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           <div className="absolute top-0 left-1/2 -translate-x-1/2 h-4 w-[50%] rounded-full bg-white/80 blur-xl" />
           {loading ? (

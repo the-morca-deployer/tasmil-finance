@@ -92,18 +92,21 @@ export interface UpdateSponsorConfigDto {
   maxTxPerUserPerDay?: number;
   active?: boolean;
   rule?: string;
+  xlmAlertThreshold?: number;
+  xlmCriticalThreshold?: number;
+  telegramChatId?: string;
 }
 
 // ── Hooks ──────────────────────────────────────────────────────────────────
 
 export function useSponsorConfig() {
   const token = useAdminAuthStore((s) => s.token);
-  return useQuery<SponsorConfig>({
+  return useQuery<SponsorConfig | null>({
     queryKey: ["admin-sponsor-config"],
     queryFn: async () => {
       const res = await adminFetch<BackendConfigResponse>("/api/admin/sponsor/config");
       const cfg = res.config;
-      if (!cfg) throw new Error("No sponsor config");
+      if (!cfg) return null;
       return { ...cfg, currentSlots: res.usedSlots };
     },
     enabled: !!token,

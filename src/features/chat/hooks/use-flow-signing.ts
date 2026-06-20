@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import type { SponsorshipMe, SponsorTxMeta } from "@/features/sponsorship";
+import { submitWithSponsorFlow, useSponsorshipMe } from "@/features/sponsorship";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { activeNetwork } from "@/shared/config/stellar";
 import { useWallet } from "@/shared/context/wallet-context";
@@ -22,8 +24,8 @@ export interface FlowSigningResult {
 }
 
 interface UseFlowSigningReturn {
-  /** Sign and submit an array of XDR strings sequentially */
-  signFlow: (xdrs: string[]) => Promise<FlowSigningResult>;
+  /** Sign and submit an array of XDR strings sequentially. Pass metas[i] aligned with xdrs[i] to enable gas sponsorship for classic TXs. */
+  signFlow: (xdrs: string[], metas?: SponsorTxMeta[]) => Promise<FlowSigningResult>;
   /** Whether any step is currently being signed/submitted */
   isSubmitting: boolean;
   /** Per-step status tracking */
@@ -49,7 +51,17 @@ function failStep(index: number, error: string): FlowStepResult {
   return { stepIndex: index, status: "failed", error };
 }
 
-async function submitSignedXdr(signedXdr: string): Promise<{ hash: string }> {
+interface SubmitOutcome {
+  hash: string;
+  /** true → backend already showed the sponsored-tx toasts, so caller should skip its own success toast. */
+  sponsored: boolean;
+}
+
+async function submitSignedXdr(
+  signedXdr: string,
+  meta: SponsorTxMeta | undefined,
+  me: SponsorshipMe | undefined
+): Promise<SubmitOutcome> {
   const { TransactionBuilder, Horizon } = await import("@stellar/stellar-sdk");
   const signedTx = TransactionBuilder.fromXDR(signedXdr, activeNetwork.networkPassphrase);
 
@@ -59,20 +71,28 @@ async function submitSignedXdr(signedXdr: string): Promise<{ hash: string }> {
   const isClassic = ops.length > 0 && ops.every((op: any) => op.type !== "invokeHostFunction");
 
   if (isClassic) {
+    // Sponsored path: only when caller supplied meta AND user has an
+    // authenticated /sponsorship/me response. Backend decides eligibility +
+    // emits its own toast pair (submit + sponsored / fallback).
+    if (meta && me) {
+      const r = await submitWithSponsorFlow(signedXdr, me, meta);
+      return { hash: r.hash, sponsored: true };
+    }
     const horizon = new Horizon.Server(activeNetwork.horizonUrl, {
       allowHttp: activeNetwork.horizonUrl.startsWith("http://"),
     });
     const response = await horizon.submitTransaction(signedTx as any);
-    return { hash: response.hash };
+    return { hash: response.hash, sponsored: false };
   }
 
-  // Soroban operations (invokeHostFunction) → submit via Soroban RPC
+  // Soroban operations (invokeHostFunction) → submit via Soroban RPC.
+  // Sponsorship fee-bump on Soroban is not supported yet.
   const { getSorobanClient } = await import("@/lib/stellar-client");
   const soroban = getSorobanClient();
   const response = await soroban.sendTransaction(signedTx as any);
 
   if (response.status === "PENDING") {
-    return { hash: response.hash };
+    return { hash: response.hash, sponsored: false };
   }
   throw new Error(`Transaction failed with status: ${response.status}`);
 }
@@ -113,6 +133,7 @@ async function signStepXdr(
 
 export function useFlowSigning(): UseFlowSigningReturn {
   const { signTransaction } = useWallet();
+  const { data: me } = useSponsorshipMe();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [stepResults, setStepResults] = useState<FlowStepResult[]>([]);
@@ -127,7 +148,7 @@ export function useFlowSigning(): UseFlowSigningReturn {
   }, []);
 
   const signFlow = useCallback(
-    async (xdrs: string[]): Promise<FlowSigningResult> => {
+    async (xdrs: string[], metas?: SponsorTxMeta[]): Promise<FlowSigningResult> => {
       if (xdrs.length === 0) {
         return { success: true, stepResults: [] };
       }
@@ -171,12 +192,16 @@ export function useFlowSigning(): UseFlowSigningReturn {
         toast.info(`Submitting step ${i + 1} of ${xdrs.length}...`);
 
         try {
-          const { hash } = await submitSignedXdr(signedXdr);
+          const { hash, sponsored } = await submitSignedXdr(signedXdr, metas?.[i], me);
           results[i] = { stepIndex: i, status: "confirmed", txHash: hash };
           setStepResults([...results]);
-          toast.success(`Step ${i + 1} submitted`, {
-            description: `Hash: ${hash.slice(0, 8)}...`,
-          });
+          // submitWithSponsorFlow already toasted (submit + sponsored / fallback).
+          // Avoid duplicate per-step toast when sponsored path handled the UX.
+          if (!sponsored) {
+            toast.success(`Step ${i + 1} submitted`, {
+              description: `Hash: ${hash.slice(0, 8)}...`,
+            });
+          }
         } catch (submitErr) {
           return failAndStop(i, parseSigningError(submitErr), `Step ${i + 1} submission failed`);
         }
@@ -186,7 +211,7 @@ export function useFlowSigning(): UseFlowSigningReturn {
       toast.success("All transactions submitted successfully!");
       return { success: true, stepResults: results };
     },
-    [signTransaction]
+    [signTransaction, me]
   );
 
   return {

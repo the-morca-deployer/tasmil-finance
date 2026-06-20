@@ -11,7 +11,7 @@ import { useWallet } from "@/shared/context/wallet-context";
 import { sidebarData } from "@/shared/layout/sidebar-data";
 import { Badge } from "@/shared/ui/badge";
 import Balatro from "@/shared/ui/balatro";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
 import { Typography } from "@/shared/ui/typography";
 
@@ -75,7 +75,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
                 {sidebarData.header.brand_name}
               </span>
               <Badge
-                className="h-4 rounded-full border-0 bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] px-1.5 py-0 font-bold text-[8px] text-black"
+                className="h-4 rounded-full border-0 bg-[image:var(--brand-grad)] px-1.5 py-0 font-bold text-[8px] text-black"
                 variant="outline"
               >
                 {process.env.NEXT_PUBLIC_STELLAR_NETWORK === "mainnet" ? "MAINNET" : "TESTNET"}
@@ -92,20 +92,23 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
           {sidebarData.navGroups.map((group, groupIndex) => (
             <div key={groupIndex} className="space-y-2">
               {group.items.map((item) => {
+                const isExternal = item.url.startsWith("http");
                 // Check if active - also highlight Agents for /chat/* routes
                 const isActive =
-                  pathname === item.url ||
-                  pathname.startsWith(`${item.url}/`) ||
-                  (item.url === "/chat/new" && pathname.startsWith("/chat/"));
+                  !isExternal &&
+                  (pathname === item.url ||
+                    pathname.startsWith(`${item.url}/`) ||
+                    (item.url === "/chat/new" && pathname.startsWith("/chat/")));
                 return (
                   <Link
                     key={item.url}
                     href={item.url}
                     {...(onClose && { onClick: onClose })}
+                    {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     className={cn(
                       "flex items-center gap-3 rounded-full px-4 py-3 font-medium text-sm transition-colors",
                       isActive
-                        ? "bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black shadow-md"
+                        ? "bg-[image:var(--brand-grad)] text-black shadow-md"
                         : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     )}
                   >

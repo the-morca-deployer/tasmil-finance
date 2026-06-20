@@ -7,7 +7,7 @@ import { useCredits } from "@/features/credits/use-credits";
 import { cn } from "@/lib/utils";
 import { getExplorerUrl, isMainnet } from "@/shared/config/stellar";
 import { useWallet } from "@/shared/context/wallet-context";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,

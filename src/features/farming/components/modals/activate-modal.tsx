@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2, Shield } from "lucide-react";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 
 interface ActivateModalProps {
   onActivate: () => void;

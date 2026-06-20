@@ -4,7 +4,7 @@ import { ArrowRight, DollarSign, Tractor, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePosition } from "@/features/account/hooks/use-account-api";
 import { useWallet } from "@/shared/context/wallet-context";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { useWalletStore } from "@/store/use-wallet";
 

@@ -2,7 +2,7 @@
 
 import { LogOut } from "lucide-react";
 import { useAdminAuth } from "@/features/admin-auth/hooks/use-admin-auth";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
 
 interface AdminHeaderProps {
