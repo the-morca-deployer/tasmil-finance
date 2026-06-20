@@ -98,6 +98,8 @@ const PROXY_TARGETS = {
       "/api/users",
       "/api/welcome-reward",
       "/api/quest",
+      "/api/sponsorship",
+      "/api/tx",
     ],
     exact: ["/api/health"],
   },

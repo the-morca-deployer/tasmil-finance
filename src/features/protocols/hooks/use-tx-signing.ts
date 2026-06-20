@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -8,7 +9,6 @@ import {
 } from "@/features/welcome-reward/hooks/use-welcome-reward";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { activeNetwork, getExplorerUrl } from "@/shared/config/stellar";
-import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useAuthStore } from "@/store/use-auth";
 import type { CardMode } from "../schemas/common.schema";
@@ -232,7 +232,11 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
 
         toast.info("Submitting to network...");
 
-        const { txHash, sponsored } = await submitViaBackend(signedTxXdr, walletAddress ?? "", volumeContext);
+        const { txHash, sponsored } = await submitViaBackend(
+          signedTxXdr,
+          walletAddress ?? "",
+          volumeContext
+        );
         // After every submit (sponsored OR fallback), invalidate the sponsorship
         // /me query so the top-nav indicator, detail-page Activity, dots,
         // and "remaining" counter reflect the new usage/quota state.
@@ -366,7 +370,7 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
   const submitViaBackend = async (
     signedXdr: string,
     publicKey: string,
-    volCtx?: TrackVolumeContext,
+    volCtx?: TrackVolumeContext
   ): Promise<{ txHash: string; sponsored: boolean }> => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
@@ -386,7 +390,11 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
     const sponsorProtocol = protoUpper && PROTO_MAP[protoUpper] ? PROTO_MAP[protoUpper] : undefined;
     const actLower = (volCtx?.operation ?? "").toLowerCase();
     let sponsorAction: string | undefined;
-    if (actLower.includes("withdraw") || actLower.includes("unstake") || actLower.includes("remove")) {
+    if (
+      actLower.includes("withdraw") ||
+      actLower.includes("unstake") ||
+      actLower.includes("remove")
+    ) {
       sponsorAction = "WITHDRAW";
     } else if (actLower.includes("harvest") || actLower.includes("claim")) {
       sponsorAction = "HARVEST";
