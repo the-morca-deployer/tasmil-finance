@@ -1,6 +1,29 @@
 import type { Campaign } from "@/features/quest/types";
 
 /**
+ * UI state machine for an individual quest task.
+ * Drives the per-task action button in CampaignDetail.
+ */
+export type TaskUiState = "idle" | "verifying" | "claimable" | "claimed" | "error";
+
+/**
+ * Maps backend task status + claim flag + verify-failure flag to a UI state.
+ * Precedence: claimed > error > claimable > verifying > idle.
+ */
+export function mapTaskState(input: {
+  status?: string | null;
+  claimed?: boolean;
+  verifyFailed?: boolean;
+}): TaskUiState {
+  const status = input.status?.toUpperCase() ?? "";
+  if (input.claimed === true || status === "CLAIMED") return "claimed";
+  if (input.verifyFailed === true) return "error";
+  if (status === "COMPLETED" || status === "APPROVED") return "claimable";
+  if (status === "IN_PROGRESS") return "verifying";
+  return "idle";
+}
+
+/**
  * API Response structure from backend (wrapped by ResponseInterceptor)
  */
 interface ApiResponse<T> {
