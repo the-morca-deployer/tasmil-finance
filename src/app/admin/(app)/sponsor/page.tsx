@@ -681,9 +681,9 @@ function CohortMembersTable() {
   return (
     <div style={card} data-testid="cohort-members-card">
       <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>
-        Cohort members ({data.members.length})
+        Cohort members ({(data.members ?? []).length})
       </h2>
-      {data.members.length === 0 ? (
+      {(data.members ?? []).length === 0 ? (
         <p style={{ fontSize: 13, color: "rgba(245,248,252,0.5)" }}>No members yet.</p>
       ) : (
         <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
@@ -698,7 +698,7 @@ function CohortMembersTable() {
             </tr>
           </thead>
           <tbody>
-            {data.members.map((m: CohortMember) => (
+            {(data.members ?? []).map((m: CohortMember) => (
               <tr key={m.userId} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                 <td style={{ padding: "6px 8px", fontWeight: 600 }}>#{m.rank}</td>
                 <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
@@ -733,9 +733,9 @@ function CohortFallbackLogTable() {
   return (
     <div style={card} data-testid="cohort-fallback-card">
       <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>
-        Cohort fallback log ({data.rows.length})
+        Cohort fallback log ({(data.rows ?? []).length})
       </h2>
-      {data.rows.length === 0 ? (
+      {(data.rows ?? []).length === 0 ? (
         <p style={{ fontSize: 13, color: "rgba(245,248,252,0.5)" }}>No fallback events recorded.</p>
       ) : (
         <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
@@ -748,7 +748,7 @@ function CohortFallbackLogTable() {
             </tr>
           </thead>
           <tbody>
-            {data.rows.map((r: CohortFallbackRow) => (
+            {(data.rows ?? []).map((r: CohortFallbackRow) => (
               <tr key={r.id} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                 <td style={{ padding: "6px 8px" }}>{new Date(r.createdAt).toLocaleString()}</td>
                 <td style={{ padding: "6px 8px" }}>{r.reason}</td>
