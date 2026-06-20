@@ -1058,7 +1058,7 @@ function UItem({
       }}
     >
       <div
-        className="inline-flex items-center"
+        className="flex items-center"
         style={{
           gap: 6,
           fontSize: 11.5,
