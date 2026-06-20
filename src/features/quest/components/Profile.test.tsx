@@ -9,6 +9,7 @@ jest.mock("@/gen-quest", () => ({
     isLoading: false,
   }),
   useSocialAccountsControllerFindAll: () => ({ data: { data: [] }, refetch: jest.fn() }),
+  useSeasonsControllerMyResult: () => ({ data: { data: null } }),
 }));
 jest.mock("../store/use-quest-auth", () => ({
   useQuestAuthStore: () => ({ isAuthenticated: true, user: { walletAddress: "G..." } }),

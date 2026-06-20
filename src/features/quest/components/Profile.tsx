@@ -2,11 +2,17 @@
 
 import React, { useMemo, useState } from "react";
 import { Wallet } from "lucide-react";
-import { useSocialAccountsControllerFindAll, useUsersControllerGetMe } from "@/gen-quest";
+import {
+  useSeasonsControllerMyResult,
+  useSocialAccountsControllerFindAll,
+  useUsersControllerGetMe,
+} from "@/gen-quest";
 import { tierDisplay } from "@/features/quest/lib/tier";
 import { qAvatar } from "@/features/quest/lib/avatar";
 import { Flame, PtsCoin } from "@/features/quest/components/icons";
 import { useWallet } from "@/features/quest/context/wallet-context";
+import { type SeasonMeResult, unwrapEnvelope } from "@/features/quest/lib/season-types";
+import { PayoutStatusBadge } from "./PayoutStatusBadge";
 import { Referrals } from "./Referrals";
 import { SocialConnectSection } from "./social/SocialConnectButtons";
 
@@ -36,6 +42,13 @@ const Profile: React.FC = () => {
   const walletAddress = me.walletAddress ?? address ?? "";
 
   const tier = useMemo(() => tierDisplay(points), [points]);
+
+  // Latest ended-season result (rank + USDC payout status), if any.
+  const { data: seasonData } = useSeasonsControllerMyResult();
+  const seasonResult = useMemo(
+    () => unwrapEnvelope<SeasonMeResult>(seasonData),
+    [seasonData]
+  );
 
   // Social accounts for the Social tab.
   const { data: socialData, refetch: refetchSocial } = useSocialAccountsControllerFindAll();
@@ -155,6 +168,25 @@ const Profile: React.FC = () => {
               <div className="text-2xl font-bold">{fmt(completedQuests)}</div>
             </div>
           </div>
+
+          {seasonResult && (
+            <div className="lvl-card space-y-3 rounded-2xl border border-line p-6">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-accent text-sm">
+                  {seasonResult.season.name} Result
+                </span>
+                <span className="font-bold text-sm">Rank #{seasonResult.finalRank}</span>
+              </div>
+              {Number(seasonResult.usdcReward) > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted">USDC Payout — {seasonResult.usdcReward} USDC</span>
+                  <PayoutStatusBadge
+                    status={seasonResult.payoutStatus}
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </section>
       )}
 
