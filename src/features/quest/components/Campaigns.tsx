@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { useCampaignsControllerFindAll } from "@/gen-quest/hooks/campaigns-hooks";
+import { useCampaignsControllerFindAll } from "@/gen-quest";
 import { mapApiCampaignsResponse } from "@/features/quest/lib/campaign-mapper";
 import { withAuth } from "@/features/quest/lib/kubb-config";
 import { CampaignCard } from "./CampaignCard";

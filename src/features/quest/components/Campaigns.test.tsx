@@ -21,7 +21,7 @@ const items = [
 ];
 
 const mockUseFindAll = jest.fn();
-jest.mock("@/gen-quest/hooks/campaigns-hooks", () => ({
+jest.mock("@/gen-quest", () => ({
   useCampaignsControllerFindAll: (...a: unknown[]) => mockUseFindAll(...a),
 }));
 jest.mock("next/navigation", () => ({ useRouter: () => ({ push: jest.fn() }) }));

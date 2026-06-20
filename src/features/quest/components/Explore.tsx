@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/features/quest/components/ui/button';
-import { useCampaignsControllerFindAll } from '@/gen-quest/hooks/campaigns-hooks';
+import { useCampaignsControllerFindAll } from '@/gen-quest';
 import { mapApiCampaignsResponse } from '@/features/quest/lib/campaign-mapper';
 import { withAuth } from '@/features/quest/lib/kubb-config';
 import { CampaignCard } from './CampaignCard';
