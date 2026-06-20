@@ -379,39 +379,19 @@ export function GasSponsorModal({
                 us.
               </motion.p>
 
-              {/* Protocols (carded) */}
+              {/* Protocols */}
               <motion.div
-                style={{
-                  marginTop: "auto",
-                  padding: "18px 20px",
-                  borderRadius: 16,
-                  background:
-                    "radial-gradient(220px 140px at 50% -20%, rgba(103,232,249,0.07), transparent 70%), linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01))",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
-                }}
+                style={{ marginTop: "auto", paddingTop: 8 }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.66, ease: [0.16, 1, 0.3, 1] }}
               >
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                    color: "rgba(244,247,251,0.34)",
-                    marginBottom: 9,
-                  }}
-                >
-                  Sponsored on Tasmil Vault
-                </div>
                 <p
                   style={{
                     fontSize: 13.5,
                     color: "rgba(244,247,251,0.58)",
                     lineHeight: 1.5,
-                    marginBottom: 15,
+                    marginBottom: 12,
                     maxWidth: 340,
                   }}
                 >
