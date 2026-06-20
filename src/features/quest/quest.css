@@ -400,6 +400,9 @@
 .quest-scope .bn-cta{width:100%;justify-content:center;margin-top:6px;}
 
 @media (max-width:920px){
+  .quest-scope .banner-grid{grid-template-columns:1fr;}
+  .quest-scope .bn-seg+.bn-seg{border-left:none;border-top:1px solid var(--line);}
+}
 
 .quest-scope .podium-wrap{position:relative;}
 
