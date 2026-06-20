@@ -302,8 +302,12 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
   // Show suggestions when: new chat OR agent finished responding
   // Use isAiResponseComplete as a faster indicator that AI is done
   const showSuggestions = isNewChat || (!effectiveIsLoading && messages.length > 0);
+  // Welcome reward disabled locally — kept the condition for traceability.
   const showWelcomeRewardDialog =
-    isNewChat && Boolean(welcomeRewardStatus?.reserved) && !welcomeRewardStatus?.welcomeCardSeen;
+    false &&
+    isNewChat &&
+    Boolean(welcomeRewardStatus?.reserved) &&
+    !welcomeRewardStatus?.welcomeCardSeen;
   const [productError, setProductError] = useState<ChatProductError | null>(null);
 
   // Error handling
