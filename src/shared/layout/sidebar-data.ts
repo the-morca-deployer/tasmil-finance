@@ -6,6 +6,7 @@ import {
   ListChecks,
   Mail,
   Settings,
+  Share2,
   Shield,
   Tractor,
   Trophy,
@@ -163,6 +164,7 @@ export const adminSidebarData: SidebarData = {
       items: [
         { title: "Quest Campaigns", url: "/admin/quest-campaigns", icon: Trophy },
         { title: "Quest Wallets", url: "/admin/quests", icon: Wallet },
+        { title: "Referral Rates", url: "/admin/referral-config", icon: Share2 },
       ],
     },
     {
