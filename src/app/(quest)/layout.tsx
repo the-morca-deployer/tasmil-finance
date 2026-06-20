@@ -2,7 +2,7 @@
 
 import { Geist_Mono, Hanken_Grotesk } from "next/font/google";
 import "@/features/quest/quest.css";
-import { AutoReconnect, QuestFooter, QuestNavbar } from "@/features/quest";
+import { AutoReconnect, QuestFooter, QuestNav, RankRevealGate } from "@/features/quest";
 import { WalletProvider } from "@/features/quest/context/wallet-context";
 
 const questSans = Hanken_Grotesk({
@@ -23,7 +23,8 @@ export default function QuestLayout({ children }: { children: React.ReactNode })
       <div
         className={`${questSans.variable} ${questMono.variable} quest-scope flex min-h-screen flex-col`}
       >
-        <QuestNavbar />
+        <QuestNav />
+        <RankRevealGate />
         <main className="mx-auto w-full max-w-[1200px] flex-grow px-4 pt-20 pb-20 sm:px-6 lg:px-8">
           {children}
         </main>
