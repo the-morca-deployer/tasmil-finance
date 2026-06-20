@@ -22,6 +22,7 @@ export { TelegramButton } from "./components/TelegramButton";
 
 // Core screen components (Phase 2)
 export { AvatarStack, CampaignCard } from "./components/CampaignCard";
+export { QuestNav } from "./components/QuestNav";
 
 // Foundation helpers + primitives (Phase 1)
 export { qAvatar, qHash } from "./lib/avatar";
