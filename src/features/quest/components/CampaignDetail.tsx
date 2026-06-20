@@ -33,7 +33,7 @@ import {
   usersControllerGetMeQueryKey,
 } from '@/gen-quest/hooks';
 import { $, withAuth } from '@/features/quest/lib/kubb-config';
-import { mapApiCampaignToCampaign, mapApiCampaignsResponse } from '@/features/quest/lib/campaign-mapper';
+import { mapApiCampaignToCampaign, mapApiCampaignsResponse, mapTaskState } from '@/features/quest/lib/campaign-mapper';
 import { TelegramButton } from './TelegramButton';
 
 // Social SVGs (Keeping inline for specific colors)
@@ -375,9 +375,16 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
               const requiredPlatform = getRequiredPlatform(step.type);
               const needsSocialAccount = requiredPlatform && !hasRequiredSocialAccount(step.type);
               const isClaimed = claimStatusData?.data?.claimed || false;
-              const rawStatus = (taskStatusData?.data as { status?: string })?.status?.toUpperCase();
-              const isVerified = status === 'completed' || rawStatus === 'COMPLETED' || rawStatus === 'APPROVED';
-              
+              const rawStatus = (taskStatusData?.data as { status?: string })?.status;
+              // Derive the canonical UI state from the shared state-machine mapping.
+              // Local `status === 'completed'` (set after a successful verify) is folded
+              // in so the button reacts immediately without waiting for a refetch.
+              const uiState = mapTaskState({
+                status: status === 'completed' ? 'COMPLETED' : rawStatus,
+                claimed: isClaimed,
+                verifyFailed: status === 'error',
+              });
+
               if (needsSocialAccount) {
                 // Show Connect button if social account is required but not linked
                 // Use TelegramButton for Telegram, regular button for others
@@ -410,7 +417,7 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
               }
               
               // If task is verified but not claimed, show Claim button with points
-              if (isVerified && !isClaimed) {
+              if (uiState === 'claimable') {
                 const pointsEarned = taskStatusData?.data?.pointsEarned || 0;
                 return (
                   <Button
@@ -436,7 +443,7 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
               }
               
               // If task is claimed, show Claimed button (disabled) with points
-              if (isClaimed) {
+              if (uiState === 'claimed') {
                 const pointsEarned = taskStatusData?.data?.pointsEarned || claimStatusData?.data?.claim?.pointsEarned || 0;
                 return (
                   <Button
