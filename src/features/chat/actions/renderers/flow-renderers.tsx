@@ -15,10 +15,41 @@ import type { SponsorTxMeta } from "@/features/sponsorship";
 import { useWalletStore } from "@/store/use-wallet";
 import { executeDispatchRender } from "./execute-dispatcher";
 
-// Hardcoded fallback while ai/ + mcp-stellar/ are not yet emitting metas[]
-// alongside xdrs[]. Once both repos return {xdr, meta} pairs the AI agent
-// should populate simulationReport.metas and this placeholder becomes dead.
+// Fallback used only when the AI step has no protocol/action at all.
 const DEFAULT_TX_META: SponsorTxMeta = { action: "DEPOSIT", protocol: "TASMIL_VAULT" };
+
+// AI agent emits lowercase protocols ("blend", "soroswap", …) matching the
+// MCP execute-tool param. Sponsor backend stores uppercase enum values, so
+// we normalize here. Unknown / "stellar" (trustline) falls back to vault.
+const PROTOCOL_MAP: Record<string, SponsorTxMeta["protocol"]> = {
+  blend: "BLEND",
+  soroswap: "SOROSWAP",
+  aquarius: "AQUARIUS",
+  phoenix: "PHOENIX",
+  defindex: "DEFINDEX",
+  stellar: "TASMIL_VAULT",
+};
+
+// AI emits many fine-grained actions (deposit / supply_collateral / swap /
+// stake / add_liquidity / withdraw / unstake / remove_liquidity /
+// add_trustline / …). Collapse onto the 4 sponsor enum buckets.
+function normalizeAction(raw: string | undefined): SponsorTxMeta["action"] {
+  if (!raw) return DEFAULT_TX_META.action;
+  const lower = raw.toLowerCase();
+  if (lower.includes("withdraw") || lower.includes("unstake") || lower.includes("remove")) {
+    return "WITHDRAW";
+  }
+  if (lower.includes("harvest") || lower.includes("claim")) return "HARVEST";
+  if (lower.includes("rebalance")) return "REBALANCE";
+  // deposit, supply_collateral, swap, stake, add_liquidity, add_trustline,
+  // and other onboarding-shaped ops all map to DEPOSIT.
+  return "DEPOSIT";
+}
+
+function normalizeProtocol(raw: string | undefined): SponsorTxMeta["protocol"] {
+  if (!raw) return DEFAULT_TX_META.protocol;
+  return PROTOCOL_MAP[raw.toLowerCase()] ?? DEFAULT_TX_META.protocol;
+}
 
 function deriveMetasFromSteps(
   steps: Record<string, unknown>[] | undefined,
@@ -26,8 +57,8 @@ function deriveMetasFromSteps(
 ): SponsorTxMeta[] {
   return Array.from({ length: count }, (_, i) => {
     const s = steps?.[i] ?? {};
-    const action = (s.action as SponsorTxMeta["action"]) ?? DEFAULT_TX_META.action;
-    const protocol = (s.protocol as SponsorTxMeta["protocol"]) ?? DEFAULT_TX_META.protocol;
+    const action = normalizeAction(s.action as string | undefined);
+    const protocol = normalizeProtocol(s.protocol as string | undefined);
     const asset = (s.asset as string | undefined) ?? (s.assetCode as string | undefined);
     const poolLabel = (s.poolLabel as string | undefined) ?? (s.description as string | undefined);
     return { action, protocol, asset, poolLabel };
