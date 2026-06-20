@@ -8,6 +8,7 @@ import {
 } from "@/features/welcome-reward/hooks/use-welcome-reward";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { activeNetwork, getExplorerUrl } from "@/shared/config/stellar";
+import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useAuthStore } from "@/store/use-auth";
 import type { CardMode } from "../schemas/common.schema";
@@ -127,6 +128,7 @@ interface TxSigningResult {
 export function useTxSigning(options: TxSigningOptions): TxSigningResult {
   const { mode, stream, toolCallId, operation, respond, volumeContext } = options;
   const { signTransaction, address: walletAddress } = useWallet();
+  const queryClient = useQueryClient();
   const { reportTransaction } = useWelcomeReward();
 
   // Initialise from session cache or LangGraph persisted state
@@ -230,7 +232,11 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
 
         toast.info("Submitting to network...");
 
-        const { txHash, sponsored } = await submitViaBackend(signedTxXdr, walletAddress ?? "");
+        const { txHash, sponsored } = await submitViaBackend(signedTxXdr, walletAddress ?? "", volumeContext);
+        // After every submit (sponsored OR fallback), invalidate the sponsorship
+        // /me query so the top-nav indicator, detail-page Activity, dots,
+        // and "remaining" counter reflect the new usage/quota state.
+        queryClient.invalidateQueries({ queryKey: ["sponsorship", "me"] });
         const response = { hash: txHash };
 
         if (sponsored) {
@@ -360,9 +366,41 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
   const submitViaBackend = async (
     signedXdr: string,
     publicKey: string,
+    volCtx?: TrackVolumeContext,
   ): Promise<{ txHash: string; sponsored: boolean }> => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    // Map volume-tracking context → sponsor meta. Backend defaults to
+    // {DEPOSIT, TASMIL_VAULT}; we forward the real protocol/action so the
+    // detail-page Activity row labels the TX correctly (e.g. "DEPOSIT on
+    // BLEND" instead of "DEPOSIT on Tasmil Vault").
+    const protoUpper = volCtx?.protocol?.toUpperCase();
+    const PROTO_MAP: Record<string, string> = {
+      BLEND: "BLEND",
+      SOROSWAP: "SOROSWAP",
+      AQUARIUS: "AQUARIUS",
+      PHOENIX: "PHOENIX",
+      DEFINDEX: "DEFINDEX",
+    };
+    const sponsorProtocol = protoUpper && PROTO_MAP[protoUpper] ? PROTO_MAP[protoUpper] : undefined;
+    const actLower = (volCtx?.action ?? "").toLowerCase();
+    let sponsorAction: string | undefined;
+    if (actLower.includes("withdraw") || actLower.includes("unstake") || actLower.includes("remove")) {
+      sponsorAction = "WITHDRAW";
+    } else if (actLower.includes("harvest") || actLower.includes("claim")) {
+      sponsorAction = "HARVEST";
+    } else if (actLower) {
+      sponsorAction = "DEPOSIT";
+    }
+    const meta =
+      sponsorProtocol || sponsorAction || volCtx?.asset
+        ? {
+            ...(sponsorAction && { action: sponsorAction }),
+            ...(sponsorProtocol && { protocol: sponsorProtocol }),
+            ...(volCtx?.asset && { asset: volCtx.asset }),
+          }
+        : undefined;
 
     try {
       const token = useAuthStore.getState().accessToken;
@@ -372,7 +410,7 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ signedXdr, publicKey }),
+        body: JSON.stringify({ signedXdr, publicKey, ...(meta && { meta }) }),
         signal: controller.signal,
       });
 
