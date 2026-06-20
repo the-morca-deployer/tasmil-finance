@@ -501,7 +501,8 @@ export function GasSponsorshipDetailClient() {
                   loading={state === "loading"}
                 />
                 <UItem
-                  label="Remaining"
+                  label="Headroom"
+                  hint={`${maxTx - used} TX × ${cfg.maxXlmPerTx} XLM cap. Actual fee much less (≈0.003 XLM/TX, network refunds the rest).`}
                   value={remXlm}
                   unit="XLM"
                   withBorder
@@ -1037,6 +1038,7 @@ function UItem({
   cyan,
   withBorder,
   loading,
+  hint,
 }: {
   label: string;
   value: string;
@@ -1044,6 +1046,7 @@ function UItem({
   cyan?: boolean;
   withBorder?: boolean;
   loading?: boolean;
+  hint?: string;
 }) {
   return (
     <div
@@ -1055,7 +1058,9 @@ function UItem({
       }}
     >
       <div
+        className="inline-flex items-center"
         style={{
+          gap: 6,
           fontSize: 11.5,
           fontWeight: 600,
           letterSpacing: "0.1em",
@@ -1064,6 +1069,25 @@ function UItem({
         }}
       >
         {label}
+        {hint && (
+          <span
+            aria-label={hint}
+            title={hint}
+            style={{
+              display: "inline-grid",
+              placeItems: "center",
+              width: 13,
+              height: 13,
+              borderRadius: "50%",
+              border: `1px solid ${T.line2}`,
+              color: T.dim,
+              fontSize: 9,
+              cursor: "help",
+            }}
+          >
+            ?
+          </span>
+        )}
       </div>
       <div
         style={{
