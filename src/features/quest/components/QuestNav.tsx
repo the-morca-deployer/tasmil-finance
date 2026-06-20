@@ -10,7 +10,7 @@ import {
   useUsersControllerGetMe,
   usersControllerGetMeQueryKey,
 } from "@/gen-quest";
-import { withAuth } from "../lib/kubb-config";
+import { $, withAuth } from "../lib/kubb-config";
 import { qAvatar } from "../lib/avatar";
 import { useQuestAuthStore } from "../store/use-quest-auth";
 import { Flame, PtsCoin } from "./icons";
@@ -35,7 +35,7 @@ const shorten = (addr: string) =>
 
 export function QuestNav() {
   const path = usePathname() ?? "";
-  const { data } = useUsersControllerGetMe();
+  const { data } = useUsersControllerGetMe($);
   const { user, isAuthenticated } = useQuestAuthStore();
   const queryClient = useQueryClient();
 

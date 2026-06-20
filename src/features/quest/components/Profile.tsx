@@ -7,6 +7,7 @@ import {
   useSocialAccountsControllerFindAll,
   useUsersControllerGetMe,
 } from "@/gen-quest";
+import { $ } from "@/features/quest/lib/kubb-config";
 import { tierDisplay } from "@/features/quest/lib/tier";
 import { qAvatar } from "@/features/quest/lib/avatar";
 import { Flame, PtsCoin } from "@/features/quest/components/icons";
@@ -34,7 +35,7 @@ const Profile: React.FC = () => {
   const { isAuthenticated, address, connect } = useWallet();
   const [tab, setTab] = useState<ProfileTab>("overview");
 
-  const { data } = useUsersControllerGetMe();
+  const { data } = useUsersControllerGetMe($);
   const me = ((data as { data?: MeFields } | undefined)?.data ?? {}) as MeFields;
   const points = me.totalPoints ?? 0;
   const streak = me.loginStreak ?? 0;
@@ -44,14 +45,14 @@ const Profile: React.FC = () => {
   const tier = useMemo(() => tierDisplay(points), [points]);
 
   // Latest ended-season result (rank + USDC payout status), if any.
-  const { data: seasonData } = useSeasonsControllerMyResult();
+  const { data: seasonData } = useSeasonsControllerMyResult($);
   const seasonResult = useMemo(
     () => unwrapEnvelope<SeasonMeResult>(seasonData),
     [seasonData]
   );
 
   // Social accounts for the Social tab.
-  const { data: socialData, refetch: refetchSocial } = useSocialAccountsControllerFindAll();
+  const { data: socialData, refetch: refetchSocial } = useSocialAccountsControllerFindAll($);
   const socialAccounts = useMemo(() => {
     const raw = (socialData as { data?: unknown } | undefined)?.data ?? socialData ?? [];
     return Array.isArray(raw) ? raw : [];

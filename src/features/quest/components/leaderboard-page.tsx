@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useSeasonsControllerCurrent, useSeasonsControllerLeaderboard } from "@/gen-quest";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { qAvatar } from "../lib/avatar";
+import { $ } from "../lib/kubb-config";
 import {
   type CurrentSeason,
   type SeasonLeaderboardEntry,
@@ -71,8 +72,8 @@ function SeasonStandings({ entries }: { entries: SeasonLeaderboardEntry[] }) {
 }
 
 export function LeaderboardPage() {
-  const { data: currentRaw, isLoading: seasonLoading } = useSeasonsControllerCurrent();
-  const { data: boardRaw, isLoading: boardLoading } = useSeasonsControllerLeaderboard();
+  const { data: currentRaw, isLoading: seasonLoading } = useSeasonsControllerCurrent($);
+  const { data: boardRaw, isLoading: boardLoading } = useSeasonsControllerLeaderboard($);
 
   const season = useMemo(() => unwrapEnvelope<CurrentSeason>(currentRaw), [currentRaw]);
   const entries = useMemo(

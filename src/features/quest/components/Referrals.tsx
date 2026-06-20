@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useReferralControllerGetTree } from "@/gen-quest";
 import { qAvatar } from "../lib/avatar";
+import { $ } from "../lib/kubb-config";
 import { type ReferralTree, type ReferralTreeNode, unwrapEnvelope } from "../lib/season-types";
 import { Icon, PtsCoin } from "./icons";
 
@@ -109,7 +110,7 @@ const HOW = [
 
 export function Referrals() {
   const [view, setView] = useState<"list" | "tree">("list");
-  const { data: raw, isLoading } = useReferralControllerGetTree();
+  const { data: raw, isLoading } = useReferralControllerGetTree($);
   const referral = useMemo(() => unwrapEnvelope<ReferralTree>(raw), [raw]);
 
   const rates = referral?.rates ?? [];
