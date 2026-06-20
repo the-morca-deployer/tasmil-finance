@@ -10,6 +10,21 @@ const CAMPAIGN_ID = "c1";
 
 const json = (data: unknown) => ({ json: { success: true, data, error: null } });
 
+// DEFERRED: reaching the joined campaign-detail task view end-to-end requires quest
+// auth + wallet E2E fixtures (the wallet-context performs a real sign/verify roundtrip
+// against the live quest backend on :5555; seeding `quest-auth-storage` alone is not
+// enough, and the legacy quest Navbar/route shell is still wired). The claim
+// state-machine transition is already covered deterministically by the Jest component
+// test `src/features/quest/components/CampaignDetail.test.tsx`. This spec is kept as the
+// executable happy-path blueprint; un-skip once quest E2E auth fixtures exist.
+test.fixme(true, "Needs quest E2E auth/wallet fixtures + running quest backend");
+
+// Restrict to chromium to avoid fanning out across all browser projects.
+test.skip(
+  ({ browserName }) => browserName !== "chromium",
+  "Quest claim happy-path runs on chromium only",
+);
+
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem(
