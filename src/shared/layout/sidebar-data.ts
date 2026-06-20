@@ -5,6 +5,7 @@ import {
   KeyRound,
   ListChecks,
   Mail,
+  Settings,
   Shield,
   Tractor,
   Trophy,
@@ -167,6 +168,10 @@ export const adminSidebarData: SidebarData = {
     {
       title: "Gas Sponsor",
       items: [{ title: "Sponsor", url: "/admin/sponsor", icon: Shield }],
+    },
+    {
+      title: "System",
+      items: [{ title: "Settings", url: "/admin/settings", icon: Settings }],
     },
   ],
 };
