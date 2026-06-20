@@ -17,4 +17,3 @@ export * as Referrals from "./referrals";
 export * as Strategies from "./strategies";
 export * as Topup from "./topup";
 export * as WelcomeReward from "./welcome-reward";
-export * as Whitelist from "./whitelist";
