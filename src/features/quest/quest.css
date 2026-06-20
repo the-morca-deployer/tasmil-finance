@@ -699,3 +699,138 @@
 @media (prefers-reduced-motion:reduce){
   .quest-scope .rank-reveal .card,.quest-scope .rank-reveal .reveal-out,.quest-scope .rank-reveal .ci,.quest-scope .rank-reveal .btn{transition:none;}
 }
+
+/* ── Top nav (QuestNav) ──────────────────────────────────────────────
+   QuestNav.tsx references these classes but the styles were never ported,
+   so the bar rendered as unstyled, cramped text. Scoped under .quest-scope. */
+.quest-scope .nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: 64px;
+  padding: 0 24px;
+  background: rgba(10, 10, 12, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.quest-scope .nav-brand {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.quest-scope .nav-brand .fin {
+  color: var(--accent);
+}
+.quest-scope .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.quest-scope .nav-item {
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+.quest-scope .nav-item:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+.quest-scope .nav-item.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.quest-scope .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.quest-scope .stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+}
+.quest-scope .stat-pill.pts {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+}
+.quest-scope .stat-pill.streak {
+  color: var(--amber);
+  background: var(--amber-soft);
+  border-color: var(--amber-line);
+  cursor: pointer;
+  transition: filter 0.18s ease, opacity 0.18s ease;
+}
+.quest-scope .stat-pill.streak:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+.quest-scope .stat-pill.streak:disabled {
+  cursor: default;
+}
+.quest-scope .stat-pill.streak.checked-in {
+  opacity: 0.6;
+}
+.quest-scope .wallet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 6px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+}
+.quest-scope .wallet-chip .av {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex: none;
+}
+.quest-scope .wallet-chip .addr {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-quest-mono, monospace);
+  color: var(--text);
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  .quest-scope .nav {
+    gap: 10px;
+    padding: 0 12px;
+    height: 58px;
+  }
+  .quest-scope .nav-item {
+    padding: 6px 9px;
+    font-size: 13px;
+  }
+  .quest-scope .nav-right {
+    gap: 6px;
+  }
+  .quest-scope .wallet-chip .addr {
+    display: none;
+  }
+}
