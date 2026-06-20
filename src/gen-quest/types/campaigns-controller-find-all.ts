@@ -28,6 +28,11 @@ export type CampaignsControllerFindAllQueryParams = {
      * @type boolean | undefined
     */
     active?: boolean;
+    /**
+     * @description Filter featured campaigns
+     * @type boolean | undefined
+    */
+    isFeatured?: boolean;
 };
 
 export type CampaignsControllerFindAll200 = any;

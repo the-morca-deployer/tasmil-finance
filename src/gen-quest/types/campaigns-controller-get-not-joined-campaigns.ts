@@ -28,6 +28,11 @@ export type CampaignsControllerGetNotJoinedCampaignsQueryParams = {
      * @type boolean | undefined
     */
     active?: boolean;
+    /**
+     * @description Filter featured campaigns
+     * @type boolean | undefined
+    */
+    isFeatured?: boolean;
 };
 
 export type CampaignsControllerGetNotJoinedCampaigns200 = any;

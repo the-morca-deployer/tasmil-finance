@@ -4,11 +4,23 @@
 */
 
 
+export type NotificationsControllerListQueryParams = {
+    /**
+     * @type number | undefined
+    */
+    page?: number;
+    /**
+     * @type number | undefined
+    */
+    limit?: number;
+};
+
 export type NotificationsControllerList200 = any;
 
 export type NotificationsControllerListQueryResponse = NotificationsControllerList200;
 
 export type NotificationsControllerListQuery = {
     Response: NotificationsControllerList200;
+    QueryParams: NotificationsControllerListQueryParams;
     Errors: any;
 };

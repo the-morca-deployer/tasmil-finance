@@ -4,7 +4,7 @@
 */
 
 import fetch from "@kubb/plugin-client/clients/axios";
-import type { NotificationsControllerListQueryResponse } from "@/gen-quest/types/notifications-controller-list";
+import type { NotificationsControllerListQueryResponse, NotificationsControllerListQueryParams } from "@/gen-quest/types/notifications-controller-list";
 import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 
 function getNotificationsControllerListUrl() {
@@ -15,11 +15,11 @@ function getNotificationsControllerListUrl() {
 /**
  * {@link /api/notifications}
  */
-export async function notificationsControllerList(config: Partial<RequestConfig> & { client?: Client } = {}) {
+export async function notificationsControllerList(params?: NotificationsControllerListQueryParams, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
 
 
-  const res = await request<NotificationsControllerListQueryResponse, ResponseErrorConfig<Error>, unknown>({ method : "GET", url : getNotificationsControllerListUrl().url.toString(), ... requestConfig })
+  const res = await request<NotificationsControllerListQueryResponse, ResponseErrorConfig<Error>, unknown>({ method : "GET", url : getNotificationsControllerListUrl().url.toString(), params, ... requestConfig })
   return res.data
 }
