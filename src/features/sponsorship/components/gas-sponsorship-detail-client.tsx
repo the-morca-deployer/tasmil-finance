@@ -228,7 +228,7 @@ export function GasSponsorshipDetailClient() {
       />
       <Starfield />
 
-      {/* ───── sticky header ───── */}
+      {/* ───── sticky breadcrumb sub-header (logo + nav comes from MultiSidebarLayout) ───── */}
       <header
         className="sticky top-0"
         style={{
@@ -237,6 +237,7 @@ export function GasSponsorshipDetailClient() {
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
           borderBottom: `1px solid ${T.line}`,
+          display: "none",
         }}
       >
         <div
@@ -329,10 +330,7 @@ export function GasSponsorshipDetailClient() {
       >
         {/* HERO */}
         <section style={{ padding: "56px 0 30px" }}>
-          <div
-            className="grid items-center"
-            style={{ gridTemplateColumns: "1fr auto", gap: 60 }}
-          >
+          <div className="grid items-center" style={{ gridTemplateColumns: "1fr auto", gap: 60 }}>
             <div style={{ minWidth: 0 }}>
               <SecEyebrow style={{ marginBottom: 18 }}>Gas Sponsorship</SecEyebrow>
               <h1
@@ -368,10 +366,7 @@ export function GasSponsorshipDetailClient() {
               >
                 {subText}
               </p>
-              <div
-                className="flex flex-wrap items-center"
-                style={{ marginTop: 28, gap: 13 }}
-              >
+              <div className="flex flex-wrap items-center" style={{ marginTop: 28, gap: 13 }}>
                 {state === "guest" && (
                   <a
                     href="#"
@@ -478,8 +473,8 @@ export function GasSponsorshipDetailClient() {
                 }}
               >
                 Free gas on <b style={{ color: T.text, fontWeight: 600 }}>Farming</b> and{" "}
-                <b style={{ color: T.text, fontWeight: 600 }}>AI Chat</b> across supported
-                Stellar protocols.
+                <b style={{ color: T.text, fontWeight: 600 }}>AI Chat</b> across supported Stellar
+                protocols.
               </p>
             </div>
             <ProtoStack />
@@ -610,10 +605,7 @@ export function GasSponsorshipDetailClient() {
                     >
                       {I.txDown}
                     </span>
-                    <div
-                      className="flex flex-col"
-                      style={{ minWidth: 0, flex: 1, gap: 3 }}
-                    >
+                    <div className="flex flex-col" style={{ minWidth: 0, flex: 1, gap: 3 }}>
                       <span
                         style={{
                           fontSize: 14.5,
@@ -634,10 +626,7 @@ export function GasSponsorshipDetailClient() {
                         <span>{new Date(tx.createdAt).toLocaleDateString()}</span>
                       </span>
                     </div>
-                    <div
-                      className="flex items-center"
-                      style={{ flex: "none", gap: 12 }}
-                    >
+                    <div className="flex items-center" style={{ flex: "none", gap: 12 }}>
                       <span
                         style={{
                           fontFamily: T.mono,
@@ -756,9 +745,7 @@ export function GasSponsorshipDetailClient() {
                           borderRadius: "50%",
                           marginTop: 1,
                           background: t.kind === "ok" ? T.accentSoft : T.goldSoft,
-                          border: `1px solid ${
-                            t.kind === "ok" ? T.accentLine : T.goldLine
-                          }`,
+                          border: `1px solid ${t.kind === "ok" ? T.accentLine : T.goldLine}`,
                           color: t.kind === "ok" ? T.accent : T.gold,
                         }}
                       >
@@ -775,7 +762,7 @@ export function GasSponsorshipDetailClient() {
                         {t.b}
                       </div>
                     </div>
-                  ),
+                  )
                 )}
             </div>
           </div>
@@ -817,13 +804,9 @@ export function GasSponsorshipDetailClient() {
                 margin: 0,
               }}
             >
-              Nothing to activate. Keep using Tasmil and your eligible transactions stay
-              covered.
+              Nothing to activate. Keep using Tasmil and your eligible transactions stay covered.
             </p>
-            <div
-              className="flex flex-col items-center"
-              style={{ marginTop: 8, gap: 14 }}
-            >
+            <div className="flex flex-col items-center" style={{ marginTop: 8, gap: 14 }}>
               <Link
                 href="/chat"
                 className="inline-flex items-center justify-center"
@@ -907,9 +890,7 @@ function SecEyebrow({
         ...style,
       }}
     >
-      <span
-        style={{ width: 24, height: 1, background: T.accent, opacity: 0.55 }}
-      />
+      <span style={{ width: 24, height: 1, background: T.accent, opacity: 0.55 }} />
       {children}
     </span>
   );
@@ -931,23 +912,11 @@ function SecTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Section({
-  children,
-  style,
-}: {
-  children: React.ReactNode;
-  style?: React.CSSProperties;
-}) {
+function Section({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return <section style={{ scrollMarginTop: 80, ...style }}>{children}</section>;
 }
 
-function Chip({
-  children,
-  muted,
-}: {
-  children: React.ReactNode;
-  muted?: boolean;
-}) {
+function Chip({ children, muted }: { children: React.ReactNode; muted?: boolean }) {
   return (
     <span
       className="inline-flex items-center"
@@ -1049,8 +1018,7 @@ function Medal() {
         style={{
           inset: -24,
           borderRadius: "50%",
-          background:
-            "radial-gradient(closest-side, rgba(103,232,249,0.50), transparent 72%)",
+          background: "radial-gradient(closest-side, rgba(103,232,249,0.50), transparent 72%)",
           opacity: 0.4,
           filter: "blur(6px)",
           zIndex: -1,
@@ -1074,10 +1042,8 @@ function Medal() {
             width: 90,
             height: 90,
             borderRadius: "50%",
-            background:
-              "radial-gradient(circle at 50% 32%, #0c1418, #070a0c 78%)",
-            boxShadow:
-              "inset 0 2px 10px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(103,232,249,0.22)",
+            background: "radial-gradient(circle at 50% 32%, #0c1418, #070a0c 78%)",
+            boxShadow: "inset 0 2px 10px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(103,232,249,0.22)",
           }}
         >
           <Image
@@ -1140,10 +1106,7 @@ function ProtoStack() {
 function FaqAccordion() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <div
-      className="flex flex-col"
-      style={{ marginTop: 20, borderTop: `1px solid ${T.line}` }}
-    >
+    <div className="flex flex-col" style={{ marginTop: 20, borderTop: `1px solid ${T.line}` }}>
       {FAQ.map((item, i) => {
         const isOpen = open === i;
         return (
