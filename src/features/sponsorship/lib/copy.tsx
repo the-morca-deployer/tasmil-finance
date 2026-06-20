@@ -22,7 +22,7 @@ export const TERMS = (
   cohortSize: number,
   maxTxPerUser: number,
   maxXlmPerTx: string,
-  totalCapXlm: string,
+  totalCapXlm: string
 ): Array<{ kind: "ok" | "warn"; b: ReactNode }> => [
   {
     kind: "ok",

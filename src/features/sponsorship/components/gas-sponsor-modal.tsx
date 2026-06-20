@@ -1,9 +1,9 @@
 "use client";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Medallion } from "./medallion";
-import { RankChip } from "./rank-chip";
 import { ProtocolStack } from "./protocol-stack";
+import { RankChip } from "./rank-chip";
 import { Starfield } from "./starfield";
 
 interface Props {
@@ -94,51 +94,36 @@ export function GasSponsorModal({
               <span className="text-[12px] tracking-[0.22em] uppercase font-bold text-sponsor-accent">
                 Gas Sponsorship
               </span>
-              <h2
-                id="gas-sponsor-title"
-                className="text-3xl font-bold text-white"
-              >
+              <h2 id="gas-sponsor-title" className="text-3xl font-bold text-white">
                 You&apos;re in the{" "}
                 <span
                   className="bg-clip-text text-transparent"
                   style={{
-                    backgroundImage:
-                      "linear-gradient(110deg,#ffffff,#67E8F9 52%,#0EA5E9)",
+                    backgroundImage: "linear-gradient(110deg,#ffffff,#67E8F9 52%,#0EA5E9)",
                   }}
                 >
                   Top {cohortSize}
                 </span>
               </h2>
               <p className="text-white/60">
-                You&apos;re one of the first {cohortSize} wallets on Tasmil.
-                Your gas fees are on us.
+                You&apos;re one of the first {cohortSize} wallets on Tasmil. Your gas fees are on
+                us.
               </p>
               <div className="w-full rounded-xl border border-white/10 p-3">
-                <div className="text-sm text-white/80 font-semibold">
-                  Sponsored on Tasmil Vault
-                </div>
-                <p className="text-xs text-white/50 mb-2">
-                  Free gas on Farming and AI Chat.
-                </p>
+                <div className="text-sm text-white/80 font-semibold">Sponsored on Tasmil Vault</div>
+                <p className="text-xs text-white/50 mb-2">Free gas on Farming and AI Chat.</p>
                 <ProtocolStack />
               </div>
             </div>
 
             <div className="flex flex-col gap-4">
-              <div className="text-sm font-semibold text-white/80">
-                What you get
-              </div>
+              <div className="text-sm font-semibold text-white/80">What you get</div>
               <ul className="space-y-2">
                 {terms.map((t) => (
-                  <li
-                    key={t.val}
-                    className="flex items-start gap-2 text-sm"
-                  >
+                  <li key={t.val} className="flex items-start gap-2 text-sm">
                     <span className="text-sponsor-accent">✓</span>
                     <span>
-                      <span className="font-semibold text-white">
-                        {t.val}
-                      </span>
+                      <span className="font-semibold text-white">{t.val}</span>
                       <span className="block text-white/55">{t.label}</span>
                     </span>
                   </li>
@@ -149,8 +134,7 @@ export function GasSponsorModal({
                 onClick={onPrimaryCta}
                 className="mt-auto rounded-xl py-3 px-4 font-semibold text-black"
                 style={{
-                  background:
-                    "linear-gradient(110deg,#fff,#67E8F9 52%,#0EA5E9)",
+                  background: "linear-gradient(110deg,#fff,#67E8F9 52%,#0EA5E9)",
                 }}
               >
                 Start Earning Yield →

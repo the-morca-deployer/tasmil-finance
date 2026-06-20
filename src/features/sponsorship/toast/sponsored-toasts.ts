@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { stroopsToXlm, txExplorerUrl, truncateHash } from "..";
+import { stroopsToXlm, truncateHash, txExplorerUrl } from "..";
 
 interface ShowTxToastsArgs {
   sponsored: boolean;
@@ -22,11 +22,7 @@ export function showTxToasts(args: ShowTxToastsArgs) {
     action: {
       label: "View on Stellar Expert",
       onClick: () =>
-        window.open(
-          txExplorerUrl(args.network, args.txHash),
-          "_blank",
-          "noopener,noreferrer",
-        ),
+        window.open(txExplorerUrl(args.network, args.txHash), "_blank", "noopener,noreferrer"),
     },
   });
 

@@ -13,7 +13,7 @@ export function composeTxLabel(
   action: SponsorshipAction,
   protocol: SponsorshipProtocol,
   asset: string | null,
-  poolLabel: string | null,
+  poolLabel: string | null
 ): string {
   const p = PROTOCOL_LABEL[protocol];
   if (poolLabel) {

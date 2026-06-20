@@ -31,7 +31,7 @@ export const sponsorshipApi = {
   visit(route: "dashboard" | "chat" | "farming") {
     return call<{ enrolled: boolean; rank: number | null; justEnrolled: boolean }>(
       "/api/sponsorship/visit",
-      { method: "POST", json: { route } },
+      { method: "POST", json: { route } }
     );
   },
 

@@ -1,19 +1,10 @@
 import { sponsorshipApi } from "./api";
-import {
-  showTxToasts,
-  showTxErrorToast,
-} from "./toast/sponsored-toasts";
+import { showTxErrorToast, showTxToasts } from "./toast/sponsored-toasts";
 import type { SponsorshipMe } from "./types";
 
 export interface SponsorTxMeta {
   action: "DEPOSIT" | "WITHDRAW" | "REBALANCE" | "HARVEST";
-  protocol:
-    | "TASMIL_VAULT"
-    | "BLEND"
-    | "SOROSWAP"
-    | "AQUARIUS"
-    | "PHOENIX"
-    | "DEFINDEX";
+  protocol: "TASMIL_VAULT" | "BLEND" | "SOROSWAP" | "AQUARIUS" | "PHOENIX" | "DEFINDEX";
   asset?: string;
   poolLabel?: string;
 }
@@ -41,7 +32,7 @@ export interface SponsorTxMeta {
 export async function submitWithSponsorFlow(
   signedInnerXdr: string,
   me: SponsorshipMe | undefined,
-  meta: SponsorTxMeta,
+  meta: SponsorTxMeta
 ): Promise<{ hash: string; sponsored: boolean }> {
   try {
     const result = await sponsorshipApi.submitWithSponsor({

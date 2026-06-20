@@ -1,12 +1,9 @@
 "use client";
-import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { sponsorshipApi } from "../api";
 
-export function useSponsorshipVisit(
-  route: "dashboard" | "chat" | "farming",
-  authReady: boolean,
-) {
+export function useSponsorshipVisit(route: "dashboard" | "chat" | "farming", authReady: boolean) {
   const qc = useQueryClient();
 
   useEffect(() => {

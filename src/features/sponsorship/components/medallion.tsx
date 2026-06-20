@@ -1,18 +1,14 @@
 "use client";
-import Image from "next/image";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export function Medallion({ size = 124 }: { size?: number }) {
   return (
-    <div
-      className="relative grid place-items-center"
-      style={{ width: size, height: size }}
-    >
+    <div className="relative grid place-items-center" style={{ width: size, height: size }}>
       <span
         className="absolute -inset-6 rounded-full pointer-events-none opacity-40 blur-md"
         style={{
-          background:
-            "radial-gradient(closest-side, rgba(103,232,249,0.5), transparent 72%)",
+          background: "radial-gradient(closest-side, rgba(103,232,249,0.5), transparent 72%)",
         }}
         aria-hidden
       />
@@ -35,10 +31,8 @@ export function Medallion({ size = 124 }: { size?: number }) {
           style={{
             width: size * 0.77,
             height: size * 0.77,
-            background:
-              "radial-gradient(circle at 50% 32%,#0c1418,#070a0c 78%)",
-            boxShadow:
-              "inset 0 2px 10px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(103,232,249,0.22)",
+            background: "radial-gradient(circle at 50% 32%,#0c1418,#070a0c 78%)",
+            boxShadow: "inset 0 2px 10px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(103,232,249,0.22)",
           }}
         >
           <Image

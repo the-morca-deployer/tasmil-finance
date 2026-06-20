@@ -8,12 +8,7 @@ export type SponsorshipProtocol =
   | "PHOENIX"
   | "DEFINDEX";
 
-export type SponsorshipDetailState =
-  | "loading"
-  | "guest"
-  | "fresh"
-  | "active"
-  | "exhausted";
+export type SponsorshipDetailState = "loading" | "guest" | "fresh" | "active" | "exhausted";
 
 export interface RecentTx {
   txHash: string;

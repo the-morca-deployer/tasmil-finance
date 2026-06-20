@@ -1,12 +1,6 @@
 import type { SVGProps } from "react";
 
-export function RankChip({
-  rank,
-  cohortSize,
-}: {
-  rank: number;
-  cohortSize: number;
-}) {
+export function RankChip({ rank, cohortSize }: { rank: number; cohortSize: number }) {
   return (
     <span
       className="inline-flex items-center gap-2 rounded-full px-3 py-2 font-mono text-[13px] font-semibold tracking-wide bg-sponsor-accent-soft border border-sponsor-accent-line text-sponsor-accent"
@@ -14,9 +8,7 @@ export function RankChip({
     >
       <TrophyIcon className="w-3.5 h-3.5" />
       <span>
-        <span className="text-white font-bold">
-          {String(rank).padStart(2, "0")}
-        </span>
+        <span className="text-white font-bold">{String(rank).padStart(2, "0")}</span>
         <span className="text-white/30">/{cohortSize}</span>
       </span>
     </span>

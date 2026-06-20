@@ -3,10 +3,7 @@ const BASE: Record<"mainnet" | "testnet", string> = {
   testnet: "https://stellar.expert/explorer/testnet",
 };
 
-export function txExplorerUrl(
-  network: "mainnet" | "testnet",
-  hash: string,
-): string {
+export function txExplorerUrl(network: "mainnet" | "testnet", hash: string): string {
   return `${BASE[network]}/tx/${hash}`;
 }
 

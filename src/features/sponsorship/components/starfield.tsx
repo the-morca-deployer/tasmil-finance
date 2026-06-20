@@ -1,13 +1,7 @@
 "use client";
 import { useMemo } from "react";
 
-export function Starfield({
-  count = 64,
-  seed = 42,
-}: {
-  count?: number;
-  seed?: number;
-}) {
+export function Starfield({ count = 64, seed = 42 }: { count?: number; seed?: number }) {
   const stars = useMemo(() => {
     const rng = mulberry32(seed);
     return Array.from({ length: count }, (_, i) => {
@@ -24,10 +18,7 @@ export function Starfield({
   }, [count, seed]);
 
   return (
-    <div
-      className="absolute inset-0 overflow-hidden pointer-events-none"
-      aria-hidden
-    >
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
       {stars.map((s) => (
         <span
           key={s.id}
@@ -48,7 +39,7 @@ export function Starfield({
 
 function mulberry32(seed: number) {
   let a = seed;
-  return function () {
+  return () => {
     a |= 0;
     a = (a + 0x6d2b79f5) | 0;
     let t = Math.imul(a ^ (a >>> 15), 1 | a);

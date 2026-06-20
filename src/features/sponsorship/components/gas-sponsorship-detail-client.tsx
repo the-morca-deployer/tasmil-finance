@@ -1,20 +1,15 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { composeTxLabel, stroopsToXlm, truncateHash, txExplorerUrl } from "..";
 import { useSponsorshipMe } from "../hooks/use-sponsorship-me";
-import type { SponsorshipDetailState, SponsorshipMe } from "../types";
-import {
-  stroopsToXlm,
-  txExplorerUrl,
-  truncateHash,
-  composeTxLabel,
-} from "..";
-import { Medallion } from "./medallion";
-import { RankChip } from "./rank-chip";
-import { ProtocolStack } from "./protocol-stack";
-import { Starfield } from "./starfield";
 import { ActionIcon } from "../lib/action-icon";
-import { HOW_IT_WORKS, TERMS, FAQ } from "../lib/copy";
+import { FAQ, HOW_IT_WORKS, TERMS } from "../lib/copy";
+import type { SponsorshipDetailState, SponsorshipMe } from "../types";
+import { Medallion } from "./medallion";
+import { ProtocolStack } from "./protocol-stack";
+import { RankChip } from "./rank-chip";
+import { Starfield } from "./starfield";
 
 export function GasSponsorshipDetailClient() {
   const { data, isLoading } = useSponsorshipMe(true);
@@ -48,16 +43,13 @@ export function GasSponsorshipDetailClient() {
             <span
               className="bg-clip-text text-transparent"
               style={{
-                backgroundImage:
-                  "linear-gradient(110deg,#ffffff,#67E8F9 52%,#0EA5E9)",
+                backgroundImage: "linear-gradient(110deg,#ffffff,#67E8F9 52%,#0EA5E9)",
               }}
             >
               Top {cohortSize}
             </span>
           </h1>
-          <p className="text-white/60 max-w-xl">
-            {heroSub(state, cohortSize)}
-          </p>
+          <p className="text-white/60 max-w-xl">{heroSub(state, cohortSize)}</p>
         </div>
         <div className="relative">
           <Medallion size={140} />
@@ -72,22 +64,16 @@ export function GasSponsorshipDetailClient() {
       <section className="max-w-5xl mx-auto px-6">
         <div className="rounded-xl border border-white/10 p-4 mb-12 grid md:grid-cols-[1fr_auto] gap-4 items-center">
           <div>
-            <div className="text-sm text-white/80 font-semibold">
-              Sponsored on Tasmil Vault
-            </div>
+            <div className="text-sm text-white/80 font-semibold">Sponsored on Tasmil Vault</div>
             <p className="text-xs text-white/50">
-              Free gas on Farming and AI Chat across supported Stellar
-              protocols.
+              Free gas on Farming and AI Chat across supported Stellar protocols.
             </p>
           </div>
           <ProtocolStack />
         </div>
       </section>
 
-      {(state === "active" ||
-        state === "fresh" ||
-        state === "exhausted" ||
-        state === "loading") &&
+      {(state === "active" || state === "fresh" || state === "exhausted" || state === "loading") &&
         cfg && (
           <section className="max-w-5xl mx-auto px-6 mb-12">
             <div className="rounded-2xl border border-white/10 p-6">
@@ -98,116 +84,83 @@ export function GasSponsorshipDetailClient() {
                   suffix={`/ ${cfg.maxTxPerUser}`}
                   accent
                 />
-                <Stat
-                  label="Per-tx cap"
-                  value={cfg.maxXlmPerTx}
-                  suffix="XLM"
-                />
+                <Stat label="Per-tx cap" value={cfg.maxXlmPerTx} suffix="XLM" />
                 <Stat
                   label="Remaining"
-                  value={stroopsToXlm(
-                    data?.usage?.xlmRemainingStroops ?? "0",
-                  )}
+                  value={stroopsToXlm(data?.usage?.xlmRemainingStroops ?? "0")}
                   suffix="XLM"
                 />
               </div>
-              <Dots
-                maxTxPerUser={cfg.maxTxPerUser}
-                used={data?.usage?.txCount ?? 0}
-              />
-              {data?.usage?.lastSponsoredAt &&
-                data.usage.txCount > 0 &&
-                data.recentTxs[0] && (
-                  <p className="mt-3 text-xs text-white/50">
-                    Last sponsored TX:{" "}
-                    {new Date(
-                      data.usage.lastSponsoredAt,
-                    ).toLocaleDateString()}
-                    ,{" "}
-                    {stroopsToXlm(data.recentTxs[0].feeStroops)} XLM
-                  </p>
-                )}
+              <Dots maxTxPerUser={cfg.maxTxPerUser} used={data?.usage?.txCount ?? 0} />
+              {data?.usage?.lastSponsoredAt && data.usage.txCount > 0 && data.recentTxs[0] && (
+                <p className="mt-3 text-xs text-white/50">
+                  Last sponsored TX: {new Date(data.usage.lastSponsoredAt).toLocaleDateString()},{" "}
+                  {stroopsToXlm(data.recentTxs[0].feeStroops)} XLM
+                </p>
+              )}
             </div>
           </section>
         )}
 
-      {(state === "active" || state === "fresh" || state === "exhausted") &&
-        cfg && (
-          <section className="max-w-5xl mx-auto px-6 mb-12">
-            <div className="text-[12px] tracking-[0.22em] uppercase font-bold text-sponsor-accent mb-2">
-              Activity
+      {(state === "active" || state === "fresh" || state === "exhausted") && cfg && (
+        <section className="max-w-5xl mx-auto px-6 mb-12">
+          <div className="text-[12px] tracking-[0.22em] uppercase font-bold text-sponsor-accent mb-2">
+            Activity
+          </div>
+          <h2 className="text-2xl font-semibold mb-4">Recent sponsored transactions</h2>
+          {data && data.recentTxs.length === 0 ? (
+            <div className="rounded-xl border border-white/10 p-6 text-white/50 text-sm">
+              No sponsored transactions yet. Your first eligible TX will be covered automatically.
             </div>
-            <h2 className="text-2xl font-semibold mb-4">
-              Recent sponsored transactions
-            </h2>
-            {data && data.recentTxs.length === 0 ? (
-              <div className="rounded-xl border border-white/10 p-6 text-white/50 text-sm">
-                No sponsored transactions yet. Your first eligible TX will be
-                covered automatically.
-              </div>
-            ) : (
-              <ul className="space-y-2">
-                {data?.recentTxs.map((tx) => (
-                  <li
-                    key={tx.txHash}
-                    className="flex items-center gap-3 rounded-xl border border-white/10 p-3"
-                  >
-                    <span className="w-9 h-9 grid place-items-center rounded-full bg-white/5 text-sponsor-accent">
-                      <ActionIcon action={tx.action} className="w-4 h-4" />
+          ) : (
+            <ul className="space-y-2">
+              {data?.recentTxs.map((tx) => (
+                <li
+                  key={tx.txHash}
+                  className="flex items-center gap-3 rounded-xl border border-white/10 p-3"
+                >
+                  <span className="w-9 h-9 grid place-items-center rounded-full bg-white/5 text-sponsor-accent">
+                    <ActionIcon action={tx.action} className="w-4 h-4" />
+                  </span>
+                  <div className="flex-1">
+                    <div className="text-sm text-white">
+                      {composeTxLabel(tx.action, tx.protocol, tx.asset, tx.poolLabel)}
+                    </div>
+                    <div className="text-xs text-white/40 flex gap-2">
+                      <span>{truncateHash(tx.txHash)}</span>
+                      <span>{new Date(tx.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-mono text-white">
+                      {stroopsToXlm(tx.feeStroops)} XLM
                     </span>
-                    <div className="flex-1">
-                      <div className="text-sm text-white">
-                        {composeTxLabel(
-                          tx.action,
-                          tx.protocol,
-                          tx.asset,
-                          tx.poolLabel,
-                        )}
-                      </div>
-                      <div className="text-xs text-white/40 flex gap-2">
-                        <span>{truncateHash(tx.txHash)}</span>
-                        <span>
-                          {new Date(tx.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-mono text-white">
-                        {stroopsToXlm(tx.feeStroops)} XLM
-                      </span>
-                      <a
-                        href={txExplorerUrl(cfg.network, tx.txHash)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="View on Stellar Expert"
-                        className="text-white/40 hover:text-white"
-                      >
-                        ↗
-                      </a>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        )}
+                    <a
+                      href={txExplorerUrl(cfg.network, tx.txHash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="View on Stellar Expert"
+                      className="text-white/40 hover:text-white"
+                    >
+                      ↗
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       <section className="max-w-5xl mx-auto px-6 mb-12">
         <div className="text-[12px] tracking-[0.22em] uppercase font-bold text-sponsor-accent mb-2">
           How it works
         </div>
-        <h2 className="text-2xl font-semibold mb-6">
-          A passive perk, nothing to claim
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6">A passive perk, nothing to claim</h2>
         <div className="grid md:grid-cols-3 gap-4">
           {HOW_IT_WORKS(cohortSize).map((s) => (
-            <div
-              key={s.num}
-              className="rounded-xl border border-white/10 p-4"
-            >
-              <div className="font-mono text-sponsor-accent text-sm">
-                {s.num}
-              </div>
+            <div key={s.num} className="rounded-xl border border-white/10 p-4">
+              <div className="font-mono text-sponsor-accent text-sm">{s.num}</div>
               <div className="font-semibold mt-2">{s.h}</div>
               <p className="text-sm text-white/60 mt-1">{s.b}</p>
             </div>
@@ -223,20 +176,9 @@ export function GasSponsorshipDetailClient() {
         <div className="rounded-2xl border border-white/10 p-6">
           {cfg && (
             <ul className="space-y-3">
-              {TERMS(
-                cohortSize,
-                cfg.maxTxPerUser,
-                cfg.maxXlmPerTx,
-                cfg.totalCapXlm,
-              ).map((t, i) => (
+              {TERMS(cohortSize, cfg.maxTxPerUser, cfg.maxXlmPerTx, cfg.totalCapXlm).map((t, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm">
-                  <span
-                    className={
-                      t.kind === "ok"
-                        ? "text-sponsor-accent"
-                        : "text-amber-400"
-                    }
-                  >
+                  <span className={t.kind === "ok" ? "text-sponsor-accent" : "text-amber-400"}>
                     {t.kind === "ok" ? "✓" : "△"}
                   </span>
                   <span className="text-white/80">{t.b}</span>
@@ -258,10 +200,7 @@ export function GasSponsorshipDetailClient() {
   );
 }
 
-function deriveState(
-  data: SponsorshipMe | undefined,
-  isLoading: boolean,
-): SponsorshipDetailState {
+function deriveState(data: SponsorshipMe | undefined, isLoading: boolean): SponsorshipDetailState {
   if (isLoading) return "loading";
   if (!data) return "guest";
   if (!data.enrolled) return "guest";
@@ -293,29 +232,15 @@ function Stat({
   return (
     <div>
       <div className="text-xs text-white/50">{label}</div>
-      <div
-        className={`text-2xl font-bold ${
-          accent ? "text-sponsor-accent" : "text-white"
-        }`}
-      >
+      <div className={`text-2xl font-bold ${accent ? "text-sponsor-accent" : "text-white"}`}>
         {value}
-        {suffix && (
-          <span className="ml-1 text-sm text-white/40 font-normal">
-            {suffix}
-          </span>
-        )}
+        {suffix && <span className="ml-1 text-sm text-white/40 font-normal">{suffix}</span>}
       </div>
     </div>
   );
 }
 
-function Dots({
-  maxTxPerUser,
-  used,
-}: {
-  maxTxPerUser: number;
-  used: number;
-}) {
+function Dots({ maxTxPerUser, used }: { maxTxPerUser: number; used: number }) {
   return (
     <div className="flex items-center gap-2">
       {Array.from({ length: maxTxPerUser }).map((_, i) => (
@@ -348,9 +273,7 @@ function FaqAccordion() {
             <span className="text-sm font-medium">{item.q}</span>
             <span className="text-white/40">{open === i ? "−" : "+"}</span>
           </button>
-          {open === i && (
-            <div className="p-4 pt-0 text-sm text-white/60">{item.a}</div>
-          )}
+          {open === i && <div className="p-4 pt-0 text-sm text-white/60">{item.a}</div>}
         </div>
       ))}
     </div>
