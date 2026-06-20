@@ -404,7 +404,7 @@ export function GasSponsorModal({
                       href={p.href}
                       target={p.href.startsWith("http") ? "_blank" : undefined}
                       rel="noreferrer"
-                      className="relative block transition-transform hover:-translate-y-[7px] hover:z-30"
+                      className="proto-pill relative block transition-transform hover:-translate-y-[7px] hover:z-30"
                       style={{
                         width: 44,
                         height: 44,
@@ -429,9 +429,37 @@ export function GasSponsorModal({
                           padding: p.isTasmil ? 9 : 0,
                         }}
                       />
+                      <span
+                        className="proto-tip"
+                        style={{
+                          position: "absolute",
+                          bottom: "calc(100% + 11px)",
+                          left: "50%",
+                          transform: "translate(-50%, 6px)",
+                          padding: "7px 12px",
+                          borderRadius: 10,
+                          background: "#15151b",
+                          border: "1px solid rgba(255,255,255,0.14)",
+                          fontSize: 12.5,
+                          fontWeight: 600,
+                          color: "#F4F7FB",
+                          whiteSpace: "nowrap",
+                          letterSpacing: "-0.01em",
+                          opacity: 0,
+                          pointerEvents: "none",
+                          transition: "opacity .2s ease, transform .2s ease",
+                          boxShadow: "0 12px 30px -10px #000",
+                        }}
+                      >
+                        {p.name}
+                      </span>
                     </a>
                   ))}
                 </div>
+                {/* Inline CSS for tooltip hover (can't use Tailwind hover on a child span easily). */}
+                <style>{`
+                  .proto-pill:hover .proto-tip { opacity: 1; transform: translate(-50%, 0); }
+                `}</style>
               </motion.div>
             </div>
 
