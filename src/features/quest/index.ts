@@ -19,3 +19,8 @@ export {
   SocialConnectSection,
 } from "./components/social/SocialConnectButtons";
 export { TelegramButton } from "./components/TelegramButton";
+
+// Foundation helpers + primitives (Phase 1)
+export { qAvatar, qHash } from "./lib/avatar";
+export { Flame, Icon, type IconKey, PtsCoin, Usdc } from "./components/icons";
+export { default as TFLoader } from "./components/TFLoader";
