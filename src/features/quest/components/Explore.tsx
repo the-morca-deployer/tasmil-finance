@@ -2,15 +2,13 @@
 
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Trophy, Loader2 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/features/quest/components/ui/card-v2';
-import { Badge } from '@/features/quest/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/features/quest/components/ui/avatar';
-import { Separator } from '@/features/quest/components/ui/separator';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/features/quest/components/ui/button';
 import { useCampaignsControllerFindAll } from '@/gen-quest/hooks/campaigns-hooks';
 import { mapApiCampaignsResponse } from '@/features/quest/lib/campaign-mapper';
 import { withAuth } from '@/features/quest/lib/kubb-config';
+import { CampaignCard } from './CampaignCard';
+import TFLoader from './TFLoader';
 
 const Explore: React.FC = () => {
   const router = useRouter();
@@ -88,83 +86,13 @@ const Explore: React.FC = () => {
         </div>
 
         {isLoading ? (
-          <div className="py-20 text-center text-muted">
-            <Loader2 size={48} className="mx-auto mb-4 opacity-20 animate-spin" />
-            <p>Loading featured campaigns...</p>
+          <div className="py-20 flex justify-center" data-testid="quest-loader">
+            <TFLoader size={120} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="quest-scope grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredCampaigns.map((campaign) => (
-            <Card
-              key={campaign.id}
-              hoverEffect
-              onClick={() => router.push(`/quest/campaign/${campaign.id}`)}
-              className="flex flex-col h-full overflow-hidden border-border"
-            >
-              <div className="relative h-48 w-full border-b border-border">
-                <img
-                  src={campaign.banner}
-                  alt={campaign.title}
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                />
-                <div className="absolute top-4 left-4">
-                  {campaign.status === 'ongoing' && <Badge>Ongoing</Badge>}
-                  {campaign.status === 'closed' && <Badge variant="secondary">Closed</Badge>}
-                </div>
-              </div>
-
-              <CardHeader className="flex-grow pb-4">
-                <CardTitle className="text-lg line-clamp-1 mb-2">{campaign.title}</CardTitle>
-                <CardDescription className="line-clamp-2">{campaign.description}</CardDescription>
-              </CardHeader>
-
-              <div className="px-6">
-                <Separator />
-              </div>
-
-              <CardFooter className="pt-4 justify-between text-sm">
-                <div className="flex items-center gap-4">
-                  <div className="flex -space-x-2 items-center">
-                    {(() => {
-                      const campaignAvatars = campaign.avatars || [];
-                      const maxAvatars = 5;
-                      const avatarsToShow = campaignAvatars.slice(0, maxAvatars);
-                      const remainingCount = campaign.participants - avatarsToShow.length;
-                      
-                      return (
-                        <>
-                          {avatarsToShow.map((avatar, i) => (
-                            <Avatar key={i} className="w-6 h-6 border-2 border-card">
-                              <AvatarImage src={avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${campaign.id}-${i}`} />
-                              <AvatarFallback>U</AvatarFallback>
-                            </Avatar>
-                          ))}
-                          {avatarsToShow.length === 0 && campaign.participants > 0 && Array.from({ length: Math.min(campaign.participants, 3) }, (_, i) => i + 1).map((i) => (
-                            <Avatar key={i} className="w-6 h-6 border-2 border-card">
-                              <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${campaign.id}-${i}`} />
-                              <AvatarFallback>U</AvatarFallback>
-                            </Avatar>
-                          ))}
-                          {remainingCount > 0 && (
-                            <div className="w-6 h-6 rounded-full border-2 border-card bg-muted/10 flex items-center justify-center text-[8px] font-bold text-muted">
-                              {remainingCount >= 1000 
-                                ? `+${(remainingCount / 1000).toFixed(0)}k`
-                                : `+${remainingCount}`
-                              }
-                            </div>
-                          )}
-                        </>
-                      );
-                    })()}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5 text-success font-medium">
-                  <Trophy size={14} />
-                  <span>{campaign.points} PTS</span>
-                </div>
-              </CardFooter>
-            </Card>
+              <CampaignCard key={campaign.id} campaign={campaign} />
             ))}
           </div>
         )}
