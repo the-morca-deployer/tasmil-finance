@@ -384,7 +384,7 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
       DEFINDEX: "DEFINDEX",
     };
     const sponsorProtocol = protoUpper && PROTO_MAP[protoUpper] ? PROTO_MAP[protoUpper] : undefined;
-    const actLower = (volCtx?.action ?? "").toLowerCase();
+    const actLower = (volCtx?.operation ?? "").toLowerCase();
     let sponsorAction: string | undefined;
     if (actLower.includes("withdraw") || actLower.includes("unstake") || actLower.includes("remove")) {
       sponsorAction = "WITHDRAW";
