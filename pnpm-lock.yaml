@@ -84,8 +84,8 @@ importers:
         specifier: ^5.85.5
         version: 5.101.0(react@19.2.7)
       '@tasmil-finance/adapter-sdk':
-        specifier: ^0.1.1
-        version: 0.1.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.5.4)(utf-8-validate@6.0.6)(zod@3.25.76)
+        specifier: ^0.1.2
+        version: 0.1.2(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.5.4)(utf-8-validate@6.0.6)(zod@3.25.76)
       '@types/qrcode.react':
         specifier: ^3.0.0
         version: 3.0.0(react@19.2.7)
@@ -3532,6 +3532,7 @@ packages:
   '@stellar/stellar-base@14.1.0':
     resolution: {integrity: sha512-A8kFli6QGy22SRF45IjgPAJfUNGjnI+R7g4DF5NZYVsD1kGf7B4ITyc4OPclLV9tqNI4/lXxafGEw0JEUbHixw==}
     engines: {node: '>=20.0.0'}
+    deprecated: This package is now rolled into @stellar/stellar-sdk. Please use @stellar/stellar-sdk to continue receiving updates and support.
 
   '@stellar/stellar-base@15.0.0':
     resolution: {integrity: sha512-XQhxUr9BYiEcFcgc4oWcCMR9QJCny/GmmGsuwPKf/ieIcOeb5149KLHYx9mJCA0ea8QbucR2/GzV58QbXOTxQA==}
@@ -3683,8 +3684,8 @@ packages:
     peerDependencies:
       react: ^18 || ^19
 
-  '@tasmil-finance/adapter-sdk@0.1.1':
-    resolution: {integrity: sha512-VD8Llf4quU3lAVpaRJYe2sORPujw/U2P/2dNTwbHBZ2NOGICk85xnxdoAAM1nW+SeejSL0wx3lHqM9w+ZqgQDQ==, tarball: https://npm.pkg.github.com/download/@tasmil-finance/adapter-sdk/0.1.1/9234d3b0b2f9ad38d604ebfd417e795469c93d27}
+  '@tasmil-finance/adapter-sdk@0.1.2':
+    resolution: {integrity: sha512-bNAkd7jCMYpEXu8d0cgFAiMTAPS4SVI0uplIEsBacaJjyldI8uLqCAsv4v2KnR1p9K4ogruLHm4LqJfeo5siPQ==, tarball: https://npm.pkg.github.com/download/@tasmil-finance/adapter-sdk/0.1.2/d60a78f83ba64f366c6a748265cd1c5c3867bdeb}
 
   '@testing-library/dom@10.4.1':
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
@@ -14886,7 +14887,7 @@ snapshots:
       '@tanstack/query-core': 5.101.0
       react: 19.2.7
 
-  '@tasmil-finance/adapter-sdk@0.1.1(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.5.4)(utf-8-validate@6.0.6)(zod@3.25.76)':
+  '@tasmil-finance/adapter-sdk@0.1.2(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.5.4)(utf-8-validate@6.0.6)(zod@3.25.76)':
     dependencies:
       '@allbridge/bridge-core-sdk': 3.31.0(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.5.4)(utf-8-validate@6.0.6)(zod@3.25.76)
       '@blend-capital/blend-sdk': 3.2.2

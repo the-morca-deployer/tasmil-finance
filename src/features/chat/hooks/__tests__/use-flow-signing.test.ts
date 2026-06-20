@@ -59,6 +59,14 @@ jest.mock("@/shared/config/stellar", () => ({
   },
 }));
 
+// Stub sponsorship barrel — these tests exercise the Soroban-only path
+// (no metas passed to signFlow), so the sponsor helper is never invoked.
+// useSponsorshipMe is still called on every render → return undefined data.
+jest.mock("@/features/sponsorship", () => ({
+  useSponsorshipMe: () => ({ data: undefined }),
+  submitWithSponsorFlow: jest.fn(),
+}));
+
 // sonner mock — use inline jest.fn() to avoid hoisting issues
 jest.mock("sonner", () => ({
   toast: {

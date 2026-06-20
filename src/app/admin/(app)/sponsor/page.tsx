@@ -1,13 +1,21 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  type CohortFallbackRow,
+  type CohortMember,
+  useCohortConfig,
+  useCohortFallbackLog,
+  useCohortMembers,
+  useUpdateCohortConfig,
+} from "@/features/admin/hooks/use-admin-cohort-sponsor";
+import {
+  useResetSponsorSlots,
   useSponsorBalance,
   useSponsorConfig,
   useSponsorLogs,
   useSponsorStats,
-  useResetSponsorSlots,
   useTestTelegramAlert,
   useUpdateSponsorConfig,
 } from "@/features/admin/hooks/use-admin-sponsor";
@@ -538,6 +546,227 @@ function LogsTable() {
   );
 }
 
+// ===========================================================================
+// Cohort sponsor (v2) — new gas-sponsorship module
+// ===========================================================================
+
+function stroopsToXlm(stroops: string | bigint | number): string {
+  const n = typeof stroops === "string" ? Number(stroops) : Number(stroops);
+  if (!Number.isFinite(n)) return "0";
+  return (n / 1e7).toFixed(7);
+}
+
+function CohortConfigCard() {
+  const { data, isLoading } = useCohortConfig();
+  const mutation = useUpdateCohortConfig();
+  const [cohortSize, setCohortSize] = useState<string>("");
+  const [maxTxPerUser, setMaxTxPerUser] = useState<string>("");
+  const [maxXlmPerTx, setMaxXlmPerTx] = useState<string>("");
+  const [enabled, setEnabled] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (!data) return;
+    setCohortSize(String(data.cohortSize));
+    setMaxTxPerUser(String(data.maxTxPerUser));
+    setMaxXlmPerTx(data.maxXlmPerTx);
+    setEnabled(data.enabled);
+  }, [data]);
+
+  if (isLoading || !data) {
+    return (
+      <div style={card}>
+        <Loader2 size={16} className="animate-spin" />
+      </div>
+    );
+  }
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutation.mutate({
+      cohortSize: Number(cohortSize),
+      maxTxPerUser: Number(maxTxPerUser),
+      maxXlmPerTx,
+      enabled,
+    });
+  };
+
+  return (
+    <div style={card} data-testid="cohort-config-card">
+      <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>
+        Cohort sponsor (v2) — config
+      </h2>
+      <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+          <div>
+            <div style={label}>Cohort size</div>
+            <input
+              data-testid="cohort-cohort-size"
+              type="number"
+              min={0}
+              value={cohortSize}
+              onChange={(e) => setCohortSize(e.target.value)}
+              style={input}
+            />
+          </div>
+          <div>
+            <div style={label}>Max TX / user</div>
+            <input
+              data-testid="cohort-max-tx-per-user"
+              type="number"
+              min={0}
+              value={maxTxPerUser}
+              onChange={(e) => setMaxTxPerUser(e.target.value)}
+              style={input}
+            />
+          </div>
+          <div>
+            <div style={label}>Max XLM / TX</div>
+            <input
+              data-testid="cohort-max-xlm-per-tx"
+              type="text"
+              value={maxXlmPerTx}
+              onChange={(e) => setMaxXlmPerTx(e.target.value)}
+              style={input}
+            />
+          </div>
+          <div>
+            <div style={label}>Network</div>
+            <div style={value}>{data.network}</div>
+          </div>
+        </div>
+        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+          <input
+            data-testid="cohort-enabled"
+            type="checkbox"
+            checked={enabled}
+            onChange={(e) => setEnabled(e.target.checked)}
+          />
+          Enabled
+        </label>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button
+            data-testid="cohort-save"
+            type="submit"
+            disabled={mutation.isPending}
+            style={{
+              padding: "6px 16px",
+              borderRadius: 8,
+              border: "1px solid rgba(255,255,255,0.12)",
+              background: "rgba(103,232,249,0.12)",
+              color: "inherit",
+              cursor: mutation.isPending ? "not-allowed" : "pointer",
+              opacity: mutation.isPending ? 0.6 : 1,
+            }}
+          >
+            {mutation.isPending ? "Saving…" : "Save"}
+          </button>
+          <span style={{ fontSize: 11, color: "rgba(245,248,252,0.4)" }}>
+            v{data.version} · updated {new Date(data.updatedAt).toLocaleString()}
+          </span>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function CohortMembersTable() {
+  const { data, isLoading } = useCohortMembers(100);
+  if (isLoading || !data) {
+    return (
+      <div style={card}>
+        <Loader2 size={16} className="animate-spin" />
+      </div>
+    );
+  }
+  return (
+    <div style={card} data-testid="cohort-members-card">
+      <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>
+        Cohort members ({data.members.length})
+      </h2>
+      {data.members.length === 0 ? (
+        <p style={{ fontSize: 13, color: "rgba(245,248,252,0.5)" }}>No members yet.</p>
+      ) : (
+        <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ textAlign: "left", color: "rgba(245,248,252,0.4)" }}>
+              <th style={{ padding: "6px 8px" }}>Rank</th>
+              <th style={{ padding: "6px 8px" }}>User ID</th>
+              <th style={{ padding: "6px 8px" }}>Assigned</th>
+              <th style={{ padding: "6px 8px" }}>Modal seen</th>
+              <th style={{ padding: "6px 8px" }}>TX count</th>
+              <th style={{ padding: "6px 8px" }}>XLM sponsored</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.members.map((m: CohortMember) => (
+              <tr key={m.userId} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <td style={{ padding: "6px 8px", fontWeight: 600 }}>#{m.rank}</td>
+                <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                  {m.userId.slice(0, 12)}…
+                </td>
+                <td style={{ padding: "6px 8px" }}>
+                  {new Date(m.assignedAt).toLocaleDateString()}
+                </td>
+                <td style={{ padding: "6px 8px" }}>
+                  {m.modalSeenAt ? "✓" : <span style={{ opacity: 0.4 }}>—</span>}
+                </td>
+                <td style={{ padding: "6px 8px" }}>{m.txCount}</td>
+                <td style={{ padding: "6px 8px" }}>{stroopsToXlm(m.xlmSponsoredStroops)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+function CohortFallbackLogTable() {
+  const { data, isLoading } = useCohortFallbackLog(50);
+  if (isLoading || !data) {
+    return (
+      <div style={card}>
+        <Loader2 size={16} className="animate-spin" />
+      </div>
+    );
+  }
+  return (
+    <div style={card} data-testid="cohort-fallback-card">
+      <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>
+        Cohort fallback log ({data.rows.length})
+      </h2>
+      {data.rows.length === 0 ? (
+        <p style={{ fontSize: 13, color: "rgba(245,248,252,0.5)" }}>No fallback events recorded.</p>
+      ) : (
+        <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ textAlign: "left", color: "rgba(245,248,252,0.4)" }}>
+              <th style={{ padding: "6px 8px" }}>When</th>
+              <th style={{ padding: "6px 8px" }}>Reason</th>
+              <th style={{ padding: "6px 8px" }}>User</th>
+              <th style={{ padding: "6px 8px" }}>TX</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.rows.map((r: CohortFallbackRow) => (
+              <tr key={r.id} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <td style={{ padding: "6px 8px" }}>{new Date(r.createdAt).toLocaleString()}</td>
+                <td style={{ padding: "6px 8px" }}>{r.reason}</td>
+                <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                  {r.userId ? `${r.userId.slice(0, 12)}…` : "—"}
+                </td>
+                <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
+                  {r.txHash ? `${r.txHash.slice(0, 10)}…` : "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
 export default function SponsorAdminPage() {
   return (
     <div style={{ padding: "24px 32px", maxWidth: 960 }}>
@@ -550,6 +779,17 @@ export default function SponsorAdminPage() {
       </div>
       <StatsCard />
       <LogsTable />
+
+      <hr
+        style={{
+          border: "none",
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          margin: "32px 0 20px",
+        }}
+      />
+      <CohortConfigCard />
+      <CohortMembersTable />
+      <CohortFallbackLogTable />
     </div>
   );
 }
