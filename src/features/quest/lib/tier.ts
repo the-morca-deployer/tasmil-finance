@@ -37,12 +37,14 @@ const TIER_BANDS: { tier: QuestTier; min: number; max: number | null }[] = [
 
 export function tierDisplay(points: number): TierDisplay {
   const p = Number.isFinite(points) ? Math.max(0, points) : 0;
+  // Pick the band whose range contains `p`; defaults to the top (Diamond) band.
   const idx = TIER_BANDS.findIndex((b) => p >= b.min && (b.max === null || p < b.max));
-  const band = TIER_BANDS[idx];
+  const safeIdx = idx === -1 ? TIER_BANDS.length - 1 : idx;
+  const band = TIER_BANDS[safeIdx]!;
   if (band.max === null) {
     return { tier: band.tier, nextTier: null, progress: 1, toNext: 0 };
   }
-  const next = TIER_BANDS[idx + 1];
+  const next = TIER_BANDS[safeIdx + 1]!;
   const span = band.max - band.min;
   return {
     tier: band.tier,
