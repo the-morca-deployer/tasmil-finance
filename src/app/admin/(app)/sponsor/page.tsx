@@ -53,16 +53,22 @@ const input: React.CSSProperties = {
 function BalanceCard() {
   const { data, isLoading, refetch, isFetching } = useSponsorBalance();
   const { data: cfg } = useSponsorConfig();
-  const threshold = (cfg as { xlmAlertThreshold?: number } | undefined)?.xlmAlertThreshold ?? 5;
+  const cfgAny = cfg as { xlmAlertThreshold?: number; xlmCriticalThreshold?: number } | undefined;
+  const warnThreshold = cfgAny?.xlmAlertThreshold ?? 10;
+  const critThreshold = cfgAny?.xlmCriticalThreshold ?? 5;
   const balance = data?.balance ?? 0;
 
   let badgeColor: string;
-  if (balance > 0 && balance <= threshold) {
+  let badgeLabel: string;
+  if (balance > 0 && balance < critThreshold) {
     badgeColor = "#f87171";
-  } else if (balance > 0 && balance <= threshold * 2) {
+    badgeLabel = "CRITICAL";
+  } else if (balance > 0 && balance < warnThreshold) {
     badgeColor = "#fbbf24";
+    badgeLabel = "WARNING";
   } else {
     badgeColor = "#4ade80";
+    badgeLabel = "OK";
   }
 
   return (
@@ -98,6 +104,18 @@ function BalanceCard() {
           <span style={{ fontSize: 22, fontWeight: 700, color: badgeColor }}>
             {balance.toFixed(4)} XLM
           </span>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              padding: "2px 8px",
+              borderRadius: 99,
+              background: `${badgeColor}22`,
+              color: badgeColor,
+            }}
+          >
+            {badgeLabel}
+          </span>
           {data?.publicKey && (
             <span style={{ fontSize: 12, fontFamily: "monospace", color: "rgba(245,248,252,0.4)" }}>
               {data.publicKey.slice(0, 6)}...{data.publicKey.slice(-6)}
@@ -106,7 +124,7 @@ function BalanceCard() {
         </div>
       )}
       <p style={{ fontSize: 12, color: "rgba(245,248,252,0.3)", margin: "8px 0 0" }}>
-        Alert threshold: {threshold} XLM
+        Warning &lt; {warnThreshold} XLM · Critical &lt; {critThreshold} XLM
       </p>
     </div>
   );
@@ -168,6 +186,7 @@ function ConfigCard() {
   const [txPerDay, setTxPerDay] = useState("");
   const [active, setActive] = useState(true);
   const [xlmAlertThreshold, setXlmAlertThreshold] = useState("");
+  const [xlmCriticalThreshold, setXlmCriticalThreshold] = useState("");
   const [telegramChatId, setTelegramChatId] = useState("");
 
   function startEdit() {
@@ -177,6 +196,7 @@ function ConfigCard() {
     setActive(cfg.active);
     const cfgAny = cfg as unknown as Record<string, unknown>;
     setXlmAlertThreshold(String(cfgAny.xlmAlertThreshold ?? ""));
+    setXlmCriticalThreshold(String(cfgAny.xlmCriticalThreshold ?? ""));
     setTelegramChatId(String(cfgAny.telegramChatId ?? ""));
     setEditing(true);
   }
@@ -184,6 +204,15 @@ function ConfigCard() {
   function save() {
     const extra: Record<string, unknown> = {};
     if (xlmAlertThreshold !== "") extra.xlmAlertThreshold = parseFloat(xlmAlertThreshold);
+    if (xlmCriticalThreshold !== "") extra.xlmCriticalThreshold = parseFloat(xlmCriticalThreshold);
+    if (
+      extra.xlmAlertThreshold !== undefined &&
+      extra.xlmCriticalThreshold !== undefined &&
+      (extra.xlmCriticalThreshold as number) >= (extra.xlmAlertThreshold as number)
+    ) {
+      alert("Critical threshold must be lower than warning threshold");
+      return;
+    }
     if (telegramChatId !== "") extra.telegramChatId = telegramChatId;
     update.mutate(
       {
@@ -202,7 +231,46 @@ function ConfigCard() {
         <Loader2 className="animate-spin" size={16} />
       </div>
     );
-  if (!cfg) return null;
+
+  if (!cfg) {
+    return (
+      <div style={card}>
+        <h2 style={{ fontWeight: 600, fontSize: 15, margin: "0 0 8px" }}>Sponsor Config</h2>
+        <p style={{ fontSize: 13, color: "rgba(245,248,252,0.5)", margin: "0 0 12px" }}>
+          No sponsor config exists yet. Create one to enable Telegram alerts and configure
+          warning/critical XLM thresholds.
+        </p>
+        <button
+          onClick={() =>
+            update.mutate({
+              maxSlots: 100,
+              maxTxPerUserPerDay: 10,
+              active: true,
+              rule: "first_n_users",
+              xlmAlertThreshold: 10,
+              xlmCriticalThreshold: 5,
+            })
+          }
+          disabled={update.isPending}
+          style={{
+            fontSize: 13,
+            padding: "6px 16px",
+            borderRadius: 8,
+            border: "none",
+            background: "#0ea5e9",
+            color: "#fff",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          {update.isPending && <Loader2 size={13} className="animate-spin" />}
+          Initialize Sponsor Config
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={card}>
@@ -288,7 +356,7 @@ function ConfigCard() {
               </div>
             </label>
             <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={label}>Alert Threshold (XLM)</span>
+              <span style={label}>Warning Threshold (XLM)</span>
               <input
                 style={input}
                 type="number"
@@ -296,6 +364,17 @@ function ConfigCard() {
                 min="0"
                 value={xlmAlertThreshold}
                 onChange={(e) => setXlmAlertThreshold(e.target.value)}
+              />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={label}>Critical Threshold (XLM)</span>
+              <input
+                style={input}
+                type="number"
+                step="0.1"
+                min="0"
+                value={xlmCriticalThreshold}
+                onChange={(e) => setXlmCriticalThreshold(e.target.value)}
               />
             </label>
             <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -362,6 +441,19 @@ function ConfigCard() {
           <div>
             <div style={label}>Rule</div>
             <div style={{ fontSize: 14, fontWeight: 500, marginTop: 2 }}>{cfg.rule}</div>
+          </div>
+          <div>
+            <div style={label}>Warning Threshold</div>
+            <div style={value}>
+              {(cfg as unknown as { xlmAlertThreshold?: number }).xlmAlertThreshold ?? "—"} XLM
+            </div>
+          </div>
+          <div>
+            <div style={label}>Critical Threshold</div>
+            <div style={value}>
+              {(cfg as unknown as { xlmCriticalThreshold?: number }).xlmCriticalThreshold ?? "—"}{" "}
+              XLM
+            </div>
           </div>
         </div>
       )}
