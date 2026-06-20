@@ -566,10 +566,10 @@ function CohortConfigCard() {
 
   useEffect(() => {
     if (!data) return;
-    setCohortSize(String(data.cohortSize));
-    setMaxTxPerUser(String(data.maxTxPerUser));
-    setMaxXlmPerTx(data.maxXlmPerTx);
-    setEnabled(data.enabled);
+    setCohortSize(String(data.cohortSize ?? ""));
+    setMaxTxPerUser(String(data.maxTxPerUser ?? ""));
+    setMaxXlmPerTx(String(data.maxXlmPerTx ?? ""));
+    setEnabled(Boolean(data.enabled));
   }, [data]);
 
   if (isLoading || !data) {
