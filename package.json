@@ -14,8 +14,8 @@
     "check:fix": "biome check --write .",
     "generate:api": "node scripts/kubb/fix-openapi.js && KUBB_TARGET=ai kubb --config kubb.config.ts && node scripts/kubb/fix-imports.js && node scripts/kubb/clean-temp.js",
     "generate:api:dev": "node scripts/kubb/fix-openapi.js && KUBB_TARGET=ai kubb --config kubb.config.ts && node scripts/kubb/fix-imports.js",
-    "generate:backend": "node scripts/kubb/fix-openapi-backend.js && KUBB_TARGET=backend kubb --config kubb.config.ts && node scripts/kubb/fix-imports.js --dir=src/gen-backend && node scripts/kubb/fix-backend-types.js && node scripts/kubb/clean-temp.js",
-    "generate:backend:dev": "node scripts/kubb/fix-openapi-backend.js && KUBB_TARGET=backend kubb --config kubb.config.ts && node scripts/kubb/fix-imports.js --dir=src/gen-backend && node scripts/kubb/fix-backend-types.js",
+    "generate:backend": "node scripts/kubb/fix-openapi-nest.js --target=backend && KUBB_TARGET=backend kubb --config kubb.config.ts && node scripts/kubb/fix-imports.js --dir=src/gen-backend && node scripts/kubb/fix-nest-types.js --target=backend && node scripts/kubb/clean-temp.js",
+    "generate:backend:dev": "node scripts/kubb/fix-openapi-nest.js --target=backend && KUBB_TARGET=backend kubb --config kubb.config.ts && node scripts/kubb/fix-imports.js --dir=src/gen-backend && node scripts/kubb/fix-nest-types.js --target=backend",
     "generate:all": "pnpm generate:api && pnpm generate:backend && pnpm generate:quest",
     "test:api": "node -e \"require('./src/lib/test-api.ts').testApiConnection().then(console.log)\"",
     "test": "jest",
@@ -33,7 +33,7 @@
     "test:e2e:debug": "playwright test --debug",
     "type-check": "tsc --noEmit",
     "prepare": "",
-    "generate:quest": "KUBB_TARGET=quest kubb --config kubb.config.ts && node scripts/kubb/fix-imports.js --dir=src/gen-quest"
+    "generate:quest": "node scripts/kubb/fix-openapi-nest.js --target=quest && KUBB_TARGET=quest kubb --config kubb.config.ts && node scripts/kubb/fix-imports.js --dir=src/gen-quest && node scripts/kubb/fix-nest-types.js --target=quest && node scripts/kubb/clean-temp.js"
   },
   "dependencies": {
     "@ag-ui/client": "^0.0.52",

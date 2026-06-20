@@ -1,17 +1,31 @@
 #!/usr/bin/env node
 /**
- * Patches empty PathParams and QueryParams interfaces in src/gen-backend/types/
- * by reading the actual parameter definitions from the NestJS OpenAPI spec.
+ * Patches empty PathParams and QueryParams interfaces in a generated NestJS
+ * client's types/ dir by reading the real parameter definitions from the spec.
+ * NestJS puts proper params in the spec but Kubb emits empty interfaces when
+ * schema refs are absent.
  *
- * NestJS often generates proper parameter definitions in the spec but
- * Kubb generates empty interfaces for them when schema refs are absent.
+ * Usage: node scripts/kubb/fix-nest-types.js --target=backend|quest
  */
 
 const fs = require("node:fs");
 const path = require("node:path");
 
-const SPEC_PATH = path.join(__dirname, "../../temp-openapi-backend.json");
-const TYPES_DIR = path.join(__dirname, "../../src/gen-backend/types");
+const TARGETS = {
+  backend: { temp: "temp-openapi-backend.json", types: "src/gen-backend/types" },
+  quest: { temp: "temp-openapi-quest.json", types: "src/gen-quest/types" },
+};
+const key = (process.argv.find((a) => a.startsWith("--target=")) || "--target=backend").split(
+  "="
+)[1];
+const target = TARGETS[key];
+if (!target) {
+  console.error(`Unknown --target=${key} (expected: ${Object.keys(TARGETS).join(", ")})`);
+  process.exit(1);
+}
+
+const SPEC_PATH = path.join(__dirname, "../..", target.temp);
+const TYPES_DIR = path.join(__dirname, "../..", target.types);
 
 if (!fs.existsSync(SPEC_PATH)) {
   console.log("⚠ No spec file found, skipping type fix");
