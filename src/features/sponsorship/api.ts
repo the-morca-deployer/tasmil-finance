@@ -1,35 +1,27 @@
 import type { SponsorshipMe, TxSubmitResult } from "./types";
 
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:6756";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:6756";
 
-async function call<T>(
-  path: string,
-  init?: RequestInit & { body?: BodyInit | object },
-): Promise<T> {
-  const headers = new Headers(init?.headers);
-  let body: BodyInit | undefined;
-  if (init?.body !== undefined) {
-    if (
-      typeof init.body === "string" ||
-      init.body instanceof FormData ||
-      init.body instanceof Blob ||
-      init.body instanceof ArrayBuffer
-    ) {
-      body = init.body as BodyInit;
-    } else {
-      headers.set("Content-Type", "application/json");
-      body = JSON.stringify(init.body);
-    }
+interface CallOptions {
+  method?: string;
+  json?: unknown;
+}
+
+async function call<T>(path: string, opts: CallOptions = {}): Promise<T> {
+  const headers = new Headers();
+  let body: string | undefined;
+  if (opts.json !== undefined) {
+    headers.set("Content-Type", "application/json");
+    body = JSON.stringify(opts.json);
   }
   const res = await fetch(`${BACKEND_URL}${path}`, {
-    ...init,
+    method: opts.method ?? "GET",
     credentials: "include",
     headers,
     body,
   });
   if (!res.ok) {
-    throw new Error(`${init?.method ?? "GET"} ${path} -> ${res.status}`);
+    throw new Error(`${opts.method ?? "GET"} ${path} -> ${res.status}`);
   }
   const json = (await res.json()) as { success: boolean; data: T };
   return json.data;
@@ -39,7 +31,7 @@ export const sponsorshipApi = {
   visit(route: "dashboard" | "chat" | "farming") {
     return call<{ enrolled: boolean; rank: number | null; justEnrolled: boolean }>(
       "/api/sponsorship/visit",
-      { method: "POST", body: { route } },
+      { method: "POST", json: { route } },
     );
   },
 
@@ -64,7 +56,7 @@ export const sponsorshipApi = {
   }) {
     return call<TxSubmitResult>("/api/tx/submit-with-sponsor", {
       method: "POST",
-      body: params,
+      json: params,
     });
   },
 };

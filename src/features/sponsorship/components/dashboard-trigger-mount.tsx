@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/store/use-auth";
+import { useAuthStore } from "@/store/use-auth";
 import { GasSponsorTrigger } from "./gas-sponsor-trigger";
 
 /**
@@ -10,23 +10,16 @@ import { GasSponsorTrigger } from "./gas-sponsor-trigger";
  */
 export function SponsorMount() {
   const pathname = usePathname();
-  const isAuthenticated = useAuth((s) => s.isAuthenticated);
-  const isLoading = useAuth((s) => s.isLoading);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isLoading = useAuthStore((s) => s.isLoading);
 
   const route = detectRoute(pathname);
   if (!route) return null;
 
-  return (
-    <GasSponsorTrigger
-      route={route}
-      authReady={isAuthenticated && !isLoading}
-    />
-  );
+  return <GasSponsorTrigger route={route} authReady={isAuthenticated && !isLoading} />;
 }
 
-function detectRoute(
-  pathname: string | null,
-): "dashboard" | "chat" | "farming" | null {
+function detectRoute(pathname: string | null): "dashboard" | "chat" | "farming" | null {
   if (!pathname) return null;
   if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
     return "dashboard";
