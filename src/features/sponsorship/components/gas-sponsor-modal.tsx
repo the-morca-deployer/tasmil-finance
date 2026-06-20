@@ -378,13 +378,9 @@ export function GasSponsorModal({
                 You&rsquo;re one of the first {cohortSize} wallets on Tasmil. Your gas fees are on
                 us.
               </motion.p>
-
-            </div>
-
-            {/* SIDE (right) */}
-            <div className="flex flex-col" style={{ padding: "44px 42px", gap: 22 }}>
-              {/* Protocols (moved here per design) */}
+              {/* Protocols */}
               <motion.div
+                style={{ marginTop: "auto", paddingTop: 8 }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.66, ease: [0.16, 1, 0.3, 1] }}
@@ -395,6 +391,7 @@ export function GasSponsorModal({
                     color: "rgba(244,247,251,0.58)",
                     lineHeight: 1.5,
                     marginBottom: 12,
+                    maxWidth: 340,
                   }}
                 >
                   Free gas on <b style={{ color: "#F4F7FB", fontWeight: 600 }}>Farming</b> and{" "}
@@ -436,7 +433,10 @@ export function GasSponsorModal({
                   ))}
                 </div>
               </motion.div>
+            </div>
 
+            {/* SIDE (right) */}
+            <div className="flex flex-col justify-center" style={{ padding: "44px 42px", gap: 24 }}>
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
