@@ -1,0 +1,1 @@
+{"type":"object","properties":{"rateBps":{"type":"number","minimum":0,"maximum":10000,"description":"Commission rate in basis points"},"isActive":{"type":"boolean","description":"Whether this layer is active"}},"required":["rateBps"],"x-readme-ref-name":"UpdateReferralConfigDto"}

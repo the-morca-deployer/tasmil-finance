@@ -339,7 +339,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
               type="button"
               onClick={() => trustline.addTrustline()}
               disabled={trustline.adding}
-              className="rounded-lg px-3 py-1.5 text-xs font-semibold bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black hover:from-[#C5F0FF] hover:to-[#1CCFFF] transition-all active:scale-[0.98] disabled:opacity-40 flex items-center gap-1"
+              className="rounded-lg px-3 py-1.5 text-xs font-semibold bg-[image:var(--brand-grad)] text-black hover:bg-[image:var(--brand-grad-hover)] transition-all active:scale-[0.98] disabled:opacity-40 flex items-center gap-1"
             >
               {trustline.adding ? (
                 <>

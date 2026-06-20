@@ -5,7 +5,7 @@ import { Loader2, Wallet } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useActivity, usePosition } from "@/features/account/hooks/use-account-api";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { useWalletStore } from "@/store/use-wallet";
 import { useFarmingActions } from "../hooks/use-farming-actions";
 import { usePools } from "../hooks/use-farming-api";

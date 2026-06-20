@@ -1,40 +1,22 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-
-const PUBLIC_PATHS = ["/waitlist", "/api", "/_next", "/favicon.ico", "/robots.txt", "/images"];
+import { gateDecision } from "@/lib/waitlist-mode";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow public assets
-  if (
-    PUBLIC_PATHS.some((path) => pathname.startsWith(path)) ||
-    pathname === "/" ||
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/images")
-  ) {
-    return NextResponse.next();
-  }
+  // Waitlist-mode + auth gate (pure decision, unit-tested in waitlist-mode.test.ts):
+  //  - OFF: /waitlist + /access -> app entry; app routes open.
+  //  - ON:  /waitlist + /access public; other routes require the auth cookie.
+  //  - assets / api / _next / admin / quest / root always pass.
+  const devBypass =
+    process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === "true" &&
+    process.env.NEXT_PUBLIC_APP_ENV !== "production";
+  const hasAuthCookie = Boolean(request.cookies.get("tasmil_auth")?.value);
 
-  // Admin paths are handled client-side by AdminAuthGuard — no server redirect needed
-  if (pathname.startsWith("/admin")) {
-    return NextResponse.next();
-  }
-
-  // Auth gate: require tasmil_auth cookie for all protected routes.
-  // DEV_BYPASS_AUTH=true skips the gate (non-production only) so the loop
-  // runner can drive /chat without going through wallet login.
-  if (
-    !(
-      process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === "true" &&
-      process.env.NEXT_PUBLIC_APP_ENV !== "production"
-    )
-  ) {
-    const authCookie = request.cookies.get("tasmil_auth");
-    if (!authCookie?.value) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
+  const redirectTo = gateDecision({ pathname, hasAuthCookie, devBypass });
+  if (redirectTo) {
+    return NextResponse.redirect(new URL(redirectTo, request.url));
   }
 
   // Faucet: testnet only
@@ -43,15 +25,13 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/chat/new", request.url));
   }
 
-  // Playground + dev: development only. Aggregator was previously gated
-  // here too; un-gated once Allbridge cross-chain coverage was verified.
+  // Playground + dev: development only.
   const isDev = process.env.NEXT_PUBLIC_APP_ENV === "development";
   const isDevOnly =
     pathname === "/playground" ||
     pathname.startsWith("/playground/") ||
     pathname === "/dev" ||
     pathname.startsWith("/dev/");
-
   if (isDevOnly && !isDev) {
     return NextResponse.redirect(new URL("/chat/new", request.url));
   }

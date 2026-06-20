@@ -1,7 +1,7 @@
 "use client";
 
 import { Wallet } from "lucide-react";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 
 type ChatAuthStateMode = "disconnected" | "authenticating" | "session-invalid";
 

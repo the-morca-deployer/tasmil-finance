@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { useWallet } from "@/shared/context/wallet-context";
 import { useFileUpload } from "@/shared/hooks/use-file-upload";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { useMultiSidebar } from "@/shared/ui/multi-sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 import { useRightSidebarTab } from "@/store/use-right-sidebar-tab";

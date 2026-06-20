@@ -5,7 +5,7 @@ import { ExternalLink, Plus } from "lucide-react";
 import { useState } from "react";
 import { TokenImage } from "@/shared/components/token-image";
 import { getExplorerUrl } from "@/shared/config/stellar";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
 import type { WalletToken } from "../hooks/use-wallet-tokens";
 import { AddTrustlineDialog } from "./add-trustline-dialog";

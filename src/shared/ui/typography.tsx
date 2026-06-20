@@ -69,7 +69,7 @@ const typographyVariants = cva("", {
       background: "text-background",
     },
     gradient: {
-      true: "bg-gradient-to-r from-[#B5EAFF] to-[#00BFFF] bg-clip-text text-transparent",
+      true: "bg-[image:var(--brand-grad)] bg-clip-text text-transparent",
       false: "",
     },
     size: {

@@ -11,7 +11,9 @@ import { getBrowserBackendBaseUrl } from "@/lib/runtime-urls";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { activeNetwork } from "@/shared/config/stellar";
 import { AuthBootstrap } from "@/shared/context/auth-bootstrap";
+import { isDevBypassDisconnected } from "@/lib/dev-bypass";
 import { getKitModulesUtils, getKitSdk, getKitTypes } from "@/shared/lib/stellar-kit";
+import { connectWallet, disconnectAll } from "@/shared/lib/wallet-session";
 import { type AuthUser, useAuthStore } from "@/store/use-auth";
 import { useWalletStore } from "@/store/use-wallet";
 
@@ -102,7 +104,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       process.env.NODE_ENV !== "production" && typeof window !== "undefined"
         ? (window as any).__TASMIL_E2E_WALLET__
         : null;
-    if (e2eWallet?.connected && e2eWallet?.publicKey) {
+    if (e2eWallet?.connected && e2eWallet?.publicKey && !isDevBypassDisconnected()) {
       console.warn(
         "[WalletContext] E2E fast-path: using mock wallet",
         e2eWallet.publicKey.slice(0, 8)
@@ -210,7 +212,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // E2E test bypass — dev/test only
     const e2eWallet =
       process.env.NODE_ENV !== "production" ? (window as any).__TASMIL_E2E_WALLET__ : null;
-    if (e2eWallet?.connected && e2eWallet?.publicKey) {
+    if (e2eWallet?.connected && e2eWallet?.publicKey && !isDevBypassDisconnected()) {
       setAddress(e2eWallet.publicKey);
       setIsConnected(true);
       setWalletState({ connected: true, account: e2eWallet.publicKey });
@@ -590,13 +592,12 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [address, authenticateWithWallet]);
 
   const openWalletModal = useCallback(async () => {
-    const { StellarWalletsKit } = await getKitSdk();
-    const { address: addr } = await StellarWalletsKit.authModal();
+    // Canonical global connect (opens kit + records connection in shared store).
+    const addr = await connectWallet();
     setAddress(addr);
     setIsConnected(true);
-    setWalletState({ connected: true, account: addr });
     return addr;
-  }, [setWalletState]);
+  }, []);
 
   // Listen for 401s and react based on whether the JWT is actually expired.
   // - Fresh JWT + 401: server-side problem. Clear auth, show reconnect toast.
@@ -699,28 +700,15 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [kitReady, address, isConnected, isAuthValid, authenticateWithWallet]);
 
   const disconnect = useCallback(async () => {
-    try {
-      const { StellarWalletsKit } = await getKitSdk();
-      await StellarWalletsKit.disconnect();
-    } catch {
-      // ignore disconnect errors
-    }
-    // Clear the httpOnly auth cookie server-side
-    void fetch(`${getBrowserBackendBaseUrl()}/api/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    }).catch(() => {});
     setAddress(null);
     setIsConnected(false);
-    resetWallet();
-    authLogout();
     authAttemptedRef.current = null;
     authInProgressRef.current = false;
     autoAuthFiredForRef.current = null;
-    if (typeof window !== "undefined" && window.location.pathname !== "/") {
-      window.location.replace("/");
-    }
-  }, [authLogout, resetWallet]);
+    // Canonical global sign-out: kit disconnect + clear BOTH backend sessions
+    // (main + quest) + reset shared wallet store + redirect home.
+    await disconnectAll();
+  }, []);
 
   const signTransaction = useCallback(
     async (xdr: string): Promise<string> => {

@@ -29,7 +29,7 @@ function AdminNavItem({
       className={cn(
         "flex items-center gap-3 rounded-full px-4 py-3 font-medium text-sm transition-colors",
         isActive
-          ? "bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black shadow-md"
+          ? "bg-[image:var(--brand-grad)] text-black shadow-md"
           : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
       )}
     >

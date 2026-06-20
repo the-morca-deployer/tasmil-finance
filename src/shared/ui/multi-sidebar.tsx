@@ -3,7 +3,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
-import { Button } from "./button-v2";
+import { Button } from "./button";
 
 const MULTI_SIDEBAR_COOKIE_NAME = "multi_sidebar_state";
 const MULTI_SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;

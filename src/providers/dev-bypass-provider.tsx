@@ -1,19 +1,9 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { DEV_BYPASS } from "@/lib/dev-bypass";
 
 function DevBypassActive({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (pathname === "/") {
-      router.replace("/chat");
-    }
-  }, [pathname, router]);
-
   useEffect(() => {
     const suppress = (e: Event) => {
       e.stopImmediatePropagation();

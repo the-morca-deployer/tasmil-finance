@@ -1,5 +1,6 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
+import { Geist_Mono, Hanken_Grotesk } from "next/font/google";
 import localFont from "next/font/local";
 import { AppProvider } from "@/providers/app-provider";
 import { ServiceWorkerRegistrar } from "@/shared/components/service-worker-registrar";
@@ -10,6 +11,9 @@ const outfit = localFont({
   variable: "--font-outfit",
   display: "swap",
 });
+
+const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 const LIGHT_THEME_COLOR = "hsl(0 0% 100%)";
 const DARK_THEME_COLOR = "hsl(240deg 10% 3.92%)";
@@ -56,7 +60,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className={`${outfit.variable}`} lang="en" suppressHydrationWarning>
+    <html
+      className={`${outfit.variable} ${hanken.variable} ${geistMono.variable}`}
+      lang="en"
+      suppressHydrationWarning
+    >
       <head>
         <meta name="color-scheme" content="dark light" />
         <script

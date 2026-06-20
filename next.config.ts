@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { getAiProxyRewrites, getBackendProxyRewrites } from "./src/lib/runtime-urls";
+import { getProxyRewrites } from "./src/lib/runtime-urls";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@blend-capital/blend-sdk", "@stellar/stellar-sdk"],
@@ -56,7 +56,7 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    return [...getBackendProxyRewrites(), ...getAiProxyRewrites()];
+    return getProxyRewrites();
   },
   typescript: {
     ignoreBuildErrors: false,

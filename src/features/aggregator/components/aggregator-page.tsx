@@ -786,7 +786,7 @@ export function AggregatorPage() {
                             className={`shrink-0 rounded-xl font-semibold px-4 py-2.5 text-xs transition-all active:scale-[0.98] relative overflow-hidden ${
                               isSigning
                                 ? "bg-[var(--secondary)] text-[var(--muted-foreground)]"
-                                : "bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black"
+                                : "bg-[image:var(--brand-grad)] text-black"
                             }`}
                           >
                             {isSigning ? (
@@ -843,7 +843,7 @@ export function AggregatorPage() {
                       className={`w-full rounded-2xl font-bold py-4 text-base transition-all flex items-center justify-center gap-2 relative overflow-hidden ${
                         isUnsupportedChain
                           ? "cursor-not-allowed opacity-50"
-                          : "active:scale-[0.98] hover:scale-[1.02] bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black"
+                          : "active:scale-[0.98] hover:scale-[1.02] bg-[image:var(--brand-grad)] text-black"
                       }`}
                       style={
                         isUnsupportedChain
@@ -891,7 +891,7 @@ export function AggregatorPage() {
                               selectedProtocol &&
                               !agg.needsTrustline &&
                               !insufficientBalance
-                            ? "bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black hover:scale-[1.02] hover:from-[#C5F0FF] hover:to-[#1CCFFF] cursor-pointer"
+                            ? "bg-[image:var(--brand-grad)] text-black hover:scale-[1.02] hover:bg-[image:var(--brand-grad-hover)] cursor-pointer"
                             : "cursor-not-allowed opacity-50"
                       }`}
                       style={

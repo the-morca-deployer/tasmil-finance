@@ -1,4 +1,4 @@
-import { tierFromVolume } from "./tier";
+import { tierDisplay, tierFromVolume } from "./tier";
 
 describe("tierFromVolume", () => {
   it("returns bronze under $100", () => {
@@ -24,5 +24,37 @@ describe("tierFromVolume", () => {
   it("returns diamond at 10000+", () => {
     expect(tierFromVolume(10_000)).toBe("diamond");
     expect(tierFromVolume(1_000_000)).toBe("diamond");
+  });
+});
+
+describe("tierDisplay", () => {
+  it("Bronze below 500 (boundary 499)", () => {
+    expect(tierDisplay(0).tier).toBe("Bronze");
+    expect(tierDisplay(499).tier).toBe("Bronze");
+    expect(tierDisplay(499).nextTier).toBe("Silver");
+    expect(tierDisplay(499).toNext).toBe(1); // 500 - 499
+  });
+  it("Silver at 500 and 2499", () => {
+    expect(tierDisplay(500).tier).toBe("Silver");
+    expect(tierDisplay(2499).tier).toBe("Silver");
+    expect(tierDisplay(500).nextTier).toBe("Gold");
+    expect(tierDisplay(500).toNext).toBe(2000); // 2500 - 500
+  });
+  it("Gold at 2500 and 4999", () => {
+    expect(tierDisplay(2500).tier).toBe("Gold");
+    expect(tierDisplay(4999).tier).toBe("Gold");
+    expect(tierDisplay(2500).nextTier).toBe("Diamond");
+    expect(tierDisplay(2500).toNext).toBe(2500); // 5000 - 2500
+  });
+  it("Diamond at 5000 and above", () => {
+    expect(tierDisplay(5000).tier).toBe("Diamond");
+    expect(tierDisplay(50000).tier).toBe("Diamond");
+    expect(tierDisplay(5000).nextTier).toBeNull();
+    expect(tierDisplay(5000).toNext).toBe(0);
+    expect(tierDisplay(5000).progress).toBe(1);
+  });
+  it("progress is fractional within a band", () => {
+    // Bronze band [0,500): 250 -> 0.5
+    expect(tierDisplay(250).progress).toBeCloseTo(0.5, 5);
   });
 });
