@@ -36,8 +36,7 @@ export function SponsorIndicator() {
         borderRadius: "50%",
         background:
           "radial-gradient(circle at 50% 30%, rgba(150,238,250,0.45), transparent 60%), conic-gradient(from 210deg, #0369A1, #67E8F9 28%, #9FEFFB 50%, #67E8F9 72%, #0369A1)",
-        boxShadow:
-          "0 0 0 1px rgba(103,232,249,0.55), 0 0 18px -6px rgba(103,232,249,0.50)",
+        boxShadow: "0 0 0 1px rgba(103,232,249,0.55), 0 0 18px -6px rgba(103,232,249,0.50)",
       }}
     >
       <span
@@ -46,10 +45,8 @@ export function SponsorIndicator() {
           width: 28,
           height: 28,
           borderRadius: "50%",
-          background:
-            "radial-gradient(circle at 50% 32%, #0c1418, #070a0c 78%)",
-          boxShadow:
-            "inset 0 1px 4px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(103,232,249,0.22)",
+          background: "radial-gradient(circle at 50% 32%, #0c1418, #070a0c 78%)",
+          boxShadow: "inset 0 1px 4px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(103,232,249,0.22)",
         }}
       >
         <Image
@@ -157,8 +154,7 @@ export function SponsorIndicator() {
                   i < used
                     ? "linear-gradient(110deg,#ffffff,#67E8F9 52%,#0EA5E9)"
                     : "rgba(255,255,255,0.08)",
-                border:
-                  i < used ? "1px solid transparent" : "1px solid rgba(255,255,255,0.14)",
+                border: i < used ? "1px solid transparent" : "1px solid rgba(255,255,255,0.14)",
               }}
             />
           ))}

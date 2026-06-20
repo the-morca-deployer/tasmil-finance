@@ -379,9 +379,17 @@ export function GasSponsorModal({
                 us.
               </motion.p>
 
-              {/* Protocols */}
+              {/* Protocols (carded) */}
               <motion.div
-                style={{ marginTop: "auto", paddingTop: 8 }}
+                style={{
+                  marginTop: "auto",
+                  padding: "18px 20px",
+                  borderRadius: 16,
+                  background:
+                    "radial-gradient(220px 140px at 50% -20%, rgba(103,232,249,0.07), transparent 70%), linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01))",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
+                }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.66, ease: [0.16, 1, 0.3, 1] }}
@@ -559,22 +567,7 @@ export function GasSponsorModal({
                 </svg>
               </motion.button>
 
-              <button
-                type="button"
-                onClick={onDetail}
-                style={{
-                  fontSize: 13,
-                  color: "#67E8F9",
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  alignSelf: "flex-start",
-                  textDecoration: "underline",
-                  textUnderlineOffset: 3,
-                }}
-              >
-                Detail
-              </button>
+              {/* Detail link removed per design */}
             </div>
           </div>
         </motion.div>
