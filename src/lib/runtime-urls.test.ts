@@ -64,73 +64,54 @@ describe("runtime URL helpers", () => {
     expect(getServerBackendBaseUrl()).toBe("http://backend:6756");
   });
 
-  it("builds AI proxy rewrites for browser-facing routes", async () => {
+  // Rewrites are built from the declarative PROXY_TARGETS table, so these tests
+  // assert the BUILDER behaviour (prefix → `/:path*`, exact verbatim, correct
+  // base) rather than a hand-copied list that drifts whenever a route is added.
+
+  it("maps AI prefixes to wildcard rewrites against the server AI base", async () => {
     process.env.AI_INTERNAL_URL = "http://ai:8001/";
 
     const { getAiProxyRewrites } = await import("./runtime-urls");
+    const rewrites = getAiProxyRewrites();
 
-    expect(getAiProxyRewrites()).toEqual([
-      {
-        source: "/assistants/:path*",
-        destination: "http://ai:8001/assistants/:path*",
-      },
-      {
-        source: "/threads/:path*",
-        destination: "http://ai:8001/threads/:path*",
-      },
-      {
-        source: "/runs/:path*",
-        destination: "http://ai:8001/runs/:path*",
-      },
-      {
-        source: "/info",
-        destination: "http://ai:8001/info",
-      },
-      {
-        source: "/ok",
-        destination: "http://ai:8001/ok",
-      },
-    ]);
+    // every destination points at the resolved AI base (trailing slash stripped)
+    expect(rewrites.every((r) => r.destination.startsWith("http://ai:8001/"))).toBe(true);
+    // prefixes become `<prefix>/:path*`
+    expect(rewrites).toContainEqual({
+      source: "/agui/:path*",
+      destination: "http://ai:8001/agui/:path*",
+    });
+    // exact endpoints are forwarded verbatim (no wildcard)
+    expect(rewrites).toContainEqual({ source: "/ok", destination: "http://ai:8001/ok" });
   });
 
-  it("builds backend proxy rewrites for browser-facing routes", async () => {
+  it("maps backend prefixes to wildcard rewrites against the server backend base", async () => {
     process.env.BACKEND_INTERNAL_URL = "http://backend:6756/";
 
     const { getBackendProxyRewrites } = await import("./runtime-urls");
+    const rewrites = getBackendProxyRewrites();
 
-    expect(getBackendProxyRewrites()).toEqual([
-      {
-        source: "/api/account/:path*",
-        destination: "http://backend:6756/api/account/:path*",
-      },
-      {
-        source: "/api/auth/:path*",
-        destination: "http://backend:6756/api/auth/:path*",
-      },
-      {
-        source: "/api/email/:path*",
-        destination: "http://backend:6756/api/email/:path*",
-      },
-      {
-        source: "/api/health",
-        destination: "http://backend:6756/api/health",
-      },
-      {
-        source: "/api/pools/:path*",
-        destination: "http://backend:6756/api/pools/:path*",
-      },
-      {
-        source: "/api/protocol/:path*",
-        destination: "http://backend:6756/api/protocol/:path*",
-      },
-      {
-        source: "/api/rebalance/:path*",
-        destination: "http://backend:6756/api/rebalance/:path*",
-      },
-      {
-        source: "/api/users/:path*",
-        destination: "http://backend:6756/api/users/:path*",
-      },
-    ]);
+    expect(rewrites.every((r) => r.destination.startsWith("http://backend:6756/"))).toBe(true);
+    expect(rewrites).toContainEqual({
+      source: "/api/auth/:path*",
+      destination: "http://backend:6756/api/auth/:path*",
+    });
+    expect(rewrites).toContainEqual({
+      source: "/api/health",
+      destination: "http://backend:6756/api/health",
+    });
+  });
+
+  it("getProxyRewrites combines backend + AI rewrites", async () => {
+    process.env.AI_INTERNAL_URL = "http://ai:8001/";
+    process.env.BACKEND_INTERNAL_URL = "http://backend:6756/";
+
+    const { getProxyRewrites, getAiProxyRewrites, getBackendProxyRewrites } = await import(
+      "./runtime-urls"
+    );
+
+    expect(getProxyRewrites()).toHaveLength(
+      getAiProxyRewrites().length + getBackendProxyRewrites().length
+    );
   });
 });
