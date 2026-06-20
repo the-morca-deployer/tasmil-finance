@@ -34,6 +34,53 @@
   );
   color: #f4f7fb;
   letter-spacing: -0.01em;
+
+  /* ── Prototype design tokens (cyan/black), scoped to quest ── */
+  --bg: #000000;
+  --bg-2: #141416;
+  --surface: #1c1c1f;
+  --surface-2: rgba(32, 32, 36, 0.3);
+  --text: #f4f7fb;
+  --dim: rgba(244, 247, 251, 0.34);
+  --faint: rgba(244, 247, 251, 0.14);
+  --accent: #67e8f9;
+  --accent-2: #0ea5e9;
+  --accent-deep: #0369a1;
+  --accent-ink: #04141a;
+  --accent-soft: rgba(103, 232, 249, 0.14);
+  --accent-line: rgba(103, 232, 249, 0.32);
+  --accent-glow: rgba(103, 232, 249, 0.5);
+  --tint: rgba(103, 232, 249, 0.16);
+  --green: #6ee7b7;
+  --green-soft: rgba(110, 231, 183, 0.14);
+  --green-line: rgba(110, 231, 183, 0.32);
+  --amber: #fbbf24;
+  --amber-soft: rgba(251, 191, 36, 0.14);
+  --amber-line: rgba(251, 191, 36, 0.32);
+  --gold: #fbc54a;
+  --gold-soft: rgba(251, 197, 74, 0.12);
+  --gold-line: rgba(251, 197, 74, 0.34);
+  --silver: #c9d4e0;
+  --silver-soft: rgba(201, 212, 224, 0.1);
+  --silver-line: rgba(201, 212, 224, 0.3);
+  --bronze: #e0915a;
+  --bronze-soft: rgba(224, 145, 90, 0.1);
+  --bronze-line: rgba(224, 145, 90, 0.34);
+  --diamond: #67e8f9;
+  --diamond-soft: rgba(103, 232, 249, 0.12);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.14);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --grad: linear-gradient(110deg, #ffffff 0%, var(--accent) 52%, var(--accent-2) 100%);
+  --card-grad: linear-gradient(160deg, rgba(32, 32, 36, 0.55), rgba(16, 16, 18, 0.55));
+  --r-pill: 100px;
+  --r-card: 22px;
+  --r-sm: 14px;
+  --r-xs: 10px;
+  --font: var(--font-quest-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-quest-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font);
 }
 
 /* Brand gradient text (quest .text-grad) */
