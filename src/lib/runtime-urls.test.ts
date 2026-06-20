@@ -102,16 +102,31 @@ describe("runtime URL helpers", () => {
     });
   });
 
-  it("getProxyRewrites combines backend + AI rewrites", async () => {
+  it("getProxyRewrites combines backend + AI + quest-backend rewrites", async () => {
     process.env.AI_INTERNAL_URL = "http://ai:8001/";
     process.env.BACKEND_INTERNAL_URL = "http://backend:6756/";
+    process.env.QUEST_BACKEND_INTERNAL_URL = "http://quest-backend:5555/";
 
-    const { getProxyRewrites, getAiProxyRewrites, getBackendProxyRewrites } = await import(
-      "./runtime-urls"
-    );
+    const {
+      getProxyRewrites,
+      getAiProxyRewrites,
+      getBackendProxyRewrites,
+      getQuestBackendProxyRewrites,
+    } = await import("./runtime-urls");
 
     expect(getProxyRewrites()).toHaveLength(
-      getAiProxyRewrites().length + getBackendProxyRewrites().length
+      getAiProxyRewrites().length +
+        getBackendProxyRewrites().length +
+        getQuestBackendProxyRewrites().length
     );
+
+    // Quest-backend rewrites must come BEFORE main-backend rewrites so the
+    // more-specific /api/admin/referral path wins over /api/admin.
+    const all = getProxyRewrites();
+    const questIdx = all.findIndex((r) => r.source === "/api/admin/referral/:path*");
+    const adminIdx = all.findIndex((r) => r.source === "/api/admin/:path*");
+    expect(questIdx).toBeGreaterThanOrEqual(0);
+    expect(adminIdx).toBeGreaterThanOrEqual(0);
+    expect(questIdx).toBeLessThan(adminIdx);
   });
 });

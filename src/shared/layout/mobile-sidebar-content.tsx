@@ -92,16 +92,19 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
           {sidebarData.navGroups.map((group, groupIndex) => (
             <div key={groupIndex} className="space-y-2">
               {group.items.map((item) => {
+                const isExternal = item.url.startsWith("http");
                 // Check if active - also highlight Agents for /chat/* routes
                 const isActive =
-                  pathname === item.url ||
-                  pathname.startsWith(`${item.url}/`) ||
-                  (item.url === "/chat/new" && pathname.startsWith("/chat/"));
+                  !isExternal &&
+                  (pathname === item.url ||
+                    pathname.startsWith(`${item.url}/`) ||
+                    (item.url === "/chat/new" && pathname.startsWith("/chat/")));
                 return (
                   <Link
                     key={item.url}
                     href={item.url}
                     {...(onClose && { onClick: onClose })}
+                    {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     className={cn(
                       "flex items-center gap-3 rounded-full px-4 py-3 font-medium text-sm transition-colors",
                       isActive
@@ -141,7 +144,12 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
             return (
               <div className="flex w-full flex-col gap-2">
                 {/* Quest Card */}
-                <a href="/quest" className="block">
+                <a
+                  href="https://quest.tasmil-finance.xyz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
                   <div className="group relative h-32 cursor-pointer overflow-hidden rounded-xl border border-border bg-zinc-900 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20">
                     <div className="absolute inset-0">
                       <Balatro

@@ -122,7 +122,7 @@ const _sidebarData: SidebarData = {
       items: [
         {
           title: "Tasmil Quest",
-          url: "/quest",
+          url: "https://quest.tasmil-finance.xyz",
           icon: Trophy,
         },
       ],
