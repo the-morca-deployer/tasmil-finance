@@ -1,4 +1,4 @@
-import { type Page, expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
 /**
@@ -50,7 +50,7 @@ function buildMe(o: MeOverrides = {}) {
 
 async function mockSponsorship(
   page: Page,
-  initial: MeOverrides,
+  initial: MeOverrides
 ): Promise<{
   markSeenCalls: () => number;
   setMe: (next: MeOverrides) => void;
