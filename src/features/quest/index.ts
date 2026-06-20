@@ -11,6 +11,7 @@ export { LeaderboardPage } from "./components/leaderboard-page";
 export { LeaderboardTable } from "./components/leaderboard-table";
 export { default as QuestNavbar } from "./components/Navbar";
 export { default as Profile } from "./components/Profile";
+export { Referrals } from "./components/Referrals";
 export { PaginationBar } from "./components/pagination-bar";
 export { PodiumCard } from "./components/podium-card";
 export type { SocialProvider } from "./components/social/SocialConnectButtons";

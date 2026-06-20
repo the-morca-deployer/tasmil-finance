@@ -7,9 +7,10 @@ import { tierDisplay } from "@/features/quest/lib/tier";
 import { qAvatar } from "@/features/quest/lib/avatar";
 import { Flame, PtsCoin } from "@/features/quest/components/icons";
 import { useWallet } from "@/features/quest/context/wallet-context";
+import { Referrals } from "./Referrals";
 import { SocialConnectSection } from "./social/SocialConnectButtons";
 
-type ProfileTab = "overview" | "social";
+type ProfileTab = "overview" | "referrals" | "social";
 
 interface MeFields {
   totalPoints?: number;
@@ -94,6 +95,13 @@ const Profile: React.FC = () => {
         </button>
         <button
           type="button"
+          onClick={() => setTab("referrals")}
+          className={`pnav-item${tab === "referrals" ? " active" : ""}`}
+        >
+          Referrals
+        </button>
+        <button
+          type="button"
           onClick={() => setTab("social")}
           className={`pnav-item${tab === "social" ? " active" : ""}`}
         >
@@ -147,6 +155,12 @@ const Profile: React.FC = () => {
               <div className="text-2xl font-bold">{fmt(completedQuests)}</div>
             </div>
           </div>
+        </section>
+      )}
+
+      {tab === "referrals" && (
+        <section>
+          <Referrals />
         </section>
       )}
 
