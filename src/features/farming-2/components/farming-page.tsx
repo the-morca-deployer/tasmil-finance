@@ -21,7 +21,7 @@ import {
 import type { RiskPreset } from "@/features/account/types";
 import { cn } from "@/lib/utils";
 import { activeNetwork } from "@/shared/config/stellar";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import {
   Dialog,
   DialogContent,

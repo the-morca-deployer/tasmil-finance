@@ -7,8 +7,16 @@ function trimTrailingSlash(url: string): string {
   return url.replace(/\/$/, "");
 }
 
+// ── Base URLs ────────────────────────────────────────────────────────────────
+// Contract by context:
+//   public  → NEXT_PUBLIC_* absolute URL (SSR metadata / absolute links).
+//   browser → the current window origin, so browser calls hit same-origin paths
+//             (/api/*, /agui, …) and are forwarded by the next.config rewrites.
+//   server  → the internal service URL the Next server uses to reach the service
+//             (AI_INTERNAL_URL / BACKEND_INTERNAL_URL), with a localhost dev fallback.
+
 export function getPublicAiBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
-  const url = env["NEXT_PUBLIC_AI_URL"] ?? "";
+  const url = env.NEXT_PUBLIC_AI_URL ?? "";
   return url ? trimTrailingSlash(url) : "";
 }
 
@@ -18,12 +26,12 @@ export function getBrowserAiBaseUrl(
     ? window.location.origin
     : undefined
 ): string {
-  const url = locationOrigin ?? env["NEXT_PUBLIC_AI_URL"] ?? "";
+  const url = locationOrigin ?? env.NEXT_PUBLIC_AI_URL ?? "";
   return url ? trimTrailingSlash(url) : "";
 }
 
 export function getServerAiBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
-  const url = env["AI_INTERNAL_URL"];
+  const url = env.AI_INTERNAL_URL;
   if (url) return trimTrailingSlash(url);
   if (process.env.NODE_ENV === "production") {
     throw new Error("Missing required environment variable: AI_INTERNAL_URL");
@@ -32,7 +40,7 @@ export function getServerAiBaseUrl(env: NodeJS.ProcessEnv = process.env): string
 }
 
 export function getServerBackendBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
-  const url = env["BACKEND_INTERNAL_URL"] ?? env["NEXT_PUBLIC_BACKEND_URL"];
+  const url = env.BACKEND_INTERNAL_URL ?? env.NEXT_PUBLIC_BACKEND_URL;
   if (url) return trimTrailingSlash(url);
   if (process.env.NODE_ENV === "production") {
     throw new Error("Missing required environment variable: BACKEND_INTERNAL_URL");
@@ -50,112 +58,68 @@ export function getBrowserBackendBaseUrl(
   return url ? trimTrailingSlash(url) : "";
 }
 
-export function getAiProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyRewrite[] {
-  const aiBaseUrl = getServerAiBaseUrl(env);
+// ── Proxy rewrites (single source of truth) ──────────────────────────────────
+// next.config rewrites() forwards these same-origin paths to the upstream
+// service. To expose a NEW pass-through path, add ONE entry to `prefixes`
+// (matches `<path>/:path*`) or `exact` below — no need to edit next.config or
+// hand-write the rewrite shape, and the test stays green automatically.
 
+type ProxyTarget = {
+  baseUrl: (env: NodeJS.ProcessEnv) => string;
+  /** Forwarded as `<prefix>/:path*`. */
+  prefixes: string[];
+  /** Forwarded verbatim (single endpoint, no wildcard). */
+  exact: string[];
+};
+
+const PROXY_TARGETS = {
+  ai: {
+    baseUrl: getServerAiBaseUrl,
+    prefixes: ["/assistants", "/threads", "/runs", "/agui"],
+    exact: ["/info", "/ok"],
+  },
+  backend: {
+    baseUrl: getServerBackendBaseUrl,
+    prefixes: [
+      "/api/account",
+      "/api/admin",
+      "/api/admin-auth",
+      "/api/auth",
+      "/api/chat-usage",
+      "/api/credit",
+      "/api/email",
+      "/api/internal/credit",
+      "/api/pools",
+      "/api/protocol",
+      "/api/rebalance",
+      "/api/referral",
+      "/api/topup",
+      "/api/user",
+      "/api/users",
+      "/api/welcome-reward",
+      "/api/quest",
+    ],
+    exact: ["/api/health"],
+  },
+} satisfies Record<string, ProxyTarget>;
+
+function buildRewrites(target: ProxyTarget, env: NodeJS.ProcessEnv): ProxyRewrite[] {
+  const base = target.baseUrl(env);
   return [
-    {
-      source: "/assistants/:path*",
-      destination: `${aiBaseUrl}/assistants/:path*`,
-    },
-    {
-      source: "/threads/:path*",
-      destination: `${aiBaseUrl}/threads/:path*`,
-    },
-    {
-      source: "/runs/:path*",
-      destination: `${aiBaseUrl}/runs/:path*`,
-    },
-    {
-      source: "/info",
-      destination: `${aiBaseUrl}/info`,
-    },
-    {
-      source: "/ok",
-      destination: `${aiBaseUrl}/ok`,
-    },
-    {
-      source: "/agui/:path*",
-      destination: `${aiBaseUrl}/agui/:path*`,
-    },
+    ...target.prefixes.map((p) => ({ source: `${p}/:path*`, destination: `${base}${p}/:path*` })),
+    ...target.exact.map((p) => ({ source: p, destination: `${base}${p}` })),
   ];
 }
 
-export function getBackendProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyRewrite[] {
-  const backendBaseUrl = getServerBackendBaseUrl(env);
+export function getAiProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyRewrite[] {
+  return buildRewrites(PROXY_TARGETS.ai, env);
+}
 
-  return [
-    {
-      source: "/api/account/:path*",
-      destination: `${backendBaseUrl}/api/account/:path*`,
-    },
-    {
-      source: "/api/admin/:path*",
-      destination: `${backendBaseUrl}/api/admin/:path*`,
-    },
-    {
-      source: "/api/admin-auth/:path*",
-      destination: `${backendBaseUrl}/api/admin-auth/:path*`,
-    },
-    {
-      source: "/api/auth/:path*",
-      destination: `${backendBaseUrl}/api/auth/:path*`,
-    },
-    {
-      source: "/api/chat-usage/:path*",
-      destination: `${backendBaseUrl}/api/chat-usage/:path*`,
-    },
-    {
-      source: "/api/credit/:path*",
-      destination: `${backendBaseUrl}/api/credit/:path*`,
-    },
-    {
-      source: "/api/email/:path*",
-      destination: `${backendBaseUrl}/api/email/:path*`,
-    },
-    {
-      source: "/api/health",
-      destination: `${backendBaseUrl}/api/health`,
-    },
-    {
-      source: "/api/internal/credit/:path*",
-      destination: `${backendBaseUrl}/api/internal/credit/:path*`,
-    },
-    {
-      source: "/api/pools/:path*",
-      destination: `${backendBaseUrl}/api/pools/:path*`,
-    },
-    {
-      source: "/api/protocol/:path*",
-      destination: `${backendBaseUrl}/api/protocol/:path*`,
-    },
-    {
-      source: "/api/rebalance/:path*",
-      destination: `${backendBaseUrl}/api/rebalance/:path*`,
-    },
-    {
-      source: "/api/referral/:path*",
-      destination: `${backendBaseUrl}/api/referral/:path*`,
-    },
-    {
-      source: "/api/topup/:path*",
-      destination: `${backendBaseUrl}/api/topup/:path*`,
-    },
-    {
-      source: "/api/user/:path*",
-      destination: `${backendBaseUrl}/api/user/:path*`,
-    },
-    {
-      source: "/api/users/:path*",
-      destination: `${backendBaseUrl}/api/users/:path*`,
-    },
-    {
-      source: "/api/welcome-reward/:path*",
-      destination: `${backendBaseUrl}/api/welcome-reward/:path*`,
-    },
-    {
-      source: "/api/quest/:path*",
-      destination: `${backendBaseUrl}/api/quest/:path*`,
-    },
-  ];
+export function getBackendProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyRewrite[] {
+  return buildRewrites(PROXY_TARGETS.backend, env);
+}
+
+/** All upstream proxy rewrites, for next.config rewrites(). */
+export function getProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyRewrite[] {
+  return [...getBackendProxyRewrites(env), ...getAiProxyRewrites(env)];
 }

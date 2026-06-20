@@ -895,7 +895,7 @@ function ActionBar({
       </button>
       <button
         type="button"
-        className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] py-2.5 font-semibold text-black text-sm shadow-sm transition-all hover:from-[#C5F0FF] hover:to-[#1CCFFF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[image:var(--brand-grad)] py-2.5 font-semibold text-black text-sm shadow-sm transition-all hover:bg-[image:var(--brand-grad-hover)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
         onClick={onSign}
         disabled={signing || !hasXdr}
       >

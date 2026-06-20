@@ -2,7 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useId } from "react";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 
 function formatUsd(value: number): string {
   return new Intl.NumberFormat("en-US", {

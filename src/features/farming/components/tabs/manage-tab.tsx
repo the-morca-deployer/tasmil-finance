@@ -5,7 +5,7 @@ import { Loader2, ShieldOff } from "lucide-react";
 import { PresetCard } from "@/features/account/components/preset-card";
 import type { PresetCardData, RiskPreset } from "@/features/account/types";
 import { cn } from "@/lib/utils";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import type { DiscoveredPool } from "../../types";
 import { FarmingPools } from "../farming-pools";
 

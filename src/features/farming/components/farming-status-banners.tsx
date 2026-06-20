@@ -3,7 +3,7 @@
 import { Info, Shield, Wallet, XCircle } from "lucide-react";
 import type { ReactNode } from "react";
 import type { AccountStatus } from "@/features/account/types";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 
 interface FarmingStatusBannersProps {
   status: AccountStatus;

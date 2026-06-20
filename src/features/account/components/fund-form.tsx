@@ -4,7 +4,7 @@ import { Loader2, Wallet } from "lucide-react";
 import { useId, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { useWalletStore } from "@/store/use-wallet";
 
 import { useStellarBalances } from "../hooks/use-stellar-balance";

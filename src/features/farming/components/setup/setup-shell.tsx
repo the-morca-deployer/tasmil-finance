@@ -3,7 +3,7 @@
 import { ChevronLeft } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { StepDots } from "../shared/step-dots";
 
 interface Props {

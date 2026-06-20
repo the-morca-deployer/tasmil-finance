@@ -5,7 +5,7 @@ import { Clock } from "lucide-react";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { getExplorerUrl } from "@/shared/config/stellar";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { useSorobanTokenMeta } from "../hooks/use-soroban-token-meta";
 import { useStellarTransactions } from "../hooks/use-stellar-transactions";

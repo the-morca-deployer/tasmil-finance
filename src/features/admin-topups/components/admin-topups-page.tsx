@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { useCancelTopup, useFiatPendingTopups, useFulfillTopup } from "../hooks/use-admin-topups";
 
 export function AdminTopupsPage() {

@@ -23,7 +23,7 @@ import { useState } from "react";
 import type { ActivityItem } from "@/features/account/types";
 import { cn } from "@/lib/utils";
 import { getExplorerUrl } from "@/shared/config/stellar";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { groupByDate as groupActivitiesByDate } from "@/shared/utils/date-group";

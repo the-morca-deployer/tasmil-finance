@@ -17,7 +17,7 @@ import { useAdminDashboard } from "@/features/admin-whitelist/hooks/use-admin-da
 import { type QuestStats, useQuestStats } from "@/features/admin-whitelist/hooks/use-quest-stats";
 import { useRegistrationStats } from "@/features/admin-whitelist/hooks/use-registration-stats";
 import { cn } from "@/lib/utils";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Typography } from "@/shared/ui/typography";
 

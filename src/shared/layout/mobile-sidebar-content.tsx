@@ -11,7 +11,7 @@ import { useWallet } from "@/shared/context/wallet-context";
 import { sidebarData } from "@/shared/layout/sidebar-data";
 import { Badge } from "@/shared/ui/badge";
 import Balatro from "@/shared/ui/balatro";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
 import { Typography } from "@/shared/ui/typography";
 
@@ -75,7 +75,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
                 {sidebarData.header.brand_name}
               </span>
               <Badge
-                className="h-4 rounded-full border-0 bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] px-1.5 py-0 font-bold text-[8px] text-black"
+                className="h-4 rounded-full border-0 bg-[image:var(--brand-grad)] px-1.5 py-0 font-bold text-[8px] text-black"
                 variant="outline"
               >
                 {process.env.NEXT_PUBLIC_STELLAR_NETWORK === "mainnet" ? "MAINNET" : "TESTNET"}
@@ -105,7 +105,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
                     className={cn(
                       "flex items-center gap-3 rounded-full px-4 py-3 font-medium text-sm transition-colors",
                       isActive
-                        ? "bg-gradient-to-b from-[#B5EAFF] to-[#00BFFF] text-black shadow-md"
+                        ? "bg-[image:var(--brand-grad)] text-black shadow-md"
                         : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     )}
                   >
@@ -141,12 +141,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
             return (
               <div className="flex w-full flex-col gap-2">
                 {/* Quest Card */}
-                <a
-                  href="https://quest.tasmil-finance.xyz"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block"
-                >
+                <a href="/quest" className="block">
                   <div className="group relative h-32 cursor-pointer overflow-hidden rounded-xl border border-border bg-zinc-900 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20">
                     <div className="absolute inset-0">
                       <Balatro

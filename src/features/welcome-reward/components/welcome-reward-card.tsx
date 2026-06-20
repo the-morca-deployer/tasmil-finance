@@ -2,7 +2,7 @@
 
 import { ArrowUpRight, Gift } from "lucide-react";
 import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Separator } from "@/shared/ui/separator";
 import type { WelcomeRewardStatus } from "../hooks/use-welcome-reward";
@@ -57,7 +57,7 @@ export function WelcomeRewardCard({ status, onOpen }: WelcomeRewardCardProps) {
 
             <div className="h-1.5 overflow-hidden rounded-full bg-muted/40">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#B5EAFF] to-[#00BFFF] transition-all"
+                className="h-full rounded-full bg-[image:var(--brand-grad)] transition-all"
                 style={{ width: `${Math.min(status.progressPercent, 100)}%` }}
               />
             </div>

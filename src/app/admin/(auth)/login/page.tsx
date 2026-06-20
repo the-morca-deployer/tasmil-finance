@@ -4,7 +4,7 @@ import { Bot, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAdminAuth } from "@/features/admin-auth/hooks/use-admin-auth";
-import { Button } from "@/shared/ui/button-v2";
+import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Typography } from "@/shared/ui/typography";
 
