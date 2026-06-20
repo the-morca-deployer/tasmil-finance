@@ -234,3 +234,32 @@
     display: none;
   }
 }
+
+/* ── TF brand loader (RGB-split glitch), scoped to quest ── */
+@keyframes tf-rgbsplit {
+  0% { transform: translate(0); filter: none; }
+  25% { transform: translate(-4px, 1px); filter: drop-shadow(6px 0 #ff2d6b) drop-shadow(-6px 0 #17a8ff); }
+  50% { transform: translate(4px, -1px); filter: drop-shadow(-6px 0 #ff2d6b) drop-shadow(6px 0 #17a8ff); }
+  75%, 100% { transform: translate(0); filter: none; }
+}
+.quest-scope .tf-loader-stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+  z-index: 200;
+}
+.quest-scope .tf-loader-mark {
+  will-change: transform, filter;
+  animation: tf-rgbsplit 0.5s steps(1, end) infinite;
+}
+.quest-scope .tf-loader-mark img {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+  .quest-scope .tf-loader-mark { animation: none; }
+}
