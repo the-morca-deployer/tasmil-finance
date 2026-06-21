@@ -93,7 +93,7 @@ export default function Leaderboard() {
   const { data: globalRaw, isLoading: isLoadingGlobal } = useAnalyticsControllerGlobalLeaderboard({
     ...$,
     query: {
-      ...($ as { query: object }).query,
+      ...$.query,
       enabled: metric === "points",
     },
   });
@@ -101,7 +101,7 @@ export default function Leaderboard() {
   const { data: streakRaw, isLoading: isLoadingStreak } = useAnalyticsControllerStreakLeaderboard({
     ...$,
     query: {
-      ...($ as { query: object }).query,
+      ...$.query,
       enabled: metric === "streak",
     },
   });

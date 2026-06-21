@@ -11,7 +11,9 @@ jest.mock("@/gen-quest/hooks", () => ({
     isLoading: false,
   }),
   useAnalyticsControllerStreakLeaderboard: () => ({ data: { data: [] }, isLoading: false }),
-  useSeasonsControllerCurrent: () => ({ data: { data: { name: "June 2026", prizePoolUsdc: 80 } } }),
+  useSeasonsControllerCurrent: () => ({
+    data: { data: { name: "June 2026", prizePoolUsdc: "80" } },
+  }),
   useSeasonsControllerMyResult: () => ({ data: undefined }),
 }));
 
