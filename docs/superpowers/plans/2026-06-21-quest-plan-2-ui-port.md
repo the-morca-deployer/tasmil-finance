@@ -4,7 +4,7 @@
 
 **Goal:** Bring the `tasmil-quest-frontend@origin/new-ui` look into `tasmil-finance/src/features/quest/`, screen by screen, rewired to the finance data/auth layer and `/quest/*` routing, pixel-faithful to the reference screenshots in `tmp/images-quest/`.
 
-**Architecture:** The standalone new-ui and the finance quest feature already share the same component model, the same Kubb-generated hooks (`gen` vs `gen-quest`, identical hook names), the same `useWallet()` shape, the same cyan design tokens (already present in `quest.css`), and the same UI primitives. The port is therefore mechanical: copy each new-ui source file into the feature, apply a fixed **Porting Substitution Table**, rewrite root links to `/quest/*`, and confirm behavior with a Jest/RTL test plus a screenshot comparison. Visual fidelity is verified by eye against the reference images (no pixel-threshold gate).
+**Architecture:** The current quest UI inside `tasmil-finance` is **visually broken** — this port **fully replaces** it (stylesheet + components) with the `new-ui` versions, not a delta-merge. The two sides share the same component model, the same Kubb-generated hooks (`gen` vs `gen-quest`, identical hook names), the same `useWallet()` shape, and the same UI primitives, so each replacement is mechanical: overwrite the finance file with the new-ui source, apply a fixed **Porting Substitution Table**, rewrite root links to `/quest/*`, and confirm behavior with a Jest/RTL test plus a screenshot comparison. The full new-ui stylesheet (design tokens + component classes) is ported wholesale into `quest.css` first (Task 1). Visual fidelity is verified by eye against the reference images (no pixel-threshold gate).
 
 **Tech Stack:** Next.js 16 App Router, React 19, TanStack Query, Kubb hooks (`@/gen-quest`), framer-motion 12, lucide-react, Radix UI, Biome, Jest + React Testing Library (`pnpm test`).
 
@@ -51,11 +51,13 @@ When copying a file from `git show origin/new-ui:<path>` (in `tasmil-quest-folde
 
 **Do NOT port** new-ui's `WalletProvider` wrapper or `AutoReconnect` into pages — the finance `(quest)/layout.tsx` already provides `WalletProvider` + `AutoReconnect`. Strip any `<WalletProvider>` wrapper from ported page components.
 
-**Tokens:** `src/features/quest/quest.css` already defines the full cyan token set under `.quest-scope` (`--accent:#67e8f9`, `--gold`, `--grad`, `--r-pill`, …) matching new-ui. Only add a component CSS class if a ported component references a class not already in `quest.css`; add it under `.quest-scope` scoping, copied 1:1 from new-ui's stylesheet.
+**Tokens & CSS:** Because the existing finance quest UI is broken, do **not** trust the current `quest.css` — Task 1 ports the **entire** new-ui stylesheet (the `globals.css @theme` token block + the `quest.css` component classes) into `src/features/quest/quest.css`, all scoped under `.quest-scope`. The new-ui `@theme` token names (`--color-accent` …) are rewritten to the `.quest-scope` names finance components expect (`--accent` …) — mapping table in Task 1.
 
 ---
 
 ## File Structure
+
+- Replace: `src/features/quest/quest.css` — full new-ui stylesheet (tokens + component classes), scoped to `.quest-scope`.
 
 Ported/replaced under `src/features/quest/components/`:
 - Presentational sub-components (new or replaced): `Podium.tsx`, `LeaderboardRow.tsx`, `RankMove.tsx`, `StatRing.tsx`, `LedgerRow.tsx`, `QuestStep.tsx`, `CampaignCard.tsx`, `SocialConnectCard.tsx`, `Rise.tsx`, `TFLoader.tsx`, `ui/typography.tsx` (if missing).
@@ -66,16 +68,44 @@ Ported/replaced under `src/features/quest/components/`:
 
 ---
 
-### Task 1: Foundation — presentational sub-components
+### Task 1: Foundation — full stylesheet + presentational sub-components
 
 **Files:**
+- Replace: `src/features/quest/quest.css` (port the entire new-ui stylesheet; the existing one is broken).
 - Create/replace: `src/features/quest/components/{Rise,TFLoader,Podium,LeaderboardRow,RankMove,StatRing,LedgerRow,QuestStep,CampaignCard,SocialConnectCard}.tsx` and `components/ui/typography.tsx` (if missing).
 - Test: `src/features/quest/components/__tests__/quest-primitives.test.tsx`
 
 **Interfaces:**
 - Produces: `Podium({ rows, metric })`, `QuestStep({ status, order, title, description, onClick? })`, `RankMove({ move })`, `StatRing({ value, label, pct })`, `LedgerRow({ time, source, delta })`, `LeaderboardRow({ rank, name, address, score, move })`, `CampaignCard({ data })` where `data: CampaignCardData`, `SocialConnectCard({ provider, connected, handle, onConnect, onDisconnect })`, `Rise`, `TFLoader`. Exact prop names come from the new-ui source — copy them verbatim.
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Port the full new-ui stylesheet into `quest.css`**
+
+Read both new-ui stylesheets and rebuild `src/features/quest/quest.css` from them (this replaces the broken existing file):
+
+```bash
+# from tasmil-quest-folder/frontend
+git show origin/new-ui:src/styles/globals.css   # @theme token block
+git show origin/new-ui:src/styles/quest.css     # component classes (.page, .camp-card, .x-hero, .qs-row, .podium, .row, .social-card, .stat-ring, .ledger-row, .referral-table, @keyframes rgbsplit, ...)
+```
+
+Build the new `quest.css` as: a `.quest-scope { … }` block containing the token set (rewrite the `@theme` `--color-*` names to the `.quest-scope` names the components use), followed by every component class from new-ui's `quest.css`, each selector prefixed/scoped so it only applies inside `.quest-scope` (e.g. `.quest-scope .camp-card { … }`, or wrap the whole sheet in `.quest-scope { … }` using nesting). Token name mapping:
+
+| new-ui `@theme` | `.quest-scope` var |
+|---|---|
+| `--color-accent` / `-2` / `-deep` / `-ink` / `-soft` / `-line` / `-glow` | `--accent` / `--accent-2` / `--accent-deep` / `--accent-ink` / `--accent-soft` / `--accent-line` / `--accent-glow` |
+| `--color-background` / `--color-bg-2` / `--color-surface` / `--color-foreground` | `--bg` / `--bg-2` / `--surface` / `--text` |
+| `--color-green*` / `--color-amber*` | `--green*` / `--amber*` |
+| `--gradient-brand` / `--gradient-card` | `--grad` / `--card-grad` |
+| `--radius-pill` / `--radius-card` / `--radius-sm` / `--radius-xs` | `--r-pill` / `--r-card` / `--r-sm` / `--r-xs` |
+| `--color-muted` / `--color-dim` / `--color-line` / `--color-line-2` | `--muted` / `--dim` / `--line` / `--line-2` |
+
+Keep the `--font` / `--font-mono` vars wired to the existing `--font-quest-sans` / `--font-quest-mono` the `(quest)/layout.tsx` already provides.
+
+- [ ] **Step 2: Verify the stylesheet loads (visual smoke)**
+
+Run `pnpm dev`, open `/quest`. The page must render the dark cyan theme without raw-unstyled flashes or missing-variable artifacts (no `var(--…)` resolving to nothing). This is a visual check, not a unit test. Fix any unmapped token references before proceeding.
+
+- [ ] **Step 3: Write the failing test**
 
 Create `src/features/quest/components/__tests__/quest-primitives.test.tsx`:
 
@@ -116,12 +146,12 @@ describe("quest primitives", () => {
 
 > Note: align the prop names/shapes in this test with the actual new-ui source you copy in Step 3. If new-ui's `Podium` prop is named differently (e.g. `entries` not `rows`), update both the source-derived component and this test to match — the test must exercise the real API.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [ ] **Step 4: Run test to verify it fails**
 
 Run: `pnpm test -- quest-primitives`
 Expected: FAIL — cannot find module `../Podium` (and siblings).
 
-- [ ] **Step 3: Port the components (minimal GREEN)**
+- [ ] **Step 5: Port the components (minimal GREEN)**
 
 For each component below, read the new-ui source and write the finance copy applying the Porting Substitution Table. None of these consume hooks or wallet — they are pure presentational, so the only substitutions are `@/components/ui/*` → `@/features/quest/components/ui/*` and `./RankMove` style relative imports (keep relative).
 
@@ -142,17 +172,17 @@ git show origin/new-ui:src/components/ui/typography.tsx         # only if src/fe
 
 Place each at `src/features/quest/components/<Name>.tsx` (flat — drop the `quest/` sub-folder). In `CampaignCard.tsx`, rewrite the `Link href` from `/campaign/${id}` to `/quest/campaign/${id}`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [ ] **Step 6: Run test to verify it passes**
 
 Run: `pnpm test -- quest-primitives`
 Expected: PASS (3 tests green).
 
-- [ ] **Step 5: Lint + commit**
+- [ ] **Step 7: Lint + commit**
 
 ```bash
 pnpm check:fix
-git add src/features/quest/components
-git commit -m "feat(quest): port new-ui presentational primitives (Podium, StatRing, QuestStep, ...)
+git add src/features/quest/quest.css src/features/quest/components
+git commit -m "feat(quest): port new-ui stylesheet + presentational primitives (Podium, StatRing, QuestStep, ...)
 
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
@@ -658,7 +688,7 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 
 **Spec coverage (Plan 2 portion — Workstream A1–A4):**
 - A1 tokens → already present in `quest.css`; Porting Table notes "add only missing classes". ✓
-- A2 quest.css component classes → covered by "add any class a ported component references" within each port task; the token block is confirmed present. ✓
+- A2 quest.css → Task 1 ports the **entire** new-ui stylesheet (tokens + component classes) into `quest.css`, replacing the broken existing file. ✓
 - A3 components (Podium, LeaderboardRow, RankMove, StatRing, LedgerRow, QuestStep, CampaignCard, Rise, TFLoader, screens) ported + rewired to `@/gen-quest` and feature wallet/auth → Tasks 1–7. Retire legacy → Task 8. ✓
 - A4 routing → Porting Table link rewrites in every task + Task 8 route/barrel wiring. ✓
 - Pixel verification → Step 5 screenshot-compare against named reference images in each screen task. ✓
