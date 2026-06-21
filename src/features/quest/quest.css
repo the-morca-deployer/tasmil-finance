@@ -1805,3 +1805,87 @@
   color: var(--dim);
   text-transform: uppercase;
 }
+
+/* ===== CampaignDetail utility classes (upstream gap fix) ===== */
+
+/* Primary CTA button — cyan/accent filled, pill-shaped */
+.quest-scope .btn-primary {
+  background: var(--grad);
+  color: var(--accent-ink);
+  border-color: transparent;
+}
+.quest-scope .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px -8px var(--accent-glow);
+  filter: brightness(1.06);
+}
+.quest-scope .btn-primary:active {
+  transform: translateY(0);
+  filter: brightness(0.97);
+}
+
+/* Block (full-width) button modifier */
+.quest-scope .btn-block {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Base badge — neutral status pill */
+.quest-scope .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+/* Clock/time-left badge variant — accent-tinted */
+.quest-scope .badge-clock {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+  color: var(--accent);
+  gap: 5px;
+}
+
+/* Section eyebrow label */
+.quest-scope .label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* Empty-state container */
+.quest-scope .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  gap: 8px;
+}
+
+/* Empty-state title */
+.quest-scope .et {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* Empty-state subtitle */
+.quest-scope .es {
+  font-size: 14px;
+  color: var(--dim);
+  line-height: 1.55;
+}
