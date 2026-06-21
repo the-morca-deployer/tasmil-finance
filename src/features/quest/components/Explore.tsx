@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useMemo } from "react";
 import { CampaignCard, type CampaignCardData } from "@/features/quest/components/CampaignCard";
 import { Rise } from "@/features/quest/components/Rise";
 import { Button } from "@/features/quest/components/ui/button";
@@ -13,11 +14,11 @@ import { useCampaignsControllerFindAll } from "@/gen-quest/hooks";
 export default function Explore() {
   const { data, isLoading } = useCampaignsControllerFindAll({ isFeatured: true }, $);
 
-  const items: CampaignCardData[] = (() => {
+  const items: CampaignCardData[] = useMemo(() => {
     if (!data) return [];
     const campaigns = mapApiCampaignsResponse(data);
     return campaigns.slice(0, 6).map(toCampaignCardData);
-  })();
+  }, [data]);
 
   return (
     <div className="space-y-0">
