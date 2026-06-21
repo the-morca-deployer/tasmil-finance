@@ -56,6 +56,9 @@ re-integration:
 - **D1 — dev auth:** add `POST /auth/dev-login` to the quest backend, guarded by
   `NODE_ENV !== 'production'` **and** `QUEST_DEV_LOGIN=true`, minting a real JWT for a seeded test
   user. The frontend dev-bypass calls it on quest mount so authenticated screens load seeded data.
+- **TDD:** all behavioral production code is written test-first (RED → GREEN → REFACTOR). Visual
+  fidelity (CSS/markup pixel match) is not unit-testable and is verified by screenshot comparison
+  against the reference images — this is an explicit, agreed boundary, not a skipped test.
 
 ## 4. Pixel reference
 
@@ -79,9 +82,45 @@ maps to one or more reference images and must match them on layout, spacing, col
 Header reads **"Tasmil Quest"** with nav `Explore / Campaigns / Leaderboard / Profile`; in the
 port these links route to `/quest/*` instead of root.
 
-## 5. Architecture & workstreams
+## 5. Architecture, workstreams & TDD
+
+### TDD methodology
+
+The Iron Law: **no behavioral production code without a failing test first.** Every unit follows
+RED (write one failing test) → verify it fails for the right reason → GREEN (minimal code to pass)
+→ REFACTOR (clean up, stay green).
+
+**What is TDD'd (test-first, mandatory):**
+- Backend logic — `POST /auth/dev-login` (guard behavior, token minting).
+- Seed invariants — after `prisma db seed`, asserted dataset shape.
+- Frontend behavior — component data rendering, conditional states, tab switching, internal link
+  targets, newly-wired endpoints from the gap-check.
+- Cross-screen flows — join/claim/daily-login/link-unlink/reveal-ack.
+
+**Test layers (fast inner loop first):**
+- Jest + React Testing Library (`pnpm test`) — component behavior, the primary inner loop for
+  Workstream A. Watch each fail before porting the component.
+- NestJS Jest (`pnpm test` / `test:e2e` in quest backend) — dev-login and seed invariants.
+- Playwright (`pnpm test:e2e`) — cross-screen logic flows (written test-first against expected
+  seeded data) and screenshot capture.
+
+**What is NOT TDD'd (verified by screenshot, agreed boundary):**
+- Pixel/CSS fidelity. We assert *behavior* with tests and *appearance* with side-by-side
+  screenshot review against `tmp/images-quest/`. A component test checks "renders the campaign
+  title and a `/quest/campaign/:id` link"; the screenshot check confirms it *looks* like the
+  reference. The two are complementary, not a substitute for each other.
+
+**Order within every workstream below:** write the failing test(s) first, watch them fail, then
+write the implementation step(s) that turn them green.
 
 ### Workstream A — Port the new-ui look (tasmil-finance)
+
+**Tests first (RED).** For each screen/component, before porting, write failing Jest/RTL tests
+for its behavior: correct seeded data renders, internal links target `/quest/*` (not root),
+conditional states resolve (e.g. QuestStep locked/active/done, Pending/Claimable/Claimed tabs,
+Points/Streak toggle, podium ordering 2/1/3). Watch them fail against the current/absent
+component. Then port internals (A1–A4) as the minimal GREEN to satisfy them; refactor while green.
+Pixel fidelity is checked separately via screenshot after the component is green.
 
 **A1. Design tokens.** Reconcile new-ui `@theme` token names (`--color-accent`…) with the
 finance `.quest-scope` tokens (`--accent`…). Keep everything scoped to `.quest-scope` so the
@@ -109,6 +148,11 @@ Biome conventions (2-space, double quotes, line width 100, `import type`, no `an
 
 ### Workstream B — Backend ↔ FE gap-check (tasmil-finance)
 
+The diff/checklist itself is analysis (no production code). But every endpoint we decide to
+**wire** is production code → test-first: write a failing component/flow test asserting the new
+data renders (e.g. "My Quests tab lists the seeded joined campaign", "ledger shows points
+history rows", "Disconnect unlinks a social account"), watch it fail, then add the wiring as GREEN.
+
 - Diff generated hooks in `src/gen-quest/` against hooks actually consumed by quest components.
 - Known unwired user-facing endpoints to evaluate: `users/me/campaign` (My Quests),
   `users/:id/points-history` (ledger), `social/unlink`, `referral/me` (commission rates),
@@ -120,7 +164,11 @@ Biome conventions (2-space, double quotes, line width 100, `import type`, no `an
 
 ### Workstream C — Seed + dev-login + Playwright (tasmil-quest-backend + tasmil-finance)
 
-**C1. Seed (full).** Expand `tasmil-quest-backend/prisma/seed.ts` with idempotent upserts (data
+**C1. Seed (full).** Test-first: write a failing seed-invariant test (Jest, runs after
+`prisma db seed` against a test DB) asserting the dataset shape — the primary test user exists with
+the expected points/streak/referralCode, N campaigns with varied task types, an ACTIVE season with
+a non-empty leaderboard and rank rewards, ≥1 referral commission row. Watch it fail, then write the
+seed to satisfy it. Expand `tasmil-quest-backend/prisma/seed.ts` with idempotent upserts (data
 only — no schema change, so no migration needed; the existing `QuestReferralConfig` 3-layer seed
 is preserved):
 - 1 primary test user (known wallet/username, points/streak/tier/referralCode) plus a handful of
@@ -130,7 +178,11 @@ is preserved):
   TELEGRAM_JOIN), plus participations and some completed/claimed tasks.
 - Social accounts, notifications, referral events/commissions.
 
-**C2. Dev-login (D1).** Add `POST /auth/dev-login` to the quest backend:
+**C2. Dev-login (D1).** Test-first: write failing NestJS e2e tests before the handler exists —
+(a) with `QUEST_DEV_LOGIN=true` + non-prod, `POST /auth/dev-login` returns a valid access JWT that
+the JWT guard accepts on a protected route; (b) with the flag unset, it returns 404/403; (c) it is
+never mounted when `NODE_ENV==='production'`. Watch them fail, then implement the handler as GREEN.
+Add `POST /auth/dev-login` to the quest backend:
 - Guarded by `NODE_ENV !== 'production'` **and** `QUEST_DEV_LOGIN=true` (both required; never
   active in production — consistent with the platform's mainnet boot-guard posture).
 - Accepts the test user's wallet/username, mints a real access JWT via the existing signing path.
@@ -138,7 +190,9 @@ is preserved):
   to obtain a valid quest token, so authenticated screens load seeded data for both manual
   browsing and Playwright.
 
-**C3. Playwright (tasmil-finance/e2e).**
+**C3. Playwright (tasmil-finance/e2e).** The logic specs are themselves the test-first artifacts
+for cross-screen flows: written to assert the expected seeded behavior, they fail (RED) until the
+corresponding Workstream A/B implementation lands (GREEN). Screenshot specs are capture-only.
 - Setup: quest backend (seeded) + finance dev server with `DEV_BYPASS=true` + dev-login.
 - Logic specs per screen: assert seeded data renders (campaign counts, detail task lists, podium
   names, profile points/streak/referrals/socials) and key flows work (join campaign, claim task,
@@ -146,13 +200,23 @@ is preserved):
 - Pixel specs: screenshot each screen and store it next to the matching reference image from
   `tmp/images-quest/` for manual side-by-side review (no threshold gating).
 
-## 6. Sequencing
+## 6. Sequencing (test-first throughout)
 
-1. **C1 + C2** — seed + dev-login (unlocks real data for both building and testing).
-2. **A** — port UI screen by screen (Explore → Campaigns → Detail → Leaderboard → Profile),
-   comparing each against its reference image immediately.
-3. **B** — finalize the gap checklist (mostly closed by the port).
-4. **C3** — complete the Playwright suite; ensure `pnpm build` passes before any push.
+1. **C2 dev-login** — RED (failing e2e for guard + token) → GREEN (handler). Unlocks authenticated
+   access for everything after it.
+2. **C1 seed** — RED (failing seed-invariant test) → GREEN (seed script). Provides the data the
+   later RED tests assert against.
+3. **A — port UI screen by screen** (Explore → Campaigns → Detail → Leaderboard → Profile). Per
+   component: RED (Jest/RTL behavior test) → GREEN (port internals) → REFACTOR → screenshot-compare
+   against its reference image. B's wiring is folded in here, test-first, as each screen needs it.
+4. **B — finalize the gap checklist** — confirm what the port closed; record the remainder with
+   reasons. Any still-wired endpoint follows the same RED → GREEN.
+5. **C3 — Playwright suite** — flesh out the cross-screen logic specs (RED before their screens are
+   done, GREEN after) and screenshot captures. Ensure `pnpm test` and `pnpm build` pass before any
+   push.
+
+Each step's tests must be watched failing before its implementation is written; no behavioral code
+lands without a test that failed first.
 
 ## 7. Branches & workflow
 
@@ -178,3 +242,7 @@ is preserved):
 - **Dev-login leaking to production** — mitigated by the dual `NODE_ENV` + `QUEST_DEV_LOGIN` guard
   and a boot assertion.
 - **Font/animation flakiness** in screenshots — avoided by not gating on pixel thresholds.
+- **Seed-invariant test needs an isolated test DB** — run against a disposable/ephemeral database
+  so the assertion is deterministic and never touches shared data.
+- **Visual fidelity has no automated gate** (by design) — mitigated by mandatory per-screen
+  screenshot review against the reference images before a screen is considered done.
