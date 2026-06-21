@@ -14,6 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   useUsersControllerGetCheckInStatus,
   useUsersControllerDailyLogin,
+  useUsersControllerGetMyCampaigns,
   usersControllerGetMeQueryKey,
 } from "@/gen-quest/hooks";
 import { withAuth } from "@/features/quest/lib/kubb-config";
@@ -118,6 +119,14 @@ const Navbar: React.FC = () => {
     },
   });
 
+  // Sponsor badge — first joined campaign with metadata.sponsor
+  const myCampaigns = useUsersControllerGetMyCampaigns();
+  const sponsoredName = (
+    (myCampaigns.data?.data as { metadata?: { sponsor?: string } }[] | undefined) ?? []
+  )
+    .map((c) => c.metadata?.sponsor)
+    .find((s): s is string => Boolean(s));
+
   const handleCheckIn = () => {
     if (dailyLoginMutation.isPending) return;
     dailyLoginMutation.mutate(undefined);
@@ -158,15 +167,26 @@ const Navbar: React.FC = () => {
       }}
     >
       {/* Brand */}
-      <Link
-        href="/quest"
-        className="flex items-center gap-[11px] font-bold text-[19px] tracking-[-0.025em]"
-      >
-        <Image src="/logo.png" alt="" width={30} height={30} priority />
-        <span>
-          Tasmil<span className="text-accent">.fin</span>
-        </span>
-      </Link>
+      <div className="flex items-center">
+        <Link
+          href="/quest"
+          className="flex items-center gap-[11px] font-bold text-[19px] tracking-[-0.025em]"
+        >
+          <Image src="/logo.png" alt="" width={30} height={30} priority />
+          <span>
+            Tasmil<span className="text-accent">.fin</span>
+          </span>
+        </Link>
+
+        {sponsoredName ? (
+          <span
+            data-testid="quest-sponsor-badge"
+            className="ml-3 flex h-7 items-center gap-1.5 rounded-full border border-[var(--accent-line)] bg-[var(--accent-soft)] px-2.5 font-medium text-[var(--accent)] text-xs"
+          >
+            Sponsored · {sponsoredName}
+          </span>
+        ) : null}
+      </div>
 
       {/* Desktop nav links */}
       <nav className="hidden md:flex gap-[2px]">
