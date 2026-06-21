@@ -1373,7 +1373,7 @@
 }
 
 /* ===== Shared keyframes ===== */
-@keyframes pulse {
+@keyframes quest-pulse {
   0%,
   100% {
     opacity: 1;
@@ -1382,7 +1382,7 @@
     opacity: 0.5;
   }
 }
-@keyframes spin {
+@keyframes quest-spin {
   to {
     transform: rotate(360deg);
   }
