@@ -1889,3 +1889,146 @@
   color: var(--dim);
   line-height: 1.55;
 }
+
+/* ===== Leaderboard page header (ported from new-ui Leaderboard.tsx) ===== */
+
+/* Eyebrow — inline accent label above headings */
+.quest-scope .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.quest-scope .eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 26px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+/* Page header block */
+.quest-scope .page-head {
+  max-width: 720px;
+}
+
+/* Main page heading */
+.quest-scope .page-title {
+  margin-top: 16px;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--text);
+}
+
+/* Sub-heading / descriptor */
+.quest-scope .page-sub {
+  margin-top: 16px;
+  max-width: 640px;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* ===== Season panel (prize-pool + countdown) ===== */
+
+.quest-scope .season-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 24px 28px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  background: var(--card-grad);
+}
+
+.quest-scope .sp-prize {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quest-scope .sp-prize-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.quest-scope .sp-prize-value {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.quest-scope .sp-usdc {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.quest-scope .sp-usdc-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dim);
+}
+
+.quest-scope .sp-pos {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.quest-scope .sp-countdown {
+  flex: 1 1 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quest-scope .sp-cd-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.quest-scope .sp-cd-units {
+  display: flex;
+  gap: 10px;
+}
+
+.quest-scope .sp-cd-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 52px;
+}
+
+.quest-scope .sp-cd-num {
+  font-size: 28px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.quest-scope .sp-cd-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
