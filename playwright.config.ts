@@ -136,6 +136,20 @@ export default defineConfig({
       },
       timeout: 240_000,
     },
+
+    /* Quest E2E — seeded backend on :5555 + dev-bypass auth bridge */
+    {
+      name: "quest",
+      testDir: "./e2e",
+      testMatch: ["quest/**/*.spec.ts"],
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 900 },
+        navigationTimeout: 60_000,
+        screenshot: { mode: "on", fullPage: true },
+      },
+      timeout: 60_000,
+    },
   ],
 
   /* Run local dev server only when not using an external URL (dev tunnel) */
