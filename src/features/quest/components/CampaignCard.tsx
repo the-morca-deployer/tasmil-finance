@@ -1,53 +1,118 @@
-"use client";
-
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import type { Campaign } from "@/features/quest/types";
-import { Icon, PtsCoin } from "./icons";
-import { qAvatar } from "../lib/avatar";
+import { Badge } from "@/features/quest/components/ui/badge";
 
-const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
+export interface CampaignCardData {
+  id: string;
+  title: string;
+  sponsor: string;
+  pointsReward: number;
+  status: "ongoing" | "closed";
+  endsAt: string;
+  coverUrl: string | null;
+  description?: string;
+  participants?: number;
+  participantAvatars?: string[];
+}
 
-export function AvatarStack({ seed, total }: { seed: string; total: number }) {
+function qHash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (h << 5) - h + s.charCodeAt(i);
+    h |= 0;
+  }
+  return Math.abs(h);
+}
+
+function qAvatar(seed: string): string {
+  const h = qHash(seed);
+  const a = h % 360;
+  const b = (h * 3 + 90) % 360;
+  return `radial-gradient(circle at 32% 28%, hsl(${a} 80% 70%), hsl(${b} 75% 42%) 75%)`;
+}
+
+function fmtCount(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return String(n);
+}
+
+function AvatarStack({
+  campaignId,
+  avatars,
+  total,
+}: {
+  campaignId: string;
+  avatars: string[];
+  total: number;
+}) {
+  const shown = avatars.slice(0, 4);
+  const hasFallbacks = shown.length === 0 && total > 0;
+  const fallbackSeeds = hasFallbacks ? [0, 1, 2, 3] : [];
+
   return (
     <div className="av-stack">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <span key={i} className="av" style={{ background: qAvatar(seed + i) }} />
+      {shown.map((url, i) => (
+        <span
+          key={i}
+          className="av"
+          style={{
+            backgroundImage: `url(${url})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
       ))}
-      <span className="more">{fmt(total)}</span>
+      {fallbackSeeds.map((i) => (
+        <span key={`fb-${i}`} className="av" style={{ background: qAvatar(campaignId + i) }} />
+      ))}
+      <span className="more">{fmtCount(total)}</span>
     </div>
   );
 }
 
-export function CampaignCard({ campaign }: { campaign: Campaign }) {
+export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
   const closed = campaign.status === "closed";
+  const participants = campaign.participants ?? 0;
+  const avatars = campaign.participantAvatars ?? [];
+
   return (
     <Link
-      className={`camp-card${closed ? " closed" : ""}`}
       href={`/quest/campaign/${campaign.id}`}
-      data-status={campaign.status}
-      data-testid="campaign-card"
+      className={`camp-card group${closed ? " closed" : ""}`}
     >
       <div className="cc-cover">
+        <div className="brand-mark">
+          {campaign.coverUrl ? <img src={campaign.coverUrl} alt="" /> : null}
+        </div>
+        <span className="ph-tag">
+          tasmil://{campaign.sponsor.toLowerCase().replace(/\s+/g, "-")}
+        </span>
         <span className="cc-badge-status">
-          <span className={`badge ${closed ? "badge-closed" : "badge-ongoing"}`}>
-            {closed ? "Closed" : "Ongoing"}
-          </span>
+          <Badge variant={closed ? "closed" : "ongoing"}>{closed ? "Closed" : "Ongoing"}</Badge>
         </span>
         <span className="cc-badge-pts">
-          +{fmt(campaign.points)} <PtsCoin className="pcoin" />
+          +{campaign.pointsReward.toLocaleString("en-US")}
+          <svg className="pcoin" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+            <defs>
+              <linearGradient id="ptsCoinGCard" x1="0.15" y1="0.1" x2="0.85" y2="0.9">
+                <stop stopColor="#A5F3FC" />
+                <stop offset="1" stopColor="#0EA5E9" />
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="9" fill="url(#ptsCoinGCard)" />
+            <path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A" />
+          </svg>
         </span>
       </div>
       <div className="cc-body">
         <div className="cc-title">{campaign.title}</div>
-        <div className="cc-desc">{campaign.description}</div>
+        {campaign.description ? <div className="cc-desc">{campaign.description}</div> : null}
       </div>
       <div className="cc-foot">
-        <AvatarStack seed={campaign.id} total={campaign.participants} />
+        <AvatarStack campaignId={campaign.id} avatars={avatars} total={participants} />
         <span className="btn btn-ghost btn-sm">
           {closed ? "View" : "Start Quest"}
-          <span className="arr">
-            <Icon.arrow width={15} height={15} />
-          </span>
+          <ArrowRight size={14} />
         </span>
       </div>
     </Link>
