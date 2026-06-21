@@ -19,7 +19,7 @@ export function StatRing({ value, label, display, size = 140 }: StatRingProps) {
           cx={size / 2}
           cy={size / 2}
           r={r}
-          stroke="var(--color-line-2, rgba(255,255,255,0.14))"
+          stroke="var(--line-2, rgba(255,255,255,0.14))"
           strokeWidth={strokeWidth}
           fill="none"
         />

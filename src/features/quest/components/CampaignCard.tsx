@@ -88,7 +88,7 @@ export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
           tasmil://{campaign.sponsor.toLowerCase().replace(/\s+/g, "-")}
         </span>
         <span className="cc-badge-status">
-          <Badge variant={closed ? "secondary" : "default"}>{closed ? "Closed" : "Ongoing"}</Badge>
+          <Badge variant={closed ? "closed" : "ongoing"}>{closed ? "Closed" : "Ongoing"}</Badge>
         </span>
         <span className="cc-badge-pts">
           +{campaign.pointsReward.toLocaleString("en-US")}
