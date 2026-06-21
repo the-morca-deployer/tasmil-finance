@@ -14,6 +14,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 import apiClient from "@/features/quest/lib/api-client";
+import { ensureQuestDevSession } from "@/features/quest/lib/dev-login-bridge";
 import { withAuth } from "@/features/quest/lib/kubb-config";
 import { activeNetwork } from "@/features/quest/lib/stellar";
 import { type AuthUser, useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
@@ -72,6 +73,12 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setIsConnected(s.connected);
     });
     return unsubscribe;
+  }, []);
+
+  // Under dev-bypass, acquire a real quest JWT from the backend so authenticated
+  // quest screens load seeded data instead of being blocked by auth guards.
+  useEffect(() => {
+    void ensureQuestDevSession();
   }, []);
 
   // ─── Init StellarWalletsKit (browser-only) ───────────────────────────────
