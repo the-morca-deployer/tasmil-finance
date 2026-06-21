@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
               <Link href="/quest">Explore</Link>
               <Link href="/quest/campaigns">Campaigns</Link>
               <Link href="/quest/leaderboard">Leaderboard</Link>
-              <Link href="/quest/profile">My Quests</Link>
+              <Link href="/quest/profile">Profile</Link>
             </div>
 
             {/* Resources */}
