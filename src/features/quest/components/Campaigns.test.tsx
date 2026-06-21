@@ -37,8 +37,8 @@ describe("Campaigns grid", () => {
       data: { success: true, data: { items, meta: { total: 2 } }, error: null },
       isLoading: false,
     });
-    render(<Campaigns />);
-    expect(screen.getAllByTestId("campaign-card")).toHaveLength(2);
+    const { container } = render(<Campaigns />);
+    expect(container.querySelectorAll(".camp-card")).toHaveLength(2);
     expect(screen.getByText("Alpha Quest")).toBeInTheDocument();
   });
 });

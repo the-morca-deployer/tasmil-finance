@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-
 interface TFLoaderProps {
   size?: number;
   className?: string;

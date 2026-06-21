@@ -1,24 +1,26 @@
 import { render, screen } from "@testing-library/react";
-import type { Campaign } from "@/features/quest/types";
+import type { CampaignCardData } from "./CampaignCard";
 import { CampaignCard } from "./CampaignCard";
 
-const base: Campaign = {
+const base: CampaignCardData = {
   id: "soroswap-x",
   title: "Swap & Earn",
-  description: "Swap on Soroswap to earn points.",
+  sponsor: "Stellar",
+  pointsReward: 350,
   status: "ongoing",
-  banner: "",
+  endsAt: "2026-12-31",
+  coverUrl: null,
+  description: "Swap on Soroswap to earn points.",
   participants: 1200,
-  points: 350,
-  chain: "Stellar",
 };
 
 describe("CampaignCard", () => {
-  it("links to the production campaign detail route", () => {
+  it("links to the campaign detail route", () => {
     render(<CampaignCard campaign={base} />);
-    const card = screen.getByTestId("campaign-card");
-    expect(card).toHaveAttribute("href", "/quest/campaign/soroswap-x");
+    const link = screen.getByRole("link");
+    expect(link).toHaveAttribute("href", "/quest/campaign/soroswap-x");
   });
+
   it("renders title, points and Ongoing CTA", () => {
     render(<CampaignCard campaign={base} />);
     expect(screen.getByText("Swap & Earn")).toBeInTheDocument();
@@ -26,6 +28,7 @@ describe("CampaignCard", () => {
     expect(screen.getByText("Start Quest")).toBeInTheDocument();
     expect(screen.getByText("Ongoing")).toBeInTheDocument();
   });
+
   it("shows Closed state with View CTA", () => {
     render(<CampaignCard campaign={{ ...base, status: "closed" }} />);
     expect(screen.getByText("Closed")).toBeInTheDocument();

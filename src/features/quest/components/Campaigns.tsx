@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { useCampaignsControllerFindAll } from "@/gen-quest";
+import React, { useMemo, useState } from "react";
 import { mapApiCampaignsResponse } from "@/features/quest/lib/campaign-mapper";
 import { withAuth } from "@/features/quest/lib/kubb-config";
+import { toCampaignCardData } from "@/features/quest/types";
+import { useCampaignsControllerFindAll } from "@/gen-quest";
 import { CampaignCard } from "./CampaignCard";
-import TFLoader from "./TFLoader";
+import { TFLoader } from "./TFLoader";
 
 type Filter = "all" | "ongoing" | "closed";
 
@@ -93,7 +94,7 @@ const Campaigns: React.FC = () => {
       {!isLoading && !error && (
         <div className="quest-scope grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCampaigns.map((campaign) => (
-            <CampaignCard key={campaign.id} campaign={campaign} />
+            <CampaignCard key={campaign.id} campaign={toCampaignCardData(campaign)} />
           ))}
         </div>
       )}
