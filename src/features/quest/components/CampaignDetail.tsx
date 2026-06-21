@@ -1,40 +1,68 @@
 // @ts-nocheck
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Share2, ExternalLink, Gift, Clock, ShieldCheck, ChevronDown, Loader2, CheckCircle2, Copy, Facebook, Linkedin, Users, Trophy, Wallet, MessageSquare, BarChart2 } from 'lucide-react';
-import { Button } from '@/features/quest/components/ui/button';
-import ReactMarkdown from 'react-markdown';
-import { Card, CardContent } from '@/features/quest/components/ui/card-v2';
-import { Badge } from '@/features/quest/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/features/quest/components/ui/dialog';
-import { Avatar, AvatarImage, AvatarFallback } from '@/features/quest/components/ui/avatar';
-import { Input } from '@/features/quest/components/ui/input';
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  BarChart2,
+  CheckCircle2,
+  ChevronDown,
+  Clock,
+  Copy,
+  ExternalLink,
+  Facebook,
+  Gift,
+  Linkedin,
+  Loader2,
+  MessageSquare,
+  Share2,
+  ShieldCheck,
+  Trophy,
+  Users,
+  Wallet,
+} from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/features/quest/components/ui/avatar";
+import { Badge } from "@/features/quest/components/ui/badge";
+import { Button } from "@/features/quest/components/ui/button";
+import { Card, CardContent } from "@/features/quest/components/ui/card-v2";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/features/quest/components/ui/dialog";
+import { Input } from "@/features/quest/components/ui/input";
+import { useWallet } from "@/features/quest/context/wallet-context";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { CAMPAIGNS } from '@/features/quest/data/mock'; // Keep for fallback/mock data
-import { CampaignStep } from '@/features/quest/types';
-import { toast } from 'sonner';
-import { useWallet } from '@/features/quest/context/wallet-context';
-import { 
-  useCampaignsControllerFindOne,
-  useCampaignsControllerJoinCampaign,
-  useCampaignsControllerGetNotJoinedCampaigns,
+import { CAMPAIGNS } from "@/features/quest/data/mock"; // Keep for fallback/mock data
+import {
+  mapApiCampaignsResponse,
+  mapApiCampaignToCampaign,
+  mapTaskState,
+} from "@/features/quest/lib/campaign-mapper";
+import { $, withAuth } from "@/features/quest/lib/kubb-config";
+import { CampaignStep } from "@/features/quest/types";
+import {
   useCampaignsControllerClaimCampaign,
-  useTasksControllerVerifyTask,
-  useTasksControllerGetStatus,
-  useTasksControllerGetClaimStatus,
-  useTasksControllerClaimTask,
+  useCampaignsControllerFindOne,
+  useCampaignsControllerGetNotJoinedCampaigns,
+  useCampaignsControllerJoinCampaign,
+  usersControllerGetMeQueryKey,
   useSocialAccountsControllerFindAll,
   useSocialAccountsControllerLinkAccount,
+  useTasksControllerClaimTask,
+  useTasksControllerGetClaimStatus,
+  useTasksControllerGetStatus,
+  useTasksControllerVerifyTask,
   useUsersControllerGetMe,
-  usersControllerGetMeQueryKey,
-} from '@/gen-quest/hooks';
-import { $, withAuth } from '@/features/quest/lib/kubb-config';
-import { mapApiCampaignToCampaign, mapApiCampaignsResponse, mapTaskState } from '@/features/quest/lib/campaign-mapper';
-import { TelegramButton } from './TelegramButton';
+} from "@/gen-quest/hooks";
+import { TelegramButton } from "./TelegramButton";
 
 // Social SVGs (Keeping inline for specific colors)
 const XIcon = ({ className }: { className?: string }) => (
@@ -71,18 +99,33 @@ interface QuestItemProps {
     connectedAt: string;
   }>;
   onConnectSocial?: (provider: "X" | "Discord" | "Telegram") => void;
-  onLinkTelegramAccount?: (accountData: { id: string; username?: string; displayName?: string; avatarUrl?: string; [key: string]: unknown }) => void;
+  onLinkTelegramAccount?: (accountData: {
+    id: string;
+    username?: string;
+    displayName?: string;
+    avatarUrl?: string;
+    [key: string]: unknown;
+  }) => void;
 }
 
-const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, onVerified, onProfileUpdate, socialAccounts = [], onConnectSocial, onLinkTelegramAccount }) => {
+const QuestItem: React.FC<QuestItemProps> = ({
+  step,
+  taskId,
+  isAuthenticated,
+  onVerified,
+  onProfileUpdate,
+  socialAccounts = [],
+  onConnectSocial,
+  onLinkTelegramAccount,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'verifying' | 'completed' | 'error'>('idle');
+  const [status, setStatus] = useState<"idle" | "verifying" | "completed" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   // Fetch task status to check if verified
   const { data: taskStatusData, refetch: refetchTaskStatus } = useTasksControllerGetStatus(
-    taskId || '',
+    taskId || "",
     {
       ...withAuth,
       query: {
@@ -94,7 +137,7 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
 
   // Fetch claim status
   const { data: claimStatusData, refetch: refetchClaimStatus } = useTasksControllerGetClaimStatus(
-    taskId || '',
+    taskId || "",
     {
       ...withAuth,
       query: {
@@ -113,20 +156,25 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
         refetchClaimStatus();
         refetchTaskStatus();
         // Invalidate and refetch user query to update Navbar points
-        await queryClient.invalidateQueries({ 
+        await queryClient.invalidateQueries({
           queryKey: usersControllerGetMeQueryKey(),
-          refetchType: 'active' 
+          refetchType: "active",
         });
-        await queryClient.refetchQueries({ 
-          queryKey: usersControllerGetMeQueryKey() 
+        await queryClient.refetchQueries({
+          queryKey: usersControllerGetMeQueryKey(),
         });
         onProfileUpdate?.(); // Refresh profile points
       },
       onError: (error: unknown) => {
-        console.error('Claim task error:', error);
-        const axiosError = error as { response?: { data?: { error?: { message?: string }; message?: string } } };
+        console.error("Claim task error:", error);
+        const axiosError = error as {
+          response?: { data?: { error?: { message?: string }; message?: string } };
+        };
         // Backend returns error in format: { success: false, data: null, error: { code, message } }
-        const message = axiosError.response?.data?.error?.message || axiosError.response?.data?.message || 'Failed to claim task reward. Please try again.';
+        const message =
+          axiosError.response?.data?.error?.message ||
+          axiosError.response?.data?.message ||
+          "Failed to claim task reward. Please try again.";
         toast.error(message);
       },
     },
@@ -145,10 +193,10 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
   useEffect(() => {
     if (taskStatusData?.data) {
       const s = (taskStatusData.data as { status?: string }).status?.toUpperCase();
-      if (s === 'COMPLETED' || s === 'APPROVED') {
-        setStatus('completed');
-      } else if (s === 'PENDING' || s === 'IN_PROGRESS') {
-        setStatus('idle');
+      if (s === "COMPLETED" || s === "APPROVED") {
+        setStatus("completed");
+      } else if (s === "PENDING" || s === "IN_PROGRESS") {
+        setStatus("idle");
       }
     }
   }, [taskStatusData]);
@@ -163,30 +211,35 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
         const responseData = data as { data?: { success?: boolean; message?: string } };
         const innerData = responseData?.data;
         if (innerData?.success) {
-          setStatus('completed');
+          setStatus("completed");
           toast.success(innerData.message || "Task verified successfully!");
           onVerified?.();
           // Refetch task status after successful verification
           refetchTaskStatus();
         } else {
-          setStatus('error');
-          const message = innerData?.message || 'Verification failed';
+          setStatus("error");
+          const message = innerData?.message || "Verification failed";
           setErrorMessage(message);
           toast.error(message);
           // Reset to idle after showing error so user can retry
-          setTimeout(() => setStatus('idle'), 2000);
+          setTimeout(() => setStatus("idle"), 2000);
         }
       },
       onError: (error: unknown) => {
-        console.error('Verify task error:', error);
-        setStatus('error');
-        const axiosError = error as { response?: { data?: { error?: { message?: string }; message?: string } } };
+        console.error("Verify task error:", error);
+        setStatus("error");
+        const axiosError = error as {
+          response?: { data?: { error?: { message?: string }; message?: string } };
+        };
         // Backend returns error in format: { success: false, data: null, error: { code, message } }
-        const message = axiosError.response?.data?.error?.message || axiosError.response?.data?.message || 'Failed to verify task. Please try again.';
+        const message =
+          axiosError.response?.data?.error?.message ||
+          axiosError.response?.data?.message ||
+          "Failed to verify task. Please try again.";
         setErrorMessage(message);
         toast.error(message);
         // Reset to idle after showing error so user can retry
-        setTimeout(() => setStatus('idle'), 2000);
+        setTimeout(() => setStatus("idle"), 2000);
       },
     },
   });
@@ -202,7 +255,7 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
       return;
     }
 
-    setStatus('verifying');
+    setStatus("verifying");
     setErrorMessage(null);
     verifyTaskMutation.mutate({ id: taskId });
   };
@@ -210,46 +263,59 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
   // Update status based on mutation state
   useEffect(() => {
     if (verifyTaskMutation.isPending) {
-      setStatus('verifying');
+      setStatus("verifying");
     }
   }, [verifyTaskMutation.isPending]);
 
   const getStepIcon = (type: string, checkId?: string) => {
     const lowerType = type.toLowerCase();
-    if (lowerType === 'visit' && checkId) {
-      if (checkId === 'wallet_connect') return <Wallet size={20} className="text-brand-mid" />;
-      if (checkId === 'sign_message') return <ShieldCheck size={20} className="text-brand-mid" />;
-      if (checkId === 'first_chat') return <MessageSquare size={20} className="text-brand-mid" />;
-      if (checkId === 'vault_preview') return <BarChart2 size={20} className="text-brand-mid" />;
+    if (lowerType === "visit" && checkId) {
+      if (checkId === "wallet_connect") return <Wallet size={20} className="text-brand-mid" />;
+      if (checkId === "sign_message") return <ShieldCheck size={20} className="text-brand-mid" />;
+      if (checkId === "first_chat") return <MessageSquare size={20} className="text-brand-mid" />;
+      if (checkId === "vault_preview") return <BarChart2 size={20} className="text-brand-mid" />;
     }
     switch (lowerType) {
-      case 'twitter':
-      case 'x':
-      case 'x_follow':
-      case 'x_retweet':
-      case 'x_comment':
-      case 'x_like':
+      case "twitter":
+      case "x":
+      case "x_follow":
+      case "x_retweet":
+      case "x_comment":
+      case "x_like":
         return <XIcon className="w-4 h-4 text-white" />;
-      case 'discord': return <DiscordIcon className="w-5 h-5 text-[#5865F2]" />;
-      case 'telegram': return <TelegramIcon className="w-5 h-5 text-[#24A1DE]" />;
-      case 'verify': return <ShieldCheck size={20} className="text-success" />;
-      case 'onchain': return <Gift size={20} className="text-brand-mid" />;
-      case 'visit': return <ExternalLink size={20} className="text-brand-mid" />;
-      default: return <ExternalLink size={20} className="text-muted" />;
+      case "discord":
+        return <DiscordIcon className="w-5 h-5 text-[#5865F2]" />;
+      case "telegram":
+        return <TelegramIcon className="w-5 h-5 text-[#24A1DE]" />;
+      case "verify":
+        return <ShieldCheck size={20} className="text-success" />;
+      case "onchain":
+        return <Gift size={20} className="text-brand-mid" />;
+      case "visit":
+        return <ExternalLink size={20} className="text-brand-mid" />;
+      default:
+        return <ExternalLink size={20} className="text-muted" />;
     }
   };
 
   // Get required social platform for task type
   const getRequiredPlatform = (type: string): "X" | "Discord" | "Telegram" | null => {
     const lowerType = type.toLowerCase();
-    if (lowerType === 'x_follow' || lowerType === 'x_retweet' || lowerType === 'x_comment' || lowerType === 'x_like' || lowerType === 'twitter' || lowerType === 'x') {
-      return 'X';
+    if (
+      lowerType === "x_follow" ||
+      lowerType === "x_retweet" ||
+      lowerType === "x_comment" ||
+      lowerType === "x_like" ||
+      lowerType === "twitter" ||
+      lowerType === "x"
+    ) {
+      return "X";
     }
-    if (lowerType === 'discord') {
-      return 'Discord';
+    if (lowerType === "discord") {
+      return "Discord";
     }
-    if (lowerType === 'telegram') {
-      return 'Telegram';
+    if (lowerType === "telegram") {
+      return "Telegram";
     }
     return null;
   };
@@ -258,34 +324,39 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
   const hasRequiredSocialAccount = (type: string): boolean => {
     const requiredPlatform = getRequiredPlatform(type);
     if (!requiredPlatform) return true; // No social account required
-    return socialAccounts.some(acc => acc.platform === requiredPlatform);
+    return socialAccounts.some((acc) => acc.platform === requiredPlatform);
   };
 
   const getActionLabel = (type: string) => {
     if (step.actionLabel) return step.actionLabel;
     const lowerType = type.toLowerCase();
-    if (lowerType === 'visit' && step.checkId) {
-      if (step.checkId === 'wallet_connect') return 'Connect Wallet';
-      if (step.checkId === 'sign_message') return 'Sign & Verify';
-      if (step.checkId === 'first_chat') return 'Chat with Agent';
-      if (step.checkId === 'vault_preview') return 'Explore Vault';
+    if (lowerType === "visit" && step.checkId) {
+      if (step.checkId === "wallet_connect") return "Connect Wallet";
+      if (step.checkId === "sign_message") return "Sign & Verify";
+      if (step.checkId === "first_chat") return "Chat with Agent";
+      if (step.checkId === "vault_preview") return "Explore Vault";
     }
     switch (lowerType) {
-      case 'twitter':
-      case 'x':
-      case 'x_follow':
-        return 'Follow on X';
-      case 'x_retweet':
-        return 'Retweet on X';
-      case 'x_comment':
-        return 'Comment on X';
-      case 'x_like':
-        return 'Like on X';
-      case 'discord': return 'Join Discord';
-      case 'telegram': return 'Join Telegram';
-      case 'onchain': return 'Interact with Contract';
-      case 'visit': return 'Visit Link';
-      default: return 'Open Link';
+      case "twitter":
+      case "x":
+      case "x_follow":
+        return "Follow on X";
+      case "x_retweet":
+        return "Retweet on X";
+      case "x_comment":
+        return "Comment on X";
+      case "x_like":
+        return "Like on X";
+      case "discord":
+        return "Join Discord";
+      case "telegram":
+        return "Join Telegram";
+      case "onchain":
+        return "Interact with Contract";
+      case "visit":
+        return "Visit Link";
+      default:
+        return "Open Link";
     }
   };
 
@@ -303,16 +374,28 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
   };
 
   return (
-    <div className={`rounded-xl transition-all duration-300 border ${isExpanded ? 'bg-card border-brand-mid/30 shadow-lg' : 'bg-card border-border hover:border-white/10'}`}>
+    <div
+      className={`rounded-xl transition-all duration-300 border ${isExpanded ? "bg-card border-brand-mid/30 shadow-lg" : "bg-card border-border hover:border-white/10"}`}
+    >
       <div
         className="p-4 flex items-center justify-between cursor-pointer select-none group"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-4">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center border transition-colors ${claimStatusData?.data?.claimed ? 'bg-success/10 border-success/30' : status === 'completed' ? 'bg-success/10 border-success/30' : 'bg-background border-border group-hover:bg-white/5'}`}>
-            {claimStatusData?.data?.claimed ? <CheckCircle2 size={20} className="text-success" /> : status === 'completed' ? <CheckCircle2 size={20} className="text-success" /> : getStepIcon(step.type, step.checkId)}
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center border transition-colors ${claimStatusData?.data?.claimed ? "bg-success/10 border-success/30" : status === "completed" ? "bg-success/10 border-success/30" : "bg-background border-border group-hover:bg-white/5"}`}
+          >
+            {claimStatusData?.data?.claimed ? (
+              <CheckCircle2 size={20} className="text-success" />
+            ) : status === "completed" ? (
+              <CheckCircle2 size={20} className="text-success" />
+            ) : (
+              getStepIcon(step.type, step.checkId)
+            )}
           </div>
-          <span className={`font-medium transition-colors ${claimStatusData?.data?.claimed ? 'text-muted line-through' : 'text-primary'}`}>
+          <span
+            className={`font-medium transition-colors ${claimStatusData?.data?.claimed ? "text-muted line-through" : "text-primary"}`}
+          >
             {step.label}
           </span>
         </div>
@@ -323,7 +406,9 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
               +{step.points} PTS
             </span>
           ) : null}
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isExpanded ? 'bg-white/10 rotate-180' : 'hover:bg-white/5'}`}>
+          <div
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isExpanded ? "bg-white/10 rotate-180" : "hover:bg-white/5"}`}
+          >
             <ChevronDown size={18} className="text-muted" />
           </div>
         </div>
@@ -336,10 +421,21 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
               <ReactMarkdown
                 components={{
                   p: ({ children }) => <p className="text-muted mb-2">{children}</p>,
-                  ul: ({ children }) => <ul className="list-disc list-inside mb-2 text-muted space-y-1">{children}</ul>,
-                  ol: ({ children }) => <ol className="list-decimal list-inside mb-2 text-muted space-y-1">{children}</ol>,
+                  ul: ({ children }) => (
+                    <ul className="list-disc list-inside mb-2 text-muted space-y-1">{children}</ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="list-decimal list-inside mb-2 text-muted space-y-1">
+                      {children}
+                    </ol>
+                  ),
                   a: ({ href, children }) => (
-                    <a href={href} className="text-brand-mid hover:underline" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={href}
+                      className="text-brand-mid hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {children}
                     </a>
                   ),
@@ -358,12 +454,13 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
               onClick={(e) => {
                 e.stopPropagation();
                 // wallet_connect and sign_message are auto-completed by WalletContext — open directly
-                const skipTracking = step.checkId === 'wallet_connect' || step.checkId === 'sign_message';
-                if (step.type === 'visit' && taskId && !skipTracking) {
+                const skipTracking =
+                  step.checkId === "wallet_connect" || step.checkId === "sign_message";
+                if (step.type === "visit" && taskId && !skipTracking) {
                   const trackingUrl = `/visit/${taskId}?url=${encodeURIComponent(step.actionUrl)}`;
-                  window.open(trackingUrl, '_blank');
+                  window.open(trackingUrl, "_blank");
                 } else {
-                  window.open(step.actionUrl, '_blank');
+                  window.open(step.actionUrl, "_blank");
                 }
               }}
             >
@@ -380,9 +477,9 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
               // Local `status === 'completed'` (set after a successful verify) is folded
               // in so the button reacts immediately without waiting for a refetch.
               const uiState = mapTaskState({
-                status: status === 'completed' ? 'COMPLETED' : rawStatus,
+                status: status === "completed" ? "COMPLETED" : rawStatus,
                 claimed: isClaimed,
-                verifyFailed: status === 'error',
+                verifyFailed: status === "error",
               });
 
               if (needsSocialAccount) {
@@ -415,9 +512,9 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
                   </Button>
                 );
               }
-              
+
               // If task is verified but not claimed, show Claim button with points
-              if (uiState === 'claimable') {
+              if (uiState === "claimable") {
                 const pointsEarned = taskStatusData?.data?.pointsEarned || 0;
                 return (
                   <Button
@@ -441,10 +538,13 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
                   </Button>
                 );
               }
-              
+
               // If task is claimed, show Claimed button (disabled) with points
-              if (uiState === 'claimed') {
-                const pointsEarned = taskStatusData?.data?.pointsEarned || claimStatusData?.data?.claim?.pointsEarned || 0;
+              if (uiState === "claimed") {
+                const pointsEarned =
+                  taskStatusData?.data?.pointsEarned ||
+                  claimStatusData?.data?.claim?.pointsEarned ||
+                  0;
                 return (
                   <Button
                     variant="secondary"
@@ -457,42 +557,40 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
                   </Button>
                 );
               }
-              
+
               // Show Verify button if task is not verified
               return (
                 <Button
-                  variant={status === 'error' ? 'destructive' : 'default'}
+                  variant={status === "error" ? "destructive" : "default"}
                   size="sm"
-                  className={`text-xs min-w-[120px] ${status === 'completed' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  disabled={status === 'verifying' || status === 'completed' || verifyTaskMutation.isPending}
+                  className={`text-xs min-w-[120px] ${status === "completed" ? "opacity-50 cursor-not-allowed" : ""}`}
+                  disabled={
+                    status === "verifying" || status === "completed" || verifyTaskMutation.isPending
+                  }
                   onClick={handleVerifyClick}
                 >
-                  {status === 'verifying' ? (
+                  {status === "verifying" ? (
                     <>
                       <Loader2 className="animate-spin mr-2 h-3 w-3" />
                       Verifying...
                     </>
-                  ) : status === 'completed' ? (
+                  ) : status === "completed" ? (
                     <>
                       <CheckCircle2 className="mr-2 h-3 w-3" />
                       Verified
                     </>
-                  ) : status === 'error' ? (
-                    <>
-                      Retry Verify
-                    </>
+                  ) : status === "error" ? (
+                    <>Retry Verify</>
                   ) : (
-                    <>
-                      Verify Task
-                    </>
+                    <>Verify Task</>
                   )}
                 </Button>
               );
             })()}
           </div>
-          
+
           {/* Error message display */}
-          {errorMessage && status === 'error' && (
+          {errorMessage && status === "error" && (
             <div className="text-xs text-red-400 bg-red-400/10 px-3 py-2 rounded-lg">
               {errorMessage}
             </div>
@@ -504,10 +602,10 @@ const QuestItem: React.FC<QuestItemProps> = ({ step, taskId, isAuthenticated, on
 };
 
 // More For You Section Component
-  // TODO: Uncomment after running pnpm run generate:api in frontend
+// TODO: Uncomment after running pnpm run generate:api in frontend
 const MoreForYouSection: React.FC<{ currentCampaignId: string }> = ({ currentCampaignId }) => {
   const { isAuthenticated } = useWallet();
-  
+
   // TODO: Uncomment after running generate:api
   // Fetch campaigns user has not joined
   const { data: notJoinedData, isLoading } = useCampaignsControllerGetNotJoinedCampaigns(
@@ -526,7 +624,7 @@ const MoreForYouSection: React.FC<{ currentCampaignId: string }> = ({ currentCam
     if (!notJoinedData) return [];
     const campaigns = mapApiCampaignsResponse(notJoinedData);
     // Filter out current campaign and limit to 2
-    return campaigns.filter(c => c.id !== currentCampaignId).slice(0, 2);
+    return campaigns.filter((c) => c.id !== currentCampaignId).slice(0, 2);
   }, [notJoinedData, currentCampaignId]);
 
   if (isLoading) {
@@ -534,7 +632,7 @@ const MoreForYouSection: React.FC<{ currentCampaignId: string }> = ({ currentCam
       <div className="space-y-4">
         <h4 className="text-sm font-bold text-muted uppercase tracking-wider">More For You</h4>
         <div className="space-y-3">
-          {[1, 2].map(i => (
+          {[1, 2].map((i) => (
             <div key={i} className="flex gap-4 p-3 rounded-xl border border-border animate-pulse">
               <div className="w-16 h-16 rounded-lg bg-muted/20 shrink-0"></div>
               <div className="flex-1 space-y-2">
@@ -556,17 +654,27 @@ const MoreForYouSection: React.FC<{ currentCampaignId: string }> = ({ currentCam
     <div className="space-y-4">
       <h4 className="text-sm font-bold text-muted uppercase tracking-wider">More For You</h4>
       <div className="space-y-3">
-        {notJoinedCampaigns.map(c => (
-          <Link 
-            key={c.id} 
-            href={`/quest/campaign/${c.id}`} 
+        {notJoinedCampaigns.map((c) => (
+          <Link
+            key={c.id}
+            href={`/quest/campaign/${c.id}`}
             className="flex gap-4 p-3 rounded-xl bg-card border border-border hover:border-white/20 transition-all items-center group"
           >
             <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-muted/10">
-              <img src={c.banner || c.coverUrl || 'https://res.cloudinary.com/drjdgtxvh/image/upload/v1781589395/banner-campaign_dwrtkw.png'} alt={c.title} className="w-full h-full object-cover" />
+              <img
+                src={
+                  c.banner ||
+                  c.coverUrl ||
+                  "https://res.cloudinary.com/drjdgtxvh/image/upload/v1781589395/banner-campaign_dwrtkw.png"
+                }
+                alt={c.title}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="min-w-0">
-              <h5 className="font-bold text-sm truncate group-hover:text-brand-mid transition-colors">{c.title}</h5>
+              <h5 className="font-bold text-sm truncate group-hover:text-brand-mid transition-colors">
+                {c.title}
+              </h5>
               <p className="text-xs text-muted truncate">{c.points} Points</p>
             </div>
           </Link>
@@ -582,7 +690,7 @@ const CampaignDetail: React.FC = () => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const { isConnected, isAuthenticated, connect } = useWallet();
   const queryClient = useQueryClient();
-  
+
   // Get user profile refetch function
   const { refetch: refetchUserProfile } = useUsersControllerGetMe({
     ...withAuth,
@@ -593,26 +701,25 @@ const CampaignDetail: React.FC = () => {
   });
 
   // Fetch social accounts
-  const {
-    data: socialAccountsData,
-    refetch: refetchSocialAccounts,
-  } = useSocialAccountsControllerFindAll({
-    ...withAuth,
-    query: {
-      enabled: isAuthenticated,
-    },
-  });
+  const { data: socialAccountsData, refetch: refetchSocialAccounts } =
+    useSocialAccountsControllerFindAll({
+      ...withAuth,
+      query: {
+        enabled: isAuthenticated,
+      },
+    });
 
   const socialAccounts = useMemo(
-    () => (socialAccountsData?.data || socialAccountsData || []) as Array<{
-      id: string;
-      platform: string;
-      platformUserId: string;
-      username?: string;
-      displayName?: string;
-      avatarUrl?: string;
-      connectedAt: string;
-    }>,
+    () =>
+      (socialAccountsData?.data || socialAccountsData || []) as Array<{
+        id: string;
+        platform: string;
+        platformUserId: string;
+        username?: string;
+        displayName?: string;
+        avatarUrl?: string;
+        connectedAt: string;
+      }>,
     [socialAccountsData]
   );
 
@@ -648,35 +755,47 @@ const CampaignDetail: React.FC = () => {
   // Listen for OAuth success messages and link accounts
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
-      if (
-        event.data?.type === "X_AUTH_SUCCESS" ||
-        event.data?.type === "DISCORD_AUTH_SUCCESS"
-      ) {
+      if (event.data?.type === "X_AUTH_SUCCESS" || event.data?.type === "DISCORD_AUTH_SUCCESS") {
         if (event.data?.status === "success" && event.data?.accountData) {
           try {
-            const platform = (event.data.platform || event.data.type.replace("_AUTH_SUCCESS", "")) as "X" | "Discord";
-            linkAccountMutation.mutate({
-              platform,
-              data: event.data.accountData,
-            } as any, {
-              onSuccess: () => {
-                toast.success(`${platform} account linked successfully!`);
-                refetchSocialAccounts();
-              },
-              onError: (error: unknown) => {
-                const axiosError = error as { response?: { status?: number; data?: { error?: { message?: string }; message?: string } } };
-                if (axiosError.response?.status === 409) {
-                  const message = axiosError.response?.data?.error?.message || axiosError.response?.data?.message || "Account is already linked";
-                  toast.info(message);
-                } else {
-                  // Backend returns error in format: { success: false, data: null, error: { code, message } }
-                  const message = axiosError.response?.data?.error?.message || axiosError.response?.data?.message || "Failed to link account";
-                  toast.error(message);
-                  console.error("Link account error:", error);
-                }
-                refetchSocialAccounts();
-              },
-            });
+            const platform = (event.data.platform ||
+              event.data.type.replace("_AUTH_SUCCESS", "")) as "X" | "Discord";
+            linkAccountMutation.mutate(
+              {
+                platform,
+                data: event.data.accountData,
+              } as any,
+              {
+                onSuccess: () => {
+                  toast.success(`${platform} account linked successfully!`);
+                  refetchSocialAccounts();
+                },
+                onError: (error: unknown) => {
+                  const axiosError = error as {
+                    response?: {
+                      status?: number;
+                      data?: { error?: { message?: string }; message?: string };
+                    };
+                  };
+                  if (axiosError.response?.status === 409) {
+                    const message =
+                      axiosError.response?.data?.error?.message ||
+                      axiosError.response?.data?.message ||
+                      "Account is already linked";
+                    toast.info(message);
+                  } else {
+                    // Backend returns error in format: { success: false, data: null, error: { code, message } }
+                    const message =
+                      axiosError.response?.data?.error?.message ||
+                      axiosError.response?.data?.message ||
+                      "Failed to link account";
+                    toast.error(message);
+                    console.error("Link account error:", error);
+                  }
+                  refetchSocialAccounts();
+                },
+              }
+            );
           } catch (error: unknown) {
             console.error("Link account error:", error);
             refetchSocialAccounts();
@@ -691,11 +810,11 @@ const CampaignDetail: React.FC = () => {
   }, [linkAccountMutation, refetchSocialAccounts]);
 
   // Fetch campaign data from API
-  const { 
-    data: campaignData, 
+  const {
+    data: campaignData,
     isLoading: isLoadingCampaign,
     error: campaignError,
-    refetch: refetchCampaign
+    refetch: refetchCampaign,
   } = useCampaignsControllerFindOne(id, {
     ...$,
     query: {
@@ -711,20 +830,27 @@ const CampaignDetail: React.FC = () => {
       meta?: {
         avatars?: string[];
       };
+      id?: string;
+      tasks?: Task[];
     };
     campaign?: unknown;
     participation?: unknown;
     meta?: {
       avatars?: string[];
     };
+    id?: string;
   }
 
   const campaign = useMemo(() => {
     if (!campaignData) return null;
-    // Handle wrapped response structure
+    // Handle wrapped response structure: { data: { campaign: {...} } } or { data: { id, title, ... } }
     const data = (campaignData as CampaignResponse)?.data || (campaignData as CampaignResponse);
     if (data?.campaign) {
       return mapApiCampaignToCampaign(data.campaign);
+    }
+    // Flat structure: data itself is the campaign object
+    if ((data as { id?: string })?.id) {
+      return mapApiCampaignToCampaign(data);
     }
     return null;
   }, [campaignData]);
@@ -756,7 +882,10 @@ const CampaignDetail: React.FC = () => {
   const tasks = useMemo(() => {
     if (!campaignData) return [];
     const data = (campaignData as CampaignResponse)?.data || (campaignData as CampaignResponse);
-    return (data?.campaign as { tasks?: Task[] })?.tasks || [];
+    // Handle nested { campaign: { tasks } } or flat { tasks } structure
+    return (
+      (data?.campaign as { tasks?: Task[] })?.tasks || (data as { tasks?: Task[] })?.tasks || []
+    );
   }, [campaignData]);
 
   // Check if user has joined
@@ -770,20 +899,25 @@ const CampaignDetail: React.FC = () => {
         toast.success("Campaign reward claimed successfully!");
         refetchCampaign();
         // Invalidate and refetch user query to update Navbar points
-        await queryClient.invalidateQueries({ 
+        await queryClient.invalidateQueries({
           queryKey: usersControllerGetMeQueryKey(),
-          refetchType: 'active' 
+          refetchType: "active",
         });
-        await queryClient.refetchQueries({ 
-          queryKey: usersControllerGetMeQueryKey() 
+        await queryClient.refetchQueries({
+          queryKey: usersControllerGetMeQueryKey(),
         });
         refetchUserProfile();
       },
       onError: (error: unknown) => {
         console.error("Claim campaign error:", error);
-        const axiosError = error as { response?: { data?: { error?: { message?: string }; message?: string } } };
+        const axiosError = error as {
+          response?: { data?: { error?: { message?: string }; message?: string } };
+        };
         // Backend returns error in format: { success: false, data: null, error: { code, message } }
-        const message = axiosError.response?.data?.error?.message || axiosError.response?.data?.message || 'Failed to claim campaign reward. Please try again.';
+        const message =
+          axiosError.response?.data?.error?.message ||
+          axiosError.response?.data?.message ||
+          "Failed to claim campaign reward. Please try again.";
         toast.error(message);
       },
     },
@@ -800,15 +934,23 @@ const CampaignDetail: React.FC = () => {
       },
       onError: (error: unknown) => {
         console.error("Join campaign error:", error);
-        const axiosError = error as { response?: { status?: number; data?: { error?: { message?: string }; message?: string } } };
+        const axiosError = error as {
+          response?: { status?: number; data?: { error?: { message?: string }; message?: string } };
+        };
         if (axiosError.response?.status === 409) {
-          const message = axiosError.response?.data?.error?.message || axiosError.response?.data?.message || "You have already joined this campaign";
+          const message =
+            axiosError.response?.data?.error?.message ||
+            axiosError.response?.data?.message ||
+            "You have already joined this campaign";
           toast.info(message);
         } else if (axiosError.response?.status === 401) {
           toast.error("Please connect your wallet first");
         } else {
           // Backend returns error in format: { success: false, data: null, error: { code, message } }
-          const message = axiosError.response?.data?.error?.message || axiosError.response?.data?.message || 'Failed to join campaign. Please try again.';
+          const message =
+            axiosError.response?.data?.error?.message ||
+            axiosError.response?.data?.message ||
+            "Failed to join campaign. Please try again.";
           toast.error(message);
         }
       },
@@ -858,7 +1000,9 @@ const CampaignDetail: React.FC = () => {
             <div className="space-y-4">
               <div className="h-7 w-24 bg-muted/20 rounded animate-pulse"></div>
               <div className="space-y-3">
-                {[1, 2, 3].map(i => <QuestSkeleton key={i} />)}
+                {[1, 2, 3].map((i) => (
+                  <QuestSkeleton key={i} />
+                ))}
               </div>
             </div>
           </div>
@@ -898,7 +1042,10 @@ const CampaignDetail: React.FC = () => {
     return (
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pt-8">
         <div className="mb-8">
-          <Link href="/quest" className="inline-flex items-center text-muted hover:text-primary transition-colors">
+          <Link
+            href="/quest"
+            className="inline-flex items-center text-muted hover:text-primary transition-colors"
+          >
             <ArrowLeft size={16} className="mr-2" />
             Back to Explore
           </Link>
@@ -936,7 +1083,9 @@ const CampaignDetail: React.FC = () => {
                   </div>
                   <div className="text-left">
                     <div className="text-xs text-muted uppercase tracking-wide">Participants</div>
-                    <div className="text-lg font-bold">{campaign?.participants?.toLocaleString()}</div>
+                    <div className="text-lg font-bold">
+                      {campaign?.participants?.toLocaleString()}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -967,7 +1116,10 @@ const CampaignDetail: React.FC = () => {
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pt-8">
         {/* Breadcrumb / Back */}
         <div className="mb-8">
-          <Link href="/quest" className="inline-flex items-center text-muted hover:text-primary transition-colors">
+          <Link
+            href="/quest"
+            className="inline-flex items-center text-muted hover:text-primary transition-colors"
+          >
             <ArrowLeft size={16} className="mr-2" />
             Back to Explore
           </Link>
@@ -986,8 +1138,11 @@ const CampaignDetail: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                 <div className="absolute bottom-6 left-6 right-6">
-                  <Badge variant={campaign.status === 'ongoing' ? 'default' : 'secondary'} className="mb-3">
-                    {campaign.status === 'ongoing' ? 'Ongoing' : 'Closed'}
+                  <Badge
+                    variant={campaign.status === "ongoing" ? "default" : "secondary"}
+                    className="mb-3"
+                  >
+                    {campaign.status === "ongoing" ? "Ongoing" : "Closed"}
                   </Badge>
                   <h1 className="text-3xl font-bold text-white mb-2">{campaign.title}</h1>
                   <p className="text-white/80 text-sm line-clamp-2">{campaign.description}</p>
@@ -1011,7 +1166,9 @@ const CampaignDetail: React.FC = () => {
                   </div>
                   <div className="text-left">
                     <div className="text-xs text-muted uppercase tracking-wide">Participants</div>
-                    <div className="text-lg font-bold">{campaign.participants.toLocaleString()}</div>
+                    <div className="text-lg font-bold">
+                      {campaign.participants.toLocaleString()}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1050,16 +1207,17 @@ const CampaignDetail: React.FC = () => {
 
   const maxAvatars = 5;
   // Use avatars from meta (for findOne) or from campaign.avatars (fallback)
-  const campaignAvatars = avatarsFromMeta.length > 0 ? avatarsFromMeta : (campaign?.avatars || []);
+  const campaignAvatars = avatarsFromMeta.length > 0 ? avatarsFromMeta : campaign?.avatars || [];
   const avatarsToShow = campaignAvatars.slice(0, maxAvatars);
   const remainingCount = campaign.participants - avatarsToShow.length;
-  const formattedRemaining = remainingCount > 1000 
-    ? `+${(remainingCount / 1000).toFixed(0)}k` 
-    : remainingCount > 0 
-      ? `+${remainingCount}` 
-      : '';
+  const formattedRemaining =
+    remainingCount > 1000
+      ? `+${(remainingCount / 1000).toFixed(0)}k`
+      : remainingCount > 0
+        ? `+${remainingCount}`
+        : "";
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
   const shareText = `Join me on this quest: ${campaign.title} on Tasmil Finance!`;
 
   const copyToClipboard = () => {
@@ -1079,51 +1237,55 @@ const CampaignDetail: React.FC = () => {
     claimCampaignMutation.mutate({ id });
   };
 
-  const openSocialShare = (platform: 'twitter' | 'telegram' | 'facebook' | 'linkedin') => {
-    let url = '';
+  const openSocialShare = (platform: "twitter" | "telegram" | "facebook" | "linkedin") => {
+    let url = "";
     switch (platform) {
-      case 'twitter':
+      case "twitter":
         url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
         break;
-      case 'telegram':
+      case "telegram":
         url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
         break;
-      case 'facebook':
+      case "facebook":
         url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
         break;
-      case 'linkedin':
+      case "linkedin":
         url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
         break;
     }
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'TBD';
-    return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    if (!dateString) return "TBD";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pt-8">
-
       {/* Breadcrumb / Back */}
       <div className="mb-8">
-        <Link href="/quest" className="inline-flex items-center text-muted hover:text-primary transition-colors">
+        <Link
+          href="/quest"
+          className="inline-flex items-center text-muted hover:text-primary transition-colors"
+        >
           <ArrowLeft size={16} className="mr-2" />
           Back to Explore
         </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-
         {/* Main Content (Left) */}
         <div className="lg:col-span-8 space-y-10">
-
           {/* Header */}
           <div className="space-y-6">
             <div className="flex flex-wrap items-center gap-3">
-              <Badge variant={campaign.status === 'ongoing' ? 'default' : 'secondary'}>
-                {campaign.status === 'ongoing' ? 'Ongoing' : 'Closed'}
+              <Badge variant={campaign.status === "ongoing" ? "default" : "secondary"}>
+                {campaign.status === "ongoing" ? "Ongoing" : "Closed"}
               </Badge>
               {campaign.endDate && (
                 <div className="flex items-center gap-1.5 text-muted bg-card px-3 py-1 rounded-full text-sm border border-border">
@@ -1133,27 +1295,47 @@ const CampaignDetail: React.FC = () => {
               )}
             </div>
 
-            <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">{campaign.title}</h1>
-            
+            <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">
+              {campaign.title}
+            </h1>
+
             {campaign.description && (
               <p className="text-lg text-muted leading-relaxed">{campaign.description}</p>
             )}
 
             <div className="flex items-center gap-4">
               <div className="flex -space-x-3">
-                {avatarsToShow.length > 0 ? avatarsToShow.map((avatar: string, i: number) => (
-                  <Avatar key={i} className="w-10 h-10 border-2 border-background ring-2 ring-border/50">
-                    <AvatarImage src={avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${campaign.id}-${i}`} />
-                    <AvatarFallback>U</AvatarFallback>
-                  </Avatar>
-                )) : Array.from({ length: Math.min(campaign.participants, 4) }).map((_, i) => (
-                  <Avatar key={i} className="w-10 h-10 border-2 border-background ring-2 ring-border/50">
-                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${campaign.id}-${i}`} />
-                    <AvatarFallback>U</AvatarFallback>
-                  </Avatar>
-                ))}
+                {avatarsToShow.length > 0
+                  ? avatarsToShow.map((avatar: string, i: number) => (
+                      <Avatar
+                        key={i}
+                        className="w-10 h-10 border-2 border-background ring-2 ring-border/50"
+                      >
+                        <AvatarImage
+                          src={
+                            avatar ||
+                            `https://api.dicebear.com/7.x/avataaars/svg?seed=${campaign.id}-${i}`
+                          }
+                        />
+                        <AvatarFallback>U</AvatarFallback>
+                      </Avatar>
+                    ))
+                  : Array.from({ length: Math.min(campaign.participants, 4) }).map((_, i) => (
+                      <Avatar
+                        key={i}
+                        className="w-10 h-10 border-2 border-background ring-2 ring-border/50"
+                      >
+                        <AvatarImage
+                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${campaign.id}-${i}`}
+                        />
+                        <AvatarFallback>U</AvatarFallback>
+                      </Avatar>
+                    ))}
                 {(() => {
-                  const shownCount = avatarsToShow.length > 0 ? avatarsToShow.length : Math.min(campaign.participants, 4);
+                  const shownCount =
+                    avatarsToShow.length > 0
+                      ? avatarsToShow.length
+                      : Math.min(campaign.participants, 4);
                   const extra = campaign.participants - shownCount;
                   if (extra <= 0) return null;
                   const label = extra > 1000 ? `+${(extra / 1000).toFixed(0)}k` : `+${extra}`;
@@ -1165,8 +1347,12 @@ const CampaignDetail: React.FC = () => {
                 })()}
               </div>
               <div className="flex flex-col justify-center">
-                <span className="font-bold text-white text-lg">{campaign.participants.toLocaleString()}</span>
-                <span className="text-xs text-muted uppercase tracking-wide font-medium">Participants</span>
+                <span className="font-bold text-white text-lg">
+                  {campaign.participants.toLocaleString()}
+                </span>
+                <span className="text-xs text-muted uppercase tracking-wide font-medium">
+                  Participants
+                </span>
               </div>
             </div>
           </div>
@@ -1179,112 +1365,137 @@ const CampaignDetail: React.FC = () => {
             </h3>
 
             <div className="space-y-3">
-              {isLoadingCampaign ? (
-                [1, 2, 3].map(i => <QuestSkeleton key={i} />)
-              ) : tasks && tasks.length > 0 ? (
-                tasks.map((task: Task) => {
-                  // Map taskType to CampaignStep type
-                  const mapTaskType = (taskType?: string): 'twitter' | 'discord' | 'telegram' | 'verify' | 'visit' | 'x_follow' | 'x_retweet' | 'x_comment' | 'x_like' | 'onchain' => {
-                    if (!taskType) return 'verify';
-                    const lowerType = taskType.toLowerCase();
-                    if (lowerType === 'x_follow') return 'x_follow';
-                    if (lowerType === 'x_retweet') return 'x_retweet';
-                    if (lowerType === 'x_comment') return 'x_comment';
-                    if (lowerType === 'x_like') return 'x_like';
-                    if (lowerType === 'twitter' || lowerType === 'x') return 'twitter';
-                    if (lowerType === 'discord' || lowerType === 'discord_join') return 'discord';
-                    if (lowerType === 'telegram' || lowerType === 'telegram_join') return 'telegram';
-                    if (lowerType === 'onchain' || lowerType === 'volume_swap') return 'onchain';
-                    if (lowerType === 'agent_chat' || lowerType === 'browse') return 'visit';
-                    if (lowerType === 'verify' || lowerType === 'verification') return 'verify';
-                    return 'visit';
-                  };
-                  
-                  return (
-                    <QuestItem 
-                      key={task.id} 
-                      taskId={task.id}
-                      isAuthenticated={isAuthenticated}
-                      socialAccounts={socialAccounts}
-                      onConnectSocial={handleConnectSocial}
-                      onLinkTelegramAccount={(accountData) => {
-                        linkAccountMutation.mutate({
-                          platform: "Telegram",
-                          data: accountData,
-                        } as any, {
-                          onSuccess: () => {
-                            toast.success("Telegram account linked successfully!");
-                            refetchSocialAccounts();
-                          },
-                          onError: (error: unknown) => {
-                            const axiosError = error as { response?: { status?: number } };
-                            if (axiosError.response?.status === 409) {
-                              toast.info("Telegram account is already linked");
-                            } else {
-                              toast.error("Failed to link Telegram account");
-                              console.error("Link account error:", error);
+              {isLoadingCampaign
+                ? [1, 2, 3].map((i) => <QuestSkeleton key={i} />)
+                : tasks && tasks.length > 0
+                  ? tasks.map((task: Task) => {
+                      // Map taskType to CampaignStep type
+                      const mapTaskType = (
+                        taskType?: string
+                      ):
+                        | "twitter"
+                        | "discord"
+                        | "telegram"
+                        | "verify"
+                        | "visit"
+                        | "x_follow"
+                        | "x_retweet"
+                        | "x_comment"
+                        | "x_like"
+                        | "onchain" => {
+                        if (!taskType) return "verify";
+                        const lowerType = taskType.toLowerCase();
+                        if (lowerType === "x_follow") return "x_follow";
+                        if (lowerType === "x_retweet") return "x_retweet";
+                        if (lowerType === "x_comment") return "x_comment";
+                        if (lowerType === "x_like") return "x_like";
+                        if (lowerType === "twitter" || lowerType === "x") return "twitter";
+                        if (lowerType === "discord" || lowerType === "discord_join")
+                          return "discord";
+                        if (lowerType === "telegram" || lowerType === "telegram_join")
+                          return "telegram";
+                        if (lowerType === "onchain" || lowerType === "volume_swap")
+                          return "onchain";
+                        if (lowerType === "agent_chat" || lowerType === "browse") return "visit";
+                        if (lowerType === "verify" || lowerType === "verification") return "verify";
+                        return "visit";
+                      };
+
+                      return (
+                        <QuestItem
+                          key={task.id}
+                          taskId={task.id}
+                          isAuthenticated={isAuthenticated}
+                          socialAccounts={socialAccounts}
+                          onConnectSocial={handleConnectSocial}
+                          onLinkTelegramAccount={(accountData) => {
+                            linkAccountMutation.mutate(
+                              {
+                                platform: "Telegram",
+                                data: accountData,
+                              } as any,
+                              {
+                                onSuccess: () => {
+                                  toast.success("Telegram account linked successfully!");
+                                  refetchSocialAccounts();
+                                },
+                                onError: (error: unknown) => {
+                                  const axiosError = error as { response?: { status?: number } };
+                                  if (axiosError.response?.status === 409) {
+                                    toast.info("Telegram account is already linked");
+                                  } else {
+                                    toast.error("Failed to link Telegram account");
+                                    console.error("Link account error:", error);
+                                  }
+                                  refetchSocialAccounts();
+                                },
+                              }
+                            );
+                          }}
+                          onProfileUpdate={async () => {
+                            // Invalidate user query to update Navbar points
+                            await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+                            refetchUserProfile();
+                          }}
+                          step={{
+                            id: task.id,
+                            label: task.title || task.name || "Task",
+                            description: task.description,
+                            type: mapTaskType((task as any).type || task.taskType),
+                            actionUrl:
+                              (task as any).metadata?.urlAction ||
+                              task.urlAction ||
+                              task.actionUrl ||
+                              "#",
+                            actionLabel: task.actionLabel,
+                            points: (task as any).pointReward || undefined,
+                            checkId: (task as any).metadata?.checkId,
+                          }}
+                        />
+                      );
+                    })
+                  : campaign.steps?.map((step) => (
+                      <QuestItem
+                        key={step.id}
+                        step={step}
+                        isAuthenticated={isAuthenticated}
+                        socialAccounts={socialAccounts}
+                        onConnectSocial={handleConnectSocial}
+                        onLinkTelegramAccount={(accountData) => {
+                          linkAccountMutation.mutate(
+                            {
+                              platform: "Telegram",
+                              data: accountData,
+                            } as any,
+                            {
+                              onSuccess: () => {
+                                toast.success("Telegram account linked successfully!");
+                                refetchSocialAccounts();
+                              },
+                              onError: (error: unknown) => {
+                                const axiosError = error as { response?: { status?: number } };
+                                if (axiosError.response?.status === 409) {
+                                  toast.info("Telegram account is already linked");
+                                } else {
+                                  toast.error("Failed to link Telegram account");
+                                  console.error("Link account error:", error);
+                                }
+                                refetchSocialAccounts();
+                              },
                             }
-                            refetchSocialAccounts();
-                          },
-                        });
-                      }}
-                      onProfileUpdate={async () => {
-                        // Invalidate user query to update Navbar points
-                        await queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
-                        refetchUserProfile();
-                      }}
-                      step={{
-                        id: task.id,
-                        label: task.title || task.name || 'Task',
-                        description: task.description,
-                        type: mapTaskType((task as any).type || task.taskType),
-                        actionUrl: (task as any).metadata?.urlAction || task.urlAction || task.actionUrl || '#',
-                        actionLabel: task.actionLabel,
-                        points: (task as any).pointReward || undefined,
-                        checkId: (task as any).metadata?.checkId,
-                      }}
-                    />
-                  );
-                })
-              ) : (
-                campaign.steps?.map((step) => (
-                  <QuestItem 
-                    key={step.id} 
-                    step={step}
-                    isAuthenticated={isAuthenticated}
-                    socialAccounts={socialAccounts}
-                    onConnectSocial={handleConnectSocial}
-                    onLinkTelegramAccount={(accountData) => {
-                      linkAccountMutation.mutate({
-                        platform: "Telegram",
-                        data: accountData,
-                      } as any, {
-                        onSuccess: () => {
-                          toast.success("Telegram account linked successfully!");
-                          refetchSocialAccounts();
-                        },
-                        onError: (error: unknown) => {
-                          const axiosError = error as { response?: { status?: number } };
-                          if (axiosError.response?.status === 409) {
-                            toast.info("Telegram account is already linked");
-                          } else {
-                            toast.error("Failed to link Telegram account");
-                            console.error("Link account error:", error);
-                          }
-                          refetchSocialAccounts();
-                        },
-                      });
-                    }}
-                    onProfileUpdate={async () => {
-                      // Invalidate user query to update Navbar points
-                      await queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
-                      refetchUserProfile();
-                    }}
-                  />
-                ))
-              )}
+                          );
+                        }}
+                        onProfileUpdate={async () => {
+                          // Invalidate user query to update Navbar points
+                          await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+                          refetchUserProfile();
+                        }}
+                      />
+                    ))}
               {(!tasks || tasks.length === 0) && !campaign.steps && (
-                <div className="text-muted italic p-4">No specific quests listed for this campaign.</div>
+                <div className="text-muted italic p-4">
+                  No specific quests listed for this campaign.
+                </div>
               )}
             </div>
           </div>
@@ -1299,14 +1510,31 @@ const CampaignDetail: React.FC = () => {
               <ReactMarkdown
                 components={{
                   p: ({ children }) => <p className="text-muted mb-4">{children}</p>,
-                  h1: ({ children }) => <h1 className="text-2xl font-bold text-white mb-4">{children}</h1>,
-                  h2: ({ children }) => <h2 className="text-xl font-bold text-white mb-3">{children}</h2>,
-                  h3: ({ children }) => <h3 className="text-lg font-bold text-white mb-2">{children}</h3>,
-                  ul: ({ children }) => <ul className="list-disc list-inside mb-4 text-muted space-y-2">{children}</ul>,
-                  ol: ({ children }) => <ol className="list-decimal list-inside mb-4 text-muted space-y-2">{children}</ol>,
+                  h1: ({ children }) => (
+                    <h1 className="text-2xl font-bold text-white mb-4">{children}</h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2 className="text-xl font-bold text-white mb-3">{children}</h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="text-lg font-bold text-white mb-2">{children}</h3>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="list-disc list-inside mb-4 text-muted space-y-2">{children}</ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="list-decimal list-inside mb-4 text-muted space-y-2">
+                      {children}
+                    </ol>
+                  ),
                   li: ({ children }) => <li className="text-muted">{children}</li>,
                   a: ({ href, children }) => (
-                    <a href={href} className="text-brand-mid hover:underline" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={href}
+                      className="text-brand-mid hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {children}
                     </a>
                   ),
@@ -1322,33 +1550,35 @@ const CampaignDetail: React.FC = () => {
                   ),
                 }}
               >
-                {campaign.fullDescription || campaign.description || 'No description available.'}
+                {campaign.fullDescription || campaign.description || "No description available."}
               </ReactMarkdown>
             </div>
           </div>
-
         </div>
 
         {/* Sidebar (Right) */}
         <div className="lg:col-span-4 relative">
           <div className="sticky top-28 space-y-6">
-
             <Card className="shadow-2xl shadow-brand-mid/5">
               <CardContent className="p-6 space-y-6">
                 {/* Campaign Cover Image */}
                 {campaign.coverUrl && (
                   <div className="relative h-48 w-full rounded-xl overflow-hidden bg-background group">
-                    <img 
-                      src={campaign.coverUrl} 
-                      alt={campaign.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    <img
+                      src={campaign.coverUrl}
+                      alt={campaign.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   </div>
                 )}
 
                 {campaign.reward && (
                   <div className="relative aspect-square rounded-xl overflow-hidden bg-background group">
-                    <img src={campaign.reward.image} alt="Reward" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <img
+                      src={campaign.reward.image}
+                      alt="Reward"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                     <div className="absolute bottom-4 left-4 right-4 text-center">
                       <div className="inline-block bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 text-xs font-medium mb-2">
@@ -1400,7 +1630,12 @@ const CampaignDetail: React.FC = () => {
                       </>
                     )}
                   </Button>
-                  <Button variant="outline" size="lg" className="w-full gap-2" onClick={() => setIsShareDialogOpen(true)}>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full gap-2"
+                    onClick={() => setIsShareDialogOpen(true)}
+                  >
                     <Share2 size={18} />
                     Share Campaign
                   </Button>
@@ -1410,7 +1645,6 @@ const CampaignDetail: React.FC = () => {
 
             {/* Other Campaigns Preview - Not Joined */}
             <MoreForYouSection currentCampaignId={campaign.id} />
-
           </div>
         </div>
       </div>
@@ -1420,29 +1654,43 @@ const CampaignDetail: React.FC = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Share Campaign</DialogTitle>
-            <DialogDescription>Spread the word and invite friends to join this quest.</DialogDescription>
+            <DialogDescription>
+              Spread the word and invite friends to join this quest.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="grid grid-cols-4 gap-4 py-4">
-            <button onClick={() => openSocialShare('twitter')} className="flex flex-col items-center gap-2 group">
+            <button
+              onClick={() => openSocialShare("twitter")}
+              className="flex flex-col items-center gap-2 group"
+            >
               <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-white/10 transition-colors">
                 <XIcon className="w-5 h-5 text-white" />
               </div>
               <span className="text-xs text-muted">X</span>
             </button>
-            <button onClick={() => openSocialShare('telegram')} className="flex flex-col items-center gap-2 group">
+            <button
+              onClick={() => openSocialShare("telegram")}
+              className="flex flex-col items-center gap-2 group"
+            >
               <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-[#0088cc]/20 transition-colors">
                 <TelegramIcon className="w-6 h-6 text-[#24A1DE]" />
               </div>
               <span className="text-xs text-muted">Telegram</span>
             </button>
-            <button onClick={() => openSocialShare('facebook')} className="flex flex-col items-center gap-2 group">
+            <button
+              onClick={() => openSocialShare("facebook")}
+              className="flex flex-col items-center gap-2 group"
+            >
               <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-[#1877F2]/20 transition-colors">
                 <Facebook size={20} className="text-white" />
               </div>
               <span className="text-xs text-muted">Facebook</span>
             </button>
-            <button onClick={() => openSocialShare('linkedin')} className="flex flex-col items-center gap-2 group">
+            <button
+              onClick={() => openSocialShare("linkedin")}
+              className="flex flex-col items-center gap-2 group"
+            >
               <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-[#0A66C2]/20 transition-colors">
                 <Linkedin size={20} className="text-white" />
               </div>
