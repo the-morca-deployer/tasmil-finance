@@ -1,112 +1,51 @@
 "use client";
 
-import { Search } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { mapApiCampaignsResponse } from "@/features/quest/lib/campaign-mapper";
-import { withAuth } from "@/features/quest/lib/kubb-config";
 import { toCampaignCardData } from "@/features/quest/types";
-import { useCampaignsControllerFindAll } from "@/gen-quest";
-import { CampaignCard } from "./CampaignCard";
-import { TFLoader } from "./TFLoader";
+import { useCampaignsControllerFindAll } from "@/gen-quest/hooks";
+import { CampaignCard, type CampaignCardData } from "./CampaignCard";
+import { Rise } from "./Rise";
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 
-type Filter = "all" | "ongoing" | "closed";
+export default function Campaigns() {
+  const [status, setStatus] = useState<"ongoing" | "closed">("ongoing");
 
-const Campaigns: React.FC = () => {
-  const [filter, setFilter] = useState<Filter>("all");
+  const { data, isLoading } = useCampaignsControllerFindAll({ active: status === "ongoing" });
 
-  // Build query params based on filter
-  const queryParams = useMemo(() => {
-    if (filter === "all") {
-      return undefined; // Fetch all campaigns
-    }
-    return {
-      active: filter === "ongoing", // true for ongoing, false for closed
-    };
-  }, [filter]);
-
-  // Fetch campaigns with caching
-  const { data, isLoading, error } = useCampaignsControllerFindAll(queryParams, {
-    ...withAuth,
-    query: {
-      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-      gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-      refetchOnWindowFocus: false,
-      refetchOnMount: false, // Use cached data if available
-      refetchOnReconnect: false,
-    },
-  });
-
-  // Map API response to Campaign interface
-  const campaigns = useMemo(() => {
+  const items: CampaignCardData[] = useMemo(() => {
     if (!data) return [];
-    return mapApiCampaignsResponse(data);
+    return mapApiCampaignsResponse(data).map(toCampaignCardData);
   }, [data]);
 
-  // Filter campaigns client-side (for status filtering)
-  const filteredCampaigns = useMemo(() => {
-    if (filter === "all") return campaigns;
-    return campaigns.filter((c) => c.status === filter);
-  }, [campaigns, filter]);
-
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 pt-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Campaigns</h1>
-          <p className="text-muted">Discover the latest quests and earn rewards.</p>
+    <div className="page">
+      <Rise>
+        <h1 className="text-[clamp(40px,6vw,68px)] font-bold tracking-[-0.02em]">Campaigns</h1>
+      </Rise>
+      <Rise>
+        <Tabs
+          value={status}
+          onValueChange={(v) => setStatus(v as "ongoing" | "closed")}
+          className="mt-8"
+        >
+          <TabsList>
+            <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
+            <TabsTrigger value="closed">Closed</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </Rise>
+      <Rise>
+        <div className="camp-grid mt-10">
+          {isLoading ? (
+            <div className="text-muted">Loading campaigns.</div>
+          ) : items.length === 0 ? (
+            <div className="text-muted">No {status} campaigns.</div>
+          ) : (
+            items.map((c) => <CampaignCard key={c.id} campaign={c} />)
+          )}
         </div>
-
-        <div className="flex items-center bg-card border border-border rounded-full p-1">
-          {(["all", "ongoing", "closed"] as const).map((f) => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setFilter(f)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                filter === f
-                  ? "bg-brand-gradient text-background shadow-lg"
-                  : "text-muted hover:text-primary"
-              }`}
-            >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Loading State */}
-      {isLoading && (
-        <div className="py-20 flex justify-center" data-testid="quest-loader">
-          <TFLoader size={120} />
-        </div>
-      )}
-
-      {/* Error State */}
-      {error && !isLoading && (
-        <div className="py-20 text-center text-muted">
-          <Search size={48} className="mx-auto mb-4 opacity-20" />
-          <p>Failed to load campaigns. Please try again later.</p>
-        </div>
-      )}
-
-      {/* Grid */}
-      {!isLoading && !error && (
-        <div className="quest-scope grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCampaigns.map((campaign) => (
-            <CampaignCard key={campaign.id} campaign={toCampaignCardData(campaign)} />
-          ))}
-        </div>
-      )}
-
-      {!isLoading && !error && filteredCampaigns.length === 0 && (
-        <div className="py-20 text-center text-muted">
-          <Search size={48} className="mx-auto mb-4 opacity-20" />
-          <p>No campaigns found.</p>
-        </div>
-      )}
+      </Rise>
     </div>
   );
-};
-
-export default Campaigns;
+}
