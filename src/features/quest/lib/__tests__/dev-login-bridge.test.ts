@@ -6,6 +6,8 @@ describe("ensureQuestDevSession", () => {
   afterEach(() => {
     global.fetch = realFetch;
     useQuestAuthStore.getState().logout();
+    delete process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH;
+    delete process.env.NEXT_PUBLIC_QUEST_API_URL;
   });
 
   it("sets the quest auth store from dev-login when bypass is on", async () => {
@@ -19,6 +21,10 @@ describe("ensureQuestDevSession", () => {
 
     expect(useQuestAuthStore.getState().accessToken).toBe("quest-jwt");
     expect(useQuestAuthStore.getState().isAuthenticated).toBe(true);
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/api/auth/dev-login"),
+      expect.objectContaining({ method: "POST" }),
+    );
   });
 
   it("does nothing when bypass is off", async () => {
