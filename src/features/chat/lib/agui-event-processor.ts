@@ -241,7 +241,9 @@ export class AguiEventProcessor {
           // toolName against any still-empty running slot (FIFO).
           if (!targetId && typeof msg.name === "string") {
             const candidate = Object.values(state.toolCallSlots).find(
-              (slot) => slot.toolName === msg.name && slot.result === null
+              // Also match slots with empty string — TOOL_CALL_END fires before MESSAGES_SNAPSHOT
+              // and sets result to "" as a spinner-stop signal; the real content arrives here.
+              (slot) => slot.toolName === msg.name && (slot.result === null || slot.result === "")
             );
             if (candidate) targetId = candidate.id;
           }
