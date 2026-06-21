@@ -193,6 +193,9 @@ export class AguiEventProcessor {
         break;
 
       case "RUN_ERROR":
+        if (typeof window !== "undefined") {
+          (window as any).__AI_STREAM_ACTIVE__ = false;
+        }
         store.applyEvent({
           type: "RUN_ERROR",
           code: event.code ?? "run_error",
@@ -258,6 +261,9 @@ export class AguiEventProcessor {
         // Safety net: stream ended but some slots may still be "running" because
         // their TOOL_CALL_RESULT used a mismatched ID. Force them done so no
         // spinner is left hanging after the agent's final text appears.
+        if (typeof window !== "undefined") {
+          (window as any).__AI_STREAM_ACTIVE__ = false;
+        }
         const state = useChatAgentStore.getState();
         for (const [id, slot] of Object.entries(state.toolCallSlots)) {
           if (slot.status === "running") {
@@ -282,6 +288,9 @@ export class AguiEventProcessor {
         if (typeof window !== "undefined") {
           (window as any).__TASMIL_THREAD_ID__ = event.threadId ?? null;
           (window as any).__LANGSMITH_RUN_ID__ = event.runId ?? null;
+          // Signal to the E2E runner that the AI stream is active.
+          // run-chat.ts checks this to avoid declaring stable mid-generation.
+          (window as any).__AI_STREAM_ACTIVE__ = true;
         }
         break;
       }
