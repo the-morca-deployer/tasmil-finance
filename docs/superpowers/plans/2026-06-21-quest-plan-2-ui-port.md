@@ -263,7 +263,7 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 
 **Interfaces:**
 - Consumes: `CampaignCard`, `Rise`, `Tabs/TabsList/TabsTrigger` (feature ui), `useCampaignsControllerFindAll` (`@/gen-quest/hooks`).
-- Produces: default-exported `Campaigns` with All/Ongoing/Closed filter + grid.
+- Produces: default-exported `Campaigns` with an Ongoing/Closed filter + grid. (The new-ui source has exactly **two** tabs — Ongoing and Closed, default Ongoing, querying `{ active: status === "ongoing" }`. Match the source; the reference screenshot's "All" pill is not in the new-ui code.)
 
 - [ ] **Step 1: Write the failing test**
 
@@ -275,15 +275,14 @@ import Campaigns from "../Campaigns";
 
 jest.mock("@/gen-quest/hooks", () => ({
   useCampaignsControllerFindAll: () => ({
-    data: { data: { items: [{ id: "c1", title: "Index Builder", isActive: true, isFeatured: true, rewardPoints: 450 }] } },
+    data: { data: { items: [{ id: "c1", title: "Index Builder", isActive: true, endAt: "2030-01-01T00:00:00Z", rewardPoints: 450 }] } },
     isLoading: false,
   }),
 }));
 
 describe("Campaigns", () => {
-  it("renders the status filter tabs", () => {
+  it("renders the Ongoing/Closed filter tabs", () => {
     render(<Campaigns />);
-    expect(screen.getByRole("tab", { name: /all/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /ongoing/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /closed/i })).toBeInTheDocument();
   });
@@ -311,7 +310,7 @@ Expected: PASS.
 
 - [ ] **Step 5: Screenshot compare + commit**
 
-Compare `/quest/campaigns` to `tmp/images-quest/2026-06-21 18.23.07.jpg` (search box, All/Ongoing/Closed pills, `Showing N campaigns`, card grid with `tasmil://...` covers + status badges). Then:
+Compare `/quest/campaigns` to `tmp/images-quest/2026-06-21 18.23.07.jpg` (search box, Ongoing/Closed pills — note the screenshot also shows an "All" pill that is NOT in the new-ui source; we match the source's two tabs, flag for product follow-up, `Showing N campaigns`, card grid with `tasmil://...` covers + status badges). Then:
 
 ```bash
 pnpm check:fix
