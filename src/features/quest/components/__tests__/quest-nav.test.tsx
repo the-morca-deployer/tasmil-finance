@@ -22,6 +22,7 @@ jest.mock("@tanstack/react-query", () => ({
 jest.mock("@/gen-quest/hooks", () => ({
   useUsersControllerGetCheckInStatus: () => ({ data: undefined }),
   useUsersControllerDailyLogin: () => ({ mutate: jest.fn(), isPending: false }),
+  useUsersControllerGetMyCampaigns: () => ({ data: undefined }),
   usersControllerGetMeQueryKey: () => ["users", "me"],
 }));
 

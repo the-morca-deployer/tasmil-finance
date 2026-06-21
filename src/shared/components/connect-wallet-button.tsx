@@ -3,6 +3,7 @@
 import { Check, ChevronDown, Copy, ExternalLink, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { useCredits } from "@/features/credits/use-credits";
 import { cn } from "@/lib/utils";
 import { getExplorerUrl, isMainnet } from "@/shared/config/stellar";
@@ -65,9 +66,10 @@ const AddressAvatar = ({ address, size = "size-12", iconSize }: AddressAvatarPro
 
 interface ConnectWalletButtonProps {
   variant?: "topbar" | "sidebar";
+  rankSlot?: ReactNode;
 }
 
-export function ConnectWalletButton({ variant = "sidebar" }: ConnectWalletButtonProps) {
+export function ConnectWalletButton({ variant = "sidebar", rankSlot }: ConnectWalletButtonProps) {
   const { isConnected, address, displayAddress, connect, disconnect } = useWallet();
   const [copied, setCopied] = useState(false);
 
@@ -88,6 +90,7 @@ export function ConnectWalletButton({ variant = "sidebar" }: ConnectWalletButton
         disconnect={disconnect}
         copied={copied}
         copyAddress={copyAddress}
+        rankSlot={rankSlot}
       />
     );
   }
@@ -128,6 +131,7 @@ export function ConnectWalletButton({ variant = "sidebar" }: ConnectWalletButton
         align="start"
         className="w-[var(--radix-dropdown-menu-trigger-width)]"
       >
+        {rankSlot}
         <DropdownMenuItem onClick={copyAddress}>
           {copied ? (
             <Check className="mr-2 h-4 w-4 text-emerald-400" />
@@ -165,6 +169,7 @@ interface TopbarWalletProps {
   disconnect: () => void;
   copied: boolean;
   copyAddress: () => Promise<void>;
+  rankSlot?: ReactNode;
 }
 
 function TopbarWallet({
@@ -175,6 +180,7 @@ function TopbarWallet({
   disconnect,
   copied,
   copyAddress,
+  rankSlot,
 }: TopbarWalletProps) {
   const { data: creditsData, isLoading: creditsLoading } = useCredits();
   const credits = creditsData?.credits ?? 0;
@@ -218,6 +224,7 @@ function TopbarWallet({
             </Typography>
           </div>
         </div>
+        {rankSlot}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link

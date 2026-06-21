@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { QuestHeaderBadges } from "@/features/quest/components/QuestHeaderBadges";
+import { WalletRankInfo } from "@/features/quest/components/WalletRankInfo";
 import { SponsorIndicator } from "@/features/sponsorship/components/sponsor-indicator";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { NavLink } from "./nav-link";
@@ -38,8 +40,9 @@ export function TopNavBar({ sidebarData }: TopNavBarProps) {
       </div>
 
       <div className="ml-auto flex items-center gap-3">
+        <QuestHeaderBadges />
         <SponsorIndicator />
-        <ConnectWalletButton variant="topbar" />
+        <ConnectWalletButton variant="topbar" rankSlot={<WalletRankInfo />} />
       </div>
     </nav>
   );
