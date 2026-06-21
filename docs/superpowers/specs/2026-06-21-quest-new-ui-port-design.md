@@ -12,7 +12,9 @@ Three outcomes, in one coordinated effort:
 
 1. **Port UI** — replace the current Quest UI inside `tasmil-finance` with the look of
    `tasmil-quest-frontend@origin/new-ui`, screen-for-screen, pixel-faithful to the supplied
-   reference screenshots.
+   reference screenshots. Also surface quest data on shared app surfaces: point/streak badges in
+   the `/chat` header, a sponsor badge in the quest header, and rank/top%/tier/points in the shared
+   wallet dropdown.
 2. **Gap-check** — verify which `tasmil-quest-backend` endpoints are not yet wired to the
    frontend, and close the gaps that the new-ui screens cover.
 3. **Seed + verify** — expand the quest backend seed to a full dataset, add a guarded
@@ -47,7 +49,10 @@ re-integration:
 
 - **Target architecture:** port the new-ui look into `tasmil-finance/src/features/quest/`. Quest
   stays part of the monolith, reusing its auth/wallet/layout. The standalone repo is reference only.
-- **Scope:** all screens — Explore, Campaigns, Campaign detail, Leaderboard, Profile (all tabs).
+- **Scope:** all screens — Explore, Campaigns, Campaign detail, Leaderboard, Profile (all tabs) —
+  plus the cross-surface additions: `/chat` header point+streak badges (with check-in), quest
+  header sponsor badge (when joined a sponsored campaign), and rank/top%/tier/points in the shared
+  wallet dropdown.
 - **Pixel-perfect approach:** port CSS + markup 1:1 (pixel-perfect by construction), then verify
   each screen against the reference screenshots in `tmp/images-quest/` (manual side-by-side, no
   automated threshold gating).
@@ -141,6 +146,29 @@ quest theme never leaks into the rest of the monolith. Color values already matc
 
 **A4. Routing.** Keep the finance `(quest)` route paths. Rewrite every internal link in the
 ported components (Navbar, cards, CTAs, footer) from root paths to `/quest/*`.
+
+**A5. Cross-surface badges & wallet dropdown.** Quest data now appears on shared surfaces. The
+shared components (`src/shared/layout/top-nav-bar.tsx`, `src/shared/components/connect-wallet-button.tsx`)
+must stay feature-agnostic — `shared` never imports `@/features/quest`. Instead, quest data is read
+at the composition layer (the dashboard layout / a thin quest-aware wrapper) and passed **into the
+shared components via props/slots**.
+
+- **A5a. `/chat` header badges.** Add a point badge and a streak badge to `TopNavBar` (the `/chat`
+  header), mirroring the quest header. Shown only when the connected user has a quest profile (data
+  via `gen-quest` `users/me`); hidden otherwise. The streak badge triggers daily check-in
+  (`users/me/daily-login`) exactly like the quest `Navbar`, with the same invalidate/refetch and
+  success toast. *Tests first (RED):* badge renders when a quest profile exists; badge absent when
+  it does not; clicking the streak badge fires the check-in mutation and reflects the new streak.
+- **A5b. Quest header sponsor badge.** Add a sponsor badge to the quest header, shown when the user
+  has joined a sponsored campaign (sponsor metadata from the joined-campaign data). *Tests first
+  (RED):* badge renders with the sponsor name when a joined campaign has a sponsor; absent when no
+  joined campaign is sponsored.
+- **A5c. Wallet dropdown rank info.** Extend the shared `ConnectWalletButton` dropdown (used in
+  both the chat/app topbar and elsewhere) to show the user's season rank, top-percentile, tier, and
+  total points (e.g. `#34 · top 92% · Bronze · 10 pts`), sourced from `seasons/me` (rank) +
+  `users/me` (tier/points) and passed in via props. *Tests first (RED):* dropdown renders rank,
+  top%, tier, and points when quest data is provided; falls back gracefully (rank row hidden) when
+  the user has no season result yet.
 
 **Constraints:** feature isolation (no cross-feature imports — use `src/shared/` or props),
 Biome conventions (2-space, double quotes, line width 100, `import type`, no `any`, no
@@ -246,3 +274,9 @@ lands without a test that failed first.
   so the assertion is deterministic and never touches shared data.
 - **Visual fidelity has no automated gate** (by design) — mitigated by mandatory per-screen
   screenshot review against the reference images before a screen is considered done.
+- **Shared ↔ feature coupling** for the cross-surface badges — mitigated by the props/slot pattern
+  (A5): `shared` stays feature-agnostic; quest data is injected at the composition layer, never
+  imported into `src/shared/`.
+- **Badges depend on quest data being reachable from the chat/app context** — under dev-bypass this
+  requires dev-login + seed (C1/C2); in production it requires the user to have a quest profile,
+  which A5a/A5c already gate on (hidden/fallback when absent).
