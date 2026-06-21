@@ -1,124 +1,188 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
-import React, { useMemo } from "react";
+import Link from "next/link";
+import { CampaignCard, type CampaignCardData } from "@/features/quest/components/CampaignCard";
+import { Rise } from "@/features/quest/components/Rise";
 import { Button } from "@/features/quest/components/ui/button";
 import { mapApiCampaignsResponse } from "@/features/quest/lib/campaign-mapper";
-import { withAuth } from "@/features/quest/lib/kubb-config";
+import { $ } from "@/features/quest/lib/kubb-config";
 import { toCampaignCardData } from "@/features/quest/types";
-import { useCampaignsControllerFindAll } from "@/gen-quest";
-import { CampaignCard } from "./CampaignCard";
-import { TFLoader } from "./TFLoader";
+import { useCampaignsControllerFindAll } from "@/gen-quest/hooks";
 
-const Explore: React.FC = () => {
-  const router = useRouter();
+export default function Explore() {
+  const { data, isLoading } = useCampaignsControllerFindAll({ isFeatured: true }, $);
 
-  // Fetch featured campaigns (active/ongoing, limit to 6)
-  const { data, isLoading } = useCampaignsControllerFindAll(
-    { active: true },
-    {
-      ...withAuth,
-      query: {
-        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-        gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-        refetchOnWindowFocus: false,
-        refetchOnMount: false, // Use cached data if available
-        refetchOnReconnect: false,
-      },
-    }
-  );
-
-  // Map API response to Campaign interface and limit to 6 featured campaigns
-  const featuredCampaigns = useMemo(() => {
+  const items: CampaignCardData[] = (() => {
     if (!data) return [];
     const campaigns = mapApiCampaignsResponse(data);
-    // Show only ongoing campaigns and limit to 6
-    return campaigns.filter((c) => c.status === "ongoing").slice(0, 6);
-  }, [data]);
+    return campaigns.slice(0, 6).map(toCampaignCardData);
+  })();
 
   return (
-    <div className="space-y-16 animate-in fade-in duration-700 pt-8">
-      {/* Hero Section */}
-      <section className="relative w-full h-[400px] md:h-[500px] rounded-[32px] overflow-hidden group border border-white/25">
-        <img
-          src="/banner2.png"
-          alt="Hero Background"
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-        />
-        {/* left fade — covers 40% width */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 25%, transparent 40%)",
-          }}
-        ></div>
-        {/* bottom fade */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-
-        <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 max-w-2xl space-y-6">
-          <div className="flex items-center gap-2">
-            <span className="text-brand-mid font-semibold tracking-wide text-sm uppercase">
-              Tasmil Finance Quest
-            </span>
+    <div className="space-y-0">
+      {/* HERO */}
+      <Rise>
+        <section className="x-hero rise">
+          <div className="x-hero-img" aria-hidden="true" />
+          <div className="x-hero-grad" aria-hidden="true" />
+          <div className="x-hero-inner">
+            <div className="eyebrow">June 2026 Season</div>
+            <h1>
+              Embark on your{" "}
+              <span className="bg-[linear-gradient(110deg,#ffffff_0%,#67E8F9_52%,#0EA5E9_100%)] bg-clip-text text-transparent">
+                Tasmil journey
+              </span>
+            </h1>
+            <p>
+              Complete tasks across the Stellar ecosystem, earn points and climb the monthly
+              leaderboard for real USDC rewards.
+            </p>
+            <div className="cta flex gap-3 flex-wrap">
+              <Button variant="primary" size="lg" asChild>
+                <Link href="/quest/campaigns">
+                  Start Questing
+                  <span className="inline-flex" aria-hidden="true">
+                    <ArrowRight size={17} strokeWidth={2.4} />
+                  </span>
+                </Link>
+              </Button>
+              <Button variant="ghost" size="lg" asChild>
+                <Link href="/quest/leaderboard">View leaderboard</Link>
+              </Button>
+            </div>
           </div>
-
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white">
-            Embark On Your <br />
-            Tasmil Journey
-          </h1>
-
-          <p className="text-muted text-lg md:text-xl max-w-lg">
-            Complete tasks, Earn Rewards, And Climb The Leaderboards In The Tasmil Ecosystem.
-          </p>
-
-          <div className="pt-4">
-            <Button
-              variant="gradient"
-              size="lg"
-              className="rounded-full px-8"
-              onClick={() =>
-                document.getElementById("campaigns")?.scrollIntoView({ behavior: "smooth" })
-              }
-            >
-              Start Questing
-              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
+          <div className="x-stats">
+            <div className="x-stat">
+              <div className="v accent">12,400+</div>
+              <div className="k">Questers</div>
+            </div>
+            <div className="x-stat">
+              <div className="v">24</div>
+              <div className="k">Campaigns</div>
+            </div>
+            <div className="x-stat">
+              <div className="v accent">1.2M pts</div>
+              <div className="k">Points Given</div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </Rise>
 
-      {/* Campaigns Section */}
-      <section id="campaigns" className="space-y-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Featured Campaigns</h2>
-          <div className="flex gap-2">
-            <Button
-              variant="secondary"
-              size="icon"
-              className="rounded-full"
-              onClick={() => router.push("/quest/campaigns")}
-            >
-              <ArrowRight className="w-4 h-4" />
-            </Button>
+      {/* WHY QUEST */}
+      <Rise delay={0.05}>
+        <section className="why">
+          <div className="why-card">
+            <div className="why-ico" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" />
+                <path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3" />
+                <path d="M12 14v3M9 21h6M10 21l.5-4h3l.5 4" />
+              </svg>
+            </div>
+            <h3>Earn rewards</h3>
+            <p>
+              Complete quests to earn <b>points redeemable for USDC</b> at the end of every monthly
+              season.
+            </p>
           </div>
-        </div>
+          <div className="why-card">
+            <div className="why-ico" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" />
+              </svg>
+            </div>
+            <h3>Climb ranks</h3>
+            <p>
+              Every quest pushes you higher on the <b>monthly leaderboard</b> where the top 10 split
+              the prize pool.
+            </p>
+          </div>
+          <div className="why-card">
+            <div className="why-ico" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="M3 12h18M12 3c2.5 2.6 4 5.8 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.8-4-9s1.5-6.4 4-9Z" />
+              </svg>
+            </div>
+            <h3>Join the community</h3>
+            <p>
+              Compete globally with thousands of questers and <b>make your mark on Stellar</b>.
+            </p>
+          </div>
+        </section>
+      </Rise>
 
-        {isLoading ? (
-          <div className="py-20 flex justify-center" data-testid="quest-loader">
-            <TFLoader size={120} />
+      {/* FEATURED CAMPAIGNS */}
+      <Rise delay={0.1}>
+        <section>
+          <div className="sec-head">
+            <h2 className="sec-title">Featured campaigns</h2>
+            <Link href="/quest/campaigns" className="sec-link">
+              View all
+              <span className="arr" aria-hidden="true">
+                <ArrowRight size={15} strokeWidth={2.4} />
+              </span>
+            </Link>
           </div>
-        ) : (
-          <div className="quest-scope grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredCampaigns.map((campaign) => (
-              <CampaignCard key={campaign.id} campaign={toCampaignCardData(campaign)} />
-            ))}
+          <div className="camp-grid">
+            {isLoading ? (
+              <>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="skel">
+                    <div className="s-img" />
+                    <div className="s-body">
+                      <div className="s-line" style={{ width: "60%" }} />
+                      <div className="s-line" style={{ width: "80%" }} />
+                      <div className="s-line" style={{ width: "40%" }} />
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : items.length === 0 ? (
+              <div className="empty" style={{ gridColumn: "1/-1" }}>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2Z" />
+                  <path d="M12 8v4M12 16h.01" />
+                </svg>
+                <p className="et">No featured campaigns this season.</p>
+                <p className="es">Check back soon or browse all campaigns.</p>
+              </div>
+            ) : (
+              items.map((c) => <CampaignCard key={c.id} campaign={c} />)
+            )}
           </div>
-        )}
-      </section>
+        </section>
+      </Rise>
     </div>
   );
-};
-
-export default Explore;
+}
