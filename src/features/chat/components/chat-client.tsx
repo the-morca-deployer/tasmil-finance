@@ -244,14 +244,16 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
     if (raw.length > 0) {
       console.warn(
         `[ChatDebug] stream.messages loaded: ${raw.length} total (${humanCount} human, ${aiCount} ai, ${toolCount} tool, ${hiddenCount} hidden)`,
-        raw.map((m: any) => ({
-          id: m.id?.slice(0, 20),
-          type: m.type,
-          content: typeof m.content === "string" ? m.content.slice(0, 50) : "[array]",
-        }))
+        JSON.stringify(
+          raw.map((m: any) => ({
+            id: m.id?.slice(0, 20),
+            type: m.type,
+            content: typeof m.content === "string" ? m.content.slice(0, 50) : "[array]",
+          }))
+        )
       );
     }
-  }, [stream.messages]);
+  }, [stream.messages?.length]);
 
   const { setAssistantInfo } = useChatState();
   const { address: walletAddress, forceReauth } = useWallet();
