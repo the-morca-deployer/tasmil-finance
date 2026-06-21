@@ -37,7 +37,7 @@ export function WalletRankInfo() {
   ].filter((p): p is string => p !== null);
 
   return (
-    <div data-testid="wallet-rank-info" className="px-3 py-2 text-muted-foreground text-xs">
+    <div data-testid="wallet-rank-info" className="border-b border-border px-3 py-2 text-muted-foreground text-xs">
       {parts.join(" · ")}
     </div>
   );

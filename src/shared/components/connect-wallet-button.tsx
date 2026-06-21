@@ -214,7 +214,6 @@ function TopbarWallet({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">
-        {rankSlot}
         <div className="px-3 py-2.5">
           <div className="flex items-center justify-between">
             <Typography size="sm" weight="medium" className="text-foreground">
@@ -225,6 +224,7 @@ function TopbarWallet({
             </Typography>
           </div>
         </div>
+        {rankSlot}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link
