@@ -106,7 +106,7 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
       </div>
 
       {items.length > 0 ? (
-        <ScrollableList id={`earn-${toolCallId}`} maxHeight={350}>
+        <ScrollableList id={`earn-${toolCallId}`} maxHeight={items.length <= 3 ? undefined : 350}>
           {items
             .sort((a, b) => (b.apy ?? 0) - (a.apy ?? 0))
             .map((opp, idx) => (
