@@ -5,14 +5,10 @@ import "./markdown-styles.css";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { type FC, memo, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
 import { cn } from "@/lib/utils";
 import { SyntaxHighlighter } from "./syntax-highlighter";
 import { TooltipIconButton } from "./tooltip-icon-button";
-
-import "katex/dist/katex.min.css";
 
 interface CodeHeaderProps {
   language?: string;
@@ -188,11 +184,7 @@ const defaultComponents: any = {
 const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {
   return (
     <div className="markdown-content">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
-        components={defaultComponents}
-      >
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={defaultComponents}>
         {children}
       </ReactMarkdown>
     </div>
