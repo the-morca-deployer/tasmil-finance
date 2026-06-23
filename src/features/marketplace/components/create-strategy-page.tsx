@@ -1,18 +1,20 @@
 "use client";
 
+import { AlertCircle, ArrowRight, Check, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
-
-import { ArrowRight, Check, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import type { StrategyConfig, TemplateType } from "@/features/marketplace/types";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 
-
-import type { StrategyConfig, TemplateType } from "@/features/marketplace/types";
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:6756";
-const ORACLE_ADDRESS = process.env.NEXT_PUBLIC_ORACLE_ID ?? "CBTQ3YCTMDTT5YIPRBLOXX2E75VSJXTPTBPVUCQWAFLABLJEDTW7AVYE";
-const FD_ADDRESS = process.env.NEXT_PUBLIC_FEE_DISTRIBUTOR_ID ?? "CDLK6KQ6XMRT3L4BKTZAMSPDSRJNQ7EDAQTLY532GUI72253V6P6NKFZ";
-const ROUTER_ADDRESS = process.env.NEXT_PUBLIC_SOROSWAP_ROUTER_ID ?? "CCJUD55AG6W5HAI5LRVNKAE5WDP5XGZBUDS5WNTIVDU7O264UZZE7BRD";
+const ORACLE_ADDRESS =
+  process.env.NEXT_PUBLIC_ORACLE_ID ?? "CBTQ3YCTMDTT5YIPRBLOXX2E75VSJXTPTBPVUCQWAFLABLJEDTW7AVYE";
+const FD_ADDRESS =
+  process.env.NEXT_PUBLIC_FEE_DISTRIBUTOR_ID ??
+  "CDLK6KQ6XMRT3L4BKTZAMSPDSRJNQ7EDAQTLY532GUI72253V6P6NKFZ";
+const ROUTER_ADDRESS =
+  process.env.NEXT_PUBLIC_SOROSWAP_ROUTER_ID ??
+  "CCJUD55AG6W5HAI5LRVNKAE5WDP5XGZBUDS5WNTIVDU7O264UZZE7BRD";
 
 type Step = "prompt" | "review" | "deploying" | "done" | "error";
 
@@ -54,8 +56,12 @@ export function CreateStrategyPage() {
       const body = {
         template: config.template,
         name: config.strategyName,
-        tokenInAddress: config.tokenIn?.startsWith("C") ? config.tokenIn : "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
-        tokenOutAddress: config.tokenOut?.startsWith("C") ? config.tokenOut : "CAZRY5GSFBFXD7H6GAFBA5YGYQTDXU4QKWKMYFWBAZFUCURN3WKX6LF5",
+        tokenInAddress: config.tokenIn?.startsWith("C")
+          ? config.tokenIn
+          : "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+        tokenOutAddress: config.tokenOut?.startsWith("C")
+          ? config.tokenOut
+          : "CAZRY5GSFBFXD7H6GAFBA5YGYQTDXU4QKWKMYFWBAZFUCURN3WKX6LF5",
         oracleAddress: ORACLE_ADDRESS,
         thresholdPrice: String(Math.round((config.thresholdPrice ?? 0) * 10_000_000)),
         swapPercentBps: config.swapPercentBps,
@@ -89,7 +95,9 @@ export function CreateStrategyPage() {
       <div className="mx-auto max-w-lg py-24 text-center">
         <Loader2 className="mx-auto h-12 w-12 animate-spin text-white/40" />
         <p className="mt-6 text-lg font-semibold text-white">Deploying Strategy</p>
-        <p className="mt-2 text-sm text-white/40">Compiling WASM → Deploying contract → Publishing to marketplace...</p>
+        <p className="mt-2 text-sm text-white/40">
+          Compiling WASM → Deploying contract → Publishing to marketplace...
+        </p>
       </div>
     );
   }
@@ -102,7 +110,10 @@ export function CreateStrategyPage() {
         </div>
         <p className="mt-6 text-lg font-semibold text-white">Strategy Deployed!</p>
         <p className="mt-2 text-sm text-white/40">Contract: {deployResult.contractAddress}</p>
-        <Button className="mt-8" onClick={() => (window.location.href = `/marketplace/${deployResult.strategyId}`)}>
+        <Button
+          className="mt-8"
+          onClick={() => (window.location.href = `/marketplace/${deployResult.strategyId}`)}
+        >
           View Strategy
         </Button>
       </div>
@@ -115,7 +126,9 @@ export function CreateStrategyPage() {
         <AlertCircle className="mx-auto h-12 w-12 text-red-400" />
         <p className="mt-6 text-lg font-semibold text-white">Deploy Failed</p>
         <p className="mt-2 text-sm text-red-400">{error}</p>
-        <Button className="mt-8" variant="outline" onClick={() => setStep("prompt")}>Try Again</Button>
+        <Button className="mt-8" variant="outline" onClick={() => setStep("prompt")}>
+          Try Again
+        </Button>
       </div>
     );
   }
@@ -152,14 +165,51 @@ export function CreateStrategyPage() {
           <Card className="border-white/5 bg-white/3 p-6">
             <h2 className="mb-4 text-sm font-semibold text-white">Review Strategy Config</h2>
             <div className="space-y-4 text-sm">
-              <ConfigField label="Strategy Name" value={config.strategyName} onChange={(v) => handleConfigChange("strategyName", v)} />
-              <ConfigSelect label="Template" value={config.template} options={["swap", "dca"]} onChange={(v) => handleConfigChange("template", v as TemplateType)} />
-              <ConfigField label="Token In (symbol or SAC address)" value={config.tokenIn} onChange={(v) => handleConfigChange("tokenIn", v)} />
-              <ConfigField label="Token Out (symbol or SAC address)" value={config.tokenOut} onChange={(v) => handleConfigChange("tokenOut", v)} />
-              <ConfigField label="Threshold Price (USD)" value={String(config.thresholdPrice ?? "")} onChange={(v) => handleConfigChange("thresholdPrice", Number(v) || 0)} type="number" />
-              <ConfigField label="Swap Percent (1-100)" value={String(config.swapPercentBps / 100)} onChange={(v) => handleConfigChange("swapPercentBps", Number(v) * 100 || 5000)} type="number" />
-              <ConfigField label="Performance Fee % (0-10)" value={String(config.perfFeeBps / 100)} onChange={(v) => handleConfigChange("perfFeeBps", Number(v) * 100 || 500)} type="number" />
-              <ConfigSelect label="DEX" value={config.dexType === 0 ? "Soroswap" : "Aquarius"} options={["Soroswap", "Aquarius"]} onChange={(v) => handleConfigChange("dexType", v === "Aquarius" ? 1 : 0)} />
+              <ConfigField
+                label="Strategy Name"
+                value={config.strategyName}
+                onChange={(v) => handleConfigChange("strategyName", v)}
+              />
+              <ConfigSelect
+                label="Template"
+                value={config.template}
+                options={["swap", "dca"]}
+                onChange={(v) => handleConfigChange("template", v as TemplateType)}
+              />
+              <ConfigField
+                label="Token In (symbol or SAC address)"
+                value={config.tokenIn}
+                onChange={(v) => handleConfigChange("tokenIn", v)}
+              />
+              <ConfigField
+                label="Token Out (symbol or SAC address)"
+                value={config.tokenOut}
+                onChange={(v) => handleConfigChange("tokenOut", v)}
+              />
+              <ConfigField
+                label="Threshold Price (USD)"
+                value={String(config.thresholdPrice ?? "")}
+                onChange={(v) => handleConfigChange("thresholdPrice", Number(v) || 0)}
+                type="number"
+              />
+              <ConfigField
+                label="Swap Percent (1-100)"
+                value={String(config.swapPercentBps / 100)}
+                onChange={(v) => handleConfigChange("swapPercentBps", Number(v) * 100 || 5000)}
+                type="number"
+              />
+              <ConfigField
+                label="Performance Fee % (0-10)"
+                value={String(config.perfFeeBps / 100)}
+                onChange={(v) => handleConfigChange("perfFeeBps", Number(v) * 100 || 500)}
+                type="number"
+              />
+              <ConfigSelect
+                label="DEX"
+                value={config.dexType === 0 ? "Soroswap" : "Aquarius"}
+                options={["Soroswap", "Aquarius"]}
+                onChange={(v) => handleConfigChange("dexType", v === "Aquarius" ? 1 : 0)}
+              />
             </div>
           </Card>
           <Button className="w-full gap-2" onClick={handleDeploy}>
@@ -176,21 +226,54 @@ export function CreateStrategyPage() {
 
 // ─── Inline form fields ──────────────────────────────────────────────────────
 
-function ConfigField({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
+function ConfigField({
+  label,
+  value,
+  onChange,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+}) {
   return (
     <div className="flex items-center justify-between gap-4">
       <label className="min-w-[140px] text-white/50">{label}</label>
-      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="flex-1 rounded border border-white/10 bg-white/5 px-3 py-1.5 text-right text-white transition-colors focus:border-white/20 focus:outline-none" />
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="flex-1 rounded border border-white/10 bg-white/5 px-3 py-1.5 text-right text-white transition-colors focus:border-white/20 focus:outline-none"
+      />
     </div>
   );
 }
 
-function ConfigSelect({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (v: string) => void }) {
+function ConfigSelect({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
   return (
     <div className="flex items-center justify-between gap-4">
       <label className="min-w-[140px] text-white/50">{label}</label>
-      <select value={value} onChange={(e) => onChange(e.target.value)} className="flex-1 rounded border border-white/10 bg-white/5 px-3 py-1.5 text-right text-white transition-colors focus:border-white/20 focus:outline-none">
-        {options.map((o) => <option key={o} value={o}>{o}</option>)}
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="flex-1 rounded border border-white/10 bg-white/5 px-3 py-1.5 text-right text-white transition-colors focus:border-white/20 focus:outline-none"
+      >
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
       </select>
     </div>
   );
