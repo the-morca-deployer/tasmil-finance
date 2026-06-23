@@ -1,6 +1,7 @@
 import {
   ArrowLeftRight,
   Bot,
+  Gauge,
   Home,
   KeyRound,
   ListChecks,
@@ -8,6 +9,7 @@ import {
   Settings,
   Share2,
   Shield,
+  Store,
   Tractor,
   Trophy,
   Wallet,
@@ -88,6 +90,29 @@ const _sidebarData: SidebarData = {
           title: "Chat",
           url: "/chat/new",
           icon: Bot,
+        },
+      ],
+    },
+    {
+      items: [
+        {
+          title: "Marketplace",
+          url: "/marketplace",
+          icon: Store,
+        },
+        {
+          title: "My Agents",
+          url: "/my-agents",
+          icon: Shield,
+        },
+      ],
+    },
+    {
+      items: [
+        {
+          title: "Missions",
+          url: "/missions",
+          icon: Gauge,
         },
       ],
     },
