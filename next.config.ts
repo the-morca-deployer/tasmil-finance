@@ -120,3 +120,15 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+// ─── Env validation ──────────────────────────────────────────────
+const REQUIRED_PUBLIC = [
+  "NEXT_PUBLIC_API_URL",
+  "NEXT_PUBLIC_APP_URL",
+  "NEXT_PUBLIC_MCP_STELLAR_URL",
+];
+const missing = REQUIRED_PUBLIC.filter((k) => !process.env[k]);
+if (missing.length > 0) {
+  console.error(`ERROR: Missing required public env vars: ${missing.join(", ")}`);
+  console.error("Check .env.local against .env.example");
+}
