@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Crown, Loader2, TrendingDown, TrendingUp, Trophy } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { LeaderboardEntry } from "@/features/marketplace/types";
+import { cn } from "@/lib/utils";
 
 interface LeaderboardTableProps {
   entries: LeaderboardEntry[];
@@ -20,11 +20,7 @@ export function LeaderboardTable({ entries, loading }: LeaderboardTableProps) {
   }
 
   if (entries.length === 0) {
-    return (
-      <div className="py-24 text-center text-sm text-white/30">
-        No strategies ranked yet
-      </div>
-    );
+    return <div className="py-24 text-center text-sm text-white/30">No strategies ranked yet</div>;
   }
 
   return (
@@ -41,7 +37,7 @@ export function LeaderboardTable({ entries, loading }: LeaderboardTableProps) {
               "flex items-center gap-4 rounded-lg border px-5 py-3.5 text-sm transition-colors",
               i < 3
                 ? "border-yellow-400/20 bg-yellow-400/5"
-                : "border-white/5 bg-white/3 hover:border-white/10",
+                : "border-white/5 bg-white/3 hover:border-white/10"
             )}
           >
             <div className="flex w-8 justify-center">
@@ -83,9 +79,14 @@ export function LeaderboardTable({ entries, loading }: LeaderboardTableProps) {
 
             <div className={cn("text-right", isPositive ? "text-emerald-400" : "text-red-400")}>
               <div className="flex items-center gap-1">
-                {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                {isPositive ? (
+                  <TrendingUp className="h-4 w-4" />
+                ) : (
+                  <TrendingDown className="h-4 w-4" />
+                )}
                 <span className="text-sm font-semibold">
-                  {isPositive ? "+" : ""}{entry.currentApy.toFixed(1)}%
+                  {isPositive ? "+" : ""}
+                  {entry.currentApy.toFixed(1)}%
                 </span>
               </div>
               <div className="text-[10px] text-white/30">APY</div>

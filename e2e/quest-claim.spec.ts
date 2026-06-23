@@ -22,7 +22,7 @@ test.fixme(true, "Needs quest E2E auth/wallet fixtures + running quest backend")
 // Restrict to chromium to avoid fanning out across all browser projects.
 test.skip(
   ({ browserName }) => browserName !== "chromium",
-  "Quest claim happy-path runs on chromium only",
+  "Quest claim happy-path runs on chromium only"
 );
 
 test.beforeEach(async ({ page }) => {
@@ -45,11 +45,11 @@ test.beforeEach(async ({ page }) => {
           },
         },
         version: 0,
-      }),
+      })
     );
     localStorage.setItem(
       "quest-wallet-storage",
-      JSON.stringify({ state: { connected: true, account: "GTEST" }, version: 0 }),
+      JSON.stringify({ state: { connected: true, account: "GTEST" }, version: 0 })
     );
   });
 });
@@ -80,16 +80,14 @@ test("claim a task happy path", async ({ page }) => {
         },
         participation: { id: "p1" },
         meta: { avatars: [] },
-      }),
-    ),
+      })
+    )
   );
 
   await page.route(`**/api/tasks/${TASK_ID}/status`, (r) =>
-    r.fulfill(json({ status: "COMPLETED", pointsEarned: 50 })),
+    r.fulfill(json({ status: "COMPLETED", pointsEarned: 50 }))
   );
-  await page.route(`**/api/tasks/${TASK_ID}/claim-status`, (r) =>
-    r.fulfill(json({ claimed })),
-  );
+  await page.route(`**/api/tasks/${TASK_ID}/claim-status`, (r) => r.fulfill(json({ claimed })));
   await page.route(`**/api/tasks/${TASK_ID}/claim`, (r) => {
     claimed = true;
     return r.fulfill(json({ claimed: true, pointsEarned: 50 }));

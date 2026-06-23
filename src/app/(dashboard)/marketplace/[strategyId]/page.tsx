@@ -1,9 +1,12 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import { StrategyDetail } from "@/features/marketplace";
-import { useStrategyDetail, useStrategyPerformance } from "@/features/marketplace/hooks/use-marketplace-api";
+import {
+  useStrategyDetail,
+  useStrategyPerformance,
+} from "@/features/marketplace/hooks/use-marketplace-api";
 
 export default function StrategyDetailRoute() {
   const params = useParams();
@@ -22,11 +25,7 @@ export default function StrategyDetailRoute() {
   }
 
   if (error || !strategy) {
-    return (
-      <div className="py-24 text-center text-sm text-red-400">
-        Strategy not found
-      </div>
-    );
+    return <div className="py-24 text-center text-red-400 text-sm">Strategy not found</div>;
   }
 
   const handleActivate = async () => {

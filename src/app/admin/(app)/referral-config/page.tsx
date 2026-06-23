@@ -88,7 +88,9 @@ function LayerRow({ row }: { row: ReferralConfigRow }) {
         </div>
       </div>
 
-      <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, paddingBottom: 8 }}>
+      <label
+        style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, paddingBottom: 8 }}
+      >
         <input
           type="checkbox"
           checked={form.isActive}
@@ -117,9 +119,7 @@ export default function ReferralConfigPage() {
       </p>
 
       {isLoading && <p style={{ fontSize: 13, opacity: 0.6 }}>Loading commission rates…</p>}
-      {error && (
-        <p style={{ fontSize: 13, color: "#f87171" }}>Failed to load: {error.message}</p>
-      )}
+      {error && <p style={{ fontSize: 13, color: "#f87171" }}>Failed to load: {error.message}</p>}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {rows.map((row) => (

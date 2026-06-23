@@ -5,13 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import {
+  usersControllerGetMeQueryKey,
   useUsersControllerDailyLogin,
   useUsersControllerGetCheckInStatus,
   useUsersControllerGetMe,
-  usersControllerGetMeQueryKey,
 } from "@/gen-quest";
-import { $, withAuth } from "../lib/kubb-config";
 import { qAvatar } from "../lib/avatar";
+import { $, withAuth } from "../lib/kubb-config";
 import { useQuestAuthStore } from "../store/use-quest-auth";
 import { Flame, PtsCoin } from "./icons";
 
@@ -65,9 +65,7 @@ export function QuestNav() {
         await refetchCheckIn();
         const awarded = (result as { data?: { pointsAwarded?: number } } | undefined)?.data
           ?.pointsAwarded;
-        toast.success(
-          awarded ? `Check-in successful! +${awarded} points` : "Check-in successful!"
-        );
+        toast.success(awarded ? `Check-in successful! +${awarded} points` : "Check-in successful!");
       },
       onError: (error: Error) => {
         toast.error(error.message || "Failed to check in. Please try again.");

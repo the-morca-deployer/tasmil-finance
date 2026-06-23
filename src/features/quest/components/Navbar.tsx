@@ -1,23 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { Menu, X, Coins, Flame, Copy, LogOut, Loader2, Wallet } from "lucide-react";
-import { Button } from "@/features/quest/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/features/quest/components/ui/avatar";
-import { useWallet } from "@/features/quest/context/wallet-context";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  useUsersControllerGetCheckInStatus,
-  useUsersControllerDailyLogin,
-  useUsersControllerGetMyCampaigns,
-  usersControllerGetMeQueryKey,
-} from "@/gen-quest/hooks";
+import { Coins, Copy, Flame, Loader2, LogOut, Menu, Wallet, X } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import React, { useState } from "react";
+import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/features/quest/components/ui/avatar";
+import { Button } from "@/features/quest/components/ui/button";
+import { useWallet } from "@/features/quest/context/wallet-context";
 import { withAuth } from "@/features/quest/lib/kubb-config";
+import {
+  usersControllerGetMeQueryKey,
+  useUsersControllerDailyLogin,
+  useUsersControllerGetCheckInStatus,
+  useUsersControllerGetMyCampaigns,
+} from "@/gen-quest/hooks";
+import { cn } from "@/lib/utils";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

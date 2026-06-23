@@ -12,11 +12,12 @@ export { Flame, Icon, type IconKey, PtsCoin, Usdc } from "./components/icons";
 // Leaderboard (ported)
 export { default as Leaderboard } from "./components/Leaderboard";
 export { LeaderboardRow } from "./components/LeaderboardRow";
+export { LedgerRow } from "./components/LedgerRow";
 export { default as QuestNavbar } from "./components/Navbar";
 export { PayoutStatusBadge } from "./components/PayoutStatusBadge";
-export { PaginationBar } from "./components/pagination-bar";
 export { Podium } from "./components/Podium";
 export { default as Profile } from "./components/Profile";
+export { PaginationBar } from "./components/pagination-bar";
 export { QuestNav } from "./components/QuestNav";
 export { QuestStep, type QuestStepProps } from "./components/QuestStep";
 export { RankMove } from "./components/RankMove";
@@ -24,14 +25,13 @@ export { RankReveal } from "./components/RankReveal";
 export { RankRevealGate } from "./components/RankRevealGate";
 export { Referrals } from "./components/Referrals";
 export { Rise } from "./components/Rise";
+export { StatRing } from "./components/StatRing";
 export type { SocialProvider } from "./components/social/SocialConnectButtons";
 export {
   SocialConnectCard,
   SocialConnectSection,
 } from "./components/social/SocialConnectButtons";
-export { StatRing } from "./components/StatRing";
 export { TelegramButton } from "./components/TelegramButton";
 export { TFLoader } from "./components/TFLoader";
-export { LedgerRow } from "./components/LedgerRow";
 // Foundation helpers + primitives (Phase 1)
 export { qAvatar, qHash } from "./lib/avatar";

@@ -127,14 +127,14 @@ test.describe("Admin — cohort sponsor v2", () => {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({ success: true, data: SAMPLE_MEMBERS }),
-      }),
+      })
     );
     await page.route("**/api/admin/sponsorship/fallback-log**", (r) =>
       r.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({ success: true, data: SAMPLE_FALLBACK }),
-      }),
+      })
     );
 
     let patchBody: Record<string, unknown> | null = null;
@@ -182,28 +182,28 @@ test.describe("Admin — cohort sponsor v2", () => {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({ success: true, data: SAMPLE_CONFIG }),
-      }),
+      })
     );
     await page.route("**/api/admin/sponsorship/members**", (r) =>
       r.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({ success: true, data: { members: [], nextCursor: null } }),
-      }),
+      })
     );
     await page.route("**/api/admin/sponsorship/fallback-log**", (r) =>
       r.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({ success: true, data: { rows: [], nextCursor: null } }),
-      }),
+      })
     );
 
     await page.goto("/admin/sponsor");
 
     await expect(page.getByTestId("cohort-members-card")).toContainText("No members yet");
     await expect(page.getByTestId("cohort-fallback-card")).toContainText(
-      "No fallback events recorded",
+      "No fallback events recorded"
     );
   });
 });

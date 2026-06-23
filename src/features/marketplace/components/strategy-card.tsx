@@ -2,11 +2,11 @@
 
 import { motion } from "framer-motion";
 import { Activity, ArrowUpRight, DollarSign, Users } from "lucide-react";
+import type { MarketplaceStrategy } from "@/features/marketplace/types";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
-import { cn } from "@/lib/utils";
-import type { MarketplaceStrategy } from "@/features/marketplace/types";
 
 function formatUsd(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -44,17 +44,13 @@ export function StrategyCard({ strategy, onActivate }: StrategyCardProps) {
                 variant="outline"
                 className={cn(
                   "border-white/10 text-[10px]",
-                  strategy.publisherType === "tasmil"
-                    ? "text-emerald-400"
-                    : "text-blue-400",
+                  strategy.publisherType === "tasmil" ? "text-emerald-400" : "text-blue-400"
                 )}
               >
                 {strategy.publisherType === "tasmil" ? "Official" : "Community"}
               </Badge>
             </div>
-            <p className="mt-1.5 text-xs text-white/40">
-              Fee: {strategy.perfFeeBps / 100}%
-            </p>
+            <p className="mt-1.5 text-xs text-white/40">Fee: {strategy.perfFeeBps / 100}%</p>
           </div>
           <div className={cn("text-right", isPositive ? "text-emerald-400" : "text-red-400")}>
             <div className="flex items-center gap-1 text-lg font-semibold">

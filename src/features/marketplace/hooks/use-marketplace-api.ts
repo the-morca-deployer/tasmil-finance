@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { useMarketplaceStore } from "@/features/marketplace/state/marketplace-store";
-import type { MarketplaceStrategy, LeaderboardEntry } from "@/features/marketplace/types";
+import type { LeaderboardEntry, MarketplaceStrategy } from "@/features/marketplace/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:6756";
 
@@ -28,7 +28,9 @@ async function fetchStrategyDetail(id: string): Promise<MarketplaceStrategy> {
   return json.data ?? json;
 }
 
-async function fetchPerformance(id: string): Promise<{ timestamp: string; nav: number; hwm: number }[]> {
+async function fetchPerformance(
+  id: string
+): Promise<{ timestamp: string; nav: number; hwm: number }[]> {
   const res = await fetch(`${BASE_URL}/marketplace/strategies/${id}/performance`);
   if (!res.ok) return [];
   const json = await res.json();

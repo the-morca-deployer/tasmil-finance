@@ -10,7 +10,9 @@ import { Icon, PtsCoin } from "./icons";
 const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 const pct = (bps: number) => `${Math.round(bps / 100)}%`;
 
-const Pts = () => <PtsCoin style={{ width: 14, height: 14, verticalAlign: "-2px", marginLeft: 3 }} />;
+const Pts = () => (
+  <PtsCoin style={{ width: 14, height: 14, verticalAlign: "-2px", marginLeft: 3 }} />
+);
 
 const LayerBadge = ({ l }: { l: number }) => (
   <span className="inline-flex items-center rounded-full border border-border bg-secondary px-2 py-0.5 font-semibold text-[11px] text-foreground">
@@ -59,7 +61,11 @@ function TreeRow({ node, depth }: { node: ReferralTreeNode; depth: number }) {
       >
         <span className="w-4 flex-none text-muted-foreground">
           {hasKids ? (
-            <Icon.chev width={14} height={14} style={{ transform: open ? "rotate(90deg)" : "none" }} />
+            <Icon.chev
+              width={14}
+              height={14}
+              style={{ transform: open ? "rotate(90deg)" : "none" }}
+            />
           ) : null}
         </span>
         <span

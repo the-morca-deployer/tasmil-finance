@@ -2,8 +2,8 @@
 
 import { Check, ChevronDown, Copy, ExternalLink, LogOut, User } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { useCredits } from "@/features/credits/use-credits";
 import { cn } from "@/lib/utils";
 import { getExplorerUrl, isMainnet } from "@/shared/config/stellar";

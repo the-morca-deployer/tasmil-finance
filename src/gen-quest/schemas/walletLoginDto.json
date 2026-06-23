@@ -1,1 +1,11 @@
-{"type":"object","properties":{"walletAddress":{"type":"string","description":"Stellar public key (G...)"},"signedMessage":{"type":"string","description":"Signed message (hex or base64)"},"signedXdr":{"type":"string","description":"Signed transaction XDR (base64)"},"referralCode":{"type":"string","description":"Referral code of inviter"}},"required":["walletAddress"],"x-readme-ref-name":"WalletLoginDto"}
+{
+  "type": "object",
+  "properties": {
+    "walletAddress": { "type": "string", "description": "Stellar public key (G...)" },
+    "signedMessage": { "type": "string", "description": "Signed message (hex or base64)" },
+    "signedXdr": { "type": "string", "description": "Signed transaction XDR (base64)" },
+    "referralCode": { "type": "string", "description": "Referral code of inviter" }
+  },
+  "required": ["walletAddress"],
+  "x-readme-ref-name": "WalletLoginDto"
+}

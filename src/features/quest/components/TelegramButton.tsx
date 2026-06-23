@@ -1,11 +1,11 @@
 // @ts-nocheck
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { Button } from "@/features/quest/components/ui/button";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/features/quest/components/ui/button";
 
 declare global {
   interface Window {
@@ -40,8 +40,8 @@ interface TelegramButtonProps {
   disabled?: boolean;
 }
 
-export function TelegramButton({ 
-  size = "small", 
+export function TelegramButton({
+  size = "small",
   botUsername: customBotUsername,
   onSuccess,
   className = "",
@@ -87,7 +87,7 @@ export function TelegramButton({
       }
 
       const cleanBotUsername = botUsername.replace(/^@/, "").trim();
-      
+
       if (!cleanBotUsername) {
         setError("Bot username cannot be empty");
         return;
@@ -105,29 +105,29 @@ export function TelegramButton({
       script.setAttribute("data-onauth", "onTelegramAuth(user)");
       script.setAttribute("data-request-access", "write");
       script.async = true;
-      
+
       script.onerror = () => {
         setError("Failed to load Telegram widget script");
         scriptLoaded.current = false;
       };
-      
+
       script.onload = () => {
         setError(null);
-        
+
         // Style iframe after it loads
         setTimeout(() => {
           const iframe = containerRef.current?.querySelector("iframe");
           const button = buttonRef.current;
           const container = containerRef.current;
-          
+
           if (!iframe || !button || !container) return;
           const buttonRect = button.getBoundingClientRect();
           const containerRect = container.getBoundingClientRect();
-          
+
           // Center iframe in container
           const centerTop = (containerRect.height - buttonRect.height) / 2;
           const centerLeft = (containerRect.width - buttonRect.width) / 2;
-          
+
           // Apply styles to iframe
           iframe.style.cssText = `
             opacity: 0 !important;
@@ -148,19 +148,19 @@ export function TelegramButton({
             box-sizing: border-box !important;
             overflow: hidden !important;
           `;
-          
+
           // Set attributes
           iframe.setAttribute("width", `${buttonRect.width}`);
           iframe.setAttribute("height", `${buttonRect.height}`);
-          
+
           // Prevent extension injection
           iframe.setAttribute("data-extension-inject", "false");
           iframe.setAttribute("data-no-extension", "true");
-          
+
           container.style.overflow = "hidden";
         }, 200);
       };
-      
+
       containerRef.current.appendChild(script);
       scriptLoaded.current = true;
     }
@@ -253,4 +253,3 @@ export function TelegramButton({
     </div>
   );
 }
-

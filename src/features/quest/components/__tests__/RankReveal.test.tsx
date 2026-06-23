@@ -12,7 +12,7 @@ describe("RankReveal", () => {
         badge="gold"
         seasonName="June 2026"
         onClaim={onClaim}
-      />,
+      />
     );
     expect(screen.getByText(/June 2026/i)).toBeInTheDocument();
     expect(screen.getByText(/50 USDC/i)).toBeInTheDocument();
@@ -30,7 +30,7 @@ describe("RankReveal", () => {
         badge="aqua"
         seasonName="June 2026"
         onClaim={jest.fn()}
-      />,
+      />
     );
     expect(screen.queryByText(/USDC/i)).not.toBeInTheDocument();
     expect(screen.getByText(/800 PTS/i)).toBeInTheDocument();

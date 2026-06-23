@@ -1,6 +1,6 @@
 "use client";
 
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 const COLORS: Record<string, string> = {
   BLEND: "#8b5cf6",
@@ -29,14 +29,7 @@ export function AllocationPieChart({ allocations }: AllocationPieChartProps) {
   return (
     <ResponsiveContainer width="100%" height={200}>
       <PieChart>
-        <Pie
-          data={data}
-          dataKey="value"
-          nameKey="name"
-          cx="50%"
-          cy="50%"
-          outerRadius={80}
-        >
+        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
           {data.map((d, i) => (
             <Cell key={i} fill={COLORS[d.protocol] ?? "#71717a"} />
           ))}

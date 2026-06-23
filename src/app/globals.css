@@ -46,7 +46,12 @@
   }
   /* Quest brand gradient — app-aqua gradient for ported quest UI (bg-brand-gradient) */
   .bg-brand-gradient {
-    background-image: linear-gradient(110deg, hsl(203 100% 78%) 0%, hsl(203 100% 61%) 52%, hsl(199 89% 48%) 100%);
+    background-image: linear-gradient(
+      110deg,
+      hsl(203 100% 78%) 0%,
+      hsl(203 100% 61%) 52%,
+      hsl(199 89% 48%) 100%
+    );
   }
 }
 

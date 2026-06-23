@@ -1,5 +1,5 @@
-import { ensureQuestDevSession } from "../dev-login-bridge";
 import { useQuestAuthStore } from "../../store/use-quest-auth";
+import { ensureQuestDevSession } from "../dev-login-bridge";
 
 describe("ensureQuestDevSession", () => {
   const realFetch = global.fetch;
@@ -14,7 +14,20 @@ describe("ensureQuestDevSession", () => {
     process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH = "true";
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ data: { accessToken: "quest-jwt", user: { id: "u1", username: "dev", walletAddress: "G...", tier: "COHORT_4", totalPoints: 10, loginStreak: 1, role: "user" } } }),
+      json: async () => ({
+        data: {
+          accessToken: "quest-jwt",
+          user: {
+            id: "u1",
+            username: "dev",
+            walletAddress: "G...",
+            tier: "COHORT_4",
+            totalPoints: 10,
+            loginStreak: 1,
+            role: "user",
+          },
+        },
+      }),
     }) as unknown as typeof fetch;
 
     await ensureQuestDevSession();
@@ -23,7 +36,7 @@ describe("ensureQuestDevSession", () => {
     expect(useQuestAuthStore.getState().isAuthenticated).toBe(true);
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining("/api/auth/dev-login"),
-      expect.objectContaining({ method: "POST" }),
+      expect.objectContaining({ method: "POST" })
     );
   });
 

@@ -1,4 +1,10 @@
-import { APP_ENTRY, gateDecision, isPublicPath, isStaticAsset, isWaitlistMode } from "./waitlist-mode";
+import {
+  APP_ENTRY,
+  gateDecision,
+  isPublicPath,
+  isStaticAsset,
+  isWaitlistMode,
+} from "./waitlist-mode";
 
 describe("isWaitlistMode", () => {
   const original = process.env.NEXT_PUBLIC_WAITLIST_MODE;
@@ -76,8 +82,10 @@ describe("gateDecision", () => {
   });
   const off = () => (process.env.NEXT_PUBLIC_WAITLIST_MODE = "false");
   const on = () => (process.env.NEXT_PUBLIC_WAITLIST_MODE = "true");
-  const decide = (pathname: string, extra: Partial<{ hasAuthCookie: boolean; devBypass: boolean }> = {}) =>
-    gateDecision({ pathname, hasAuthCookie: false, devBypass: false, ...extra });
+  const decide = (
+    pathname: string,
+    extra: Partial<{ hasAuthCookie: boolean; devBypass: boolean }> = {}
+  ) => gateDecision({ pathname, hasAuthCookie: false, devBypass: false, ...extra });
 
   describe("waitlist OFF", () => {
     beforeEach(off);

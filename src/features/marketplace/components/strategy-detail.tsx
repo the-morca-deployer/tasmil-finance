@@ -1,23 +1,26 @@
 "use client";
 
-import { useState } from "react";
-
 import { ArrowUpRight, BarChart3, ChevronLeft, TrendingUp, Users } from "lucide-react";
-import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
-import { Card } from "@/shared/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { AllocationPieChart } from "@/features/marketplace/components/allocation-pie-chart";
+import { ApyLineChart } from "@/features/marketplace/components/apy-line-chart";
 import type {
   AllocationEntry,
   MarketplaceStrategy,
   PerformancePoint,
 } from "@/features/marketplace/types";
-import { AllocationPieChart } from "@/features/marketplace/components/allocation-pie-chart";
-import { ApyLineChart } from "@/features/marketplace/components/apy-line-chart";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
+import { Card } from "@/shared/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 
 function formatUsd(value: number): string {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(value);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+  }).format(value);
 }
 
 interface StrategyDetailProps {
@@ -29,7 +32,13 @@ interface StrategyDetailProps {
   onBack: () => void;
 }
 
-export function StrategyDetail({ strategy, performance, allocations, onActivate, onBack }: StrategyDetailProps) {
+export function StrategyDetail({
+  strategy,
+  performance,
+  allocations,
+  onActivate,
+  onBack,
+}: StrategyDetailProps) {
   const [tab, setTab] = useState("overview");
 
   const isPositive = strategy.currentApy >= 0;
@@ -59,7 +68,8 @@ export function StrategyDetail({ strategy, performance, allocations, onActivate,
         </div>
         <div className={cn("text-right", isPositive ? "text-emerald-400" : "text-red-400")}>
           <div className="text-2xl font-bold">
-            {isPositive ? "+" : ""}{strategy.currentApy.toFixed(1)}%
+            {isPositive ? "+" : ""}
+            {strategy.currentApy.toFixed(1)}%
           </div>
           <div className="text-xs text-white/30">7d APY</div>
         </div>
@@ -80,9 +90,15 @@ export function StrategyDetail({ strategy, performance, allocations, onActivate,
 
       <Tabs value={tab} onValueChange={setTab} className="mt-6">
         <TabsList className="w-full">
-          <TabsTrigger value="overview" className="flex-1">Overview</TabsTrigger>
-          <TabsTrigger value="performance" className="flex-1">Performance</TabsTrigger>
-          <TabsTrigger value="about" className="flex-1">About</TabsTrigger>
+          <TabsTrigger value="overview" className="flex-1">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="flex-1">
+            Performance
+          </TabsTrigger>
+          <TabsTrigger value="about" className="flex-1">
+            About
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4 space-y-3">
@@ -127,12 +143,20 @@ export function StrategyDetail({ strategy, performance, allocations, onActivate,
             </p>
           ) : (
             <div className="space-y-2">
-              {performance.slice(-30).reverse().map((p, i) => (
-                <div key={i} className="flex items-center justify-between rounded-md border border-white/5 px-4 py-2 text-xs">
-                  <span className="text-white/40">{new Date(p.timestamp).toLocaleDateString()}</span>
-                  <span className="text-white">${p.nav.toFixed(2)}</span>
-                </div>
-              ))}
+              {performance
+                .slice(-30)
+                .reverse()
+                .map((p, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between rounded-md border border-white/5 px-4 py-2 text-xs"
+                  >
+                    <span className="text-white/40">
+                      {new Date(p.timestamp).toLocaleDateString()}
+                    </span>
+                    <span className="text-white">${p.nav.toFixed(2)}</span>
+                  </div>
+                ))}
             </div>
           )}
         </TabsContent>
@@ -142,7 +166,9 @@ export function StrategyDetail({ strategy, performance, allocations, onActivate,
             <div className="space-y-3 text-xs text-white/50">
               <div className="flex justify-between">
                 <span>Contract</span>
-                <span className="font-mono text-white/30">{strategy.contractAddress.slice(0, 20)}...</span>
+                <span className="font-mono text-white/30">
+                  {strategy.contractAddress.slice(0, 20)}...
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Token In</span>
@@ -159,7 +185,9 @@ export function StrategyDetail({ strategy, performance, allocations, onActivate,
               <div className="flex justify-between">
                 <span>Threshold Price</span>
                 <span className="text-white">
-                  {strategy.thresholdPrice ? `$${(strategy.thresholdPrice / 10_000_000).toFixed(4)}` : "N/A"}
+                  {strategy.thresholdPrice
+                    ? `$${(strategy.thresholdPrice / 10_000_000).toFixed(4)}`
+                    : "N/A"}
                 </span>
               </div>
               <div className="flex justify-between">

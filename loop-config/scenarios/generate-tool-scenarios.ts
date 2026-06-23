@@ -14,7 +14,7 @@
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -41,31 +41,74 @@ const tools: ToolDef[] = tsvRaw
 console.log(`Loaded ${tools.length} tools`);
 
 type Intent =
-  | "deposit" | "withdraw" | "swap" | "borrow" | "repay"
-  | "claim" | "stake" | "unstake" | "lock"
-  | "query" | "discover" | "execute" | "info" | "other";
+  | "deposit"
+  | "withdraw"
+  | "swap"
+  | "borrow"
+  | "repay"
+  | "claim"
+  | "stake"
+  | "unstake"
+  | "lock"
+  | "query"
+  | "discover"
+  | "execute"
+  | "info"
+  | "other";
 
 function classifyIntent(name: string): Intent {
   const n = name.toLowerCase();
-  if (n.includes("deposit") || n.includes("supply") || n.includes("provide_liquidity") || n.includes("add_liquidity") || n.includes("join_comet") || n.includes("backstop_deposit")) return "deposit";
-  if (n.includes("withdraw") || n.includes("exit") || n.includes("backstop_withdraw")) return "withdraw";
+  if (
+    n.includes("deposit") ||
+    n.includes("supply") ||
+    n.includes("provide_liquidity") ||
+    n.includes("add_liquidity") ||
+    n.includes("join_comet") ||
+    n.includes("backstop_deposit")
+  )
+    return "deposit";
+  if (n.includes("withdraw") || n.includes("exit") || n.includes("backstop_withdraw"))
+    return "withdraw";
   if (n.includes("swap")) return "swap";
   if (n.includes("borrow")) return "borrow";
   if (n.includes("repay")) return "repay";
   if (n.includes("claim")) return "claim";
-  if (n.includes("stake_bond") || (n.includes("stake") && !n.includes("unstake") && !n.includes("unbond"))) return "stake";
+  if (
+    n.includes("stake_bond") ||
+    (n.includes("stake") && !n.includes("unstake") && !n.includes("unbond"))
+  )
+    return "stake";
   if (n.includes("unstake") || n.includes("unbond")) return "unstake";
   if (n.includes("lock")) return "lock";
   if (n.includes("discover")) return "discover";
   if (n.includes("execute")) return "execute";
   if (n.startsWith("get_") || n.includes("info") || n.includes("details")) return "info";
-  if (n.includes("price") || n.includes("apy") || n.includes("yield") || n.includes("data") || n.includes("market") || n.includes("token") || n.includes("risk") || n.includes("chain")) return "query";
+  if (
+    n.includes("price") ||
+    n.includes("apy") ||
+    n.includes("yield") ||
+    n.includes("data") ||
+    n.includes("market") ||
+    n.includes("token") ||
+    n.includes("risk") ||
+    n.includes("chain")
+  )
+    return "query";
   return "other";
 }
 
 function getProtocol(name: string): string {
   const parts = name.split("_");
-  const known = ["blend", "soroswap", "aquarius", "phoenix", "allbridge", "sdex", "defindex", "tasmil"];
+  const known = [
+    "blend",
+    "soroswap",
+    "aquarius",
+    "phoenix",
+    "allbridge",
+    "sdex",
+    "defindex",
+    "tasmil",
+  ];
   for (const p of parts) {
     if (known.includes(p)) return p;
   }
@@ -82,7 +125,13 @@ function genScenarios(t: ToolDef, baseIdx: number): string[] {
   const layer: string[] = ["frontend", "ai", "mcp"];
   const scenarios: string[] = [];
 
-  const render = (id: string, category: string, prompt: string, expect: Record<string, unknown>, layerOverride?: string[]) => {
+  const render = (
+    id: string,
+    category: string,
+    prompt: string,
+    expect: Record<string, unknown>,
+    layerOverride?: string[]
+  ) => {
     const lines: string[] = [];
     lines.push(`- id: ${id}`);
     lines.push(`  type: curated_chat`);
@@ -105,33 +154,70 @@ function genScenarios(t: ToolDef, baseIdx: number): string[] {
   let happyPrompt = "";
   let happyExpect: Record<string, unknown> = { must_call_tool: [t.name], max_latency_sec: 30 };
   switch (intent) {
-    case "deposit": happyPrompt = `Deposit 100 USDC into the ${protocol} pool`; break;
-    case "withdraw": happyPrompt = `Withdraw 50 USDC from my ${protocol} position`; break;
-    case "swap": happyPrompt = `Swap 10 XLM to USDC on ${protocol}`; break;
-    case "borrow": happyPrompt = `Borrow 50 USDC from ${protocol} against my collateral`; break;
-    case "repay": happyPrompt = `Repay 25 USDC of my ${protocol} loan`; break;
-    case "claim": happyPrompt = `Claim my pending rewards from ${protocol}`; break;
-    case "stake": happyPrompt = `Stake my LP tokens in ${protocol}`; break;
-    case "unstake": happyPrompt = `Unstake my position from ${protocol}`; break;
-    case "lock": happyPrompt = `Lock 100 AQUA tokens for 1 year on Aquarius`; break;
-    case "discover": happyPrompt = `Find the best USDC yield options across all protocols`; break;
-    case "execute": happyPrompt = `Execute deposit of 50 USDC to the best Blend pool`; break;
-    case "info": happyPrompt = `Show me my current portfolio positions`; happyExpect = { must_call_tool: [t.name], max_latency_sec: 20 }; break;
-    case "query": happyPrompt = `What is the current APY on USDC pools?`; happyExpect = { must_call_tool: [t.name], max_latency_sec: 20 }; break;
-    default: happyPrompt = `Use the ${t.name} feature with default parameters`;
+    case "deposit":
+      happyPrompt = `Deposit 100 USDC into the ${protocol} pool`;
+      break;
+    case "withdraw":
+      happyPrompt = `Withdraw 50 USDC from my ${protocol} position`;
+      break;
+    case "swap":
+      happyPrompt = `Swap 10 XLM to USDC on ${protocol}`;
+      break;
+    case "borrow":
+      happyPrompt = `Borrow 50 USDC from ${protocol} against my collateral`;
+      break;
+    case "repay":
+      happyPrompt = `Repay 25 USDC of my ${protocol} loan`;
+      break;
+    case "claim":
+      happyPrompt = `Claim my pending rewards from ${protocol}`;
+      break;
+    case "stake":
+      happyPrompt = `Stake my LP tokens in ${protocol}`;
+      break;
+    case "unstake":
+      happyPrompt = `Unstake my position from ${protocol}`;
+      break;
+    case "lock":
+      happyPrompt = `Lock 100 AQUA tokens for 1 year on Aquarius`;
+      break;
+    case "discover":
+      happyPrompt = `Find the best USDC yield options across all protocols`;
+      break;
+    case "execute":
+      happyPrompt = `Execute deposit of 50 USDC to the best Blend pool`;
+      break;
+    case "info":
+      happyPrompt = `Show me my current portfolio positions`;
+      happyExpect = { must_call_tool: [t.name], max_latency_sec: 20 };
+      break;
+    case "query":
+      happyPrompt = `What is the current APY on USDC pools?`;
+      happyExpect = { must_call_tool: [t.name], max_latency_sec: 20 };
+      break;
+    default:
+      happyPrompt = `Use the ${t.name} feature with default parameters`;
   }
-  scenarios.push(render(
-    `tool-${String(baseIdx).padStart(3, "0")}-happy`,
-    `${intent}_happy`,
-    happyPrompt,
-    happyExpect,
-  ));
+  scenarios.push(
+    render(
+      `tool-${String(baseIdx).padStart(3, "0")}-happy`,
+      `${intent}_happy`,
+      happyPrompt,
+      happyExpect
+    )
+  );
 
   // 2. SLOT FILLING
   let slotPrompt = "";
-  const slotExpect: Record<string, unknown> = { must_not_contain: [`"${t.name}"`], max_latency_sec: 20 };
+  const slotExpect: Record<string, unknown> = {
+    must_not_contain: [`"${t.name}"`],
+    max_latency_sec: 20,
+  };
   switch (intent) {
-    case "deposit": case "withdraw": case "borrow": case "repay":
+    case "deposit":
+    case "withdraw":
+    case "borrow":
+    case "repay":
       slotPrompt = `${intent === "deposit" ? "Deposit" : intent === "withdraw" ? "Withdraw" : intent === "borrow" ? "Borrow" : "Repay"} into ${protocol}`;
       slotExpect.must_ask_clarification = ["amount", "asset"];
       break;
@@ -139,7 +225,9 @@ function genScenarios(t: ToolDef, baseIdx: number): string[] {
       slotPrompt = `Swap some tokens on ${protocol}`;
       slotExpect.must_ask_clarification = ["amount", "from", "to"];
       break;
-    case "stake": case "unstake": case "lock":
+    case "stake":
+    case "unstake":
+    case "lock":
       slotPrompt = `${intent === "stake" ? "Stake" : intent === "unstake" ? "Unstake" : "Lock"} on ${protocol}`;
       slotExpect.must_ask_clarification = ["amount", "pool"];
       break;
@@ -147,11 +235,13 @@ function genScenarios(t: ToolDef, baseIdx: number): string[] {
       slotPrompt = `Claim rewards`;
       slotExpect.must_ask_clarification = ["pool", "protocol"];
       break;
-    case "discover": case "execute":
+    case "discover":
+    case "execute":
       slotPrompt = `${intent === "discover" ? "Find me something" : "Execute the thing"}`;
       slotExpect.must_ask_clarification = ["what", "which"];
       break;
-    case "info": case "query":
+    case "info":
+    case "query":
       slotPrompt = `Show me info`;
       slotExpect.must_ask_clarification = ["what", "which"];
       break;
@@ -159,12 +249,14 @@ function genScenarios(t: ToolDef, baseIdx: number): string[] {
       slotPrompt = `Do the thing on ${protocol}`;
       slotExpect.must_ask_clarification = ["what"];
   }
-  scenarios.push(render(
-    `tool-${String(baseIdx).padStart(3, "0")}-slot`,
-    `${intent}_slot_filling`,
-    slotPrompt,
-    slotExpect,
-  ));
+  scenarios.push(
+    render(
+      `tool-${String(baseIdx).padStart(3, "0")}-slot`,
+      `${intent}_slot_filling`,
+      slotPrompt,
+      slotExpect
+    )
+  );
 
   // 3. INVALID INPUT
   const fakeAddr = "CINVALIDFAKEINVALIDFAKEINVALIDFAKEINVALIDFAKEINVALIDFAKE12";
@@ -174,7 +266,8 @@ function genScenarios(t: ToolDef, baseIdx: number): string[] {
     max_latency_sec: 25,
   };
   switch (intent) {
-    case "deposit": case "withdraw":
+    case "deposit":
+    case "withdraw":
       invalidPrompt = `${intent === "deposit" ? "Deposit" : "Withdraw"} 100 USDC into pool ${fakeAddr}`;
       invalidExpect.must_contain = ["invalid", "not found", "could not", "doesn't"];
       break;
@@ -182,11 +275,13 @@ function genScenarios(t: ToolDef, baseIdx: number): string[] {
       invalidPrompt = `Swap -50 XLM to USDC on ${protocol}`;
       invalidExpect.must_contain = ["invalid", "amount", "negative", "must be"];
       break;
-    case "borrow": case "repay":
+    case "borrow":
+    case "repay":
       invalidPrompt = `${intent === "borrow" ? "Borrow" : "Repay"} 999999999 USDC from ${protocol}`;
       invalidExpect.must_contain = ["exceed", "insufficient", "too much", "available"];
       break;
-    case "info": case "query":
+    case "info":
+    case "query":
       invalidPrompt = `Get ${intent} for address ${fakeAddr}`;
       invalidExpect.must_contain = ["invalid", "not found", "could not"];
       break;
@@ -194,49 +289,82 @@ function genScenarios(t: ToolDef, baseIdx: number): string[] {
       invalidPrompt = `Use ${t.name} with malformed args { foo: invalid }`;
       invalidExpect.must_contain = ["invalid", "error", "could not"];
   }
-  scenarios.push(render(
-    `tool-${String(baseIdx).padStart(3, "0")}-invalid`,
-    `${intent}_invalid_input`,
-    invalidPrompt,
-    invalidExpect,
-  ));
+  scenarios.push(
+    render(
+      `tool-${String(baseIdx).padStart(3, "0")}-invalid`,
+      `${intent}_invalid_input`,
+      invalidPrompt,
+      invalidExpect
+    )
+  );
 
   // 4. HALLUCINATION CHECK
-  scenarios.push(render(
-    `tool-${String(baseIdx).padStart(3, "0")}-hallu`,
-    `${intent}_hallucination`,
-    `What is the exact contract address for ${t.name.replace(/_/g, " ")}?`,
-    {
-      no_hallucinated_addresses: true,
-      max_latency_sec: 20,
-    },
-    ["ai"],
-  ));
+  scenarios.push(
+    render(
+      `tool-${String(baseIdx).padStart(3, "0")}-hallu`,
+      `${intent}_hallucination`,
+      `What is the exact contract address for ${t.name.replace(/_/g, " ")}?`,
+      {
+        no_hallucinated_addresses: true,
+        max_latency_sec: 20,
+      },
+      ["ai"]
+    )
+  );
 
   // 5. VARIANT PHRASING
   let variantPrompt = "";
   switch (intent) {
-    case "deposit": variantPrompt = `I want to put 100 USDC into ${protocol}, what do I do?`; break;
-    case "withdraw": variantPrompt = `Can you take 50 USDC out of my ${protocol} position?`; break;
-    case "swap": variantPrompt = `Convert 10 XLM into USDC using ${protocol}`; break;
-    case "borrow": variantPrompt = `I'd like to take a 50 USDC loan from ${protocol}`; break;
-    case "repay": variantPrompt = `Pay back 25 USDC on my ${protocol} debt`; break;
-    case "claim": variantPrompt = `My ${protocol} rewards are pending — collect them please`; break;
-    case "stake": variantPrompt = `Add my tokens to ${protocol} staking`; break;
-    case "unstake": variantPrompt = `Pull my staked tokens out of ${protocol}`; break;
-    case "lock": variantPrompt = `Long-term lock 100 AQUA on Aquarius please`; break;
-    case "discover": variantPrompt = `Where can I get the best yield on USDC right now?`; break;
-    case "execute": variantPrompt = `Just put 50 USDC into whatever's best on Blend`; break;
-    case "info": variantPrompt = `Tell me about my portfolio`; break;
-    case "query": variantPrompt = `Latest APY numbers please`; break;
-    default: variantPrompt = `Could you handle ${t.name.replace(/_/g, " ")} for me?`;
+    case "deposit":
+      variantPrompt = `I want to put 100 USDC into ${protocol}, what do I do?`;
+      break;
+    case "withdraw":
+      variantPrompt = `Can you take 50 USDC out of my ${protocol} position?`;
+      break;
+    case "swap":
+      variantPrompt = `Convert 10 XLM into USDC using ${protocol}`;
+      break;
+    case "borrow":
+      variantPrompt = `I'd like to take a 50 USDC loan from ${protocol}`;
+      break;
+    case "repay":
+      variantPrompt = `Pay back 25 USDC on my ${protocol} debt`;
+      break;
+    case "claim":
+      variantPrompt = `My ${protocol} rewards are pending — collect them please`;
+      break;
+    case "stake":
+      variantPrompt = `Add my tokens to ${protocol} staking`;
+      break;
+    case "unstake":
+      variantPrompt = `Pull my staked tokens out of ${protocol}`;
+      break;
+    case "lock":
+      variantPrompt = `Long-term lock 100 AQUA on Aquarius please`;
+      break;
+    case "discover":
+      variantPrompt = `Where can I get the best yield on USDC right now?`;
+      break;
+    case "execute":
+      variantPrompt = `Just put 50 USDC into whatever's best on Blend`;
+      break;
+    case "info":
+      variantPrompt = `Tell me about my portfolio`;
+      break;
+    case "query":
+      variantPrompt = `Latest APY numbers please`;
+      break;
+    default:
+      variantPrompt = `Could you handle ${t.name.replace(/_/g, " ")} for me?`;
   }
-  scenarios.push(render(
-    `tool-${String(baseIdx).padStart(3, "0")}-variant`,
-    `${intent}_variant_phrasing`,
-    variantPrompt,
-    happyExpect,
-  ));
+  scenarios.push(
+    render(
+      `tool-${String(baseIdx).padStart(3, "0")}-variant`,
+      `${intent}_variant_phrasing`,
+      variantPrompt,
+      happyExpect
+    )
+  );
 
   return scenarios;
 }
@@ -257,7 +385,9 @@ for (const t of tools) {
 
 for (const [cat, catTools] of byCategory) {
   allScenarios.push(`# ============================================================`);
-  allScenarios.push(`# Category: ${cat} (${catTools.length} tools, ${catTools.length * 5} scenarios)`);
+  allScenarios.push(
+    `# Category: ${cat} (${catTools.length} tools, ${catTools.length * 5} scenarios)`
+  );
   allScenarios.push(`# ============================================================`);
   for (const t of catTools) {
     allScenarios.push(``);

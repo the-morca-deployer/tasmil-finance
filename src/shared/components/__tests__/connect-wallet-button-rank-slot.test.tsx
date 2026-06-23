@@ -18,10 +18,7 @@ jest.mock("@/features/credits/use-credits", () => ({
 describe("ConnectWalletButton rankSlot", () => {
   it("renders the provided rankSlot node", async () => {
     render(
-      <ConnectWalletButton
-        variant="topbar"
-        rankSlot={<div data-testid="slot">rank-here</div>}
-      />
+      <ConnectWalletButton variant="topbar" rankSlot={<div data-testid="slot">rank-here</div>} />
     );
     // The slot is inside Radix DropdownMenuContent (portal); open the menu first.
     await userEvent.click(screen.getByTestId("wallet-connected"));

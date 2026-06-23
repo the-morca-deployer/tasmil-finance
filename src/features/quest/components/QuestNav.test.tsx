@@ -36,11 +36,11 @@ describe("QuestNav", () => {
     expect(screen.getByRole("link", { name: /Explore/i })).toHaveAttribute("href", "/quest/quest");
     expect(screen.getByRole("link", { name: /Campaigns/i })).toHaveAttribute(
       "href",
-      "/quest/campaigns",
+      "/quest/campaigns"
     );
     expect(screen.getByRole("link", { name: /Leaderboard/i })).toHaveAttribute(
       "href",
-      "/quest/leaderboard",
+      "/quest/leaderboard"
     );
   });
   it("marks Campaigns active on /quest/campaigns", () => {

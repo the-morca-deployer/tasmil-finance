@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
-import { Button } from "@/shared/ui/button";
-import type { MarketplaceStrategy } from "@/features/marketplace/types";
 import { StrategyCard } from "@/features/marketplace/components/strategy-card";
+import type { MarketplaceStrategy } from "@/features/marketplace/types";
+import { Button } from "@/shared/ui/button";
 
 interface StrategyGridProps {
   strategies: MarketplaceStrategy[];
@@ -14,7 +14,13 @@ interface StrategyGridProps {
   onRetry: () => void;
 }
 
-export function StrategyGrid({ strategies, loading, error, onActivate, onRetry }: StrategyGridProps) {
+export function StrategyGrid({
+  strategies,
+  loading,
+  error,
+  onActivate,
+  onRetry,
+}: StrategyGridProps) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24">

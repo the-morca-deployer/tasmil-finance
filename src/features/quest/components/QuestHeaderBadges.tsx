@@ -1,12 +1,12 @@
 "use client";
 
-import { Coins, Flame } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { Coins, Flame } from "lucide-react";
 import {
+  usersControllerGetMeQueryKey,
   useUsersControllerDailyLogin,
   useUsersControllerGetCheckInStatus,
   useUsersControllerGetMe,
-  usersControllerGetMeQueryKey,
 } from "@/gen-quest/hooks";
 
 type QuestProfile = {

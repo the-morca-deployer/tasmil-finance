@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
-
 import { Sparkles, TrendingUp } from "lucide-react";
+import { useState } from "react";
+import { LeaderboardTable } from "@/features/marketplace/components/leaderboard-table";
+import { StrategyGrid } from "@/features/marketplace/components/strategy-grid";
+import { useLeaderboard, useMarketplace } from "@/features/marketplace/hooks/use-marketplace-api";
+import { useMarketplaceStore } from "@/features/marketplace/state/marketplace-store";
 import { Button } from "@/shared/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
-import { useMarketplace, useLeaderboard } from "@/features/marketplace/hooks/use-marketplace-api";
-import { useMarketplaceStore } from "@/features/marketplace/state/marketplace-store";
-import { StrategyGrid } from "@/features/marketplace/components/strategy-grid";
-import { LeaderboardTable } from "@/features/marketplace/components/leaderboard-table";
 
 type PageTab = "browse" | "leaderboard";
 

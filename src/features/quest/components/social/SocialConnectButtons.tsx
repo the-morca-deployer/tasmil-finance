@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
-import { Button } from "@/features/quest/components/ui/button";
-import { toast } from "sonner";
-import { CheckCircle2, Loader2, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { CheckCircle2, Loader2, X } from "lucide-react";
+import React, { useCallback, useEffect } from "react";
+import { toast } from "sonner";
+import { Button } from "@/features/quest/components/ui/button";
 import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
 
 // Social Icons
@@ -146,7 +146,9 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
         if (event.data.success) {
           toast.success("Account connected successfully!");
           onRefetch();
-          queryClient.invalidateQueries({ queryKey: ["social-accounts-controller-get-social-accounts"] });
+          queryClient.invalidateQueries({
+            queryKey: ["social-accounts-controller-get-social-accounts"],
+          });
         }
       }
     };
@@ -288,7 +290,9 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
 
         toast.success(`${provider} account disconnected`);
         onRefetch();
-        queryClient.invalidateQueries({ queryKey: ["social-accounts-controller-get-social-accounts"] });
+        queryClient.invalidateQueries({
+          queryKey: ["social-accounts-controller-get-social-accounts"],
+        });
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Failed to disconnect account");
       } finally {
@@ -320,4 +324,3 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
 };
 
 export default SocialConnectSection;
-

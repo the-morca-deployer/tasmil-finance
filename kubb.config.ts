@@ -7,20 +7,19 @@
 // path (FastAPI services use the default axios client; NestJS services use the
 // shared @/lib/kubb-backend-client). Everything else is shared below.
 
+import fs from "node:fs";
 import { defineConfig } from "@kubb/core";
 import { pluginClient } from "@kubb/plugin-client";
 import { pluginOas } from "@kubb/plugin-oas";
 import { pluginReactQuery } from "@kubb/plugin-react-query";
 import { pluginTs } from "@kubb/plugin-ts";
-import fs from "node:fs";
 
 const toKebabCase = (str: string): string =>
   !str ? str : str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 
 // Generated file names are kebab-cased; symbol names are left untouched.
 const fileNameTransformer = {
-  name: (name: string, type: string) =>
-    name && type === "file" ? toKebabCase(name) : name,
+  name: (name: string, type: string) => (name && type === "file" ? toKebabCase(name) : name),
 };
 
 type Target = {
@@ -41,21 +40,24 @@ const TARGETS: Record<string, Target> = {
   ai: {
     dir: "./src/gen-ai",
     tempSpec: "./temp-openapi.json",
-    specUrl: () => `${stripSlash(process.env.NEXT_PUBLIC_AI_URL || "http://localhost:8001")}/openapi.json`,
+    specUrl: () =>
+      `${stripSlash(process.env.NEXT_PUBLIC_AI_URL || "http://localhost:8001")}/openapi.json`,
     clientImportPath: "@kubb/plugin-client/clients/axios",
   },
   // NestJS main backend — shared custom client.
   backend: {
     dir: "./src/gen-backend",
     tempSpec: "./temp-openapi-backend.json",
-    specUrl: () => `${stripSlash(process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:6756")}/api-json`,
+    specUrl: () =>
+      `${stripSlash(process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:6756")}/api-json`,
     clientImportPath: "@/lib/kubb-backend-client",
   },
   // NestJS quest backend — default axios client.
   quest: {
     dir: "./src/gen-quest",
     tempSpec: "./temp-openapi-quest.json",
-    specUrl: () => `${stripSlash(process.env.NEXT_PUBLIC_QUEST_API_URL || "http://localhost:5555")}/api-json`,
+    specUrl: () =>
+      `${stripSlash(process.env.NEXT_PUBLIC_QUEST_API_URL || "http://localhost:5555")}/api-json`,
     clientImportPath: "@kubb/plugin-client/clients/axios",
   },
 };
@@ -63,9 +65,7 @@ const TARGETS: Record<string, Target> = {
 const key = process.env.KUBB_TARGET ?? "";
 const target = TARGETS[key];
 if (!target) {
-  throw new Error(
-    `Set KUBB_TARGET to one of: ${Object.keys(TARGETS).join(", ")} (got "${key}")`
-  );
+  throw new Error(`Set KUBB_TARGET to one of: ${Object.keys(TARGETS).join(", ")} (got "${key}")`);
 }
 
 export default defineConfig({

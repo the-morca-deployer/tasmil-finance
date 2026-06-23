@@ -7,11 +7,11 @@
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { isDevBypassDisconnected } from "@/lib/dev-bypass";
 import { getBrowserBackendBaseUrl } from "@/lib/runtime-urls";
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { activeNetwork } from "@/shared/config/stellar";
 import { AuthBootstrap } from "@/shared/context/auth-bootstrap";
-import { isDevBypassDisconnected } from "@/lib/dev-bypass";
 import { getKitModulesUtils, getKitSdk, getKitTypes } from "@/shared/lib/stellar-kit";
 import { connectWallet, disconnectAll } from "@/shared/lib/wallet-session";
 import { type AuthUser, useAuthStore } from "@/store/use-auth";
