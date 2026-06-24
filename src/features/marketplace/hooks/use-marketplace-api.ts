@@ -140,7 +140,118 @@ export function useDeactivateStrategy() {
     mutationFn: (strategyId: string) =>
       fetch(`${BASE_URL}/api/marketplace/strategies/${strategyId}/deactivate`, {
         method: "POST",
+        headers: { Authorization: `Bearer ${localStorage.getItem("tasmil_auth_token") ?? ""}` },
+        credentials: "include",
       }).then((r) => r.json()),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["my-agents"] }),
+  });
+}
+
+export function useClaimFeesRequest() {
+  return useMutation({
+    mutationFn: (token: string) =>
+      fetch(`${BASE_URL}/api/marketplace/fees/claim/request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("tasmil_auth_token") ?? ""}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({ token }),
+      }).then((r) => {
+        if (!r.ok) throw new Error("Failed to build claim TX");
+        return r.json();
+      }),
+  });
+}
+
+export function useClaimFeesConfirm() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (txHash: string) =>
+      fetch(`${BASE_URL}/api/marketplace/fees/claim/confirm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("tasmil_auth_token") ?? ""}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({ txHash }),
+      }).then((r) => {
+        if (!r.ok) throw new Error("Failed to confirm claim");
+        return r.json();
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["fee-balance"] }),
+  });
+}
+
+export function useFeeBalance() {
+  return useQuery({
+    queryKey: ["fee-balance"],
+    queryFn: async () => {
+      const res = await fetch(`${BASE_URL}/api/marketplace/fees/balance`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("tasmil_auth_token") ?? ""}` },
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to fetch fee balance");
+      const json = await res.json();
+      return (json.data?.claimableUsd as number) ?? 0;
+    },
+    refetchInterval: 60_000,
+  });
+}
+
+export function useActivateStrategyRequest() {
+  return useMutation({
+    mutationFn: ({
+      strategyId,
+      keeperWalletAddress,
+    }: {
+      strategyId: string;
+      keeperWalletAddress: string;
+    }) =>
+      fetch(`${BASE_URL}/api/marketplace/strategies/${strategyId}/activate/request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("tasmil_auth_token") ?? ""}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({ keeperWalletAddress }),
+      }).then((r) => {
+        if (!r.ok) throw new Error("Failed to build activate TX");
+        return r.json();
+      }),
+  });
+}
+
+export function useActivateStrategyConfirm() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      strategyId,
+      txHash,
+      keeperWalletAddress,
+    }: {
+      strategyId: string;
+      txHash: string;
+      keeperWalletAddress: string;
+    }) =>
+      fetch(`${BASE_URL}/api/marketplace/strategies/${strategyId}/activate/confirm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("tasmil_auth_token") ?? ""}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({ txHash, keeperWalletAddress }),
+      }).then((r) => {
+        if (!r.ok) throw new Error("Failed to confirm activation");
+        return r.json();
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-agents"] });
+      qc.invalidateQueries({ queryKey: ["trading-account"] });
+    },
   });
 }

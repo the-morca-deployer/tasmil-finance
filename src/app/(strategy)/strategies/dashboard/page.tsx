@@ -1,10 +1,11 @@
 "use client";
 
-import { AlertCircle, ExternalLink, Loader2, Plus, RefreshCw, Shield } from "lucide-react";
+import { AlertCircle, DollarSign, ExternalLink, Loader2, Plus, RefreshCw, Shield } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import {
   type MyAgent,
+  useClaimFeesRequest,
   useDeactivateStrategy,
   useMyAgents,
 } from "@/features/marketplace/hooks/use-marketplace-api";
@@ -37,6 +38,11 @@ function computeStats(vaults: MyAgent[]) {
 export default function PublisherDashboardPage() {
   const { data, isLoading, error, refetch } = useMyAgents();
   const deactivate = useDeactivateStrategy();
+  const claimFeesRequest = useClaimFeesRequest();
+
+  const usdcTokenId =
+    process.env.NEXT_PUBLIC_USDC_TOKEN_ID ??
+    "CBIELTK6YBZ5G5QHJRJONBXMAAYJGMJBKYMKCZVOTEM4HLMMBNDNOAVE";
 
   const vaults = data ?? [];
   const stats = useMemo(() => computeStats(vaults), [vaults]);
@@ -163,8 +169,26 @@ export default function PublisherDashboardPage() {
               </div>
             </div>
             <div className="rounded-[14px] border border-[rgba(255,255,255,0.08)] bg-[#0D111A] p-5">
-              <div className="text-[11px] uppercase tracking-[0.08em] text-[rgba(244,247,251,0.34)]">
-                Claimable
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] uppercase tracking-[0.08em] text-[rgba(244,247,251,0.34)]">
+                  Claimable
+                </div>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-[100px] border border-[rgba(110,231,183,0.5)] bg-[rgba(110,231,183,0.08)] px-3 py-1 text-[11px] font-semibold text-[#6EE7B7] transition-all duration-[400ms] hover:translate-y-[-1px] hover:border-[#6EE7B7] hover:bg-[rgba(110,231,183,0.16)] disabled:opacity-50"
+                  onClick={() => claimFeesRequest.mutate(usdcTokenId)}
+                  disabled={claimFeesRequest.isPending}
+                >
+                  {claimFeesRequest.isPending ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" /> Claiming...
+                    </>
+                  ) : (
+                    <>
+                      <DollarSign className="h-3 w-3" /> Claim
+                    </>
+                  )}
+                </button>
               </div>
               <div className="font-mono text-[clamp(20px,2.5vw,30px)] font-bold tracking-[-0.03em] text-[#6EE7B7]">
                 {formatUsd(stats.claimable)}
