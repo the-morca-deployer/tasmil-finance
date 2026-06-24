@@ -1688,11 +1688,7 @@ const CampaignDetail: React.FC = () => {
             <div className="grid flex-1 gap-2">
               <Input readOnly value={shareUrl} />
             </div>
-            <button
-              type="button"
-              className="btn btn-ghost w-9 h-9 p-0 flex items-center justify-center"
-              onClick={copyToClipboard}
-            >
+            <button type="button" className="btn btn-ghost w-9 h-9 p-0" onClick={copyToClipboard}>
               <Copy className="h-4 w-4" />
             </button>
           </div>

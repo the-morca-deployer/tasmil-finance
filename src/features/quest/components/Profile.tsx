@@ -559,12 +559,7 @@ const Profile: React.FC = () => {
             <h2 className="text-2xl font-bold">Connect your wallet</h2>
             <p className="text-muted-foreground">View your quests, points, and rewards.</p>
           </div>
-          <button
-            type="button"
-            className="btn btn-primary gap-2"
-            style={{ padding: "12px 24px" }}
-            onClick={connect}
-          >
+          <button type="button" className="btn btn-primary gap-2" onClick={connect}>
             <Wallet size={18} />
             Connect Wallet
           </button>
@@ -1113,7 +1108,6 @@ const Profile: React.FC = () => {
               type="button"
               onClick={handleConfirmAvatar}
               className="btn btn-primary text-sm"
-              style={{ padding: "12px 24px" }}
               disabled={
                 isUpdatingAvatar ||
                 updateProfileMutation.isPending ||
