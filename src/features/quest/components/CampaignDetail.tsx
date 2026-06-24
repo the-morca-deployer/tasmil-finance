@@ -1071,7 +1071,7 @@ const CampaignDetail: React.FC = () => {
   // Loading state
   if (isLoadingCampaign) {
     return (
-      <div className="page">
+      <div>
         <div className="d-back" style={{ opacity: 0.5 }}>
           <ArrowLeft size={16} />
           Back to Explore
@@ -1124,7 +1124,6 @@ const CampaignDetail: React.FC = () => {
   if (campaignError || !campaign) {
     return (
       <div
-        className="page"
         style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400 }}
       >
         <div className="empty">
@@ -1145,7 +1144,7 @@ const CampaignDetail: React.FC = () => {
   // Auth guard: show connect-wallet prompt for unauthenticated users
   if (!isAuthenticated) {
     return (
-      <div className="page">
+      <div>
         <Link href="/quest" className="d-back">
           <ArrowLeft size={16} />
           Back to Explore
@@ -1225,7 +1224,7 @@ const CampaignDetail: React.FC = () => {
     const avatarsToShow = campaignAvatars.slice(0, 5);
 
     return (
-      <div className="page">
+      <div>
         <Link href="/quest" className="d-back">
           <ArrowLeft size={16} />
           Back to Explore
@@ -1360,7 +1359,7 @@ const CampaignDetail: React.FC = () => {
   const extra = campaign.participants - shownCount;
 
   return (
-    <div className="page">
+    <div>
       <Link href="/quest" className="d-back">
         <ArrowLeft size={16} />
         Back to Explore

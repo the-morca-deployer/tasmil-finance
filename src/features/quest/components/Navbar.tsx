@@ -8,7 +8,6 @@ import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/features/quest/components/ui/avatar";
-import { Button } from "@/features/quest/components/ui/button";
 import { useWallet } from "@/features/quest/context/wallet-context";
 import { withAuth } from "@/features/quest/lib/kubb-config";
 import {
@@ -199,16 +198,15 @@ const Navbar: React.FC = () => {
       {/* Right side */}
       <div className="hidden md:flex items-center gap-3">
         {!isConnected ? (
-          <Button
-            variant="primary"
-            size="sm"
+          <button
+            type="button"
             onClick={connect}
             disabled={isAuthenticating}
-            className="gap-2"
+            className="btn btn-primary btn-sm gap-2"
           >
             <Wallet size={16} />
             <span>{isAuthenticating ? "Connecting..." : "Connect Wallet"}</span>
-          </Button>
+          </button>
         ) : isAuthenticating ? (
           <div className="flex items-center gap-3">
             <span className="stat-pill pts">
@@ -226,12 +224,11 @@ const Navbar: React.FC = () => {
 
             {/* Streak pill — with check-in button if not yet checked in today */}
             {!hasCheckedIn ? (
-              <Button
+              <button
+                type="button"
                 onClick={handleCheckIn}
                 disabled={dailyLoginMutation.isPending}
-                variant="ghost"
-                size="sm"
-                className="gap-2"
+                className="btn btn-ghost btn-sm gap-2"
               >
                 {dailyLoginMutation.isPending ? (
                   <>
@@ -244,7 +241,7 @@ const Navbar: React.FC = () => {
                     <span className="text-sm font-semibold">Check-in ({streak}d)</span>
                   </>
                 )}
-              </Button>
+              </button>
             ) : (
               <span className="stat-pill streak">
                 <Flame className="w-[14px] h-[14px]" />
@@ -334,9 +331,9 @@ const Navbar: React.FC = () => {
 
             <div className="mt-auto pt-6">
               {!isConnected ? (
-                <Button
-                  variant="primary"
-                  className="w-full"
+                <button
+                  type="button"
+                  className="btn btn-primary btn-block"
                   onClick={() => {
                     connect();
                     setIsMobileMenuOpen(false);
@@ -345,7 +342,7 @@ const Navbar: React.FC = () => {
                 >
                   <Wallet className="mr-2" size={18} />
                   {isAuthenticating ? "Connecting..." : "Connect Wallet"}
-                </Button>
+                </button>
               ) : isAuthenticating ? (
                 <div className="flex items-center justify-center gap-3 py-8">
                   <Loader2 size={24} className="animate-spin text-accent" />
@@ -366,12 +363,11 @@ const Navbar: React.FC = () => {
 
                   {/* Streak */}
                   {!hasCheckedIn ? (
-                    <Button
+                    <button
+                      type="button"
                       onClick={handleCheckIn}
                       disabled={dailyLoginMutation.isPending}
-                      variant="ghost"
-                      size="lg"
-                      className="w-full gap-2"
+                      className="btn btn-ghost btn-lg btn-block gap-2"
                     >
                       {dailyLoginMutation.isPending ? (
                         <>
@@ -384,7 +380,7 @@ const Navbar: React.FC = () => {
                           <span className="font-semibold">Check-in ({streak}d)</span>
                         </>
                       )}
-                    </Button>
+                    </button>
                   ) : (
                     <div className="flex justify-between items-center bg-card p-4 rounded-xl border border-border">
                       <div className="flex items-center gap-2">
@@ -404,25 +400,23 @@ const Navbar: React.FC = () => {
                   </div>
 
                   <div className="flex gap-3">
-                    <Button
-                      variant="ghost"
-                      size="sm"
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm flex-1 gap-2"
                       onClick={copyAddress}
-                      className="flex-1 gap-2"
                     >
                       <Copy size={14} /> Copy Address
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => {
                         disconnect();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="flex-1 gap-2"
+                      className="btn bg-destructive text-destructive-foreground hover:bg-destructive/90 btn-sm flex-1 gap-2"
                     >
                       <LogOut size={14} /> Disconnect
-                    </Button>
+                    </button>
                   </div>
                 </div>
               )}

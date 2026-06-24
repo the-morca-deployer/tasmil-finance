@@ -19,7 +19,7 @@ export default function Campaigns() {
   }, [data]);
 
   return (
-    <div className="page">
+    <div>
       <Rise>
         <h1 className="text-[clamp(40px,6vw,68px)] font-bold tracking-[-0.02em]">Campaigns</h1>
       </Rise>

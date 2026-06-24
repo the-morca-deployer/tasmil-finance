@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Button } from "@/features/quest/components/ui/button";
 
 interface SocialConnectCardProps {
   provider: string; // "Twitter", "Discord", "Telegram"
@@ -37,13 +36,13 @@ export function SocialConnectCard({
       </div>
       <div className="social-card-foot">
         {connected ? (
-          <Button variant="ghost" size="sm" onClick={onDisconnect}>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={onDisconnect}>
             Disconnect
-          </Button>
+          </button>
         ) : (
-          <Button variant="default" size="sm" onClick={onConnect}>
+          <button type="button" className="btn btn-primary btn-sm" onClick={onConnect}>
             Connect
-          </Button>
+          </button>
         )}
       </div>
     </div>

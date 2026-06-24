@@ -4,7 +4,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Loader2, X } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 import { toast } from "sonner";
-import { Button } from "@/features/quest/components/ui/button";
 import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
 
 // Social Icons
@@ -99,19 +98,18 @@ export const SocialConnectCard: React.FC<SocialConnectCardProps> = ({
       ) : isConnected ? (
         <div className="flex items-center gap-2">
           <CheckCircle2 size={20} className="text-success" />
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-8 w-8 text-muted hover:text-danger hover:bg-danger/10"
+          <button
+            type="button"
+            className="btn btn-ghost h-8 w-8 p-0 text-muted hover:text-danger hover:bg-danger/10 flex items-center justify-center"
             onClick={onDisconnect}
           >
             <X size={16} />
-          </Button>
+          </button>
         </div>
       ) : (
-        <Button size="sm" variant="outline" className="h-8 text-xs" onClick={onConnect}>
+        <button type="button" className="btn btn-ghost btn-sm h-8 text-xs" onClick={onConnect}>
           Connect
-        </Button>
+        </button>
       )}
     </div>
   );

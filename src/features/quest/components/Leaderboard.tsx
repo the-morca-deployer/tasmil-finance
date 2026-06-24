@@ -141,7 +141,7 @@ export default function Leaderboard() {
   );
 
   return (
-    <div className="page">
+    <div>
       <Rise>
         <header className="page-head">
           <div className="eyebrow">{season?.name ?? "June 2026"}</div>
