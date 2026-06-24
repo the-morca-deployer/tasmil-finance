@@ -4,6 +4,7 @@ import { Geist_Mono, Hanken_Grotesk } from "next/font/google";
 import localFont from "next/font/local";
 import { AppProvider } from "@/providers/app-provider";
 import { ServiceWorkerRegistrar } from "@/shared/components/service-worker-registrar";
+import { MockProvider } from "@/mocks/MockProvider";
 import "./globals.css";
 
 const outfit = localFont({
@@ -82,7 +83,9 @@ export default function RootLayout({
       </head>
       <body className={`${outfit.className} antialiased`}>
         <ServiceWorkerRegistrar />
-        <AppProvider>{children}</AppProvider>
+        <MockProvider>
+          <AppProvider>{children}</AppProvider>
+        </MockProvider>
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         )}
