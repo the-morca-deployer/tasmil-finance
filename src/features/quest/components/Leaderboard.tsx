@@ -2,6 +2,7 @@
 
 import { Clock } from "lucide-react";
 import { useMemo, useState } from "react";
+import CountUp from "@/shared/ui/count-up";
 import { LeaderboardRow } from "@/features/quest/components/LeaderboardRow";
 import { Podium } from "@/features/quest/components/Podium";
 import { Rise } from "@/features/quest/components/Rise";
@@ -15,8 +16,8 @@ import {
   useSeasonsControllerMyResult,
 } from "@/gen-quest/hooks";
 
-const PtsCoin = ({ w = 15, h = 15 }: { w?: number; h?: number }) => (
-  <svg width={w} height={h} viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ display: "inline-block", verticalAlign: -3 }}>
+const PtsCoin = ({ className = "pcoin" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
     <linearGradient id="ptsGrad" x1="0.15" y1="0.1" x2="0.85" y2="0.9"><stop stopColor="#A5F3FC"/><stop offset="1" stopColor="#0EA5E9"/></linearGradient>
     <circle cx="12" cy="12" r="9" fill="url(#ptsGrad)"/><path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A"/>
   </svg>
@@ -87,11 +88,17 @@ export default function Leaderboard() {
               </div>
               <div className="bn-figures">
                 <div className="bn-fig usdc">
-                  <span className="v">80 <img src="/token/usdc.png" alt="" className="usdc-coin" /></span>
+                  <span className="v">
+                    <CountUp value={Number(season?.prizePoolUsdc ?? 80)} duration={1.6} />
+                    <img src="/token/usdc.png" alt="" className="usdc-coin" />
+                  </span>
                   <span className="k">USDC</span>
                 </div>
                 <div className="bn-fig pts">
-                  <span className="v">+{ptsPool.toLocaleString()} <PtsCoin w={28} h={28} /></span>
+                  <span className="v">
+                    +<CountUp value={ptsPool} duration={1.6} />
+                    <PtsCoin />
+                  </span>
                   <span className="k">Points</span>
                 </div>
               </div>
@@ -160,7 +167,7 @@ export default function Leaderboard() {
                 <span className="prize-rank">1st Place</span>
                 <span className="prize-badges">
                   <span className="mini-badge usdc">50<img src="/token/usdc.png" alt="" className="usdc-coin" /></span>
-                  <span className="mini-badge pts">+5,000<PtsCoin w={12} h={12} /></span>
+                  <span className="mini-badge pts">+5,000<PtsCoin /></span>
                 </span>
               </div>
               <div className="prize-card p2">
@@ -168,7 +175,7 @@ export default function Leaderboard() {
                 <span className="prize-rank">2nd Place</span>
                 <span className="prize-badges">
                   <span className="mini-badge usdc">20<img src="/token/usdc.png" alt="" className="usdc-coin" /></span>
-                  <span className="mini-badge pts">+3,000<PtsCoin w={12} h={12} /></span>
+                  <span className="mini-badge pts">+3,000<PtsCoin /></span>
                 </span>
               </div>
               <div className="prize-card p3">
@@ -176,7 +183,7 @@ export default function Leaderboard() {
                 <span className="prize-rank">3rd Place</span>
                 <span className="prize-badges">
                   <span className="mini-badge usdc">10<img src="/token/usdc.png" alt="" className="usdc-coin" /></span>
-                  <span className="mini-badge pts">+2,000<PtsCoin w={12} h={12} /></span>
+                  <span className="mini-badge pts">+2,000<PtsCoin /></span>
                 </span>
               </div>
             </div>
@@ -193,7 +200,7 @@ export default function Leaderboard() {
                   <div key={r} className="pts-row">
                     <span className="rk">{r}th</span>
                     <span className="dots" />
-                    <span className="amt">+{(ptsMap[r] ?? 0).toLocaleString()} <PtsCoin w={15} h={15} /></span>
+                    <span className="amt">+{(ptsMap[r] ?? 0).toLocaleString()} <PtsCoin /></span>
                   </div>
                 );
               })}

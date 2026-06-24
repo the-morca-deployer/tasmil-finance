@@ -22,19 +22,19 @@ const CHEV_DN = '<svg viewBox="0 0 24 24" width="10" height="10" fill="none" str
 
 export function LeaderboardRow({ rank, name, address, score, rankMove, metric, top10 }: LeaderboardRowProps) {
   const scoreDisplay = metric === "points" ? (
-    <>{score.toLocaleString()} <svg className="pcoin" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ display: "inline-block", verticalAlign: -3 }}>
+    <>{score.toLocaleString()}<svg className="pcoin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <linearGradient id="rowPts" x1="0.15" y1="0.1" x2="0.85" y2="0.9"><stop stopColor="#A5F3FC"/><stop offset="1" stopColor="#0EA5E9"/></linearGradient>
       <circle cx="12" cy="12" r="9" fill="url(#rowPts)"/><path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A"/>
     </svg></>
   ) : (
-    <>{score} <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true" style={{ display: "inline-block", verticalAlign: -3, color: "var(--amber)" }}>
+    <>{score}<svg className="pcoin" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ color: "var(--amber)" }}>
       <linearGradient id="rowFlame" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0" stopColor="#FCD34D"/><stop offset="0.5" stopColor="#FB923C"/><stop offset="1" stopColor="#F43F5E"/></linearGradient>
       <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" fill="url(#rowFlame)"/>
     </svg></>
   );
 
   const reward = top10 && ptsRewards[rank]
-    ? <span className="reward-badge">+{ptsRewards[rank]!.toLocaleString()}<svg className="pcoin" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ display: "inline-block", verticalAlign: -3 }}>
+    ? <span className="reward-badge">+{ptsRewards[rank]!.toLocaleString()}<svg className="pcoin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <linearGradient id="rewPts" x1="0.15" y1="0.1" x2="0.85" y2="0.9"><stop stopColor="#A5F3FC"/><stop offset="1" stopColor="#0EA5E9"/></linearGradient>
         <circle cx="12" cy="12" r="9" fill="url(#rewPts)"/><path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A"/>
       </svg></span>

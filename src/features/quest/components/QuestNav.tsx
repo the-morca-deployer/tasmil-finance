@@ -16,7 +16,7 @@ import { useQuestAuthStore } from "../store/use-quest-auth";
 import { Flame, PtsCoin } from "./icons";
 
 const LINKS = [
-  { href: "/quest/quest", label: "Explore" },
+  { href: "/quest", label: "Explore" },
   { href: "/quest/campaigns", label: "Campaigns" },
   { href: "/quest/leaderboard", label: "Leaderboard" },
   { href: "/quest/profile", label: "My Quests" },
@@ -87,7 +87,7 @@ export function QuestNav() {
 
   return (
     <nav className="nav">
-      <Link className="nav-brand" href="/quest/quest">
+      <Link className="nav-brand" href="/quest">
         <img src="/tasmil-tf-logo.png" alt="Tasmil" />
         <span>
           Tasmil <span className="fin">Quest</span>

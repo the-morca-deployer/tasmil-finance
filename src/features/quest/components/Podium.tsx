@@ -45,7 +45,7 @@ export function Podium({ rows, metric, usdcRewards = ["50", "20", "10"], ptsRewa
                 </span>
                 <span className="pp pts">
                   +{fmt(ptsRewards[place]!)}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ display: "inline-block", verticalAlign: -2 }}>
+                  <svg className="pcoin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <linearGradient id="ppGrad" x1="0.15" y1="0.1" x2="0.85" y2="0.9"><stop stopColor="#A5F3FC"/><stop offset="1" stopColor="#0EA5E9"/></linearGradient>
                     <circle cx="12" cy="12" r="9" fill="url(#ppGrad)"/><path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A"/>
                   </svg>

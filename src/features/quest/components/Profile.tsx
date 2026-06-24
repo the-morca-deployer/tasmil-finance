@@ -133,8 +133,8 @@ function Sidebar({ tab, setTab }: { tab: string; setTab: (t: string) => void }) 
 }
 
 // PtsCoin
-const Pts = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ display: "inline-block", verticalAlign: -3, flexShrink: 0 }}>
+const Pts = () => (
+  <svg className="pcoin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <linearGradient id="ptsG" x1="0.15" y1="0.1" x2="0.85" y2="0.9"><stop stopColor="#A5F3FC"/><stop offset="1" stopColor="#0EA5E9"/></linearGradient>
     <circle cx="12" cy="12" r="9" fill="url(#ptsG)"/><path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A"/>
   </svg>
@@ -192,7 +192,7 @@ function OverviewTab() {
                   <div className="lvl-fill" style={{ width: `${progress * 100}%` }} />
                 </div>
                 <div className="lvl-meta">
-                  <b>{fmt(toP - points)}<Pts size={12} /></b> to reach {nextT}
+                  <b>{fmt(toP - points)}<Pts /></b> to reach {nextT}
                 </div>
               </div>
             </div>
@@ -230,7 +230,7 @@ function OverviewTab() {
           </div>
           <div className="qref-block" style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--line)" }}>
             <div className="hh-lab">Total Earned From Refs</div>
-            <div className="qref-earned" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 28, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--accent)", marginTop: 8 }}>1,250<Pts size={20} /></div>
+            <div className="qref-earned" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 28, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--accent)", marginTop: 8 }}>1,250<Pts /></div>
             <div className="qref-stats" style={{ display: "flex", gap: 24, marginTop: 12 }}>
               <div><div className="qs-num" style={{ fontSize: 28, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--accent)", lineHeight: 1 }}>14</div><div className="qs-lab" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--dim)", marginTop: 4 }}>Total invited</div></div>
               <div><div className="qs-num" style={{ fontSize: 28, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--green)", lineHeight: 1 }}>9</div><div className="qs-lab" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--dim)", marginTop: 4 }}>Active</div></div>
@@ -424,8 +424,8 @@ function ReferralsTab() {
                   </span>
                 </div>
                 <span className="layerb">L{r.layer ?? 1}</span>
-                <span className="rl-num">{(r.questPoints ?? 0).toLocaleString()}<Pts size={12} /></span>
-                <span className="rl-num earn">{(r.ptsEarned ?? 0).toLocaleString()}<Pts size={12} /></span>
+                <span className="rl-num">{(r.questPoints ?? 0).toLocaleString()}<Pts /></span>
+                <span className="rl-num earn">{(r.ptsEarned ?? 0).toLocaleString()}<Pts /></span>
               </div>
             ))}
           </div>
