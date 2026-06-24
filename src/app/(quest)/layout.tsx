@@ -8,10 +8,10 @@ export default function QuestLayout({ children }: { children: React.ReactNode })
   return (
     <WalletProvider>
       <AutoReconnect />
-      <div className="quest-scope flex min-h-screen flex-col">
+      <div className="quest-scope">
         <QuestNav />
         <RankRevealGate />
-        <main className="page flex-grow">{children}</main>
+        <main className="page">{children}</main>
         <QuestFooter />
         <div id="quest-overlay" />
       </div>

@@ -29,7 +29,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ path: st
 
 function handleMock(fullPath: string, req: Request, method = "GET") {
   const url = new URL(req.url);
-  const p = fullPath; // e.g. "campaigns" or "users/me" or "tasks/s1/status"
+  // Strip quest/ prefix if present
+  const p = fullPath.replace(/^quest\//, "");
 
   // Campaigns
   if (p === "campaigns" && method === "GET") return json(mockCampaigns(url));
@@ -65,8 +66,8 @@ function handleMock(fullPath: string, req: Request, method = "GET") {
   if (p === "users/daily-login" && method === "POST") return json(MOCK_DAILY_LOGIN_RESULT);
 
   // Leaderboard
-  if (p === "analytics/global-leaderboard" && method === "GET") return json(MOCK_LEADERBOARD);
-  if (p === "analytics/streak-leaderboard" && method === "GET") return json(MOCK_STREAK_LEADERBOARD);
+  if ((p === "analytics/global-leaderboard" || p === "leaderboard/global") && method === "GET") return json(MOCK_LEADERBOARD);
+  if ((p === "analytics/streak-leaderboard" || p === "leaderboard/streak") && method === "GET") return json(MOCK_STREAK_LEADERBOARD);
 
   // Seasons
   if (p === "seasons/current" && method === "GET") return json(MOCK_CURRENT_SEASON);

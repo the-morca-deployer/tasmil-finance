@@ -427,9 +427,9 @@ const Profile: React.FC = () => {
   return (
     <div>
       <Rise>
-        <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 0, alignItems: "start" }}>
+        <div className="shell">
           <Sidebar tab={tab} setTab={setTab} />
-          <div style={{ padding: "0 0 0 clamp(24px, 5vw, 48px)", minHeight: "60vh" }}>
+          <div style={{ padding: "clamp(24px, 5vw, 48px)" }}>
             <Rise delay={0.08}>
               {tab === "overview" && <OverviewTab />}
               {tab === "quests" && <MyQuestsTab />}

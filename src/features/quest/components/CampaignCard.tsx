@@ -81,18 +81,15 @@ export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
       className={`camp-card group${closed ? " closed" : ""}`}
     >
       <div className="cc-cover">
-        <div className="brand-mark">
-          {campaign.coverUrl ? <img src={campaign.coverUrl} alt="" /> : null}
-        </div>
-        <span className="ph-tag">
-          tasmil://{campaign.sponsor.toLowerCase().replace(/\s+/g, "-")}
-        </span>
+        {campaign.coverUrl ? (
+          <img src={campaign.coverUrl} alt="" className="cc-cover-img" />
+        ) : null}
         <span className="cc-badge-status">
           <Badge variant={closed ? "closed" : "ongoing"}>{closed ? "Closed" : "Ongoing"}</Badge>
         </span>
         <span className="cc-badge-pts">
           +{campaign.pointsReward.toLocaleString("en-US")}
-          <svg className="pcoin" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+          <svg className="pcoin" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
             <defs>
               <linearGradient id="ptsCoinGCard" x1="0.15" y1="0.1" x2="0.85" y2="0.9">
                 <stop stopColor="#A5F3FC" />
