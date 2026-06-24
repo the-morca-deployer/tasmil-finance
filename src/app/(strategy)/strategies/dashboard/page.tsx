@@ -9,6 +9,7 @@ import {
   useDeactivateStrategy,
   useMyAgents,
 } from "@/features/marketplace/hooks/use-marketplace-api";
+import { RequireVaultGuard } from "@/features/marketplace/components/require-vault-guard";
 import { Button } from "@/shared/ui/button";
 
 function formatUsd(value: number): string {
@@ -35,7 +36,7 @@ function computeStats(vaults: MyAgent[]) {
   return { totalTvl, strategyCount, avgApy, estimatedEarnings, claimable, activeVaults };
 }
 
-export default function PublisherDashboardPage() {
+function PublisherDashboardContent() {
   const { data, isLoading, error, refetch } = useMyAgents();
   const deactivate = useDeactivateStrategy();
   const claimFeesRequest = useClaimFeesRequest();
@@ -375,5 +376,13 @@ export default function PublisherDashboardPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function PublisherDashboardPage() {
+  return (
+    <RequireVaultGuard>
+      <PublisherDashboardContent />
+    </RequireVaultGuard>
   );
 }

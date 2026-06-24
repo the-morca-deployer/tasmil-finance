@@ -3,6 +3,7 @@
 import { AlertCircle, Check, ChevronLeft, ChevronRight, Loader2, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { RequireVaultGuard } from "@/features/marketplace/components/require-vault-guard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:6756";
 
@@ -65,7 +66,7 @@ type DeployState =
   | { status: "done"; txHash?: string }
   | { status: "error"; error: string };
 
-export default function PublishStrategyPage() {
+function PublishStrategyContent() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormData>(DEFAULT_FORM);
   const [tagInput, setTagInput] = useState("");
@@ -111,7 +112,6 @@ export default function PublishStrategyPage() {
           platformFeeBps: 100,
           feeDistributorAddress: process.env.NEXT_PUBLIC_FEE_DISTRIBUTOR_ID ?? "",
           soroswapRouterAddress: process.env.NEXT_PUBLIC_SOROSWAP_ROUTER_ID ?? "",
-          publisherWallet: "GBN2QI5IVRVEVQHPU54KY3XWGN4UL7VJ7TPBGTEKJM3V5U6W44AJ6VVU",
         }),
       });
       const json = await res.json();
@@ -363,7 +363,9 @@ export default function PublishStrategyPage() {
                   onChange={(e) => update("baseAsset", e.target.value)}
                 >
                   {ASSETS.map((a) => (
-                    <option key={a} value={a}>{a}</option>
+                    <option key={a} value={a}>
+                      {a}
+                    </option>
                   ))}
                 </select>
                 <span className="pointer-events-none absolute right-4 top-1/2 block h-2 w-2 -translate-y-[70%] rotate-45 border-r-[1.6px] border-b-[1.6px] border-[#67E8F9]" />
@@ -380,7 +382,9 @@ export default function PublishStrategyPage() {
                   onChange={(e) => update("riskTier", e.target.value)}
                 >
                   {RISK_TIERS.map((r) => (
-                    <option key={r} value={r}>{r}</option>
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
                   ))}
                 </select>
                 <span className="pointer-events-none absolute right-4 top-1/2 block h-2 w-2 -translate-y-[70%] rotate-45 border-r-[1.6px] border-b-[1.6px] border-[#67E8F9]" />
@@ -535,9 +539,7 @@ export default function PublishStrategyPage() {
               Strategy
             </div>
             <div className="text-[16px] font-semibold text-[#F4F7FB]">{form.strategyName}</div>
-            <div className="mt-1 text-[13px] text-[rgba(244,247,251,0.58)]">
-              {form.description}
-            </div>
+            <div className="mt-1 text-[13px] text-[rgba(244,247,251,0.58)]">{form.description}</div>
           </div>
           <div className="border-b border-[rgba(255,255,255,0.08)] py-[18px]">
             <div className="flex justify-between py-2.5">
@@ -638,9 +640,7 @@ export default function PublishStrategyPage() {
             </div>
             <div className="flex justify-between py-2.5">
               <span className="text-[14px] text-[rgba(244,247,251,0.58)]">Strategy name</span>
-              <span className="text-[14px] font-semibold text-[#F4F7FB]">
-                {form.strategyName}
-              </span>
+              <span className="text-[14px] font-semibold text-[#F4F7FB]">{form.strategyName}</span>
             </div>
             <div className="flex justify-between border-t border-[rgba(103,232,249,0.32)] py-2.5 pt-3">
               <span className="text-[14px] font-bold text-[rgba(244,247,251,0.58)]">Publisher</span>
@@ -667,5 +667,13 @@ export default function PublishStrategyPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PublishStrategyPage() {
+  return (
+    <RequireVaultGuard>
+      <PublishStrategyContent />
+    </RequireVaultGuard>
   );
 }
