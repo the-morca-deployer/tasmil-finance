@@ -64,7 +64,7 @@ export default function LeaderboardPage() {
   const podium = sorted.slice(0, 3);
 
   // Reorder podium: 2nd, 1st, 3rd for the visual layout
-  const podiumOrdered = [podium[1], podium[0], podium[2]].filter(Boolean);
+  const podiumOrdered = (podium.length === 3 ? [podium[1], podium[0], podium[2]] : []) as LeaderboardEntry[];
 
   return (
     <div className="mx-auto max-w-[1100px] px-[clamp(20px,5vw,72px)]">
@@ -89,8 +89,7 @@ export default function LeaderboardPage() {
       {/* Filter bar */}
       <div className="mb-7 flex flex-wrap items-center gap-3 rounded-[14px] border border-[rgba(255,255,255,0.08)] bg-[rgba(20,28,40,0.30)] px-5 py-3.5">
         <span className="ml-auto whitespace-nowrap text-[13px] text-[rgba(244,247,251,0.34)]">
-          Top{" "}
-          <span className="font-semibold text-[#67E8F9]">{entries.length}</span> strategies
+          Top <span className="font-semibold text-[#67E8F9]">{entries.length}</span> strategies
         </span>
       </div>
 
