@@ -33,3 +33,11 @@ export const kubbClient = {
 } as const;
 
 export default questApiClient;
+
+// ── Mock mode — install Axios adapter at module creation time ──────────
+// Static import ensures interceptor is installed BEFORE any request fires.
+import { installQuestMocks } from "./mock-interceptor";
+
+if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_MOCK_API === "true") {
+  installQuestMocks(questApiClient);
+}
