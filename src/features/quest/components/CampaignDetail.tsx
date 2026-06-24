@@ -28,7 +28,7 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/features/quest/components/ui/avatar";
 import { Badge } from "@/features/quest/components/ui/badge";
-import { Button } from "@/features/quest/components/ui/button";
+
 import {
   Dialog,
   DialogContent,
@@ -499,10 +499,9 @@ const QuestItem: React.FC<QuestItemProps> = ({
           )}
 
           <div className="flex flex-wrap gap-3 pt-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs"
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
               onClick={(e) => {
                 e.stopPropagation();
                 const skipTracking =
@@ -517,7 +516,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
             >
               {getActionLabel(step.type)}
               <ExternalLink size={12} className="ml-2 opacity-50" />
-            </Button>
+            </button>
 
             {(() => {
               const requiredPlatform = getRequiredPlatform(step.type);
@@ -544,24 +543,22 @@ const QuestItem: React.FC<QuestItemProps> = ({
                   );
                 }
                 return (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="text-xs min-w-[120px]"
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm min-w-[120px]"
                     onClick={handleConnectClick}
                   >
                     Connect {requiredPlatform}
-                  </Button>
+                  </button>
                 );
               }
 
               if (isVerified && !isClaimed) {
                 const pointsEarned = taskStatus?.pointsEarned || 0;
                 return (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="text-xs min-w-[120px] bg-success hover:bg-success/90"
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm min-w-[120px] !bg-success hover:!bg-success/90 text-white"
                     disabled={claimTaskMutation.isPending}
                     onClick={handleClaimTask}
                   >
@@ -576,7 +573,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
                         Claim {pointsEarned} PTS
                       </>
                     )}
-                  </Button>
+                  </button>
                 );
               }
 
@@ -584,23 +581,25 @@ const QuestItem: React.FC<QuestItemProps> = ({
                 const pointsEarned =
                   taskStatus?.pointsEarned || claimStatus?.claim?.pointsEarned || 0;
                 return (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="text-xs min-w-[120px] opacity-75 cursor-not-allowed"
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm min-w-[120px] opacity-75 cursor-not-allowed"
                     disabled
                   >
                     <CheckCircle2 className="mr-2 h-3 w-3" />
                     Claimed {pointsEarned} PTS
-                  </Button>
+                  </button>
                 );
               }
 
               return (
-                <Button
-                  variant={status === "error" ? "destructive" : "default"}
-                  size="sm"
-                  className={`text-xs min-w-[120px] ${status === "completed" ? "opacity-50 cursor-not-allowed" : ""}`}
+                <button
+                  type="button"
+                  className={`btn btn-sm min-w-[120px] ${
+                    status === "error"
+                      ? "!bg-destructive text-destructive-foreground hover:!bg-destructive/90"
+                      : "btn-primary"
+                  } ${status === "completed" ? "opacity-50 cursor-not-allowed" : ""}`}
                   disabled={
                     status === "verifying" || status === "completed" || verifyTaskMutation.isPending
                   }
@@ -621,7 +620,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
                   ) : (
                     <>Verify Task</>
                   )}
-                </Button>
+                </button>
               );
             })()}
           </div>
@@ -1689,9 +1688,13 @@ const CampaignDetail: React.FC = () => {
             <div className="grid flex-1 gap-2">
               <Input readOnly value={shareUrl} />
             </div>
-            <Button type="submit" size="icon" variant="secondary" onClick={copyToClipboard}>
+            <button
+              type="button"
+              className="btn btn-ghost w-9 h-9 p-0 flex items-center justify-center"
+              onClick={copyToClipboard}
+            >
               <Copy className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
         </DialogContent>
       </Dialog>

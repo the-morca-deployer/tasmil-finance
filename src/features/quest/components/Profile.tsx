@@ -11,7 +11,7 @@ import { StatRing } from "@/features/quest/components/StatRing";
 import { TelegramButton } from "@/features/quest/components/TelegramButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/features/quest/components/ui/avatar";
 import { Badge } from "@/features/quest/components/ui/badge";
-import { Button } from "@/features/quest/components/ui/button";
+
 import {
   Card,
   CardDescription,
@@ -559,10 +559,15 @@ const Profile: React.FC = () => {
             <h2 className="text-2xl font-bold">Connect your wallet</h2>
             <p className="text-muted-foreground">View your quests, points, and rewards.</p>
           </div>
-          <Button variant="gradient" size="lg" onClick={connect} className="gap-2">
+          <button
+            type="button"
+            className="btn btn-primary gap-2"
+            style={{ padding: "12px 24px" }}
+            onClick={connect}
+          >
             <Wallet size={18} />
             Connect Wallet
-          </Button>
+          </button>
         </div>
       </div>
     );
@@ -854,15 +859,14 @@ const Profile: React.FC = () => {
                         placeholder="Loading..."
                         className="font-mono text-xs h-10 bg-background/50"
                       />
-                      <Button
-                        variant="accent"
-                        size="sm"
+                      <button
+                        type="button"
                         onClick={copyReferral}
-                        className="shrink-0"
+                        className="btn btn-primary btn-sm shrink-0 gap-2"
                       >
                         {referralCopied ? <CheckCircle2 size={14} /> : <Copy size={14} />}
                         {referralCopied ? "Copied" : "Copy"}
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </Card>
@@ -1105,10 +1109,11 @@ const Profile: React.FC = () => {
           </Tabs>
 
           <div className="mt-4 pt-4 border-t border-border shrink-0">
-            <Button
+            <button
+              type="button"
               onClick={handleConfirmAvatar}
-              variant="gradient"
-              size="lg"
+              className="btn btn-primary text-sm"
+              style={{ padding: "12px 24px" }}
               disabled={
                 isUpdatingAvatar ||
                 updateProfileMutation.isPending ||
@@ -1123,7 +1128,7 @@ const Profile: React.FC = () => {
               ) : (
                 "Confirm"
               )}
-            </Button>
+            </button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1148,11 +1153,16 @@ const Profile: React.FC = () => {
             </div>
 
             <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={() => setIsUsernameModalOpen(false)}>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => setIsUsernameModalOpen(false)}
+              >
                 Cancel
-              </Button>
-              <Button
-                variant="gradient"
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
                 onClick={handleUpdateUsername}
                 disabled={
                   isUpdatingUsername || updateProfileMutation.isPending || !newUsername.trim()
@@ -1166,7 +1176,7 @@ const Profile: React.FC = () => {
                 ) : (
                   "Save"
                 )}
-              </Button>
+              </button>
             </div>
           </div>
         </DialogContent>
