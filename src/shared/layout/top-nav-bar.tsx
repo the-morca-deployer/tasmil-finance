@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { MegaMenu } from "@/features/strategies/components/MegaMenu";
+import { cn } from "@/lib/utils";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { NavLink } from "./nav-link";
 import type { SidebarData } from "./sidebar-data";
@@ -17,6 +20,7 @@ interface TopNavBarProps {
 
 export function TopNavBar({ sidebarData }: TopNavBarProps) {
   const items = sidebarData.navGroups.flatMap((g) => g.items);
+  const pathname = usePathname() ?? "";
 
   return (
     <nav
@@ -25,12 +29,39 @@ export function TopNavBar({ sidebarData }: TopNavBarProps) {
     >
       <Link href="/chat/new" className="flex items-center gap-2.5">
         <Image src={sidebarData.header.logo_url} width={40} height={40} alt="Logo" />
-        <span className="animate-shimmer-text bg-[length:200%_100%] bg-gradient-to-r from-[#b5eaff] via-white to-[#00bfff] bg-clip-text font-bold text-xl text-transparent">
+        <span className="animate-shimmer-text bg-[length:200%_100%] bg-gradient-to-r from-[#b5eaff] via-white to-[#00bfff] bg-clip-text font-bold text-transparent text-xl">
           {sidebarData.header.brand_name}
         </span>
       </Link>
 
-      <div className="ml-6 flex items-center gap-6 overflow-x-auto">
+      <div className="ml-6 flex items-center gap-2 overflow-x-auto">
+        {/* Strategies megamenu trigger */}
+        <div className="group relative">
+          <Link
+            href="/strategies"
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full px-4 py-1.5 font-medium text-sm transition-colors",
+              pathname?.startsWith("/strategies")
+                ? "text-foreground"
+                : "text-muted-foreground hover:bg-accent/10 hover:text-foreground"
+            )}
+          >
+            Strategies
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-3.5 w-3.5"
+            >
+              <title>Open strategies menu</title>
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </Link>
+          <MegaMenu />
+        </div>
         {items.map((item) => (
           <NavLink key={item.url} item={item} />
         ))}
