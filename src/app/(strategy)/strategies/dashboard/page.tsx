@@ -1,16 +1,25 @@
 "use client";
 
-import { AlertCircle, DollarSign, ExternalLink, Loader2, Plus, RefreshCw, Shield } from "lucide-react";
+import {
+  AlertCircle,
+  DollarSign,
+  ExternalLink,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Shield,
+} from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { RequireVaultGuard } from "@/features/marketplace/components/require-vault-guard";
 import {
   type MyAgent,
+  useClaimFeesConfirm,
   useClaimFeesRequest,
   useDeactivateStrategy,
   useFeeBalance,
   useMyAgents,
 } from "@/features/marketplace/hooks/use-marketplace-api";
-import { RequireVaultGuard } from "@/features/marketplace/components/require-vault-guard";
 import { Button } from "@/shared/ui/button";
 
 function formatUsd(value: number): string {
@@ -39,7 +48,9 @@ function PublisherDashboardContent() {
   const { data, isLoading, error, refetch } = useMyAgents();
   const deactivate = useDeactivateStrategy();
   const claimRequest = useClaimFeesRequest();
+  const claimConfirm = useClaimFeesConfirm();
   const { data: onChainBalance } = useFeeBalance();
+  const [claimStep, setClaimStep] = useState<"idle" | "signing" | "confirming">("idle");
 
   const usdcTokenId =
     process.env.NEXT_PUBLIC_USDC_TOKEN_ID ??
@@ -179,12 +190,37 @@ function PublisherDashboardContent() {
                 <button
                   type="button"
                   className="inline-flex items-center gap-1.5 rounded-[100px] border border-[rgba(110,231,183,0.5)] bg-[rgba(110,231,183,0.08)] px-3 py-1 text-[11px] font-semibold text-[#6EE7B7] transition-all duration-[400ms] hover:translate-y-[-1px] hover:border-[#6EE7B7] hover:bg-[rgba(110,231,183,0.16)] disabled:opacity-50"
-                  onClick={() => claimRequest.mutate(usdcTokenId)}
-                  disabled={claimRequest.isPending}
+                  onClick={async () => {
+                    if (claimStep === "idle") {
+                      try {
+                        setClaimStep("signing");
+                        await claimRequest.mutateAsync(usdcTokenId);
+                        // Placeholder: replace with real wallet signing (Reown/AppKit/Freighter)
+                        const signedTxHash = window.prompt(
+                          "Sign the claim transaction in your wallet and paste the TX hash here:"
+                        );
+                        if (!signedTxHash) {
+                          setClaimStep("idle");
+                          return;
+                        }
+                        setClaimStep("confirming");
+                        await claimConfirm.mutateAsync(signedTxHash);
+                        setClaimStep("idle");
+                      } catch (err) {
+                        setClaimStep("idle");
+                        console.error("Claim failed:", err);
+                      }
+                    }
+                  }}
+                  disabled={claimStep !== "idle"}
                 >
-                  {claimRequest.isPending ? (
+                  {claimStep === "signing" ? (
                     <>
-                      <Loader2 className="h-3 w-3 animate-spin" /> Claiming...
+                      <Loader2 className="h-3 w-3 animate-spin" /> Sign...
+                    </>
+                  ) : claimStep === "confirming" ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" /> Confirming...
                     </>
                   ) : (
                     <>

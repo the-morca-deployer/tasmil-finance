@@ -1,5 +1,5 @@
 export type DexType = 0 | 1;
-export type TemplateType = "swap" | "dca";
+export type TemplateType = "swap" | "dca" | "blend";
 
 export interface MarketplaceStrategy {
   id: string;

@@ -64,7 +64,9 @@ export default function LeaderboardPage() {
   const podium = sorted.slice(0, 3);
 
   // Reorder podium: 2nd, 1st, 3rd for the visual layout
-  const podiumOrdered = (podium.length === 3 ? [podium[1], podium[0], podium[2]] : []) as LeaderboardEntry[];
+  const podiumOrdered = (
+    podium.length === 3 ? [podium[1], podium[0], podium[2]] : []
+  ) as LeaderboardEntry[];
 
   return (
     <div className="mx-auto max-w-[1100px] px-[clamp(20px,5vw,72px)]">

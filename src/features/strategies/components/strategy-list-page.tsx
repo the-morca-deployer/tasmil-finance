@@ -445,8 +445,8 @@ export function StrategyListPage({ className }: StrategyListPageProps) {
               DeFi Strategies
             </h1>
             <p className="max-w-lg text-lg text-zinc-400 leading-relaxed">
-              Deploy capital into automated yield strategies powered by the{" "}
-              <span className="font-medium text-white">INFINIT AI Agent Swarm</span>.
+              Deploy capital into automated DeFi yield strategies on{" "}
+              <span className="font-medium text-white">Stellar</span>.
             </p>
           </div>
 
@@ -454,13 +454,19 @@ export function StrategyListPage({ className }: StrategyListPageProps) {
           <div className="flex gap-4">
             <GlassCard className="min-w-[160px] border-white/5 bg-zinc-900/40 p-6 text-center">
               <p className="font-bold text-sm text-zinc-500 uppercase tracking-widest">Total TVL</p>
-              <p className="mt-1 font-bold text-3xl text-white">$42.8M</p>
+              <p className="mt-1 font-bold text-3xl text-white">
+                {strategies
+                  ? `$${(strategies.reduce((sum, s) => sum + (s.tvlUsd ?? 0), 0) / 1_000_000).toFixed(1)}M`
+                  : "$0"}
+              </p>
             </GlassCard>
             <GlassCard className="min-w-[160px] border-white/5 bg-zinc-900/40 p-6 text-center">
               <p className="font-bold text-sm text-zinc-500 uppercase tracking-widest">
-                Active Agents
+                Active Strategies
               </p>
-              <p className="mt-1 font-bold text-3xl text-white">128</p>
+              <p className="mt-1 font-bold text-3xl text-white">
+                {strategies?.filter((s) => s.status === "Active").length ?? 0}
+              </p>
             </GlassCard>
           </div>
         </div>

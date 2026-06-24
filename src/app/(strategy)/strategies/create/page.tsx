@@ -71,6 +71,13 @@ function PublishStrategyContent() {
   const [form, setForm] = useState<FormData>(DEFAULT_FORM);
   const [tagInput, setTagInput] = useState("");
   const [deploy, setDeploy] = useState<DeployState>({ status: "idle" });
+  const [publishStep, setPublishStep] = useState<"sign" | "confirm" | "done" | null>(null);
+  const [deployResult, setDeployResult] = useState<{
+    contractAddress: string;
+    strategyId: string;
+    unsignedPublishXdr: string;
+  } | null>(null);
+  const [confirmError, setConfirmError] = useState<string | null>(null);
 
   const update = (field: keyof FormData, value: unknown) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -116,15 +123,50 @@ function PublishStrategyContent() {
       });
       const json = await res.json();
       if (json.success) {
-        setDeploy({
-          status: "done",
-          txHash: json.data?.contractAddress ?? json.data?.strategyId,
-        });
+        const data = json.data;
+        if (data?.unsignedPublishXdr) {
+          setDeployResult({
+            contractAddress: data.contractAddress,
+            strategyId: data.strategyId,
+            unsignedPublishXdr: data.unsignedPublishXdr,
+          });
+          setDeploy({ status: "done" });
+          setPublishStep("sign");
+        } else {
+          setDeploy({
+            status: "done",
+            txHash: data?.contractAddress ?? data?.strategyId,
+          });
+        }
       } else {
         throw new Error(json.message || "Deploy failed");
       }
     } catch (e: unknown) {
       setDeploy({ status: "error", error: (e as Error).message });
+    }
+  };
+
+  const handleConfirmPublish = async (txHash: string) => {
+    if (!deployResult) return;
+    setPublishStep("confirm");
+    setConfirmError(null);
+    try {
+      const token = localStorage.getItem("tasmil_auth_token") ?? "";
+      const res = await fetch(`${API_URL}/api/marketplace/strategies/build/confirm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({ txHash, contractAddress: deployResult.contractAddress }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message || "Failed to confirm publish");
+      setPublishStep("done");
+    } catch (e: unknown) {
+      setConfirmError((e as Error).message);
+      setPublishStep("sign");
     }
   };
 
@@ -146,6 +188,104 @@ function PublishStrategyContent() {
   }
 
   if (deploy.status === "done") {
+    // ---- Publish signing flow (new API with unsignedPublishXdr) ----
+    if (publishStep === "sign" && deployResult) {
+      return (
+        <div className="mx-auto max-w-[800px] px-[clamp(20px,5vw,72px)] py-24 text-center">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-white via-[#67E8F9] to-[#0EA5E9] text-2xl text-[#04141A]">
+            <Check className="h-8 w-8" />
+          </div>
+          <h3 className="text-[clamp(18px,2vw,24px)] font-bold tracking-[-0.03em] text-[#F4F7FB]">
+            Contract Deployed
+          </h3>
+          <p className="mx-auto mt-2 max-w-[440px] text-[14px] leading-[1.55] text-[rgba(244,247,251,0.58)]">
+            Your strategy contract has been deployed. Sign the publish transaction in your wallet to
+            make it live on the marketplace.
+          </p>
+          {deployResult.contractAddress && (
+            <p className="mt-4 font-mono text-[13px] text-[#67E8F9]">
+              Contract: {deployResult.contractAddress}
+            </p>
+          )}
+          {confirmError && <p className="mt-4 text-[14px] text-red-400">{confirmError}</p>}
+          <div className="mt-8 flex justify-center gap-3">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-[100px] border border-[rgba(255,255,255,0.14)] bg-[rgba(255,255,255,0.04)] px-[26px] py-3.5 text-[15px] font-semibold text-[#F4F7FB] backdrop-blur-[8px] transition-transform duration-[400ms] hover:translate-y-[-2px] hover:border-[#67E8F9]"
+              onClick={() => {
+                setDeploy({ status: "idle" });
+                setPublishStep(null);
+                setDeployResult(null);
+                setConfirmError(null);
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-[100px] bg-gradient-to-r from-white via-[#67E8F9] to-[#0EA5E9] px-[26px] py-3.5 text-[15px] font-semibold text-[#04141A] transition-all duration-[400ms] hover:translate-y-[-2px] hover:shadow-[0_10px_40px_-8px_rgba(103,232,249,0.5)]"
+              onClick={() => {
+                const txHash = window.prompt("Enter signed transaction hash:");
+                if (txHash) {
+                  handleConfirmPublish(txHash);
+                }
+              }}
+            >
+              I&apos;ve Signed &mdash; Submit
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // ---- Confirming publish ----
+    if (publishStep === "confirm") {
+      return (
+        <div className="mx-auto max-w-[800px] px-[clamp(20px,5vw,72px)] py-24 text-center">
+          <Loader2 className="mx-auto h-12 w-12 animate-spin text-white/40" />
+          <p className="mt-6 text-lg font-semibold text-[#F4F7FB]">Confirming Publish</p>
+          <p className="mt-2 text-sm text-[rgba(244,247,251,0.58)]">
+            Submitting signed transaction to the marketplace...
+          </p>
+        </div>
+      );
+    }
+
+    // ---- Publish complete ----
+    if (publishStep === "done" && deployResult) {
+      return (
+        <div className="mx-auto max-w-[800px] px-[clamp(20px,5vw,72px)] py-24 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-white via-[#67E8F9] to-[#0EA5E9] text-2xl text-[#04141A]">
+            <Check className="h-8 w-8" />
+          </div>
+          <h3 className="mt-5 text-[24px] font-bold text-[#F4F7FB]">Published Successfully</h3>
+          <p className="mt-2 text-[15px] text-[rgba(244,247,251,0.58)]">
+            {form.strategyName} is now live on the marketplace.
+          </p>
+          {deployResult.contractAddress && (
+            <p className="mt-4 font-mono text-[13px] text-[#67E8F9]">
+              Contract: {deployResult.contractAddress}
+            </p>
+          )}
+          <div className="mt-8 flex justify-center gap-3">
+            <Link
+              href="/strategies/dashboard"
+              className="inline-flex items-center gap-2 rounded-[100px] border border-[rgba(255,255,255,0.14)] bg-[rgba(255,255,255,0.04)] px-[26px] py-3.5 text-[15px] font-semibold text-[#F4F7FB] transition-transform duration-[400ms] hover:translate-y-[-2px]"
+            >
+              View Dashboard
+            </Link>
+            <Link
+              href={`/strategies/${deployResult.strategyId}`}
+              className="inline-flex items-center gap-2 rounded-[100px] bg-gradient-to-r from-white via-[#67E8F9] to-[#0EA5E9] px-[26px] py-3.5 text-[15px] font-semibold text-[#04141A] transition-transform duration-[400ms] hover:translate-y-[-2px] hover:shadow-[0_10px_40px_-8px_rgba(103,232,249,0.5)]"
+            >
+              View Strategy →
+            </Link>
+          </div>
+        </div>
+      );
+    }
+
+    // ---- Old API flow (no unsignedPublishXdr) ----
     return (
       <div className="mx-auto max-w-[800px] px-[clamp(20px,5vw,72px)] py-24 text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-white via-[#67E8F9] to-[#0EA5E9] text-2xl text-[#04141A]">

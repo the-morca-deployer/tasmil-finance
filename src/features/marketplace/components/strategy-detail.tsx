@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUpRight, BarChart3, ChevronLeft, TrendingUp, Users } from "lucide-react";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import { AllocationPieChart } from "@/features/marketplace/components/allocation-pie-chart";
 import { ApyLineChart } from "@/features/marketplace/components/apy-line-chart";
@@ -28,7 +29,8 @@ interface StrategyDetailProps {
   performance: PerformancePoint[];
   allocations?: AllocationEntry[];
   loading: boolean;
-  onActivate: () => void;
+  onActivate?: () => void;
+  renderAction?: ReactNode;
   onBack: () => void;
 }
 
@@ -37,6 +39,7 @@ export function StrategyDetail({
   performance,
   allocations,
   onActivate,
+  renderAction,
   onBack,
 }: StrategyDetailProps) {
   const [tab, setTab] = useState("overview");
@@ -130,10 +133,16 @@ export function StrategyDetail({
               </div>
             </Card>
           )}
-          <Button className="w-full gap-2" onClick={onActivate} disabled={strategy.paused}>
-            {strategy.paused ? "Strategy Paused" : "Activate Strategy"}
-            {!strategy.paused && <ArrowUpRight className="h-4 w-4" />}
-          </Button>
+          {renderAction ?? (
+            <Button
+              className="w-full gap-2"
+              onClick={onActivate}
+              disabled={strategy.paused || !onActivate}
+            >
+              {strategy.paused ? "Strategy Paused" : "Activate Strategy"}
+              {!strategy.paused && <ArrowUpRight className="h-4 w-4" />}
+            </Button>
+          )}
         </TabsContent>
 
         <TabsContent value="performance" className="mt-4">
