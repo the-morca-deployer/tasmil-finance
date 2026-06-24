@@ -7,34 +7,44 @@ import type { LeaderboardEntry, MarketplaceStrategy } from "@/features/marketpla
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:6756";
 
+function unwrapData(json: any): any {
+  if (json?.data?.data) return json.data.data;
+  if (json?.data) return json.data;
+  return json;
+}
+
 async function fetchStrategies(): Promise<MarketplaceStrategy[]> {
-  const res = await fetch(`${BASE_URL}/marketplace/strategies`);
+  const res = await fetch(`${BASE_URL}/api/marketplace/strategies`);
   if (!res.ok) throw new Error("Failed to fetch strategies");
   const json = await res.json();
-  return json.data ?? json;
+  const data = unwrapData(json);
+  return data.items ?? data ?? [];
 }
 
 async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
-  const res = await fetch(`${BASE_URL}/marketplace/leaderboard`);
+  const res = await fetch(`${BASE_URL}/api/marketplace/leaderboard`);
   if (!res.ok) throw new Error("Failed to fetch leaderboard");
   const json = await res.json();
-  return json.data ?? json;
+  const data = unwrapData(json);
+  return data.entries ?? data ?? [];
 }
 
 async function fetchStrategyDetail(id: string): Promise<MarketplaceStrategy> {
-  const res = await fetch(`${BASE_URL}/marketplace/strategies/${id}`);
+  const res = await fetch(`${BASE_URL}/api/marketplace/strategies/${id}`);
   if (!res.ok) throw new Error("Strategy not found");
   const json = await res.json();
-  return json.data ?? json;
+  const data = unwrapData(json);
+  return data ?? json;
 }
 
 async function fetchPerformance(
   id: string
 ): Promise<{ timestamp: string; nav: number; hwm: number }[]> {
-  const res = await fetch(`${BASE_URL}/marketplace/strategies/${id}/performance`);
+  const res = await fetch(`${BASE_URL}/api/marketplace/strategies/${id}/performance`);
   if (!res.ok) return [];
   const json = await res.json();
-  return json.data ?? json;
+  const data = unwrapData(json);
+  return data ?? [];
 }
 
 export function useMarketplace() {

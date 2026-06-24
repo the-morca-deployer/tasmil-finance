@@ -2,225 +2,227 @@
 
 **Date:** 2026-06-24
 **Repo:** Tasmil-Finance/tasmil-finance
+**Status:** Approved
 
 ---
 
 ## Goal
 
-Add "Strategies" to the main top navbar with a mega menu dropdown, and create a dedicated sub-header for all `/strategies/*` pages — treating the strategy section as a sub-project within Tasmil Finance (same pattern as Quest, but as a sub-header instead of a full header replacement).
+Add a "Strategies" dropdown megamenu to the navbar, and create a
+dedicated layout for all strategy pages — same pattern as the Quest
+section (`(quest)/layout.tsx` with its own `QuestNav`).
 
 ## Design References
 
-All UI design tokens and component styling pulled from:
-`/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/side-repo/design-tasmil/`
+From `/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/side-repo/design-tasmil-trading-stratergy/`:
 
-Relevant files: `marketplace-browse.html`, `strategy-detail.html`, `publish-strategy.html`, `leaderboard.html`, `publisher-dashboard.html`, `my-agents.html`
+| File | Page |
+|------|------|
+| `marketplace-browse.html` | Strategy marketplace listing |
+| `strategy-detail.html` | Individual strategy detail |
+| `publish-strategy.html` | Multi-step publish form |
+| `publisher-dashboard.html` | Publisher dashboard (was My Agents) |
+| `leaderboard.html` | Performance leaderboard |
+| `my-agents.html` | User's agents listing |
 
-Design tokens from the references:
-- `--bg: #000000`, `--surface: #0D111A`, `--text: #F4F7FB`, `--muted: rgba(244,247,251,0.58)`
+All share the same design tokens:
+- `--bg: #000000`, `--surface: #0D111A`, `--text: #F4F7FB`
 - `--accent: #67E8F9`, `--accent-glow: rgba(103,232,249,0.50)`
-- `--line: rgba(255,255,255,0.08)`, `--font: 'Hanken Grotesk'`
-- `--r-pill: 100px`, `--r-card: 22px`, `--r-sm: 14px`
+- `--font: 'Hanken Grotesk'`, `--r-pill: 100px`, `--r-card: 22px`
 
 ---
 
 ## URL Structure
 
-All strategy pages live under `/strategies/*`:
+All strategy pages under `/strategies/*`:
 
 | Path | Purpose | Status |
-|---|---|---|
-| `/strategies` | Browse Strategies (newer list) | Exists |
-| `/strategies/marketplace` | Agent Marketplace browse | Move from `/marketplace` |
-| `/strategies/create` | Publish/Create new strategy | Move from `/marketplace/create` |
-| `/strategies/[strategyId]` | Strategy detail view | Exists |
-| `/strategies/leaderboard` | Strategy performance ranking | New |
-| `/strategies/dashboard` | Publisher dashboard | New |
+|------|---------|--------|
+| `/strategies` | Marketplace browse | Migrated from `/marketplace` |
+| `/strategies/[id]` | Strategy detail | Exists, moved |
+| `/strategies/dashboard` | Publisher dashboard | Migrated from `/my-agents` |
+| `/strategies/leaderboard` | Leaderboard | New |
+| `/strategies/create` | Publish strategy | Migrated from `/marketplace/create` |
 
-**Redirects needed:** Old paths `/marketplace` and `/marketplace/create` redirect to new `/strategies/marketplace` and `/strategies/create`.
-
-**Not moving:** `/my-agents` stays independent (dashboard feature, not strategy-specific).
+**Redirects:** `/marketplace` → `/strategies`, `/my-agents` → `/strategies/dashboard`
 
 ---
 
 ## Architecture
 
-### Layout Group
+### Route Group
 
-Create `src/app/(dashboard)/strategies/layout.tsx` — a Next.js App Router layout group that wraps all `/strategies/*` pages. This layout renders:
+Create `src/app/(strategy)/` — a Next.js route group wrapping all
+strategy pages. Its `layout.tsx` renders `StrategyNav` + page content
++ `StrategyFooter`, exactly like `(quest)/layout.tsx` does for quest.
 
-1. The main `TopNavBar` (from shared layout — the global app header)
-2. `StrategyNav` — the strategy sub-header (new component, like Quest's `QuestNav` but as a sub-header)
-3. The page content via `{children}`
+```
+src/app/(strategy)/
+  layout.tsx                  StrategyLayout (StrategyNav + StrategyFooter)
+  strategies/
+    page.tsx                  Marketplace browse
+    create/page.tsx           Publish strategy
+    dashboard/page.tsx        Publisher dashboard
+    leaderboard/page.tsx      Leaderboard
+    [id]/page.tsx             Strategy detail
+```
+
+### Layout Wrappers
+
+Like `(quest)/layout.tsx`, the strategy layout wraps everything in
+`WalletProvider` + `AutoReconnect` so wallet state is available across
+all strategy pages.
 
 ### Component Tree
 
 ```
-TopNavBar (modified)
-├── Logo + Brand (unchanged)
-├── Nav Items (modified: add StrategyMegaMenu trigger)
-│   ├── Chat
-│   ├── Strategies ▼         ← NEW: mega menu trigger
-│   │   └── StrategyMegaMenu  ← NEW: dropdown panel
-│   ├── Missions
-│   ├── Farming
-│   ├── Aggregator
-│   ├── Portfolio
-│   └── Tasmil Quest
-└── Right side (wallet, badges — unchanged)
-
-StrategyNav (new, rendered in strategies layout)
-├── Brand: Tasmil · Strategies
-└── Internal nav links:
-    ├── Browse
-    ├── Marketplace
-    ├── Leaderboard
-    ├── Publish
-    └── Dashboard
+StrategyLayout
+├── WalletProvider + AutoReconnect
+├── StrategyNav (new, dedicated header)
+│   ├── Brand: Tasmil mark + name → /strategies
+│   ├── Nav links with megamenu trigger
+│   │   ├── Strategies ▼        ← group wrapper
+│   │   │   └── MegaMenu        ← dropdown on hover
+│   │   ├── Chat
+│   │   ├── Missions
+│   │   ├── Farming
+│   │   ├── Aggregator
+│   │   └── Portfolio
+│   └── Right side: wallet chip, badges
+├── <main> {children} </main>
+└── StrategyFooter (new)
 ```
 
 ---
 
 ## Component Design
 
-### 1. `StrategyMegaMenu`
+### 1. StrategyNav
 
-**Location:** `src/features/strategies/components/StrategyMegaMenu.tsx`
+**File:** `src/features/strategies/components/StrategyNav.tsx`
 
-**Purpose:** Dropdown trigger + panel rendered inside `TopNavBar` as a special nav item.
-
-**Props:**
-```ts
-interface StrategyMegaMenuProps {
-  items: MegaMenuGroup[];
-}
-interface MegaMenuGroup {
-  title: string;
-  items: MegaMenuItem[];
-}
-interface MegaMenuItem {
-  label: string;
-  description: string;
-  href: string;
-  icon: LucideIcon;
-}
-```
-
-**Behavior:**
-- 150ms open delay on hover to prevent flicker
-- 200ms close delay on mouse leave
-- Click item navigates and closes menu
-- Keyboard: Esc closes, Tab cycles through items
-- Active state: if current path starts with `/strategies`, show accent underline
-
-**Styling (from design reference):**
-- Panel: full-width below navbar, `max-w-[1280px]`, `bg-black/90 backdrop-blur-xl`, `border-b border-[var(--line)]`
-- Grid: 2 columns (`grid-cols-2`)
-- Items: `rounded-[var(--r-sm)]`, hover `bg-white/[0.05]`, transition 200ms
-- Icons: 24px, muted color, group-hover → accent
-- Labels: `text-[14.5px] font-medium text-[var(--text)]`
-- Descriptions: `text-[12px] text-[var(--muted)]`
-
-**Menu content (two groups):**
-```
-Discover                    Manage
-Browse Strategies           Publish Strategy
-  All available strategies    Create and deploy your own
-Marketplace                 Publisher Dashboard
-  Agent-driven strategies     Track your published strategies' performance
-Leaderboard
-  Top performing strategies
-```
-
-### 2. `StrategyNav`
-
-**Location:** `src/features/strategies/components/StrategyNav.tsx`
-
-**Purpose:** Sub-header for all `/strategies/*` pages. Rendered in the strategies layout, sitting below the global TopNavBar.
-
-**Props:** None (uses `usePathname()` internally)
-
-**Behavior:**
-- Sticky below TopNavBar (z-index just under TopNavBar)
-- Active link detection via pathname matching
-- Links navigate to strategy sub-pages
+Dedicated navbar for all strategy pages. Replaces `TopNavBar` entirely
+when on `/strategies/*` paths. Visually matches the HTML design files.
 
 **Styling (from design reference `.topnav`):**
-- Height: 56px
-- Background: `rgba(0,0,0,0.72)`, `backdrop-filter: blur(18px)`
-- Border-bottom: `1px solid var(--line)`
-- Padding: `0 clamp(20px, 5vw, 72px)`
+- `position: sticky; top: 0; z-index: 100; height: 68px`
+- `background: rgba(0,0,0,0.72); backdrop-filter: blur(18px)`
+- `border-bottom: 1px solid var(--line)`
+- `padding: 0 clamp(20px, 5vw, 72px)`
+- Flexbox, space-between
 
-**Layout:**
-- Left: Brand link "Tasmil" + accent dot separator + "Strategies" (accent text)
-- Center: Nav links as pill buttons
-  - Items: [{ href: "/strategies", label: "Browse" }, { href: "/strategies/marketplace", label: "Marketplace" }, { href: "/strategies/leaderboard", label: "Leaderboard" }, { href: "/strategies/create", label: "Publish" }, { href: "/strategies/dashboard", label: "Dashboard" }]
-  - Each: `text-[14.5px] font-medium`, pill `rounded-[100px] px-[18px] py-[8px]`
-  - Active: white text + `::after` accent underline with glow
-  - Inactive: muted text, hover → white + subtle bg
+**Left — Brand:**
+- Tasmil mark (26x26, gradient bg, "T" letter)
+- "Tasmil Finance" text, 17px, weight 700
 
-### 3. `TopNavBar` modifications
+**Center — Nav links:**
+- Pill-style buttons: `font-size: 14.5px; font-weight: 500; padding: 8px 18px; border-radius: var(--r-pill)`
+- Default: `color: var(--muted)`
+- Hover: `color: var(--text); background: rgba(255,255,255,0.05)`
+- Active: `color: var(--text)` + `::after` underline (2px, accent color, 60% width, glow)
+- "Strategies" item includes chevron-down SVG, wrapped in `relative group`
 
-**Location:** `src/shared/layout/top-nav-bar.tsx`
+**Right — Wallet area:**
+- Wallet chip: avatar + address (mono font, 13px)
+- Same design as HTML `.wallet-chip`
 
-**Changes:**
-- Add `StrategyMegaMenu` as a special nav item (not a plain `NavLink`)
-- Must detect if current path is under `/strategies` to set active state
-- When on `/strategies/*`, other nav items remain visible — `StrategyNav` handles internal navigation, `TopNavBar` stays as global navigation
+### 2. MegaMenu
 
-**How to integrate:**
-- The sidebar-data config remains the flat list for other items
-- Strategy is hardcoded into TopNavBar as a standalone component entry (it behaves differently from flat links)
-- This keeps sidebar-data.ts clean while giving the mega menu its dedicated component slot
+**File:** `src/features/strategies/components/MegaMenu.tsx`
+
+Hover-based dropdown panel. Opens on hover of "Strategies ▼" item.
+
+**Behavior:**
+- Tailwind `group` + `group-hover:opacity-100 group-hover:visible`
+- Default: `opacity-0 invisible`
+- Entrance: `translate-y-2 group-hover:translate-y-0 transition-all duration-200`
+- Panel: `absolute left-0 top-full mt-2`
+- No click required — pure CSS hover
+- Closes on mouse leave
+
+**Menu items (4 links):**
+
+| Label | Description | Href |
+|-------|-------------|------|
+| Marketplace | Browse all available strategies | `/strategies` |
+| Publisher Dashboard | Track your published strategies | `/strategies/dashboard` |
+| Leaderboard | Top performing strategies | `/strategies/leaderboard` |
+| Publish Strategy | Create and deploy your own strategy | `/strategies/create` |
+
+**Styling:**
+- Panel bg: `var(--surface)` with border `var(--line)`, rounded `var(--r-card)`
+- Items: `padding: 12px 20px`, rounded on hover, icon + label + description
+- Active item highlighted via `usePathname()`
+- Width: fixed 280px
+
+### 3. StrategyFooter
+
+**File:** `src/features/strategies/components/StrategyFooter.tsx`
+
+Simple footer matching the quest footer pattern. Links to social,
+copyright, "Powered by Tasmil Finance."
 
 ---
 
-## Page Migration Plan
+## Sidebar Data + TopNavBar Change
 
-### Pages to move (route change only, component logic reused):
+In `src/shared/layout/sidebar-data.ts`:
+- Remove "Marketplace" and "My Agents" from nav groups
 
-1. `src/app/(dashboard)/marketplace/page.tsx` → `src/app/(dashboard)/strategies/marketplace/page.tsx`
-   - Same component: `MarketplacePage` from `@/features/marketplace`
-2. `src/app/(dashboard)/marketplace/create/page.tsx` → `src/app/(dashboard)/strategies/create/page.tsx`
-   - Same component: uses create-strategy-page
-3. Old `/marketplace/[...]` route files removed
+In `src/shared/layout/top-nav-bar.tsx`:
+- Hardcode a "Strategies ▼" mega-menu trigger into the nav items list
+  (it behaves differently from flat NavLinks, so it doesn't belong in
+  sidebar-data)
 
-### Pages already in place:
-- `src/app/(dashboard)/strategies/page.tsx` — Browse Strategies
-- `src/app/(dashboard)/strategies/[strategyId]/page.tsx` — Strategy Detail
+The megamenu appears in TWO places:
+1. **TopNavBar** (dashboard layout) — so users can navigate INTO
+   strategies from any dashboard page
+2. **StrategyNav** (strategy layout) — for internal navigation while
+   on strategy pages
 
-### New pages to build:
-- `/strategies/leaderboard` — renders leaderboard table (reuse `LeaderboardTable` from marketplace feature, styled per design reference)
-- `/strategies/dashboard` — renders publisher dashboard (new component based on `publisher-dashboard.html` design)
-
-### Redirects:
-- `/marketplace` → `/strategies/marketplace` (Next.js redirect in next.config or middleware)
-- `/marketplace/create` → `/strategies/create`
+Both use the same `MegaMenu` component.
 
 ---
 
 ## Error & Edge Cases
 
-- **No strategies data:** Empty state with icon + message + CTA to publish, matching design reference `.empty-state`
-- **Invalid strategy ID:** 404 page or redirect to browse
-- **Mobile:** Mega menu collapses to expandable accordion in mobile hamburger menu. StrategyNav links render inline (scrollable horizontal pills) or collapse into hamburger.
-- **Keyboard navigation:** Mega menu items focusable via Tab, close on Escape
-- **Performance:** Mega menu panel lazy-renders on first hover (avoid DOM cost when unused)
+- **No strategies:** Empty state per `my-agents.html` design (icon + message + CTA)
+- **Invalid strategy ID:** Redirect to `/strategies` with toast
+- **Mobile:** StrategyNav collapses to hamburger; megamenu becomes accordion
+- **Keyboard:** Megamenu items focusable via Tab, closes on Escape
+- **Performance:** Megamenu lazily renders on first hover
 
 ---
 
 ## Files to Create / Modify
 
 | File | Action |
-|---|---|
-| `src/app/(dashboard)/strategies/layout.tsx` | Create — strategy sub-project layout |
-| `src/app/(dashboard)/strategies/marketplace/page.tsx` | Move from `/marketplace/page.tsx` |
-| `src/app/(dashboard)/strategies/create/page.tsx` | Move from `/marketplace/create/page.tsx` |
-| `src/app/(dashboard)/strategies/leaderboard/page.tsx` | Create — new leaderboard page |
-| `src/app/(dashboard)/strategies/dashboard/page.tsx` | Create — new publisher dashboard |
-| `src/features/strategies/components/StrategyNav.tsx` | Create — sub-header |
-| `src/features/strategies/components/StrategyMegaMenu.tsx` | Create — mega menu dropdown |
-| `src/shared/layout/top-nav-bar.tsx` | Modify — add StrategyMegaMenu |
-| `src/shared/layout/sidebar-data.ts` | Modify — remove moved marketplace nav item |
-| `next.config.ts` or middleware | Modify — add redirects for old paths |
-| Old route files under `/marketplace/` | Delete |
+|------|--------|
+| `src/app/(strategy)/layout.tsx` | Create |
+| `src/app/(strategy)/strategies/page.tsx` | Move from `(dashboard)/marketplace/` |
+| `src/app/(strategy)/strategies/[id]/page.tsx` | Move from `(dashboard)/strategies/[id]/` |
+| `src/app/(strategy)/strategies/dashboard/page.tsx` | Move from `(dashboard)/my-agents/` |
+| `src/app/(strategy)/strategies/leaderboard/page.tsx` | Create |
+| `src/app/(strategy)/strategies/create/page.tsx` | Move from `(dashboard)/marketplace/create/` |
+| `src/features/strategies/components/StrategyNav.tsx` | Create |
+| `src/features/strategies/components/MegaMenu.tsx` | Create |
+| `src/features/strategies/components/StrategyFooter.tsx` | Create |
+| `src/shared/layout/sidebar-data.ts` | Modify |
+| `src/app/(dashboard)/marketplace/` | Delete |
+| `src/app/(dashboard)/my-agents/` | Delete |
+| `src/app/(dashboard)/strategies/` | Delete |
+
+---
+
+## Implementation Order
+
+1. Create `MegaMenu.tsx`
+2. Create `StrategyNav.tsx`
+3. Create `StrategyFooter.tsx`
+4. Create `(strategy)/layout.tsx`
+5. Migrate existing pages to new routes
+6. Build new pages (leaderboard, create if needed)
+7. Update `sidebar-data.ts`
+8. Add redirects for old paths
+9. Delete old route directories
+10. Test all navigation flows

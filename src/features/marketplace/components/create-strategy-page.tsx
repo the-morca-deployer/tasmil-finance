@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, ArrowRight, Check, Loader2, Sparkles } from "lucide-react";
+import { AlertCircle, Check, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import type { StrategyConfig, TemplateType } from "@/features/marketplace/types";
 import { Button } from "@/shared/ui/button";
@@ -16,39 +16,30 @@ const ROUTER_ADDRESS =
   process.env.NEXT_PUBLIC_SOROSWAP_ROUTER_ID ??
   "CCJUD55AG6W5HAI5LRVNKAE5WDP5XGZBUDS5WNTIVDU7O264UZZE7BRD";
 
-type Step = "prompt" | "review" | "deploying" | "done" | "error";
+const DEFAULT_CONFIG: StrategyConfig = {
+  template: "blend",
+  tokenIn: "XLM",
+  tokenOut: "USDC",
+  thresholdPrice: 0.15,
+  swapPercentBps: 5000,
+  perfFeeBps: 500,
+  dexType: 0,
+  strategyName: "My Strategy",
+};
+
+type Step = "form" | "deploying" | "done" | "error";
 
 export function CreateStrategyPage() {
-  const [step, setStep] = useState<Step>("prompt");
-  const [prompt, setPrompt] = useState("");
-  const [config, setConfig] = useState<StrategyConfig | null>(null);
+  const [step, setStep] = useState<Step>("form");
+  const [config, setConfig] = useState<StrategyConfig>(DEFAULT_CONFIG);
   const [error, setError] = useState<string | null>(null);
   const [deployResult, setDeployResult] = useState<any>(null);
 
-  const handleParsePrompt = async () => {
-    if (!prompt.trim()) return;
-    setStep("review");
-    // AI parses prompt → structured config
-    // For MVP: simulate AI parsing with hardcoded defaults
-    setConfig({
-      template: "swap",
-      tokenIn: "XLM",
-      tokenOut: "USDC",
-      thresholdPrice: 0.15,
-      swapPercentBps: 5000,
-      perfFeeBps: 500,
-      dexType: 0,
-      strategyName: prompt.split(" ").slice(0, 3).join(" ") || "My Strategy",
-    });
-  };
-
   const handleConfigChange = (field: keyof StrategyConfig, value: any) => {
-    if (!config) return;
-    setConfig({ ...config, [field]: value });
+    setConfig((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleDeploy = async () => {
-    if (!config) return;
     setStep("deploying");
     setError(null);
     try {
@@ -61,7 +52,7 @@ export function CreateStrategyPage() {
           : "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
         tokenOutAddress: config.tokenOut?.startsWith("C")
           ? config.tokenOut
-          : "CAZRY5GSFBFXD7H6GAFBA5YGYQTDXU4QKWKMYFWBAZFUCURN3WKX6LF5",
+          : "CA2E53VHFZ6YSWQIEIPBXJQGT6VW3VKWWZO555XKRQXYJ63GEBJJGHY7",
         oracleAddress: ORACLE_ADDRESS,
         thresholdPrice: String(Math.round((config.thresholdPrice ?? 0) * 10_000_000)),
         swapPercentBps: config.swapPercentBps,
@@ -96,7 +87,7 @@ export function CreateStrategyPage() {
         <Loader2 className="mx-auto h-12 w-12 animate-spin text-white/40" />
         <p className="mt-6 text-lg font-semibold text-white">Deploying Strategy</p>
         <p className="mt-2 text-sm text-white/40">
-          Compiling WASM → Deploying contract → Publishing to marketplace...
+          Compiling WASM &rarr; Deploying contract &rarr; Publishing to marketplace...
         </p>
       </div>
     );
@@ -126,7 +117,7 @@ export function CreateStrategyPage() {
         <AlertCircle className="mx-auto h-12 w-12 text-red-400" />
         <p className="mt-6 text-lg font-semibold text-white">Deploy Failed</p>
         <p className="mt-2 text-sm text-red-400">{error}</p>
-        <Button className="mt-8" variant="outline" onClick={() => setStep("prompt")}>
+        <Button className="mt-8" variant="outline" onClick={() => setStep("form")}>
           Try Again
         </Button>
       </div>
@@ -136,95 +127,66 @@ export function CreateStrategyPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="text-2xl font-bold text-white">Create Strategy</h1>
-      <p className="mt-1 text-sm text-white/40">Describe your trading strategy in plain English</p>
+      <p className="mt-1 text-sm text-white/40">Configure your strategy and deploy</p>
 
-      {/* Step 1: Prompt input */}
-      {step === "prompt" && (
-        <div className="mt-8 space-y-4">
-          <Card className="border-white/5 bg-white/3 p-6">
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder={`e.g. "Swap 50% of my XLM to USDC when the price exceeds $0.50, with a 5% performance fee"`}
-              className="min-h-[140px] w-full resize-none rounded-lg border border-white/10 bg-white/5 p-4 text-sm text-white placeholder:text-white/20 focus:border-white/20 focus:outline-none"
+      <div className="mt-8 space-y-4">
+        <Card className="border-white/5 bg-white/3 p-6">
+          <h2 className="mb-4 text-sm font-semibold text-white">Strategy Config</h2>
+          <div className="space-y-4 text-sm">
+            <ConfigField
+              label="Strategy Name"
+              value={config.strategyName}
+              onChange={(v) => handleConfigChange("strategyName", v)}
             />
-            <div className="mt-2 flex items-center gap-2 text-xs text-white/30">
-              <Sparkles className="h-3.5 w-3.5" />
-              AI will extract: template, tokens, threshold, swap percent, fees
-            </div>
-          </Card>
-          <Button className="w-full gap-2" onClick={handleParsePrompt} disabled={!prompt.trim()}>
-            Parse & Review <ArrowRight className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
-
-      {/* Step 2: Review config */}
-      {step === "review" && config && (
-        <div className="mt-8 space-y-4">
-          <Card className="border-white/5 bg-white/3 p-6">
-            <h2 className="mb-4 text-sm font-semibold text-white">Review Strategy Config</h2>
-            <div className="space-y-4 text-sm">
-              <ConfigField
-                label="Strategy Name"
-                value={config.strategyName}
-                onChange={(v) => handleConfigChange("strategyName", v)}
-              />
-              <ConfigSelect
-                label="Template"
-                value={config.template}
-                options={["swap", "dca"]}
-                onChange={(v) => handleConfigChange("template", v as TemplateType)}
-              />
-              <ConfigField
-                label="Token In (symbol or SAC address)"
-                value={config.tokenIn}
-                onChange={(v) => handleConfigChange("tokenIn", v)}
-              />
-              <ConfigField
-                label="Token Out (symbol or SAC address)"
-                value={config.tokenOut}
-                onChange={(v) => handleConfigChange("tokenOut", v)}
-              />
-              <ConfigField
-                label="Threshold Price (USD)"
-                value={String(config.thresholdPrice ?? "")}
-                onChange={(v) => handleConfigChange("thresholdPrice", Number(v) || 0)}
-                type="number"
-              />
-              <ConfigField
-                label="Swap Percent (1-100)"
-                value={String(config.swapPercentBps / 100)}
-                onChange={(v) => handleConfigChange("swapPercentBps", Number(v) * 100 || 5000)}
-                type="number"
-              />
-              <ConfigField
-                label="Performance Fee % (0-10)"
-                value={String(config.perfFeeBps / 100)}
-                onChange={(v) => handleConfigChange("perfFeeBps", Number(v) * 100 || 500)}
-                type="number"
-              />
-              <ConfigSelect
-                label="DEX"
-                value={config.dexType === 0 ? "Soroswap" : "Aquarius"}
-                options={["Soroswap", "Aquarius"]}
-                onChange={(v) => handleConfigChange("dexType", v === "Aquarius" ? 1 : 0)}
-              />
-            </div>
-          </Card>
-          <Button className="w-full gap-2" onClick={handleDeploy}>
-            <Sparkles className="h-4 w-4" /> Deploy Strategy
-          </Button>
-          <Button variant="outline" className="w-full" onClick={() => setStep("prompt")}>
-            Back
-          </Button>
-        </div>
-      )}
+            <ConfigSelect
+              label="Template"
+              value={config.template}
+              options={["swap", "dca"]}
+              onChange={(v) => handleConfigChange("template", v as TemplateType)}
+            />
+            <ConfigField
+              label="Token In (symbol or SAC address)"
+              value={config.tokenIn}
+              onChange={(v) => handleConfigChange("tokenIn", v)}
+            />
+            <ConfigField
+              label="Token Out (symbol or SAC address)"
+              value={config.tokenOut}
+              onChange={(v) => handleConfigChange("tokenOut", v)}
+            />
+            <ConfigField
+              label="Threshold Price (USD)"
+              value={String(config.thresholdPrice ?? "")}
+              onChange={(v) => handleConfigChange("thresholdPrice", Number(v) || 0)}
+              type="number"
+            />
+            <ConfigField
+              label="Swap Percent (1-100)"
+              value={String(config.swapPercentBps / 100)}
+              onChange={(v) => handleConfigChange("swapPercentBps", Number(v) * 100 || 5000)}
+              type="number"
+            />
+            <ConfigField
+              label="Performance Fee % (0-10)"
+              value={String(config.perfFeeBps / 100)}
+              onChange={(v) => handleConfigChange("perfFeeBps", Number(v) * 100 || 500)}
+              type="number"
+            />
+            <ConfigSelect
+              label="DEX"
+              value={config.dexType === 0 ? "Soroswap" : "Aquarius"}
+              options={["Soroswap", "Aquarius"]}
+              onChange={(v) => handleConfigChange("dexType", v === "Aquarius" ? 1 : 0)}
+            />
+          </div>
+        </Card>
+        <Button className="w-full gap-2" onClick={handleDeploy}>
+          <Sparkles className="h-4 w-4" /> Deploy Strategy
+        </Button>
+      </div>
     </div>
   );
 }
-
-// ─── Inline form fields ──────────────────────────────────────────────────────
 
 function ConfigField({
   label,
