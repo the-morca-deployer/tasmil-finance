@@ -11,9 +11,7 @@ export default function QuestLayout({ children }: { children: React.ReactNode })
       <div className="quest-scope flex min-h-screen flex-col">
         <QuestNav />
         <RankRevealGate />
-        <main className="mx-auto w-full max-w-[1200px] flex-grow px-4 pt-20 pb-20 sm:px-6 lg:px-8">
-          {children}
-        </main>
+        <main className="page flex-grow">{children}</main>
         <QuestFooter />
       </div>
     </WalletProvider>
