@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { CampaignCard, type CampaignCardData } from "@/features/quest/components/CampaignCard";
 import { Rise } from "@/features/quest/components/Rise";
-import { Button } from "@/features/quest/components/ui/button";
 import { mapApiCampaignsResponse } from "@/features/quest/lib/campaign-mapper";
 import { $ } from "@/features/quest/lib/kubb-config";
 import { toCampaignCardData } from "@/features/quest/types";
@@ -40,17 +39,15 @@ export default function Explore() {
               leaderboard for real USDC rewards.
             </p>
             <div className="cta flex gap-3 flex-wrap">
-              <Button variant="primary" size="lg" asChild>
-                <Link href="/quest/campaigns">
-                  Start Questing
-                  <span className="inline-flex" aria-hidden="true">
-                    <ArrowRight size={17} strokeWidth={2.4} />
-                  </span>
-                </Link>
-              </Button>
-              <Button variant="ghost" size="lg" asChild>
-                <Link href="/quest/leaderboard">View leaderboard</Link>
-              </Button>
+              <Link href="/quest/campaigns" className="btn btn-primary btn-lg">
+                Start Questing
+                <span className="arr">
+                  <ArrowRight size={17} strokeWidth={2.4} />
+                </span>
+              </Link>
+              <Link href="/quest/leaderboard" className="btn btn-ghost btn-lg">
+                View leaderboard
+              </Link>
             </div>
           </div>
           <div className="x-stats">
