@@ -132,6 +132,16 @@ function Sidebar({ tab, setTab }: { tab: string; setTab: (t: string) => void }) 
   );
 }
 
+// PtsCoin
+const Pts = ({ size = 14 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ display: "inline-block", verticalAlign: -3, flexShrink: 0 }}>
+    <linearGradient id="ptsG" x1="0.15" y1="0.1" x2="0.85" y2="0.9"><stop stopColor="#A5F3FC"/><stop offset="1" stopColor="#0EA5E9"/></linearGradient>
+    <circle cx="12" cy="12" r="9" fill="url(#ptsG)"/><path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A"/>
+  </svg>
+);
+
+const mapTier: Record<string, string> = { bronze: "/ranks/bronze.png", silver: "/ranks/silver.png", gold: "/ranks/golden.png" };
+
 // ---- Overview Tab ----
 function OverviewTab() {
   const { user } = useQuestAuthStore();
@@ -144,44 +154,100 @@ function OverviewTab() {
   }, [pointsData]);
 
   const points = user?.totalPoints ?? 12450;
-  const tierPoints = { Bronze: 0, Silver: 15000, Gold: 50000, Diamond: 100000 };
-  const next = Object.entries(tierPoints).find(([k]) => k === "Silver") ?? ["Silver", 15000];
-  const progress = Math.min(1, points / (next[1] as number));
+  const t = user?.tier?.toLowerCase() ?? "bronze";
+  const tierStrip = [["Br", "bronze", true], ["Si", "silver", false], ["Go", "gold", false], ["Di", "diamond", false]];
+  const progressMap: Record<string, [number, number, string]> = { bronze: [0, 15000, "Silver"], silver: [15000, 50000, "Gold"], gold: [50000, 100000, "Diamond"], diamond: [100000, 0, "Max"] };
+  const [fromP, toP, nextT] = progressMap[t] ?? [0, 15000, "Silver"];
+  const progress = toP > 0 ? Math.min(1, Math.max(0, (points - fromP) / (toP - fromP))) : 1;
 
   return (
     <div>
       <div className="ov-grid">
-        <div>
-          <div className="hero2-head">
-            <div>
-              <div className="hh-lab">Total Points</div>
-              <div className="hh-pts">{fmt(points)}</div>
+        <div className="ov-left">
+          {/* Hero: points + ladder */}
+          <div className="card hero2" style={{ padding: 26 }}>
+            <div className="hero2-points">
+              <div className="hero2-head">
+                <div className="hh-lab">Current Points</div>
+                <span className={`tier-badge tier-${t}`}>
+                  <img className="badge-crown" src={mapTier[t] ?? mapTier.bronze} alt="" />
+                  {user?.tier ?? "Bronze"} tier
+                </span>
+              </div>
+              <div className="hero2-row">
+                <div className="hh-pts">{fmt(points)}</div>
+                <div className="tier-strip ladder">
+                  {tierStrip.map(([label, key, on]) => (
+                    <div key={key as string} className={`ts-chip ${key}${on ? " on" : ""}`}>
+                      <img className="badge-crown" src={mapTier[key as string] ?? mapTier.bronze} alt="" style={{ width: 16, height: 16 }} />
+                      {label as string}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="level-bar" style={{ marginTop: 20 }}>
+              <div className="lvl-track-wrap">
+                <div className="lvl-track">
+                  <div className="lvl-fill" style={{ width: `${progress * 100}%` }} />
+                </div>
+                <div className="lvl-meta">
+                  <b>{fmt(toP - points)}<Pts size={12} /></b> to reach {nextT}
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="lvl-track-wrap">
-            <div className="lvl-meta">
-              <span>{user?.tier ?? "Bronze"}</span>
-              <span>{next[0]}</span>
+          {/* Mini stats */}
+          <div className="mini-grid" style={{ marginTop: 20 }}>
+            <div className="card mini" style={{ padding: 18 }}>
+              <div className="hh-lab">Daily Streak</div>
+              <div className="mini-big" style={{ fontSize: 28, fontWeight: 800, fontFamily: "var(--font-mono)", display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="none" aria-hidden="true">
+                  <linearGradient id="fg" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0" stopColor="#FCD34D"/><stop offset="0.5" stopColor="#FB923C"/><stop offset="1" stopColor="#F43F5E"/></linearGradient>
+                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" fill="url(#fg)"/>
+                </svg>
+                {user?.loginStreak ?? 7}
+              </div>
+              <div className="st-sub">day streak</div>
             </div>
-            <div className="lvl-track">
-              <div className="lvl-fill" style={{ width: `${progress * 100}%` }} />
-            </div>
-            <div className="lvl-meta">
-              <span>{fmt(points)} pts</span>
-              <span>{fmt(next[1] as number)} pts</span>
+            <div className="card mini" style={{ padding: 18 }}>
+              <div className="hh-lab">Quests Done</div>
+              <div className="st-sub" style={{ fontSize: 28, fontWeight: 800, fontFamily: "var(--font-mono)", marginTop: 8 }}>{(user?.loginStreak ?? 7) * 6}</div>
+              <div className="st-sub">total quests</div>
             </div>
           </div>
         </div>
 
-        <div className="mini-grid">
-          <div className="mini">
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim)" }}>Quests Done</div>
-            <div className="st-sub" style={{ color: "var(--accent)" }}>{user?.loginStreak ? user.loginStreak * 6 : 42}</div>
+        {/* Referral card (same as reference) */}
+        <div className="card qref" style={{ padding: 24 }}>
+          <div className="sec-lab" style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--dim)" }}>Referral Program</div>
+          <div className="hh-lab" style={{ marginTop: 18 }}>Your Code</div>
+          <div className="qref-code" style={{ marginTop: 10 }}>{user?.referralCode ?? "TASMIL-X7K9"}</div>
+          <div className="qref-actions" style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <button className="btn btn-primary btn-sm btn-block" onClick={() => { navigator.clipboard?.writeText(user?.referralCode ?? ""); toast.success("Copied!"); }}><Copy size={13} /> Copy Code</button>
+            <button className="btn btn-ghost btn-sm btn-block"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg> Share Link</button>
           </div>
-          <div className="mini">
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim)" }}>Streak</div>
-            <div className="st-sub" style={{ color: "var(--amber)" }}>{user?.loginStreak ?? 7}</div>
+          <div className="qref-block" style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--line)" }}>
+            <div className="hh-lab">Total Earned From Refs</div>
+            <div className="qref-earned" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 28, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--accent)", marginTop: 8 }}>1,250<Pts size={20} /></div>
+            <div className="qref-stats" style={{ display: "flex", gap: 24, marginTop: 12 }}>
+              <div><div className="qs-num" style={{ fontSize: 28, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--accent)", lineHeight: 1 }}>14</div><div className="qs-lab" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--dim)", marginTop: 4 }}>Total invited</div></div>
+              <div><div className="qs-num" style={{ fontSize: 28, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--green)", lineHeight: 1 }}>9</div><div className="qs-lab" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--dim)", marginTop: 4 }}>Active</div></div>
+            </div>
+          </div>
+          <div className="qref-block" style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--line)" }}>
+            <div className="st-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span className="hh-lab" style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--dim)" }}>Referral Rates</span>
+            </div>
+            <div className="rate3" style={{ marginTop: 14, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+              {[[1, "10%", "Direct"], [2, "3%", "Indirect"], [3, "1%", "3rd"]].map(([layer, pct, sub]) => (
+                <div key={layer} className="rate-item" style={{ border: "1px solid var(--line)", borderRadius: "var(--r-sm)", background: "var(--surface)", padding: 14, textAlign: "center" }}>
+                  <div className="rate-pct" style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--accent)" }}>{pct}</div>
+                  <div className="rate-lab" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--dim)", marginTop: 4 }}>L{layer} {sub}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -237,10 +303,14 @@ function MyQuestsTab() {
 
   return (
     <div>
-      <div className="lt-tabs">
+      <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 24 }}>My Quests</h1>
+      <div className="subtabs" style={{ display: "flex", gap: 4, borderBottom: "1px solid var(--line)", marginBottom: 20 }}>
         {(["pending", "claimable", "claimed"] as const).map((s) => (
-          <button key={s} className={`lt-tab${subtab === s ? " active" : ""}`} onClick={() => setSubtab(s)} type="button">
+          <button key={s} className={`subtab${subtab === s ? " active" : ""}`} onClick={() => setSubtab(s)}
+            style={{ position: "relative", fontSize: 14, fontWeight: 600, color: subtab === s ? "var(--accent)" : "var(--muted)", background: "none", border: "none", padding: "10px 16px", cursor: "pointer" }}>
             {s.charAt(0).toUpperCase() + s.slice(1)}
+            <span className="cnt" style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--dim)", marginLeft: 6 }}>{items.length}</span>
+            {subtab === s && <span style={{ position: "absolute", left: 12, right: 12, bottom: -1, height: 2, background: "var(--accent)", borderRadius: 2 }} />}
           </button>
         ))}
       </div>
@@ -248,25 +318,33 @@ function MyQuestsTab() {
       {isLoading ? (
         <p style={{ color: "var(--muted)", padding: 20 }}>Loading quests...</p>
       ) : items.length === 0 ? (
-        <div className="empty">
+        <div className="empty" style={{ padding: 40 }}>
           <div className="et">No {subtab} quests</div>
           <div className="es">{subtab === "pending" ? "Join campaigns to start earning." : "Complete tasks to claim rewards."}</div>
         </div>
       ) : (
         <div className="quest-grid">
-          {items.map((c) => (
-            <Link key={c.id} href={`/quest/campaign/${c.id}`} className="quest-card">
-              <div className="qc-cover" style={{ background: c.logoUrl ? `url(${c.logoUrl}) center/cover` : undefined }}>
-                {!c.logoUrl ? "cover" : null}
-              </div>
-              <div className="qc-body">
-                <div className="qc-title">{c.title}</div>
-                {c.description && <div className="qc-desc">{c.description}</div>}
-              </div>
-              {c.rewardPoints && <div className="qc-pts">+{c.rewardPoints} PTS</div>}
-              <span className={`qc-status ${subtab}`}>{subtab}</span>
-            </Link>
-          ))}
+          {items.map((c) => {
+            const ct = c as Record<string, unknown>;
+            const coverLabel = (ct.logoUrl as string) ? null : "cover";
+            const pts = ct.rewardPoints as number ?? 0;
+            return (
+              <Link key={c.id} href={`/quest/campaign/${c.id}`} className="quest-card" style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 16px", border: "1px solid var(--line)", borderRadius: "var(--r-sm)", background: "var(--surface-2)" }}>
+                <div className="qc-cover" style={{ width: 56, height: 56, borderRadius: 12, flex: "none", display: "grid", placeItems: "center", background: `var(--accent-soft)`, border: "1px solid var(--line)", position: "relative" }}>
+                  {coverLabel && <span className="ph" style={{ fontSize: 9, color: "var(--dim)", textTransform: "uppercase" }}>cover</span>}
+                  <span className="qc-pts" style={{ position: "absolute", bottom: 6, right: 6, fontSize: 10, fontFamily: "var(--font-mono)", color: "var(--accent)", fontWeight: 700 }}>+{pts}</span>
+                </div>
+                <div className="qc-body" style={{ flex: 1 }}>
+                  <div className="qc-title" style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em" }}>{ct.title as string}</div>
+                  <div className="qc-desc" style={{ fontSize: 13, color: "var(--muted)", marginTop: 3 }}>{ct.description as string ?? ""}</div>
+                </div>
+                <button className={`btn btn-sm ${subtab === "claimable" ? "btn-primary" : subtab === "pending" ? "btn-accent" : "btn-ghost"}`} disabled={subtab === "claimed"} style={{ whiteSpace: "nowrap" }}>
+                  {subtab === "claimed" ? <CheckCircle2 size={12} /> : null}
+                  {subtab === "pending" ? "View Quest" : subtab === "claimable" ? "Claim Points" : "Completed"}
+                </button>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
@@ -278,16 +356,19 @@ function ReferralsTab() {
   const { data: refData } = useReferralControllerGetMyReferral(withAuth as never);
   const { data: refsData } = useUsersControllerGetReferrals(withAuth as never);
 
-  const ref = useMemo(() => {
-    const d = refData as { data?: { code?: string; totalReferrals?: number; activeReferrals?: number; totalEarned?: number; rates?: { layer: number; rateBps: number }[] } } | undefined;
+  const refDataObj = useMemo(() => {
+    const d = refData as { data?: Record<string, unknown> } | undefined;
     return d?.data ?? {};
   }, [refData]);
+  const refCode = (refDataObj as { code?: string })?.code ?? "TASMIL-X7K9";
 
   const refs = useMemo(() => {
     const d = refsData as { data?: RawReferral[] } | RawReferral[] | undefined;
     if (Array.isArray(d)) return d;
     return d?.data ?? [];
   }, [refsData]);
+
+  const [dummy, setDummy] = useState("referrals");
 
   return (
     <div>

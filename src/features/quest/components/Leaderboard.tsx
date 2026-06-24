@@ -107,7 +107,9 @@ export default function Leaderboard() {
             </div>
             <div className="bn-seg bn-action">
               <div className="bn-status-eye">
-                <span style={{ display: "inline-block", width: 7, height: 7, borderRadius: "50%", background: "var(--green)", boxShadow: "0 0 10px var(--green)", animation: "quest-pulse 2s infinite", marginRight: 8 }} />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
+                  <path d="M12 21s-7-4.5-7-10a7 7 0 0 1 14 0c0 5.5-7 10-7 10Z"/><circle cx="12" cy="11" r="2.5"/>
+                </svg>
                 Your Position
               </div>
               <div className="bn-action-big" style={{ marginTop: 12 }}>
