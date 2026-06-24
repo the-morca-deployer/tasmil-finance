@@ -325,7 +325,7 @@ function MyQuestsTab() {
       ) : (
         <div className="quest-grid">
           {items.map((c) => {
-            const ct = c as Record<string, unknown>;
+            const ct = c as unknown as Record<string, unknown>;
             const coverLabel = (ct.logoUrl as string) ? null : "cover";
             const pts = ct.rewardPoints as number ?? 0;
             return (
@@ -360,7 +360,6 @@ function ReferralsTab() {
     const d = refData as { data?: Record<string, unknown> } | undefined;
     return d?.data ?? {};
   }, [refData]);
-  const refCode = (refDataObj as { code?: string })?.code ?? "TASMIL-X7K9";
 
   const refs = useMemo(() => {
     const d = refsData as { data?: RawReferral[] } | RawReferral[] | undefined;
@@ -368,39 +367,37 @@ function ReferralsTab() {
     return d?.data ?? [];
   }, [refsData]);
 
-  const [dummy, setDummy] = useState("referrals");
-
   return (
     <div>
       <div className="codebox" style={{ marginBottom: 24 }}>
         <div className="codebox-head">
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--dim)" }}>Your Code</span>
-          <button className="btn btn-ghost btn-sm" onClick={() => { navigator.clipboard?.writeText((ref as { code?: string })?.code ?? ""); toast.success("Copied!"); }}>
+          <button className="btn btn-ghost btn-sm" onClick={() => { navigator.clipboard?.writeText((refDataObj as { code?: string })?.code ?? ""); toast.success("Copied!"); }}>
             <Copy size={14} /> Copy
           </button>
         </div>
-        <div className="code">{(ref as { code?: string })?.code ?? "TASMIL-X7K9"}</div>
+        <div className="code">{(refDataObj as { code?: string })?.code ?? "TASMIL-X7K9"}</div>
       </div>
 
       <div className="qref-earned" style={{ marginBottom: 28 }}>
         <div style={{ textAlign: "center", flex: 1 }}>
-          <div className="qs-num">{fmt((ref as { totalEarned?: number })?.totalEarned ?? 1250)}</div>
+          <div className="qs-num">{fmt((refDataObj as { totalEarned?: number })?.totalEarned ?? 1250)}</div>
           <div className="qs-lab">Points Earned</div>
         </div>
         <div style={{ textAlign: "center", flex: 1 }}>
-          <div className="qs-num">{(ref as { totalReferrals?: number })?.totalReferrals ?? 14}</div>
+          <div className="qs-num">{(refDataObj as { totalReferrals?: number })?.totalReferrals ?? 14}</div>
           <div className="qs-lab">Total Refs</div>
         </div>
         <div style={{ textAlign: "center", flex: 1 }}>
-          <div className="qs-num" style={{ color: "var(--green)" }}>{(ref as { activeReferrals?: number })?.activeReferrals ?? 9}</div>
+          <div className="qs-num" style={{ color: "var(--green)" }}>{(refDataObj as { activeReferrals?: number })?.activeReferrals ?? 9}</div>
           <div className="qs-lab">Active</div>
         </div>
       </div>
 
       {/* Rate tiers */}
-      {((ref as { rates?: { layer: number; rateBps: number }[] })?.rates?.length ?? 0) > 0 && (
+      {((refDataObj as { rates?: { layer: number; rateBps: number }[] })?.rates?.length ?? 0) > 0 && (
         <div className="rate3" style={{ marginBottom: 28 }}>
-          {((ref as { rates: { layer: number; rateBps: number }[] })?.rates ?? []).map((r) => (
+          {((refDataObj as { rates: { layer: number; rateBps: number }[] })?.rates ?? []).map((r) => (
             <div key={r.layer} className="rate-item">
               <div className="rate-pct">{r.rateBps / 100}%</div>
               <div className="rate-lab">Layer {r.layer}</div>
@@ -411,17 +408,24 @@ function ReferralsTab() {
 
       {/* Referral list */}
       {refs.length > 0 && (
-        <div>
+        <div style={{ marginTop: 24 }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 14 }}>Your Referrals</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="reflist">
+            <div className="rl-head">
+              <span>Username</span><span>Layer</span><span className="rt-right">Quest PTS</span><span className="rt-right">PTS Earned</span>
+            </div>
             {refs.map((r, i) => (
-              <div key={i} className="tree-row">
-                <span className={`statusb ${r.status === "active" ? "active" : "inactive"}`}>{r.status ?? "active"}</span>
-                <span className="tw-name">{r.username ?? "User"}</span>
+              <div key={i} className="rl-row">
+                <div className="rl-user">
+                  <span className="rl-av" style={{ width: 30, height: 30, borderRadius: "50%", background: avatarBg(r.username ?? "u") }} />
+                  <span className="rl-name" style={{ fontWeight: 600 }}>{r.username ?? "User"}</span>
+                  <span className={`statusb ${r.status ?? "active"}`} style={{ display: "inline-block", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 10px", borderRadius: "var(--r-pill)", color: r.status === "active" ? "var(--green)" : "var(--dim)", background: r.status === "active" ? "var(--green-soft)" : "rgba(255,255,255,0.04)", border: `1px solid ${r.status === "active" ? "var(--green-line)" : "var(--line)"}` }}>
+                    {r.status ?? "active"}
+                  </span>
+                </div>
                 <span className="layerb">L{r.layer ?? 1}</span>
-                <span style={{ flex: 1 }} />
-                <span className="tw-q">{fmt(r.questPoints ?? 0)} pts</span>
-                <span className="tw-e">+{r.ptsEarned ?? 0}</span>
+                <span className="rl-num">{(r.questPoints ?? 0).toLocaleString()}<Pts size={12} /></span>
+                <span className="rl-num earn">{(r.ptsEarned ?? 0).toLocaleString()}<Pts size={12} /></span>
               </div>
             ))}
           </div>

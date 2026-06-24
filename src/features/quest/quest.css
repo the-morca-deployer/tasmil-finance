@@ -49,20 +49,22 @@
 /* ── Navbar ── */
 .quest-scope .nav {
   position:sticky; top:0; z-index:50;
-  display:flex; align-items:center; justify-content:space-between;
+  display:grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items:center;
   padding:16px clamp(20px,5vw,56px);
   background:rgba(0,0,0,0.72); backdrop-filter:blur(18px);
-  border-bottom:1px solid rgba(103,232,249,0.20);
+  border-bottom:1px solid var(--line);
 }
-.quest-scope .nav-brand { display:flex; align-items:center; gap:11px; font-weight:700; font-size:19px; letter-spacing:-0.025em; }
+.quest-scope .nav-brand { display:flex; align-items:center; gap:11px; font-weight:700; font-size:19px; letter-spacing:-0.025em; justify-self:start; }
 .quest-scope .nav-brand img { width:30px; height:30px; }
 .quest-scope .nav-brand .fin { color:var(--accent); }
-.quest-scope .nav-links { display:flex; gap:2px; }
+.quest-scope .nav-links { display:flex; gap:2px; justify-self:center; }
 .quest-scope .nav-item { position:relative; font-size:14.5px; font-weight:500; color:var(--muted); padding:9px 16px; border-radius:var(--r-pill); transition:color .25s,background .25s; cursor:pointer; }
 .quest-scope .nav-item:hover { color:var(--text); background:rgba(255,255,255,0.05); }
 .quest-scope .nav-item.active { color:var(--text); }
 .quest-scope .nav-item.active::after { content:""; position:absolute; left:15px; right:15px; bottom:1px; height:2px; border-radius:2px; background:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
-.quest-scope .nav-right { display:flex; align-items:center; gap:12px; }
+.quest-scope .nav-right { display:flex; align-items:center; gap:12px; justify-self:end; }
 .quest-scope .stat-pill { display:inline-flex; align-items:center; gap:7px; font-size:13.5px; font-weight:600; padding:8px 14px; border-radius:var(--r-pill); background:var(--surface); border:1px solid var(--line-2); }
 .quest-scope .stat-pill.pts { color:var(--green); } .quest-scope .stat-pill.pts svg { color:var(--green); }
 .quest-scope .stat-pill.streak { color:var(--amber); } .quest-scope .stat-pill.streak svg { color:var(--amber); }
@@ -172,7 +174,7 @@
    ============================================================ */
 .quest-scope .x-hero { position:relative; overflow:hidden; border:1px solid var(--line); border-radius:var(--r-card); margin-bottom:46px; box-shadow:0 40px 100px -50px #000; }
 .quest-scope .x-hero-img { position:absolute; inset:0; background: url(/banner2.png) center/cover no-repeat; }
-.quest-scope .x-hero-grad { position:absolute; inset:0; background:linear-gradient(0deg,rgba(0,0,0,0.85) 4%,rgba(0,0,0,0.25) 46%,transparent 78%); }
+.quest-scope .x-hero-grad { position:absolute; inset:0; background: radial-gradient(circle at 20% 60%, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%), linear-gradient(0deg, rgba(0,0,0,0.85) 4%, rgba(0,0,0,0.25) 46%, transparent 78%); }
 .quest-scope .x-hero-inner { position:relative; z-index:1; padding:clamp(40px,7vw,84px) clamp(24px,5vw,64px) 0; }
 .quest-scope .x-hero h1 { font-size:clamp(34px,5.4vw,62px); font-weight:800; letter-spacing:-0.04em; line-height:1.02; max-width:14ch; margin-top:18px; }
 .quest-scope .x-hero p { margin-top:16px; font-size:clamp(15px,1.6vw,18px); color:var(--muted); max-width:48ch; line-height:1.55; }
