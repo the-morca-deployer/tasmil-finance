@@ -32,7 +32,7 @@ describe("ensureQuestDevSession", () => {
 
     await ensureQuestDevSession();
 
-    expect(useQuestAuthStore.getState().accessToken).toBe("quest-jwt");
+    expect(useQuestAuthStore.getState().user?.id).toBe("u1");
     expect(useQuestAuthStore.getState().isAuthenticated).toBe(true);
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining("/api/auth/dev-login"),

@@ -11,7 +11,7 @@ interface DevLoginResponse {
 
 export async function ensureQuestDevSession(): Promise<void> {
   if (process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH !== "true") return;
-  if (useQuestAuthStore.getState().accessToken) return;
+  if (useQuestAuthStore.getState().isAuthenticated) return;
 
   const base = process.env.NEXT_PUBLIC_QUEST_API_URL ?? "http://localhost:5555";
   try {
@@ -22,11 +22,7 @@ export async function ensureQuestDevSession(): Promise<void> {
     });
     if (!res.ok) return;
     const body = (await res.json()) as DevLoginResponse;
-    useQuestAuthStore.getState().setAuthState({
-      accessToken: body.data.accessToken,
-      refreshToken: "",
-      user: body.data.user,
-    });
+    useQuestAuthStore.getState().setUser(body.data.user);
   } catch (err) {
     console.warn("quest dev-login bridge failed", err);
   }

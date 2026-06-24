@@ -125,7 +125,7 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
   onRefetch,
 }) => {
   const queryClient = useQueryClient();
-  const { accessToken } = useQuestAuthStore();
+  const { isAuthenticated } = useQuestAuthStore();
   const [loadingProvider, setLoadingProvider] = React.useState<SocialProvider | null>(null);
 
   const getLinkedAccount = (provider: SocialProvider) => {
@@ -263,7 +263,7 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
 
   const handleDisconnect = useCallback(
     async (provider: SocialProvider) => {
-      if (!accessToken) {
+      if (!isAuthenticated) {
         toast.error("Please login first");
         return;
       }
@@ -271,14 +271,10 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
       setLoadingProvider(provider);
 
       try {
+        // Cookie-based auth — no Bearer token needed
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5555/api"}/users/me/social-accounts/${provider}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
+          `/api/users/me/social-accounts/${provider}`,
+          { method: "DELETE", credentials: "include" }
         );
 
         if (!res.ok) {
@@ -297,7 +293,7 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
         setLoadingProvider(null);
       }
     },
-    [accessToken, onRefetch, queryClient]
+    [isAuthenticated, onRefetch, queryClient]
   );
 
   const providers: SocialProvider[] = ["Discord", "X", "Telegram"];
