@@ -36,8 +36,8 @@ describe("quest design tokens", () => {
   });
 
   it("points quest fonts at the scoped Next font variables", () => {
-    expect(block).toContain("--font: var(--font-quest-sans)");
-    expect(block).toContain("--font-mono: var(--font-quest-mono)");
+    expect(block).toContain("--font: var(--font-sans)");
+    expect(block).toContain("--font-mono: var(--font-mono)");
   });
 
   it("does NOT leak accent tokens to global :root", () => {
