@@ -109,6 +109,7 @@ export interface MyAgent {
   keeperWalletAddress: string;
   baseAsset: string;
   status: string;
+  purpose: string;
   activeStrategy: {
     strategyId: string;
     name: string;
