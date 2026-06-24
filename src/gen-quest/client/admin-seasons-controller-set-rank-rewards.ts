@@ -14,12 +14,12 @@ import type {
 function getAdminSeasonsControllerSetRankRewardsUrl(
   id: AdminSeasonsControllerSetRankRewardsPathParams["id"]
 ) {
-  const res = { method: "PUT", url: `/api/admin/seasons/${id}/rank-rewards` as const };
+  const res = { method: "PUT", url: `/api/quest/admin/seasons/${id}/rank-rewards` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/seasons/:id/rank-rewards}
+ * {@link /api/quest/admin/seasons/:id/rank-rewards}
  */
 export async function adminSeasonsControllerSetRankRewards(
   id: AdminSeasonsControllerSetRankRewardsPathParams["id"],

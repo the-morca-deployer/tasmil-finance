@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { SeasonsControllerMyResultQueryResponse } from "@/gen-quest/types/seasons-controller-my-result";
 
 function getSeasonsControllerMyResultUrl() {
-  const res = { method: "GET", url: `/api/seasons/me` as const };
+  const res = { method: "GET", url: `/api/quest/seasons/me` as const };
   return res;
 }
 
 /**
- * {@link /api/seasons/me}
+ * {@link /api/quest/seasons/me}
  */
 export async function seasonsControllerMyResult(
   config: Partial<RequestConfig> & { client?: Client } = {}

@@ -19,7 +19,7 @@ import type {
 
 export const campaignsControllerGetClaimsSuspenseQueryKey = (
   id: CampaignsControllerGetClaimsPathParams["id"] | undefined
-) => [{ url: "/api/campaigns/:id/claims", params: { id: id } }] as const;
+) => [{ url: "/api/quest/campaigns/:id/claims", params: { id: id } }] as const;
 
 export type CampaignsControllerGetClaimsSuspenseQueryKey = ReturnType<
   typeof campaignsControllerGetClaimsSuspenseQueryKey
@@ -45,7 +45,7 @@ export function campaignsControllerGetClaimsSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/campaigns/:id/claims}
+ * {@link /api/quest/campaigns/:id/claims}
  */
 export function useCampaignsControllerGetClaimsSuspense<
   TData = CampaignsControllerGetClaimsQueryResponse,

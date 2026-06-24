@@ -19,7 +19,7 @@ import type {
 
 export const usersControllerGetUserSuspenseQueryKey = (
   id: UsersControllerGetUserPathParams["id"] | undefined
-) => [{ url: "/api/users/:id", params: { id: id } }] as const;
+) => [{ url: "/api/quest/users/:id", params: { id: id } }] as const;
 
 export type UsersControllerGetUserSuspenseQueryKey = ReturnType<
   typeof usersControllerGetUserSuspenseQueryKey
@@ -45,7 +45,7 @@ export function usersControllerGetUserSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/users/:id}
+ * {@link /api/quest/users/:id}
  */
 export function useUsersControllerGetUserSuspense<
   TData = UsersControllerGetUserQueryResponse,

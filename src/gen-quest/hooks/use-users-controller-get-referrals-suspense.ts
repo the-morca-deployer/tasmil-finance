@@ -15,7 +15,7 @@ import { usersControllerGetReferrals } from "@/gen-quest/client/users-controller
 import type { UsersControllerGetReferralsQueryResponse } from "@/gen-quest/types/users-controller-get-referrals";
 
 export const usersControllerGetReferralsSuspenseQueryKey = () =>
-  [{ url: "/api/users/me/referrals" }] as const;
+  [{ url: "/api/quest/users/me/referrals" }] as const;
 
 export type UsersControllerGetReferralsSuspenseQueryKey = ReturnType<
   typeof usersControllerGetReferralsSuspenseQueryKey
@@ -39,7 +39,7 @@ export function usersControllerGetReferralsSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/users/me/referrals}
+ * {@link /api/quest/users/me/referrals}
  */
 export function useUsersControllerGetReferralsSuspense<
   TData = UsersControllerGetReferralsQueryResponse,

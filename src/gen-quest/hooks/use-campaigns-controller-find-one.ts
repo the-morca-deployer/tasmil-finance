@@ -19,7 +19,7 @@ import type {
 
 export const campaignsControllerFindOneQueryKey = (
   id: CampaignsControllerFindOnePathParams["id"] | undefined
-) => [{ url: "/api/campaigns/:id", params: { id: id } }] as const;
+) => [{ url: "/api/quest/campaigns/:id", params: { id: id } }] as const;
 
 export type CampaignsControllerFindOneQueryKey = ReturnType<
   typeof campaignsControllerFindOneQueryKey
@@ -45,7 +45,7 @@ export function campaignsControllerFindOneQueryOptions(
 }
 
 /**
- * {@link /api/campaigns/:id}
+ * {@link /api/quest/campaigns/:id}
  */
 export function useCampaignsControllerFindOne<
   TData = CampaignsControllerFindOneQueryResponse,

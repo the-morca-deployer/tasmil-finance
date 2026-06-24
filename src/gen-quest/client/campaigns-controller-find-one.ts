@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/campaigns-controller-find-one";
 
 function getCampaignsControllerFindOneUrl(id: CampaignsControllerFindOnePathParams["id"]) {
-  const res = { method: "GET", url: `/api/campaigns/${id}` as const };
+  const res = { method: "GET", url: `/api/quest/campaigns/${id}` as const };
   return res;
 }
 
 /**
- * {@link /api/campaigns/:id}
+ * {@link /api/quest/campaigns/:id}
  */
 export async function campaignsControllerFindOne(
   id: CampaignsControllerFindOnePathParams["id"],

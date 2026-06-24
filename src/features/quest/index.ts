@@ -33,5 +33,6 @@ export {
 } from "./components/social/SocialConnectButtons";
 export { TelegramButton } from "./components/TelegramButton";
 export { TFLoader } from "./components/TFLoader";
+export { PrizeEmail } from "./components/PrizeEmail";
 // Foundation helpers + primitives (Phase 1)
 export { qAvatar, qHash } from "./lib/avatar";

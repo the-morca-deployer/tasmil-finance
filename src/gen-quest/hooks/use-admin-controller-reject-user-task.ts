@@ -13,7 +13,7 @@ import type {
 } from "@/gen-quest/types/admin-controller-reject-user-task";
 
 export const adminControllerRejectUserTaskMutationKey = () =>
-  [{ url: "/api/admin/user-tasks/:id/reject" }] as const;
+  [{ url: "/api/quest/admin/user-tasks/:id/reject" }] as const;
 
 export type AdminControllerRejectUserTaskMutationKey = ReturnType<
   typeof adminControllerRejectUserTaskMutationKey
@@ -37,7 +37,7 @@ export function adminControllerRejectUserTaskMutationOptions<TContext = unknown>
 }
 
 /**
- * {@link /api/admin/user-tasks/:id/reject}
+ * {@link /api/quest/admin/user-tasks/:id/reject}
  */
 export function useAdminControllerRejectUserTask<TContext>(
   options: {

@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/tasks-controller-get-task";
 
 function getTasksControllerGetTaskUrl(id: TasksControllerGetTaskPathParams["id"]) {
-  const res = { method: "GET", url: `/api/tasks/${id}` as const };
+  const res = { method: "GET", url: `/api/quest/tasks/${id}` as const };
   return res;
 }
 
 /**
- * {@link /api/tasks/:id}
+ * {@link /api/quest/tasks/:id}
  */
 export async function tasksControllerGetTask(
   id: TasksControllerGetTaskPathParams["id"],

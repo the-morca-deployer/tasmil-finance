@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { AnalyticsControllerSystemAnalyticsQueryResponse } from "@/gen-quest/types/analytics-controller-system-analytics";
 
 function getAnalyticsControllerSystemAnalyticsUrl() {
-  const res = { method: "GET", url: `/api/analytics/system` as const };
+  const res = { method: "GET", url: `/api/quest/analytics/system` as const };
   return res;
 }
 
 /**
- * {@link /api/analytics/system}
+ * {@link /api/quest/analytics/system}
  */
 export async function analyticsControllerSystemAnalytics(
   config: Partial<RequestConfig> & { client?: Client } = {}

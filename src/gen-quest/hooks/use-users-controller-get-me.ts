@@ -14,7 +14,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { usersControllerGetMe } from "@/gen-quest/client/users-controller-get-me";
 import type { UsersControllerGetMeQueryResponse } from "@/gen-quest/types/users-controller-get-me";
 
-export const usersControllerGetMeQueryKey = () => [{ url: "/api/users/me" }] as const;
+export const usersControllerGetMeQueryKey = () => [{ url: "/api/quest/users/me" }] as const;
 
 export type UsersControllerGetMeQueryKey = ReturnType<typeof usersControllerGetMeQueryKey>;
 
@@ -36,7 +36,7 @@ export function usersControllerGetMeQueryOptions(
 }
 
 /**
- * {@link /api/users/me}
+ * {@link /api/quest/users/me}
  */
 export function useUsersControllerGetMe<
   TData = UsersControllerGetMeQueryResponse,

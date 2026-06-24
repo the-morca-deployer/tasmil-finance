@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/tasks-controller-get-status";
 
 function getTasksControllerGetStatusUrl(id: TasksControllerGetStatusPathParams["id"]) {
-  const res = { method: "GET", url: `/api/tasks/${id}/status` as const };
+  const res = { method: "GET", url: `/api/quest/tasks/${id}/status` as const };
   return res;
 }
 
 /**
- * {@link /api/tasks/:id/status}
+ * {@link /api/quest/tasks/:id/status}
  */
 export async function tasksControllerGetStatus(
   id: TasksControllerGetStatusPathParams["id"],

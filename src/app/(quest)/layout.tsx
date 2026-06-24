@@ -13,6 +13,7 @@ export default function QuestLayout({ children }: { children: React.ReactNode })
         <RankRevealGate />
         <main className="page flex-grow">{children}</main>
         <QuestFooter />
+        <div id="quest-overlay" />
       </div>
     </WalletProvider>
   );

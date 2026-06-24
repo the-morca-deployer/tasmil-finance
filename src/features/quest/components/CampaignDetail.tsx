@@ -5,13 +5,10 @@ import {
   ArrowLeft,
   BarChart2,
   CheckCircle2,
-  ChevronDown,
   Clock,
   Copy,
   ExternalLink,
-  Facebook,
   Gift,
-  Linkedin,
   Loader2,
   MessageSquare,
   Share2,
@@ -24,19 +21,12 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/features/quest/components/ui/avatar";
-import { Badge } from "@/features/quest/components/ui/badge";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/features/quest/components/ui/dialog";
-import { Input } from "@/features/quest/components/ui/input";
+
 import { useWallet } from "@/features/quest/context/wallet-context";
 import {
   mapApiCampaignsResponse,
@@ -428,66 +418,41 @@ const QuestItem: React.FC<QuestItemProps> = ({
 
   return (
     <div
-      className={`rounded-xl transition-all duration-300 border ${isExpanded ? "bg-card border-brand-mid/30 shadow-lg" : "bg-card border-border hover:border-white/10"}`}
+      className={`q-item ${isExpanded ? "expanded" : ""} ${isClaimed || status === "completed" ? "claimed" : ""}`}
     >
       <button
         type="button"
-        className="w-full p-4 flex items-center justify-between cursor-pointer select-none group text-left"
+        className="q-head"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-center gap-4">
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center border transition-colors ${isClaimed || status === "completed" ? "bg-success/10 border-success/30" : "bg-background border-border group-hover:bg-white/5"}`}
-          >
-            {isClaimed || status === "completed" ? (
-              <CheckCircle2 size={20} className="text-success" />
-            ) : (
-              getStepIcon(step.type, step.checkId)
-            )}
-          </div>
-          <span
-            className={`font-medium transition-colors ${isClaimed ? "text-muted line-through" : "text-primary"}`}
-          >
-            {step.label}
-          </span>
+        <div className="q-ico">
+          {isClaimed || status === "completed" ? (
+            <CheckCircle2 size={18} />
+          ) : (
+            getStepIcon(step.type, step.checkId)
+          )}
         </div>
+        <span className="q-name">
+          {step.label}
+        </span>
 
-        <div className="flex items-center gap-2">
-          {step.points ? (
-            <span className="text-xs font-bold text-accent-ink bg-primary rounded-full px-3 py-1">
-              +{step.points} PTS
-            </span>
-          ) : null}
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isExpanded ? "bg-white/10 rotate-180" : "hover:bg-white/5"}`}
-          >
-            <ChevronDown size={18} className="text-muted" />
-          </div>
-        </div>
+        {step.points ? (
+          <span className="q-pts">
+            +{step.points}
+          </span>
+        ) : <span />}
+        <div className="q-chev" />
       </button>
 
       {isExpanded && (
-        <div className="px-4 pb-5 pl-[72px] space-y-4 animate-in slide-in-from-top-2 fade-in duration-300">
-          {step.description && (
-            <div className="text-sm text-muted leading-relaxed prose prose-invert prose-sm max-w-none">
+        <div className="q-body">
+          <div className="q-body-inner">
+            {step.description && (
               <ReactMarkdown
                 components={{
-                  p: ({ children }) => <p className="text-muted mb-2">{children}</p>,
-                  ul: ({ children }) => (
-                    <ul className="list-disc list-inside mb-2 text-muted space-y-1">{children}</ul>
-                  ),
-                  ol: ({ children }) => (
-                    <ol className="list-decimal list-inside mb-2 text-muted space-y-1">
-                      {children}
-                    </ol>
-                  ),
+                  p: ({ children }) => <p>{children}</p>,
                   a: ({ href, children }) => (
-                    <a
-                      href={href}
-                      className="text-brand-mid hover:underline"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href={href} target="_blank" rel="noopener noreferrer">
                       {children}
                     </a>
                   ),
@@ -495,141 +460,133 @@ const QuestItem: React.FC<QuestItemProps> = ({
               >
                 {step.description}
               </ReactMarkdown>
-            </div>
-          )}
+            )}
 
-          <div className="flex flex-wrap gap-3 pt-1">
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                const skipTracking =
-                  step.checkId === "wallet_connect" || step.checkId === "sign_message";
-                if (step.type === "visit" && taskId && !skipTracking) {
-                  const trackingUrl = `/quest/visit/${taskId}?url=${encodeURIComponent(step.actionUrl)}`;
-                  window.open(trackingUrl, "_blank");
-                } else {
-                  window.open(step.actionUrl, "_blank");
-                }
-              }}
-            >
-              {getActionLabel(step.type)}
-              <ExternalLink size={12} className="ml-2 opacity-50" />
-            </button>
+            <div className="q-actions">
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const skipTracking =
+                    step.checkId === "wallet_connect" || step.checkId === "sign_message";
+                  if (step.type === "visit" && taskId && !skipTracking) {
+                    const trackingUrl = `/quest/visit/${taskId}?url=${encodeURIComponent(step.actionUrl)}`;
+                    window.open(trackingUrl, "_blank");
+                  } else {
+                    window.open(step.actionUrl, "_blank");
+                  }
+                }}
+              >
+                {getActionLabel(step.type)}
+                <ExternalLink size={12} />
+              </button>
 
-            {(() => {
-              const requiredPlatform = getRequiredPlatform(step.type);
-              const needsSocialAccount = requiredPlatform && !hasRequiredSocialAccount(step.type);
-              const rawStatus = taskStatus?.status?.toUpperCase();
-              const isVerified =
-                status === "completed" || rawStatus === "COMPLETED" || rawStatus === "APPROVED";
+              {(() => {
+                const requiredPlatform = getRequiredPlatform(step.type);
+                const needsSocialAccount = requiredPlatform && !hasRequiredSocialAccount(step.type);
+                const rawStatus = taskStatus?.status?.toUpperCase();
+                const isVerified =
+                  status === "completed" || rawStatus === "COMPLETED" || rawStatus === "APPROVED";
 
-              if (needsSocialAccount) {
-                if (requiredPlatform === "Telegram") {
-                  return (
-                    <div className="relative min-w-[120px]">
+                if (needsSocialAccount) {
+                  if (requiredPlatform === "Telegram") {
+                    return (
                       <TelegramButton
                         size="small"
                         variant="default"
-                        className="text-xs"
                         onSuccess={(accountData) => {
                           if (accountData && onLinkTelegramAccount) {
                             onLinkTelegramAccount(accountData as LinkAccountData);
                           }
                         }}
                       />
-                    </div>
+                    );
+                  }
+                  return (
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      onClick={handleConnectClick}
+                    >
+                      Connect {requiredPlatform}
+                    </button>
                   );
                 }
-                return (
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-sm min-w-[120px]"
-                    onClick={handleConnectClick}
-                  >
-                    Connect {requiredPlatform}
-                  </button>
-                );
-              }
 
-              if (isVerified && !isClaimed) {
-                const pointsEarned = taskStatus?.pointsEarned || 0;
+                if (isVerified && !isClaimed) {
+                  const pointsEarned = taskStatus?.pointsEarned || 0;
+                  return (
+                    <button
+                      type="button"
+                      className="btn btn-green btn-sm"
+                      disabled={claimTaskMutation.isPending}
+                      onClick={handleClaimTask}
+                    >
+                      {claimTaskMutation.isPending ? (
+                        <>
+                          <span className="spin" />
+                          Claiming...
+                        </>
+                      ) : (
+                        <>
+                          <Gift size={14} />
+                          Claim {pointsEarned} PTS
+                        </>
+                      )}
+                    </button>
+                  );
+                }
+
+                if (isClaimed) {
+                  const pointsEarned =
+                    taskStatus?.pointsEarned || claimStatus?.claim?.pointsEarned || 0;
+                  return (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      disabled
+                      style={{ opacity: 0.55 }}
+                    >
+                      <CheckCircle2 size={14} />
+                      Claimed {pointsEarned} PTS
+                    </button>
+                  );
+                }
+
                 return (
                   <button
                     type="button"
-                    className="btn btn-primary btn-sm min-w-[120px] !bg-success hover:!bg-success/90 text-white"
-                    disabled={claimTaskMutation.isPending}
-                    onClick={handleClaimTask}
+                    className={status === "error" ? "btn btn-accent btn-sm" : "btn btn-primary btn-sm"}
+                    disabled={
+                      status === "verifying" || status === "completed" || verifyTaskMutation.isPending
+                    }
+                    onClick={handleVerifyClick}
                   >
-                    {claimTaskMutation.isPending ? (
+                    {status === "verifying" ? (
                       <>
-                        <Loader2 className="animate-spin mr-2 h-3 w-3" />
-                        Claiming...
+                        <span className="spin" />
+                        Verifying...
                       </>
+                    ) : status === "completed" ? (
+                      <>
+                        <CheckCircle2 size={14} />
+                        Verified
+                      </>
+                    ) : status === "error" ? (
+                      <>Retry Verify</>
                     ) : (
-                      <>
-                        <Gift className="mr-2 h-3 w-3" />
-                        Claim {pointsEarned} PTS
-                      </>
+                      <>Verify Task</>
                     )}
                   </button>
                 );
-              }
-
-              if (isClaimed) {
-                const pointsEarned =
-                  taskStatus?.pointsEarned || claimStatus?.claim?.pointsEarned || 0;
-                return (
-                  <button
-                    type="button"
-                    className="btn btn-ghost btn-sm min-w-[120px] opacity-75 cursor-not-allowed"
-                    disabled
-                  >
-                    <CheckCircle2 className="mr-2 h-3 w-3" />
-                    Claimed {pointsEarned} PTS
-                  </button>
-                );
-              }
-
-              return (
-                <button
-                  type="button"
-                  className={`btn btn-sm min-w-[120px] ${
-                    status === "error"
-                      ? "!bg-destructive text-destructive-foreground hover:!bg-destructive/90"
-                      : "btn-primary"
-                  } ${status === "completed" ? "opacity-50 cursor-not-allowed" : ""}`}
-                  disabled={
-                    status === "verifying" || status === "completed" || verifyTaskMutation.isPending
-                  }
-                  onClick={handleVerifyClick}
-                >
-                  {status === "verifying" ? (
-                    <>
-                      <Loader2 className="animate-spin mr-2 h-3 w-3" />
-                      Verifying...
-                    </>
-                  ) : status === "completed" ? (
-                    <>
-                      <CheckCircle2 className="mr-2 h-3 w-3" />
-                      Verified
-                    </>
-                  ) : status === "error" ? (
-                    <>Retry Verify</>
-                  ) : (
-                    <>Verify Task</>
-                  )}
-                </button>
-              );
-            })()}
-          </div>
-
-          {errorMessage && status === "error" && (
-            <div className="text-xs text-red-400 bg-red-400/10 px-3 py-2 rounded-lg">
-              {errorMessage}
+              })()}
             </div>
-          )}
+
+            {errorMessage && status === "error" && (
+              <p style={{ color: "var(--amber)", fontSize: 12, marginTop: 8 }}>{errorMessage}</p>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -798,6 +755,7 @@ const CampaignDetail: React.FC = () => {
   const params = useParams();
   const id = params?.id as string;
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [sharedCopied, setSharedCopied] = useState(false);
   const { isConnected, isAuthenticated, connect } = useWallet();
   const queryClient = useQueryClient();
 
@@ -1006,7 +964,8 @@ const CampaignDetail: React.FC = () => {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareUrl);
-    toast.success("Link copied to clipboard!");
+    setSharedCopied(true);
+    setTimeout(() => setSharedCopied(false), 1300);
   };
 
   const handleClaimReward = () => {
@@ -1154,9 +1113,9 @@ const CampaignDetail: React.FC = () => {
           <div className="detail-grid">
             <div>
               <div className="d-badges">
-                <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"}>
+                <span className={`badge badge-${campaign.status === "ongoing" ? "ongoing" : "closed"}`}>
                   {campaign.status === "ongoing" ? "Ongoing" : "Closed"}
-                </Badge>
+                </span>
                 {timeRemainingLabel && (
                   <span className="badge badge-clock">
                     <Clock size={13} />
@@ -1234,9 +1193,9 @@ const CampaignDetail: React.FC = () => {
           <div className="detail-grid">
             <div>
               <div className="d-badges">
-                <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"}>
+                <span className={`badge badge-${campaign.status === "ongoing" ? "ongoing" : "closed"}`}>
                   {campaign.status === "ongoing" ? "Ongoing" : "Closed"}
-                </Badge>
+                </span>
                 {timeRemainingLabel && (
                   <span className="badge badge-clock">
                     <Clock size={13} />
@@ -1359,7 +1318,8 @@ const CampaignDetail: React.FC = () => {
   const extra = campaign.participants - shownCount;
 
   return (
-    <div>
+    <>
+      <div>
       <Link href="/quest" className="d-back">
         <ArrowLeft size={16} />
         Back to Explore
@@ -1371,68 +1331,42 @@ const CampaignDetail: React.FC = () => {
           {/* Title hero */}
           <Rise delay={0}>
             <div className="d-badges">
-              <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"}>
+              <span className={`badge badge-${campaign.status === "ongoing" ? "ongoing" : "closed"}`}>
                 {campaign.status === "ongoing" ? "Ongoing" : "Closed"}
-              </Badge>
+              </span>
               {timeRemainingLabel && (
                 <span className="badge badge-clock">
                   <Clock size={13} />
                   {timeRemainingLabel}
                 </span>
               )}
-              {campaign.points > 0 && (
-                <span
-                  className="badge"
-                  style={{
-                    color: "var(--color-accent)",
-                    background: "var(--color-accent-soft)",
-                    borderColor: "var(--color-accent-line)",
-                  }}
-                >
-                  +{campaign.points.toLocaleString("en-US")} pts
-                </span>
-              )}
             </div>
             <h1 className="d-title">{campaign.title}</h1>
             {campaign.description && <p className="d-desc">{campaign.description}</p>}
 
-            <div className="d-meta" style={{ marginTop: 20 }}>
-              <div style={{ display: "flex", alignItems: "center" }}>
+            <div className="d-meta">
+              <div className="av-stack">
                 {avatarsToShow.length > 0
-                  ? avatarsToShow.map((avatar: string, i: number) => (
-                      <Avatar
+                  ? avatarsToShow.map((url: string, i: number) => (
+                      <span
                         key={i}
-                        className="w-9 h-9 border-2 border-background"
-                        style={{ marginLeft: i > 0 ? -8 : 0, zIndex: 5 - i }}
-                      >
-                        <AvatarImage
-                          src={
-                            avatar ||
-                            `https://api.dicebear.com/7.x/avataaars/svg?seed=${campaign.id}-${i}`
-                          }
-                        />
-                        <AvatarFallback>U</AvatarFallback>
-                      </Avatar>
+                        className="av"
+                        style={{
+                          background: url ? `url(${url}) center/cover` : `radial-gradient(circle, hsl(${(i * 60) % 360} 70% 60%), hsl(${((i * 60) + 180) % 360} 70% 40%))`,
+                        }}
+                      />
                     ))
                   : Array.from({ length: Math.min(campaign.participants, 4) }).map((_, i) => (
-                      <Avatar
+                      <span
                         key={i}
-                        className="w-9 h-9 border-2 border-background"
-                        style={{ marginLeft: i > 0 ? -8 : 0, zIndex: 5 - i }}
-                      >
-                        <AvatarImage
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${campaign.id}-${i}`}
-                        />
-                        <AvatarFallback>U</AvatarFallback>
-                      </Avatar>
+                        className="av"
+                        style={{
+                          background: `radial-gradient(circle, hsl(${(i * 60) % 360} 70% 60%), hsl(${((i * 60) + 180) % 360} 70% 40%))`,
+                        }}
+                      />
                     ))}
                 {extra > 0 && (
-                  <div
-                    className="w-9 h-9 rounded-full border-2 border-background bg-muted/20 flex items-center justify-center text-[10px] font-bold text-muted"
-                    style={{ marginLeft: -8 }}
-                  >
-                    +{extra > 1000 ? `${(extra / 1000).toFixed(0)}k` : extra}
-                  </div>
+                  <span className="more">+{extra > 1000 ? `${(extra / 1000).toFixed(0)}k` : extra}</span>
                 )}
               </div>
               <span className="pcount">
@@ -1442,7 +1376,7 @@ const CampaignDetail: React.FC = () => {
           </Rise>
 
           {/* Quest steps */}
-          <Rise delay={0.08} className="mt-8">
+          <Rise delay={0.08}>
             <div className="prog-block">
               <div className="prog-lab">
                 <span className="l">Quest progress</span>
@@ -1497,7 +1431,7 @@ const CampaignDetail: React.FC = () => {
                   />
                 ))
               ) : (
-                <div className="text-muted italic p-4">
+                <div style={{ color: "var(--muted)", fontStyle: "italic", padding: 16 }}>
                   No specific quests listed for this campaign.
                 </div>
               )}
@@ -1506,61 +1440,32 @@ const CampaignDetail: React.FC = () => {
 
           {/* Full description */}
           {(campaign.fullDescription || campaign.description) && (
-            <Rise delay={0.14} className="mt-8">
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold flex items-center gap-2">
-                  <span className="w-1 h-6 bg-brand-mid rounded-full"></span>
+            <Rise delay={0.14}>
+              <div style={{ marginTop: 32 }}>
+                <h3 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                  <span style={{ width: 4, height: 24, borderRadius: 2, background: "var(--accent)" }} />
                   Description
                 </h3>
-                <div className="prose prose-invert prose-p:text-muted prose-a:text-brand-mid max-w-none bg-card border border-border rounded-xl p-6">
+                <div style={{
+                  border: "1px solid var(--line)",
+                  borderRadius: "var(--r-sm)",
+                  background: "var(--surface-2)",
+                  padding: 24,
+                  fontSize: 14,
+                  color: "var(--muted)",
+                  lineHeight: 1.7,
+                }}>
                   <ReactMarkdown
                     components={{
-                      p: ({ children }) => <p className="text-muted mb-4">{children}</p>,
-                      h1: ({ children }) => (
-                        <h1 className="text-2xl font-bold text-white mb-4">{children}</h1>
-                      ),
-                      h2: ({ children }) => (
-                        <h2 className="text-xl font-bold text-white mb-3">{children}</h2>
-                      ),
-                      h3: ({ children }) => (
-                        <h3 className="text-lg font-bold text-white mb-2">{children}</h3>
-                      ),
-                      ul: ({ children }) => (
-                        <ul className="list-disc list-inside mb-4 text-muted space-y-2">
-                          {children}
-                        </ul>
-                      ),
-                      ol: ({ children }) => (
-                        <ol className="list-decimal list-inside mb-4 text-muted space-y-2">
-                          {children}
-                        </ol>
-                      ),
-                      li: ({ children }) => <li className="text-muted">{children}</li>,
+                      p: ({ children }) => <p style={{ color: "var(--muted)", marginBottom: 16 }}>{children}</p>,
                       a: ({ href, children }) => (
-                        <a
-                          href={href}
-                          className="text-brand-mid hover:underline"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
+                        <a href={href} style={{ color: "var(--accent)" }} target="_blank" rel="noopener noreferrer">
                           {children}
                         </a>
                       ),
-                      code: ({ children }) => (
-                        <code className="bg-background/50 px-1.5 py-0.5 rounded text-sm font-mono text-brand-mid">
-                          {children}
-                        </code>
-                      ),
-                      blockquote: ({ children }) => (
-                        <blockquote className="border-l-4 border-brand-mid pl-4 italic text-muted my-4">
-                          {children}
-                        </blockquote>
-                      ),
                     }}
                   >
-                    {campaign.fullDescription ||
-                      campaign.description ||
-                      "No description available."}
+                    {campaign.fullDescription || campaign.description || "No description available."}
                   </ReactMarkdown>
                 </div>
               </div>
@@ -1630,70 +1535,53 @@ const CampaignDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Share Dialog */}
-      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Share Campaign</DialogTitle>
-            <DialogDescription>
-              Spread the word and invite friends to join this quest.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid grid-cols-4 gap-4 py-4">
-            <button
-              type="button"
-              onClick={() => openSocialShare("twitter")}
-              className="flex flex-col items-center gap-2 group"
-            >
-              <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                <XIcon className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xs text-muted">X</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => openSocialShare("telegram")}
-              className="flex flex-col items-center gap-2 group"
-            >
-              <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-[#0088cc]/20 transition-colors">
-                <TelegramIcon className="w-6 h-6 text-[#24A1DE]" />
-              </div>
-              <span className="text-xs text-muted">Telegram</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => openSocialShare("facebook")}
-              className="flex flex-col items-center gap-2 group"
-            >
-              <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-[#1877F2]/20 transition-colors">
-                <Facebook size={20} className="text-white" />
-              </div>
-              <span className="text-xs text-muted">Facebook</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => openSocialShare("linkedin")}
-              className="flex flex-col items-center gap-2 group"
-            >
-              <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-[#0A66C2]/20 transition-colors">
-                <Linkedin size={20} className="text-white" />
-              </div>
-              <span className="text-xs text-muted">LinkedIn</span>
-            </button>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <div className="grid flex-1 gap-2">
-              <Input readOnly value={shareUrl} />
-            </div>
-            <button type="button" className="btn btn-ghost w-9 h-9 p-0" onClick={copyToClipboard}>
-              <Copy className="h-4 w-4" />
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
+      <ShareDialog
+        open={isShareDialogOpen}
+        shareUrl={shareUrl}
+        onClose={() => setIsShareDialogOpen(false)}
+        onCopy={copyToClipboard}
+        sharedCopied={sharedCopied}
+        onShare={openSocialShare}
+      />
+    </>
+  );
+};
+
+const ShareDialog = ({ open, shareUrl, onClose, onCopy, sharedCopied, onShare }: {
+  open: boolean; shareUrl: string; onClose: () => void; onCopy: () => void; sharedCopied: boolean;
+  onShare: (p: "twitter" | "telegram" | "facebook" | "linkedin") => void;
+}) => {
+  if (!open) return null;
+  return createPortal(
+    <div className="modal-back" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="modal">
+        <h3>Share campaign</h3>
+        <p className="sub">Invite friends to quest with you and earn referral points.</p>
+        <div className="share-grid">
+          <button type="button" className="share-btn" onClick={() => onShare("twitter")}>
+            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            <span>X</span>
+          </button>
+          <button type="button" className="share-btn" onClick={() => onShare("telegram")}>
+            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            <span>Telegram</span>
+          </button>
+          <button type="button" className="share-btn" onClick={() => onShare("facebook")}>
+            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            <span>Facebook</span>
+          </button>
+          <button type="button" className="share-btn" onClick={onCopy}>
+            <Copy size={18} /><span>{sharedCopied ? "Copied" : "Copy"}</span>
+          </button>
+        </div>
+        <div className="copy-row">
+          <input readOnly value={shareUrl} />
+          <button type="button" className="btn btn-accent btn-sm" onClick={onClose}>Done</button>
+        </div>
+      </div>
+    </div>,
+    document.getElementById("quest-overlay") ?? document.body
   );
 };
 

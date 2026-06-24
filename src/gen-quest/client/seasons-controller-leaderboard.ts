@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { SeasonsControllerLeaderboardQueryResponse } from "@/gen-quest/types/seasons-controller-leaderboard";
 
 function getSeasonsControllerLeaderboardUrl() {
-  const res = { method: "GET", url: `/api/seasons/current/leaderboard` as const };
+  const res = { method: "GET", url: `/api/quest/seasons/current/leaderboard` as const };
   return res;
 }
 
 /**
- * {@link /api/seasons/current/leaderboard}
+ * {@link /api/quest/seasons/current/leaderboard}
  */
 export async function seasonsControllerLeaderboard(
   config: Partial<RequestConfig> & { client?: Client } = {}

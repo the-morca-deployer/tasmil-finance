@@ -10,7 +10,7 @@ import { tasksControllerCompleteByAction } from "@/gen-quest/client/tasks-contro
 import type { TasksControllerCompleteByActionMutationResponse } from "@/gen-quest/types/tasks-controller-complete-by-action";
 
 export const tasksControllerCompleteByActionMutationKey = () =>
-  [{ url: "/api/tasks/complete-by-action" }] as const;
+  [{ url: "/api/quest/tasks/complete-by-action" }] as const;
 
 export type TasksControllerCompleteByActionMutationKey = ReturnType<
   typeof tasksControllerCompleteByActionMutationKey
@@ -34,7 +34,7 @@ export function tasksControllerCompleteByActionMutationOptions<TContext = unknow
 }
 
 /**
- * {@link /api/tasks/complete-by-action}
+ * {@link /api/quest/tasks/complete-by-action}
  */
 export function useTasksControllerCompleteByAction<TContext>(
   options: {

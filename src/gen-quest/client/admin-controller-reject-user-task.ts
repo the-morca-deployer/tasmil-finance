@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/admin-controller-reject-user-task";
 
 function getAdminControllerRejectUserTaskUrl(id: AdminControllerRejectUserTaskPathParams["id"]) {
-  const res = { method: "POST", url: `/api/admin/user-tasks/${id}/reject` as const };
+  const res = { method: "POST", url: `/api/quest/admin/user-tasks/${id}/reject` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/user-tasks/:id/reject}
+ * {@link /api/quest/admin/user-tasks/:id/reject}
  */
 export async function adminControllerRejectUserTask(
   id: AdminControllerRejectUserTaskPathParams["id"],

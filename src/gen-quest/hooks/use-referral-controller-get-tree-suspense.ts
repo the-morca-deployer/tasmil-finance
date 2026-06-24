@@ -15,7 +15,7 @@ import { referralControllerGetTree } from "@/gen-quest/client/referral-controlle
 import type { ReferralControllerGetTreeQueryResponse } from "@/gen-quest/types/referral-controller-get-tree";
 
 export const referralControllerGetTreeSuspenseQueryKey = () =>
-  [{ url: "/api/referral/tree" }] as const;
+  [{ url: "/api/quest/referral/tree" }] as const;
 
 export type ReferralControllerGetTreeSuspenseQueryKey = ReturnType<
   typeof referralControllerGetTreeSuspenseQueryKey
@@ -39,7 +39,7 @@ export function referralControllerGetTreeSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/referral/tree}
+ * {@link /api/quest/referral/tree}
  */
 export function useReferralControllerGetTreeSuspense<
   TData = ReferralControllerGetTreeQueryResponse,

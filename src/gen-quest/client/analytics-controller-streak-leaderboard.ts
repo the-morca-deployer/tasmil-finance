@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { AnalyticsControllerStreakLeaderboardQueryResponse } from "@/gen-quest/types/analytics-controller-streak-leaderboard";
 
 function getAnalyticsControllerStreakLeaderboardUrl() {
-  const res = { method: "GET", url: `/api/leaderboard/streak` as const };
+  const res = { method: "GET", url: `/api/quest/leaderboard/streak` as const };
   return res;
 }
 
 /**
- * {@link /api/leaderboard/streak}
+ * {@link /api/quest/leaderboard/streak}
  */
 export async function analyticsControllerStreakLeaderboard(
   config: Partial<RequestConfig> & { client?: Client } = {}

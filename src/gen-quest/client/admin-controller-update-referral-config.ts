@@ -14,12 +14,12 @@ import type {
 function getAdminControllerUpdateReferralConfigUrl(
   layer: AdminControllerUpdateReferralConfigPathParams["layer"]
 ) {
-  const res = { method: "PATCH", url: `/api/admin/referral/config/${layer}` as const };
+  const res = { method: "PATCH", url: `/api/quest/admin/referral/config/${layer}` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/referral/config/:layer}
+ * {@link /api/quest/admin/referral/config/:layer}
  */
 export async function adminControllerUpdateReferralConfig(
   layer: AdminControllerUpdateReferralConfigPathParams["layer"],

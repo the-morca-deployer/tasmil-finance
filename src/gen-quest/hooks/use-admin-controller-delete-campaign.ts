@@ -13,7 +13,7 @@ import type {
 } from "@/gen-quest/types/admin-controller-delete-campaign";
 
 export const adminControllerDeleteCampaignMutationKey = () =>
-  [{ url: "/api/admin/campaigns/:id" }] as const;
+  [{ url: "/api/quest/admin/campaigns/:id" }] as const;
 
 export type AdminControllerDeleteCampaignMutationKey = ReturnType<
   typeof adminControllerDeleteCampaignMutationKey
@@ -37,7 +37,7 @@ export function adminControllerDeleteCampaignMutationOptions<TContext = unknown>
 }
 
 /**
- * {@link /api/admin/campaigns/:id}
+ * {@link /api/quest/admin/campaigns/:id}
  */
 export function useAdminControllerDeleteCampaign<TContext>(
   options: {

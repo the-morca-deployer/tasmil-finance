@@ -13,7 +13,7 @@ import type {
 } from "@/gen-quest/types/admin-seasons-controller-create";
 
 export const adminSeasonsControllerCreateMutationKey = () =>
-  [{ url: "/api/admin/seasons" }] as const;
+  [{ url: "/api/quest/admin/seasons" }] as const;
 
 export type AdminSeasonsControllerCreateMutationKey = ReturnType<
   typeof adminSeasonsControllerCreateMutationKey
@@ -39,7 +39,7 @@ export function adminSeasonsControllerCreateMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/admin/seasons}
+ * {@link /api/quest/admin/seasons}
  */
 export function useAdminSeasonsControllerCreate<TContext>(
   options: {

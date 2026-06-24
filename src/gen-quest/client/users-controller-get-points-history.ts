@@ -14,12 +14,12 @@ import type {
 function getUsersControllerGetPointsHistoryUrl(
   id: UsersControllerGetPointsHistoryPathParams["id"]
 ) {
-  const res = { method: "GET", url: `/api/users/${id}/points-history` as const };
+  const res = { method: "GET", url: `/api/quest/users/${id}/points-history` as const };
   return res;
 }
 
 /**
- * {@link /api/users/:id/points-history}
+ * {@link /api/quest/users/:id/points-history}
  */
 export async function usersControllerGetPointsHistory(
   id: UsersControllerGetPointsHistoryPathParams["id"],

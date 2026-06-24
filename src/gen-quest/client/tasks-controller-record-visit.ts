@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/tasks-controller-record-visit";
 
 function getTasksControllerRecordVisitUrl(id: TasksControllerRecordVisitPathParams["id"]) {
-  const res = { method: "POST", url: `/api/tasks/${id}/visit` as const };
+  const res = { method: "POST", url: `/api/quest/tasks/${id}/visit` as const };
   return res;
 }
 
 /**
- * {@link /api/tasks/:id/visit}
+ * {@link /api/quest/tasks/:id/visit}
  */
 export async function tasksControllerRecordVisit(
   id: TasksControllerRecordVisitPathParams["id"],

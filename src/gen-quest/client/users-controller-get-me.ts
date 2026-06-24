@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { UsersControllerGetMeQueryResponse } from "@/gen-quest/types/users-controller-get-me";
 
 function getUsersControllerGetMeUrl() {
-  const res = { method: "GET", url: `/api/users/me` as const };
+  const res = { method: "GET", url: `/api/quest/users/me` as const };
   return res;
 }
 
 /**
- * {@link /api/users/me}
+ * {@link /api/quest/users/me}
  */
 export async function usersControllerGetMe(
   config: Partial<RequestConfig> & { client?: Client } = {}

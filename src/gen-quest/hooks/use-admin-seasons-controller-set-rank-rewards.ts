@@ -14,7 +14,7 @@ import type {
 } from "@/gen-quest/types/admin-seasons-controller-set-rank-rewards";
 
 export const adminSeasonsControllerSetRankRewardsMutationKey = () =>
-  [{ url: "/api/admin/seasons/:id/rank-rewards" }] as const;
+  [{ url: "/api/quest/admin/seasons/:id/rank-rewards" }] as const;
 
 export type AdminSeasonsControllerSetRankRewardsMutationKey = ReturnType<
   typeof adminSeasonsControllerSetRankRewardsMutationKey
@@ -43,7 +43,7 @@ export function adminSeasonsControllerSetRankRewardsMutationOptions<TContext = u
 }
 
 /**
- * {@link /api/admin/seasons/:id/rank-rewards}
+ * {@link /api/quest/admin/seasons/:id/rank-rewards}
  */
 export function useAdminSeasonsControllerSetRankRewards<TContext>(
   options: {

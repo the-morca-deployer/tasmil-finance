@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/notifications-controller-list";
 
 function getNotificationsControllerListUrl() {
-  const res = { method: "GET", url: `/api/notifications` as const };
+  const res = { method: "GET", url: `/api/quest/notifications` as const };
   return res;
 }
 
 /**
- * {@link /api/notifications}
+ * {@link /api/quest/notifications}
  */
 export async function notificationsControllerList(
   params?: NotificationsControllerListQueryParams,

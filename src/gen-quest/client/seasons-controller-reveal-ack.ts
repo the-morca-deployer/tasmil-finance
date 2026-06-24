@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { SeasonsControllerRevealAckMutationResponse } from "@/gen-quest/types/seasons-controller-reveal-ack";
 
 function getSeasonsControllerRevealAckUrl() {
-  const res = { method: "POST", url: `/api/seasons/me/reveal-ack` as const };
+  const res = { method: "POST", url: `/api/quest/seasons/me/reveal-ack` as const };
   return res;
 }
 
 /**
- * {@link /api/seasons/me/reveal-ack}
+ * {@link /api/quest/seasons/me/reveal-ack}
  */
 export async function seasonsControllerRevealAck(
   config: Partial<RequestConfig> & { client?: Client } = {}

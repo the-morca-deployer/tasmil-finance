@@ -14,7 +14,7 @@ import type {
 } from "@/gen-quest/types/admin-controller-update-referral-config";
 
 export const adminControllerUpdateReferralConfigMutationKey = () =>
-  [{ url: "/api/admin/referral/config/:layer" }] as const;
+  [{ url: "/api/quest/admin/referral/config/:layer" }] as const;
 
 export type AdminControllerUpdateReferralConfigMutationKey = ReturnType<
   typeof adminControllerUpdateReferralConfigMutationKey
@@ -43,7 +43,7 @@ export function adminControllerUpdateReferralConfigMutationOptions<TContext = un
 }
 
 /**
- * {@link /api/admin/referral/config/:layer}
+ * {@link /api/quest/admin/referral/config/:layer}
  */
 export function useAdminControllerUpdateReferralConfig<TContext>(
   options: {

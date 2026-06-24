@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/users-controller-update-profile";
 
 function getUsersControllerUpdateProfileUrl() {
-  const res = { method: "PATCH", url: `/api/users/me` as const };
+  const res = { method: "PATCH", url: `/api/quest/users/me` as const };
   return res;
 }
 
 /**
- * {@link /api/users/me}
+ * {@link /api/quest/users/me}
  */
 export async function usersControllerUpdateProfile(
   data: UsersControllerUpdateProfileMutationRequest,

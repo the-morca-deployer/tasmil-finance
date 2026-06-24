@@ -15,7 +15,7 @@ import { analyticsControllerGlobalLeaderboard } from "@/gen-quest/client/analyti
 import type { AnalyticsControllerGlobalLeaderboardQueryResponse } from "@/gen-quest/types/analytics-controller-global-leaderboard";
 
 export const analyticsControllerGlobalLeaderboardQueryKey = () =>
-  [{ url: "/api/leaderboard/global" }] as const;
+  [{ url: "/api/quest/leaderboard/global" }] as const;
 
 export type AnalyticsControllerGlobalLeaderboardQueryKey = ReturnType<
   typeof analyticsControllerGlobalLeaderboardQueryKey
@@ -39,7 +39,7 @@ export function analyticsControllerGlobalLeaderboardQueryOptions(
 }
 
 /**
- * {@link /api/leaderboard/global}
+ * {@link /api/quest/leaderboard/global}
  */
 export function useAnalyticsControllerGlobalLeaderboard<
   TData = AnalyticsControllerGlobalLeaderboardQueryResponse,

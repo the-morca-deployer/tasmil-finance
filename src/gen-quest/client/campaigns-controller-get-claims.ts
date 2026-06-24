@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/campaigns-controller-get-claims";
 
 function getCampaignsControllerGetClaimsUrl(id: CampaignsControllerGetClaimsPathParams["id"]) {
-  const res = { method: "GET", url: `/api/campaigns/${id}/claims` as const };
+  const res = { method: "GET", url: `/api/quest/campaigns/${id}/claims` as const };
   return res;
 }
 
 /**
- * {@link /api/campaigns/:id/claims}
+ * {@link /api/quest/campaigns/:id/claims}
  */
 export async function campaignsControllerGetClaims(
   id: CampaignsControllerGetClaimsPathParams["id"],

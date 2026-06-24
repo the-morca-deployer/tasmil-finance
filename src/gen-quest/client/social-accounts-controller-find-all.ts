@@ -8,13 +8,13 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { SocialAccountsControllerFindAllQueryResponse } from "@/gen-quest/types/social-accounts-controller-find-all";
 
 function getSocialAccountsControllerFindAllUrl() {
-  const res = { method: "GET", url: `/api/users/me/social-accounts` as const };
+  const res = { method: "GET", url: `/api/quest/social-accounts` as const };
   return res;
 }
 
 /**
  * @summary Get all linked social accounts
- * {@link /api/users/me/social-accounts}
+ * {@link /api/quest/social-accounts}
  */
 export async function socialAccountsControllerFindAll(
   config: Partial<RequestConfig> & { client?: Client } = {}

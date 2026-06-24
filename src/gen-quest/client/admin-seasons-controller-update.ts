@@ -12,12 +12,12 @@ import type {
 } from "@/gen-quest/types/admin-seasons-controller-update";
 
 function getAdminSeasonsControllerUpdateUrl(id: AdminSeasonsControllerUpdatePathParams["id"]) {
-  const res = { method: "PATCH", url: `/api/admin/seasons/${id}` as const };
+  const res = { method: "PATCH", url: `/api/quest/admin/seasons/${id}` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/seasons/:id}
+ * {@link /api/quest/admin/seasons/:id}
  */
 export async function adminSeasonsControllerUpdate(
   id: AdminSeasonsControllerUpdatePathParams["id"],

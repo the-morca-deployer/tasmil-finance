@@ -19,7 +19,7 @@ import type {
 
 export const campaignsControllerGetTasksSuspenseQueryKey = (
   id: CampaignsControllerGetTasksPathParams["id"] | undefined
-) => [{ url: "/api/campaigns/:id/tasks", params: { id: id } }] as const;
+) => [{ url: "/api/quest/campaigns/:id/tasks", params: { id: id } }] as const;
 
 export type CampaignsControllerGetTasksSuspenseQueryKey = ReturnType<
   typeof campaignsControllerGetTasksSuspenseQueryKey
@@ -45,7 +45,7 @@ export function campaignsControllerGetTasksSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/campaigns/:id/tasks}
+ * {@link /api/quest/campaigns/:id/tasks}
  */
 export function useCampaignsControllerGetTasksSuspense<
   TData = CampaignsControllerGetTasksQueryResponse,

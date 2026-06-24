@@ -13,7 +13,7 @@ import type {
 } from "@/gen-quest/types/campaigns-controller-claim-campaign";
 
 export const campaignsControllerClaimCampaignMutationKey = () =>
-  [{ url: "/api/campaigns/:id/claim" }] as const;
+  [{ url: "/api/quest/campaigns/:id/claim" }] as const;
 
 export type CampaignsControllerClaimCampaignMutationKey = ReturnType<
   typeof campaignsControllerClaimCampaignMutationKey
@@ -37,7 +37,7 @@ export function campaignsControllerClaimCampaignMutationOptions<TContext = unkno
 }
 
 /**
- * {@link /api/campaigns/:id/claim}
+ * {@link /api/quest/campaigns/:id/claim}
  */
 export function useCampaignsControllerClaimCampaign<TContext>(
   options: {

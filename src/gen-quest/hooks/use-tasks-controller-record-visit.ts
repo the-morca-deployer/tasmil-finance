@@ -13,7 +13,7 @@ import type {
 } from "@/gen-quest/types/tasks-controller-record-visit";
 
 export const tasksControllerRecordVisitMutationKey = () =>
-  [{ url: "/api/tasks/:id/visit" }] as const;
+  [{ url: "/api/quest/tasks/:id/visit" }] as const;
 
 export type TasksControllerRecordVisitMutationKey = ReturnType<
   typeof tasksControllerRecordVisitMutationKey
@@ -37,7 +37,7 @@ export function tasksControllerRecordVisitMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/tasks/:id/visit}
+ * {@link /api/quest/tasks/:id/visit}
  */
 export function useTasksControllerRecordVisit<TContext>(
   options: {

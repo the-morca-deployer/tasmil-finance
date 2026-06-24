@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { UsersControllerGetCheckInStatusQueryResponse } from "@/gen-quest/types/users-controller-get-check-in-status";
 
 function getUsersControllerGetCheckInStatusUrl() {
-  const res = { method: "GET", url: `/api/users/me/check-in-status` as const };
+  const res = { method: "GET", url: `/api/quest/users/me/check-in-status` as const };
   return res;
 }
 
 /**
- * {@link /api/users/me/check-in-status}
+ * {@link /api/quest/users/me/check-in-status}
  */
 export async function usersControllerGetCheckInStatus(
   config: Partial<RequestConfig> & { client?: Client } = {}

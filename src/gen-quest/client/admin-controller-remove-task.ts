@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/admin-controller-remove-task";
 
 function getAdminControllerRemoveTaskUrl(taskId: AdminControllerRemoveTaskPathParams["taskId"]) {
-  const res = { method: "DELETE", url: `/api/admin/tasks/${taskId}` as const };
+  const res = { method: "DELETE", url: `/api/quest/admin/tasks/${taskId}` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/tasks/:taskId}
+ * {@link /api/quest/admin/tasks/:taskId}
  */
 export async function adminControllerRemoveTask(
   taskId: AdminControllerRemoveTaskPathParams["taskId"],

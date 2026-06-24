@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { ReferralControllerGetLeaderboardQueryResponse } from "@/gen-quest/types/referral-controller-get-leaderboard";
 
 function getReferralControllerGetLeaderboardUrl() {
-  const res = { method: "GET", url: `/api/referral/leaderboard` as const };
+  const res = { method: "GET", url: `/api/quest/referral/leaderboard` as const };
   return res;
 }
 
 /**
- * {@link /api/referral/leaderboard}
+ * {@link /api/quest/referral/leaderboard}
  */
 export async function referralControllerGetLeaderboard(
   config: Partial<RequestConfig> & { client?: Client } = {}

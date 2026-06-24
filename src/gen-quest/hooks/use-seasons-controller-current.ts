@@ -14,7 +14,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { seasonsControllerCurrent } from "@/gen-quest/client/seasons-controller-current";
 import type { SeasonsControllerCurrentQueryResponse } from "@/gen-quest/types/seasons-controller-current";
 
-export const seasonsControllerCurrentQueryKey = () => [{ url: "/api/seasons/current" }] as const;
+export const seasonsControllerCurrentQueryKey = () => [{ url: "/api/quest/seasons/current" }] as const;
 
 export type SeasonsControllerCurrentQueryKey = ReturnType<typeof seasonsControllerCurrentQueryKey>;
 
@@ -36,7 +36,7 @@ export function seasonsControllerCurrentQueryOptions(
 }
 
 /**
- * {@link /api/seasons/current}
+ * {@link /api/quest/seasons/current}
  */
 export function useSeasonsControllerCurrent<
   TData = SeasonsControllerCurrentQueryResponse,

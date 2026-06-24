@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/notifications-controller-send";
 
 function getNotificationsControllerSendUrl() {
-  const res = { method: "POST", url: `/api/notifications/send` as const };
+  const res = { method: "POST", url: `/api/quest/notifications/send` as const };
   return res;
 }
 
 /**
- * {@link /api/notifications/send}
+ * {@link /api/quest/notifications/send}
  */
 export async function notificationsControllerSend(
   data: NotificationsControllerSendMutationRequest,

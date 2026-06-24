@@ -14,13 +14,13 @@ import type {
 function getSocialAccountsControllerUnlinkAccountUrl(
   platform: SocialAccountsControllerUnlinkAccountPathParams["platform"]
 ) {
-  const res = { method: "DELETE", url: `/api/users/me/social-accounts/${platform}` as const };
+  const res = { method: "DELETE", url: `/api/quest/social-accounts/${platform}` as const };
   return res;
 }
 
 /**
  * @summary Unlink a social account
- * {@link /api/users/me/social-accounts/:platform}
+ * {@link /api/quest/social-accounts/:platform}
  */
 export async function socialAccountsControllerUnlinkAccount(
   platform: SocialAccountsControllerUnlinkAccountPathParams["platform"],

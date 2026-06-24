@@ -12,7 +12,7 @@ import type {
   TasksControllerClaimTaskPathParams,
 } from "@/gen-quest/types/tasks-controller-claim-task";
 
-export const tasksControllerClaimTaskMutationKey = () => [{ url: "/api/tasks/:id/claim" }] as const;
+export const tasksControllerClaimTaskMutationKey = () => [{ url: "/api/quest/tasks/:id/claim" }] as const;
 
 export type TasksControllerClaimTaskMutationKey = ReturnType<
   typeof tasksControllerClaimTaskMutationKey
@@ -36,7 +36,7 @@ export function tasksControllerClaimTaskMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/tasks/:id/claim}
+ * {@link /api/quest/tasks/:id/claim}
  */
 export function useTasksControllerClaimTask<TContext>(
   options: {

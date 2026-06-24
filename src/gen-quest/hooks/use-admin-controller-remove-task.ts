@@ -13,7 +13,7 @@ import type {
 } from "@/gen-quest/types/admin-controller-remove-task";
 
 export const adminControllerRemoveTaskMutationKey = () =>
-  [{ url: "/api/admin/tasks/:taskId" }] as const;
+  [{ url: "/api/quest/admin/tasks/:taskId" }] as const;
 
 export type AdminControllerRemoveTaskMutationKey = ReturnType<
   typeof adminControllerRemoveTaskMutationKey
@@ -37,7 +37,7 @@ export function adminControllerRemoveTaskMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/admin/tasks/:taskId}
+ * {@link /api/quest/admin/tasks/:taskId}
  */
 export function useAdminControllerRemoveTask<TContext>(
   options: {

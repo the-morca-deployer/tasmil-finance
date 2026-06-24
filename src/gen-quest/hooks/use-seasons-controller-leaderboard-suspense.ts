@@ -15,7 +15,7 @@ import { seasonsControllerLeaderboard } from "@/gen-quest/client/seasons-control
 import type { SeasonsControllerLeaderboardQueryResponse } from "@/gen-quest/types/seasons-controller-leaderboard";
 
 export const seasonsControllerLeaderboardSuspenseQueryKey = () =>
-  [{ url: "/api/seasons/current/leaderboard" }] as const;
+  [{ url: "/api/quest/seasons/current/leaderboard" }] as const;
 
 export type SeasonsControllerLeaderboardSuspenseQueryKey = ReturnType<
   typeof seasonsControllerLeaderboardSuspenseQueryKey
@@ -39,7 +39,7 @@ export function seasonsControllerLeaderboardSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/seasons/current/leaderboard}
+ * {@link /api/quest/seasons/current/leaderboard}
  */
 export function useSeasonsControllerLeaderboardSuspense<
   TData = SeasonsControllerLeaderboardQueryResponse,

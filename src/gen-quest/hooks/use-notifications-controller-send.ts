@@ -13,7 +13,7 @@ import type {
 } from "@/gen-quest/types/notifications-controller-send";
 
 export const notificationsControllerSendMutationKey = () =>
-  [{ url: "/api/notifications/send" }] as const;
+  [{ url: "/api/quest/notifications/send" }] as const;
 
 export type NotificationsControllerSendMutationKey = ReturnType<
   typeof notificationsControllerSendMutationKey
@@ -39,7 +39,7 @@ export function notificationsControllerSendMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/notifications/send}
+ * {@link /api/quest/notifications/send}
  */
 export function useNotificationsControllerSend<TContext>(
   options: {

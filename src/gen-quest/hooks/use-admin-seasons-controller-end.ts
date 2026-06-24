@@ -13,7 +13,7 @@ import type {
 } from "@/gen-quest/types/admin-seasons-controller-end";
 
 export const adminSeasonsControllerEndMutationKey = () =>
-  [{ url: "/api/admin/seasons/:id/end" }] as const;
+  [{ url: "/api/quest/admin/seasons/:id/end" }] as const;
 
 export type AdminSeasonsControllerEndMutationKey = ReturnType<
   typeof adminSeasonsControllerEndMutationKey
@@ -37,7 +37,7 @@ export function adminSeasonsControllerEndMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/admin/seasons/:id/end}
+ * {@link /api/quest/admin/seasons/:id/end}
  */
 export function useAdminSeasonsControllerEnd<TContext>(
   options: {

@@ -15,7 +15,7 @@ import { usersControllerGetCheckInStatus } from "@/gen-quest/client/users-contro
 import type { UsersControllerGetCheckInStatusQueryResponse } from "@/gen-quest/types/users-controller-get-check-in-status";
 
 export const usersControllerGetCheckInStatusSuspenseQueryKey = () =>
-  [{ url: "/api/users/me/check-in-status" }] as const;
+  [{ url: "/api/quest/users/me/check-in-status" }] as const;
 
 export type UsersControllerGetCheckInStatusSuspenseQueryKey = ReturnType<
   typeof usersControllerGetCheckInStatusSuspenseQueryKey
@@ -39,7 +39,7 @@ export function usersControllerGetCheckInStatusSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/users/me/check-in-status}
+ * {@link /api/quest/users/me/check-in-status}
  */
 export function useUsersControllerGetCheckInStatusSuspense<
   TData = UsersControllerGetCheckInStatusQueryResponse,

@@ -273,7 +273,7 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
       try {
         // Cookie-based auth — no Bearer token needed
         const res = await fetch(
-          `/api/users/me/social-accounts/${provider}`,
+          `/api/quest/social-accounts/${provider}`,
           { method: "DELETE", credentials: "include" }
         );
 

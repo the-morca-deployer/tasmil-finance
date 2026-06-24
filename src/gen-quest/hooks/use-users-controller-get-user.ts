@@ -19,7 +19,7 @@ import type {
 
 export const usersControllerGetUserQueryKey = (
   id: UsersControllerGetUserPathParams["id"] | undefined
-) => [{ url: "/api/users/:id", params: { id: id } }] as const;
+) => [{ url: "/api/quest/users/:id", params: { id: id } }] as const;
 
 export type UsersControllerGetUserQueryKey = ReturnType<typeof usersControllerGetUserQueryKey>;
 
@@ -43,7 +43,7 @@ export function usersControllerGetUserQueryOptions(
 }
 
 /**
- * {@link /api/users/:id}
+ * {@link /api/quest/users/:id}
  */
 export function useUsersControllerGetUser<
   TData = UsersControllerGetUserQueryResponse,

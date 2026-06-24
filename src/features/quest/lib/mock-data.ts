@@ -1,0 +1,23 @@
+// Re-exports from @/mocks/data/quest for synchronous import in api-client.ts
+export {
+  getCampaignsEnvelope,
+  getCampaignById,
+  getNotJoinedEnvelope,
+  MOCK_USER_ME,
+  MOCK_CHECK_IN_STATUS,
+  MOCK_DAILY_LOGIN_RESULT,
+  MOCK_POINTS_HISTORY,
+  MOCK_MY_CAMPAIGNS_PENDING,
+  MOCK_MY_CAMPAIGNS_CLAIMABLE,
+  MOCK_MY_CAMPAIGNS_CLAIMED,
+  MOCK_LEADERBOARD,
+  MOCK_STREAK_LEADERBOARD,
+  MOCK_CURRENT_SEASON,
+  MOCK_MY_SEASON_RESULT,
+  MOCK_REFERRAL,
+  MOCK_REFERRALS_LIST,
+  MOCK_SOCIAL_ACCOUNTS,
+  MUTATION_SUCCESS,
+  buildTaskStatus,
+  buildTaskClaimStatus,
+} from "@/mocks/data/quest";

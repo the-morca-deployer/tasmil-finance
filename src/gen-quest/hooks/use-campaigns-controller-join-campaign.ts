@@ -13,7 +13,7 @@ import type {
 } from "@/gen-quest/types/campaigns-controller-join-campaign";
 
 export const campaignsControllerJoinCampaignMutationKey = () =>
-  [{ url: "/api/campaigns/:id/join" }] as const;
+  [{ url: "/api/quest/campaigns/:id/join" }] as const;
 
 export type CampaignsControllerJoinCampaignMutationKey = ReturnType<
   typeof campaignsControllerJoinCampaignMutationKey
@@ -37,7 +37,7 @@ export function campaignsControllerJoinCampaignMutationOptions<TContext = unknow
 }
 
 /**
- * {@link /api/campaigns/:id/join}
+ * {@link /api/quest/campaigns/:id/join}
  */
 export function useCampaignsControllerJoinCampaign<TContext>(
   options: {

@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { AnalyticsControllerGlobalLeaderboardQueryResponse } from "@/gen-quest/types/analytics-controller-global-leaderboard";
 
 function getAnalyticsControllerGlobalLeaderboardUrl() {
-  const res = { method: "GET", url: `/api/leaderboard/global` as const };
+  const res = { method: "GET", url: `/api/quest/leaderboard/global` as const };
   return res;
 }
 
 /**
- * {@link /api/leaderboard/global}
+ * {@link /api/quest/leaderboard/global}
  */
 export async function analyticsControllerGlobalLeaderboard(
   config: Partial<RequestConfig> & { client?: Client } = {}

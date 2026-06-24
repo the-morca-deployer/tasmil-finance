@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { SeasonsControllerCurrentQueryResponse } from "@/gen-quest/types/seasons-controller-current";
 
 function getSeasonsControllerCurrentUrl() {
-  const res = { method: "GET", url: `/api/seasons/current` as const };
+  const res = { method: "GET", url: `/api/quest/seasons/current` as const };
   return res;
 }
 
 /**
- * {@link /api/seasons/current}
+ * {@link /api/quest/seasons/current}
  */
 export async function seasonsControllerCurrent(
   config: Partial<RequestConfig> & { client?: Client } = {}

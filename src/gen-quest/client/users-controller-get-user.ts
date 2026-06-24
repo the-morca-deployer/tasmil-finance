@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/users-controller-get-user";
 
 function getUsersControllerGetUserUrl(id: UsersControllerGetUserPathParams["id"]) {
-  const res = { method: "GET", url: `/api/users/${id}` as const };
+  const res = { method: "GET", url: `/api/quest/users/${id}` as const };
   return res;
 }
 
 /**
- * {@link /api/users/:id}
+ * {@link /api/quest/users/:id}
  */
 export async function usersControllerGetUser(
   id: UsersControllerGetUserPathParams["id"],

@@ -19,7 +19,7 @@ import type {
 
 export const campaignsControllerGetNotJoinedCampaignsSuspenseQueryKey = (
   params?: CampaignsControllerGetNotJoinedCampaignsQueryParams
-) => [{ url: "/api/campaigns/not-joined" }, ...(params ? [params] : [])] as const;
+) => [{ url: "/api/quest/campaigns/not-joined" }, ...(params ? [params] : [])] as const;
 
 export type CampaignsControllerGetNotJoinedCampaignsSuspenseQueryKey = ReturnType<
   typeof campaignsControllerGetNotJoinedCampaignsSuspenseQueryKey
@@ -47,7 +47,7 @@ export function campaignsControllerGetNotJoinedCampaignsSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/campaigns/not-joined}
+ * {@link /api/quest/campaigns/not-joined}
  */
 export function useCampaignsControllerGetNotJoinedCampaignsSuspense<
   TData = CampaignsControllerGetNotJoinedCampaignsQueryResponse,

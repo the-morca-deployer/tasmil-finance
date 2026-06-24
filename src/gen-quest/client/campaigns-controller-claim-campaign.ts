@@ -13,12 +13,12 @@ import type {
 function getCampaignsControllerClaimCampaignUrl(
   id: CampaignsControllerClaimCampaignPathParams["id"]
 ) {
-  const res = { method: "POST", url: `/api/campaigns/${id}/claim` as const };
+  const res = { method: "POST", url: `/api/quest/campaigns/${id}/claim` as const };
   return res;
 }
 
 /**
- * {@link /api/campaigns/:id/claim}
+ * {@link /api/quest/campaigns/:id/claim}
  */
 export async function campaignsControllerClaimCampaign(
   id: CampaignsControllerClaimCampaignPathParams["id"],

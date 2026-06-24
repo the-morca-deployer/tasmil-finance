@@ -12,12 +12,12 @@ import type {
 } from "@/gen-quest/types/admin-controller-add-task";
 
 function getAdminControllerAddTaskUrl(campaignId: AdminControllerAddTaskPathParams["campaignId"]) {
-  const res = { method: "POST", url: `/api/admin/campaigns/${campaignId}/tasks` as const };
+  const res = { method: "POST", url: `/api/quest/admin/campaigns/${campaignId}/tasks` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/campaigns/:campaignId/tasks}
+ * {@link /api/quest/admin/campaigns/:campaignId/tasks}
  */
 export async function adminControllerAddTask(
   campaignId: AdminControllerAddTaskPathParams["campaignId"],

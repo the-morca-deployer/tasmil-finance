@@ -296,11 +296,11 @@ export const MOCK_CURRENT_SEASON = {
 export const MOCK_MY_SEASON_RESULT = {
   data: {
     season: { id: "season-3", name: "Season 3: Stellar Rise", status: "ACTIVE" },
-    finalRank: 47,
-    finalPoints: 360,
-    usdcReward: "0",
-    pointsReward: 0,
-    badge: null,
+    finalRank: 1,
+    finalPoints: 5000,
+    usdcReward: "2500",
+    pointsReward: 5000,
+    badge: "gold",
     payoutStatus: "PENDING",
     revealed: false,
   },

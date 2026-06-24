@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/admin-seasons-controller-create";
 
 function getAdminSeasonsControllerCreateUrl() {
-  const res = { method: "POST", url: `/api/admin/seasons` as const };
+  const res = { method: "POST", url: `/api/quest/admin/seasons` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/seasons}
+ * {@link /api/quest/admin/seasons}
  */
 export async function adminSeasonsControllerCreate(
   data: AdminSeasonsControllerCreateMutationRequest,
