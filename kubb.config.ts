@@ -1,7 +1,7 @@
 // Unified Kubb codegen config for every upstream OpenAPI service.
 //
 // One config, one factory. Pick the target with KUBB_TARGET:
-//   KUBB_TARGET=ai|backend|quest kubb --config kubb.config.ts
+//   KUBB_TARGET=ai|backend kubb --config kubb.config.ts
 //
 // Each target differs only in: spec source, output dir, and the client import
 // path (FastAPI services use the default axios client; NestJS services use the
@@ -51,14 +51,6 @@ const TARGETS: Record<string, Target> = {
     specUrl: () =>
       `${stripSlash(process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:6756")}/api-json`,
     clientImportPath: "@/lib/kubb-backend-client",
-  },
-  // NestJS quest backend — default axios client.
-  quest: {
-    dir: "./src/gen-quest",
-    tempSpec: "./temp-openapi-quest.json",
-    specUrl: () =>
-      `${stripSlash(process.env.NEXT_PUBLIC_QUEST_API_URL || "http://localhost:5555")}/api-json`,
-    clientImportPath: "@kubb/plugin-client/clients/axios",
   },
 };
 
