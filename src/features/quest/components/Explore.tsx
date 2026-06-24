@@ -24,7 +24,7 @@ export default function Explore() {
     <div className="space-y-0">
       {/* HERO */}
       <Rise>
-        <section className="x-hero rise">
+        <section className="x-hero">
           <div className="x-hero-img" aria-hidden="true" />
           <div className="x-hero-grad" aria-hidden="true" />
           <div className="x-hero-inner">
