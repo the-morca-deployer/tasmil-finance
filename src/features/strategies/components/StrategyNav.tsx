@@ -69,12 +69,16 @@ export function StrategyNav() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className="h-3.5 w-3.5"
+                  aria-hidden="true"
                 >
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               )}
               {active && (
-                <span className="absolute bottom-0 left-1/2 h-[2px] w-[60%] -translate-x-1/2 rounded-[2px] bg-[#67E8F9] shadow-[0_0_10px_rgba(103,232,249,0.5)]" />
+                <span
+                  aria-hidden="true"
+                  className="absolute bottom-0 left-1/2 h-[2px] w-[60%] -translate-x-1/2 rounded-[2px] bg-[#67E8F9] shadow-[0_0_10px_rgba(103,232,249,0.5)]"
+                />
               )}
             </Link>
           );
@@ -90,18 +94,6 @@ export function StrategyNav() {
 
           return content;
         })}
-        {/* Quest link - external */}
-        <a
-          href="https://quest.tasmil-finance.xyz"
-          className={cn(
-            "relative inline-flex items-center rounded-[100px] px-[18px] py-2",
-            "text-[14.5px] font-medium",
-            "text-[rgba(244,247,251,0.58)] hover:bg-[rgba(255,255,255,0.05)] hover:text-[#F4F7FB]",
-            "transition-colors"
-          )}
-        >
-          Quest
-        </a>
       </div>
 
       {/* Right — wallet area placeholder */}

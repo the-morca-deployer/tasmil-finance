@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 
 const LINKS = {
@@ -87,7 +85,7 @@ export function StrategyFooter() {
       {/* Bottom bar */}
       <div className="mx-auto mt-10 flex max-w-[1280px] flex-col items-center justify-between gap-4 border-t border-[rgba(255,255,255,0.08)] pt-6 sm:flex-row">
         <p className="text-[13px] text-[rgba(244,247,251,0.34)]">
-          &copy; 2025 Tasmil Network. All rights reserved.
+          &copy; 2025 Tasmil Network. All rights reserved. &mdash; Powered by Tasmil Finance
         </p>
         <div className="flex gap-6">
           {/* biome-ignore lint/a11y/useAnchorContent: aria-label provides accessible name */}
