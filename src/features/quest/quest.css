@@ -774,14 +774,15 @@
 .quest-scope .foot-head { font-size:12.5px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); margin-bottom:4px; }
 .quest-scope .foot-col a { font-size:15px; color:rgba(244,247,251,0.78); transition:color .25s,transform .25s; }
 .quest-scope .foot-col a:hover { color:var(--text); }
-.quest-scope .foot-bottom { position:relative; z-index:2; display:flex; justify-content:space-between; align-items:flex-end; gap:28px; flex-wrap:wrap; margin-top:28px; padding:0 0 56px; }
-.quest-scope .foot-legal { font-size:12.5px; color:var(--dim); line-height:1.5; max-width:640px; display:flex; flex-direction:column; gap:2px; }
-.quest-scope .foot-legal .copy { color:var(--muted); }
-.quest-scope .foot-x { display:inline-flex; align-items:center; gap:10px; font-size:14px; color:var(--muted); padding:10px 18px; border:1px solid var(--line-2); border-radius:999px; transition:color .25s,border-color .25s,background .25s; white-space:nowrap; }
-.quest-scope .foot-x:hover { color:var(--text); background:var(--accent-soft); }
-.quest-scope .foot-ghost { position:relative; z-index:1; font-size:clamp(80px,21vw,380px); font-weight:800; letter-spacing:0.01em; line-height:0.8; text-align:center; white-space:nowrap; user-select:none; pointer-events:auto; cursor:default; text-transform:uppercase; margin-bottom:-0.18em; background:linear-gradient(180deg,rgba(103,232,249,0.16) 0%,rgba(103,232,249,0.02) 70%,transparent 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; }
-.quest-scope .foot-ghost::after { content:attr(data-text); position:absolute; inset:0; text-transform:uppercase; -webkit-text-fill-color:transparent; color:transparent; -webkit-text-stroke:1.2px rgba(103,232,249,0.95); -webkit-mask-image:radial-gradient(circle 280px at var(--gx,50%) var(--gy,50%),#000 0%,rgba(0,0,0,0.4) 45%,transparent 72%); mask-image:radial-gradient(circle 280px at var(--gx,50%) var(--gy,50%),#000 0%,rgba(0,0,0,0.4) 45%,transparent 72%); opacity:0; transition:opacity .35s var(--ease); pointer-events:none; }
-.quest-scope .foot-ghost:hover::after { opacity:1; }
+.quest-scope .fa-top { position:relative; z-index:2; margin-top:clamp(60px,9vw,128px); display:flex; flex-direction:column; gap:15px; }
+.quest-scope .fa-social { display:flex; gap:10px; }
+.quest-scope .fa-ic { width:34px; height:34px; border-radius:9px; display:grid; place-items:center; background:rgba(255,255,255,0.06); border:1px solid var(--line-2); color:var(--text); transition:color .25s,border-color .25s,background .25s; }
+.quest-scope .fa-ic:hover { color:var(--accent); background:var(--accent-soft); }
+.quest-scope .fa-ic svg { width:17px; height:17px; }
+.quest-scope .fa-copy { font-family:var(--mono); font-size:12.5px; color:var(--muted); line-height:1.6; }
+.quest-scope .fa-copy .fa-disc { display:block; color:var(--dim); font-size:11.5px; max-width:560px; margin-top:3px; }
+.quest-scope .fa-mark { position:absolute; left:0; right:0; bottom:clamp(14px,3.5%,46px); z-index:2; text-align:center; white-space:nowrap; font-size:11.6vw; font-weight:700; letter-spacing:-0.01em; line-height:0.86; text-transform:uppercase; color:rgba(255,255,255,0.96); text-shadow:0 2px 44px rgba(0,18,28,0.5); pointer-events:none; }
+.quest-scope .fa-mark b { font-weight:700; }
 .quest-scope .foot-aurora { position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; background:#000; }
 .quest-scope .fa-cols { position:absolute; inset:0; display:flex; }
 .quest-scope .fa-col { flex:1; position:relative; }
@@ -796,6 +797,7 @@
 .quest-scope .fa-cols .fa-col:nth-child(7)::before { transition-delay:0.05s; }
 .quest-scope .fa-cols .fa-col:nth-child(8)::before { transition-delay:0s; }
 @media (prefers-reduced-motion:reduce) { .quest-scope .fa-col::before { transform:none; transition:none; } }
+@media (max-width:1000px) { .quest-scope .foot-grid { grid-template-columns:1fr 1fr 1fr; } .quest-scope .foot-brand { grid-column:1 / -1; max-width:420px; } }
 @media (max-width:780px) { .quest-scope .foot-grid { grid-template-columns:1fr 1fr; } }
 @media (max-width:480px) { .quest-scope .foot-grid { grid-template-columns:1fr; } }
 
