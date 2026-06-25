@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useCampaignsControllerFindAll } from "@/gen-quest/hooks";
 import { CampaignCard, type CampaignCardData } from "./CampaignCard";
 import { Rise } from "./Rise";
+import { Button } from "./ui/button";
 
 type Filter = "all" | "ongoing" | "closed";
 
@@ -57,7 +58,7 @@ export default function Campaigns() {
         <div className="mb-[26px] flex flex-wrap items-end justify-between gap-6">
           <div>
             <h1 className="text-[clamp(34px,5vw,56px)] font-extrabold leading-none tracking-[-0.04em]">
-              <span className="grad-text">Campaigns</span>
+              <span style={{ background: "var(--grad)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Campaigns</span>
             </h1>
             <p className="mt-3 text-[16px] text-quest-muted">
               Discover quests across the Stellar ecosystem and earn rewards.
@@ -150,14 +151,15 @@ export default function Campaigns() {
               No campaigns match your search
             </div>
             <div className="text-[14px] text-quest-muted">Try a different keyword or filter.</div>
-            <button
+            <Button
               type="button"
-              className="btn btn-ghost btn-sm"
+              variant="ghost"
+              size="sm"
               onClick={clearFilters}
               style={{ marginTop: 12 }}
             >
               Clear filters
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-[22px] max-[980px]:grid-cols-2 max-[640px]:grid-cols-1">

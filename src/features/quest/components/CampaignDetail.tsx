@@ -25,7 +25,8 @@ import { createPortal } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/features/quest/components/ui/avatar";
-
+import { Badge } from "@/features/quest/components/ui/badge";
+import { Button } from "@/features/quest/components/ui/button";
 
 import { useWallet } from "@/features/quest/context/wallet-context";
 import {
@@ -487,9 +488,10 @@ const QuestItem: React.FC<QuestItemProps> = ({
             )}
 
             <div className="flex gap-[10px] flex-wrap">
-              <button
+              <Button
                 type="button"
-                className="btn btn-ghost btn-sm"
+                variant="ghost"
+                size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   const skipTracking =
@@ -504,7 +506,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
               >
                 {getActionLabel(step.type)}
                 <ExternalLink size={12} />
-              </button>
+              </Button>
 
               {(() => {
                 const requiredPlatform = getRequiredPlatform(step.type);
@@ -528,28 +530,30 @@ const QuestItem: React.FC<QuestItemProps> = ({
                     );
                   }
                   return (
-                    <button
+                    <Button
                       type="button"
-                      className="btn btn-primary btn-sm"
+                      variant="primary"
+                      size="sm"
                       onClick={handleConnectClick}
                     >
                       Connect {requiredPlatform}
-                    </button>
+                    </Button>
                   );
                 }
 
                 if (isVerified && !isClaimed) {
                   const pointsEarned = taskStatus?.pointsEarned || 0;
                   return (
-                    <button
+                    <Button
                       type="button"
-                      className="btn btn-green btn-sm"
+                      variant="green"
+                      size="sm"
                       disabled={claimTaskMutation.isPending}
                       onClick={handleClaimTask}
                     >
                       {claimTaskMutation.isPending ? (
                         <>
-                          <span className="spin" />
+                          <span className="w-[13px] h-[13px] border-2 border-current border-t-transparent rounded-full inline-block animate-[quest-spin_0.7s_linear_infinite]" />
                           Claiming...
                         </>
                       ) : (
@@ -558,7 +562,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
                           Claim {pointsEarned} PTS
                         </>
                       )}
-                    </button>
+                    </Button>
                   );
                 }
 
@@ -566,22 +570,24 @@ const QuestItem: React.FC<QuestItemProps> = ({
                   const pointsEarned =
                     taskStatus?.pointsEarned || claimStatus?.claim?.pointsEarned || 0;
                   return (
-                    <button
+                    <Button
                       type="button"
-                      className="btn btn-ghost btn-sm"
+                      variant="ghost"
+                      size="sm"
                       disabled
                       style={{ opacity: 0.55 }}
                     >
                       <CheckCircle2 size={14} />
                       Claimed {pointsEarned} PTS
-                    </button>
+                    </Button>
                   );
                 }
 
                 return (
-                  <button
+                  <Button
                     type="button"
-                    className={status === "error" ? "btn btn-accent btn-sm" : "btn btn-primary btn-sm"}
+                    variant={status === "error" ? "accent" : "primary"}
+                    size="sm"
                     disabled={
                       status === "verifying" || status === "completed" || verifyTaskMutation.isPending
                     }
@@ -589,7 +595,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
                   >
                     {status === "verifying" ? (
                       <>
-                        <span className="spin" />
+                        <span className="w-[13px] h-[13px] border-2 border-current border-t-transparent rounded-full inline-block animate-[quest-spin_0.7s_linear_infinite]" />
                         Verifying...
                       </>
                     ) : status === "completed" ? (
@@ -602,7 +608,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
                     ) : (
                       <>Verify Task</>
                     )}
-                  </button>
+                  </Button>
                 );
               })()}
             </div>
@@ -710,7 +716,8 @@ const RelatedCampaigns: React.FC<{ currentCampaignId: string }> = ({ currentCamp
               <div className="text-[12px] font-mono text-quest-accent mt-[3px] inline-flex items-center gap-[3px]">
                 +{c.pointsReward.toLocaleString("en-US")}
                 <svg
-                  className="pcoin"
+                  className="inline-block flex-none"
+                  style={{ verticalAlign: -3, marginLeft: 4 }}
                   width="16"
                   height="16"
                   viewBox="0 0 24 24"
@@ -1120,10 +1127,10 @@ const CampaignDetail: React.FC = () => {
           <div className="text-[18px] font-bold tracking-[-0.02em] text-quest-text">Campaign not found</div>
           <div className="text-[14px] text-quest-muted">This campaign may have ended or the link is incorrect.</div>
           <Link href="/quest/explore">
-            <button type="button" className="btn btn-ghost btn-sm" style={{ marginTop: 8 }}>
+            <Button type="button" variant="ghost" size="sm" style={{ marginTop: 8 }}>
               <ArrowLeft size={14} />
               Back to Explore
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
@@ -1143,14 +1150,14 @@ const CampaignDetail: React.FC = () => {
           <div className="grid grid-cols-[8fr_4fr] max-[920px]:grid-cols-1 gap-[30px] items-start">
             <div>
               <div className="flex items-center gap-[10px] flex-wrap mb-4">
-                <span className={`badge badge-${campaign.status === "ongoing" ? "ongoing" : "closed"}`}>
+                <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"} className="text-[14px] py-[9px] px-[22px] gap-[6px]">
                   {campaign.status === "ongoing" ? "Ongoing" : "Closed"}
-                </span>
+                </Badge>
                 {timeRemainingLabel && (
-                  <span className="badge badge-clock">
+                  <Badge variant="closed" className="text-[14px] py-[9px] px-[22px] gap-[6px] [&_svg]:w-[13px] [&_svg]:h-[13px]">
                     <Clock size={13} />
                     {timeRemainingLabel}
-                  </span>
+                  </Badge>
                 )}
               </div>
               <h1 className="text-[clamp(34px,5vw,52px)] font-extrabold tracking-[-0.04em] leading-[1.02]">{campaign.title}</h1>
@@ -1195,10 +1202,10 @@ const CampaignDetail: React.FC = () => {
                   </div>
                 </div>
                 <div className="px-[22px] py-[18px] flex flex-col gap-[10px]">
-                  <button type="button" className="btn btn-primary btn-block" onClick={connect}>
+                  <Button type="button" variant="primary" block onClick={connect}>
                     <Wallet size={18} />
                     Connect Wallet to Join
-                  </button>
+                  </Button>
                   <p className="text-sm text-muted mt-3">
                     Connect your wallet to join this campaign and start earning rewards.
                   </p>
@@ -1227,14 +1234,14 @@ const CampaignDetail: React.FC = () => {
           <div className="grid grid-cols-[8fr_4fr] max-[920px]:grid-cols-1 gap-[30px] items-start">
             <div>
               <div className="flex items-center gap-[10px] flex-wrap mb-4">
-                <span className={`badge badge-${campaign.status === "ongoing" ? "ongoing" : "closed"}`}>
+                <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"} className="text-[14px] py-[9px] px-[22px] gap-[6px]">
                   {campaign.status === "ongoing" ? "Ongoing" : "Closed"}
-                </span>
+                </Badge>
                 {timeRemainingLabel && (
-                  <span className="badge badge-clock">
+                  <Badge variant="closed" className="text-[14px] py-[9px] px-[22px] gap-[6px] [&_svg]:w-[13px] [&_svg]:h-[13px]">
                     <Clock size={13} />
                     {timeRemainingLabel}
-                  </span>
+                  </Badge>
                 )}
               </div>
               <h1 className="text-[clamp(34px,5vw,52px)] font-extrabold tracking-[-0.04em] leading-[1.02]">{campaign.title}</h1>
@@ -1318,15 +1325,16 @@ const CampaignDetail: React.FC = () => {
                   </div>
                 </div>
                 <div className="px-[22px] py-[18px] flex flex-col gap-[10px]">
-                  <button
+                  <Button
                     type="button"
-                    className="btn btn-primary btn-block"
+                    variant="primary"
+                    block
                     onClick={handleJoinCampaign}
                     disabled={joinCampaignMutation.isPending}
                   >
                     {joinCampaignMutation.isPending ? (
                       <>
-                        <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
+                        <Loader2 size={18} className="animate-spin" />
                         Joining...
                       </>
                     ) : (
@@ -1335,7 +1343,7 @@ const CampaignDetail: React.FC = () => {
                         Join Campaign
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -1369,14 +1377,14 @@ const CampaignDetail: React.FC = () => {
           {/* Title hero */}
           <Rise delay={0}>
             <div className="flex items-center gap-[10px] flex-wrap mb-4">
-              <span className={`badge badge-${campaign.status === "ongoing" ? "ongoing" : "closed"}`}>
+              <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"} className="text-[14px] py-[9px] px-[22px] gap-[6px]">
                 {campaign.status === "ongoing" ? "Ongoing" : "Closed"}
-              </span>
+              </Badge>
               {timeRemainingLabel && (
-                <span className="badge badge-clock">
+                <Badge variant="closed" className="text-[14px] py-[9px] px-[22px] gap-[6px] [&_svg]:w-[13px] [&_svg]:h-[13px]">
                   <Clock size={13} />
                   {timeRemainingLabel}
-                </span>
+                </Badge>
               )}
             </div>
             <h1 className="text-[clamp(34px,5vw,52px)] font-extrabold tracking-[-0.04em] leading-[1.02]">{campaign.title}</h1>
@@ -1545,15 +1553,16 @@ const CampaignDetail: React.FC = () => {
                 </div>
               </div>
               <div className="px-[22px] py-[18px] flex flex-col gap-[10px]">
-                <button
+                <Button
                   type="button"
-                  className="btn btn-primary btn-block"
+                  variant="primary"
+                  block
                   disabled={claimCampaignMutation.isPending}
                   onClick={handleClaimReward}
                 >
                   {claimCampaignMutation.isPending ? (
                     <>
-                      <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
+                      <Loader2 size={18} className="animate-spin" />
                       Claiming...
                     </>
                   ) : (
@@ -1562,15 +1571,16 @@ const CampaignDetail: React.FC = () => {
                       Claim Reward
                     </>
                   )}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className="btn btn-ghost btn-block"
+                  variant="ghost"
+                  block
                   onClick={() => setIsShareDialogOpen(true)}
                 >
                   <Share2 size={18} />
                   Share Campaign
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -1645,7 +1655,7 @@ const ShareDialog = ({ open, shareUrl, onClose, onCopy, sharedCopied, onShare }:
             value={shareUrl}
             className="flex-1 bg-transparent border-none outline-none text-quest-muted font-mono text-[12.5px]"
           />
-          <button type="button" className="btn btn-accent btn-sm" onClick={onClose}>Done</button>
+          <Button type="button" variant="accent" size="sm" onClick={onClose}>Done</Button>
         </div>
       </div>
     </div>,

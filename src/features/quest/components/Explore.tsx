@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { CampaignCard, type CampaignCardData } from "@/features/quest/components/CampaignCard";
 import { Rise } from "@/features/quest/components/Rise";
+import { buttonClasses } from "@/features/quest/components/ui/button";
 import { mapApiCampaignsResponse } from "@/features/quest/lib/campaign-mapper";
 import { $ } from "@/features/quest/lib/kubb-config";
 import { toCampaignCardData } from "@/features/quest/types";
@@ -41,18 +42,18 @@ export default function Explore() {
             aria-hidden="true"
           />
           <div className="relative z-[1] px-[clamp(24px,5vw,64px)] pt-[clamp(40px,7vw,84px)]">
-            <div className="eyebrow">June 2026 Season</div>
+            <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px] before:content-[''] before:w-[26px] before:h-px before:bg-quest-accent before:opacity-60">June 2026 Season</div>
             <h1 className="mt-[18px] max-w-[14ch] text-[clamp(34px,5.4vw,62px)] font-extrabold leading-[1.02] tracking-[-0.04em]">
-              Embark on your <span className="grad-text">Tasmil journey</span>
+              Embark on your <span style={{ background: "var(--grad)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Tasmil journey</span>
             </h1>
             <p className="mt-4 max-w-[48ch] text-[clamp(15px,1.6vw,18px)] leading-[1.55] text-quest-muted">
               Complete tasks across the Stellar ecosystem, earn points and climb the monthly
               leaderboard for real USDC rewards.
             </p>
             <div className="mt-[26px]">
-              <Link href="/quest/campaigns" className="btn btn-primary btn-lg">
+              <Link href="/quest/campaigns" className={buttonClasses({ variant: "primary", size: "lg" })}>
                 Start Questing
-                <span className="arr">
+                <span className="inline-flex transition-transform duration-[350ms] ease-quest group-hover:translate-x-1" aria-hidden="true">
                   <ArrowRight size={17} strokeWidth={2.4} />
                 </span>
               </Link>
@@ -71,7 +72,7 @@ export default function Explore() {
               <div className={`${STAT_VALUE} text-quest-accent`}>
                 1.2M
                 <svg
-                  className="pcoin"
+                  className="inline-block flex-none"
                   viewBox="0 0 24 24"
                   fill="none"
                   aria-hidden="true"

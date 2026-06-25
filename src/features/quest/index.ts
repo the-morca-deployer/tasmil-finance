@@ -1,5 +1,6 @@
 // Quest feature barrel exports
 
+export { Button, buttonClasses, buttonVariants } from "./components/ui/button";
 export { AutoReconnect } from "./components/auto-reconnect";
 export { QuestBeams } from "./components/QuestBeams";
 // Core screen components

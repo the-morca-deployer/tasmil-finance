@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/features/quest/components/ui/badge";
+import { buttonClasses } from "@/features/quest/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export interface CampaignCardData {
@@ -120,7 +121,7 @@ export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
       {/* Footer */}
       <div className="flex items-center justify-between gap-3 px-5 pt-[14px] pb-[18px]">
         <AvatarStack campaignId={campaign.id} avatars={avatars} total={participants} />
-        <span className="btn btn-ghost btn-sm">
+        <span className={buttonClasses({ variant: "ghost", size: "sm" })}>
           {closed ? "View" : "Start Quest"}
           <ArrowRight size={14} />
         </span>

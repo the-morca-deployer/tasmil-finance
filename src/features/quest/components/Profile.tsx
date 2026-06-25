@@ -5,6 +5,7 @@ import Link from "next/link";
 import React, { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Rise } from "@/features/quest/components/Rise";
+import { Button } from "@/features/quest/components/ui/button";
 import { useWallet } from "@/features/quest/context/wallet-context";
 import { withAuth } from "@/features/quest/lib/kubb-config";
 import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
@@ -205,7 +206,7 @@ function Sidebar({ tab, setTab }: { tab: string; setTab: (t: string) => void }) 
 
 // PtsCoin
 const Pts = () => (
-  <svg className="pcoin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <svg className="inline-block flex-none w-[15px] h-[15px]" style={{ verticalAlign: -3, marginLeft: 4 }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <linearGradient id="ptsG" x1="0.15" y1="0.1" x2="0.85" y2="0.9"><stop stopColor="#A5F3FC"/><stop offset="1" stopColor="#0EA5E9"/></linearGradient>
     <circle cx="12" cy="12" r="9" fill="url(#ptsG)"/><path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A"/>
   </svg>
@@ -341,8 +342,8 @@ function OverviewTab() {
           {/* qref-code: display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--surface); border:1px solid var(--line-2); border-radius:var(--r-sm); font-family:var(--font-mono); font-size:14px; font-weight:600; color:var(--accent); letter-spacing:0.04em; */}
           <div className="flex items-center gap-[10px] px-4 py-3 bg-[var(--surface)] border border-[rgba(255,255,255,0.14)] rounded-[14px] font-mono text-[14px] font-semibold text-[var(--accent)] tracking-[0.04em] mt-[10px]">{user?.referralCode ?? "TASMIL-X7K9"}</div>
           <div className="qref-actions" style={{ display: "flex", gap: 8, marginTop: 12 }}>
-            <button className="btn btn-primary btn-sm btn-block" onClick={() => { navigator.clipboard?.writeText(user?.referralCode ?? ""); toast.success("Copied!"); }}><Copy size={13} /> Copy Code</button>
-            <button className="btn btn-ghost btn-sm btn-block"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg> Share Link</button>
+            <Button variant="primary" size="sm" block onClick={() => { navigator.clipboard?.writeText(user?.referralCode ?? ""); toast.success("Copied!"); }}><Copy size={13} /> Copy Code</Button>
+            <Button variant="ghost" size="sm" block><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg> Share Link</Button>
           </div>
           {/* qref-block: margin-top:16px; padding-top:16px; border-top:1px solid var(--line); */}
           <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.08)]">
@@ -391,9 +392,9 @@ function OverviewTab() {
           {/* qref-code */}
           <div className="flex items-center gap-[10px] px-4 py-3 bg-[var(--surface)] border border-[rgba(255,255,255,0.14)] rounded-[14px] font-mono text-[14px] font-semibold text-[var(--accent)] tracking-[0.04em]">
             {user.referralCode}
-            <button className="btn btn-ghost btn-sm" onClick={() => { navigator.clipboard?.writeText(user.referralCode ?? ""); toast.success("Copied!"); }} style={{ marginLeft: "auto" }}>
+            <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard?.writeText(user.referralCode ?? ""); toast.success("Copied!"); }} style={{ marginLeft: "auto" }}>
               <Copy size={14} /> Copy
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -496,10 +497,10 @@ function MyQuestsTab() {
                   {/* qc-desc: font-size:13px; color:var(--muted); margin-top:3px; */}
                   <div className="text-[13px] text-[rgba(244,247,251,0.58)] mt-[3px]">{ct.description as string ?? ""}</div>
                 </div>
-                <button className={`btn btn-sm ${subtab === "claimable" ? "btn-primary" : subtab === "pending" ? "btn-accent" : "btn-ghost"}`} disabled={subtab === "claimed"} style={{ whiteSpace: "nowrap" }}>
+                <Button variant={subtab === "claimable" ? "primary" : subtab === "pending" ? "accent" : "ghost"} size="sm" disabled={subtab === "claimed"} style={{ whiteSpace: "nowrap" }}>
                   {subtab === "claimed" ? <CheckCircle2 size={12} /> : null}
                   {subtab === "pending" ? "View Quest" : subtab === "claimable" ? "Claim Points" : "Completed"}
-                </button>
+                </Button>
               </Link>
             );
           })}
@@ -532,9 +533,9 @@ function ReferralsTab() {
         {/* codebox-head: display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; */}
         <div className="flex justify-between items-center mb-[10px]">
           <span className="text-[11px] font-bold tracking-[0.14em] uppercase text-[rgba(244,247,251,0.34)]">Your Code</span>
-          <button className="btn btn-ghost btn-sm" onClick={() => { navigator.clipboard?.writeText((refDataObj as { code?: string })?.code ?? ""); toast.success("Copied!"); }}>
+          <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard?.writeText((refDataObj as { code?: string })?.code ?? ""); toast.success("Copied!"); }}>
             <Copy size={14} /> Copy
-          </button>
+          </Button>
         </div>
         {/* code: font-family:var(--font-mono); font-size:15px; font-weight:700; color:var(--accent); letter-spacing:0.06em; */}
         <div className="font-mono text-[15px] font-bold text-[var(--accent)] tracking-[0.06em]">{(refDataObj as { code?: string })?.code ?? "TASMIL-X7K9"}</div>
@@ -662,8 +663,9 @@ function SocialTab() {
               </div>
             </div>
             {connected ? null : (
-              <button
-                className="btn btn-ghost btn-sm"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => {
                   const width = 500; const height = 700;
                   const left = window.screen.width / 2 - width / 2;
@@ -672,7 +674,7 @@ function SocialTab() {
                 }}
               >
                 Connect
-              </button>
+              </Button>
             )}
           </div>
         );
@@ -699,9 +701,9 @@ const Profile: React.FC = () => {
         </svg>
         <div className="text-[18px] font-bold tracking-[-0.02em] text-[var(--text)]">Connect your wallet</div>
         <div className="text-[14px] text-[rgba(244,247,251,0.58)]">Link your Stellar wallet to access quests, referrals, and rewards.</div>
-        <button type="button" className="btn btn-primary" onClick={connect} style={{ marginTop: 16 }}>
+        <Button type="button" variant="primary" onClick={connect} style={{ marginTop: 16 }}>
           Connect Wallet
-        </button>
+        </Button>
       </div>
     );
   }

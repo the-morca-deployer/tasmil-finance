@@ -256,7 +256,7 @@ export function RankReveal({
           {/* .eyebrow (rank-card variant): inline-flex; align-items:center; gap:11px; font-size:12px; font-weight:700;
                letter-spacing:0.22em; text-transform:uppercase; color:var(--accent); margin-bottom:13px
                ::before/::after: content:""; width:24px; height:1px; background:var(--accent); opacity:.55 */}
-          <div className="eyebrow">{seasonName} Season</div>
+          <div className="text-[12px] font-bold tracking-[0.22em] uppercase text-quest-accent inline-flex items-center gap-[11px] before:content-[''] before:w-[24px] before:h-px before:bg-quest-accent before:opacity-55 after:content-[''] after:w-[24px] after:h-px after:bg-quest-accent after:opacity-55">{seasonName} Season</div>
           {/* .title: font-size:38px; font-weight:800; letter-spacing:-0.035em; line-height:1.04
                .grad: gradient text */}
           <h2 className="title">

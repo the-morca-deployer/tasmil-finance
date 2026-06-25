@@ -6,6 +6,8 @@ import CountUp from "@/shared/ui/count-up";
 import { LeaderboardRow } from "@/features/quest/components/LeaderboardRow";
 import { Podium } from "@/features/quest/components/Podium";
 import { Rise } from "@/features/quest/components/Rise";
+import { buttonClasses } from "@/features/quest/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useSeasonCountdown } from "@/features/quest/hooks/use-season-countdown";
 import { $ } from "@/features/quest/lib/kubb-config";
 import { type CurrentSeason, type SeasonMeResult, unwrapEnvelope } from "@/features/quest/lib/season-types";
@@ -16,7 +18,7 @@ import {
   useSeasonsControllerMyResult,
 } from "@/gen-quest/hooks";
 
-const PtsCoin = ({ className = "pcoin" }: { className?: string }) => (
+const PtsCoin = ({ className = "inline-block flex-none w-[15px] h-[15px]" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
     <linearGradient id="ptsGrad" x1="0.15" y1="0.1" x2="0.85" y2="0.9"><stop stopColor="#A5F3FC"/><stop offset="1" stopColor="#0EA5E9"/></linearGradient>
     <circle cx="12" cy="12" r="9" fill="url(#ptsGrad)"/><path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A"/>
@@ -63,7 +65,7 @@ export default function Leaderboard() {
           <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px] mb-[14px] before:content-[''] before:w-[26px] before:h-px before:bg-quest-accent before:opacity-60 after:content-[''] after:w-[26px] after:h-px after:bg-quest-accent after:opacity-60">June 2026</div>
           {/* page-title */}
           <h1 className="text-[clamp(38px,5.5vw,64px)] font-extrabold tracking-[-0.04em] leading-none">
-            <span className="grad-text">Leaderboard</span>
+            <span style={{ background: "var(--grad)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Leaderboard</span>
           </h1>
           {/* page-sub */}
           <p className="mt-[14px] text-[16px] text-quest-muted">Climb the Tasmil ecosystem. Top 10 split the monthly prize pool.</p>
@@ -106,7 +108,7 @@ export default function Leaderboard() {
                 <div className="flex flex-col items-center justify-center gap-[7px] py-[14px] px-[20px] rounded-[16px] bg-quest-accent-soft border border-quest-accent-line min-w-[128px]">
                   <span className="text-[clamp(26px,2.6vw,34px)] font-extrabold tracking-[-0.03em] leading-none whitespace-nowrap inline-flex items-center text-quest-accent">
                     <CountUp value={Number(season?.prizePoolUsdc ?? 80)} duration={1.6} />
-                    <img src="/token/usdc.png" alt="" className="usdc-coin" />
+                    <img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} />
                   </span>
                   <span className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim">USDC</span>
                 </div>
@@ -166,8 +168,8 @@ export default function Leaderboard() {
               <div className="text-[13px] text-quest-muted leading-[1.5] mt-[8px]">
                 <b className="text-quest-text font-bold">{myResult?.finalPoints?.toLocaleString() ?? "0"}</b> points earned this season
               </div>
-              <a className="btn btn-primary w-full justify-center mt-[6px]" href="/quest/campaigns">
-                Earn Points now <span className="arr"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
+              <a className={buttonClasses({ variant: "primary", block: true, className: "justify-center mt-[6px]" })} href="/quest/campaigns">
+                Earn Points now <span className="inline-flex transition-transform duration-[350ms] ease-quest group-hover:translate-x-1" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
               </a>
             </div>
           </div>
@@ -187,9 +189,9 @@ export default function Leaderboard() {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
                 <span>{metric === "points" ? "Points" : "Streak"} Leaderboard</span>
               </div>
-              <div className="segmented">
-                <button type="button" className={metric === "points" ? "active" : ""} onClick={() => setMetric("points")}>Points</button>
-                <button type="button" className={metric === "streak" ? "active" : ""} onClick={() => setMetric("streak")}>Streak</button>
+              <div className="inline-flex bg-quest-surface border border-quest-line-2 rounded-quest-pill p-1 gap-0.5">
+                <button type="button" className={cn("cursor-pointer rounded-quest-pill border-none bg-transparent px-[18px] py-2 text-[13.5px] font-semibold text-quest-muted transition-[color,background] duration-[250ms] hover:text-quest-text", metric === "points" && "text-[var(--quest-accent-ink)] [background:var(--quest-grad)]")} onClick={() => setMetric("points")}>Points</button>
+                <button type="button" className={cn("cursor-pointer rounded-quest-pill border-none bg-transparent px-[18px] py-2 text-[13.5px] font-semibold text-quest-muted transition-[color,background] duration-[250ms] hover:text-quest-text", metric === "streak" && "text-[var(--quest-accent-ink)] [background:var(--quest-grad)]")} onClick={() => setMetric("streak")}>Streak</button>
               </div>
             </div>
             {/* rows */}
@@ -216,7 +218,7 @@ export default function Leaderboard() {
                 <span className="w-[36px] h-[36px] flex-none grid place-items-center"><img src="/ranks/golden.png" alt="" className="w-full h-full object-contain block" /></span>
                 <span className="text-[13px] font-bold tracking-[-0.01em] flex-1">1st Place</span>
                 <span className="flex gap-[7px]">
-                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">50<img src="/token/usdc.png" alt="" className="usdc-coin" /></span>
+                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">50<img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} /></span>
                   <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">+5,000<PtsCoin /></span>
                 </span>
               </div>
@@ -225,7 +227,7 @@ export default function Leaderboard() {
                 <span className="w-[36px] h-[36px] flex-none grid place-items-center"><img src="/ranks/silver.png" alt="" className="w-full h-full object-contain block" /></span>
                 <span className="text-[13px] font-bold tracking-[-0.01em] flex-1">2nd Place</span>
                 <span className="flex gap-[7px]">
-                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">20<img src="/token/usdc.png" alt="" className="usdc-coin" /></span>
+                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">20<img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} /></span>
                   <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">+3,000<PtsCoin /></span>
                 </span>
               </div>
@@ -234,7 +236,7 @@ export default function Leaderboard() {
                 <span className="w-[36px] h-[36px] flex-none grid place-items-center"><img src="/ranks/bronze.png" alt="" className="w-full h-full object-contain block" /></span>
                 <span className="text-[13px] font-bold tracking-[-0.01em] flex-1">3rd Place</span>
                 <span className="flex gap-[7px]">
-                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">10<img src="/token/usdc.png" alt="" className="usdc-coin" /></span>
+                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">10<img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} /></span>
                   <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">+2,000<PtsCoin /></span>
                 </span>
               </div>

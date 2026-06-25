@@ -39,13 +39,13 @@ export function PrizePoolBanner({
           <div className="bn-figures">
             <div className="bn-fig usdc">
               <span className="v">
-                {prizePoolUsdc} <Usdc className="usdc-coin" />
+                {prizePoolUsdc} <Usdc className="inline-block flex-none rounded-full" style={{ width: 23, height: 23, verticalAlign: -4, marginRight: 5 }} />
               </span>
               <span className="k">USDC</span>
             </div>
             <div className="bn-fig pts">
               <span className="v">
-                +{fmt(totalPointsPool)} <PtsCoin className="pcoin" />
+                +{fmt(totalPointsPool)} <PtsCoin className="inline-block flex-none" style={{ width: 28, height: 28, verticalAlign: -5, marginLeft: 5 }} />
               </span>
               <span className="k">Points</span>
             </div>
