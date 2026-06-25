@@ -1,5 +1,26 @@
 // @ts-nocheck
+import { useEffect, useRef } from "react";
+
 export default function Footer() {
+  const colsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = colsRef.current;
+    if (el) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            el.classList.add("in");
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.1 },
+      );
+      observer.observe(el);
+      return () => observer.disconnect();
+    }
+  }, []);
+
   return (
     <>
       <footer className="footer">
@@ -42,7 +63,7 @@ export default function Footer() {
         </div>
 
         <div className="foot-aurora">
-          <div className="fa-cols">
+          <div className="fa-cols" ref={colsRef}>
             <span className="fa-col" style={{ "--h": "30%" } as any}></span>
             <span className="fa-col" style={{ "--h": "46%" } as any}></span>
             <span className="fa-col" style={{ "--h": "60%" } as any}></span>
