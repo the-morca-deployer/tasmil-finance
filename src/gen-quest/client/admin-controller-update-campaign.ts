@@ -12,12 +12,12 @@ import type {
 } from "@/gen-quest/types/admin-controller-update-campaign";
 
 function getAdminControllerUpdateCampaignUrl(id: AdminControllerUpdateCampaignPathParams["id"]) {
-  const res = { method: "PATCH", url: `/api/admin/campaigns/${id}` as const };
+  const res = { method: "PATCH", url: `/api/quest/admin/campaigns/${id}` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/campaigns/:id}
+ * {@link /api/quest/admin/campaigns/:id}
  */
 export async function adminControllerUpdateCampaign(
   id: AdminControllerUpdateCampaignPathParams["id"],

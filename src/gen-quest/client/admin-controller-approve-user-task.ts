@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/admin-controller-approve-user-task";
 
 function getAdminControllerApproveUserTaskUrl(id: AdminControllerApproveUserTaskPathParams["id"]) {
-  const res = { method: "POST", url: `/api/admin/user-tasks/${id}/approve` as const };
+  const res = { method: "POST", url: `/api/quest/admin/user-tasks/${id}/approve` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/user-tasks/:id/approve}
+ * {@link /api/quest/admin/user-tasks/:id/approve}
  */
 export async function adminControllerApproveUserTask(
   id: AdminControllerApproveUserTaskPathParams["id"],

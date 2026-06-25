@@ -19,7 +19,7 @@ import type {
 
 export const campaignsControllerFindAllSuspenseQueryKey = (
   params?: CampaignsControllerFindAllQueryParams
-) => [{ url: "/api/campaigns" }, ...(params ? [params] : [])] as const;
+) => [{ url: "/api/quest/campaigns" }, ...(params ? [params] : [])] as const;
 
 export type CampaignsControllerFindAllSuspenseQueryKey = ReturnType<
   typeof campaignsControllerFindAllSuspenseQueryKey
@@ -44,7 +44,7 @@ export function campaignsControllerFindAllSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/campaigns}
+ * {@link /api/quest/campaigns}
  */
 export function useCampaignsControllerFindAllSuspense<
   TData = CampaignsControllerFindAllQueryResponse,

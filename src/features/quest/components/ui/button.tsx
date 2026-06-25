@@ -1,73 +1,82 @@
-"use client";
-
-import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-
 import { cn } from "@/lib/utils";
+
+/**
+ * Quest Button component — replaces `.btn` CSS classes from globals.css
+ * (.btn, .btn-primary, .btn-ghost, .btn-accent, .btn-green, .btn-sm, .btn-lg, .btn-block, .btn-pulse)
+ *
+ * Base: inline-flex items-center justify-center gap-[9px] px-[26px] py-[14px]
+ *       rounded-quest-pill font-[var(--font)] text-[15px] font-bold tracking-[-0.01em]
+ *       cursor-pointer border border-transparent
+ *       transition-[transform,box-shadow,background,border-color]
+ *       whitespace-nowrap no-underline
+ *       disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none
+ *
+ * Arrow: add `group` to Button, wrap arrow in <span className="inline-flex transition-transform
+ *        duration-[350ms] ease-quest group-hover:translate-x-1" aria-hidden />
+ */
 
 const buttonVariants = cva(
   [
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap",
-    "rounded-[100px] font-semibold text-[15px] tracking-[-0.01em]",
+    "inline-flex items-center justify-center gap-[9px] px-[26px] py-[14px]",
+    "rounded-quest-pill text-[15px] font-bold tracking-[-0.01em]",
     "cursor-pointer border border-transparent",
-    "transition-all duration-[400ms]",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67E8F9] focus-visible:ring-offset-2 focus-visible:ring-offset-black",
-    "disabled:pointer-events-none disabled:opacity-40",
-    "[&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0",
-    "active:scale-[0.98]",
+    "transition-[transform,box-shadow,background,border-color] duration-[350ms] ease-quest",
+    "whitespace-nowrap no-underline",
+    "group", // for .arr child hover
+    "disabled:opacity-55 disabled:cursor-not-allowed disabled:!transform-none disabled:!shadow-none",
   ].join(" "),
   {
     variants: {
       variant: {
-        /* Primary CTA — white → aqua gradient */
-        default:
-          "bg-[linear-gradient(110deg,#fff_0%,#67E8F9_52%,#0EA5E9_100%)] text-[#04141A] " +
-          "hover:-translate-y-0.5 hover:shadow-[0_10px_40px_-8px_rgba(103,232,249,0.5)]",
-        primary:
-          "bg-[linear-gradient(110deg,#fff_0%,#67E8F9_52%,#0EA5E9_100%)] text-[#04141A] " +
-          "hover:-translate-y-0.5 hover:shadow-[0_10px_40px_-8px_rgba(103,232,249,0.5)]",
-        gradient:
-          "bg-[linear-gradient(110deg,#fff_0%,#67E8F9_52%,#0EA5E9_100%)] text-[#04141A] " +
-          "hover:-translate-y-0.5 hover:shadow-[0_10px_40px_-8px_rgba(103,232,249,0.5)]",
-
-        /* Ghost — translucent dark with border */
-        ghost:
-          "bg-white/[0.04] border-white/[0.14] text-[#F4F7FB] backdrop-blur-sm " +
-          "hover:bg-white/[0.09] hover:border-[#67E8F9] hover:-translate-y-0.5",
-
-        /* Accent — aqua tint */
-        accent:
-          "bg-[rgba(103,232,249,0.14)] border-[rgba(103,232,249,0.30)] text-[#67E8F9] " +
-          "hover:bg-[rgba(103,232,249,0.22)] hover:border-[#67E8F9] hover:-translate-y-0.5",
-
-        /* Outline — same as ghost */
-        outline:
-          "bg-white/[0.04] border-white/[0.14] text-[#F4F7FB] " +
-          "hover:bg-white/[0.09] hover:border-[#67E8F9] hover:-translate-y-0.5",
-
-        /* Secondary */
-        secondary:
-          "bg-[#0D111A] border-white/[0.14] text-[#F4F7FB] " +
-          "hover:border-[#67E8F9] hover:-translate-y-0.5",
-
-        /* Destructive */
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-
-        /* Link */
-        link: "text-[#67E8F9] underline-offset-4 hover:underline",
+        // .btn-primary: background:var(--grad); color:var(--accent-ink);
+        // hover: transform:translateY(-2px); box-shadow:0 12px 40px -8px var(--accent-glow);
+        primary: [
+          "[background:var(--quest-grad)] text-[var(--quest-accent-ink)]",
+          "hover:-translate-y-[2px] hover:shadow-[0_12px_40px_-8px_var(--color-quest-accent-glow)]",
+        ].join(" "),
+        // .btn-ghost: background:rgba(255,255,255,0.04); border-color:var(--line-2); color:var(--text); backdrop-filter:blur(8px);
+        // hover: background:rgba(255,255,255,0.09); border-color:var(--accent); transform:translateY(-2px);
+        ghost: [
+          "bg-white/[0.04] border-[var(--quest-line-2)] text-[var(--quest-text)] backdrop-blur-[8px]",
+          "hover:bg-white/[0.09] hover:border-[var(--quest-accent)] hover:-translate-y-[2px]",
+        ].join(" "),
+        // .btn-accent: background:var(--accent-soft); border-color:var(--accent-line); color:var(--accent);
+        // hover: background:rgba(103,232,249,0.22); border-color:var(--accent); transform:translateY(-2px);
+        accent: [
+          "bg-quest-accent-soft border-quest-accent-line text-quest-accent",
+          "hover:bg-[rgba(103,232,249,0.22)] hover:border-quest-accent hover:-translate-y-[2px]",
+        ].join(" "),
+        // .btn-green: background:linear-gradient(110deg,#fff,var(--green) 60%,#0f9b6c); color:#03241a;
+        // hover: transform:translateY(-2px); box-shadow:0 12px 40px -8px rgba(110,231,183,0.45);
+        green: [
+          "[background:linear-gradient(110deg,#fff,var(--quest-green)_60%,#0f9b6c)] text-[#03241a]",
+          "hover:-translate-y-[2px] hover:shadow-[0_12px_40px_-8px_rgba(110,231,183,0.45)]",
+        ].join(" "),
       },
       size: {
-        default: "h-[52px] px-[26px] py-[14px]",
-        sm: "h-[40px] px-[20px] py-[10px] text-sm",
-        lg: "h-[60px] px-[34px] py-[18px] text-[17px]",
-        icon: "h-[46px] w-[46px] p-0",
-        "icon-sm": "h-[36px] w-[36px] p-0",
+        // .btn base: padding:14px 26px; font-size:15px;
+        default: "",
+        // .btn-sm: padding:10px 18px; font-size:13.5px;
+        sm: "px-[18px] py-[10px] text-[13.5px]",
+        // .btn-lg: padding:17px 32px; font-size:16.5px;
+        lg: "px-[32px] py-[17px] text-[16.5px]",
+      },
+      block: {
+        true: "w-full",
+        false: "",
+      },
+      pulse: {
+        true: "animate-[ctapulse_2.4s_ease_infinite]",
+        false: "",
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "primary",
       size: "default",
+      block: false,
+      pulse: false,
     },
   }
 );
@@ -79,13 +88,27 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
+  ({ className, variant, size, block, pulse, asChild: _asChild, ...props }, ref) => {
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <button
+        ref={ref}
+        className={cn(buttonVariants({ variant, size, block, pulse }), className)}
+        {...props}
+      />
     );
   }
 );
 Button.displayName = "Button";
+
+/**
+ * Helper that returns the button class string — use this for non-button elements like <a> or <Link>:
+ *   <Link href="..." className={buttonClasses({ variant: "primary", size: "lg" })}>
+ */
+export function buttonClasses(
+  opts: VariantProps<typeof buttonVariants> & { className?: string }
+): string {
+  const { className, ...variantOpts } = opts;
+  return cn(buttonVariants(variantOpts), className);
+}
 
 export { Button, buttonVariants };

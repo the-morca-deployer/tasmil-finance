@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/campaigns-controller-find-all";
 
 function getCampaignsControllerFindAllUrl() {
-  const res = { method: "GET", url: `/api/campaigns` as const };
+  const res = { method: "GET", url: `/api/quest/campaigns` as const };
   return res;
 }
 
 /**
- * {@link /api/campaigns}
+ * {@link /api/quest/campaigns}
  */
 export async function campaignsControllerFindAll(
   params?: CampaignsControllerFindAllQueryParams,

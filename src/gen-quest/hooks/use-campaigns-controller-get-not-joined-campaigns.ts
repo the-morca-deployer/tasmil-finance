@@ -19,7 +19,7 @@ import type {
 
 export const campaignsControllerGetNotJoinedCampaignsQueryKey = (
   params?: CampaignsControllerGetNotJoinedCampaignsQueryParams
-) => [{ url: "/api/campaigns/not-joined" }, ...(params ? [params] : [])] as const;
+) => [{ url: "/api/quest/campaigns/not-joined" }, ...(params ? [params] : [])] as const;
 
 export type CampaignsControllerGetNotJoinedCampaignsQueryKey = ReturnType<
   typeof campaignsControllerGetNotJoinedCampaignsQueryKey
@@ -47,7 +47,7 @@ export function campaignsControllerGetNotJoinedCampaignsQueryOptions(
 }
 
 /**
- * {@link /api/campaigns/not-joined}
+ * {@link /api/quest/campaigns/not-joined}
  */
 export function useCampaignsControllerGetNotJoinedCampaigns<
   TData = CampaignsControllerGetNotJoinedCampaignsQueryResponse,

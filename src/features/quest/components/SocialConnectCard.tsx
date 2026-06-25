@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/features/quest/components/ui/button";
 
 interface SocialConnectCardProps {
@@ -21,7 +22,17 @@ export function SocialConnectCard({
   onDisconnect,
 }: SocialConnectCardProps) {
   return (
-    <div className="social-card">
+    // .social-card: flex items-center gap-[14px] p-[14px_16px] border border-[var(--quest-line)]
+    //               rounded-quest-sm bg-[var(--quest-surface-2)] transition-[border-color] duration-[250ms]
+    //               hover: border-[var(--quest-accent-line)]
+    <div
+      className={cn(
+        "flex items-center gap-[14px] p-[14px_16px]",
+        "border border-[var(--quest-line)] rounded-quest-sm",
+        "bg-[var(--quest-surface-2)] transition-[border-color] duration-[250ms]",
+        "hover:border-[var(--quest-accent-line)]",
+      )}
+    >
       <div className="social-card-head">
         <span className="social-card-icon">{icon}</span>
         <span className="social-card-name">{provider}</span>
@@ -37,11 +48,11 @@ export function SocialConnectCard({
       </div>
       <div className="social-card-foot">
         {connected ? (
-          <Button variant="ghost" size="sm" onClick={onDisconnect}>
+          <Button type="button" variant="ghost" size="sm" onClick={onDisconnect}>
             Disconnect
           </Button>
         ) : (
-          <Button variant="default" size="sm" onClick={onConnect}>
+          <Button type="button" variant="primary" size="sm" onClick={onConnect}>
             Connect
           </Button>
         )}

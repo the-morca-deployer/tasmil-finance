@@ -13,12 +13,12 @@ import type {
 function getCampaignsControllerJoinCampaignUrl(
   id: CampaignsControllerJoinCampaignPathParams["id"]
 ) {
-  const res = { method: "POST", url: `/api/campaigns/${id}/join` as const };
+  const res = { method: "POST", url: `/api/quest/campaigns/${id}/join` as const };
   return res;
 }
 
 /**
- * {@link /api/campaigns/:id/join}
+ * {@link /api/quest/campaigns/:id/join}
  */
 export async function campaignsControllerJoinCampaign(
   id: CampaignsControllerJoinCampaignPathParams["id"],

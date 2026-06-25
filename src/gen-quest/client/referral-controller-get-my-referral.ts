@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { ReferralControllerGetMyReferralQueryResponse } from "@/gen-quest/types/referral-controller-get-my-referral";
 
 function getReferralControllerGetMyReferralUrl() {
-  const res = { method: "GET", url: `/api/referral/me` as const };
+  const res = { method: "GET", url: `/api/quest/referral/me` as const };
   return res;
 }
 
 /**
- * {@link /api/referral/me}
+ * {@link /api/quest/referral/me}
  */
 export async function referralControllerGetMyReferral(
   config: Partial<RequestConfig> & { client?: Client } = {}

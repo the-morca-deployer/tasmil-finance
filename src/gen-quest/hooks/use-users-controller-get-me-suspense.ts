@@ -14,7 +14,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { usersControllerGetMe } from "@/gen-quest/client/users-controller-get-me";
 import type { UsersControllerGetMeQueryResponse } from "@/gen-quest/types/users-controller-get-me";
 
-export const usersControllerGetMeSuspenseQueryKey = () => [{ url: "/api/users/me" }] as const;
+export const usersControllerGetMeSuspenseQueryKey = () => [{ url: "/api/quest/users/me" }] as const;
 
 export type UsersControllerGetMeSuspenseQueryKey = ReturnType<
   typeof usersControllerGetMeSuspenseQueryKey
@@ -38,7 +38,7 @@ export function usersControllerGetMeSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/users/me}
+ * {@link /api/quest/users/me}
  */
 export function useUsersControllerGetMeSuspense<
   TData = UsersControllerGetMeQueryResponse,

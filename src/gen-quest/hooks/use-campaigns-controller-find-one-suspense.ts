@@ -19,7 +19,7 @@ import type {
 
 export const campaignsControllerFindOneSuspenseQueryKey = (
   id: CampaignsControllerFindOnePathParams["id"] | undefined
-) => [{ url: "/api/campaigns/:id", params: { id: id } }] as const;
+) => [{ url: "/api/quest/campaigns/:id", params: { id: id } }] as const;
 
 export type CampaignsControllerFindOneSuspenseQueryKey = ReturnType<
   typeof campaignsControllerFindOneSuspenseQueryKey
@@ -45,7 +45,7 @@ export function campaignsControllerFindOneSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/campaigns/:id}
+ * {@link /api/quest/campaigns/:id}
  */
 export function useCampaignsControllerFindOneSuspense<
   TData = CampaignsControllerFindOneQueryResponse,

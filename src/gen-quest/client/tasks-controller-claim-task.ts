@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/tasks-controller-claim-task";
 
 function getTasksControllerClaimTaskUrl(id: TasksControllerClaimTaskPathParams["id"]) {
-  const res = { method: "POST", url: `/api/tasks/${id}/claim` as const };
+  const res = { method: "POST", url: `/api/quest/tasks/${id}/claim` as const };
   return res;
 }
 
 /**
- * {@link /api/tasks/:id/claim}
+ * {@link /api/quest/tasks/:id/claim}
  */
 export async function tasksControllerClaimTask(
   id: TasksControllerClaimTaskPathParams["id"],

@@ -1,34 +1,25 @@
 "use client";
 
-import { Geist_Mono, Hanken_Grotesk } from "next/font/google";
-import "@/features/quest/quest.css";
+import dynamic from "next/dynamic";
 import { AutoReconnect, QuestFooter, QuestNav, RankRevealGate } from "@/features/quest";
 import { WalletProvider } from "@/features/quest/context/wallet-context";
 
-const questSans = Hanken_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-quest-sans",
-  display: "swap",
-});
-const questMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-quest-mono",
-  display: "swap",
-});
+const QuestBeams = dynamic(
+  () => import("@/features/quest/components/QuestBeams").then((m) => m.QuestBeams),
+  { ssr: false },
+);
 
 export default function QuestLayout({ children }: { children: React.ReactNode }) {
   return (
     <WalletProvider>
       <AutoReconnect />
-      <div
-        className={`${questSans.variable} ${questMono.variable} quest-scope flex min-h-screen flex-col`}
-      >
+      <div className="quest-scope">
+        <QuestBeams />
         <QuestNav />
         <RankRevealGate />
-        <main className="mx-auto w-full max-w-[1200px] flex-grow px-4 pt-20 pb-20 sm:px-6 lg:px-8">
-          {children}
-        </main>
+        <main className="page">{children}</main>
         <QuestFooter />
+        <div id="quest-overlay" />
       </div>
     </WalletProvider>
   );

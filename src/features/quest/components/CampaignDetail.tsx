@@ -5,13 +5,10 @@ import {
   ArrowLeft,
   BarChart2,
   CheckCircle2,
-  ChevronDown,
   Clock,
   Copy,
   ExternalLink,
-  Facebook,
   Gift,
-  Linkedin,
   Loader2,
   MessageSquare,
   Share2,
@@ -24,19 +21,13 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/features/quest/components/ui/avatar";
 import { Badge } from "@/features/quest/components/ui/badge";
 import { Button } from "@/features/quest/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/features/quest/components/ui/dialog";
-import { Input } from "@/features/quest/components/ui/input";
+
 import { useWallet } from "@/features/quest/context/wallet-context";
 import {
   mapApiCampaignsResponse,
@@ -59,6 +50,7 @@ import {
   useUsersControllerGetMe,
 } from "@/gen-quest/hooks";
 import type { LinkSocialAccountDto } from "@/gen-quest/types/link-social-account-dto";
+import { cn } from "@/lib/utils";
 import type { CampaignCardData } from "./CampaignCard";
 import { Rise } from "./Rise";
 import { TelegramButton } from "./TelegramButton";
@@ -428,66 +420,64 @@ const QuestItem: React.FC<QuestItemProps> = ({
 
   return (
     <div
-      className={`rounded-xl transition-all duration-300 border ${isExpanded ? "bg-card border-brand-mid/30 shadow-lg" : "bg-card border-border hover:border-white/10"}`}
+      className={cn(
+        "border border-quest-line [border-left-width:2px] [border-left-color:var(--color-quest-line)] rounded-quest-sm bg-quest-surface-2 overflow-hidden transition-[border-color,background] duration-300",
+        isExpanded && "[border-left-color:var(--color-quest-accent)] [background:rgba(20,20,22,0.75)]",
+        (isClaimed || status === "completed") && "[border-color:var(--color-quest-green-line)] [border-left-color:var(--color-quest-green)]"
+      )}
     >
       <button
         type="button"
-        className="w-full p-4 flex items-center justify-between cursor-pointer select-none group text-left"
+        className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-[14px] px-[18px] py-4 cursor-pointer w-full text-left"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-center gap-4">
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center border transition-colors ${isClaimed || status === "completed" ? "bg-success/10 border-success/30" : "bg-background border-border group-hover:bg-white/5"}`}
-          >
-            {isClaimed || status === "completed" ? (
-              <CheckCircle2 size={20} className="text-success" />
-            ) : (
-              getStepIcon(step.type, step.checkId)
-            )}
-          </div>
-          <span
-            className={`font-medium transition-colors ${isClaimed ? "text-muted line-through" : "text-primary"}`}
-          >
-            {step.label}
-          </span>
+        <div
+          className={cn(
+            "w-9 h-9 rounded-[10px] grid place-items-center bg-quest-surface border border-quest-line-2 text-quest-text flex-none",
+            (isClaimed || status === "completed") && "bg-quest-green-soft border-quest-green-line text-quest-green"
+          )}
+        >
+          {isClaimed || status === "completed" ? (
+            <CheckCircle2 size={18} />
+          ) : (
+            getStepIcon(step.type, step.checkId)
+          )}
         </div>
+        <span className="text-[15px] font-semibold tracking-[-0.01em]">
+          {step.label}
+        </span>
 
-        <div className="flex items-center gap-2">
-          {step.points ? (
-            <span className="text-xs font-bold text-accent-ink bg-primary rounded-full px-3 py-1">
-              +{step.points} PTS
-            </span>
-          ) : null}
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isExpanded ? "bg-white/10 rotate-180" : "hover:bg-white/5"}`}
+        {step.points ? (
+          <span
+            className={cn(
+              "text-[13px] font-bold font-mono text-quest-accent inline-flex items-center gap-[3px] whitespace-nowrap",
+              (isClaimed || status === "completed") && "text-quest-green"
+            )}
           >
-            <ChevronDown size={18} className="text-muted" />
-          </div>
-        </div>
+            +{step.points}
+          </span>
+        ) : <span />}
+        <div
+          className={cn(
+            "w-2 h-2 border-r-2 border-b-2 border-quest-muted [transform:rotate(45deg)] transition-transform duration-300 ease-quest mr-1",
+            isExpanded && "[transform:rotate(-135deg)]"
+          )}
+        />
       </button>
 
       {isExpanded && (
-        <div className="px-4 pb-5 pl-[72px] space-y-4 animate-in slide-in-from-top-2 fade-in duration-300">
-          {step.description && (
-            <div className="text-sm text-muted leading-relaxed prose prose-invert prose-sm max-w-none">
+        <div className="overflow-hidden">
+          <div className="pt-0 pr-[18px] pb-[18px] pl-[68px]">
+            {step.description && (
               <ReactMarkdown
                 components={{
-                  p: ({ children }) => <p className="text-muted mb-2">{children}</p>,
-                  ul: ({ children }) => (
-                    <ul className="list-disc list-inside mb-2 text-muted space-y-1">{children}</ul>
-                  ),
-                  ol: ({ children }) => (
-                    <ol className="list-decimal list-inside mb-2 text-muted space-y-1">
+                  p: ({ children }) => (
+                    <p className="text-[13.5px] text-quest-muted leading-[1.55] mb-[14px]">
                       {children}
-                    </ol>
+                    </p>
                   ),
                   a: ({ href, children }) => (
-                    <a
-                      href={href}
-                      className="text-brand-mid hover:underline"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href={href} target="_blank" rel="noopener noreferrer">
                       {children}
                     </a>
                   ),
@@ -495,142 +485,138 @@ const QuestItem: React.FC<QuestItemProps> = ({
               >
                 {step.description}
               </ReactMarkdown>
-            </div>
-          )}
+            )}
 
-          <div className="flex flex-wrap gap-3 pt-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                const skipTracking =
-                  step.checkId === "wallet_connect" || step.checkId === "sign_message";
-                if (step.type === "visit" && taskId && !skipTracking) {
-                  const trackingUrl = `/quest/visit/${taskId}?url=${encodeURIComponent(step.actionUrl)}`;
-                  window.open(trackingUrl, "_blank");
-                } else {
-                  window.open(step.actionUrl, "_blank");
-                }
-              }}
-            >
-              {getActionLabel(step.type)}
-              <ExternalLink size={12} className="ml-2 opacity-50" />
-            </Button>
+            <div className="flex gap-[10px] flex-wrap">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const skipTracking =
+                    step.checkId === "wallet_connect" || step.checkId === "sign_message";
+                  if (step.type === "visit" && taskId && !skipTracking) {
+                    const trackingUrl = `/quest/visit/${taskId}?url=${encodeURIComponent(step.actionUrl)}`;
+                    window.open(trackingUrl, "_blank");
+                  } else {
+                    window.open(step.actionUrl, "_blank");
+                  }
+                }}
+              >
+                {getActionLabel(step.type)}
+                <ExternalLink size={12} />
+              </Button>
 
-            {(() => {
-              const requiredPlatform = getRequiredPlatform(step.type);
-              const needsSocialAccount = requiredPlatform && !hasRequiredSocialAccount(step.type);
-              const rawStatus = taskStatus?.status?.toUpperCase();
-              const isVerified =
-                status === "completed" || rawStatus === "COMPLETED" || rawStatus === "APPROVED";
+              {(() => {
+                const requiredPlatform = getRequiredPlatform(step.type);
+                const needsSocialAccount = requiredPlatform && !hasRequiredSocialAccount(step.type);
+                const rawStatus = taskStatus?.status?.toUpperCase();
+                const isVerified =
+                  status === "completed" || rawStatus === "COMPLETED" || rawStatus === "APPROVED";
 
-              if (needsSocialAccount) {
-                if (requiredPlatform === "Telegram") {
-                  return (
-                    <div className="relative min-w-[120px]">
+                if (needsSocialAccount) {
+                  if (requiredPlatform === "Telegram") {
+                    return (
                       <TelegramButton
                         size="small"
                         variant="default"
-                        className="text-xs"
                         onSuccess={(accountData) => {
                           if (accountData && onLinkTelegramAccount) {
                             onLinkTelegramAccount(accountData as LinkAccountData);
                           }
                         }}
                       />
-                    </div>
+                    );
+                  }
+                  return (
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="sm"
+                      onClick={handleConnectClick}
+                    >
+                      Connect {requiredPlatform}
+                    </Button>
                   );
                 }
-                return (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="text-xs min-w-[120px]"
-                    onClick={handleConnectClick}
-                  >
-                    Connect {requiredPlatform}
-                  </Button>
-                );
-              }
 
-              if (isVerified && !isClaimed) {
-                const pointsEarned = taskStatus?.pointsEarned || 0;
+                if (isVerified && !isClaimed) {
+                  const pointsEarned = taskStatus?.pointsEarned || 0;
+                  return (
+                    <Button
+                      type="button"
+                      variant="green"
+                      size="sm"
+                      disabled={claimTaskMutation.isPending}
+                      onClick={handleClaimTask}
+                    >
+                      {claimTaskMutation.isPending ? (
+                        <>
+                          <span className="w-[13px] h-[13px] border-2 border-current border-t-transparent rounded-full inline-block animate-[quest-spin_0.7s_linear_infinite]" />
+                          Claiming...
+                        </>
+                      ) : (
+                        <>
+                          <Gift size={14} />
+                          Claim {pointsEarned} PTS
+                        </>
+                      )}
+                    </Button>
+                  );
+                }
+
+                if (isClaimed) {
+                  const pointsEarned =
+                    taskStatus?.pointsEarned || claimStatus?.claim?.pointsEarned || 0;
+                  return (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled
+                      style={{ opacity: 0.55 }}
+                    >
+                      <CheckCircle2 size={14} />
+                      Claimed {pointsEarned} PTS
+                    </Button>
+                  );
+                }
+
                 return (
                   <Button
-                    variant="default"
+                    type="button"
+                    variant={status === "error" ? "accent" : "primary"}
                     size="sm"
-                    className="text-xs min-w-[120px] bg-success hover:bg-success/90"
-                    disabled={claimTaskMutation.isPending}
-                    onClick={handleClaimTask}
+                    disabled={
+                      status === "verifying" || status === "completed" || verifyTaskMutation.isPending
+                    }
+                    onClick={handleVerifyClick}
                   >
-                    {claimTaskMutation.isPending ? (
+                    {status === "verifying" ? (
                       <>
-                        <Loader2 className="animate-spin mr-2 h-3 w-3" />
-                        Claiming...
+                        <span className="w-[13px] h-[13px] border-2 border-current border-t-transparent rounded-full inline-block animate-[quest-spin_0.7s_linear_infinite]" />
+                        Verifying...
                       </>
+                    ) : status === "completed" ? (
+                      <>
+                        <CheckCircle2 size={14} />
+                        Verified
+                      </>
+                    ) : status === "error" ? (
+                      <>Retry Verify</>
                     ) : (
-                      <>
-                        <Gift className="mr-2 h-3 w-3" />
-                        Claim {pointsEarned} PTS
-                      </>
+                      <>Verify Task</>
                     )}
                   </Button>
                 );
-              }
-
-              if (isClaimed) {
-                const pointsEarned =
-                  taskStatus?.pointsEarned || claimStatus?.claim?.pointsEarned || 0;
-                return (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="text-xs min-w-[120px] opacity-75 cursor-not-allowed"
-                    disabled
-                  >
-                    <CheckCircle2 className="mr-2 h-3 w-3" />
-                    Claimed {pointsEarned} PTS
-                  </Button>
-                );
-              }
-
-              return (
-                <Button
-                  variant={status === "error" ? "destructive" : "default"}
-                  size="sm"
-                  className={`text-xs min-w-[120px] ${status === "completed" ? "opacity-50 cursor-not-allowed" : ""}`}
-                  disabled={
-                    status === "verifying" || status === "completed" || verifyTaskMutation.isPending
-                  }
-                  onClick={handleVerifyClick}
-                >
-                  {status === "verifying" ? (
-                    <>
-                      <Loader2 className="animate-spin mr-2 h-3 w-3" />
-                      Verifying...
-                    </>
-                  ) : status === "completed" ? (
-                    <>
-                      <CheckCircle2 className="mr-2 h-3 w-3" />
-                      Verified
-                    </>
-                  ) : status === "error" ? (
-                    <>Retry Verify</>
-                  ) : (
-                    <>Verify Task</>
-                  )}
-                </Button>
-              );
-            })()}
-          </div>
-
-          {errorMessage && status === "error" && (
-            <div className="text-xs text-red-400 bg-red-400/10 px-3 py-2 rounded-lg">
-              {errorMessage}
+              })()}
             </div>
-          )}
+
+            {errorMessage && status === "error" && (
+              <p style={{ color: "var(--amber)", fontSize: 12, marginTop: 8 }}>{errorMessage}</p>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -675,14 +661,14 @@ const RelatedCampaigns: React.FC<{ currentCampaignId: string }> = ({ currentCamp
 
   if (isLoading) {
     return (
-      <div className="mfy">
-        <div className="label" style={{ marginBottom: 13 }}>
+      <div className="mt-6">
+        <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-quest-dim" style={{ marginBottom: 13 }}>
           More for you
         </div>
-        <div className="mfy-list">
+        <div className="flex flex-col gap-[10px]">
           {[1, 2].map((i) => (
-            <div key={i} className="mfy-card" style={{ opacity: 0.5 }}>
-              <div className="mfy-thumb" />
+            <div key={i} className="flex items-center gap-[14px] p-3 border border-quest-line rounded-quest-sm bg-quest-surface-2 transition-[border-color,transform] duration-300 hover:border-quest-accent-line hover:-translate-y-0.5" style={{ opacity: 0.5 }}>
+              <div className="w-[54px] h-[54px] rounded-[11px] flex-none grid place-items-center [background:repeating-linear-gradient(135deg,rgba(255,255,255,0.04)_0_8px,transparent_8px_16px),linear-gradient(160deg,rgba(103,232,249,0.14),rgba(14,165,233,0.05))] border border-quest-line overflow-hidden" />
               <div style={{ flex: 1 }}>
                 <div
                   style={{
@@ -711,20 +697,27 @@ const RelatedCampaigns: React.FC<{ currentCampaignId: string }> = ({ currentCamp
   if (!relatedCampaigns.length) return null;
 
   return (
-    <div className="mfy">
-      <div className="label" style={{ marginBottom: 13 }}>
+    <div className="mt-6">
+      <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-quest-dim" style={{ marginBottom: 13 }}>
         More for you
       </div>
-      <div className="mfy-list">
+      <div className="flex flex-col gap-[10px]">
         {relatedCampaigns.map((c) => (
-          <Link key={c.id} href={`/quest/campaign/${c.id}`} className="mfy-card">
-            <div className="mfy-thumb">{c.coverUrl ? <img src={c.coverUrl} alt="" /> : null}</div>
+          <Link
+            key={c.id}
+            href={`/quest/campaign/${c.id}`}
+            className="group flex items-center gap-[14px] p-3 border border-quest-line rounded-quest-sm bg-quest-surface-2 transition-[border-color,transform] duration-300 hover:border-quest-accent-line hover:-translate-y-0.5"
+          >
+            <div className="w-[54px] h-[54px] rounded-[11px] flex-none grid place-items-center [background:repeating-linear-gradient(135deg,rgba(255,255,255,0.04)_0_8px,transparent_8px_16px),linear-gradient(160deg,rgba(103,232,249,0.14),rgba(14,165,233,0.05))] border border-quest-line overflow-hidden">
+              {c.coverUrl ? <img src={c.coverUrl} alt="" className="w-full h-full object-cover" /> : null}
+            </div>
             <div>
-              <div className="mfy-t">{c.title}</div>
-              <div className="mfy-p">
+              <div className="text-[14px] font-bold tracking-[-0.01em] transition-colors duration-[250ms] group-hover:text-quest-accent">{c.title}</div>
+              <div className="text-[12px] font-mono text-quest-accent mt-[3px] inline-flex items-center gap-[3px]">
                 +{c.pointsReward.toLocaleString("en-US")}
                 <svg
-                  className="pcoin"
+                  className="inline-block flex-none"
+                  style={{ verticalAlign: -3, marginLeft: 4 }}
                   width="16"
                   height="16"
                   viewBox="0 0 24 24"
@@ -799,6 +792,7 @@ const CampaignDetail: React.FC = () => {
   const params = useParams();
   const id = params?.id as string;
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [sharedCopied, setSharedCopied] = useState(false);
   const { isConnected, isAuthenticated, connect } = useWallet();
   const queryClient = useQueryClient();
 
@@ -1007,7 +1001,8 @@ const CampaignDetail: React.FC = () => {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareUrl);
-    toast.success("Link copied to clipboard!");
+    setSharedCopied(true);
+    setTimeout(() => setSharedCopied(false), 1300);
   };
 
   const handleClaimReward = () => {
@@ -1072,12 +1067,12 @@ const CampaignDetail: React.FC = () => {
   // Loading state
   if (isLoadingCampaign) {
     return (
-      <div className="page">
-        <div className="d-back" style={{ opacity: 0.5 }}>
+      <div>
+        <div className="inline-flex items-center gap-2 text-[13.5px] font-semibold text-quest-muted mb-6 transition-colors duration-200 hover:text-quest-accent" style={{ opacity: 0.5 }}>
           <ArrowLeft size={16} />
           Back to Explore
         </div>
-        <div className="detail-grid">
+        <div className="grid grid-cols-[8fr_4fr] max-[920px]:grid-cols-1 gap-[30px] items-start">
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <div
               style={{
@@ -1125,18 +1120,17 @@ const CampaignDetail: React.FC = () => {
   if (campaignError || !campaign) {
     return (
       <div
-        className="page"
         style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400 }}
       >
-        <div className="empty">
+        <div className="flex flex-col items-center text-center py-[80px] px-5 gap-[14px]">
           <Gift size={56} style={{ color: "var(--color-dim)" }} />
-          <div className="et">Campaign not found</div>
-          <div className="es">This campaign may have ended or the link is incorrect.</div>
-          <Link href="/quest">
-            <button type="button" className="btn btn-ghost btn-sm" style={{ marginTop: 8 }}>
+          <div className="text-[18px] font-bold tracking-[-0.02em] text-quest-text">Campaign not found</div>
+          <div className="text-[14px] text-quest-muted">This campaign may have ended or the link is incorrect.</div>
+          <Link href="/quest/explore">
+            <Button type="button" variant="ghost" size="sm" style={{ marginTop: 8 }}>
               <ArrowLeft size={14} />
               Back to Explore
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
@@ -1146,37 +1140,39 @@ const CampaignDetail: React.FC = () => {
   // Auth guard: show connect-wallet prompt for unauthenticated users
   if (!isAuthenticated) {
     return (
-      <div className="page">
-        <Link href="/quest" className="d-back">
+      <div>
+        <Link href="/quest/explore" className="inline-flex items-center gap-2 text-[13.5px] font-semibold text-quest-muted mb-6 transition-colors duration-200 hover:text-quest-accent">
           <ArrowLeft size={16} />
           Back to Explore
         </Link>
 
         <Rise>
-          <div className="detail-grid">
+          <div className="grid grid-cols-[8fr_4fr] max-[920px]:grid-cols-1 gap-[30px] items-start">
             <div>
-              <div className="d-badges">
-                <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"}>
+              <div className="flex items-center gap-[10px] flex-wrap mb-4">
+                <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"} className="text-[14px] py-[9px] px-[22px] gap-[6px]">
                   {campaign.status === "ongoing" ? "Ongoing" : "Closed"}
                 </Badge>
                 {timeRemainingLabel && (
-                  <span className="badge badge-clock">
+                  <Badge variant="closed" className="text-[14px] py-[9px] px-[22px] gap-[6px] [&_svg]:w-[13px] [&_svg]:h-[13px]">
                     <Clock size={13} />
                     {timeRemainingLabel}
-                  </span>
+                  </Badge>
                 )}
               </div>
-              <h1 className="d-title">{campaign.title}</h1>
-              {campaign.description && <p className="d-desc">{campaign.description}</p>}
-              <div className="d-meta">
+              <h1 className="text-[clamp(34px,5vw,52px)] font-extrabold tracking-[-0.04em] leading-[1.02]">{campaign.title}</h1>
+              {campaign.description && (
+                <p className="mt-[14px] text-[17px] text-quest-muted leading-[1.6] max-w-[60ch]">{campaign.description}</p>
+              )}
+              <div className="mt-5 flex items-center gap-3">
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <Users size={16} style={{ color: "var(--color-muted)" }} />
-                  <span className="pcount">
+                  <span className="text-[14px] text-quest-muted">
                     <b>{campaign.participants.toLocaleString()}</b> participants
                   </span>
                 </div>
                 <span
-                  className="pcount"
+                  className="text-[14px] text-quest-muted"
                   style={{
                     color: "var(--color-accent)",
                     fontWeight: 700,
@@ -1189,25 +1185,27 @@ const CampaignDetail: React.FC = () => {
             </div>
 
             <div>
-              <div className="d-side-card">
-                <div className="d-s-cover">
-                  <div className="brand-mark">
-                    {campaign.coverUrl && <img src={campaign.coverUrl} alt="" />}
+              <div className="border border-quest-line rounded-quest-card [background:var(--quest-card-grad)] overflow-hidden">
+                <div className="relative h-[172px] border-b border-quest-line bg-[#0c0e10] overflow-hidden">
+                  <div className="absolute inset-0">
+                    {campaign.coverUrl && (
+                      <img src={campaign.coverUrl} alt="" className="w-full h-full object-cover opacity-[0.92]" />
+                    )}
                   </div>
-                  <span className="reward-type-tag">Points</span>
+                  <span className="absolute top-[13px] right-[13px] text-[10px] font-bold tracking-[0.14em] uppercase text-quest-text px-[11px] py-[6px] rounded-quest-pill bg-[rgba(8,10,12,0.7)] backdrop-blur-[6px] border border-quest-line-2">Points</span>
                 </div>
-                <div className="d-s-pad">
-                  <div className="d-s-reward-lab">Reward points</div>
-                  <div className="d-s-reward-val">
+                <div className="px-[22px] py-5">
+                  <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-quest-muted">Reward points</div>
+                  <div className="text-[34px] font-extrabold tracking-[-0.03em] text-quest-accent inline-flex items-center gap-[6px] mt-[5px] leading-none">
                     {campaign.points.toLocaleString("en-US")}
                     <PtsCoin />
                   </div>
                 </div>
-                <div className="d-s-cta">
-                  <button type="button" className="btn btn-primary btn-block" onClick={connect}>
+                <div className="px-[22px] py-[18px] flex flex-col gap-[10px]">
+                  <Button type="button" variant="primary" block onClick={connect}>
                     <Wallet size={18} />
                     Connect Wallet to Join
-                  </button>
+                  </Button>
                   <p className="text-sm text-muted mt-3">
                     Connect your wallet to join this campaign and start earning rewards.
                   </p>
@@ -1226,29 +1224,31 @@ const CampaignDetail: React.FC = () => {
     const avatarsToShow = campaignAvatars.slice(0, 5);
 
     return (
-      <div className="page">
-        <Link href="/quest" className="d-back">
+      <div>
+        <Link href="/quest/explore" className="inline-flex items-center gap-2 text-[13.5px] font-semibold text-quest-muted mb-6 transition-colors duration-200 hover:text-quest-accent">
           <ArrowLeft size={16} />
           Back to Explore
         </Link>
 
         <Rise>
-          <div className="detail-grid">
+          <div className="grid grid-cols-[8fr_4fr] max-[920px]:grid-cols-1 gap-[30px] items-start">
             <div>
-              <div className="d-badges">
-                <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"}>
+              <div className="flex items-center gap-[10px] flex-wrap mb-4">
+                <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"} className="text-[14px] py-[9px] px-[22px] gap-[6px]">
                   {campaign.status === "ongoing" ? "Ongoing" : "Closed"}
                 </Badge>
                 {timeRemainingLabel && (
-                  <span className="badge badge-clock">
+                  <Badge variant="closed" className="text-[14px] py-[9px] px-[22px] gap-[6px] [&_svg]:w-[13px] [&_svg]:h-[13px]">
                     <Clock size={13} />
                     {timeRemainingLabel}
-                  </span>
+                  </Badge>
                 )}
               </div>
-              <h1 className="d-title">{campaign.title}</h1>
-              {campaign.description && <p className="d-desc">{campaign.description}</p>}
-              <div className="d-meta">
+              <h1 className="text-[clamp(34px,5vw,52px)] font-extrabold tracking-[-0.04em] leading-[1.02]">{campaign.title}</h1>
+              {campaign.description && (
+                <p className="mt-[14px] text-[17px] text-quest-muted leading-[1.6] max-w-[60ch]">{campaign.description}</p>
+              )}
+              <div className="mt-5 flex items-center gap-3">
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   {avatarsToShow.map((url: string, i: number) => (
                     <Avatar
@@ -1261,77 +1261,80 @@ const CampaignDetail: React.FC = () => {
                     </Avatar>
                   ))}
                 </div>
-                <span className="pcount">
+                <span className="text-[14px] text-quest-muted">
                   <b>{campaign.participants.toLocaleString()}</b> questers joined
                 </span>
               </div>
 
-              <div className="join-stats" style={{ marginTop: 28 }}>
-                <div className="join-stat">
-                  <div className="ico">
+              <div className="grid grid-cols-3 gap-[14px] mb-[22px]" style={{ marginTop: 28 }}>
+                <div className="border border-quest-line rounded-quest-sm bg-quest-surface p-[18px] flex gap-[13px] items-center">
+                  <div className="w-[42px] h-[42px] rounded-[11px] flex-none grid place-items-center bg-quest-accent-soft border border-quest-accent-line text-quest-accent">
                     <Trophy size={21} />
                   </div>
                   <div>
-                    <div className="v">{campaign.points.toLocaleString("en-US")}</div>
-                    <div className="k">Points</div>
+                    <div className="text-[22px] font-extrabold font-mono tracking-[-0.02em] leading-none">{campaign.points.toLocaleString("en-US")}</div>
+                    <div className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim mt-[5px]">Points</div>
                   </div>
                 </div>
-                <div className="join-stat">
-                  <div className="ico">
+                <div className="border border-quest-line rounded-quest-sm bg-quest-surface p-[18px] flex gap-[13px] items-center">
+                  <div className="w-[42px] h-[42px] rounded-[11px] flex-none grid place-items-center bg-quest-accent-soft border border-quest-accent-line text-quest-accent">
                     <Users size={21} />
                   </div>
                   <div>
-                    <div className="v">{campaign.participants.toLocaleString()}</div>
-                    <div className="k">Participants</div>
+                    <div className="text-[22px] font-extrabold font-mono tracking-[-0.02em] leading-none">{campaign.participants.toLocaleString()}</div>
+                    <div className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim mt-[5px]">Participants</div>
                   </div>
                 </div>
-                <div className="join-stat">
-                  <div className="ico">
+                <div className="border border-quest-line rounded-quest-sm bg-quest-surface p-[18px] flex gap-[13px] items-center">
+                  <div className="w-[42px] h-[42px] rounded-[11px] flex-none grid place-items-center bg-quest-accent-soft border border-quest-accent-line text-quest-accent">
                     <Gift size={21} />
                   </div>
                   <div>
-                    <div className="v">{tasks.length || "?"}</div>
-                    <div className="k">Tasks</div>
+                    <div className="text-[22px] font-extrabold font-mono tracking-[-0.02em] leading-none">{tasks.length || "?"}</div>
+                    <div className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim mt-[5px]">Tasks</div>
                   </div>
                 </div>
               </div>
             </div>
 
             <div>
-              <div className="d-side-card">
-                <div className="d-s-cover">
-                  <div className="brand-mark">
-                    {campaign.coverUrl && <img src={campaign.coverUrl} alt="" />}
+              <div className="border border-quest-line rounded-quest-card [background:var(--quest-card-grad)] overflow-hidden">
+                <div className="relative h-[172px] border-b border-quest-line bg-[#0c0e10] overflow-hidden">
+                  <div className="absolute inset-0">
+                    {campaign.coverUrl && (
+                      <img src={campaign.coverUrl} alt="" className="w-full h-full object-cover opacity-[0.92]" />
+                    )}
                   </div>
-                  <span className="reward-type-tag">Points</span>
+                  <span className="absolute top-[13px] right-[13px] text-[10px] font-bold tracking-[0.14em] uppercase text-quest-text px-[11px] py-[6px] rounded-quest-pill bg-[rgba(8,10,12,0.7)] backdrop-blur-[6px] border border-quest-line-2">Points</span>
                 </div>
-                <div className="d-s-pad">
-                  <div className="d-s-reward-lab">Reward points</div>
-                  <div className="d-s-reward-val">
+                <div className="px-[22px] py-5">
+                  <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-quest-muted">Reward points</div>
+                  <div className="text-[34px] font-extrabold tracking-[-0.03em] text-quest-accent inline-flex items-center gap-[6px] mt-[5px] leading-none">
                     {campaign.points.toLocaleString("en-US")}
                     <PtsCoin />
                   </div>
                 </div>
-                <div className="d-s-dates">
+                <div className="grid grid-cols-2 gap-[14px] px-[22px] py-[18px] border-t border-b border-quest-line">
                   <div>
-                    <div className="l">Start date</div>
-                    <div className="v">{formatDate(campaign.startDate)}</div>
+                    <div className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim mb-[5px]">Start date</div>
+                    <div className="text-[14px] font-semibold">{formatDate(campaign.startDate)}</div>
                   </div>
                   <div>
-                    <div className="l">End date</div>
-                    <div className="v">{formatDate(campaign.endDate)}</div>
+                    <div className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim mb-[5px]">End date</div>
+                    <div className="text-[14px] font-semibold">{formatDate(campaign.endDate)}</div>
                   </div>
                 </div>
-                <div className="d-s-cta">
-                  <button
+                <div className="px-[22px] py-[18px] flex flex-col gap-[10px]">
+                  <Button
                     type="button"
-                    className="btn btn-primary btn-block"
+                    variant="primary"
+                    block
                     onClick={handleJoinCampaign}
                     disabled={joinCampaignMutation.isPending}
                   >
                     {joinCampaignMutation.isPending ? (
                       <>
-                        <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
+                        <Loader2 size={18} className="animate-spin" />
                         Joining...
                       </>
                     ) : (
@@ -1340,7 +1343,7 @@ const CampaignDetail: React.FC = () => {
                         Join Campaign
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -1361,94 +1364,73 @@ const CampaignDetail: React.FC = () => {
   const extra = campaign.participants - shownCount;
 
   return (
-    <div className="page">
-      <Link href="/quest" className="d-back">
+    <>
+      <div>
+      <Link href="/quest/explore" className="inline-flex items-center gap-2 text-[13.5px] font-semibold text-quest-muted mb-6 transition-colors duration-200 hover:text-quest-accent">
         <ArrowLeft size={16} />
         Back to Explore
       </Link>
 
-      <div className="detail-grid">
+      <div className="grid grid-cols-[8fr_4fr] max-[920px]:grid-cols-1 gap-[30px] items-start">
         {/* Main content */}
         <div>
           {/* Title hero */}
           <Rise delay={0}>
-            <div className="d-badges">
-              <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"}>
+            <div className="flex items-center gap-[10px] flex-wrap mb-4">
+              <Badge variant={campaign.status === "ongoing" ? "ongoing" : "closed"} className="text-[14px] py-[9px] px-[22px] gap-[6px]">
                 {campaign.status === "ongoing" ? "Ongoing" : "Closed"}
               </Badge>
               {timeRemainingLabel && (
-                <span className="badge badge-clock">
+                <Badge variant="closed" className="text-[14px] py-[9px] px-[22px] gap-[6px] [&_svg]:w-[13px] [&_svg]:h-[13px]">
                   <Clock size={13} />
                   {timeRemainingLabel}
-                </span>
-              )}
-              {campaign.points > 0 && (
-                <span
-                  className="badge"
-                  style={{
-                    color: "var(--color-accent)",
-                    background: "var(--color-accent-soft)",
-                    borderColor: "var(--color-accent-line)",
-                  }}
-                >
-                  +{campaign.points.toLocaleString("en-US")} pts
-                </span>
+                </Badge>
               )}
             </div>
-            <h1 className="d-title">{campaign.title}</h1>
-            {campaign.description && <p className="d-desc">{campaign.description}</p>}
+            <h1 className="text-[clamp(34px,5vw,52px)] font-extrabold tracking-[-0.04em] leading-[1.02]">{campaign.title}</h1>
+            {campaign.description && (
+              <p className="mt-[14px] text-[17px] text-quest-muted leading-[1.6] max-w-[60ch]">{campaign.description}</p>
+            )}
 
-            <div className="d-meta" style={{ marginTop: 20 }}>
-              <div style={{ display: "flex", alignItems: "center" }}>
+            <div className="mt-5 flex items-center gap-3">
+              <div className="flex items-center">
                 {avatarsToShow.length > 0
-                  ? avatarsToShow.map((avatar: string, i: number) => (
-                      <Avatar
+                  ? avatarsToShow.map((url: string, i: number) => (
+                      <span
                         key={i}
-                        className="w-9 h-9 border-2 border-background"
-                        style={{ marginLeft: i > 0 ? -8 : 0, zIndex: 5 - i }}
-                      >
-                        <AvatarImage
-                          src={
-                            avatar ||
-                            `https://api.dicebear.com/7.x/avataaars/svg?seed=${campaign.id}-${i}`
-                          }
-                        />
-                        <AvatarFallback>U</AvatarFallback>
-                      </Avatar>
+                        className="w-7 h-7 rounded-full border-2 border-[#0c0c0e]"
+                        style={{
+                          marginLeft: i > 0 ? -9 : 0,
+                          background: url ? `url(${url}) center/cover` : `radial-gradient(circle, hsl(${(i * 60) % 360} 70% 60%), hsl(${((i * 60) + 180) % 360} 70% 40%))`,
+                        }}
+                      />
                     ))
                   : Array.from({ length: Math.min(campaign.participants, 4) }).map((_, i) => (
-                      <Avatar
+                      <span
                         key={i}
-                        className="w-9 h-9 border-2 border-background"
-                        style={{ marginLeft: i > 0 ? -8 : 0, zIndex: 5 - i }}
-                      >
-                        <AvatarImage
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${campaign.id}-${i}`}
-                        />
-                        <AvatarFallback>U</AvatarFallback>
-                      </Avatar>
+                        className="w-7 h-7 rounded-full border-2 border-[#0c0c0e]"
+                        style={{
+                          marginLeft: i > 0 ? -9 : 0,
+                          background: `radial-gradient(circle, hsl(${(i * 60) % 360} 70% 60%), hsl(${((i * 60) + 180) % 360} 70% 40%))`,
+                        }}
+                      />
                     ))}
                 {extra > 0 && (
-                  <div
-                    className="w-9 h-9 rounded-full border-2 border-background bg-muted/20 flex items-center justify-center text-[10px] font-bold text-muted"
-                    style={{ marginLeft: -8 }}
-                  >
-                    +{extra > 1000 ? `${(extra / 1000).toFixed(0)}k` : extra}
-                  </div>
+                  <span className="ml-2 text-[12px] font-mono text-quest-muted">+{extra > 1000 ? `${(extra / 1000).toFixed(0)}k` : extra}</span>
                 )}
               </div>
-              <span className="pcount">
+              <span className="text-[14px] text-quest-muted">
                 <b>{campaign.participants.toLocaleString()}</b> questers joined
               </span>
             </div>
           </Rise>
 
           {/* Quest steps */}
-          <Rise delay={0.08} className="mt-8">
-            <div className="prog-block">
-              <div className="prog-lab">
-                <span className="l">Quest progress</span>
-                <span className="r">
+          <Rise delay={0.08}>
+            <div className="mt-[30px] mb-[26px]">
+              <div className="flex items-center justify-between mb-[9px]">
+                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-quest-muted">Quest progress</span>
+                <span className="text-[12px] font-mono font-bold text-quest-accent">
                   {tasks.length > 0
                     ? `${tasks.length} tasks`
                     : campaign.steps?.length
@@ -1456,12 +1438,12 @@ const CampaignDetail: React.FC = () => {
                       : "0 tasks"}
                 </span>
               </div>
-              <div className="prog-bar">
-                <div className="prog-fill" style={{ width: "0%" }} />
+              <div className="h-[9px] rounded-quest-pill bg-black/45 border border-quest-line overflow-hidden">
+                <div className="h-full rounded-quest-pill [background:var(--quest-grad)] shadow-[0_0_16px_-2px_var(--color-quest-accent-glow)] transition-[width] duration-[800ms] ease-quest-out" style={{ width: "0%" }} />
               </div>
             </div>
 
-            <div className="quests" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {tasks && tasks.length > 0 ? (
                 tasks.map((task: ApiTask, index: number) => (
                   <QuestItem
@@ -1499,7 +1481,7 @@ const CampaignDetail: React.FC = () => {
                   />
                 ))
               ) : (
-                <div className="text-muted italic p-4">
+                <div style={{ color: "var(--muted)", fontStyle: "italic", padding: 16 }}>
                   No specific quests listed for this campaign.
                 </div>
               )}
@@ -1508,61 +1490,32 @@ const CampaignDetail: React.FC = () => {
 
           {/* Full description */}
           {(campaign.fullDescription || campaign.description) && (
-            <Rise delay={0.14} className="mt-8">
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold flex items-center gap-2">
-                  <span className="w-1 h-6 bg-brand-mid rounded-full"></span>
+            <Rise delay={0.14}>
+              <div style={{ marginTop: 32 }}>
+                <h3 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                  <span style={{ width: 4, height: 24, borderRadius: 2, background: "var(--accent)" }} />
                   Description
                 </h3>
-                <div className="prose prose-invert prose-p:text-muted prose-a:text-brand-mid max-w-none bg-card border border-border rounded-xl p-6">
+                <div style={{
+                  border: "1px solid var(--line)",
+                  borderRadius: "var(--r-sm)",
+                  background: "var(--surface-2)",
+                  padding: 24,
+                  fontSize: 14,
+                  color: "var(--muted)",
+                  lineHeight: 1.7,
+                }}>
                   <ReactMarkdown
                     components={{
-                      p: ({ children }) => <p className="text-muted mb-4">{children}</p>,
-                      h1: ({ children }) => (
-                        <h1 className="text-2xl font-bold text-white mb-4">{children}</h1>
-                      ),
-                      h2: ({ children }) => (
-                        <h2 className="text-xl font-bold text-white mb-3">{children}</h2>
-                      ),
-                      h3: ({ children }) => (
-                        <h3 className="text-lg font-bold text-white mb-2">{children}</h3>
-                      ),
-                      ul: ({ children }) => (
-                        <ul className="list-disc list-inside mb-4 text-muted space-y-2">
-                          {children}
-                        </ul>
-                      ),
-                      ol: ({ children }) => (
-                        <ol className="list-decimal list-inside mb-4 text-muted space-y-2">
-                          {children}
-                        </ol>
-                      ),
-                      li: ({ children }) => <li className="text-muted">{children}</li>,
+                      p: ({ children }) => <p style={{ color: "var(--muted)", marginBottom: 16 }}>{children}</p>,
                       a: ({ href, children }) => (
-                        <a
-                          href={href}
-                          className="text-brand-mid hover:underline"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
+                        <a href={href} style={{ color: "var(--accent)" }} target="_blank" rel="noopener noreferrer">
                           {children}
                         </a>
                       ),
-                      code: ({ children }) => (
-                        <code className="bg-background/50 px-1.5 py-0.5 rounded text-sm font-mono text-brand-mid">
-                          {children}
-                        </code>
-                      ),
-                      blockquote: ({ children }) => (
-                        <blockquote className="border-l-4 border-brand-mid pl-4 italic text-muted my-4">
-                          {children}
-                        </blockquote>
-                      ),
                     }}
                   >
-                    {campaign.fullDescription ||
-                      campaign.description ||
-                      "No description available."}
+                    {campaign.fullDescription || campaign.description || "No description available."}
                   </ReactMarkdown>
                 </div>
               </div>
@@ -1573,40 +1526,43 @@ const CampaignDetail: React.FC = () => {
         {/* Sidebar */}
         <div>
           <Rise delay={0.1}>
-            <div className="d-side-card">
-              <div className="d-s-cover">
-                <div className="brand-mark">
-                  {campaign.coverUrl && <img src={campaign.coverUrl} alt="" />}
+            <div className="border border-quest-line rounded-quest-card [background:var(--quest-card-grad)] overflow-hidden">
+              <div className="relative h-[172px] border-b border-quest-line bg-[#0c0e10] overflow-hidden">
+                <div className="absolute inset-0">
+                  {campaign.coverUrl && (
+                    <img src={campaign.coverUrl} alt="" className="w-full h-full object-cover opacity-[0.92]" />
+                  )}
                 </div>
-                <span className="reward-type-tag">Points</span>
+                <span className="absolute top-[13px] right-[13px] text-[10px] font-bold tracking-[0.14em] uppercase text-quest-text px-[11px] py-[6px] rounded-quest-pill bg-[rgba(8,10,12,0.7)] backdrop-blur-[6px] border border-quest-line-2">Points</span>
               </div>
-              <div className="d-s-pad">
-                <div className="d-s-reward-lab">Reward points</div>
-                <div className="d-s-reward-val">
+              <div className="px-[22px] py-5">
+                <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-quest-muted">Reward points</div>
+                <div className="text-[34px] font-extrabold tracking-[-0.03em] text-quest-accent inline-flex items-center gap-[6px] mt-[5px] leading-none">
                   {campaign.points.toLocaleString("en-US")}
                   <PtsCoin />
                 </div>
               </div>
-              <div className="d-s-dates">
+              <div className="grid grid-cols-2 gap-[14px] px-[22px] py-[18px] border-t border-b border-quest-line">
                 <div>
-                  <div className="l">Start date</div>
-                  <div className="v">{formatDate(campaign.startDate)}</div>
+                  <div className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim mb-[5px]">Start date</div>
+                  <div className="text-[14px] font-semibold">{formatDate(campaign.startDate)}</div>
                 </div>
                 <div>
-                  <div className="l">End date</div>
-                  <div className="v">{formatDate(campaign.endDate)}</div>
+                  <div className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim mb-[5px]">End date</div>
+                  <div className="text-[14px] font-semibold">{formatDate(campaign.endDate)}</div>
                 </div>
               </div>
-              <div className="d-s-cta">
-                <button
+              <div className="px-[22px] py-[18px] flex flex-col gap-[10px]">
+                <Button
                   type="button"
-                  className="btn btn-primary btn-block"
+                  variant="primary"
+                  block
                   disabled={claimCampaignMutation.isPending}
                   onClick={handleClaimReward}
                 >
                   {claimCampaignMutation.isPending ? (
                     <>
-                      <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
+                      <Loader2 size={18} className="animate-spin" />
                       Claiming...
                     </>
                   ) : (
@@ -1615,15 +1571,16 @@ const CampaignDetail: React.FC = () => {
                       Claim Reward
                     </>
                   )}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className="btn btn-ghost btn-block"
+                  variant="ghost"
+                  block
                   onClick={() => setIsShareDialogOpen(true)}
                 >
                   <Share2 size={18} />
                   Share Campaign
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -1632,70 +1589,77 @@ const CampaignDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Share Dialog */}
-      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Share Campaign</DialogTitle>
-            <DialogDescription>
-              Spread the word and invite friends to join this quest.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid grid-cols-4 gap-4 py-4">
-            <button
-              type="button"
-              onClick={() => openSocialShare("twitter")}
-              className="flex flex-col items-center gap-2 group"
-            >
-              <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                <XIcon className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xs text-muted">X</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => openSocialShare("telegram")}
-              className="flex flex-col items-center gap-2 group"
-            >
-              <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-[#0088cc]/20 transition-colors">
-                <TelegramIcon className="w-6 h-6 text-[#24A1DE]" />
-              </div>
-              <span className="text-xs text-muted">Telegram</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => openSocialShare("facebook")}
-              className="flex flex-col items-center gap-2 group"
-            >
-              <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-[#1877F2]/20 transition-colors">
-                <Facebook size={20} className="text-white" />
-              </div>
-              <span className="text-xs text-muted">Facebook</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => openSocialShare("linkedin")}
-              className="flex flex-col items-center gap-2 group"
-            >
-              <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center group-hover:bg-[#0A66C2]/20 transition-colors">
-                <Linkedin size={20} className="text-white" />
-              </div>
-              <span className="text-xs text-muted">LinkedIn</span>
-            </button>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <div className="grid flex-1 gap-2">
-              <Input readOnly value={shareUrl} />
-            </div>
-            <Button type="submit" size="icon" variant="secondary" onClick={copyToClipboard}>
-              <Copy className="h-4 w-4" />
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
+      <ShareDialog
+        open={isShareDialogOpen}
+        shareUrl={shareUrl}
+        onClose={() => setIsShareDialogOpen(false)}
+        onCopy={copyToClipboard}
+        sharedCopied={sharedCopied}
+        onShare={openSocialShare}
+      />
+    </>
+  );
+};
+
+const ShareDialog = ({ open, shareUrl, onClose, onCopy, sharedCopied, onShare }: {
+  open: boolean; shareUrl: string; onClose: () => void; onCopy: () => void; sharedCopied: boolean;
+  onShare: (p: "twitter" | "telegram" | "facebook" | "linkedin") => void;
+}) => {
+  if (!open) return null;
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-[4px] flex items-center justify-center p-6 animate-[modalfade_.25s_cubic-bezier(0.16,1,0.3,1)]"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="w-[min(420px,100%)] border border-quest-line-2 rounded-quest-card bg-[#141416] p-[26px] shadow-[0_40px_100px_-30px_#000] animate-[modalscale_.25s_cubic-bezier(0.16,1,0.3,1)]">
+        <h3 className="text-[19px] font-bold tracking-[-0.02em]">Share campaign</h3>
+        <p className="text-[13.5px] text-quest-muted mt-[6px] mb-5">Invite friends to quest with you and earn referral points.</p>
+        <div className="grid grid-cols-4 gap-[10px] mb-4">
+          <button
+            type="button"
+            className="flex flex-col items-center gap-2 px-[6px] py-[14px] border border-quest-line-2 rounded-quest-sm bg-quest-surface cursor-pointer transition-[border-color,background] duration-[250ms] text-quest-text hover:border-quest-accent hover:bg-quest-accent-soft"
+            onClick={() => onShare("twitter")}
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            <span className="text-[11px] text-quest-muted">X</span>
+          </button>
+          <button
+            type="button"
+            className="flex flex-col items-center gap-2 px-[6px] py-[14px] border border-quest-line-2 rounded-quest-sm bg-quest-surface cursor-pointer transition-[border-color,background] duration-[250ms] text-quest-text hover:border-quest-accent hover:bg-quest-accent-soft"
+            onClick={() => onShare("telegram")}
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            <span className="text-[11px] text-quest-muted">Telegram</span>
+          </button>
+          <button
+            type="button"
+            className="flex flex-col items-center gap-2 px-[6px] py-[14px] border border-quest-line-2 rounded-quest-sm bg-quest-surface cursor-pointer transition-[border-color,background] duration-[250ms] text-quest-text hover:border-quest-accent hover:bg-quest-accent-soft"
+            onClick={() => onShare("facebook")}
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            <span className="text-[11px] text-quest-muted">Facebook</span>
+          </button>
+          <button
+            type="button"
+            className="flex flex-col items-center gap-2 px-[6px] py-[14px] border border-quest-line-2 rounded-quest-sm bg-quest-surface cursor-pointer transition-[border-color,background] duration-[250ms] text-quest-text hover:border-quest-accent hover:bg-quest-accent-soft"
+            onClick={onCopy}
+          >
+            <Copy size={18} />
+            <span className="text-[11px] text-quest-muted">{sharedCopied ? "Copied" : "Copy"}</span>
+          </button>
+        </div>
+        <div className="flex gap-[10px] items-center bg-quest-surface border border-quest-line-2 rounded-quest-sm py-[6px] pr-[6px] pl-[14px]">
+          <input
+            readOnly
+            value={shareUrl}
+            className="flex-1 bg-transparent border-none outline-none text-quest-muted font-mono text-[12.5px]"
+          />
+          <Button type="button" variant="accent" size="sm" onClick={onClose}>Done</Button>
+        </div>
+      </div>
+    </div>,
+    document.getElementById("quest-overlay") ?? document.body
   );
 };
 

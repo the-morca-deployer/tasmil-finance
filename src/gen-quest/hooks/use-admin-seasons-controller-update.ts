@@ -14,7 +14,7 @@ import type {
 } from "@/gen-quest/types/admin-seasons-controller-update";
 
 export const adminSeasonsControllerUpdateMutationKey = () =>
-  [{ url: "/api/admin/seasons/:id" }] as const;
+  [{ url: "/api/quest/admin/seasons/:id" }] as const;
 
 export type AdminSeasonsControllerUpdateMutationKey = ReturnType<
   typeof adminSeasonsControllerUpdateMutationKey
@@ -43,7 +43,7 @@ export function adminSeasonsControllerUpdateMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/admin/seasons/:id}
+ * {@link /api/quest/admin/seasons/:id}
  */
 export function useAdminSeasonsControllerUpdate<TContext>(
   options: {

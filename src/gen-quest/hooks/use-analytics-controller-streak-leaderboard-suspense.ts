@@ -15,7 +15,7 @@ import { analyticsControllerStreakLeaderboard } from "@/gen-quest/client/analyti
 import type { AnalyticsControllerStreakLeaderboardQueryResponse } from "@/gen-quest/types/analytics-controller-streak-leaderboard";
 
 export const analyticsControllerStreakLeaderboardSuspenseQueryKey = () =>
-  [{ url: "/api/leaderboard/streak" }] as const;
+  [{ url: "/api/quest/leaderboard/streak" }] as const;
 
 export type AnalyticsControllerStreakLeaderboardSuspenseQueryKey = ReturnType<
   typeof analyticsControllerStreakLeaderboardSuspenseQueryKey
@@ -39,7 +39,7 @@ export function analyticsControllerStreakLeaderboardSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/leaderboard/streak}
+ * {@link /api/quest/leaderboard/streak}
  */
 export function useAnalyticsControllerStreakLeaderboardSuspense<
   TData = AnalyticsControllerStreakLeaderboardQueryResponse,

@@ -10,7 +10,7 @@ import { seasonsControllerRevealAck } from "@/gen-quest/client/seasons-controlle
 import type { SeasonsControllerRevealAckMutationResponse } from "@/gen-quest/types/seasons-controller-reveal-ack";
 
 export const seasonsControllerRevealAckMutationKey = () =>
-  [{ url: "/api/seasons/me/reveal-ack" }] as const;
+  [{ url: "/api/quest/seasons/me/reveal-ack" }] as const;
 
 export type SeasonsControllerRevealAckMutationKey = ReturnType<
   typeof seasonsControllerRevealAckMutationKey
@@ -34,7 +34,7 @@ export function seasonsControllerRevealAckMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/seasons/me/reveal-ack}
+ * {@link /api/quest/seasons/me/reveal-ack}
  */
 export function useSeasonsControllerRevealAck<TContext>(
   options: {

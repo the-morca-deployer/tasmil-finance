@@ -13,7 +13,7 @@ import type {
 } from "@/gen-quest/types/tasks-controller-verify-task";
 
 export const tasksControllerVerifyTaskMutationKey = () =>
-  [{ url: "/api/tasks/:id/verify" }] as const;
+  [{ url: "/api/quest/tasks/:id/verify" }] as const;
 
 export type TasksControllerVerifyTaskMutationKey = ReturnType<
   typeof tasksControllerVerifyTaskMutationKey
@@ -37,7 +37,7 @@ export function tasksControllerVerifyTaskMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/tasks/:id/verify}
+ * {@link /api/quest/tasks/:id/verify}
  */
 export function useTasksControllerVerifyTask<TContext>(
   options: {

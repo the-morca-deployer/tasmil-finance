@@ -1,0 +1,7 @@
+{
+  "explore":   { "app": "/quest/explore",        "mockup": "Tasmil Explore.html",     "viewports": [[1280, 1600], [390, 1800]] },
+  "campaigns": { "app": "/quest/campaigns",       "mockup": "Tasmil Campaigns.html",   "viewports": [[1280, 1400], [390, 1800]] },
+  "campaign":  { "app": "/quest/campaign/blend-lending", "mockup": "Tasmil Campaign.html", "viewports": [[1280, 1600], [390, 2000]] },
+  "leaderboard": { "app": "/quest/leaderboard",   "mockup": "Tasmil Leaderboard.html", "viewports": [[1280, 1500], [390, 1800]] },
+  "profile":   { "app": "/quest/profile",         "mockup": "Tasmil Profile.html",     "viewports": [[1280, 1800], [390, 2200]] }
+}

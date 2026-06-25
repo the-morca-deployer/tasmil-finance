@@ -15,7 +15,7 @@ import { adminControllerListReferralConfig } from "@/gen-quest/client/admin-cont
 import type { AdminControllerListReferralConfigQueryResponse } from "@/gen-quest/types/admin-controller-list-referral-config";
 
 export const adminControllerListReferralConfigQueryKey = () =>
-  [{ url: "/api/admin/referral/config" }] as const;
+  [{ url: "/api/quest/admin/referral/config" }] as const;
 
 export type AdminControllerListReferralConfigQueryKey = ReturnType<
   typeof adminControllerListReferralConfigQueryKey
@@ -39,7 +39,7 @@ export function adminControllerListReferralConfigQueryOptions(
 }
 
 /**
- * {@link /api/admin/referral/config}
+ * {@link /api/quest/admin/referral/config}
  */
 export function useAdminControllerListReferralConfig<
   TData = AdminControllerListReferralConfigQueryResponse,

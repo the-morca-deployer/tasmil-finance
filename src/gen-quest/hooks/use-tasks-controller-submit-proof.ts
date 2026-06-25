@@ -14,7 +14,7 @@ import type {
 } from "@/gen-quest/types/tasks-controller-submit-proof";
 
 export const tasksControllerSubmitProofMutationKey = () =>
-  [{ url: "/api/tasks/:id/submit-proof" }] as const;
+  [{ url: "/api/quest/tasks/:id/submit-proof" }] as const;
 
 export type TasksControllerSubmitProofMutationKey = ReturnType<
   typeof tasksControllerSubmitProofMutationKey
@@ -43,7 +43,7 @@ export function tasksControllerSubmitProofMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/tasks/:id/submit-proof}
+ * {@link /api/quest/tasks/:id/submit-proof}
  */
 export function useTasksControllerSubmitProof<TContext>(
   options: {

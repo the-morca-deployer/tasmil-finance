@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/admin-controller-create-campaign";
 
 function getAdminControllerCreateCampaignUrl() {
-  const res = { method: "POST", url: `/api/admin/campaigns` as const };
+  const res = { method: "POST", url: `/api/quest/admin/campaigns` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/campaigns}
+ * {@link /api/quest/admin/campaigns}
  */
 export async function adminControllerCreateCampaign(
   data: AdminControllerCreateCampaignMutationRequest,

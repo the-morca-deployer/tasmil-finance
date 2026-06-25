@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/campaigns-controller-get-tasks";
 
 function getCampaignsControllerGetTasksUrl(id: CampaignsControllerGetTasksPathParams["id"]) {
-  const res = { method: "GET", url: `/api/campaigns/${id}/tasks` as const };
+  const res = { method: "GET", url: `/api/quest/campaigns/${id}/tasks` as const };
   return res;
 }
 
 /**
- * {@link /api/campaigns/:id/tasks}
+ * {@link /api/quest/campaigns/:id/tasks}
  */
 export async function campaignsControllerGetTasks(
   id: CampaignsControllerGetTasksPathParams["id"],

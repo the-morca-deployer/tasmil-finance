@@ -29,6 +29,7 @@ export function RankRevealGate() {
 
   return (
     <RankReveal
+      open
       rank={result.finalRank}
       usdcReward={result.usdcReward}
       pointsReward={result.pointsReward}

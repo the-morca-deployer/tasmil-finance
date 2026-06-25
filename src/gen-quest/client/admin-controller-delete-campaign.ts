@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/admin-controller-delete-campaign";
 
 function getAdminControllerDeleteCampaignUrl(id: AdminControllerDeleteCampaignPathParams["id"]) {
-  const res = { method: "DELETE", url: `/api/admin/campaigns/${id}` as const };
+  const res = { method: "DELETE", url: `/api/quest/admin/campaigns/${id}` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/campaigns/:id}
+ * {@link /api/quest/admin/campaigns/:id}
  */
 export async function adminControllerDeleteCampaign(
   id: AdminControllerDeleteCampaignPathParams["id"],

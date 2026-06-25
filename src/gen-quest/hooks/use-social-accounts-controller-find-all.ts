@@ -15,7 +15,7 @@ import { socialAccountsControllerFindAll } from "@/gen-quest/client/social-accou
 import type { SocialAccountsControllerFindAllQueryResponse } from "@/gen-quest/types/social-accounts-controller-find-all";
 
 export const socialAccountsControllerFindAllQueryKey = () =>
-  [{ url: "/api/users/me/social-accounts" }] as const;
+  [{ url: "/api/quest/social-accounts" }] as const;
 
 export type SocialAccountsControllerFindAllQueryKey = ReturnType<
   typeof socialAccountsControllerFindAllQueryKey
@@ -40,7 +40,7 @@ export function socialAccountsControllerFindAllQueryOptions(
 
 /**
  * @summary Get all linked social accounts
- * {@link /api/users/me/social-accounts}
+ * {@link /api/quest/social-accounts}
  */
 export function useSocialAccountsControllerFindAll<
   TData = SocialAccountsControllerFindAllQueryResponse,

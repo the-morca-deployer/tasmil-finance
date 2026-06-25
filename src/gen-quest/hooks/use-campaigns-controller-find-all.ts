@@ -19,7 +19,7 @@ import type {
 
 export const campaignsControllerFindAllQueryKey = (
   params?: CampaignsControllerFindAllQueryParams
-) => [{ url: "/api/campaigns" }, ...(params ? [params] : [])] as const;
+) => [{ url: "/api/quest/campaigns" }, ...(params ? [params] : [])] as const;
 
 export type CampaignsControllerFindAllQueryKey = ReturnType<
   typeof campaignsControllerFindAllQueryKey
@@ -44,7 +44,7 @@ export function campaignsControllerFindAllQueryOptions(
 }
 
 /**
- * {@link /api/campaigns}
+ * {@link /api/quest/campaigns}
  */
 export function useCampaignsControllerFindAll<
   TData = CampaignsControllerFindAllQueryResponse,

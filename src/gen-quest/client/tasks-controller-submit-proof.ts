@@ -12,12 +12,12 @@ import type {
 } from "@/gen-quest/types/tasks-controller-submit-proof";
 
 function getTasksControllerSubmitProofUrl(id: TasksControllerSubmitProofPathParams["id"]) {
-  const res = { method: "POST", url: `/api/tasks/${id}/submit-proof` as const };
+  const res = { method: "POST", url: `/api/quest/tasks/${id}/submit-proof` as const };
   return res;
 }
 
 /**
- * {@link /api/tasks/:id/submit-proof}
+ * {@link /api/quest/tasks/:id/submit-proof}
  */
 export async function tasksControllerSubmitProof(
   id: TasksControllerSubmitProofPathParams["id"],

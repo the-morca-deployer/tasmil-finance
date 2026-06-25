@@ -33,7 +33,7 @@ describe("QuestNav", () => {
 
   it("renders nav links with production routes", () => {
     render(<QuestNav />);
-    expect(screen.getByRole("link", { name: /Explore/i })).toHaveAttribute("href", "/quest/quest");
+    expect(screen.getByRole("link", { name: /Explore/i })).toHaveAttribute("href", "/quest");
     expect(screen.getByRole("link", { name: /Campaigns/i })).toHaveAttribute(
       "href",
       "/quest/campaigns"

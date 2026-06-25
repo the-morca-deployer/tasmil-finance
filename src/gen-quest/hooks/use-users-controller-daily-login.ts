@@ -10,7 +10,7 @@ import { usersControllerDailyLogin } from "@/gen-quest/client/users-controller-d
 import type { UsersControllerDailyLoginMutationResponse } from "@/gen-quest/types/users-controller-daily-login";
 
 export const usersControllerDailyLoginMutationKey = () =>
-  [{ url: "/api/users/me/daily-login" }] as const;
+  [{ url: "/api/quest/users/me/daily-login" }] as const;
 
 export type UsersControllerDailyLoginMutationKey = ReturnType<
   typeof usersControllerDailyLoginMutationKey
@@ -34,7 +34,7 @@ export function usersControllerDailyLoginMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/users/me/daily-login}
+ * {@link /api/quest/users/me/daily-login}
  */
 export function useUsersControllerDailyLogin<TContext>(
   options: {

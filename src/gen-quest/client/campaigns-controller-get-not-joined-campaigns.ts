@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/campaigns-controller-get-not-joined-campaigns";
 
 function getCampaignsControllerGetNotJoinedCampaignsUrl() {
-  const res = { method: "GET", url: `/api/campaigns/not-joined` as const };
+  const res = { method: "GET", url: `/api/quest/campaigns/not-joined` as const };
   return res;
 }
 
 /**
- * {@link /api/campaigns/not-joined}
+ * {@link /api/quest/campaigns/not-joined}
  */
 export async function campaignsControllerGetNotJoinedCampaigns(
   params?: CampaignsControllerGetNotJoinedCampaignsQueryParams,

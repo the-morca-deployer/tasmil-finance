@@ -15,7 +15,7 @@ import { seasonsControllerCurrent } from "@/gen-quest/client/seasons-controller-
 import type { SeasonsControllerCurrentQueryResponse } from "@/gen-quest/types/seasons-controller-current";
 
 export const seasonsControllerCurrentSuspenseQueryKey = () =>
-  [{ url: "/api/seasons/current" }] as const;
+  [{ url: "/api/quest/seasons/current" }] as const;
 
 export type SeasonsControllerCurrentSuspenseQueryKey = ReturnType<
   typeof seasonsControllerCurrentSuspenseQueryKey
@@ -39,7 +39,7 @@ export function seasonsControllerCurrentSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/seasons/current}
+ * {@link /api/quest/seasons/current}
  */
 export function useSeasonsControllerCurrentSuspense<
   TData = SeasonsControllerCurrentQueryResponse,

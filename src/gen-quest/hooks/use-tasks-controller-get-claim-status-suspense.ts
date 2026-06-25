@@ -19,7 +19,7 @@ import type {
 
 export const tasksControllerGetClaimStatusSuspenseQueryKey = (
   id: TasksControllerGetClaimStatusPathParams["id"] | undefined
-) => [{ url: "/api/tasks/:id/claim/status", params: { id: id } }] as const;
+) => [{ url: "/api/quest/tasks/:id/claim/status", params: { id: id } }] as const;
 
 export type TasksControllerGetClaimStatusSuspenseQueryKey = ReturnType<
   typeof tasksControllerGetClaimStatusSuspenseQueryKey
@@ -45,7 +45,7 @@ export function tasksControllerGetClaimStatusSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/tasks/:id/claim/status}
+ * {@link /api/quest/tasks/:id/claim/status}
  */
 export function useTasksControllerGetClaimStatusSuspense<
   TData = TasksControllerGetClaimStatusQueryResponse,

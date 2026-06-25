@@ -14,7 +14,7 @@ import type {
 } from "@/gen-quest/types/social-accounts-controller-unlink-account";
 
 export const socialAccountsControllerUnlinkAccountMutationKey = () =>
-  [{ url: "/api/users/me/social-accounts/:platform" }] as const;
+  [{ url: "/api/quest/social-accounts/:platform" }] as const;
 
 export type SocialAccountsControllerUnlinkAccountMutationKey = ReturnType<
   typeof socialAccountsControllerUnlinkAccountMutationKey
@@ -39,7 +39,7 @@ export function socialAccountsControllerUnlinkAccountMutationOptions<TContext = 
 
 /**
  * @summary Unlink a social account
- * {@link /api/users/me/social-accounts/:platform}
+ * {@link /api/quest/social-accounts/:platform}
  */
 export function useSocialAccountsControllerUnlinkAccount<TContext>(
   options: {

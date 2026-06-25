@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { UsersControllerDailyLoginMutationResponse } from "@/gen-quest/types/users-controller-daily-login";
 
 function getUsersControllerDailyLoginUrl() {
-  const res = { method: "POST", url: `/api/users/me/daily-login` as const };
+  const res = { method: "POST", url: `/api/quest/users/me/daily-login` as const };
   return res;
 }
 
 /**
- * {@link /api/users/me/daily-login}
+ * {@link /api/quest/users/me/daily-login}
  */
 export async function usersControllerDailyLogin(
   config: Partial<RequestConfig> & { client?: Client } = {}

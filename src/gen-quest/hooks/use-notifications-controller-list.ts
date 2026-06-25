@@ -19,7 +19,7 @@ import type {
 
 export const notificationsControllerListQueryKey = (
   params?: NotificationsControllerListQueryParams
-) => [{ url: "/api/notifications" }, ...(params ? [params] : [])] as const;
+) => [{ url: "/api/quest/notifications" }, ...(params ? [params] : [])] as const;
 
 export type NotificationsControllerListQueryKey = ReturnType<
   typeof notificationsControllerListQueryKey
@@ -44,7 +44,7 @@ export function notificationsControllerListQueryOptions(
 }
 
 /**
- * {@link /api/notifications}
+ * {@link /api/quest/notifications}
  */
 export function useNotificationsControllerList<
   TData = NotificationsControllerListQueryResponse,

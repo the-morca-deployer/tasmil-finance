@@ -12,12 +12,12 @@ import type {
 } from "@/gen-quest/types/admin-controller-update-task";
 
 function getAdminControllerUpdateTaskUrl(taskId: AdminControllerUpdateTaskPathParams["taskId"]) {
-  const res = { method: "PATCH", url: `/api/admin/tasks/${taskId}` as const };
+  const res = { method: "PATCH", url: `/api/quest/admin/tasks/${taskId}` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/tasks/:taskId}
+ * {@link /api/quest/admin/tasks/:taskId}
  */
 export async function adminControllerUpdateTask(
   taskId: AdminControllerUpdateTaskPathParams["taskId"],

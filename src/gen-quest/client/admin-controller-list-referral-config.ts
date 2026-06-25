@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { AdminControllerListReferralConfigQueryResponse } from "@/gen-quest/types/admin-controller-list-referral-config";
 
 function getAdminControllerListReferralConfigUrl() {
-  const res = { method: "GET", url: `/api/admin/referral/config` as const };
+  const res = { method: "GET", url: `/api/quest/admin/referral/config` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/referral/config}
+ * {@link /api/quest/admin/referral/config}
  */
 export async function adminControllerListReferralConfig(
   config: Partial<RequestConfig> & { client?: Client } = {}

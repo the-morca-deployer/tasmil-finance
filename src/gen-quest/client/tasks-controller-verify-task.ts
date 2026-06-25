@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/tasks-controller-verify-task";
 
 function getTasksControllerVerifyTaskUrl(id: TasksControllerVerifyTaskPathParams["id"]) {
-  const res = { method: "POST", url: `/api/tasks/${id}/verify` as const };
+  const res = { method: "POST", url: `/api/quest/tasks/${id}/verify` as const };
   return res;
 }
 
 /**
- * {@link /api/tasks/:id/verify}
+ * {@link /api/quest/tasks/:id/verify}
  */
 export async function tasksControllerVerifyTask(
   id: TasksControllerVerifyTaskPathParams["id"],

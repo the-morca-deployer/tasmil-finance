@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { ReferralControllerGetTreeQueryResponse } from "@/gen-quest/types/referral-controller-get-tree";
 
 function getReferralControllerGetTreeUrl() {
-  const res = { method: "GET", url: `/api/referral/tree` as const };
+  const res = { method: "GET", url: `/api/quest/referral/tree` as const };
   return res;
 }
 
 /**
- * {@link /api/referral/tree}
+ * {@link /api/quest/referral/tree}
  */
 export async function referralControllerGetTree(
   config: Partial<RequestConfig> & { client?: Client } = {}

@@ -4,8 +4,8 @@
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
+import { buttonClasses } from "@/features/quest/components/ui/button";
 import { toast } from "sonner";
-import { Button } from "@/features/quest/components/ui/button";
 
 declare global {
   interface Window {
@@ -78,6 +78,8 @@ export function TelegramButton({
 
   const config = sizeConfig[size];
   const widgetSize = config.widgetSize;
+  const btnVariant = variant === "default" ? "primary" : "ghost";
+  const btnSize = size === "small" ? "sm" : size === "large" ? "lg" : "default";
 
   useEffect(() => {
     if (!scriptLoaded.current && containerRef.current) {
@@ -216,15 +218,11 @@ export function TelegramButton({
   return (
     <div className={`relative ${config.container} flex items-center justify-center ${className}`}>
       {/* Custom Button (Background) */}
-      <Button
+      <button
         ref={buttonRef}
+        type="button"
         disabled={isLoading || !!error || disabled}
-        variant={variant}
-        size={size === "small" ? "sm" : size === "medium" ? "default" : "lg"}
-        className={`
-          relative z-10 ${config.button}
-          pointer-events-none
-        `}
+        className={buttonClasses({ variant: btnVariant, size: btnSize, className: `relative z-10 ${config.button} pointer-events-none` })}
         style={{ pointerEvents: "none" }}
       >
         {isLoading ? (
@@ -235,7 +233,7 @@ export function TelegramButton({
         ) : (
           <span className="whitespace-nowrap">Connect Telegram</span>
         )}
-      </Button>
+      </button>
 
       {/* Telegram Widget Overlay (Receives clicks) */}
       <div

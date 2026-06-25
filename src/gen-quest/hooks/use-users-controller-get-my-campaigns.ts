@@ -19,7 +19,7 @@ import type {
 
 export const usersControllerGetMyCampaignsQueryKey = (
   params?: UsersControllerGetMyCampaignsQueryParams
-) => [{ url: "/api/users/me/campaign" }, ...(params ? [params] : [])] as const;
+) => [{ url: "/api/quest/users/me/campaign" }, ...(params ? [params] : [])] as const;
 
 export type UsersControllerGetMyCampaignsQueryKey = ReturnType<
   typeof usersControllerGetMyCampaignsQueryKey
@@ -44,7 +44,7 @@ export function usersControllerGetMyCampaignsQueryOptions(
 }
 
 /**
- * {@link /api/users/me/campaign}
+ * {@link /api/quest/users/me/campaign}
  */
 export function useUsersControllerGetMyCampaigns<
   TData = UsersControllerGetMyCampaignsQueryResponse,

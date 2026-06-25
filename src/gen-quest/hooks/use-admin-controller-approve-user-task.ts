@@ -13,7 +13,7 @@ import type {
 } from "@/gen-quest/types/admin-controller-approve-user-task";
 
 export const adminControllerApproveUserTaskMutationKey = () =>
-  [{ url: "/api/admin/user-tasks/:id/approve" }] as const;
+  [{ url: "/api/quest/admin/user-tasks/:id/approve" }] as const;
 
 export type AdminControllerApproveUserTaskMutationKey = ReturnType<
   typeof adminControllerApproveUserTaskMutationKey
@@ -37,7 +37,7 @@ export function adminControllerApproveUserTaskMutationOptions<TContext = unknown
 }
 
 /**
- * {@link /api/admin/user-tasks/:id/approve}
+ * {@link /api/quest/admin/user-tasks/:id/approve}
  */
 export function useAdminControllerApproveUserTask<TContext>(
   options: {

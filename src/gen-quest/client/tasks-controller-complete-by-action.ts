@@ -8,12 +8,12 @@ import fetch from "@kubb/plugin-client/clients/axios";
 import type { TasksControllerCompleteByActionMutationResponse } from "@/gen-quest/types/tasks-controller-complete-by-action";
 
 function getTasksControllerCompleteByActionUrl() {
-  const res = { method: "POST", url: `/api/tasks/complete-by-action` as const };
+  const res = { method: "POST", url: `/api/quest/tasks/complete-by-action` as const };
   return res;
 }
 
 /**
- * {@link /api/tasks/complete-by-action}
+ * {@link /api/quest/tasks/complete-by-action}
  */
 export async function tasksControllerCompleteByAction(
   config: Partial<RequestConfig> & { client?: Client } = {}

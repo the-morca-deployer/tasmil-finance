@@ -14,7 +14,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { seasonsControllerMyResult } from "@/gen-quest/client/seasons-controller-my-result";
 import type { SeasonsControllerMyResultQueryResponse } from "@/gen-quest/types/seasons-controller-my-result";
 
-export const seasonsControllerMyResultQueryKey = () => [{ url: "/api/seasons/me" }] as const;
+export const seasonsControllerMyResultQueryKey = () => [{ url: "/api/quest/seasons/me" }] as const;
 
 export type SeasonsControllerMyResultQueryKey = ReturnType<
   typeof seasonsControllerMyResultQueryKey
@@ -38,7 +38,7 @@ export function seasonsControllerMyResultQueryOptions(
 }
 
 /**
- * {@link /api/seasons/me}
+ * {@link /api/quest/seasons/me}
  */
 export function useSeasonsControllerMyResult<
   TData = SeasonsControllerMyResultQueryResponse,

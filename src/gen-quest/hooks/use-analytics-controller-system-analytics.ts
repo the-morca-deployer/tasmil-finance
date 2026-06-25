@@ -15,7 +15,7 @@ import { analyticsControllerSystemAnalytics } from "@/gen-quest/client/analytics
 import type { AnalyticsControllerSystemAnalyticsQueryResponse } from "@/gen-quest/types/analytics-controller-system-analytics";
 
 export const analyticsControllerSystemAnalyticsQueryKey = () =>
-  [{ url: "/api/analytics/system" }] as const;
+  [{ url: "/api/quest/analytics/system" }] as const;
 
 export type AnalyticsControllerSystemAnalyticsQueryKey = ReturnType<
   typeof analyticsControllerSystemAnalyticsQueryKey
@@ -39,7 +39,7 @@ export function analyticsControllerSystemAnalyticsQueryOptions(
 }
 
 /**
- * {@link /api/analytics/system}
+ * {@link /api/quest/analytics/system}
  */
 export function useAnalyticsControllerSystemAnalytics<
   TData = AnalyticsControllerSystemAnalyticsQueryResponse,

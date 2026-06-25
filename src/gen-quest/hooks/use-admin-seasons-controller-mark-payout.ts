@@ -14,7 +14,7 @@ import type {
 } from "@/gen-quest/types/admin-seasons-controller-mark-payout";
 
 export const adminSeasonsControllerMarkPayoutMutationKey = () =>
-  [{ url: "/api/admin/seasons/results/:id/payout" }] as const;
+  [{ url: "/api/quest/admin/seasons/results/:id/payout" }] as const;
 
 export type AdminSeasonsControllerMarkPayoutMutationKey = ReturnType<
   typeof adminSeasonsControllerMarkPayoutMutationKey
@@ -43,7 +43,7 @@ export function adminSeasonsControllerMarkPayoutMutationOptions<TContext = unkno
 }
 
 /**
- * {@link /api/admin/seasons/results/:id/payout}
+ * {@link /api/quest/admin/seasons/results/:id/payout}
  */
 export function useAdminSeasonsControllerMarkPayout<TContext>(
   options: {

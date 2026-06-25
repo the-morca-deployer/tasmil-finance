@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/users-controller-get-my-campaigns";
 
 function getUsersControllerGetMyCampaignsUrl() {
-  const res = { method: "GET", url: `/api/users/me/campaign` as const };
+  const res = { method: "GET", url: `/api/quest/users/me/campaign` as const };
   return res;
 }
 
 /**
- * {@link /api/users/me/campaign}
+ * {@link /api/quest/users/me/campaign}
  */
 export async function usersControllerGetMyCampaigns(
   params?: UsersControllerGetMyCampaignsQueryParams,

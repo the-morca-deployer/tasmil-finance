@@ -1,6 +1,8 @@
 // Quest feature barrel exports
 
+export { Button, buttonClasses, buttonVariants } from "./components/ui/button";
 export { AutoReconnect } from "./components/auto-reconnect";
+export { QuestBeams } from "./components/QuestBeams";
 // Core screen components
 export { CampaignCard, type CampaignCardData } from "./components/CampaignCard";
 export { default as CampaignDetail } from "./components/CampaignDetail";
@@ -33,5 +35,7 @@ export {
 } from "./components/social/SocialConnectButtons";
 export { TelegramButton } from "./components/TelegramButton";
 export { TFLoader } from "./components/TFLoader";
+export { PrizeEmail } from "./components/PrizeEmail";
 // Foundation helpers + primitives (Phase 1)
 export { qAvatar, qHash } from "./lib/avatar";
+export { Progress } from "./components/ui/progress";

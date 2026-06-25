@@ -11,12 +11,12 @@ import type {
 } from "@/gen-quest/types/admin-seasons-controller-end";
 
 function getAdminSeasonsControllerEndUrl(id: AdminSeasonsControllerEndPathParams["id"]) {
-  const res = { method: "POST", url: `/api/admin/seasons/${id}/end` as const };
+  const res = { method: "POST", url: `/api/quest/admin/seasons/${id}/end` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/seasons/:id/end}
+ * {@link /api/quest/admin/seasons/:id/end}
  */
 export async function adminSeasonsControllerEnd(
   id: AdminSeasonsControllerEndPathParams["id"],

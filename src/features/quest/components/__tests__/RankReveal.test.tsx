@@ -5,7 +5,7 @@ describe("RankReveal", () => {
   it("renders real reward data and fires onClaim", () => {
     const onClaim = jest.fn();
     render(
-      <RankReveal
+      <RankReveal open
         rank={1}
         usdcReward="50"
         pointsReward={5000}
@@ -23,7 +23,7 @@ describe("RankReveal", () => {
 
   it("omits the USDC line when reward is 0", () => {
     render(
-      <RankReveal
+      <RankReveal open
         rank={7}
         usdcReward="0"
         pointsReward={800}

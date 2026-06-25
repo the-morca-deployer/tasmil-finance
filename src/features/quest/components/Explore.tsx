@@ -5,11 +5,19 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { CampaignCard, type CampaignCardData } from "@/features/quest/components/CampaignCard";
 import { Rise } from "@/features/quest/components/Rise";
-import { Button } from "@/features/quest/components/ui/button";
+import { buttonClasses } from "@/features/quest/components/ui/button";
 import { mapApiCampaignsResponse } from "@/features/quest/lib/campaign-mapper";
 import { $ } from "@/features/quest/lib/kubb-config";
 import { toCampaignCardData } from "@/features/quest/types";
 import { useCampaignsControllerFindAll } from "@/gen-quest/hooks";
+
+const WHY_CARD =
+  "rounded-quest-card border border-quest-line [background:var(--quest-card-grad)] px-7 py-[26px] transition-[border-color,transform] duration-[400ms] ease-quest hover:-translate-y-[3px] hover:border-quest-accent-line";
+const WHY_ICO =
+  "mb-[18px] grid h-11 w-11 place-items-center rounded-[13px] border border-quest-accent-line bg-quest-accent-soft text-quest-accent";
+const STAT_VALUE =
+  "inline-flex items-center gap-2 font-mono text-[clamp(24px,3.2vw,34px)] font-extrabold leading-none tracking-[-0.03em]";
+const STAT_LABEL = "mt-[9px] text-[10px] font-bold uppercase tracking-[0.2em] text-quest-muted";
 
 export default function Explore() {
   const { data, isLoading } = useCampaignsControllerFindAll({ isFeatured: true }, $);
@@ -21,50 +29,64 @@ export default function Explore() {
   }, [data]);
 
   return (
-    <div className="space-y-0">
+    <div>
       {/* HERO */}
       <Rise>
-        <section className="x-hero rise">
-          <div className="x-hero-img" aria-hidden="true" />
-          <div className="x-hero-grad" aria-hidden="true" />
-          <div className="x-hero-inner">
-            <div className="eyebrow">June 2026 Season</div>
-            <h1>
-              Embark on your{" "}
-              <span className="bg-[linear-gradient(110deg,#ffffff_0%,#67E8F9_52%,#0EA5E9_100%)] bg-clip-text text-transparent">
-                Tasmil journey
-              </span>
+        <section className="relative mb-[46px] overflow-hidden rounded-quest-card border border-quest-line shadow-[0_40px_100px_-50px_#000]">
+          <div
+            className="absolute inset-0 bg-[url(/banner2.png)] bg-cover bg-center bg-no-repeat"
+            aria-hidden="true"
+          />
+          <div
+            className="absolute inset-0 [background:radial-gradient(circle_at_20%_60%,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.4)_60%,transparent_100%),linear-gradient(0deg,rgba(0,0,0,0.85)_4%,rgba(0,0,0,0.25)_46%,transparent_78%)]"
+            aria-hidden="true"
+          />
+          <div className="relative z-[1] px-[clamp(24px,5vw,64px)] pt-[clamp(40px,7vw,84px)]">
+            <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px] before:content-[''] before:w-[26px] before:h-px before:bg-quest-accent before:opacity-60">June 2026 Season</div>
+            <h1 className="mt-[18px] max-w-[14ch] text-[clamp(34px,5.4vw,62px)] font-extrabold leading-[1.02] tracking-[-0.04em]">
+              Embark on your <span style={{ background: "var(--grad)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Tasmil journey</span>
             </h1>
-            <p>
+            <p className="mt-4 max-w-[48ch] text-[clamp(15px,1.6vw,18px)] leading-[1.55] text-quest-muted">
               Complete tasks across the Stellar ecosystem, earn points and climb the monthly
               leaderboard for real USDC rewards.
             </p>
-            <div className="cta flex gap-3 flex-wrap">
-              <Button variant="primary" size="lg" asChild>
-                <Link href="/quest/campaigns">
-                  Start Questing
-                  <span className="inline-flex" aria-hidden="true">
-                    <ArrowRight size={17} strokeWidth={2.4} />
-                  </span>
-                </Link>
-              </Button>
-              <Button variant="ghost" size="lg" asChild>
-                <Link href="/quest/leaderboard">View leaderboard</Link>
-              </Button>
+            <div className="mt-[26px]">
+              <Link href="/quest/campaigns" className={buttonClasses({ variant: "primary", size: "lg" })}>
+                Start Questing
+                <span className="inline-flex transition-transform duration-[350ms] ease-quest group-hover:translate-x-1" aria-hidden="true">
+                  <ArrowRight size={17} strokeWidth={2.4} />
+                </span>
+              </Link>
             </div>
           </div>
-          <div className="x-stats">
-            <div className="x-stat">
-              <div className="v accent">12,400+</div>
-              <div className="k">Questers</div>
+          <div className="relative z-[1] mt-[clamp(40px,6vw,72px)] grid grid-cols-3 border-t border-quest-line-2 bg-black/40 backdrop-blur-[10px]">
+            <div className="px-[clamp(20px,4vw,40px)] py-[22px]">
+              <div className={`${STAT_VALUE} text-quest-accent`}>12,400+</div>
+              <div className={STAT_LABEL}>Questers</div>
             </div>
-            <div className="x-stat">
-              <div className="v">24</div>
-              <div className="k">Campaigns</div>
+            <div className="border-l border-quest-line px-[clamp(20px,4vw,40px)] py-[22px]">
+              <div className={STAT_VALUE}>24</div>
+              <div className={STAT_LABEL}>Campaigns</div>
             </div>
-            <div className="x-stat">
-              <div className="v accent">1.2M pts</div>
-              <div className="k">Points Given</div>
+            <div className="border-l border-quest-line px-[clamp(20px,4vw,40px)] py-[22px]">
+              <div className={`${STAT_VALUE} text-quest-accent`}>
+                1.2M
+                <svg
+                  className="inline-block flex-none"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                  style={{ width: 28, height: 28, verticalAlign: -5 }}
+                >
+                  <linearGradient id="ptsCoinExpl" x1="0.15" y1="0.1" x2="0.85" y2="0.9">
+                    <stop stopColor="#A5F3FC" />
+                    <stop offset="1" stopColor="#0EA5E9" />
+                  </linearGradient>
+                  <circle cx="12" cy="12" r="9" fill="url(#ptsCoinExpl)" />
+                  <path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A" />
+                </svg>
+              </div>
+              <div className={STAT_LABEL}>Points Given</div>
             </div>
           </div>
         </section>
@@ -72,9 +94,9 @@ export default function Explore() {
 
       {/* WHY QUEST */}
       <Rise delay={0.05}>
-        <section className="why">
-          <div className="why-card">
-            <div className="why-ico" aria-hidden="true">
+        <section className="mb-[60px] grid grid-cols-3 gap-5 max-[820px]:grid-cols-1">
+          <div className={WHY_CARD}>
+            <div className={WHY_ICO} aria-hidden="true">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -82,20 +104,22 @@ export default function Explore() {
                 strokeWidth="1.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                className="h-[22px] w-[22px]"
               >
                 <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" />
                 <path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3" />
                 <path d="M12 14v3M9 21h6M10 21l.5-4h3l.5 4" />
               </svg>
             </div>
-            <h3>Earn rewards</h3>
-            <p>
-              Complete quests to earn <b>points redeemable for USDC</b> at the end of every monthly
-              season.
+            <h3 className="mb-[9px] text-[18px] font-bold tracking-[-0.02em]">Earn rewards</h3>
+            <p className="text-[14px] leading-[1.6] text-quest-muted">
+              Complete quests to earn{" "}
+              <b className="font-bold text-quest-text">points redeemable for USDC</b> at the end of
+              every monthly season.
             </p>
           </div>
-          <div className="why-card">
-            <div className="why-ico" aria-hidden="true">
+          <div className={WHY_CARD}>
+            <div className={WHY_ICO} aria-hidden="true">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -103,18 +127,20 @@ export default function Explore() {
                 strokeWidth="1.9"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                className="h-[22px] w-[22px]"
               >
                 <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" />
               </svg>
             </div>
-            <h3>Climb ranks</h3>
-            <p>
-              Every quest pushes you higher on the <b>monthly leaderboard</b> where the top 10 split
+            <h3 className="mb-[9px] text-[18px] font-bold tracking-[-0.02em]">Climb ranks</h3>
+            <p className="text-[14px] leading-[1.6] text-quest-muted">
+              Every quest pushes you higher on the{" "}
+              <b className="font-bold text-quest-text">monthly leaderboard</b> where the top 10 split
               the prize pool.
             </p>
           </div>
-          <div className="why-card">
-            <div className="why-ico" aria-hidden="true">
+          <div className={WHY_CARD}>
+            <div className={WHY_ICO} aria-hidden="true">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -122,14 +148,16 @@ export default function Explore() {
                 strokeWidth="1.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                className="h-[22px] w-[22px]"
               >
                 <circle cx="12" cy="12" r="9" />
                 <path d="M3 12h18M12 3c2.5 2.6 4 5.8 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.8-4-9s1.5-6.4 4-9Z" />
               </svg>
             </div>
-            <h3>Join the community</h3>
-            <p>
-              Compete globally with thousands of questers and <b>make your mark on Stellar</b>.
+            <h3 className="mb-[9px] text-[18px] font-bold tracking-[-0.02em]">Join the community</h3>
+            <p className="text-[14px] leading-[1.6] text-quest-muted">
+              Compete globally with thousands of questers and{" "}
+              <b className="font-bold text-quest-text">make your mark on Stellar</b>.
             </p>
           </div>
         </section>
@@ -138,31 +166,45 @@ export default function Explore() {
       {/* FEATURED CAMPAIGNS */}
       <Rise delay={0.1}>
         <section>
-          <div className="sec-head">
-            <h2 className="sec-title">Featured campaigns</h2>
-            <Link href="/quest/campaigns" className="sec-link">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <h2 className="text-[clamp(22px,3vw,30px)] font-extrabold tracking-[-0.03em]">
+              Featured campaigns
+            </h2>
+            <Link
+              href="/quest/campaigns"
+              className="group inline-flex items-center gap-[7px] text-[14px] font-semibold text-quest-accent"
+            >
               View all
-              <span className="arr" aria-hidden="true">
+              <span
+                className="inline-flex transition-transform duration-300 ease-quest group-hover:translate-x-1"
+                aria-hidden="true"
+              >
                 <ArrowRight size={15} strokeWidth={2.4} />
               </span>
             </Link>
           </div>
-          <div className="camp-grid">
+          <div className="grid grid-cols-3 gap-[22px] max-[980px]:grid-cols-2 max-[640px]:grid-cols-1">
             {isLoading ? (
               <>
                 {[0, 1, 2].map((i) => (
-                  <div key={i} className="skel">
-                    <div className="s-img" />
-                    <div className="s-body">
-                      <div className="s-line" style={{ width: "60%" }} />
-                      <div className="s-line" style={{ width: "80%" }} />
-                      <div className="s-line" style={{ width: "40%" }} />
+                  <div
+                    key={i}
+                    className="animate-pulse overflow-hidden rounded-quest-card border border-quest-line [background:var(--quest-card-grad)]"
+                  >
+                    <div className="h-[184px] bg-white/5" />
+                    <div className="flex flex-col gap-3 p-5">
+                      <div className="h-[14px] rounded-md bg-white/5" style={{ width: "60%" }} />
+                      <div className="h-[14px] rounded-md bg-white/5" style={{ width: "80%" }} />
+                      <div className="h-[14px] rounded-md bg-white/5" style={{ width: "40%" }} />
                     </div>
                   </div>
                 ))}
               </>
             ) : items.length === 0 ? (
-              <div className="empty" style={{ gridColumn: "1/-1" }}>
+              <div
+                className="flex flex-col items-center gap-[14px] px-5 py-20 text-center"
+                style={{ gridColumn: "1/-1" }}
+              >
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -171,12 +213,17 @@ export default function Explore() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   aria-hidden="true"
+                  className="h-14 w-14 text-quest-faint"
                 >
                   <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2Z" />
                   <path d="M12 8v4M12 16h.01" />
                 </svg>
-                <p className="et">No featured campaigns this season.</p>
-                <p className="es">Check back soon or browse all campaigns.</p>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-quest-text">
+                  No featured campaigns this season.
+                </div>
+                <div className="text-[14px] text-quest-muted">
+                  Check back soon or browse all campaigns.
+                </div>
               </div>
             ) : (
               items.map((c) => <CampaignCard key={c.id} campaign={c} />)

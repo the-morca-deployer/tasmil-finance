@@ -14,12 +14,12 @@ import type {
 function getAdminSeasonsControllerMarkPayoutUrl(
   id: AdminSeasonsControllerMarkPayoutPathParams["id"]
 ) {
-  const res = { method: "PATCH", url: `/api/admin/seasons/results/${id}/payout` as const };
+  const res = { method: "PATCH", url: `/api/quest/admin/seasons/results/${id}/payout` as const };
   return res;
 }
 
 /**
- * {@link /api/admin/seasons/results/:id/payout}
+ * {@link /api/quest/admin/seasons/results/:id/payout}
  */
 export async function adminSeasonsControllerMarkPayout(
   id: AdminSeasonsControllerMarkPayoutPathParams["id"],

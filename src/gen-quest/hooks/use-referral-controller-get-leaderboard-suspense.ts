@@ -15,7 +15,7 @@ import { referralControllerGetLeaderboard } from "@/gen-quest/client/referral-co
 import type { ReferralControllerGetLeaderboardQueryResponse } from "@/gen-quest/types/referral-controller-get-leaderboard";
 
 export const referralControllerGetLeaderboardSuspenseQueryKey = () =>
-  [{ url: "/api/referral/leaderboard" }] as const;
+  [{ url: "/api/quest/referral/leaderboard" }] as const;
 
 export type ReferralControllerGetLeaderboardSuspenseQueryKey = ReturnType<
   typeof referralControllerGetLeaderboardSuspenseQueryKey
@@ -39,7 +39,7 @@ export function referralControllerGetLeaderboardSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/referral/leaderboard}
+ * {@link /api/quest/referral/leaderboard}
  */
 export function useReferralControllerGetLeaderboardSuspense<
   TData = ReferralControllerGetLeaderboardQueryResponse,

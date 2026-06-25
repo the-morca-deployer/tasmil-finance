@@ -14,7 +14,7 @@ import type {
 } from "@/gen-quest/types/admin-controller-add-task";
 
 export const adminControllerAddTaskMutationKey = () =>
-  [{ url: "/api/admin/campaigns/:campaignId/tasks" }] as const;
+  [{ url: "/api/quest/admin/campaigns/:campaignId/tasks" }] as const;
 
 export type AdminControllerAddTaskMutationKey = ReturnType<
   typeof adminControllerAddTaskMutationKey
@@ -41,7 +41,7 @@ export function adminControllerAddTaskMutationOptions<TContext = unknown>(
 }
 
 /**
- * {@link /api/admin/campaigns/:campaignId/tasks}
+ * {@link /api/quest/admin/campaigns/:campaignId/tasks}
  */
 export function useAdminControllerAddTask<TContext>(
   options: {

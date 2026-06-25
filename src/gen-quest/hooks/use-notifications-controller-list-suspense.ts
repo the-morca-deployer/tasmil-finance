@@ -19,7 +19,7 @@ import type {
 
 export const notificationsControllerListSuspenseQueryKey = (
   params?: NotificationsControllerListQueryParams
-) => [{ url: "/api/notifications" }, ...(params ? [params] : [])] as const;
+) => [{ url: "/api/quest/notifications" }, ...(params ? [params] : [])] as const;
 
 export type NotificationsControllerListSuspenseQueryKey = ReturnType<
   typeof notificationsControllerListSuspenseQueryKey
@@ -44,7 +44,7 @@ export function notificationsControllerListSuspenseQueryOptions(
 }
 
 /**
- * {@link /api/notifications}
+ * {@link /api/quest/notifications}
  */
 export function useNotificationsControllerListSuspense<
   TData = NotificationsControllerListQueryResponse,

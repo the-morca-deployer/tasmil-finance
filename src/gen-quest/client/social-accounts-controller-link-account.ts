@@ -15,13 +15,13 @@ import type {
 function getSocialAccountsControllerLinkAccountUrl(
   platform: SocialAccountsControllerLinkAccountPathParams["platform"]
 ) {
-  const res = { method: "POST", url: `/api/users/me/social-accounts/${platform}/link` as const };
+  const res = { method: "POST", url: `/api/quest/social-accounts/${platform}/link` as const };
   return res;
 }
 
 /**
  * @summary Link a social account
- * {@link /api/users/me/social-accounts/:platform/link}
+ * {@link /api/quest/social-accounts/:platform/link}
  */
 export async function socialAccountsControllerLinkAccount(
   platform: SocialAccountsControllerLinkAccountPathParams["platform"],

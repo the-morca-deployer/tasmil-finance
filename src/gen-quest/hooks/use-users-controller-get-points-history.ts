@@ -23,7 +23,7 @@ export const usersControllerGetPointsHistoryQueryKey = (
   params?: UsersControllerGetPointsHistoryQueryParams
 ) =>
   [
-    { url: "/api/users/:id/points-history", params: { id: id } },
+    { url: "/api/quest/users/:id/points-history", params: { id: id } },
     ...(params ? [params] : []),
   ] as const;
 
@@ -55,7 +55,7 @@ export function usersControllerGetPointsHistoryQueryOptions(
 }
 
 /**
- * {@link /api/users/:id/points-history}
+ * {@link /api/quest/users/:id/points-history}
  */
 export function useUsersControllerGetPointsHistory<
   TData = UsersControllerGetPointsHistoryQueryResponse,

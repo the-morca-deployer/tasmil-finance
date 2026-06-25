@@ -56,7 +56,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const {
     isAuthenticated,
     user,
-    setAuthState,
+    setUser: setAuthUser,
     setLoading,
     isLoading: isAuthenticating,
   } = useQuestAuthStore();
@@ -232,10 +232,10 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setSigning(false);
 
       try {
-        // 1. Get challenge from backend
+        // 1. Get challenge from backend (baseURL is /api)
         const challengeRes = await apiClient.post<{
           data: { nonce: string; message: string };
-        }>("/api/auth/challenge", { walletAddress: publicKey });
+        }>("/auth/challenge", { walletAddress: publicKey });
         const { message } = challengeRes.data.data;
 
         // 2. Network check (Freighter only — gracefully skip others)
@@ -279,14 +279,14 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               ((signResult as Record<string, unknown>).signature as string | undefined) ??
               String(signResult));
 
-        // 4. Verify with backend
+        // 4. Verify with backend (cookie-based auth — no tokens returned)
         setSigning(false);
         const verifyRes = await apiClient.post<{
-          data: { accessToken: string; refreshToken: string; user: AuthUser };
-        }>("/api/auth/verify", { walletAddress: publicKey, signedMessage });
+          data: { user: AuthUser };
+        }>("/auth/verify", { walletAddress: publicKey, signedMessage });
 
-        const { accessToken, refreshToken, user: userData } = verifyRes.data.data;
-        setAuthState({ accessToken, refreshToken, user: userData });
+        const { user: userData } = verifyRes.data.data;
+        setAuthUser(userData);
         toast.success("Wallet verified successfully!");
       } catch (error: unknown) {
         const isAxiosError = error && typeof error === "object" && "response" in error;
@@ -317,7 +317,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setSigning(false);
       }
     },
-    [isAuthenticated, user, setAuthState, setLoading]
+    [isAuthenticated, user, setAuthUser, setLoading]
   );
 
   // ─── Auto-auth when address becomes known ────────────────────────────────
@@ -371,10 +371,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     skipAutoAuthRef.current = true;
     authAttemptedRef.current = null;
 
-    // Revoke the quest refresh token server-side (best-effort) before the
-    // canonical sign-out clears the client tokens.
-    const { refreshToken } = useQuestAuthStore.getState();
-    if (refreshToken) logoutMutation.mutate(undefined);
+    // Revoke the session server-side (best-effort, cookie-based auth).
+    logoutMutation.mutate(undefined);
 
     setAddress(null);
     setIsConnected(false);
