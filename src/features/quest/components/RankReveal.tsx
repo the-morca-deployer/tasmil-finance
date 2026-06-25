@@ -170,27 +170,95 @@ export function RankReveal({
   if (!open) return null;
 
   return createPortal(
-    <div className="rank-reveal-backdrop">
-      <div className={`rank-card t-${tier}`} ref={cardRef}>
+    // .rank-reveal-backdrop: fixed; inset:0; z-index:100; grid place-items-center; padding:32px;
+    //   backdrop-filter:blur(16px); background: radial-gradient+rgba(0,0,0,0.85)
+    <div
+      className="fixed inset-0 z-[100] grid place-items-center p-8"
+      style={{
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        background: [
+          "radial-gradient(680px 420px at 50% -8%,var(--accent-soft),transparent 70%)",
+          "radial-gradient(900px 600px at 50% 120%,rgba(14,165,233,0.08),transparent 70%)",
+          "rgba(0,0,0,0.85)",
+        ].join(", "),
+      }}
+    >
+      {/* .rank-card: relative; width:min(540px,100%); border-radius:28px; padding:38px 40px 36px;
+           background: radial-gradient+linear-gradient; border:1px solid var(--line); box-shadow:…; text-align:center;
+           opacity:0; transform:scale(.93) translateY(10px); transition:opacity .5s,transform .5s ease-out
+           .rank-card.in: opacity:1; transform:none
+           NOTE: opacity/transform/transition kept in quest.css only (inline styles override .in class) */}
+      <div
+        className={`rank-card t-${tier}`}
+        ref={cardRef}
+      >
         {onClose && (
-          <button type="button" className="card-close" onClick={onClose} aria-label="Close">
+          // .card-close: absolute; top:18px; right:18px; width:38px; height:38px; border-radius:50%;
+          //   grid place-items-center; cursor:pointer; background:rgba(255,255,255,0.05); border:1px solid var(--line-2);
+          //   color:var(--muted); transition:background .2s,color .2s,transform .2s; z-index:1
+          //   :hover: background:rgba(255,255,255,0.09); color:var(--text); transform:rotate(90deg)
+          <button
+            type="button"
+            className="card-close"
+            onClick={onClose}
+            aria-label="Close"
+          >
             <Icon.close width={17} height={17} />
           </button>
         )}
 
-        <div className={`reveal t-${tier}`} ref={revealRef}>
+        {/* .reveal: relative; width:100%; height:172px; margin:6px auto; grid place-items-center */}
+        {/* .reveal.show-slot .crown-slot: opacity:.7 */}
+        {/* t-* class on reveal controls glow color via quest.css */}
+        <div
+          className={`reveal t-${tier}`}
+          ref={revealRef}
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "172px",
+            margin: "6px auto",
+            display: "grid",
+            placeItems: "center",
+          }}
+        >
+          {/* .reveal-glow: absolute; top:42px; width:180px; height:120px; border-radius:50%;
+               background:radial-gradient(…accent-glow…); opacity:.32; filter:blur(8px); pointer-events:none
+               t-* variants override background — kept via quest.css */}
           <div className="reveal-glow" />
+
+          {/* .crown-slot: absolute; top:8px; left:50%; transform:translateX(-50%); width:74px; height:60px;
+               border-radius:14px 14px 50% 50%; border:1.5px dashed var(--line-2); opacity:0;
+               transition:opacity .35s; .show-slot → opacity:.7 */}
           <div className="crown-slot" />
+
+          {/* .reveal-crown: absolute; top:-6px; left:50%; transform:translateX(-50%); z-index:6; width:72px
+               t-silver/bronze/aqua: width:60px; top:2px */}
           <div className="reveal-crown">
+            {/* img.bob animation: reveal-crownbob 3s infinite — kept via quest.css @keyframes */}
             <img ref={crownRef} src={CROWN[tier]} alt="" />
           </div>
+
+          {/* .plinth: relative; margin-top:64px; flex col; align-items:center */}
           <div className="plinth">
+            {/* .plinth-num: font-weight:800; letter-spacing:-0.04em; line-height:1; font-size:84px;
+                 -webkit-background-clip:text; color:transparent; filter:drop-shadow(…)
+                 t-* variants set background-image — kept via quest.css
+                 .pop animation: numpop .5s — kept via quest.css @keyframes */}
             <span className="plinth-num" ref={plinthRef}>#{rank}</span>
           </div>
         </div>
 
+        {/* .reveal-out: opacity:0; transform:translateY(10px); transition:opacity .5s,transform .5s ease-out
+             .reveal-out.in: opacity:1; transform:none */}
         <div className="reveal-out" ref={copyRef}>
+          {/* .eyebrow (rank-card variant): inline-flex; align-items:center; gap:11px; font-size:12px; font-weight:700;
+               letter-spacing:0.22em; text-transform:uppercase; color:var(--accent); margin-bottom:13px
+               ::before/::after: content:""; width:24px; height:1px; background:var(--accent); opacity:.55 */}
           <div className="eyebrow">{seasonName} Season</div>
+          {/* .title: font-size:38px; font-weight:800; letter-spacing:-0.035em; line-height:1.04
+               .grad: gradient text */}
           <h2 className="title">
             {rank === 1 ? (
               <>You&rsquo;re the <span className="grad">champion</span></>
@@ -200,14 +268,22 @@ export function RankReveal({
               <>You finished <span className="grad">top 10</span></>
             )}
           </h2>
+          {/* .sub: margin-top:14px; font-size:16px; color:var(--muted); line-height:1.55; max-width:380px; mx-auto */}
           <p className="sub">Here is everything you have earned this season.</p>
         </div>
 
+        {/* .divider: height:1px; background:var(--line); margin:26px 4px 22px */}
         <div className="divider" />
 
+        {/* .checklist: flex flex-col; gap:16px; text-align:left; padding:0 6px */}
         <div className="checklist" ref={listRef}>
           {hasUsdc && (
+            // .ci: flex; align-items:center; gap:15px; font-size:16px; color:var(--text);
+            //   opacity:0; transform:translateY(8px); transition:opacity .45s,transform .45s ease-out
+            //   .ci.in: opacity:1; transform:none
             <div className="ci">
+              {/* .tick: flex:none; width:30px; height:30px; border-radius:50%; grid place-items-center;
+                   background:var(--accent-soft); border:1px solid var(--accent-line); color:var(--accent) */}
               <span className="tick"><Icon.check width={15} height={15} /></span>
               <span><b>{usdcReward} USDC</b> sent to your wallet</span>
             </div>
@@ -222,6 +298,15 @@ export function RankReveal({
           </div>
         </div>
 
+        {/* .claim-btn: flex; align-items:center; justify-content:center; gap:10px; width:100%; margin-top:26px;
+             padding:18px; border-radius:100px; border:none; cursor:pointer; font-size:17px; font-weight:700;
+             letter-spacing:-0.01em; color:var(--accent-ink); background:var(--grad);
+             box-shadow:0 0 40px -12px var(--accent-glow);
+             transition:transform .35s var(--ease),box-shadow .35s var(--ease);
+             opacity:0; transform:translateY(10px);
+             .claim-btn.in: opacity:1; transform:none
+             :hover: transform:translateY(-2px); box-shadow:0 14px 44px -10px var(--accent-glow)
+             .arr: transition:transform .35s var(--ease)  :hover .arr: translateX(4px) */}
         <button type="button" className="claim-btn" ref={btnRef} onClick={onClaim}>
           <span>{hasUsdc ? "Claim my reward" : "Claim my points"}</span>
           <span className="arr"><Icon.arrow width={18} height={18} /></span>

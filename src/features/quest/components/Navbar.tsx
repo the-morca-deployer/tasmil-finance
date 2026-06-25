@@ -154,24 +154,41 @@ const Navbar: React.FC = () => {
   }, [isMobileMenuOpen]);
 
   return (
+    // .nav: sticky top:0; z-index:50; grid 1fr auto 1fr; align-items:center; padding:16px clamp(20px,5vw,56px);
+    //       background:rgba(20,20,25,0.72); backdrop-filter:blur(18px); border-bottom:1px solid var(--line)
+    // NOTE: original component used flex justify-between (not grid); preserving that layout for mobile compat
     <header
       className="sticky top-0 z-50 flex items-center justify-between"
       style={{
         padding: "16px clamp(20px, 5vw, 56px)",
-        background: "rgba(0,0,0,0.72)",
+        background: "rgba(20,20,25,0.72)",
         backdropFilter: "blur(18px)",
         WebkitBackdropFilter: "blur(18px)",
-        borderBottom: "1px solid var(--accent-line)",
+        borderBottom: "1px solid var(--line)",
       }}
     >
       {/* Brand */}
+      {/* .nav-brand: flex; align-items:center; gap:15px; font-weight:800; font-size:30px; letter-spacing:-0.03em */}
+      {/* .brand (footer/nav): flex; align-items:center; gap:12px; font-weight:700; font-size:22px; letter-spacing:-0.03em */}
+      {/* .brand-name: gradient text */}
+      {/* .mk (nav): width:48px; height:48px */}
       <div className="flex items-center">
         <Link
           href="/quest/explore"
-          className="brand"
+          className="flex items-center gap-[15px] font-extrabold no-underline"
+          style={{ fontSize: "30px", letterSpacing: "-0.03em" }}
         >
-          <img className="mk" src="/tasmil-tf-logo.png" alt="Tasmil" width="40" height="40" />
-          <span className="brand-name">Tasmil Quest</span>
+          <img src="/tasmil-tf-logo.png" alt="Tasmil" width="48" height="48" className="flex-none" style={{ width: "48px", height: "48px" }} />
+          <span
+            style={{
+              background: "linear-gradient(100deg,#fff 0%,var(--accent) 100%)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+            }}
+          >
+            Tasmil Quest
+          </span>
         </Link>
 
         {sponsoredName ? (
@@ -184,7 +201,7 @@ const Navbar: React.FC = () => {
         ) : null}
       </div>
 
-      {/* Desktop nav links */}
+      {/* Desktop nav links — .nav-links: flex; gap:2px */}
       <nav className="hidden md:flex gap-[2px]">
         <NavItem href="/quest/explore" label="Explore" />
         <NavItem href="/quest/campaigns" label="Campaigns" />
@@ -192,7 +209,7 @@ const Navbar: React.FC = () => {
         <NavItem href="/quest/profile" label="Profile" />
       </nav>
 
-      {/* Right side */}
+      {/* Right side — .nav-right: flex; align-items:center; gap:12px */}
       <div className="hidden md:flex items-center gap-3">
         {!isConnected ? (
           <button
@@ -206,15 +223,23 @@ const Navbar: React.FC = () => {
           </button>
         ) : isAuthenticating ? (
           <div className="flex items-center gap-3">
-            <span className="stat-pill pts">
+            {/* .stat-pill.pts: inline-flex; align-items:center; gap:7px; font-size:13.5px; font-weight:600;
+                 padding:8px 14px; border-radius:var(--r-pill); background:var(--surface); border:1px solid var(--line-2); color:var(--green) */}
+            <span
+              className="inline-flex items-center gap-[7px] rounded-quest-pill border border-quest-line-2 bg-quest-surface text-[13.5px] font-semibold text-quest-green"
+              style={{ padding: "8px 14px" }}
+            >
               <Loader2 className="w-[14px] h-[14px] animate-spin" />
               Authenticating...
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            {/* Points pill */}
-            <span className="stat-pill pts">
+            {/* Points pill — .stat-pill.pts: color:var(--green) */}
+            <span
+              className="inline-flex items-center gap-[7px] rounded-quest-pill border border-quest-line-2 bg-quest-surface text-[13.5px] font-semibold text-quest-green"
+              style={{ padding: "8px 14px" }}
+            >
               <Coins className="w-[14px] h-[14px]" />
               {points.toLocaleString()}
             </span>
@@ -240,16 +265,28 @@ const Navbar: React.FC = () => {
                 )}
               </button>
             ) : (
-              <span className="stat-pill streak">
+              /* .stat-pill.streak: color:var(--amber) */
+              <span
+                className="inline-flex items-center gap-[7px] rounded-quest-pill border border-quest-line-2 bg-quest-surface text-[13.5px] font-semibold text-quest-amber"
+                style={{ padding: "8px 14px" }}
+              >
                 <Flame className="w-[14px] h-[14px]" />
                 {streak}d
               </span>
             )}
 
-            {/* Wallet chip with dropdown */}
+            {/* Wallet chip — .wallet-chip: inline-flex; align-items:center; gap:10px; padding:5px 14px 5px 6px;
+                 border-radius:var(--r-pill); background:var(--surface); border:1px solid var(--line-2) */}
             <div className="relative group">
-              <span className="wallet-chip cursor-pointer">
-                <span className="av" style={{ background: avatarFromAddress(address ?? "") }}>
+              <span
+                className="inline-flex cursor-pointer items-center gap-[10px] rounded-quest-pill border border-quest-line-2 bg-quest-surface"
+                style={{ padding: "5px 14px 5px 6px" }}
+              >
+                {/* .av: block; width:30px; height:30px; border-radius:50%; flex:none */}
+                <span
+                  className="block h-[30px] w-[30px] flex-none rounded-full"
+                  style={{ background: avatarFromAddress(address ?? "") }}
+                >
                   <Avatar className="h-[30px] w-[30px]">
                     <AvatarImage src={getAvatarUrl(address ?? undefined)} />
                     <AvatarFallback>
@@ -257,7 +294,13 @@ const Navbar: React.FC = () => {
                     </AvatarFallback>
                   </Avatar>
                 </span>
-                <span className="addr">{displayAddress}</span>
+                {/* .addr: font-family:var(--font-mono); font-size:13px; color:var(--text) */}
+                <span
+                  className="text-[13px] text-quest-text"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
+                  {displayAddress}
+                </span>
               </span>
 
               {/* Hover dropdown */}
