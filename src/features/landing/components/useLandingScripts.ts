@@ -120,7 +120,7 @@ export function useLandingScripts() {
     if (faCols && faMark) {
       new IntersectionObserver(
         (es) => {
-          faCols.classList.toggle("in", es[0].isIntersecting);
+          faCols.dataset.in = es[0].isIntersecting ? "true" : "false";
         },
         { threshold: 0.04 }
       ).observe(faMark);
