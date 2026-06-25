@@ -114,7 +114,7 @@ export default function Explore() {
               </span>
             </Link>
           </div>
-          <div className="camp-grid">
+          <div className="grid grid-cols-3 gap-[22px] max-[980px]:grid-cols-2 max-[640px]:grid-cols-1">
             {isLoading ? (
               <>
                 {[0, 1, 2].map((i) => (
