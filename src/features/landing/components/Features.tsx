@@ -1,4 +1,3 @@
-// @ts-nocheck
 export default function Features() {
   return (
     <>
@@ -6,6 +5,7 @@ export default function Features() {
 
       <section className="section features" id="features">
         <div className="wrap">
+          {/* sec-head kept as CSS class — shared with Security.tsx */}
           <div className="sec-head reveal" style={{ marginBottom: "10px" }}>
             <div>
               <div className="eyebrow">What you can do</div>
@@ -16,13 +16,24 @@ export default function Features() {
             </p>
           </div>
 
-          <div className="frow left" style={{ "--i": "0" }}>
-            <div className="fviz reveal">
-              <div className="panel">
-                <div className="panel-cap">
-                  <span className="cap-line">Plain English, on-chain.</span>
+          {/* frow left — class kept for JS .closest(".frow") hook */}
+          <div
+            className="frow left grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:sticky max-[900px]:top-[calc(72px+0*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
+            style={{ "--i": "0" } as React.CSSProperties}
+          >
+            {/* fviz: col 1-6 on desktop, full-width on mobile */}
+            <div className="fviz reveal col-span-6 min-w-0 max-[900px]:col-span-full">
+              {/* panel */}
+              <div className="min-w-0 border border-[var(--line-2)] rounded-[22px] bg-[linear-gradient(160deg,rgba(24,33,47,0.66),rgba(9,13,20,0.62))] overflow-hidden relative shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.045)] transition-[border-color,box-shadow] duration-500">
+                {/* panel-cap */}
+                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-mono text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
+                  {/* cap-line */}
+                  <span className="font-[var(--font)] text-[16px] font-semibold tracking-[-0.01em] normal-case bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                    Plain English, on-chain.
+                  </span>
                 </div>
-                <div className="panel-pad">
+                {/* panel-pad */}
+                <div className="p-[clamp(26px,4vw,46px)] max-[560px]:p-5">
                   <div className="chat" id="chat">
                     <div className="chat-thread" id="chatThread">
                       <div className="cmsg user" data-c="1">
@@ -98,23 +109,28 @@ export default function Features() {
                 </div>
               </div>
             </div>
-            <div className="ftext reveal d1">
-              <div className="fhead">
-                <span className="num">01.</span>
-                <span className="k">Chat</span>
+            {/* ftext: col 8-12 on desktop, full-width + reordered first on mobile */}
+            <div className="ftext reveal d1 col-start-8 col-end-13 min-w-0 max-[900px]:col-span-full max-[900px]:-order-1">
+              {/* fhead */}
+              <div className="flex items-baseline gap-4 mb-[22px]">
+                <span className="font-mono text-[17px] font-bold text-[var(--accent)]">01.</span>
+                <span className="font-mono text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                  Chat
+                </span>
               </div>
-              <h3>
+              <h3 className="text-[clamp(27px,3.3vw,44px)] font-bold tracking-[-0.035em] leading-[1.03] mb-[18px]">
                 Talk to DeFi
                 <br />
                 like a person.
               </h3>
-              <p className="fp">
+              <p className="fp text-[16px] text-[var(--muted)] leading-[1.62] max-w-[42ch] mb-[26px] max-[560px]:max-w-none">
                 Describe the outcome in plain words. Agents plan the route — you approve before
                 anything signs.
               </p>
-              <div className="flist">
-                <div className="li">
-                  <svg viewBox="0 0 16 16" fill="none">
+              {/* flist */}
+              <div className="flex flex-col gap-[11px]">
+                <div className="flex items-center gap-3 text-[14.5px] text-[var(--text)] max-[560px]:text-[14px]">
+                  <svg viewBox="0 0 16 16" fill="none" className="w-[15px] h-[15px] shrink-0">
                     <path
                       d="M3.5 8.5l3 3 6-7"
                       stroke="var(--accent)"
@@ -125,8 +141,8 @@ export default function Features() {
                   </svg>
                   Natural-language intents
                 </div>
-                <div className="li">
-                  <svg viewBox="0 0 16 16" fill="none">
+                <div className="flex items-center gap-3 text-[14.5px] text-[var(--text)] max-[560px]:text-[14px]">
+                  <svg viewBox="0 0 16 16" fill="none" className="w-[15px] h-[15px] shrink-0">
                     <path
                       d="M3.5 8.5l3 3 6-7"
                       stroke="var(--accent)"
@@ -141,24 +157,33 @@ export default function Features() {
             </div>
           </div>
 
-          <div className="frow right" style={{ "--i": "1" }}>
-            <div className="ftext reveal">
-              <div className="fhead">
-                <span className="num">02.</span>
-                <span className="k">Aggregator</span>
+          {/* frow right */}
+          <div
+            className="frow right grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:sticky max-[900px]:top-[calc(72px+1*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
+            style={{ "--i": "1" } as React.CSSProperties}
+          >
+            {/* ftext: col 1-5 on desktop */}
+            <div className="ftext reveal col-start-1 col-end-6 min-w-0 max-[900px]:col-span-full max-[900px]:-order-1">
+              {/* fhead */}
+              <div className="flex items-baseline gap-4 mb-[22px]">
+                <span className="font-mono text-[17px] font-bold text-[var(--accent)]">02.</span>
+                <span className="font-mono text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                  Aggregator
+                </span>
               </div>
-              <h3>
+              <h3 className="text-[clamp(27px,3.3vw,44px)] font-bold tracking-[-0.035em] leading-[1.03] mb-[18px]">
                 Best price,
                 <br />
                 found for you.
               </h3>
-              <p className="fp">
+              <p className="fp text-[16px] text-[var(--muted)] leading-[1.62] max-w-[42ch] mb-[26px] max-[560px]:max-w-none">
                 One pass quotes Soroswap, SDEX and Aquarius, then routes your swap through the
                 cheapest path.
               </p>
-              <div className="flist">
-                <div className="li">
-                  <svg viewBox="0 0 16 16" fill="none">
+              {/* flist */}
+              <div className="flex flex-col gap-[11px]">
+                <div className="flex items-center gap-3 text-[14.5px] text-[var(--text)] max-[560px]:text-[14px]">
+                  <svg viewBox="0 0 16 16" fill="none" className="w-[15px] h-[15px] shrink-0">
                     <path
                       d="M3.5 8.5l3 3 6-7"
                       stroke="var(--accent)"
@@ -169,8 +194,8 @@ export default function Features() {
                   </svg>
                   Multi-venue quote comparison
                 </div>
-                <div className="li">
-                  <svg viewBox="0 0 16 16" fill="none">
+                <div className="flex items-center gap-3 text-[14.5px] text-[var(--text)] max-[560px]:text-[14px]">
+                  <svg viewBox="0 0 16 16" fill="none" className="w-[15px] h-[15px] shrink-0">
                     <path
                       d="M3.5 8.5l3 3 6-7"
                       stroke="var(--accent)"
@@ -183,12 +208,19 @@ export default function Features() {
                 </div>
               </div>
             </div>
-            <div className="fviz reveal d1">
-              <div className="panel">
-                <div className="panel-cap">
-                  <span className="cap-line">One pass, best price.</span>
+            {/* fviz: col 7-12 on desktop */}
+            <div className="fviz reveal d1 col-start-7 col-end-13 min-w-0 max-[900px]:col-span-full">
+              {/* panel */}
+              <div className="min-w-0 border border-[var(--line-2)] rounded-[22px] bg-[linear-gradient(160deg,rgba(24,33,47,0.66),rgba(9,13,20,0.62))] overflow-hidden relative shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.045)] transition-[border-color,box-shadow] duration-500">
+                {/* panel-cap */}
+                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-mono text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
+                  {/* cap-line */}
+                  <span className="font-[var(--font)] text-[16px] font-semibold tracking-[-0.01em] normal-case bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                    One pass, best price.
+                  </span>
                 </div>
-                <div className="panel-pad swap-pad">
+                {/* panel-pad */}
+                <div className="swap-pad p-[clamp(26px,4vw,46px)] max-[560px]:p-5">
                   <div className="swap-field">
                     <div className="sf-top">
                       <span className="sf-label">You pay</span>
@@ -292,13 +324,24 @@ export default function Features() {
             </div>
           </div>
 
-          <div className="frow left" style={{ "--i": "2" }}>
-            <div className="fviz reveal">
-              <div className="panel">
-                <div className="panel-cap">
-                  <span className="cap-line">Presets that rebalance for you.</span>
+          {/* frow left */}
+          <div
+            className="frow left grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:sticky max-[900px]:top-[calc(72px+2*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
+            style={{ "--i": "2" } as React.CSSProperties}
+          >
+            {/* fviz: col 1-6 on desktop */}
+            <div className="fviz reveal col-span-6 min-w-0 max-[900px]:col-span-full">
+              {/* panel */}
+              <div className="min-w-0 border border-[var(--line-2)] rounded-[22px] bg-[linear-gradient(160deg,rgba(24,33,47,0.66),rgba(9,13,20,0.62))] overflow-hidden relative shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.045)] transition-[border-color,box-shadow] duration-500">
+                {/* panel-cap */}
+                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-mono text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
+                  {/* cap-line */}
+                  <span className="font-[var(--font)] text-[16px] font-semibold tracking-[-0.01em] normal-case bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                    Presets that rebalance for you.
+                  </span>
                 </div>
-                <div className="panel-pad">
+                {/* panel-pad */}
+                <div className="p-[clamp(26px,4vw,46px)] max-[560px]:p-5">
                   <div className="farm-ui">
                     <div className="farm-presets" id="farmPresets">
                       <span className="fp-thumb" id="fpThumb"></span>
@@ -382,23 +425,28 @@ export default function Features() {
                 </div>
               </div>
             </div>
-            <div className="ftext reveal d1">
-              <div className="fhead">
-                <span className="num">03.</span>
-                <span className="k">Farming</span>
+            {/* ftext: col 8-12 on desktop */}
+            <div className="ftext reveal d1 col-start-8 col-end-13 min-w-0 max-[900px]:col-span-full max-[900px]:-order-1">
+              {/* fhead */}
+              <div className="flex items-baseline gap-4 mb-[22px]">
+                <span className="font-mono text-[17px] font-bold text-[var(--accent)]">03.</span>
+                <span className="font-mono text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                  Farming
+                </span>
               </div>
-              <h3>
+              <h3 className="text-[clamp(27px,3.3vw,44px)] font-bold tracking-[-0.035em] leading-[1.03] mb-[18px]">
                 Set a preset.
                 <br />
                 Let it run.
               </h3>
-              <p className="fp">
+              <p className="fp text-[16px] text-[var(--muted)] leading-[1.62] max-w-[42ch] mb-[26px] max-[560px]:max-w-none">
                 Pick Safe, Balanced or Aggressive. The engine spreads and rebalances your deposit
                 every 10 minutes.
               </p>
-              <div className="flist">
-                <div className="li">
-                  <svg viewBox="0 0 16 16" fill="none">
+              {/* flist */}
+              <div className="flex flex-col gap-[11px]">
+                <div className="flex items-center gap-3 text-[14.5px] text-[var(--text)] max-[560px]:text-[14px]">
+                  <svg viewBox="0 0 16 16" fill="none" className="w-[15px] h-[15px] shrink-0">
                     <path
                       d="M3.5 8.5l3 3 6-7"
                       stroke="var(--accent)"
@@ -409,8 +457,8 @@ export default function Features() {
                   </svg>
                   Three risk presets
                 </div>
-                <div className="li">
-                  <svg viewBox="0 0 16 16" fill="none">
+                <div className="flex items-center gap-3 text-[14.5px] text-[var(--text)] max-[560px]:text-[14px]">
+                  <svg viewBox="0 0 16 16" fill="none" className="w-[15px] h-[15px] shrink-0">
                     <path
                       d="M3.5 8.5l3 3 6-7"
                       stroke="var(--accent)"
@@ -425,24 +473,33 @@ export default function Features() {
             </div>
           </div>
 
-          <div className="frow right" style={{ "--i": "3" }}>
-            <div className="ftext reveal">
-              <div className="fhead">
-                <span className="num">04.</span>
-                <span className="k">Portfolio</span>
+          {/* frow right */}
+          <div
+            className="frow right grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:sticky max-[900px]:top-[calc(72px+3*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
+            style={{ "--i": "3" } as React.CSSProperties}
+          >
+            {/* ftext: col 1-5 on desktop */}
+            <div className="ftext reveal col-start-1 col-end-6 min-w-0 max-[900px]:col-span-full max-[900px]:-order-1">
+              {/* fhead */}
+              <div className="flex items-baseline gap-4 mb-[22px]">
+                <span className="font-mono text-[17px] font-bold text-[var(--accent)]">04.</span>
+                <span className="font-mono text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                  Portfolio
+                </span>
               </div>
-              <h3>
+              <h3 className="text-[clamp(27px,3.3vw,44px)] font-bold tracking-[-0.035em] leading-[1.03] mb-[18px]">
                 Everything,
                 <br />
                 one screen.
               </h3>
-              <p className="fp">
+              <p className="fp text-[16px] text-[var(--muted)] leading-[1.62] max-w-[42ch] mb-[26px] max-[560px]:max-w-none">
                 Every position and balance across your wallet on one screen — no tabs, no block
                 explorers.
               </p>
-              <div className="flist">
-                <div className="li">
-                  <svg viewBox="0 0 16 16" fill="none">
+              {/* flist */}
+              <div className="flex flex-col gap-[11px]">
+                <div className="flex items-center gap-3 text-[14.5px] text-[var(--text)] max-[560px]:text-[14px]">
+                  <svg viewBox="0 0 16 16" fill="none" className="w-[15px] h-[15px] shrink-0">
                     <path
                       d="M3.5 8.5l3 3 6-7"
                       stroke="var(--accent)"
@@ -453,8 +510,8 @@ export default function Features() {
                   </svg>
                   Unified balances &amp; history
                 </div>
-                <div className="li">
-                  <svg viewBox="0 0 16 16" fill="none">
+                <div className="flex items-center gap-3 text-[14.5px] text-[var(--text)] max-[560px]:text-[14px]">
+                  <svg viewBox="0 0 16 16" fill="none" className="w-[15px] h-[15px] shrink-0">
                     <path
                       d="M3.5 8.5l3 3 6-7"
                       stroke="var(--accent)"
@@ -467,12 +524,19 @@ export default function Features() {
                 </div>
               </div>
             </div>
-            <div className="fviz reveal d1">
-              <div className="panel">
-                <div className="panel-cap">
-                  <span className="cap-line">All your positions, unified.</span>
+            {/* fviz: col 7-12 on desktop */}
+            <div className="fviz reveal d1 col-start-7 col-end-13 min-w-0 max-[900px]:col-span-full">
+              {/* panel */}
+              <div className="min-w-0 border border-[var(--line-2)] rounded-[22px] bg-[linear-gradient(160deg,rgba(24,33,47,0.66),rgba(9,13,20,0.62))] overflow-hidden relative shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.045)] transition-[border-color,box-shadow] duration-500">
+                {/* panel-cap */}
+                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-mono text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
+                  {/* cap-line */}
+                  <span className="font-[var(--font)] text-[16px] font-semibold tracking-[-0.01em] normal-case bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                    All your positions, unified.
+                  </span>
                 </div>
-                <div className="panel-pad">
+                {/* panel-pad */}
+                <div className="p-[clamp(26px,4vw,46px)] max-[560px]:p-5">
                   <div className="port" id="port">
                     <div className="pf-top">
                       <div>
