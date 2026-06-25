@@ -23,6 +23,8 @@ export default function Hero() {
           // padding 130px gutter 90px, overflow hidden
           "relative flex min-h-[calc(100svh+20px)] items-center overflow-hidden text-left",
           "[padding:130px_clamp(20px,5vw,72px)_90px]",
+          // .hero responsive (landing.css:543): padding 118px gutter 80px on ≤900px
+          "max-[900px]:[padding:118px_clamp(20px,5vw,72px)_80px]",
         )}
       >
         {/* .hero-floor (landing.css:277): absolute glow beneath the hero */}
@@ -113,8 +115,8 @@ export default function Hero() {
                 "gap-[9px] rounded-[999px] border-[rgba(103,232,249,0.32)] bg-[rgba(103,232,249,0.06)]",
                 "px-[17px] py-[8px] text-[12.5px] font-semibold tracking-[0.03em] text-[#67e8f9]",
                 "mb-[26px]",
-                // Entrance: rise at delay 0 while not done
-                "motion-safe:group-data-[done=false]:animate-rise",
+                // Entrance: rise 0.9s at delay 0 while not done (landing.css:595)
+                "motion-safe:group-data-[done=false]:animate-[rise_0.9s_cubic-bezier(0.16,1,0.3,1)_both]",
                 "[animation-delay:0ms]",
                 // Override Badge default height/color constraints for our pill look
                 "h-auto",
@@ -234,7 +236,8 @@ export default function Hero() {
               "before:absolute before:aspect-square before:w-[78%] before:rounded-full",
               "before:[background:radial-gradient(circle,rgba(103,232,249,0.26),rgba(14,165,233,0.1)_45%,transparent_68%)]",
               "before:[filter:blur(28px)] before:z-0",
-              "motion-safe:group-data-[done=false]:animate-rise [animation-delay:300ms]",
+              // Entrance: rise 1.1s at 0.3s delay (landing.css:609)
+              "motion-safe:group-data-[done=false]:animate-[rise_1.1s_cubic-bezier(0.16,1,0.3,1)_both] [animation-delay:300ms]",
             )}
           >
             {/*
