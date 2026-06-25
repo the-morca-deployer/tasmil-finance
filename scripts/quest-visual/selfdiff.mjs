@@ -18,8 +18,18 @@ const a = PNG.sync.read(await readFile(beforePath));
 const b = PNG.sync.read(await readFile(afterPath));
 const width = Math.min(a.width, b.width);
 const height = Math.min(a.height, b.height);
+
+// Crop both to the common region so pixelmatch gets equal-sized buffers.
+function crop(src) {
+  if (src.width === width && src.height === height) return src;
+  const out = new PNG({ width, height });
+  PNG.bitblt(src, out, 0, 0, width, height, 0, 0);
+  return out;
+}
+const ca = crop(a);
+const cb = crop(b);
 const diff = new PNG({ width, height });
-const mismatch = pixelmatch(a.data, b.data, diff.data, width, height, { threshold: 0.1 });
+const mismatch = pixelmatch(ca.data, cb.data, diff.data, width, height, { threshold: 0.1 });
 if (diffOut) await writeFile(diffOut, PNG.sync.write(diff));
 
 const pct = (mismatch / (width * height)) * 100;
