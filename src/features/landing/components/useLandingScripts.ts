@@ -189,7 +189,7 @@ export function useLandingScripts() {
       function applyPreset(idx, animate) {
         cur = idx;
         if (thumb) thumb.style.transform = "translateX(" + idx * 100 + "%)";
-        opts.forEach((o, i) => o.classList.toggle("active", i === idx));
+        opts.forEach((o, i) => (o.dataset.active = i === idx ? "true" : "false"));
         const p = presets[idx];
         p.alloc.forEach((a, i) => {
           bars[i].style.width = a + "%";

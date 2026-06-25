@@ -441,83 +441,142 @@ export default function Features() {
                 </div>
                 {/* panel-pad */}
                 <div className="p-[clamp(26px,4vw,46px)] max-[560px]:p-5">
-                  <div className="farm-ui">
-                    <div className="farm-presets" id="farmPresets">
-                      <span className="fp-thumb" id="fpThumb"></span>
-                      <button className="fp-opt" type="button">
+                  {/* farm-ui — JS hook: .farm-ui class MUST stay for querySelector */}
+                  <div className="farm-ui flex flex-col gap-[15px]">
+                    {/* farm-presets */}
+                    <div
+                      className="relative grid grid-cols-3 gap-0 bg-white/[0.04] border border-[var(--line-2)] rounded-full p-[5px]"
+                      id="farmPresets"
+                    >
+                      {/* fp-thumb: sliding highlight, positioned by JS transform */}
+                      <span
+                        className="absolute top-[5px] bottom-[5px] left-[5px] w-[calc((100%-10px)/3)] rounded-full bg-[var(--grad)] shadow-[0_4px_16px_-4px_var(--accent-glow)] [transform:translateX(100%)] [transition:transform_0.5s_cubic-bezier(0.55,0.06,0.2,1)] z-0"
+                        id="fpThumb"
+                      ></span>
+                      {/* fp-opt — JS hook: .fp-opt class MUST stay for querySelectorAll */}
+                      <button
+                        className="fp-opt relative z-[1] py-[11px] px-0 border-none bg-transparent rounded-full text-[var(--muted)] font-[var(--font)] text-[13.5px] font-semibold cursor-pointer transition-colors duration-300 data-[active=true]:text-[#04141a]"
+                        type="button"
+                        data-active="false"
+                      >
                         Safe
                       </button>
-                      <button className="fp-opt active" type="button">
+                      <button
+                        className="fp-opt relative z-[1] py-[11px] px-0 border-none bg-transparent rounded-full text-[var(--muted)] font-[var(--font)] text-[13.5px] font-semibold cursor-pointer transition-colors duration-300 data-[active=true]:text-[#04141a]"
+                        type="button"
+                        data-active="true"
+                      >
                         Balanced
                       </button>
-                      <button className="fp-opt" type="button">
+                      <button
+                        className="fp-opt relative z-[1] py-[11px] px-0 border-none bg-transparent rounded-full text-[var(--muted)] font-[var(--font)] text-[13.5px] font-semibold cursor-pointer transition-colors duration-300 data-[active=true]:text-[#04141a]"
+                        type="button"
+                        data-active="false"
+                      >
                         Aggressive
                       </button>
                     </div>
-                    <div className="farm-summary">
-                      <div className="fs-apy">
-                        <span className="fs-label">Net APY</span>
-                        <span className="fs-apyval" id="farmApy">
+                    {/* farm-summary */}
+                    <div className="flex gap-3 max-[560px]:gap-[10px]">
+                      {/* fs-apy */}
+                      <div className="flex-1 bg-white/[0.045] border border-[var(--line-2)] rounded-[14px] p-[13px_16px] flex flex-col gap-[5px]">
+                        <span className="text-[11px] font-[var(--mono)] tracking-[0.08em] uppercase text-[var(--dim)]">
+                          Net APY
+                        </span>
+                        <span
+                          className="text-[25px] max-[560px]:text-[22px] font-bold font-[var(--mono)] bg-[linear-gradient(110deg,#fff_0%,var(--accent)_55%,var(--accent-2)_100%)] bg-clip-text text-transparent leading-none"
+                          id="farmApy"
+                        >
                           8.4%
                         </span>
                       </div>
-                      <div className="fs-val">
-                        <span className="fs-label">Value now</span>
-                        <span className="fs-valval" id="farmVal">
+                      {/* fs-val */}
+                      <div className="flex-1 bg-white/[0.045] border border-[var(--line-2)] rounded-[14px] p-[13px_16px] flex flex-col gap-[5px]">
+                        <span className="text-[11px] font-[var(--mono)] tracking-[0.08em] uppercase text-[var(--dim)]">
+                          Value now
+                        </span>
+                        <span
+                          className="text-[25px] max-[560px]:text-[22px] font-bold font-[var(--mono)] text-[var(--change-pos)] leading-none"
+                          id="farmVal"
+                        >
                           $1,084.20
                         </span>
                       </div>
                     </div>
-                    <div className="farm-alloc">
-                      <div className="fa-row">
-                        <span className="fa-name">
-                          <i className="fa-dot blend"></i>Blend
+                    {/* farm-alloc */}
+                    <div className="flex flex-col gap-3 py-[2px]">
+                      {/* fa-row: Blend */}
+                      <div className="grid grid-cols-[104px_1fr_42px] items-center gap-3 text-[13.5px]">
+                        <span className="flex items-center gap-[9px] text-[var(--text)] whitespace-nowrap">
+                          <i className="w-[9px] h-[9px] rounded-full flex-none bg-[var(--c-blend)]"></i>Blend
                         </span>
-                        <span className="fa-bar">
-                          <i id="fb0" style={{ width: "40%", background: "var(--c-blend)" }}></i>
+                        <span className="h-2 rounded-[99px] bg-white/[0.07] overflow-hidden">
+                          <i
+                            id="fb0"
+                            style={{ width: "40%", background: "var(--c-blend)" }}
+                            className="block h-full rounded-[99px] [transition:width_0.8s_var(--ease)]"
+                          ></i>
                         </span>
-                        <span className="fa-pct" id="fp0">
+                        <span className="font-[var(--mono)] text-[12.5px] text-[var(--muted)] text-right" id="fp0">
                           40%
                         </span>
                       </div>
-                      <div className="fa-row">
-                        <span className="fa-name">
-                          <i className="fa-dot soroswap"></i>Soroswap
+                      {/* fa-row: Soroswap */}
+                      <div className="grid grid-cols-[104px_1fr_42px] items-center gap-3 text-[13.5px]">
+                        <span className="flex items-center gap-[9px] text-[var(--text)] whitespace-nowrap">
+                          <i className="w-[9px] h-[9px] rounded-full flex-none bg-[var(--c-soroswap)]"></i>Soroswap
                         </span>
-                        <span className="fa-bar">
-                          <i id="fb1" style={{ width: "28%", background: "var(--c-soroswap)" }}></i>
+                        <span className="h-2 rounded-[99px] bg-white/[0.07] overflow-hidden">
+                          <i
+                            id="fb1"
+                            style={{ width: "28%", background: "var(--c-soroswap)" }}
+                            className="block h-full rounded-[99px] [transition:width_0.8s_var(--ease)]"
+                          ></i>
                         </span>
-                        <span className="fa-pct" id="fp1">
+                        <span className="font-[var(--mono)] text-[12.5px] text-[var(--muted)] text-right" id="fp1">
                           28%
                         </span>
                       </div>
-                      <div className="fa-row">
-                        <span className="fa-name">
-                          <i className="fa-dot aquarius"></i>Aquarius
+                      {/* fa-row: Aquarius */}
+                      <div className="grid grid-cols-[104px_1fr_42px] items-center gap-3 text-[13.5px]">
+                        <span className="flex items-center gap-[9px] text-[var(--text)] whitespace-nowrap">
+                          <i className="w-[9px] h-[9px] rounded-full flex-none bg-[var(--c-aquarius)]"></i>Aquarius
                         </span>
-                        <span className="fa-bar">
-                          <i id="fb2" style={{ width: "20%", background: "var(--c-aquarius)" }}></i>
+                        <span className="h-2 rounded-[99px] bg-white/[0.07] overflow-hidden">
+                          <i
+                            id="fb2"
+                            style={{ width: "20%", background: "var(--c-aquarius)" }}
+                            className="block h-full rounded-[99px] [transition:width_0.8s_var(--ease)]"
+                          ></i>
                         </span>
-                        <span className="fa-pct" id="fp2">
+                        <span className="font-[var(--mono)] text-[12.5px] text-[var(--muted)] text-right" id="fp2">
                           20%
                         </span>
                       </div>
-                      <div className="fa-row">
-                        <span className="fa-name">
-                          <i className="fa-dot phoenix"></i>Phoenix
+                      {/* fa-row: Phoenix */}
+                      <div className="grid grid-cols-[104px_1fr_42px] items-center gap-3 text-[13.5px]">
+                        <span className="flex items-center gap-[9px] text-[var(--text)] whitespace-nowrap">
+                          <i className="w-[9px] h-[9px] rounded-full flex-none bg-[var(--c-phoenix)]"></i>Phoenix
                         </span>
-                        <span className="fa-bar">
-                          <i id="fb3" style={{ width: "12%", background: "var(--c-phoenix)" }}></i>
+                        <span className="h-2 rounded-[99px] bg-white/[0.07] overflow-hidden">
+                          <i
+                            id="fb3"
+                            style={{ width: "12%", background: "var(--c-phoenix)" }}
+                            className="block h-full rounded-[99px] [transition:width_0.8s_var(--ease)]"
+                          ></i>
                         </span>
-                        <span className="fa-pct" id="fp3">
+                        <span className="font-[var(--mono)] text-[12.5px] text-[var(--muted)] text-right" id="fp3">
                           12%
                         </span>
                       </div>
                     </div>
-                    <div className="farm-foot">
+                    {/* farm-foot */}
+                    <div className="flex justify-between items-center font-[var(--mono)] text-[11.5px] text-[var(--dim)] pt-[3px]">
                       <span>Rebalances every 10 min</span>
-                      <span className="farm-live">
-                        <i></i>Live
+                      {/* farm-live */}
+                      <span className="text-[var(--change-pos)] inline-flex items-center gap-[7px]">
+                        <i className="w-[7px] h-[7px] rounded-full bg-[var(--change-pos)] shadow-[0_0_7px_var(--change-pos)] motion-safe:animate-farm-live-pulse"></i>
+                        Live
                       </span>
                     </div>
                   </div>
