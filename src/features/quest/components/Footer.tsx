@@ -18,7 +18,7 @@ export default function Footer() {
           <div className="foot-grid">
             <div className="foot-brand">
               <a className="brand" href="/quest">
-                <img className="mk" src="/tasmil-tf-logo.png" alt="Tasmil Finance" width="40" height="40" />
+                <img className="mk" src="/tasmil-tf-logo.png" alt="" />
                 <span className="brand-name">Tasmil Quest</span>
               </a>
               <p className="foot-desc">
