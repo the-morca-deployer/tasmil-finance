@@ -49,7 +49,7 @@ export function useLandingScripts() {
     const nav = document.getElementById("nav"),
       prog = document.getElementById("prog");
     function onScroll() {
-      nav.classList.toggle("scrolled", scrollY > 16);
+      nav.dataset.scrolled = scrollY > 16 ? "true" : "false";
       const max = document.documentElement.scrollHeight - innerHeight;
       prog.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + "%";
       runWatchers();
@@ -748,22 +748,24 @@ export function useLandingScripts() {
         closeBtn = document.getElementById("sbClose");
       if (!burger || !sb) return;
       function open() {
-        sb.classList.add("open");
-        scrim.classList.add("open");
-        burger.classList.add("open");
+        sb.dataset.state = "open";
+        scrim.dataset.state = "open";
+        burger.dataset.state = "open";
         burger.setAttribute("aria-expanded", "true");
         sb.setAttribute("aria-hidden", "false");
+        document.body.dataset.sidebarOpen = "true";
         document.body.style.overflow = "hidden";
       }
       function shut() {
-        sb.classList.remove("open");
-        scrim.classList.remove("open");
-        burger.classList.remove("open");
+        sb.dataset.state = "closed";
+        scrim.dataset.state = "closed";
+        burger.dataset.state = "closed";
         burger.setAttribute("aria-expanded", "false");
         sb.setAttribute("aria-hidden", "true");
+        document.body.dataset.sidebarOpen = "false";
         document.body.style.overflow = "";
       }
-      burger.addEventListener("click", () => (sb.classList.contains("open") ? shut() : open()));
+      burger.addEventListener("click", () => (sb.dataset.state === "open" ? shut() : open()));
       closeBtn.addEventListener("click", shut);
       scrim.addEventListener("click", shut);
       sb.querySelectorAll("a").forEach((a) => a.addEventListener("click", shut));
