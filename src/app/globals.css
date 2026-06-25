@@ -1010,31 +1010,7 @@
 .quest-scope ::-webkit-scrollbar-thumb { background:linear-gradient(180deg,#fff,var(--accent) 50%,var(--accent-2)); border:2px solid var(--bg-2); border-radius:999px; }
 .quest-scope svg { display:block; }
 
-/* ── Navbar ── */
-.quest-scope .nav {
-  position:sticky; top:0; z-index:50;
-  display:grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items:center;
-  padding:16px clamp(20px,5vw,56px);
-  background:rgba(20,20,25,0.72); backdrop-filter:blur(18px);
-  border-bottom:1px solid var(--line);
-}
-.quest-scope .nav-brand { display:flex; align-items:center; gap:15px; font-weight:800; font-size:30px; letter-spacing:-0.03em; justify-self:start; }
-.quest-scope .nav-brand img { width:48px; height:48px; }
-.quest-scope .nav-brand .fin { color:var(--accent); }
-.quest-scope .nav-links { display:flex; gap:2px; justify-self:center; }
-.quest-scope .nav-item { position:relative; font-size:16px; font-weight:600; color:var(--muted); padding:9px 16px; border-radius:var(--r-pill); transition:color .25s,background .25s; cursor:pointer; }
-.quest-scope .nav-item:hover { color:var(--text); background:rgba(255,255,255,0.05); }
-.quest-scope .nav-item.active { color:var(--text); }
-.quest-scope .nav-item.active::after { content:""; position:absolute; left:15px; right:15px; bottom:1px; height:2px; border-radius:2px; background:var(--accent); box-shadow:0 0 10px var(--accent-glow); }
-.quest-scope .nav-right { display:flex; align-items:center; gap:12px; justify-self:end; }
-.quest-scope .stat-pill { display:inline-flex; align-items:center; gap:7px; font-size:13.5px; font-weight:600; padding:8px 14px; border-radius:var(--r-pill); background:var(--surface); border:1px solid var(--line-2); }
-.quest-scope .stat-pill.pts { color:var(--green); } .quest-scope .stat-pill.pts svg { color:var(--green); }
-.quest-scope .stat-pill.streak { color:var(--amber); } .quest-scope .stat-pill.streak svg { color:var(--amber); }
-.quest-scope .wallet-chip { display:inline-flex; align-items:center; gap:10px; padding:5px 14px 5px 6px; border-radius:var(--r-pill); background:var(--surface); border:1px solid var(--line-2); }
-.quest-scope .wallet-chip .av { display:block; width:30px; height:30px; border-radius:50%; flex:none; }
-.quest-scope .wallet-chip .addr { font-family:var(--font-mono); font-size:13px; color:var(--text); }
+/* ── Navbar — converted to Tailwind in QuestNav.tsx / Navbar.tsx ── */
 
 /* ── Page shell ── */
 .quest-scope .page { max-width:1240px; margin:0 auto; padding:40px clamp(20px,5vw,56px) 120px; }
@@ -1346,43 +1322,7 @@
 .quest-scope .page-title span { background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .quest-scope .page-sub { margin-top:14px; font-size:16px; color:var(--muted); }
 
-/* Banner */
-.quest-scope .banner { position:relative; overflow:hidden; border:1px solid var(--line); border-radius:var(--r-card); background:linear-gradient(160deg,rgba(32,32,36,0.4),rgba(16,16,18,0.4)); margin-bottom:50px; box-shadow:0 30px 80px -48px #000; }
-.quest-scope .banner-grid { display:grid; grid-template-columns:1.12fr 0.66fr 1.28fr; }
-.quest-scope .bn-seg { padding:24px 26px; display:flex; flex-direction:column; justify-content:center; }
-.quest-scope .bn-seg+.bn-seg { border-left:1px solid var(--line); }
-.quest-scope .bn-prize { align-items:center; text-align:center; }
-.quest-scope .bn-prize-head { display:flex; align-items:center; gap:13px; margin-bottom:20px; }
-.quest-scope .bn-trophy { width:50px; height:50px; border-radius:15px; flex:none; display:grid; place-items:center; background:linear-gradient(160deg,var(--gold-soft),transparent); border:1px solid rgba(251,197,74,0.28); color:var(--gold); box-shadow:0 0 26px -8px rgba(251,197,74,0.4); }
-.quest-scope .bn-trophy svg { width:25px; height:25px; }
-.quest-scope .bn-lab { font-size:12.5px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--dim); }
-.quest-scope .bn-note { font-size:14px; color:var(--muted); margin-top:5px; }
-.quest-scope .bn-note b { color:var(--text); font-weight:700; }
-.quest-scope .bn-figures { display:flex; align-items:stretch; justify-content:center; gap:12px; }
-.quest-scope .bn-fig { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; padding:14px 20px; border-radius:16px; background:rgba(255,255,255,0.03); border:1px solid var(--line); min-width:128px; }
-.quest-scope .bn-fig.usdc { background:var(--accent-soft); border-color:var(--accent-line); }
-.quest-scope .bn-fig.pts { background:var(--accent-soft); border-color:var(--accent-line); }
-.quest-scope .bn-fig .v { font-size:clamp(26px,2.6vw,34px); font-weight:800; letter-spacing:-0.03em; line-height:1; white-space:nowrap; display:inline-flex; align-items:center; }
-.quest-scope .bn-fig.usdc .v { color:var(--accent); }
-.quest-scope .bn-fig.pts .v { color:var(--accent); }
-.quest-scope .bn-fig .k { font-size:10px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--dim); }
-.quest-scope .bn-time { align-items:center; text-align:center; }
-.quest-scope .bn-count-lab { font-size:10.5px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--dim); display:inline-flex; align-items:center; gap:7px; margin-bottom:14px; }
-.quest-scope .bn-count-lab svg { width:14px; height:14px; }
-.quest-scope .bn-action { gap:10px; background:linear-gradient(160deg,var(--accent-soft),transparent 88%); }
-.quest-scope .bn-status-eye { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:var(--accent); }
-.quest-scope .bn-status-eye svg { width:15px; height:15px; }
-.quest-scope .bn-action-big { display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; }
-.quest-scope .bn-action-big b { font-size:28px; font-weight:800; letter-spacing:-0.03em; color:var(--accent); line-height:1; white-space:nowrap; }
-.quest-scope .bn-action-big span { font-size:13px; color:var(--muted); white-space:nowrap; }
-.quest-scope .bn-action-sub { font-size:13px; color:var(--muted); line-height:1.5; }
-.quest-scope .bn-action-sub b { color:var(--text); font-weight:700; }
-
-/* Countdown */
-.quest-scope .countdown { display:flex; gap:8px; margin-top:10px; justify-content:flex-end; }
-.quest-scope .cd-unit { display:flex; flex-direction:column; align-items:center; gap:5px; }
-.quest-scope .cd-num { font-family:var(--font-mono); font-size:26px; font-weight:700; color:var(--accent); background:rgba(255,255,255,0.06); border:1px solid var(--accent-line); border-radius:10px; padding:6px 10px; min-width:50px; text-align:center; letter-spacing:-0.02em; }
-.quest-scope .cd-lbl { font-size:9.5px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); }
+/* Banner + Countdown — converted to Tailwind in prize-pool-banner.tsx / Leaderboard.tsx */
 
 /* Board grid */
 .quest-scope .board-grid { display:grid; grid-template-columns:8fr 4fr; gap:22px; align-items:start; }
@@ -1626,7 +1566,7 @@
 .quest-scope .codebox-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
 .quest-scope .code { font-family:var(--font-mono); font-size:15px; font-weight:700; color:var(--accent); letter-spacing:0.06em; }
 
-/* Social cards */
+/* Social cards — soc-card/soc-ico/soc-meta/soc-name/soc-sub still used in Profile.tsx */
 .quest-scope .social-list { display:flex; flex-direction:column; gap:12px; }
 .quest-scope .soc-card { display:flex; align-items:center; gap:14px; padding:14px 16px; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--surface-2); transition:border-color .25s; }
 .quest-scope .soc-card:hover { border-color:var(--accent-line); }
@@ -1749,22 +1689,14 @@
 /* ============================================================
    RESPONSIVE HELPERS
    ============================================================ */
-@media (max-width:680px) {
-  .quest-scope .nav-links { display:none; }
-  .quest-scope .nav-brand { font-size:15px; gap:8px; }
-  .quest-scope .stat-pill, .quest-scope .wallet-chip .addr { display:none; }
-  .quest-scope .nav { padding:14px 16px; }
-}
+/* @media (max-width:680px) nav rules — removed; nav is now Tailwind in QuestNav.tsx / Navbar.tsx */
 @media (max-width:720px) {
   .quest-scope .shell { grid-template-columns:1fr; }
   .quest-scope .pside { position:static; height:auto; border-right:none; border-bottom:1px solid var(--line); padding:16px; }
   .quest-scope .uc-av-wrap { width:64px; height:64px; }
   .quest-scope .uc-av { width:64px; height:64px; }
 }
-@media (max-width:920px) {
-  .quest-scope .banner-grid { grid-template-columns:1fr; }
-  .quest-scope .bn-seg+.bn-seg { border-left:none; border-top:1px solid var(--line); }
-}
+/* @media (max-width:920px) banner rules — removed; banner is now Tailwind in prize-pool-banner.tsx / Leaderboard.tsx */
 @media (max-width:440px) {
   .quest-scope .lh { flex-direction:column; }
   .quest-scope .ticket { flex-direction:column; }
@@ -1793,8 +1725,7 @@
 .quest-scope .subtab.active { color:var(--accent); }
 .quest-scope .subtab.active::after { content:""; position:absolute; left:12px; right:12px; bottom:-1px; height:2px; background:var(--accent); border-radius:2px; }
 .quest-scope .subtab .cnt { font-size:11px; font-family:var(--font-mono); color:var(--dim); margin-left:6px; }
-.quest-scope .social-card { display:flex; align-items:center; gap:14px; padding:14px 16px; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--surface-2); transition:border-color .25s; }
-.quest-scope .social-card:hover { border-color:var(--accent-line); }
+/* .social-card — converted to Tailwind in SocialConnectCard.tsx */
 .quest-scope .rl-head { display:grid; grid-template-columns:2fr auto auto auto; gap:14px; padding:12px 14px; font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--dim); border-bottom:1px solid var(--line); }
 .quest-scope .rl-row { display:grid; grid-template-columns:2fr auto auto auto; gap:14px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--line); font-size:13.5px; transition:background .2s; }
 .quest-scope .rl-row:hover { background:var(--accent-soft); }
