@@ -12,7 +12,7 @@ export default function Nav() {
         "fixed inset-x-0 top-0 z-[100] flex items-center justify-between",
         "px-[var(--gutter)] py-[18px]",
         // Base visual
-        "bg-black/35 backdrop-blur-[18px] [backdrop-filter:blur(18px)_saturate(140%)]",
+        "bg-black/35 backdrop-blur-[18px] [backdrop-filter:blur(18px)_saturate(140%)] [-webkit-backdrop-filter:blur(18px)_saturate(140%)]",
         "border-b border-transparent",
         "transition-[background,border-color,padding] duration-500 ease-[var(--ease)]",
         // Scrolled state
@@ -31,7 +31,7 @@ export default function Nav() {
       {/* Center nav links — hidden below 940px */}
       <div
         className={cn(
-          "absolute left-1/2 -translate-x-1/2 hidden lg:flex",
+          "absolute left-1/2 -translate-x-1/2 flex max-[940px]:hidden",
           "items-center gap-0.5"
         )}
       >
@@ -78,7 +78,7 @@ export default function Nav() {
       </div>
 
       {/* Nav actions — hidden on mobile (max-940px) */}
-      <div className="hidden lg:flex items-center gap-[10px]">
+      <div className="flex max-[940px]:hidden items-center gap-[10px]">
         {waitlist ? (
           <>
             <Button asChild variant="ghost" className="py-[11px] px-[18px] text-[14px] h-auto">
@@ -106,7 +106,7 @@ export default function Nav() {
         aria-label="Open menu"
         aria-expanded="false"
         className={cn(
-          "flex lg:hidden flex-col items-center justify-center gap-[5px]",
+          "flex min-[941px]:hidden flex-col items-center justify-center gap-[5px]",
           "w-11 h-11 border border-[var(--line-2)] rounded-xl",
           "bg-white/[0.04] backdrop-blur-[8px] cursor-pointer p-0"
         )}

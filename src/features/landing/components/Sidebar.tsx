@@ -33,7 +33,7 @@ export default function Sidebar() {
           // Open state
           "data-[state=open]:opacity-100 data-[state=open]:visible",
           // Desktop: hidden at 941px+
-          "lg:hidden"
+          "min-[941px]:hidden"
         )}
       >
         {/* Sidebar header */}
@@ -66,7 +66,7 @@ export default function Sidebar() {
           {/* Link 1 */}
           <a
             className={cn(
-              "flex items-center justify-between gap-4",
+              "group flex items-center justify-between gap-4",
               "text-[clamp(16px,4.5vw,20px)] font-semibold tracking-[-0.02em] text-[var(--text)]",
               "py-[clamp(12px,2.5vw,16px)] px-[2px]",
               "border-b border-[var(--line)]",
@@ -85,7 +85,7 @@ export default function Sidebar() {
               className={cn(
                 "text-[0.58em] text-[var(--accent)] opacity-65",
                 "transition-transform duration-300 ease-[var(--ease)]",
-                "active:translate-x-[5px]"
+                "group-active:translate-x-[5px]"
               )}
             >
               →
@@ -95,7 +95,7 @@ export default function Sidebar() {
           {/* Link 2 */}
           <a
             className={cn(
-              "flex items-center justify-between gap-4",
+              "group flex items-center justify-between gap-4",
               "text-[clamp(16px,4.5vw,20px)] font-semibold tracking-[-0.02em] text-[var(--text)]",
               "py-[clamp(12px,2.5vw,16px)] px-[2px]",
               "border-b border-[var(--line)]",
@@ -111,7 +111,8 @@ export default function Sidebar() {
             <span
               className={cn(
                 "text-[0.58em] text-[var(--accent)] opacity-65",
-                "transition-transform duration-300 ease-[var(--ease)]"
+                "transition-transform duration-300 ease-[var(--ease)]",
+                "group-active:translate-x-[5px]"
               )}
             >
               →
@@ -121,7 +122,7 @@ export default function Sidebar() {
           {/* Link 3 */}
           <a
             className={cn(
-              "flex items-center justify-between gap-4",
+              "group flex items-center justify-between gap-4",
               "text-[clamp(16px,4.5vw,20px)] font-semibold tracking-[-0.02em] text-[var(--text)]",
               "py-[clamp(12px,2.5vw,16px)] px-[2px]",
               "border-b border-[var(--line)]",
@@ -137,7 +138,8 @@ export default function Sidebar() {
             <span
               className={cn(
                 "text-[0.58em] text-[var(--accent)] opacity-65",
-                "transition-transform duration-300 ease-[var(--ease)]"
+                "transition-transform duration-300 ease-[var(--ease)]",
+                "group-active:translate-x-[5px]"
               )}
             >
               →
@@ -147,7 +149,7 @@ export default function Sidebar() {
           {/* Link 4 */}
           <a
             className={cn(
-              "flex items-center justify-between gap-4",
+              "group flex items-center justify-between gap-4",
               "text-[clamp(16px,4.5vw,20px)] font-semibold tracking-[-0.02em] text-[var(--text)]",
               "py-[clamp(12px,2.5vw,16px)] px-[2px]",
               "border-b border-[var(--line)]",
@@ -163,7 +165,8 @@ export default function Sidebar() {
             <span
               className={cn(
                 "text-[0.58em] text-[var(--accent)] opacity-65",
-                "transition-transform duration-300 ease-[var(--ease)]"
+                "transition-transform duration-300 ease-[var(--ease)]",
+                "group-active:translate-x-[5px]"
               )}
             >
               →
@@ -173,7 +176,7 @@ export default function Sidebar() {
           {/* Link 5 */}
           <a
             className={cn(
-              "flex items-center justify-between gap-4",
+              "group flex items-center justify-between gap-4",
               "text-[clamp(16px,4.5vw,20px)] font-semibold tracking-[-0.02em] text-[var(--text)]",
               "py-[clamp(12px,2.5vw,16px)] px-[2px]",
               "border-b border-[var(--line)]",
@@ -189,7 +192,8 @@ export default function Sidebar() {
             <span
               className={cn(
                 "text-[0.58em] text-[var(--accent)] opacity-65",
-                "transition-transform duration-300 ease-[var(--ease)]"
+                "transition-transform duration-300 ease-[var(--ease)]",
+                "group-active:translate-x-[5px]"
               )}
             >
               →
