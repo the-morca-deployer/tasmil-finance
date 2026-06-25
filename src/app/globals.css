@@ -195,6 +195,47 @@
   --color-sponsor-gold: #fbc54a;
   --color-sponsor-gold-hi: #fff0c2;
 
+  /* Quest palette (matches tmp/quest-tasmil/tasmil-quest.css) */
+  --color-quest-bg: #000000;
+  --color-quest-bg-2: #141416;
+  --color-quest-surface: #1c1c1f;
+  --color-quest-surface-2: rgba(32, 32, 36, 0.3);
+  --color-quest-text: #f4f7fb;
+  --color-quest-muted: rgba(244, 247, 251, 0.58);
+  --color-quest-dim: rgba(244, 247, 251, 0.34);
+  --color-quest-faint: rgba(244, 247, 251, 0.14);
+  --color-quest-accent: #67e8f9;
+  --color-quest-accent-2: #0ea5e9;
+  --color-quest-accent-deep: #0369a1;
+  --color-quest-accent-ink: #04141a;
+  --color-quest-accent-soft: rgba(103, 232, 249, 0.14);
+  --color-quest-accent-line: rgba(103, 232, 249, 0.32);
+  --color-quest-accent-glow: rgba(103, 232, 249, 0.5);
+  --color-quest-green: #6ee7b7;
+  --color-quest-green-soft: rgba(110, 231, 183, 0.14);
+  --color-quest-green-line: rgba(110, 231, 183, 0.32);
+  --color-quest-amber: #fbbf24;
+  --color-quest-amber-soft: rgba(251, 191, 36, 0.14);
+  --color-quest-amber-line: rgba(251, 191, 36, 0.32);
+  --color-quest-line: rgba(255, 255, 255, 0.08);
+  --color-quest-line-2: rgba(255, 255, 255, 0.14);
+  --color-quest-gold: #fbc54a;
+  --color-quest-gold-soft: rgba(251, 197, 74, 0.12);
+  --color-quest-gold-line: rgba(251, 197, 74, 0.34);
+  --color-quest-silver: #c9d4e0;
+  --color-quest-silver-soft: rgba(201, 212, 224, 0.1);
+  --color-quest-silver-line: rgba(201, 212, 224, 0.3);
+  --color-quest-bronze: #e0915a;
+  --color-quest-bronze-soft: rgba(224, 145, 90, 0.12);
+  --color-quest-bronze-line: rgba(224, 145, 90, 0.34);
+  --color-quest-diamond: #67e8f9;
+  --radius-quest-pill: 100px;
+  --radius-quest-card: 22px;
+  --radius-quest-sm: 14px;
+  --radius-quest-xs: 10px;
+  --ease-quest: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-quest-out: cubic-bezier(0.16, 1, 0.3, 1);
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -247,6 +288,11 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+}
+
+.quest-scope {
+  --quest-grad: linear-gradient(110deg, #ffffff 0%, #67e8f9 52%, #0ea5e9 100%);
+  --quest-card-grad: linear-gradient(160deg, rgba(32, 32, 36, 0.55), rgba(16, 16, 18, 0.55));
 }
 
 /*
