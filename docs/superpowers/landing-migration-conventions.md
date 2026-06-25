@@ -95,6 +95,17 @@ Concretely:
 > stack (`ui-monospace, SFMono-Regular, Menlo, monospace`). Use `font-[var(--mono)]` to reproduce
 > monospace text. Likewise `font-sans` ≠ a guaranteed match for the landing `--font`; reproduce it
 > with `font-[var(--font)]` when faithfulness matters.
+>
+> **GRADIENTS via a CSS var — `bg-[var(--grad)]` is BROKEN.** Tailwind v4 can't tell that
+> `var(--grad)` resolves to a gradient, so `bg-[var(--grad)]` compiles to
+> `background-color: var(--grad)` — and `background-color` rejects a `linear-gradient(...)` value,
+> so it renders NOTHING (a `bg-clip-text text-transparent` element becomes invisible; a fill
+> element gets no background). Use instead:
+> - Gradient FILL: `[background:var(--grad)]` (the `background` shorthand accepts a gradient).
+> - Gradient TEXT (clip): `[background-image:var(--grad)] bg-clip-text text-transparent` — do NOT
+>   use the `[background:...]` shorthand here, it resets `background-clip` to border-box.
+> - A literal `bg-[linear-gradient(...)]` (value starting with `linear-gradient`) IS recognized by
+>   Tailwind as an image and works fine — only the bare `var()` form is the trap.
 
 Priority order when choosing a CSS value (for FAITHFUL reproduction, the legacy value always wins):
 

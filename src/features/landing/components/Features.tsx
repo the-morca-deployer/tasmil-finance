@@ -45,7 +45,7 @@ export default function Features() {
                         data-c="1"
                       >
                         {/* bub user */}
-                        <div className="px-[15px] py-[11px] rounded-[16px] leading-[1.45] max-w-[76%] bg-[var(--grad)] text-[#04141a] font-medium rounded-br-[5px]">
+                        <div className="px-[15px] py-[11px] rounded-[16px] leading-[1.45] max-w-[76%] [background:var(--grad)] text-[#04141a] font-medium rounded-br-[5px]">
                           Supply 500 USDC to Blend at the best rate.
                         </div>
                       </div>
@@ -91,7 +91,7 @@ export default function Features() {
                           {/* pc-foot */}
                           <div className="flex items-center justify-between px-[14px] py-[10px]">
                             {/* pc-apy */}
-                            <span className="font-[var(--mono)] text-[12px] font-semibold bg-[var(--grad)] bg-clip-text text-transparent">8.76% APY</span>
+                            <span className="font-[var(--mono)] text-[12px] font-semibold [background-image:var(--grad)] bg-clip-text text-transparent">8.76% APY</span>
                             {/* pc-go — pulses when ancestor cmsg has data-in=true */}
                             <span
                               className="text-[12px] font-semibold text-[var(--accent)] bg-[var(--accent-soft)] border border-[var(--accent-line)] px-[12px] py-[5px] rounded-[100px] [[data-in=true]_&]:animate-[pcPulse_1.5s_var(--ease)_infinite]"
@@ -109,7 +109,7 @@ export default function Features() {
                         data-c="4"
                       >
                         {/* bub sm user */}
-                        <div className="px-[14px] py-[8px] rounded-[16px] leading-[1.45] max-w-[76%] text-[13px] bg-[var(--grad)] text-[#04141a] font-medium rounded-br-[5px]">
+                        <div className="px-[14px] py-[8px] rounded-[16px] leading-[1.45] max-w-[76%] text-[13px] [background:var(--grad)] text-[#04141a] font-medium rounded-br-[5px]">
                           Approve
                         </div>
                       </div>
@@ -152,7 +152,7 @@ export default function Features() {
                           </div>
                           {/* sc-sign button */}
                           <button
-                            className="block w-[calc(100%-24px)] mx-[12px] my-[11px] py-[11px] rounded-[999px] border border-transparent bg-[var(--grad)] text-[#04141a] font-[var(--font)] font-bold text-[13px] cursor-pointer transition-[background,color,border-color] duration-[350ms] data-[signing=true]:bg-[var(--accent-soft)] data-[signing=true]:text-[var(--accent)] data-[signing=true]:border-[var(--accent-line)]"
+                            className="block w-[calc(100%-24px)] mx-[12px] my-[11px] py-[11px] rounded-[999px] border border-transparent [background:var(--grad)] text-[#04141a] font-[var(--font)] font-bold text-[13px] cursor-pointer transition-[background,color,border-color] duration-[350ms] data-[signing=true]:bg-[var(--accent-soft)] data-[signing=true]:text-[var(--accent)] data-[signing=true]:border-[var(--accent-line)]"
                             id="scSign"
                             type="button"
                           >
@@ -411,7 +411,7 @@ export default function Features() {
                   </div>
                   {/* swap-cta */}
                   <button
-                    className="mt-[3px] w-full py-[15px] rounded-full border border-[var(--line-2)] bg-white/[0.05] text-[var(--muted)] font-[var(--font)] text-[15px] font-semibold tracking-[-0.01em] cursor-default [transition:background_0.45s_var(--ease),color_0.4s,border-color_0.4s,box-shadow_0.45s] motion-reduce:transition-none data-[state=quoting]:text-[var(--text)] data-[state=ready]:bg-[var(--grad)] data-[state=ready]:text-[#04141a] data-[state=ready]:border-transparent data-[state=ready]:shadow-[0_16px_40px_-18px_var(--accent-glow)]"
+                    className="mt-[3px] w-full py-[15px] rounded-full border border-[var(--line-2)] bg-white/[0.05] text-[var(--muted)] font-[var(--font)] text-[15px] font-semibold tracking-[-0.01em] cursor-default [transition:background_0.45s_var(--ease),color_0.4s,border-color_0.4s,box-shadow_0.45s] motion-reduce:transition-none data-[state=quoting]:text-[var(--text)] data-[state=ready]:[background:var(--grad)] data-[state=ready]:text-[#04141a] data-[state=ready]:border-transparent data-[state=ready]:shadow-[0_16px_40px_-18px_var(--accent-glow)]"
                     id="swapCta"
                     type="button"
                     data-state="idle"
@@ -450,7 +450,7 @@ export default function Features() {
                     >
                       {/* fp-thumb: sliding highlight, positioned by JS transform */}
                       <span
-                        className="absolute top-[5px] bottom-[5px] left-[5px] w-[calc((100%-10px)/3)] rounded-full bg-[var(--grad)] shadow-[0_4px_16px_-4px_var(--accent-glow)] [transform:translateX(100%)] [transition:transform_0.5s_cubic-bezier(0.55,0.06,0.2,1)] z-0"
+                        className="absolute top-[5px] bottom-[5px] left-[5px] w-[calc((100%-10px)/3)] rounded-full [background:var(--grad)] shadow-[0_4px_16px_-4px_var(--accent-glow)] [transform:translateX(100%)] [transition:transform_0.5s_cubic-bezier(0.55,0.06,0.2,1)] z-0"
                         id="fpThumb"
                       ></span>
                       {/* fp-opt — JS hook: .fp-opt class MUST stay for querySelectorAll */}
