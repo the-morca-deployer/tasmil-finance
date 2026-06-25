@@ -88,7 +88,10 @@ export function useLandingScripts() {
       );
     /* hero skyline bars rise on load */
     requestAnimationFrame(() =>
-      setTimeout(() => document.querySelector(".hero")?.classList.add("lit"), 200)
+      setTimeout(() => {
+        const h = document.getElementById("top");
+        if (h) h.dataset.lit = "true";
+      }, 200)
     );
     /* hero object parallax tilt */
     (() => {
@@ -125,7 +128,7 @@ export function useLandingScripts() {
 
     /* retire hero entrance so frozen captures rest on visible base */
     const hero = document.getElementById("top");
-    setTimeout(() => hero.classList.add("done"), 2600);
+    setTimeout(() => { if (hero) hero.dataset.done = "true"; }, 2600);
 
     /* ===== partners ticker ===== */
     const protocols = [
@@ -814,7 +817,7 @@ export function useLandingScripts() {
     setTimeout(() => {
       if (!__painted) {
         document.querySelector(".landing-page")?.classList.remove("anim");
-        hero.classList.add("done");
+        if (hero) hero.dataset.done = "true";
       }
     }, 1400);
 

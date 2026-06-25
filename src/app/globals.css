@@ -546,6 +546,11 @@
   /* Preloader animations */
   --animate-pl-float: plFloat 3s ease-in-out infinite;
   --animate-pl-bar: plBar 1.15s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+
+  /* Hero animations (landing Phase 2) */
+  --animate-hero-floaty-3d: heroFloaty3d 6.5s ease-in-out infinite;
+  --animate-rise: rise 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-cue: cue 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 
 @layer base {
