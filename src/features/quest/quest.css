@@ -175,15 +175,27 @@
 
 /* ── Badges ── */
 .quest-scope .badge { display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; padding:9px 22px; border-radius:var(--r-pill); border:1px solid var(--line-2); }
-/* .badge-ongoing / .badge-closed removed — Badge component uses CVA variants (Task 4) */
+.quest-scope .badge-ongoing { color:var(--accent); background:var(--accent-soft); border-color:var(--accent-line); }
+.quest-scope .badge-closed { color:var(--muted); background:var(--surface); border-color:var(--line); }
 .quest-scope .badge-clock { color:var(--muted); background:var(--surface); border-color:var(--line); }
 .quest-scope .badge-clock svg { width:13px; height:13px; }
 
-/* ── Campaign grid (used by Campaigns.tsx — removed in Task 5) ── */
+/* ── Campaign Card ── */
 .quest-scope .camp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
 @media (max-width:980px) { .quest-scope .camp-grid { grid-template-columns:repeat(2,1fr); } }
 @media (max-width:640px) { .quest-scope .camp-grid { grid-template-columns:1fr; } }
-/* .camp-card / .cc-* removed — CampaignCard uses Tailwind utilities (Task 4) */
+.quest-scope .camp-card { display:flex; flex-direction:column; border:1px solid var(--line); border-radius:var(--r-card); background:var(--card-grad); overflow:hidden; transition:border-color .4s var(--ease),transform .4s var(--ease),box-shadow .4s var(--ease); }
+.quest-scope .camp-card:hover { border-color:var(--accent-line); transform:translateY(-4px); box-shadow:0 30px 70px -32px #000,0 0 50px -28px var(--accent-glow); }
+.quest-scope .cc-cover { position:relative; height:184px; overflow:hidden; border-bottom:1px solid var(--line); background: #0c0e10; }
+.quest-scope .cc-cover .cc-cover-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.quest-scope .camp-card:hover .cc-cover .cc-cover-img { transform:scale(1.04); transition:transform .6s var(--ease); }
+.quest-scope .cc-badge-status { position:absolute; top:13px; left:13px; }
+.quest-scope .cc-badge-pts { position:absolute; top:13px; right:13px; display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; font-family:var(--font-mono); color:var(--accent); padding:7px 16px; border-radius:var(--r-pill); background:rgba(8,10,12,0.7); backdrop-filter:blur(6px); border:1px solid var(--accent-line); }
+.quest-scope .cc-badge-pts svg { width:16px; height:16px; }
+.quest-scope .cc-body { padding:18px 20px 6px; flex:1; }
+.quest-scope .cc-title { font-size:17px; font-weight:700; letter-spacing:-0.02em; margin-bottom:7px; }
+.quest-scope .cc-desc { font-size:13.5px; color:var(--muted); line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.quest-scope .cc-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 20px 18px; }
 
 /* ── Avatar stack ── */
 .quest-scope .av-stack { display:flex; align-items:center; }
@@ -191,7 +203,10 @@
 .quest-scope .av-stack .av:first-child { margin-left:0; }
 .quest-scope .av-stack .more { margin-left:8px; font-size:12px; font-family:var(--font-mono); color:var(--muted); }
 
-/* .camp-card.closed removed with .camp-card (Task 4) */
+/* ── Closed card state ── */
+.quest-scope .camp-card.closed { opacity:.62; }
+.quest-scope .camp-card.closed:hover { transform:none; border-color:var(--line); box-shadow:none; cursor:default; }
+.quest-scope .camp-card.closed:hover .cc-cover .cc-cover-img { transform:none; }
 
 /* ── Skeleton ── */
 .quest-scope .skel { background:var(--card-grad); border:1px solid var(--line); border-radius:var(--r-card); overflow:hidden; animation:pulse 1.4s ease infinite; }
