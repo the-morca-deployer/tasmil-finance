@@ -78,13 +78,25 @@ Concretely:
 > **Prefer token utilities over hardcoded values. Use `[…]` only when no token expresses the
 > original.**
 
-Priority order when choosing a CSS value:
+> **⚠️ CRITICAL — landing has its OWN `:root` variables that do NOT equal the shadcn tokens.**
+> `landing.css` defines its own palette in `:root`: `--bg` (#000000), `--text` (#f4f7fb),
+> `--muted` (rgba(244,247,251,0.58)), `--dim` (rgba(244,247,251,0.34)), `--accent` (#67e8f9),
+> `--accent-2` (#0ea5e9), `--grad`, `--line`, `--gutter`, `--maxw`, `--ease`, `--ease-out`, …
+> These are DIFFERENT values from the similarly-named shadcn tokens:
+> `bg-background` = `#09090b` ≠ `--bg` (#000) → use `bg-black` / `bg-[var(--bg)]`;
+> `text-muted-foreground` = `#a1a1aa` (grey) ≠ `--muted` (white-tinted) → use `text-[var(--muted)]`;
+> `text-foreground` ≠ `--text` → use `text-[var(--text)]`.
+> **When reproducing a legacy `var(--X)`, match it exactly with `[…var(--X)…]` or the exact hex/rgba
+> — do NOT substitute a shadcn token of a similar name.** (These landing `:root` vars stay in
+> `landing.css` until the final cleanup phase migrates them to `globals.css`.)
+
+Priority order when choosing a CSS value (for FAITHFUL reproduction, the legacy value always wins):
 
 | Priority | Form | Example |
 |---|---|---|
-| 1 (best) | Tailwind token utility | `text-primary`, `bg-card`, `border-border`, `text-muted-foreground`, `bg-background`, `text-foreground`, `text-secondary-foreground`, `ring-ring` |
-| 2 | Tailwind scale utility | `text-sm`, `px-4`, `rounded-md`, `shadow-lg` |
-| 3 (last resort) | Arbitrary value | `text-[13px]`, `bg-[#0ea5e9]`, `mt-[72px]` |
+| 1 (best) | Exact legacy value via token OR arbitrary | reproduce `var(--muted)` as `text-[var(--muted)]`; `12px` as `text-[12px]` |
+| 2 | Tailwind scale utility when it equals the legacy value | `px-4` (=16px), `gap-1` (=4px), `rounded-md` |
+| 3 | shadcn token utility — ONLY when the legacy value genuinely equals that token | `text-primary` only if legacy used the same `--primary` |
 
 **Token reference** (all defined in `src/app/globals.css` under `@theme`):
 

@@ -6,7 +6,7 @@ export default function Statement() {
           {/* decorative vertical rule */}
           <div
             className="rule mx-auto mb-[30px] h-[42px] w-px"
-            style={{ background: "linear-gradient(#67e8f9, transparent)" }}
+            style={{ background: "linear-gradient(var(--accent), transparent)" }}
           />
 
           <h2 className="rv mx-auto max-w-[17ch] text-balance text-[clamp(30px,4.8vw,62px)] font-bold leading-[1.08] tracking-[-0.035em]">
@@ -60,7 +60,7 @@ export default function Statement() {
             </span>
           </h2>
 
-          <p className="body mx-auto mt-8 max-w-[660px] text-[clamp(16px,1.7vw,19px)] leading-[1.62] text-muted-foreground">
+          <p className="body mx-auto mt-8 max-w-[660px] text-[clamp(16px,1.7vw,19px)] leading-[1.62] text-[var(--muted)]">
             No spreadsheets, no protocol-hopping, no watching charts at 3am. You set the risk; the
             engine rebalances every ten minutes on rails that settle in five seconds for a
             fraction of a cent.
