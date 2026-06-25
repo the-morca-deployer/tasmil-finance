@@ -338,32 +338,32 @@ export function useLandingScripts() {
       function reveal(n) {
         const m = byc(n);
         if (!m) return;
-        m.classList.add("show");
+        m.dataset.show = "true";
         requestAnimationFrame(() => {
-          m.classList.add("in");
+          m.dataset.in = "true";
           scrollDown();
         });
       }
       function hide(n) {
         const m = byc(n);
         if (!m) return;
-        m.classList.remove("in");
+        m.dataset.in = "false";
         timers.push(
           setTimeout(() => {
-            m.classList.remove("show");
+            m.dataset.show = "false";
             scrollDown();
           }, 520)
         );
       }
       function resetSign() {
         if (sign) {
-          sign.classList.remove("signing");
+          sign.dataset.signing = "false";
           sign.textContent = "Sign transaction";
         }
       }
       function play() {
         clearT();
-        msgs.forEach((m) => m.classList.remove("in", "show"));
+        msgs.forEach((m) => { m.dataset.in = "false"; m.dataset.show = "false"; });
         resetSign();
         thread.style.transform = "translateY(0)";
         timers.push(setTimeout(() => reveal(1), 300)); // user intent
@@ -379,7 +379,7 @@ export function useLandingScripts() {
         timers.push(
           setTimeout(() => {
             if (sign) {
-              sign.classList.add("signing");
+              sign.dataset.signing = "true";
               sign.textContent = "Signing…";
             }
             scrollDown();

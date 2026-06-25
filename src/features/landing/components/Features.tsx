@@ -34,76 +34,146 @@ export default function Features() {
                 </div>
                 {/* panel-pad */}
                 <div className="p-[clamp(26px,4vw,46px)] max-[560px]:p-5">
-                  <div className="chat" id="chat">
-                    <div className="chat-thread" id="chatThread">
-                      <div className="cmsg user" data-c="1">
-                        <div className="bub">Supply 500 USDC to Blend at the best rate.</div>
-                      </div>
-                      <div className="cmsg bot" data-c="2">
-                        <img className="c-av bot" src="/tasmil-logo.png" alt="Tasmil" />
-                        <div className="bub typing">
-                          <span></span>
-                          <span></span>
-                          <span></span>
+                  {/* chat */}
+                  <div className="min-w-0 h-[380px] overflow-hidden text-[13.5px] relative" id="chat">
+                    {/* chat-thread */}
+                    <div className="min-w-0 flex flex-col gap-[13px] transition-transform duration-[550ms] [transition-timing-function:var(--ease)] will-change-transform" id="chatThread">
+
+                      {/* cmsg user msg 1 — default hidden, show/in via data-* */}
+                      <div
+                        className="hidden items-end gap-[10px] opacity-0 translate-y-3 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:var(--ease)] flex-row-reverse data-[show=true]:flex data-[in=true]:opacity-100 data-[in=true]:translate-y-0 data-[in=true]:scale-100"
+                        data-c="1"
+                      >
+                        {/* bub user */}
+                        <div className="px-[15px] py-[11px] rounded-[16px] leading-[1.45] max-w-[76%] bg-[var(--grad)] text-[#04141a] font-medium rounded-br-[5px]">
+                          Supply 500 USDC to Blend at the best rate.
                         </div>
                       </div>
-                      <div className="cmsg bot" data-c="3">
-                        <img className="c-av bot" src="/tasmil-logo.png" alt="Tasmil" />
-                        <div className="plan-card">
-                          <div className="pc-h">Planned route</div>
-                          <div className="pc-step">
-                            <span className="pc-i">1</span>Quote best USDC supply venue
+
+                      {/* cmsg bot msg 2 (typing) */}
+                      <div
+                        className="hidden items-end gap-[10px] opacity-0 translate-y-3 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:var(--ease)] data-[show=true]:flex data-[in=true]:opacity-100 data-[in=true]:translate-y-0 data-[in=true]:scale-100"
+                        data-c="2"
+                      >
+                        {/* c-av bot */}
+                        <img className="w-[40px] h-[40px] rounded-none bg-none border-none object-contain p-0 flex-none" src="/tasmil-logo.png" alt="Tasmil" />
+                        {/* bub typing */}
+                        <div className="flex gap-[5px] px-[17px] py-[15px] rounded-[16px] max-w-[76%] bg-white/[0.05] border border-[var(--line-2)] text-[var(--text)] rounded-bl-[5px]">
+                          <span className="w-[6px] h-[6px] rounded-full bg-[var(--accent)] motion-safe:animate-[typ_1.25s_infinite]"></span>
+                          <span className="w-[6px] h-[6px] rounded-full bg-[var(--accent)] motion-safe:animate-[typ_1.25s_0.16s_infinite]"></span>
+                          <span className="w-[6px] h-[6px] rounded-full bg-[var(--accent)] motion-safe:animate-[typ_1.25s_0.32s_infinite]"></span>
+                        </div>
+                      </div>
+
+                      {/* cmsg bot msg 3 (plan-card) */}
+                      <div
+                        className="hidden items-end gap-[10px] opacity-0 translate-y-3 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:var(--ease)] data-[show=true]:flex data-[in=true]:opacity-100 data-[in=true]:translate-y-0 data-[in=true]:scale-100"
+                        data-c="3"
+                      >
+                        {/* c-av bot */}
+                        <img className="w-[40px] h-[40px] rounded-none bg-none border-none object-contain p-0 flex-none" src="/tasmil-logo.png" alt="Tasmil" />
+                        {/* plan-card */}
+                        <div className="flex-1 min-w-0 bg-white/[0.04] border border-[var(--line-2)] rounded-[14px] rounded-bl-[5px] overflow-hidden">
+                          {/* pc-h */}
+                          <div className="flex items-center gap-[8px] px-[14px] py-[12px] text-[14.5px] font-bold text-[var(--text)] border-b border-[var(--line)]">
+                            Planned route
                           </div>
-                          <div className="pc-step">
-                            <span className="pc-i">2</span>Supply 500.00 USDC → Blend
+                          {/* pc-step */}
+                          <div className="flex items-center gap-[11px] px-[14px] py-[9px] text-[13px] text-[var(--text)] border-b border-[var(--line)]">
+                            {/* pc-i */}
+                            <span className="w-[18px] h-[18px] rounded-[6px] flex-none grid place-items-center font-[var(--mono)] text-[10px] font-bold bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--accent)]">1</span>
+                            Quote best USDC supply venue
                           </div>
-                          <div className="pc-foot">
-                            <span className="pc-apy">8.76% APY</span>
-                            <span className="pc-go" id="pcGo">
+                          <div className="flex items-center gap-[11px] px-[14px] py-[9px] text-[13px] text-[var(--text)] border-b border-[var(--line)]">
+                            <span className="w-[18px] h-[18px] rounded-[6px] flex-none grid place-items-center font-[var(--mono)] text-[10px] font-bold bg-[var(--accent-soft)] border border-[var(--accent-line)] text-[var(--accent)]">2</span>
+                            Supply 500.00 USDC → Blend
+                          </div>
+                          {/* pc-foot */}
+                          <div className="flex items-center justify-between px-[14px] py-[10px]">
+                            {/* pc-apy */}
+                            <span className="font-[var(--mono)] text-[12px] font-semibold bg-[var(--grad)] bg-clip-text text-transparent">8.76% APY</span>
+                            {/* pc-go — pulses when ancestor cmsg has data-in=true */}
+                            <span
+                              className="text-[12px] font-semibold text-[var(--accent)] bg-[var(--accent-soft)] border border-[var(--accent-line)] px-[12px] py-[5px] rounded-[100px] [[data-in=true]_&]:animate-[pcPulse_1.5s_var(--ease)_infinite]"
+                              id="pcGo"
+                            >
                               Approve →
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div className="cmsg user" data-c="4">
-                        <div className="bub sm">Approve</div>
+
+                      {/* cmsg user msg 4 (sm bub) */}
+                      <div
+                        className="hidden items-end gap-[10px] opacity-0 translate-y-3 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:var(--ease)] flex-row-reverse data-[show=true]:flex data-[in=true]:opacity-100 data-[in=true]:translate-y-0 data-[in=true]:scale-100"
+                        data-c="4"
+                      >
+                        {/* bub sm user */}
+                        <div className="px-[14px] py-[8px] rounded-[16px] leading-[1.45] max-w-[76%] text-[13px] bg-[var(--grad)] text-[#04141a] font-medium rounded-br-[5px]">
+                          Approve
+                        </div>
                       </div>
-                      <div className="cmsg bot" data-c="5">
-                        <img className="c-av bot" src="/tasmil-logo.png" alt="Tasmil" />
-                        <div className="supply-card">
-                          <div className="sc-h">
-                            Confirm Supply<span>Review details before signing</span>
+
+                      {/* cmsg bot msg 5 (supply-card) */}
+                      <div
+                        className="hidden items-end gap-[10px] opacity-0 translate-y-3 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:var(--ease)] data-[show=true]:flex data-[in=true]:opacity-100 data-[in=true]:translate-y-0 data-[in=true]:scale-100"
+                        data-c="5"
+                      >
+                        {/* c-av bot */}
+                        <img className="w-[40px] h-[40px] rounded-none bg-none border-none object-contain p-0 flex-none" src="/tasmil-logo.png" alt="Tasmil" />
+                        {/* supply-card */}
+                        <div className="flex-1 min-w-0 bg-white/[0.04] border border-[var(--line-2)] rounded-[14px] rounded-bl-[5px] overflow-hidden">
+                          {/* sc-h */}
+                          <div className="flex flex-col gap-[2px] px-[14px] py-[12px] border-b border-[var(--line)] text-[14.5px] font-bold">
+                            Confirm Supply
+                            <span className="text-[10.5px] font-normal text-[var(--dim)] font-[var(--mono)] tracking-[0.02em]">Review details before signing</span>
                           </div>
-                          <div className="sc-row">
-                            <span className="sc-l">Amount to supply</span>
-                            <span className="sc-v">500.00 USDC</span>
+                          {/* sc-row */}
+                          <div className="flex justify-between items-center gap-[12px] px-[14px] py-[8px] text-[12.5px] border-b border-[var(--line)]">
+                            <span className="text-[var(--muted)]">Amount to supply</span>
+                            <span className="font-[var(--mono)] font-semibold text-[var(--text)] whitespace-nowrap">500.00 USDC</span>
                           </div>
-                          <div className="sc-row">
-                            <span className="sc-l">Best venue</span>
-                            <span className="sc-v">Blend Fixed Pool</span>
+                          <div className="flex justify-between items-center gap-[12px] px-[14px] py-[8px] text-[12.5px] border-b border-[var(--line)]">
+                            <span className="text-[var(--muted)]">Best venue</span>
+                            <span className="font-[var(--mono)] font-semibold text-[var(--text)] whitespace-nowrap">Blend Fixed Pool</span>
                           </div>
-                          <div className="sc-row">
-                            <span className="sc-l">Supply APY</span>
-                            <span className="sc-v grad">8.76%</span>
+                          <div className="flex justify-between items-center gap-[12px] px-[14px] py-[8px] text-[12.5px] border-b border-[var(--line)]">
+                            <span className="text-[var(--muted)]">Supply APY</span>
+                            {/* sc-v grad — .grad is shared, keep class */}
+                            <span className="font-[var(--mono)] font-semibold whitespace-nowrap grad">8.76%</span>
                           </div>
-                          <div className="sc-row">
-                            <span className="sc-l">Est. yearly earnings</span>
-                            <span className="sc-v pos">+43.80 USDC</span>
+                          <div className="flex justify-between items-center gap-[12px] px-[14px] py-[8px] text-[12.5px] border-b border-[var(--line)]">
+                            <span className="text-[var(--muted)]">Est. yearly earnings</span>
+                            <span className="font-[var(--mono)] font-semibold whitespace-nowrap text-[var(--change-pos)]">+43.80 USDC</span>
                           </div>
-                          <div className="sc-row">
-                            <span className="sc-l">Network fee</span>
-                            <span className="sc-v">~$0.001</span>
+                          <div className="flex justify-between items-center gap-[12px] px-[14px] py-[8px] text-[12.5px] border-b border-[var(--line)]">
+                            <span className="text-[var(--muted)]">Network fee</span>
+                            <span className="font-[var(--mono)] font-semibold text-[var(--text)] whitespace-nowrap">~$0.001</span>
                           </div>
-                          <button className="sc-sign" id="scSign" type="button">
+                          {/* sc-sign button */}
+                          <button
+                            className="block w-[calc(100%-24px)] mx-[12px] my-[11px] py-[11px] rounded-[999px] border border-transparent bg-[var(--grad)] text-[#04141a] font-[var(--font)] font-bold text-[13px] cursor-pointer transition-[background,color,border-color] duration-[350ms] data-[signing=true]:bg-[var(--accent-soft)] data-[signing=true]:text-[var(--accent)] data-[signing=true]:border-[var(--accent-line)]"
+                            id="scSign"
+                            type="button"
+                          >
                             Sign transaction
                           </button>
                         </div>
                       </div>
-                      <div className="cmsg receipt" data-c="6">
-                        <div className="rc">
-                          <span className="rc-ck">✓</span>500 USDC supplied to Blend in ~5s
+
+                      {/* cmsg receipt msg 6 */}
+                      <div
+                        className="hidden items-end gap-[10px] opacity-0 translate-y-3 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:var(--ease)] justify-center data-[show=true]:flex data-[in=true]:opacity-100 data-[in=true]:translate-y-0 data-[in=true]:scale-100"
+                        data-c="6"
+                      >
+                        {/* rc */}
+                        <div className="inline-flex items-center gap-[9px] font-[var(--mono)] text-[12px] text-[var(--change-pos)] bg-[rgba(134,239,172,0.08)] border border-[rgba(134,239,172,0.28)] px-[16px] py-[9px] rounded-[100px]">
+                          {/* rc-ck */}
+                          <span className="w-[17px] h-[17px] rounded-full flex-none grid place-items-center text-[11px] bg-[var(--change-pos)] text-[#04141a] font-bold">✓</span>
+                          500 USDC supplied to Blend in ~5s
                         </div>
                       </div>
+
                     </div>
                   </div>
                 </div>
