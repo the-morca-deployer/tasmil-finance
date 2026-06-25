@@ -164,8 +164,9 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* social + copy + wordmark */}
-        <div className="relative z-[2] max-w-[var(--maxw)] mx-auto px-[var(--gutter)]">
+        {/* social + copy + wordmark — wrapper is NON-positioned (matches legacy .wrap) so
+            the absolute .fa-mark resolves its containing block to <footer>, not this box */}
+        <div className="max-w-[var(--maxw)] mx-auto px-[var(--gutter)]">
           <div
             className={[
               "relative z-[2]",
