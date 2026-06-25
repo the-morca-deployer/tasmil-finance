@@ -1,4 +1,4 @@
-// @ts-nocheck
+"use client";
 import { useEffect, useRef } from "react";
 
 export default function Footer() {
