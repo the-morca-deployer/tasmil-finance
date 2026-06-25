@@ -13,8 +13,14 @@ export function StatRing({ value, label, display, size = 140 }: StatRingProps) {
   const C = 2 * Math.PI * r;
   const arcLen = (Math.max(0, Math.min(100, value)) / 100) * C;
   return (
-    <div className="stat-ring" style={{ width: size, height: size }}>
-      <svg viewBox={`0 0 ${size} ${size}`} className="stat-ring-svg" aria-hidden="true">
+    // stat-ring: was undefined in quest.css — inline size via style
+    <div className="relative inline-grid place-items-center" style={{ width: size, height: size }}>
+      {/* stat-ring-svg: was undefined in quest.css — full-size absolute svg */}
+      <svg
+        viewBox={`0 0 ${size} ${size}`}
+        className="absolute inset-0 block"
+        aria-hidden="true"
+      >
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -36,9 +42,12 @@ export function StatRing({ value, label, display, size = 140 }: StatRingProps) {
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </svg>
-      <div className="stat-ring-text">
-        <div className="stat-ring-value">{display}</div>
-        <div className="stat-ring-label">{label}</div>
+      {/* stat-ring-text: centered overlay */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center">
+        {/* stat-ring-value */}
+        <div className="text-[22px] font-extrabold font-mono tracking-[-0.03em] leading-none text-[var(--text)]">{display}</div>
+        {/* stat-ring-label */}
+        <div className="text-[10px] font-bold tracking-[0.16em] uppercase text-[rgba(244,247,251,0.34)] mt-1">{label}</div>
       </div>
     </div>
   );

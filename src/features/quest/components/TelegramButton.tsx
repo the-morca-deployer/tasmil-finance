@@ -4,6 +4,7 @@
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
+import { buttonClasses } from "@/features/quest/components/ui/button";
 import { toast } from "sonner";
 
 declare global {
@@ -77,8 +78,8 @@ export function TelegramButton({
 
   const config = sizeConfig[size];
   const widgetSize = config.widgetSize;
-  const variantClass = variant === "default" ? "btn-primary" : "btn-ghost";
-  const sizeClass = size === "small" ? "btn-sm" : size === "large" ? "btn-lg" : "";
+  const btnVariant = variant === "default" ? "primary" : "ghost";
+  const btnSize = size === "small" ? "sm" : size === "large" ? "lg" : "default";
 
   useEffect(() => {
     if (!scriptLoaded.current && containerRef.current) {
@@ -221,10 +222,7 @@ export function TelegramButton({
         ref={buttonRef}
         type="button"
         disabled={isLoading || !!error || disabled}
-        className={`
-          btn ${variantClass} ${sizeClass} relative z-10 ${config.button}
-          pointer-events-none
-        `}
+        className={buttonClasses({ variant: btnVariant, size: btnSize, className: `relative z-10 ${config.button} pointer-events-none` })}
         style={{ pointerEvents: "none" }}
       >
         {isLoading ? (

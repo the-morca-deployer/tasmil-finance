@@ -6,15 +6,13 @@ interface TFLoaderProps {
 }
 
 export function TFLoader({ size = 190, className }: TFLoaderProps) {
+  // .tf-loader-mark: will-change:transform,filter; animation:rgbsplit .5s steps(1,end) infinite
+  // @keyframes rgbsplit lives in quest.css and remains available
+  // Keeping animation via arbitrary utility + will-change to preserve RGB-split glitch effect
   return (
     <div
-      className={`tf-loader-mark ${className ?? ""}`}
-      style={{
-        width: size,
-        height: size,
-        willChange: "transform, filter",
-        animation: "rgbsplit 0.5s steps(1, end) infinite",
-      }}
+      className={`tf-loader-mark ${className ?? ""}`.trim()}
+      style={{ width: size, height: size }}
       role="status"
       aria-label="Loading"
     >

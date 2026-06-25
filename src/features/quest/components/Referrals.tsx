@@ -174,14 +174,22 @@ export function Referrals() {
         <button
           type="button"
           onClick={() => setView("list")}
-          className={`pnav-item${view === "list" ? " active" : ""}`}
+          className={`flex items-center gap-3 text-[14px] font-semibold px-[14px] py-[10px] rounded-[14px] cursor-pointer transition-[color,background] duration-[250ms] text-left bg-transparent border-none ${
+            view === "list"
+              ? "text-[var(--accent)] bg-[var(--accent-soft)]"
+              : "text-[rgba(244,247,251,0.58)] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.04)]"
+          }`}
         >
           Referral List
         </button>
         <button
           type="button"
           onClick={() => setView("tree")}
-          className={`pnav-item${view === "tree" ? " active" : ""}`}
+          className={`flex items-center gap-3 text-[14px] font-semibold px-[14px] py-[10px] rounded-[14px] cursor-pointer transition-[color,background] duration-[250ms] text-left bg-transparent border-none ${
+            view === "tree"
+              ? "text-[var(--accent)] bg-[var(--accent-soft)]"
+              : "text-[rgba(244,247,251,0.58)] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.04)]"
+          }`}
         >
           Referral Tree
         </button>

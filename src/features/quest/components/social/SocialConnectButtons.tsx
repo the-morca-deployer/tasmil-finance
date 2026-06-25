@@ -5,6 +5,7 @@ import { CheckCircle2, Loader2, X } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
+import { Button } from "@/features/quest/components/ui/button";
 
 // Social Icons
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -98,18 +99,19 @@ export const SocialConnectCard: React.FC<SocialConnectCardProps> = ({
       ) : isConnected ? (
         <div className="flex items-center gap-2">
           <CheckCircle2 size={20} className="text-success" />
-          <button
+          <Button
             type="button"
-            className="btn btn-ghost h-8 w-8 p-0 text-muted hover:text-danger hover:bg-danger/10 flex items-center justify-center"
+            variant="ghost"
+            className="h-8 w-8 p-0 text-muted hover:text-danger hover:bg-danger/10 flex items-center justify-center"
             onClick={onDisconnect}
           >
             <X size={16} />
-          </button>
+          </Button>
         </div>
       ) : (
-        <button type="button" className="btn btn-ghost btn-sm h-8 text-xs" onClick={onConnect}>
+        <Button type="button" variant="ghost" size="sm" className="h-8 text-xs" onClick={onConnect}>
           Connect
-        </button>
+        </Button>
       )}
     </div>
   );
