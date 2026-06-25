@@ -311,7 +311,7 @@ export function useLandingScripts() {
         p = Math.max(0, Math.min(1, p));
         const rp = Math.min(1, p / 0.72);
         const lit = Math.ceil(rp * words.length);
-        words.forEach((w, i) => w.classList.toggle("lit", i < lit));
+        words.forEach((w, i) => { w.dataset.lit = i < lit ? "true" : "false"; });
       }
       addEventListener("scroll", upd, { passive: true });
       addEventListener("resize", upd);
