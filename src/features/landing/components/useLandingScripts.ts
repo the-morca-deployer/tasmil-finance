@@ -622,11 +622,11 @@ export function useLandingScripts() {
     if (faqList) {
       const items = [...faqList.querySelectorAll(".faq-item")];
       function setOpen(item, open) {
-        item.classList.toggle("open", open);
+        item.dataset.open = open ? "true" : "false";
       }
       items.forEach((item) => {
         item.querySelector(".faq-q").addEventListener("click", () => {
-          const willOpen = !item.classList.contains("open");
+          const willOpen = item.dataset.open !== "true";
           items.forEach((o) => {
             if (o !== item) setOpen(o, false);
           });
@@ -648,7 +648,7 @@ export function useLandingScripts() {
         if (!q) {
           items.forEach((it, i) => setOpen(it, i === 0));
         }
-        empty.classList.toggle("show", shown === 0);
+        empty.dataset.show = shown === 0 ? "true" : "false";
       });
     }
 
