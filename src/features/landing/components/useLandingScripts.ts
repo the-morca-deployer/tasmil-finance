@@ -130,30 +130,13 @@ export function useLandingScripts() {
     const hero = document.getElementById("top");
     setTimeout(() => { if (hero) hero.dataset.done = "true"; }, 2600);
 
-    /* ===== partners ticker ===== */
-    const protocols = [
-      { n: "Blend", f: "/partners/blend.svg" },
-      { n: "Soroswap", f: "/partners/soroswap.svg" },
-      { n: "Aquarius", f: "/partners/aquarius.svg" },
-      { n: "Phoenix", f: "/partners/phoenix.svg" },
-      { n: "Allbridge", f: "/partners/allbridge.svg" },
-      { n: "DeFindex", f: "/partners/defindex.svg" },
-      { n: "Templar", f: "/partners/templar.svg" },
-      { n: "SDEX", f: "/partners/sdex.svg", inv: 1 },
-    ];
-    const tkMark = (p) =>
-      `<span class="tk-mark"><img class="${p.inv ? "invert" : ""}" src="${p.f}" alt="${p.n}"><span>${p.n}</span></span>`;
-    const row2data = [...protocols.slice(4), ...protocols.slice(0, 4)];
-    const tRow1 = document.getElementById("ticker"),
-      tRow2 = document.getElementById("ticker2");
-    tRow1.innerHTML = [...protocols, ...protocols].map(tkMark).join("");
-    tRow2.innerHTML = [...row2data, ...row2data].map(tkMark).join("");
-
     /* scroll-scrub marquee: pinned section, rows track scroll progress + gentle idle drift */
     (() => {
       const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
       if (reduce) return;
       const sec = document.getElementById("partners");
+      const tRow1 = document.getElementById("ticker"),
+        tRow2 = document.getElementById("ticker2");
       let id1 = 0,
         id2 = 0;
       const idle1 = -0.16,
