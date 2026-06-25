@@ -87,7 +87,7 @@ export function QuestNav() {
 
   return (
     <nav className="nav">
-      <Link className="nav-brand" href="/quest">
+      <Link className="nav-brand" href="/quest/explore">
         <img src="/tasmil-tf-logo.png" alt="Tasmil" />
         <span>
           Tasmil <span className="fin">Quest</span>

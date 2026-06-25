@@ -1089,7 +1089,7 @@ const CampaignDetail: React.FC = () => {
           <Gift size={56} style={{ color: "var(--color-dim)" }} />
           <div className="et">Campaign not found</div>
           <div className="es">This campaign may have ended or the link is incorrect.</div>
-          <Link href="/quest">
+          <Link href="/quest/explore">
             <button type="button" className="btn btn-ghost btn-sm" style={{ marginTop: 8 }}>
               <ArrowLeft size={14} />
               Back to Explore
@@ -1104,7 +1104,7 @@ const CampaignDetail: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <div>
-        <Link href="/quest" className="d-back">
+        <Link href="/quest/explore" className="d-back">
           <ArrowLeft size={16} />
           Back to Explore
         </Link>
@@ -1184,7 +1184,7 @@ const CampaignDetail: React.FC = () => {
 
     return (
       <div>
-        <Link href="/quest" className="d-back">
+        <Link href="/quest/explore" className="d-back">
           <ArrowLeft size={16} />
           Back to Explore
         </Link>
@@ -1320,7 +1320,7 @@ const CampaignDetail: React.FC = () => {
   return (
     <>
       <div>
-      <Link href="/quest" className="d-back">
+      <Link href="/quest/explore" className="d-back">
         <ArrowLeft size={16} />
         Back to Explore
       </Link>

@@ -27,7 +27,7 @@ export default function Footer() {
         <div className="wrap">
           <div className="foot-grid">
             <div className="foot-brand">
-              <a className="brand" href="/quest">
+              <a className="brand" href="/quest/explore">
                 <img className="mk" src="/tasmil-logo.png" alt="Tasmil Finance" width="40" height="40" />
                 <span className="brand-name">Tasmil Finance</span>
               </a>
@@ -39,7 +39,7 @@ export default function Footer() {
 
             <div className="foot-col">
               <div className="foot-head">Quest</div>
-              <a href="/quest">Explore</a>
+              <a href="/quest/explore">Explore</a>
               <a href="/quest/campaigns">Campaigns</a>
               <a href="/quest/leaderboard">Leaderboard</a>
               <a href="/quest/profile">Profile</a>

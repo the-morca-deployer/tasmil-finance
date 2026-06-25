@@ -168,7 +168,7 @@ const Navbar: React.FC = () => {
       {/* Brand */}
       <div className="flex items-center">
         <Link
-          href="/quest"
+          href="/quest/explore"
           className="flex items-center gap-[11px] font-bold text-[19px] tracking-[-0.025em]"
         >
           <Image src="/logo.png" alt="" width={30} height={30} priority />
@@ -189,7 +189,7 @@ const Navbar: React.FC = () => {
 
       {/* Desktop nav links */}
       <nav className="hidden md:flex gap-[2px]">
-        <NavItem href="/quest" label="Explore" />
+        <NavItem href="/quest/explore" label="Explore" />
         <NavItem href="/quest/campaigns" label="Campaigns" />
         <NavItem href="/quest/leaderboard" label="Leaderboard" />
         <NavItem href="/quest/profile" label="Profile" />
@@ -300,7 +300,7 @@ const Navbar: React.FC = () => {
           <div className="flex flex-col p-6 gap-6">
             <nav className="flex flex-col gap-4">
               <Link
-                href="/quest"
+                href="/quest/explore"
                 className="text-2xl font-bold py-2 border-b border-white/5"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
