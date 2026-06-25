@@ -89,6 +89,12 @@ Concretely:
 > **When reproducing a legacy `var(--X)`, match it exactly with `[…var(--X)…]` or the exact hex/rgba
 > — do NOT substitute a shadcn token of a similar name.** (These landing `:root` vars stay in
 > `landing.css` until the final cleanup phase migrates them to `globals.css`.)
+>
+> **This applies to FONTS too:** Tailwind `font-mono` resolves to `var(--font-mono)`, which
+> `globals.css` maps to `var(--font-outfit)` (a SANS-SERIF) — NOT the landing `--mono` monospace
+> stack (`ui-monospace, SFMono-Regular, Menlo, monospace`). Use `font-[var(--mono)]` to reproduce
+> monospace text. Likewise `font-sans` ≠ a guaranteed match for the landing `--font`; reproduce it
+> with `font-[var(--font)]` when faithfulness matters.
 
 Priority order when choosing a CSS value (for FAITHFUL reproduction, the legacy value always wins):
 

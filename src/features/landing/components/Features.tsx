@@ -18,7 +18,7 @@ export default function Features() {
 
           {/* frow left — class kept for JS .closest(".frow") hook */}
           <div
-            className="frow left grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:sticky max-[900px]:top-[calc(72px+0*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
+            className="frow left grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:last:mb-0 max-[560px]:px-[18px] max-[560px]:py-6 max-[900px]:sticky max-[900px]:top-[calc(72px+0*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
             style={{ "--i": "0" } as React.CSSProperties}
           >
             {/* fviz: col 1-6 on desktop, full-width on mobile */}
@@ -26,7 +26,7 @@ export default function Features() {
               {/* panel */}
               <div className="min-w-0 border border-[var(--line-2)] rounded-[22px] bg-[linear-gradient(160deg,rgba(24,33,47,0.66),rgba(9,13,20,0.62))] overflow-hidden relative shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.045)] transition-[border-color,box-shadow] duration-500">
                 {/* panel-cap */}
-                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-mono text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
+                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-[var(--mono)] text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
                   {/* cap-line */}
                   <span className="font-[var(--font)] text-[16px] font-semibold tracking-[-0.01em] normal-case bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
                     Plain English, on-chain.
@@ -113,8 +113,8 @@ export default function Features() {
             <div className="ftext reveal d1 col-start-8 col-end-13 min-w-0 max-[900px]:col-span-full max-[900px]:-order-1">
               {/* fhead */}
               <div className="flex items-baseline gap-4 mb-[22px]">
-                <span className="font-mono text-[17px] font-bold text-[var(--accent)]">01.</span>
-                <span className="font-mono text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                <span className="font-[var(--mono)] text-[17px] font-bold text-[var(--accent)]">01.</span>
+                <span className="font-[var(--mono)] text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
                   Chat
                 </span>
               </div>
@@ -159,15 +159,15 @@ export default function Features() {
 
           {/* frow right */}
           <div
-            className="frow right grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:sticky max-[900px]:top-[calc(72px+1*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
+            className="frow right grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:last:mb-0 max-[560px]:px-[18px] max-[560px]:py-6 max-[900px]:sticky max-[900px]:top-[calc(72px+1*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
             style={{ "--i": "1" } as React.CSSProperties}
           >
             {/* ftext: col 1-5 on desktop */}
             <div className="ftext reveal col-start-1 col-end-6 min-w-0 max-[900px]:col-span-full max-[900px]:-order-1">
               {/* fhead */}
               <div className="flex items-baseline gap-4 mb-[22px]">
-                <span className="font-mono text-[17px] font-bold text-[var(--accent)]">02.</span>
-                <span className="font-mono text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                <span className="font-[var(--mono)] text-[17px] font-bold text-[var(--accent)]">02.</span>
+                <span className="font-[var(--mono)] text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
                   Aggregator
                 </span>
               </div>
@@ -213,7 +213,7 @@ export default function Features() {
               {/* panel */}
               <div className="min-w-0 border border-[var(--line-2)] rounded-[22px] bg-[linear-gradient(160deg,rgba(24,33,47,0.66),rgba(9,13,20,0.62))] overflow-hidden relative shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.045)] transition-[border-color,box-shadow] duration-500">
                 {/* panel-cap */}
-                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-mono text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
+                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-[var(--mono)] text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
                   {/* cap-line */}
                   <span className="font-[var(--font)] text-[16px] font-semibold tracking-[-0.01em] normal-case bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
                     One pass, best price.
@@ -326,7 +326,7 @@ export default function Features() {
 
           {/* frow left */}
           <div
-            className="frow left grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:sticky max-[900px]:top-[calc(72px+2*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
+            className="frow left grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:last:mb-0 max-[560px]:px-[18px] max-[560px]:py-6 max-[900px]:sticky max-[900px]:top-[calc(72px+2*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
             style={{ "--i": "2" } as React.CSSProperties}
           >
             {/* fviz: col 1-6 on desktop */}
@@ -334,7 +334,7 @@ export default function Features() {
               {/* panel */}
               <div className="min-w-0 border border-[var(--line-2)] rounded-[22px] bg-[linear-gradient(160deg,rgba(24,33,47,0.66),rgba(9,13,20,0.62))] overflow-hidden relative shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.045)] transition-[border-color,box-shadow] duration-500">
                 {/* panel-cap */}
-                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-mono text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
+                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-[var(--mono)] text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
                   {/* cap-line */}
                   <span className="font-[var(--font)] text-[16px] font-semibold tracking-[-0.01em] normal-case bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
                     Presets that rebalance for you.
@@ -429,8 +429,8 @@ export default function Features() {
             <div className="ftext reveal d1 col-start-8 col-end-13 min-w-0 max-[900px]:col-span-full max-[900px]:-order-1">
               {/* fhead */}
               <div className="flex items-baseline gap-4 mb-[22px]">
-                <span className="font-mono text-[17px] font-bold text-[var(--accent)]">03.</span>
-                <span className="font-mono text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                <span className="font-[var(--mono)] text-[17px] font-bold text-[var(--accent)]">03.</span>
+                <span className="font-[var(--mono)] text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
                   Farming
                 </span>
               </div>
@@ -475,15 +475,15 @@ export default function Features() {
 
           {/* frow right */}
           <div
-            className="frow right grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:sticky max-[900px]:top-[calc(72px+3*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
+            className="frow right grid grid-cols-12 items-center border-t border-[var(--line)] gap-[34px] py-[clamp(54px,8vh,100px)] max-[900px]:grid-cols-1 max-[900px]:gap-6 max-[900px]:bg-[var(--surface)] max-[900px]:border max-[900px]:border-[var(--line)] max-[900px]:rounded-[24px] max-[900px]:px-5 max-[900px]:py-[26px] max-[900px]:mb-[18px] max-[900px]:last:mb-0 max-[560px]:px-[18px] max-[560px]:py-6 max-[900px]:sticky max-[900px]:top-[calc(72px+3*14px)] max-[900px]:shadow-[0_-1px_0_rgba(255,255,255,0.05)_inset,0_30px_64px_-38px_rgba(0,0,0,0.92)]"
             style={{ "--i": "3" } as React.CSSProperties}
           >
             {/* ftext: col 1-5 on desktop */}
             <div className="ftext reveal col-start-1 col-end-6 min-w-0 max-[900px]:col-span-full max-[900px]:-order-1">
               {/* fhead */}
               <div className="flex items-baseline gap-4 mb-[22px]">
-                <span className="font-mono text-[17px] font-bold text-[var(--accent)]">04.</span>
-                <span className="font-mono text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
+                <span className="font-[var(--mono)] text-[17px] font-bold text-[var(--accent)]">04.</span>
+                <span className="font-[var(--mono)] text-[17px] font-bold tracking-[0.18em] uppercase bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
                   Portfolio
                 </span>
               </div>
@@ -529,7 +529,7 @@ export default function Features() {
               {/* panel */}
               <div className="min-w-0 border border-[var(--line-2)] rounded-[22px] bg-[linear-gradient(160deg,rgba(24,33,47,0.66),rgba(9,13,20,0.62))] overflow-hidden relative shadow-[0_30px_80px_-50px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.045)] transition-[border-color,box-shadow] duration-500">
                 {/* panel-cap */}
-                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-mono text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
+                <div className="flex justify-between items-center px-5 py-[14px] border-b border-[var(--line)] font-[var(--mono)] text-[11px] tracking-[0.12em] uppercase bg-white/[0.03]">
                   {/* cap-line */}
                   <span className="font-[var(--font)] text-[16px] font-semibold tracking-[-0.01em] normal-case bg-[linear-gradient(100deg,#fff_0%,var(--accent)_100%)] bg-clip-text text-transparent">
                     All your positions, unified.
