@@ -58,37 +58,40 @@ Diff computed with `pixelmatch` (from repo `node_modules/pixelmatch`) at thresho
 | `access-1440.png` | 4 117 |
 | `access-390.png` | 576 |
 
-**Before fix (estimated):** Without `animations: "disabled"`, any shot containing
-`animate-float` (hero tokens), `animate-shimmer` (cards), or `animate-twinkle` (stars)
-would capture whichever keyframe happened to be active at `networkidle + 500ms`. On a
-page with 20+ simultaneously animating elements, the unbounded per-run AE for `home-1440`
-alone would be in the range of 200 000–500 000+ pixels. The fix eliminates this
-unbounded variance.
+### CORRECTION (2026-06-25) — the residual AE is JS animation, not "a stable baseline"
 
-### Remaining non-determinism and why it is acceptable
+An earlier version of this report claimed the residual AE (notably `home-1440` at ~57k) was a
+*stable* baseline caused by CSS `transition`s + sub-pixel font hinting. **That diagnosis was
+wrong and has been corrected in both docs.**
 
-The post-fix AE values above are non-zero. Root causes:
+`page.screenshot({ animations: "disabled" })` freezes CSS `@keyframes` AND CSS `transition`s, but
+it does NOT stop JavaScript-driven (`requestAnimationFrame`) animation. The landing homepage runs
+several JS rAF demos via the `useLandingScripts` engine — the Partners ticker marquee, the Features
+demos (chat typing, swap USD calc, portfolio chart, auto-advancing position deck) and StellarReel.
+A fullPage `/` capture includes all of these, each at a different motion phase per capture.
 
-1. **CSS `transition` properties are not affected by `animations: "disabled"`.** Playwright's
-   `animations: "disabled"` only freezes `@keyframes` blocks. CSS `transition` effects
-   (e.g., hover fade-ins, sidebar slide, FAQ expand) can still be captured at different
-   points in their transition curve depending on scheduler timing. The interactive shots
-   (`cta-hover`, `faq-open`, `features-scroll`, `scrolled`, `sidebar`) all drive state
-   changes immediately before screenshot — the transition may not have fully settled.
+**Proof — three identical-code `home-1440` fullPage captures, diffed pairwise (pixelmatch, threshold 0):**
 
-2. **Sub-pixel text rendering and GPU rasterisation.** Very small (< 500 AE) diffs on static
-   shots (`waitlist-390`, `access-390`) are attributable to sub-pixel font hinting variations
-   across runs when system load differs slightly.
+| pair | AE |
+|---|---|
+| run1 vs run2 | 10 329 |
+| run1 vs run3 | 57 768 |
+| run2 vs run3 | 53 704 |
 
-3. **The `home-1440.png` result (57 490 AE)** is the largest static-page diff. The landing
-   homepage contains CSS `transition`-based ambient glow and gradient effects (not keyframe
-   animations) that fluctuate slightly in intensity based on Chromium's rendering timer.
+The AE **swings run-to-run** (10k → 58k) rather than holding ~57k — confirming JS-animation motion
+phase, not a stable residual. For contrast, the predominantly-static `/waitlist` and `/access`
+shots over the same runs gave ~3 445 and ~4 220 AE.
 
-**These residual diffs are bounded and consistent.** They do not grow unboundedly across
-runs. The `animations: "disabled"` fix eliminates the main source of unbounded non-determinism
-(keyframe animation frame-timing). Residual AE values are stable baselines for future
-migration diffs — a section PR that does not touch `home-1440` should produce the same
-~57 000 AE, not a dramatically different value.
+### Verification protocol (corrected)
+
+- For shots containing JS-animated regions (all fullPage `/` shots), **pixel-AE is a TRIAGE signal,
+  not a pass/fail threshold.** These are verified by **visual comparison of layout, typography,
+  color, spacing, and component structure**; motion-phase differences are expected and ignored.
+- Predominantly-static surfaces (`/waitlist`, `/access`, footer, nav-at-rest) SHOULD show low AE —
+  a large AE jump there IS meaningful and worth investigating.
+
+`animations: "disabled"` + `caret: "hide"` are kept — they correctly eliminate CSS-keyframe and
+caret-blink noise; they simply cannot freeze JS-driven canvases/widgets.
 
 ---
 

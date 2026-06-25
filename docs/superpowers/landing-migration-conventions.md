@@ -263,13 +263,27 @@ Every section PR (Phases 1–14) is complete when **all** of the following pass:
 - [ ] **`landing.css` trimmed:** All CSS rules that belong exclusively to this section are
       removed from `src/features/landing/landing.css`. The file should be measurably shorter
       after each PR.
-- [ ] **After-screenshots captured and matched:** Re-run the capture script for the shots
-      relevant to this section, compare against baseline:
+- [ ] **After-screenshots captured and verified (QUALITATIVE gate):** Re-run the capture script
+      for the shots relevant to this section, then compare against baseline:
 
       ```bash
       # dev server must be running on :3000
       node scripts/landing-visual-capture.mjs <afterDir>
       ```
+
+      **The gate is a human visual comparison, not a pixel-AE threshold.** For each relevant
+      before/after pair, a reviewer confirms parity of **layout, typography, color, spacing, and
+      component structure**. Content that differs only in animation motion phase is **expected and
+      ignored** — the homepage runs JS-driven (`requestAnimationFrame`) demos (Partners ticker,
+      Features widgets, StellarReel) that `animations: "disabled"` cannot freeze, so every fullPage
+      `/` capture lands at a different motion phase. Measured proof: three identical-code
+      `home-1440` captures gave pixel-AE of 10,329 / 57,768 / 53,704 — high and varying by design.
+
+      **Use pixel-AE only as TRIAGE**, never as pass/fail. The exception is predominantly-static
+      surfaces — `/waitlist` and `/access` forms, footer, nav-at-rest — which SHOULD show low AE
+      (~3–4k in the proof above); a large AE jump THERE is meaningful and worth investigating.
+      The homepage fullPage shots are always judged visually. See "Diffing captured shots" in
+      `docs/superpowers/landing-baseline-manifest.md` for the full diagnosis.
 
       Baseline manifest: `docs/superpowers/landing-baseline-manifest.md` (12 shots across 3
       breakpoints + interaction states). Relevant shots for each section:
