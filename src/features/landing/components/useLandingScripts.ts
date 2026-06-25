@@ -322,7 +322,7 @@ export function useLandingScripts() {
     (() => {
       const chat = document.getElementById("chat");
       if (!chat) return;
-      const msgs = [...chat.querySelectorAll(".cmsg")];
+      const msgs = [...chat.querySelectorAll("[data-c]")];
       const thread = document.getElementById("chatThread");
       const sign = document.getElementById("scSign");
       const byc = (n) => msgs.find((x) => x.dataset.c == n);
