@@ -695,18 +695,31 @@ export default function Features() {
                 </div>
                 {/* panel-pad */}
                 <div className="p-[clamp(26px,4vw,46px)] max-[560px]:p-5">
-                  <div className="port" id="port">
-                    <div className="pf-top">
+                  {/* port: group anchor for data-[in=true]: ancestor variants */}
+                  <div className="group" id="port">
+                    {/* pf-top */}
+                    <div className="flex items-end justify-between gap-[14px] mb-[6px]">
                       <div>
-                        <div className="pf-lbl">Total value</div>
-                        <div className="pf-val" id="pfVal">
+                        {/* pf-lbl */}
+                        <div className="font-[var(--mono)] text-[10.5px] tracking-[0.16em] uppercase text-[var(--dim)] mb-[5px]">
+                          Total value
+                        </div>
+                        {/* pf-val */}
+                        <div
+                          className="font-[var(--mono)] text-[clamp(24px,3.4vw,32px)] font-semibold tracking-[-0.02em]"
+                          id="pfVal"
+                        >
                           $925.20
                         </div>
                       </div>
-                      <div className="pf-chg">▲ 6.4% past 30d</div>
+                      {/* pf-chg */}
+                      <div className="inline-flex items-center gap-[6px] font-[var(--mono)] text-[12.5px] font-semibold text-[var(--change-pos)] bg-[rgba(134,239,172,0.08)] border border-[rgba(134,239,172,0.26)] px-[11px] py-[6px] rounded-full">
+                        ▲ 6.4% past 30d
+                      </div>
                     </div>
+                    {/* pf-chart: group so pf-area/pf-dot react to #port data-in */}
                     <svg
-                      className="pf-chart"
+                      className="w-full h-auto block my-[6px_0_14px] overflow-visible"
                       id="pfChart"
                       viewBox="0 0 320 92"
                       preserveAspectRatio="none"
@@ -721,19 +734,22 @@ export default function Features() {
                           <stop offset="1" stopColor="rgba(103,232,249,0)"></stop>
                         </linearGradient>
                       </defs>
+                      {/* pf-area: hidden until #port gets data-in="true" */}
                       <path
-                        className="pf-area"
+                        className="opacity-0 [transition:opacity_1.1s_var(--ease)] group-data-[in=true]:opacity-100"
                         id="pfArea"
                         fill="url(#pfFill)"
                         d="M0 74 L26 70 L52 72 L78 60 L104 64 L130 50 L156 54 L182 40 L208 44 L234 30 L260 34 L286 20 L320 14 L320 92 L0 92 Z"
                       ></path>
+                      {/* pf-line: stroke drawn via JS strokeDashoffset */}
                       <path
-                        className="pf-line"
+                        className="fill-none stroke-[url(#pfStroke)] stroke-2 [stroke-linecap:round] [stroke-linejoin:round] [filter:drop-shadow(0_3px_10px_var(--accent-glow))]"
                         id="pfLine"
                         d="M0 74 L26 70 L52 72 L78 60 L104 64 L130 50 L156 54 L182 40 L208 44 L234 30 L260 34 L286 20 L320 14"
                       ></path>
+                      {/* pf-dot: hidden until #port gets data-in="true", delayed 0.9s */}
                       <circle
-                        className="pf-dot"
+                        className="opacity-0 [transition:opacity_0.4s_var(--ease)_0.9s] group-data-[in=true]:opacity-100"
                         id="pfDot"
                         cx="320"
                         cy="14"
@@ -743,16 +759,46 @@ export default function Features() {
                         strokeWidth="2"
                       ></circle>
                     </svg>
-                    <div className="port-sec">Positions</div>
-                    <div className="pos-deck" id="posDeck">
-                      <div className="pos-track" id="posTrack">
-                        <div className="pos-group">
-                          <div className="pg-head">
-                            <img className="pg-ic" src="/partners/aquarius.svg" alt="" />
-                            <span className="pg-name">Aquarius</span>
-                            <span className="pg-count">1 position</span>
-                            <span className="pg-val">$0.66</span>
-                            <svg className="pg-cv" viewBox="0 0 12 12" fill="none">
+                    {/* port-sec */}
+                    <div className="text-[11px] font-[var(--mono)] uppercase tracking-[0.1em] text-[var(--dim)] mt-[16px] mb-[12px]">
+                      Positions
+                    </div>
+                    {/* pos-deck: overflow hidden, height animated by JS */}
+                    <div
+                      className="overflow-hidden [transition:height_0.55s_var(--ease)]"
+                      id="posDeck"
+                    >
+                      {/* pos-track: flex, transform animated by JS */}
+                      <div
+                        className="flex [transition:transform_0.55s_var(--ease)] will-change-transform"
+                        id="posTrack"
+                      >
+                        {/* pos-group 1: flex-shrink-0 100% wide for carousel */}
+                        <div className="flex-[0_0_100%] border border-[var(--line-2)] rounded-[16px] bg-white/[0.025] overflow-hidden mb-0">
+                          {/* pg-head */}
+                          <div className="flex items-center gap-[10px] px-[14px] py-[11px] border-b border-[var(--line)]">
+                            {/* pg-ic */}
+                            <img
+                              className="w-[26px] h-[26px] rounded-full flex-none object-contain bg-white/[0.05]"
+                              src="/partners/aquarius.svg"
+                              alt=""
+                            />
+                            {/* pg-name */}
+                            <span className="font-bold text-[13.5px]">Aquarius</span>
+                            {/* pg-count */}
+                            <span className="text-[11px] text-[var(--dim)] font-[var(--mono)]">
+                              1 position
+                            </span>
+                            {/* pg-val */}
+                            <span className="ml-auto font-[var(--mono)] font-semibold text-[13.5px]">
+                              $0.66
+                            </span>
+                            {/* pg-cv */}
+                            <svg
+                              className="w-[12px] h-[12px] text-[var(--dim)] flex-none"
+                              viewBox="0 0 12 12"
+                              fill="none"
+                            >
                               <path
                                 d="M3 4.5 6 7.5 9 4.5"
                                 stroke="currentColor"
@@ -762,40 +808,88 @@ export default function Features() {
                               ></path>
                             </svg>
                           </div>
-                          <div className="pos-row">
-                            <span className="pr-badge usdc">
-                              <img src="/tokens/usdc.svg" alt="USDC" />
+                          {/* pos-row */}
+                          <div className="flex items-start gap-[11px] px-[14px] py-[12px]">
+                            {/* pr-badge usdc */}
+                            <span className="w-[30px] h-[30px] rounded-full flex-none grid place-items-center overflow-hidden bg-[#0b53bf]">
+                              <img
+                                className="w-full h-full object-cover"
+                                src="/tokens/usdc.svg"
+                                alt="USDC"
+                              />
                             </span>
-                            <div className="pr-main">
-                              <div className="pr-name">
-                                XLM/USDC <i>Volatile</i> <span className="pr-type lp">LP</span>
+                            {/* pr-main */}
+                            <div className="flex-1 min-w-0">
+                              {/* pr-name */}
+                              <div className="flex items-center gap-[8px] font-semibold text-[13.5px] flex-wrap">
+                                XLM/USDC{" "}
+                                <i className="not-italic text-[11px] text-[var(--dim)] font-[var(--mono)]">
+                                  Volatile
+                                </i>{" "}
+                                {/* pr-type lp */}
+                                <span className="text-[10px] font-[var(--mono)] font-semibold px-[7px] py-[2px] rounded-[6px] uppercase tracking-[0.04em] bg-[rgba(234,179,8,0.14)] text-[#facc15] border border-[rgba(234,179,8,0.32)]">
+                                  LP
+                                </span>
                               </div>
-                              <div className="pr-stats">
-                                <span>
-                                  <b>APY</b>0.00%
+                              {/* pr-stats */}
+                              <div className="mt-[8px] flex flex-col gap-[5px] text-[11.5px] font-[var(--mono)]">
+                                <span className="text-[var(--text)] flex gap-[8px]">
+                                  <b className="flex-none w-[64px] text-[var(--dim)] font-normal">
+                                    APY
+                                  </b>
+                                  0.00%
                                 </span>
-                                <span>
-                                  <b>Rewards</b>
-                                  <span className="rew">0.3654365 AQUA</span>
+                                <span className="text-[var(--text)] flex gap-[8px]">
+                                  <b className="flex-none w-[64px] text-[var(--dim)] font-normal">
+                                    Rewards
+                                  </b>
+                                  <span className="text-[var(--accent)]">0.3654365 AQUA</span>
                                 </span>
-                                <span>
-                                  <b>Amount</b>2.0748 XLM, 0.3302 USDC
+                                <span className="text-[var(--text)] flex gap-[8px]">
+                                  <b className="flex-none w-[64px] text-[var(--dim)] font-normal">
+                                    Amount
+                                  </b>
+                                  2.0748 XLM, 0.3302 USDC
                                 </span>
                               </div>
                             </div>
-                            <div className="pr-right">
-                              <div className="pr-val">$0.66</div>
-                              <div className="pr-day">+0.0173/day</div>
+                            {/* pr-right */}
+                            <div className="text-right flex-none">
+                              {/* pr-val */}
+                              <div className="font-[var(--mono)] font-bold text-[14px]">$0.66</div>
+                              {/* pr-day */}
+                              <div className="font-[var(--mono)] text-[10.5px] text-[var(--change-pos)] mt-[3px]">
+                                +0.0173/day
+                              </div>
                             </div>
                           </div>
                         </div>
-                        <div className="pos-group">
-                          <div className="pg-head">
-                            <img className="pg-ic" src="/partners/blend.svg" alt="" />
-                            <span className="pg-name">Blend Protocol</span>
-                            <span className="pg-count">1 position</span>
-                            <span className="pg-val">$0.02</span>
-                            <svg className="pg-cv" viewBox="0 0 12 12" fill="none">
+                        {/* pos-group 2 */}
+                        <div className="flex-[0_0_100%] border border-[var(--line-2)] rounded-[16px] bg-white/[0.025] overflow-hidden mb-0">
+                          {/* pg-head */}
+                          <div className="flex items-center gap-[10px] px-[14px] py-[11px] border-b border-[var(--line)]">
+                            {/* pg-ic */}
+                            <img
+                              className="w-[26px] h-[26px] rounded-full flex-none object-contain bg-white/[0.05]"
+                              src="/partners/blend.svg"
+                              alt=""
+                            />
+                            {/* pg-name */}
+                            <span className="font-bold text-[13.5px]">Blend Protocol</span>
+                            {/* pg-count */}
+                            <span className="text-[11px] text-[var(--dim)] font-[var(--mono)]">
+                              1 position
+                            </span>
+                            {/* pg-val */}
+                            <span className="ml-auto font-[var(--mono)] font-semibold text-[13.5px]">
+                              $0.02
+                            </span>
+                            {/* pg-cv */}
+                            <svg
+                              className="w-[12px] h-[12px] text-[var(--dim)] flex-none"
+                              viewBox="0 0 12 12"
+                              fill="none"
+                            >
                               <path
                                 d="M3 4.5 6 7.5 9 4.5"
                                 stroke="currentColor"
@@ -805,40 +899,75 @@ export default function Features() {
                               ></path>
                             </svg>
                           </div>
-                          <div className="pg-sub-pool">
-                            Fixed Pool <span>1 position</span>
+                          {/* pg-sub-pool */}
+                          <div className="flex items-center gap-[8px] px-[14px] py-[8px] border-b border-[var(--line)] text-[11.5px] font-[var(--mono)] text-[var(--muted)]">
+                            Fixed Pool{" "}
+                            <span className="text-[var(--dim)]">1 position</span>
                           </div>
-                          <div className="pos-row">
-                            <span className="pr-badge xlm">
-                              <img src="/tokens/xlm.svg" alt="XLM" />
+                          {/* pos-row */}
+                          <div className="flex items-start gap-[11px] px-[14px] py-[12px]">
+                            {/* pr-badge xlm */}
+                            <span className="w-[30px] h-[30px] rounded-full flex-none grid place-items-center overflow-hidden bg-[radial-gradient(circle_at_34%_30%,#1c2636,#070b12)] border border-[var(--line-2)]">
+                              <img
+                                className="w-[17px] h-[17px] object-contain brightness-0 invert"
+                                src="/tokens/xlm.svg"
+                                alt="XLM"
+                              />
                             </span>
-                            <div className="pr-main">
-                              <div className="pr-name">
-                                XLM Collateral <span className="pr-type supply">Supply</span>
+                            {/* pr-main */}
+                            <div className="flex-1 min-w-0">
+                              {/* pr-name */}
+                              <div className="flex items-center gap-[8px] font-semibold text-[13.5px] flex-wrap">
+                                XLM Collateral{" "}
+                                {/* pr-type supply */}
+                                <span className="text-[10px] font-[var(--mono)] font-semibold px-[7px] py-[2px] rounded-[6px] uppercase tracking-[0.04em] bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent-line)]">
+                                  Supply
+                                </span>
                               </div>
-                              <div className="pr-stats">
-                                <span>
-                                  <b>APY</b>0.00%
+                              {/* pr-stats */}
+                              <div className="mt-[8px] flex flex-col gap-[5px] text-[11.5px] font-[var(--mono)]">
+                                <span className="text-[var(--text)] flex gap-[8px]">
+                                  <b className="flex-none w-[64px] text-[var(--dim)] font-normal">
+                                    APY
+                                  </b>
+                                  0.00%
                                 </span>
-                                <span>
-                                  <b>Rewards</b>
-                                  <span className="rew">0.0000043 BLND</span>
+                                <span className="text-[var(--text)] flex gap-[8px]">
+                                  <b className="flex-none w-[64px] text-[var(--dim)] font-normal">
+                                    Rewards
+                                  </b>
+                                  <span className="text-[var(--accent)]">0.0000043 BLND</span>
                                 </span>
-                                <span>
-                                  <b>Amount</b>0.1 XLM
+                                <span className="text-[var(--text)] flex gap-[8px]">
+                                  <b className="flex-none w-[64px] text-[var(--dim)] font-normal">
+                                    Amount
+                                  </b>
+                                  0.1 XLM
                                 </span>
                               </div>
                             </div>
-                            <div className="pr-right">
-                              <div className="pr-val">$0.02</div>
+                            {/* pr-right */}
+                            <div className="text-right flex-none">
+                              {/* pr-val */}
+                              <div className="font-[var(--mono)] font-bold text-[14px]">$0.02</div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div className="pos-pager" id="posPager">
-                      <i className="on"></i>
-                      <i></i>
+                    {/* pos-pager: dot indicators, data-[on=true]: drives active color */}
+                    <div
+                      className="flex gap-[6px] justify-center mt-[14px]"
+                      id="posPager"
+                    >
+                      <i
+                        className="not-italic w-[20px] h-[3px] rounded-[2px] bg-[var(--line-2)] [transition:background_0.4s] cursor-pointer data-[on=true]:bg-[var(--accent)]"
+                        data-on="true"
+                      ></i>
+                      <i
+                        className="not-italic w-[20px] h-[3px] rounded-[2px] bg-[var(--line-2)] [transition:background_0.4s] cursor-pointer data-[on=true]:bg-[var(--accent)]"
+                        data-on="false"
+                      ></i>
                     </div>
                   </div>
                 </div>

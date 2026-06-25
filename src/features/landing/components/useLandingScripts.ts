@@ -260,7 +260,7 @@ export function useLandingScripts() {
       onVisible(
         port,
         () => {
-          port.classList.add("in");
+          port.dataset.in = "true";
           if (line)
             requestAnimationFrame(() => {
               line.style.strokeDashoffset = "0";
@@ -284,7 +284,7 @@ export function useLandingScripts() {
         idx = (n + cards.length) % cards.length;
         track.style.transform = "translateX(" + -idx * deck.clientWidth + "px)";
         deck.style.height = cards[idx].offsetHeight + "px";
-        dots.forEach((d, i) => d.classList.toggle("on", i === idx));
+        dots.forEach((d, i) => (d.dataset.on = i === idx ? "true" : "false"));
       }
       dots.forEach((d, i) => d.addEventListener("click", () => go(i)));
       function start() {
