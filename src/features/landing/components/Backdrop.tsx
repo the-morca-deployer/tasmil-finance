@@ -2,7 +2,7 @@ export default function Backdrop() {
   return (
     <>
       {/* Ambient radial-gradient glow behind the page */}
-      <div className="page-ambient fixed [-inset:10px] z-[-2] pointer-events-none blur-[10px]" />
+      <div className="page-ambient fixed [inset:-10px] z-[-2] pointer-events-none blur-[10px]" />
 
       {/* Stars field */}
       <div className="stars-field fixed inset-0 z-[-1] pointer-events-none opacity-50" />
