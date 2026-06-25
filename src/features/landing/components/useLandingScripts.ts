@@ -780,7 +780,7 @@ export function useLandingScripts() {
       function hide() {
         if (gone) return;
         gone = true;
-        pl.classList.add("done");
+        pl.dataset.done = "true";
         setTimeout(() => pl.remove(), 800);
       }
       if (document.readyState === "complete") {

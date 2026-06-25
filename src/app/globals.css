@@ -542,6 +542,10 @@
       opacity: 0.4;
     }
   }
+
+  /* Preloader animations */
+  --animate-pl-float: plFloat 3s ease-in-out infinite;
+  --animate-pl-bar: plBar 1.15s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 
 @layer base {
