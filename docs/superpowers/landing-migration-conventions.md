@@ -249,7 +249,11 @@ Every section PR (Phases 1–14) is complete when **all** of the following pass:
 - [ ] **No `@ts-nocheck`:** The section's component files do not contain `// @ts-nocheck`.
       Type each remaining `any` explicitly; use localized `as <Type>` casts only when the DOM
       API is genuinely dynamic.
-- [ ] **Biome clean:** `pnpm lint` passes with zero errors for all files touched in the PR.
+- [ ] **Biome clean:** **`pnpm lint` introduces no NEW errors in files this section touches** —
+      the repo has pre-existing lint debt in `loop-config/scenarios/generate-tool-scenarios.ts`,
+      `src/app/(quest)/loading.tsx`, `src/shared/utils/date-group.ts` which are out of scope.
+      Verify with `pnpm lint <changed-files>` or by confirming the error count/locations are
+      unchanged from before your change.
       Convention: 2-space indent, line width 100, double quotes, `import type` for type-only
       imports, no `any`, no `console.log` (use `console.warn` / `console.error`).
 - [ ] **State via `data-*` only:** No legacy state classes remain for this section. Every

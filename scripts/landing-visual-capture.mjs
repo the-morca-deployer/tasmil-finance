@@ -215,7 +215,7 @@ async function captureShot(browser, shot) {
   const stateSteps = await driveState(page, shot);
 
   const filePath = path.join(OUT_DIR, `${shot.name}.png`);
-  await page.screenshot({ path: filePath, fullPage: FULL_PAGE });
+  await page.screenshot({ path: filePath, fullPage: FULL_PAGE, animations: "disabled", caret: "hide" });
   console.log(`  Saved: ${filePath}`);
 
   manifest.push({
