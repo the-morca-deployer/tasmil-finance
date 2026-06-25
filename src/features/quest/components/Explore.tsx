@@ -57,7 +57,7 @@ export default function Explore() {
             <div className="x-stat">
               <div className="v accent">
                 1.2M
-                <svg className="pcoin" style={{ width: 24, height: 24 }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <svg className="pcoin" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ width: 28, height: 28, verticalAlign: -5 }}>
                   <linearGradient id="ptsCoinExpl" x1="0.15" y1="0.1" x2="0.85" y2="0.9"><stop stopColor="#A5F3FC"/><stop offset="1" stopColor="#0EA5E9"/></linearGradient>
                   <circle cx="12" cy="12" r="9" fill="url(#ptsCoinExpl)"/>
                   <path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A"/>

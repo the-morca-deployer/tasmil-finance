@@ -7,17 +7,8 @@ export default function Footer() {
   useEffect(() => {
     const el = colsRef.current;
     if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          el.classList.add("in");
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
+    const t = setTimeout(() => el.classList.add("in"), 500);
+    return () => clearTimeout(t);
   }, []);
 
   return (
@@ -26,9 +17,9 @@ export default function Footer() {
         <div className="wrap">
           <div className="foot-grid">
             <div className="foot-brand">
-              <a className="brand" href="/quest/explore">
-                <img className="mk" src="/tasmil-logo.png" alt="Tasmil Finance" width="40" height="40" />
-                <span className="brand-name">Tasmil Finance</span>
+              <a className="brand" href="/quest">
+                <img className="mk" src="/tasmil-tf-logo.png" alt="Tasmil Finance" width="40" height="40" />
+                <span className="brand-name">Tasmil Quest</span>
               </a>
               <p className="foot-desc">
                 An automated DeFi yield protocol on Stellar. Deposit USDC or XLM, pick a risk level,
@@ -38,7 +29,7 @@ export default function Footer() {
 
             <div className="foot-col">
               <div className="foot-head">Quest</div>
-              <a href="/quest/explore">Explore</a>
+              <a href="/quest">Explore</a>
               <a href="/quest/campaigns">Campaigns</a>
               <a href="/quest/leaderboard">Leaderboard</a>
               <a href="/quest/profile">Profile</a>

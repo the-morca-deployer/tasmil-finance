@@ -78,6 +78,7 @@ function handleMock(fullPath: string, req: Request, method = "GET") {
   if (p === "referral/leaderboard" && method === "GET") return json(MOCK_LEADERBOARD);
 
   // Social
+  if (p === "social-accounts" && method === "GET") return json(MOCK_SOCIAL_ACCOUNTS);
   if (p === "social-accounts" && method === "POST") return json({ success: true, data: { ok: true } });
   if (p === "social-accounts/unlink" && method === "POST") return json({ success: true, data: { ok: true } });
 
