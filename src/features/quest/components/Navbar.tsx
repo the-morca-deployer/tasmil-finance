@@ -169,12 +169,10 @@ const Navbar: React.FC = () => {
       <div className="flex items-center">
         <Link
           href="/quest/explore"
-          className="flex items-center gap-[11px] font-bold text-[19px] tracking-[-0.025em]"
+          className="brand"
         >
-          <Image src="/logo.png" alt="" width={30} height={30} priority />
-          <span>
-            Tasmil<span className="text-accent">.fin</span>
-          </span>
+          <img className="mk" src="/tasmil-logo.png" alt="Tasmil Finance" width="40" height="40" />
+          <span className="brand-name">Tasmil Finance</span>
         </Link>
 
         {sponsoredName ? (

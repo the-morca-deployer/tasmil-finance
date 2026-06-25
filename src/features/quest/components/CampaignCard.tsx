@@ -83,11 +83,9 @@ export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
         <span className="ph-tag">
           tasmil://{campaign.sponsor.toLowerCase().replace(/\s+/g, "-")}
         </span>
-        <span className="cc-badge-status">
-          <Badge variant={closed ? "closed" : "ongoing"}>
-            {closed ? "Closed" : "Ongoing"}
-          </Badge>
-        </span>
+        <Badge variant={closed ? "closed" : "ongoing"}>
+          {closed ? "Closed" : "Ongoing"}
+        </Badge>
         <span className="cc-badge-pts">
           +{campaign.pointsReward.toLocaleString("en-US")}
           <svg className="pcoin" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
