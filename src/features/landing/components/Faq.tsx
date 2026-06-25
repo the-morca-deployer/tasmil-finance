@@ -226,7 +226,7 @@ export default function Faq() {
                 <div
                   className={[
                     "faq-a-inner overflow-hidden min-h-0",
-                    "pl-[4px] pr-[100px] max-sm:pr-[38px]",
+                    "pl-[4px] pr-[100px] max-[560px]:pr-[38px]",
                     "text-[clamp(15px,1.6vw,16.5px)] text-[var(--muted)] leading-[1.66]",
                     "transition-[padding-bottom] duration-[450ms] [transition-timing-function:var(--ease)]",
                     "group-data-[open=true]:pb-[28px]",
