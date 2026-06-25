@@ -547,6 +547,7 @@ export function useLandingScripts() {
         const p = protocols[pi];
         pi = (pi + 1) % protocols.length;
         const pkt = document.createElement("div");
+        // conv-pkt + cp-logo + cp-coin are @utility classes defined in globals.css (Phase 7)
         pkt.className = "conv-pkt";
         pkt.innerHTML =
           '<div class="cp-logo"><img src="partners/' +
@@ -566,10 +567,11 @@ export function useLandingScripts() {
         );
         const tMid = (dur * (vaultX - startX)) / (endX - startX);
         setTimeout(() => {
-          pkt.classList.add("iscoin");
-          vault.classList.remove("pulse");
+          // data-* replaces classList toggles; CSS handled by @utility conv-pkt nesting
+          pkt.dataset.iscoin = "true";
+          vault.dataset.pulse = "false";
           void vault.offsetWidth;
-          vault.classList.add("pulse");
+          vault.dataset.pulse = "true";
         }, tMid);
         setTimeout(() => {
           pkt.style.opacity = "0";
