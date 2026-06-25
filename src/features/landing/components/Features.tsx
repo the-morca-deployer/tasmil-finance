@@ -719,7 +719,7 @@ export default function Features() {
                     </div>
                     {/* pf-chart: group so pf-area/pf-dot react to #port data-in */}
                     <svg
-                      className="w-full h-auto block my-[6px_0_14px] overflow-visible"
+                      className="w-full h-auto block mt-[6px] mb-[14px] overflow-visible"
                       id="pfChart"
                       viewBox="0 0 320 92"
                       preserveAspectRatio="none"
