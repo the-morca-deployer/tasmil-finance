@@ -427,14 +427,14 @@ export function useLandingScripts() {
       function reset() {
         clear();
         payAmt.textContent = "0";
-        payAmt.classList.add("zero");
+        payAmt.dataset.zero = "true";
         recvAmt.textContent = "0";
-        recvAmt.classList.add("zero");
+        recvAmt.dataset.zero = "true";
         payUsd.textContent = "$0";
         recvUsd.textContent = "$0";
         route.style.opacity = "0";
         route.textContent = "";
-        cta.className = "swap-cta";
+        cta.dataset.state = "idle";
         cta.textContent = "Enter amount";
       }
       function count(el, to, dur, suffix, done) {
@@ -449,15 +449,15 @@ export function useLandingScripts() {
         })(performance.now());
       }
       function showFinal() {
-        payAmt.classList.remove("zero");
+        payAmt.dataset.zero = "false";
         payAmt.textContent = PAY.toLocaleString("en-US");
         payUsd.textContent = "$" + fmt(PAY * RATE);
-        recvAmt.classList.remove("zero");
+        recvAmt.dataset.zero = "false";
         recvAmt.textContent = fmt(quotes[best][1]);
         recvUsd.textContent = "$" + fmt(quotes[best][1]);
         route.textContent = "via " + quotes[best][0];
         route.style.opacity = "1";
-        cta.className = "swap-cta ready";
+        cta.dataset.state = "ready";
         cta.textContent = "Swap " + PAY + " XLM → USDC";
       }
       function run() {
@@ -468,7 +468,7 @@ export function useLandingScripts() {
         }
         // 1 — type the pay amount
         wait(() => {
-          payAmt.classList.remove("zero");
+          payAmt.dataset.zero = "false";
           count(payAmt, PAY, 560, "int");
           const u0 = performance.now();
           (function su(t) {
@@ -480,7 +480,7 @@ export function useLandingScripts() {
         }, 650);
         // 2 — quote venues (cycle through), settle on best
         wait(() => {
-          cta.className = "swap-cta quoting";
+          cta.dataset.state = "quoting";
         }, 1300);
         quotes.forEach((q, i) => {
           wait(
@@ -493,7 +493,7 @@ export function useLandingScripts() {
         // 3 — fill receive + best route
         wait(
           () => {
-            recvAmt.classList.remove("zero");
+            recvAmt.dataset.zero = "false";
             count(recvAmt, quotes[best][1], 620, null);
             const r0 = performance.now();
             (function sr(t) {
@@ -504,7 +504,7 @@ export function useLandingScripts() {
             })(performance.now());
             route.textContent = "via " + quotes[best][0];
             route.style.opacity = "1";
-            cta.className = "swap-cta ready";
+            cta.dataset.state = "ready";
             cta.textContent = "Swap " + PAY + " XLM → USDC";
           },
           1300 + quotes.length * 430 + 220
@@ -514,7 +514,7 @@ export function useLandingScripts() {
       }
       if (flip)
         flip.addEventListener("click", () => {
-          flip.classList.toggle("spin");
+          flip.dataset.spin = flip.dataset.spin === "true" ? "false" : "true";
         });
       onVisible(pad.closest(".frow"), run, 0.25);
     })();

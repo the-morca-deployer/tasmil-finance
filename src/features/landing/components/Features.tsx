@@ -289,14 +289,16 @@ export default function Features() {
                     One pass, best price.
                   </span>
                 </div>
-                {/* panel-pad */}
-                <div className="swap-pad p-[clamp(26px,4vw,46px)] max-[560px]:p-5">
-                  <div className="swap-field">
-                    <div className="sf-top">
-                      <span className="sf-label">You pay</span>
-                      <span className="sf-acct">
+                {/* panel-pad / swap-pad */}
+                <div className="flex flex-col gap-[9px] p-[clamp(13px,1.9vw,17px)]">
+                  {/* swap-field: pay */}
+                  <div className="min-w-0 bg-white/[0.045] border border-[var(--line-2)] rounded-[16px] px-4 pt-[15px] pb-[13px] transition-[border-color] duration-[400ms]">
+                    {/* sf-top */}
+                    <div className="min-w-0 flex justify-between items-center gap-[10px] mb-[9px]">
+                      <span className="text-[13.5px] text-[var(--muted)] whitespace-nowrap">You pay</span>
+                      <span className="inline-flex items-center gap-[5px] text-[11.5px] font-[var(--mono)] text-[var(--muted)] bg-white/[0.06] border border-[var(--line-2)] rounded-full px-[9px] py-1 whitespace-nowrap">
                         GDQI7L…3I6R
-                        <svg viewBox="0 0 12 12" fill="none">
+                        <svg viewBox="0 0 12 12" fill="none" className="w-[11px] h-[11px] flex-none opacity-70">
                           <path
                             d="M3 4.5 6 7.5 9 4.5"
                             stroke="currentColor"
@@ -307,19 +309,24 @@ export default function Features() {
                         </svg>
                       </span>
                     </div>
-                    <div className="sf-mid">
-                      <div className="sf-amt zero" id="payAmt">
+                    {/* sf-mid */}
+                    <div className="min-w-0 flex justify-between items-center gap-3">
+                      <div
+                        className="text-[clamp(28px,4vw,38px)] font-semibold tracking-[-0.02em] [font-variant-numeric:tabular-nums] text-[var(--text)] leading-none min-w-0 overflow-hidden whitespace-nowrap data-[zero=true]:text-[var(--muted)]"
+                        id="payAmt"
+                        data-zero="true"
+                      >
                         0
                       </div>
-                      <span className="tok">
-                        <span className="tok-badge xlm">
-                          <img src="/tokens/xlm.svg" alt="XLM" />
+                      <span className="inline-flex items-center gap-[9px] bg-white/[0.06] border border-[var(--line-2)] rounded-full py-[5px] pl-[5px] pr-[11px] flex-none">
+                        <span className="w-[30px] h-[30px] rounded-full grid place-items-center flex-none overflow-hidden bg-[radial-gradient(circle_at_34%_30%,#1c2636,#070b12)] border border-[var(--line-2)]">
+                          <img src="/tokens/xlm.svg" alt="XLM" className="w-[17px] h-[17px] object-contain brightness-0 invert" />
                         </span>
-                        <span className="tok-meta">
-                          <b>XLM</b>
-                          <i>Stellar</i>
+                        <span className="flex flex-col leading-[1.12] text-left">
+                          <b className="text-[14px] font-bold">XLM</b>
+                          <i className="text-[10px] not-italic text-[var(--dim)]">Stellar</i>
                         </span>
-                        <svg className="tok-cv" viewBox="0 0 12 12" fill="none">
+                        <svg className="w-3 h-3 text-[var(--dim)] flex-none" viewBox="0 0 12 12" fill="none">
                           <path
                             d="M3 4.5 6 7.5 9 4.5"
                             stroke="currentColor"
@@ -330,19 +337,22 @@ export default function Features() {
                         </svg>
                       </span>
                     </div>
-                    <div className="sf-sub">
+                    {/* sf-sub */}
+                    <div className="min-w-0 flex justify-between items-center gap-[10px] mt-[10px] text-[12px] font-[var(--mono)] text-[var(--muted)]">
                       <span id="payUsd">$0</span>
-                      <span className="sf-bal">Balance 4.247 XLM</span>
+                      <span className="text-[var(--muted)]">Balance 4.247 XLM</span>
                     </div>
                   </div>
-                  <div className="swap-mid">
+                  {/* swap-mid */}
+                  <div className="flex justify-center relative z-[2] -my-[6px]">
                     <button
-                      className="swap-flip"
+                      className="w-9 h-9 rounded-[11px] bg-[#10151f] border border-[var(--line-2)] grid place-items-center cursor-pointer text-[var(--text)] transition-[transform,border-color,color] duration-[550ms] [transition-timing-function:var(--ease)] hover:text-[var(--accent)] data-[spin=true]:rotate-180 motion-reduce:transition-none"
                       id="swapFlip"
                       type="button"
                       aria-label="Swap direction"
+                      data-spin="false"
                     >
-                      <svg viewBox="0 0 16 16" fill="none">
+                      <svg viewBox="0 0 16 16" fill="none" className="w-4 h-4">
                         <path
                           d="M5 3v8M3 9l2 2 2-2M11 13V5M9 7l2-2 2 2"
                           stroke="currentColor"
@@ -353,24 +363,33 @@ export default function Features() {
                       </svg>
                     </button>
                   </div>
-                  <div className="swap-field">
-                    <div className="sf-top">
-                      <span className="sf-label">You receive</span>
-                      <span className="sf-add">+ Add Address</span>
+                  {/* swap-field: receive */}
+                  <div className="min-w-0 bg-white/[0.045] border border-[var(--line-2)] rounded-[16px] px-4 pt-[15px] pb-[13px] transition-[border-color] duration-[400ms]">
+                    {/* sf-top */}
+                    <div className="min-w-0 flex justify-between items-center gap-[10px] mb-[9px]">
+                      <span className="text-[13.5px] text-[var(--muted)] whitespace-nowrap">You receive</span>
+                      <span className="inline-flex items-center gap-[5px] text-[11.5px] font-[var(--mono)] text-[var(--accent)] bg-white/[0.06] border border-[var(--accent-line)] rounded-full px-[9px] py-1 whitespace-nowrap">
+                        + Add Address
+                      </span>
                     </div>
-                    <div className="sf-mid">
-                      <div className="sf-amt zero" id="recvAmt">
+                    {/* sf-mid */}
+                    <div className="min-w-0 flex justify-between items-center gap-3">
+                      <div
+                        className="text-[clamp(28px,4vw,38px)] font-semibold tracking-[-0.02em] [font-variant-numeric:tabular-nums] text-[var(--text)] leading-none min-w-0 overflow-hidden whitespace-nowrap data-[zero=true]:text-[var(--muted)]"
+                        id="recvAmt"
+                        data-zero="true"
+                      >
                         0
                       </div>
-                      <span className="tok">
-                        <span className="tok-badge usdc">
-                          <img src="/tokens/usdc.svg" alt="USDC" />
+                      <span className="inline-flex items-center gap-[9px] bg-white/[0.06] border border-[var(--line-2)] rounded-full py-[5px] pl-[5px] pr-[11px] flex-none">
+                        <span className="w-[30px] h-[30px] rounded-full grid place-items-center flex-none overflow-hidden bg-[#0b53bf]">
+                          <img src="/tokens/usdc.svg" alt="USDC" className="w-full h-full object-cover" />
                         </span>
-                        <span className="tok-meta">
-                          <b>USDC</b>
-                          <i>Stellar</i>
+                        <span className="flex flex-col leading-[1.12] text-left">
+                          <b className="text-[14px] font-bold">USDC</b>
+                          <i className="text-[10px] not-italic text-[var(--dim)]">Stellar</i>
                         </span>
-                        <svg className="tok-cv" viewBox="0 0 12 12" fill="none">
+                        <svg className="w-3 h-3 text-[var(--dim)] flex-none" viewBox="0 0 12 12" fill="none">
                           <path
                             d="M3 4.5 6 7.5 9 4.5"
                             stroke="currentColor"
@@ -381,12 +400,22 @@ export default function Features() {
                         </svg>
                       </span>
                     </div>
-                    <div className="sf-sub">
+                    {/* sf-sub */}
+                    <div className="min-w-0 flex justify-between items-center gap-[10px] mt-[10px] text-[12px] font-[var(--mono)] text-[var(--muted)]">
                       <span id="recvUsd">$0</span>
-                      <span className="sf-route" id="recvRoute"></span>
+                      <span
+                        className="text-[var(--accent)] opacity-0 transition-opacity duration-[400ms] motion-reduce:transition-none"
+                        id="recvRoute"
+                      ></span>
                     </div>
                   </div>
-                  <button className="swap-cta" id="swapCta" type="button">
+                  {/* swap-cta */}
+                  <button
+                    className="mt-[3px] w-full py-[15px] rounded-full border border-[var(--line-2)] bg-white/[0.05] text-[var(--muted)] font-[var(--font)] text-[15px] font-semibold tracking-[-0.01em] cursor-default transition-[background,color,border-color,box-shadow] duration-[450ms] [transition-timing-function:var(--ease)] motion-reduce:transition-none data-[state=quoting]:text-[var(--text)] data-[state=ready]:bg-[var(--grad)] data-[state=ready]:text-[#04141a] data-[state=ready]:border-transparent data-[state=ready]:shadow-[0_16px_40px_-18px_var(--accent-glow)]"
+                    id="swapCta"
+                    type="button"
+                    data-state="idle"
+                  >
                     Enter amount
                   </button>
                 </div>
