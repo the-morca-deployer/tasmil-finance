@@ -58,7 +58,7 @@ export default function Fees() {
              * .fr-track and .fr-i CLASSES must stay — JS queries them.
              */}
             <span
-              className="fr"
+              className="fr transition-[width] duration-[620ms] [transition-timing-function:cubic-bezier(0.7,0,0.2,1)]"
               id="feesFr"
               style={{
                 display: "inline-block",
@@ -66,16 +66,14 @@ export default function Fees() {
                 height: "1.06em",
                 verticalAlign: "bottom",
                 width: 0,
-                transition: "width 0.62s cubic-bezier(0.7, 0, 0.2, 1)",
               }}
             >
               <span
-                className="fr-track"
+                className="fr-track transition-[transform] duration-[620ms] [transition-timing-function:cubic-bezier(0.7,0,0.2,1)]"
                 aria-hidden="true"
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  transition: "transform 0.62s cubic-bezier(0.7, 0, 0.2, 1)",
                 }}
               >
                 {/* Each .fr-i: block, height 1.7em, line-height 1.7em — the 1.7em rhythm the
