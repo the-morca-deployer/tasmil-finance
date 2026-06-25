@@ -16,7 +16,7 @@ import { useQuestAuthStore } from "../store/use-quest-auth";
 import { Flame, PtsCoin } from "./icons";
 
 const LINKS = [
-  { href: "/quest", label: "Explore" },
+  { href: "/quest/explore", label: "Explore" },
   { href: "/quest/campaigns", label: "Campaigns" },
   { href: "/quest/leaderboard", label: "Leaderboard" },
   { href: "/quest/profile", label: "My Quests" },
