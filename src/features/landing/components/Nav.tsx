@@ -116,7 +116,6 @@ export default function Nav() {
           className={cn(
             "block w-[18px] h-[2px] rounded-[2px] bg-[var(--text)]",
             "transition-transform duration-[350ms] ease-[var(--ease)]",
-            "data-[state=open]:translate-y-[7px] data-[state=open]:rotate-45",
             "[button[data-state=open]_&]:translate-y-[7px]",
             "[button[data-state=open]_&]:rotate-45"
           )}

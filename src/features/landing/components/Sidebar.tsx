@@ -74,7 +74,6 @@ export default function Sidebar() {
               "opacity-0 translate-y-4",
               "transition-[opacity,transform,color] duration-[550ms] ease-[var(--ease)]",
               // Open: revealed with stagger
-              "data-[state=open]:opacity-100 data-[state=open]:translate-y-0",
               "[aside[data-state=open]_&]:opacity-100 [aside[data-state=open]_&]:translate-y-0",
               "[aside[data-state=open]_&]:[transition-delay:100ms]",
               "active:text-[var(--accent)]"
