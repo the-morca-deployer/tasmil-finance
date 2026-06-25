@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Exclude markdown docs from Tailwind content scanning — plan/spec docs contain
+   bracket-class examples (e.g. [clip-path:inset(var(--crop-*)…)]) whose glob/ellipsis
+   chars make Turbopack's CSS pass choke on invalid candidate utilities. */
+@source not "../../docs";
+
 /* include utility classes in streamdown */
 /* @source '../node_modules/streamdown/dist/index.js'; */
 
