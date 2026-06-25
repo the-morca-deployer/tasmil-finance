@@ -138,4 +138,4 @@ for fixing pre-existing errors in unrelated files.
 
 ## Commit SHA
 
-(to be filled in after commit)
+`01b8014d` — `fix(landing): freeze animations for deterministic visual baseline; scope lint gate to changed files`
