@@ -49,7 +49,7 @@ export function useLandingScripts() {
     const nav = document.getElementById("nav"),
       prog = document.getElementById("prog");
     function onScroll() {
-      nav.dataset.scrolled = scrollY > 16 ? "true" : "false";
+      nav.classList.toggle("scrolled", scrollY > 16);
       const max = document.documentElement.scrollHeight - innerHeight;
       prog.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + "%";
       runWatchers();
@@ -76,22 +76,10 @@ export function useLandingScripts() {
     }
     document
       .querySelectorAll(".reveal")
-      .forEach((el) =>
-        onVisible(
-          el,
-          () => {
-            el.classList.add("in");
-            el.dataset.inview = "true";
-          },
-          0.06
-        )
-      );
+      .forEach((el) => onVisible(el, () => el.classList.add("in"), 0.06));
     /* hero skyline bars rise on load */
     requestAnimationFrame(() =>
-      setTimeout(() => {
-        const h = document.getElementById("top");
-        if (h) h.dataset.lit = "true";
-      }, 200)
+      setTimeout(() => document.querySelector(".hero")?.classList.add("lit"), 200)
     );
     /* hero object parallax tilt */
     (() => {
@@ -120,7 +108,7 @@ export function useLandingScripts() {
     if (faCols && faMark) {
       new IntersectionObserver(
         (es) => {
-          faCols.dataset.in = es[0].isIntersecting ? "true" : "false";
+          faCols.classList.toggle("in", es[0].isIntersecting);
         },
         { threshold: 0.04 }
       ).observe(faMark);
@@ -128,15 +116,32 @@ export function useLandingScripts() {
 
     /* retire hero entrance so frozen captures rest on visible base */
     const hero = document.getElementById("top");
-    setTimeout(() => { if (hero) hero.dataset.done = "true"; }, 2600);
+    setTimeout(() => hero.classList.add("done"), 2600);
+
+    /* ===== partners ticker ===== */
+    const protocols = [
+      { n: "Blend", f: "/partners/blend.svg" },
+      { n: "Soroswap", f: "/partners/soroswap.svg" },
+      { n: "Aquarius", f: "/partners/aquarius.svg" },
+      { n: "Phoenix", f: "/partners/phoenix.svg" },
+      { n: "Allbridge", f: "/partners/allbridge.svg" },
+      { n: "DeFindex", f: "/partners/defindex.svg" },
+      { n: "Templar", f: "/partners/templar.svg" },
+      { n: "SDEX", f: "/partners/sdex.svg", inv: 1 },
+    ];
+    const tkMark = (p) =>
+      `<span class="tk-mark"><img class="${p.inv ? "invert" : ""}" src="${p.f}" alt="${p.n}"><span>${p.n}</span></span>`;
+    const row2data = [...protocols.slice(4), ...protocols.slice(0, 4)];
+    const tRow1 = document.getElementById("ticker"),
+      tRow2 = document.getElementById("ticker2");
+    tRow1.innerHTML = [...protocols, ...protocols].map(tkMark).join("");
+    tRow2.innerHTML = [...row2data, ...row2data].map(tkMark).join("");
 
     /* scroll-scrub marquee: pinned section, rows track scroll progress + gentle idle drift */
     (() => {
       const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
       if (reduce) return;
       const sec = document.getElementById("partners");
-      const tRow1 = document.getElementById("ticker"),
-        tRow2 = document.getElementById("ticker2");
       let id1 = 0,
         id2 = 0;
       const idle1 = -0.16,
@@ -189,7 +194,7 @@ export function useLandingScripts() {
       function applyPreset(idx, animate) {
         cur = idx;
         if (thumb) thumb.style.transform = "translateX(" + idx * 100 + "%)";
-        opts.forEach((o, i) => (o.dataset.active = i === idx ? "true" : "false"));
+        opts.forEach((o, i) => o.classList.toggle("active", i === idx));
         const p = presets[idx];
         p.alloc.forEach((a, i) => {
           bars[i].style.width = a + "%";
@@ -260,7 +265,7 @@ export function useLandingScripts() {
       onVisible(
         port,
         () => {
-          port.dataset.in = "true";
+          port.classList.add("in");
           if (line)
             requestAnimationFrame(() => {
               line.style.strokeDashoffset = "0";
@@ -284,7 +289,7 @@ export function useLandingScripts() {
         idx = (n + cards.length) % cards.length;
         track.style.transform = "translateX(" + -idx * deck.clientWidth + "px)";
         deck.style.height = cards[idx].offsetHeight + "px";
-        dots.forEach((d, i) => (d.dataset.on = i === idx ? "true" : "false"));
+        dots.forEach((d, i) => d.classList.toggle("on", i === idx));
       }
       dots.forEach((d, i) => d.addEventListener("click", () => go(i)));
       function start() {
@@ -311,7 +316,7 @@ export function useLandingScripts() {
         p = Math.max(0, Math.min(1, p));
         const rp = Math.min(1, p / 0.72);
         const lit = Math.ceil(rp * words.length);
-        words.forEach((w, i) => { w.dataset.lit = i < lit ? "true" : "false"; });
+        words.forEach((w, i) => w.classList.toggle("lit", i < lit));
       }
       addEventListener("scroll", upd, { passive: true });
       addEventListener("resize", upd);
@@ -322,7 +327,7 @@ export function useLandingScripts() {
     (() => {
       const chat = document.getElementById("chat");
       if (!chat) return;
-      const msgs = [...chat.querySelectorAll("[data-c]")];
+      const msgs = [...chat.querySelectorAll(".cmsg")];
       const thread = document.getElementById("chatThread");
       const sign = document.getElementById("scSign");
       const byc = (n) => msgs.find((x) => x.dataset.c == n);
@@ -338,32 +343,32 @@ export function useLandingScripts() {
       function reveal(n) {
         const m = byc(n);
         if (!m) return;
-        m.dataset.show = "true";
+        m.classList.add("show");
         requestAnimationFrame(() => {
-          m.dataset.in = "true";
+          m.classList.add("in");
           scrollDown();
         });
       }
       function hide(n) {
         const m = byc(n);
         if (!m) return;
-        m.dataset.in = "false";
+        m.classList.remove("in");
         timers.push(
           setTimeout(() => {
-            m.dataset.show = "false";
+            m.classList.remove("show");
             scrollDown();
           }, 520)
         );
       }
       function resetSign() {
         if (sign) {
-          sign.dataset.signing = "false";
+          sign.classList.remove("signing");
           sign.textContent = "Sign transaction";
         }
       }
       function play() {
         clearT();
-        msgs.forEach((m) => { m.dataset.in = "false"; m.dataset.show = "false"; });
+        msgs.forEach((m) => m.classList.remove("in", "show"));
         resetSign();
         thread.style.transform = "translateY(0)";
         timers.push(setTimeout(() => reveal(1), 300)); // user intent
@@ -379,7 +384,7 @@ export function useLandingScripts() {
         timers.push(
           setTimeout(() => {
             if (sign) {
-              sign.dataset.signing = "true";
+              sign.classList.add("signing");
               sign.textContent = "Signing…";
             }
             scrollDown();
@@ -394,7 +399,7 @@ export function useLandingScripts() {
     /* ===== aggregator ===== */
     /* ===== aggregator — swap card animation ===== */
     (() => {
-      const pad = document.getElementById("swapPad");
+      const pad = document.querySelector(".swap-pad");
       if (!pad) return;
       const payAmt = document.getElementById("payAmt"),
         recvAmt = document.getElementById("recvAmt");
@@ -427,14 +432,14 @@ export function useLandingScripts() {
       function reset() {
         clear();
         payAmt.textContent = "0";
-        payAmt.dataset.zero = "true";
+        payAmt.classList.add("zero");
         recvAmt.textContent = "0";
-        recvAmt.dataset.zero = "true";
+        recvAmt.classList.add("zero");
         payUsd.textContent = "$0";
         recvUsd.textContent = "$0";
         route.style.opacity = "0";
         route.textContent = "";
-        cta.dataset.state = "idle";
+        cta.className = "swap-cta";
         cta.textContent = "Enter amount";
       }
       function count(el, to, dur, suffix, done) {
@@ -449,15 +454,15 @@ export function useLandingScripts() {
         })(performance.now());
       }
       function showFinal() {
-        payAmt.dataset.zero = "false";
+        payAmt.classList.remove("zero");
         payAmt.textContent = PAY.toLocaleString("en-US");
         payUsd.textContent = "$" + fmt(PAY * RATE);
-        recvAmt.dataset.zero = "false";
+        recvAmt.classList.remove("zero");
         recvAmt.textContent = fmt(quotes[best][1]);
         recvUsd.textContent = "$" + fmt(quotes[best][1]);
         route.textContent = "via " + quotes[best][0];
         route.style.opacity = "1";
-        cta.dataset.state = "ready";
+        cta.className = "swap-cta ready";
         cta.textContent = "Swap " + PAY + " XLM → USDC";
       }
       function run() {
@@ -468,7 +473,7 @@ export function useLandingScripts() {
         }
         // 1 — type the pay amount
         wait(() => {
-          payAmt.dataset.zero = "false";
+          payAmt.classList.remove("zero");
           count(payAmt, PAY, 560, "int");
           const u0 = performance.now();
           (function su(t) {
@@ -480,7 +485,7 @@ export function useLandingScripts() {
         }, 650);
         // 2 — quote venues (cycle through), settle on best
         wait(() => {
-          cta.dataset.state = "quoting";
+          cta.className = "swap-cta quoting";
         }, 1300);
         quotes.forEach((q, i) => {
           wait(
@@ -493,7 +498,7 @@ export function useLandingScripts() {
         // 3 — fill receive + best route
         wait(
           () => {
-            recvAmt.dataset.zero = "false";
+            recvAmt.classList.remove("zero");
             count(recvAmt, quotes[best][1], 620, null);
             const r0 = performance.now();
             (function sr(t) {
@@ -504,7 +509,7 @@ export function useLandingScripts() {
             })(performance.now());
             route.textContent = "via " + quotes[best][0];
             route.style.opacity = "1";
-            cta.dataset.state = "ready";
+            cta.className = "swap-cta ready";
             cta.textContent = "Swap " + PAY + " XLM → USDC";
           },
           1300 + quotes.length * 430 + 220
@@ -514,7 +519,7 @@ export function useLandingScripts() {
       }
       if (flip)
         flip.addEventListener("click", () => {
-          flip.dataset.spin = flip.dataset.spin === "true" ? "false" : "true";
+          flip.classList.toggle("spin");
         });
       onVisible(pad.closest(".frow"), run, 0.25);
     })();
@@ -547,7 +552,6 @@ export function useLandingScripts() {
         const p = protocols[pi];
         pi = (pi + 1) % protocols.length;
         const pkt = document.createElement("div");
-        // conv-pkt + cp-logo + cp-coin are @utility classes defined in globals.css (Phase 7)
         pkt.className = "conv-pkt";
         pkt.innerHTML =
           '<div class="cp-logo"><img src="partners/' +
@@ -567,11 +571,10 @@ export function useLandingScripts() {
         );
         const tMid = (dur * (vaultX - startX)) / (endX - startX);
         setTimeout(() => {
-          // data-* replaces classList toggles; CSS handled by @utility conv-pkt nesting
-          pkt.dataset.iscoin = "true";
-          vault.dataset.pulse = "false";
+          pkt.classList.add("iscoin");
+          vault.classList.remove("pulse");
           void vault.offsetWidth;
-          vault.dataset.pulse = "true";
+          vault.classList.add("pulse");
         }, tMid);
         setTimeout(() => {
           pkt.style.opacity = "0";
@@ -622,11 +625,11 @@ export function useLandingScripts() {
     if (faqList) {
       const items = [...faqList.querySelectorAll(".faq-item")];
       function setOpen(item, open) {
-        item.dataset.open = open ? "true" : "false";
+        item.classList.toggle("open", open);
       }
       items.forEach((item) => {
         item.querySelector(".faq-q").addEventListener("click", () => {
-          const willOpen = item.dataset.open !== "true";
+          const willOpen = !item.classList.contains("open");
           items.forEach((o) => {
             if (o !== item) setOpen(o, false);
           });
@@ -648,7 +651,7 @@ export function useLandingScripts() {
         if (!q) {
           items.forEach((it, i) => setOpen(it, i === 0));
         }
-        empty.dataset.show = shown === 0 ? "true" : "false";
+        empty.classList.toggle("show", shown === 0);
       });
     }
 
@@ -745,24 +748,22 @@ export function useLandingScripts() {
         closeBtn = document.getElementById("sbClose");
       if (!burger || !sb) return;
       function open() {
-        sb.dataset.state = "open";
-        scrim.dataset.state = "open";
-        burger.dataset.state = "open";
+        sb.classList.add("open");
+        scrim.classList.add("open");
+        burger.classList.add("open");
         burger.setAttribute("aria-expanded", "true");
         sb.setAttribute("aria-hidden", "false");
-        document.body.dataset.sidebarOpen = "true";
         document.body.style.overflow = "hidden";
       }
       function shut() {
-        sb.dataset.state = "closed";
-        scrim.dataset.state = "closed";
-        burger.dataset.state = "closed";
+        sb.classList.remove("open");
+        scrim.classList.remove("open");
+        burger.classList.remove("open");
         burger.setAttribute("aria-expanded", "false");
         sb.setAttribute("aria-hidden", "true");
-        document.body.dataset.sidebarOpen = "false";
         document.body.style.overflow = "";
       }
-      burger.addEventListener("click", () => (sb.dataset.state === "open" ? shut() : open()));
+      burger.addEventListener("click", () => (sb.classList.contains("open") ? shut() : open()));
       closeBtn.addEventListener("click", shut);
       scrim.addEventListener("click", shut);
       sb.querySelectorAll("a").forEach((a) => a.addEventListener("click", shut));
@@ -779,7 +780,7 @@ export function useLandingScripts() {
       function hide() {
         if (gone) return;
         gone = true;
-        pl.dataset.done = "true";
+        pl.classList.add("done");
         setTimeout(() => pl.remove(), 800);
       }
       if (document.readyState === "complete") {
@@ -802,7 +803,7 @@ export function useLandingScripts() {
     setTimeout(() => {
       if (!__painted) {
         document.querySelector(".landing-page")?.classList.remove("anim");
-        if (hero) hero.dataset.done = "true";
+        hero.classList.add("done");
       }
     }, 1400);
 
