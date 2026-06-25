@@ -1,6 +1,7 @@
 // Quest feature barrel exports
 
 export { AutoReconnect } from "./components/auto-reconnect";
+export { QuestBeams } from "./components/QuestBeams";
 // Core screen components
 export { CampaignCard, type CampaignCardData } from "./components/CampaignCard";
 export { default as CampaignDetail } from "./components/CampaignDetail";
