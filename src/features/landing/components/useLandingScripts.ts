@@ -76,7 +76,16 @@ export function useLandingScripts() {
     }
     document
       .querySelectorAll(".reveal")
-      .forEach((el) => onVisible(el, () => el.classList.add("in"), 0.06));
+      .forEach((el) =>
+        onVisible(
+          el,
+          () => {
+            el.classList.add("in");
+            el.dataset.inview = "true";
+          },
+          0.06
+        )
+      );
     /* hero skyline bars rise on load */
     requestAnimationFrame(() =>
       setTimeout(() => document.querySelector(".hero")?.classList.add("lit"), 200)
