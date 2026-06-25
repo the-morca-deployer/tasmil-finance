@@ -2,7 +2,6 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { Coins, Copy, Flame, Loader2, LogOut, Menu, Wallet, X } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
@@ -171,8 +170,8 @@ const Navbar: React.FC = () => {
           href="/quest/explore"
           className="brand"
         >
-          <img className="mk" src="/tasmil-logo.png" alt="Tasmil Finance" width="40" height="40" />
-          <span className="brand-name">Tasmil Finance</span>
+          <img className="mk" src="/tasmil-tf-logo.png" alt="Tasmil" width="40" height="40" />
+          <span className="brand-name">Tasmil Quest</span>
         </Link>
 
         {sponsoredName ? (
