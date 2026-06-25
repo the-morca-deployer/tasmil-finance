@@ -290,7 +290,7 @@ export default function Features() {
                   </span>
                 </div>
                 {/* panel-pad / swap-pad */}
-                <div className="flex flex-col gap-[9px] p-[clamp(13px,1.9vw,17px)]">
+                <div className="flex flex-col gap-[9px] p-[clamp(13px,1.9vw,17px)]" id="swapPad">
                   {/* swap-field: pay */}
                   <div className="min-w-0 bg-white/[0.045] border border-[var(--line-2)] rounded-[16px] px-4 pt-[15px] pb-[13px] transition-[border-color] duration-[400ms]">
                     {/* sf-top */}
@@ -346,7 +346,7 @@ export default function Features() {
                   {/* swap-mid */}
                   <div className="flex justify-center relative z-[2] -my-[6px]">
                     <button
-                      className="w-9 h-9 rounded-[11px] bg-[#10151f] border border-[var(--line-2)] grid place-items-center cursor-pointer text-[var(--text)] transition-[transform,border-color,color] duration-[550ms] [transition-timing-function:var(--ease)] hover:text-[var(--accent)] data-[spin=true]:rotate-180 motion-reduce:transition-none"
+                      className="w-9 h-9 rounded-[11px] bg-[#10151f] border border-[var(--line-2)] grid place-items-center cursor-pointer text-[var(--text)] [transition:transform_0.55s_var(--ease),border-color_0.3s,color_0.3s] hover:text-[var(--accent)] data-[spin=true]:rotate-180 motion-reduce:transition-none"
                       id="swapFlip"
                       type="button"
                       aria-label="Swap direction"
@@ -411,7 +411,7 @@ export default function Features() {
                   </div>
                   {/* swap-cta */}
                   <button
-                    className="mt-[3px] w-full py-[15px] rounded-full border border-[var(--line-2)] bg-white/[0.05] text-[var(--muted)] font-[var(--font)] text-[15px] font-semibold tracking-[-0.01em] cursor-default transition-[background,color,border-color,box-shadow] duration-[450ms] [transition-timing-function:var(--ease)] motion-reduce:transition-none data-[state=quoting]:text-[var(--text)] data-[state=ready]:bg-[var(--grad)] data-[state=ready]:text-[#04141a] data-[state=ready]:border-transparent data-[state=ready]:shadow-[0_16px_40px_-18px_var(--accent-glow)]"
+                    className="mt-[3px] w-full py-[15px] rounded-full border border-[var(--line-2)] bg-white/[0.05] text-[var(--muted)] font-[var(--font)] text-[15px] font-semibold tracking-[-0.01em] cursor-default [transition:background_0.45s_var(--ease),color_0.4s,border-color_0.4s,box-shadow_0.45s] motion-reduce:transition-none data-[state=quoting]:text-[var(--text)] data-[state=ready]:bg-[var(--grad)] data-[state=ready]:text-[#04141a] data-[state=ready]:border-transparent data-[state=ready]:shadow-[0_16px_40px_-18px_var(--accent-glow)]"
                     id="swapCta"
                     type="button"
                     data-state="idle"

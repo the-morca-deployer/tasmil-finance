@@ -394,7 +394,7 @@ export function useLandingScripts() {
     /* ===== aggregator ===== */
     /* ===== aggregator — swap card animation ===== */
     (() => {
-      const pad = document.querySelector(".swap-pad");
+      const pad = document.getElementById("swapPad");
       if (!pad) return;
       const payAmt = document.getElementById("payAmt"),
         recvAmt = document.getElementById("recvAmt");
