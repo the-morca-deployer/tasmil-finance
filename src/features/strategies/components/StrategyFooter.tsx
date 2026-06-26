@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const LINKS = {
-  website: "https://tasmil-finance.xyz",
+  website: "https://tasmil.finance",
   docs: "https://tasmil-user-docs.vercel.app/docs",
   x: "https://x.com/tasmilfinance",
   telegram: "https://t.me/tasmilfinance",

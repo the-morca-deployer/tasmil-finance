@@ -313,7 +313,7 @@ export const MOCK_MY_SEASON_RESULT = {
 export const MOCK_REFERRAL = {
   data: {
     code: "TASMIL-X7K9",
-    referralLink: "https://tasmil-finance.xyz/r/TASMIL-X7K9",
+    referralLink: "https://tasmil.finance/r/TASMIL-X7K9",
     totalReferrals: 14,
     activeReferrals: 9,
     totalEarned: 1250,

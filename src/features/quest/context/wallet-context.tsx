@@ -64,6 +64,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const authAttemptedRef = useRef<string | null>(null);
   const authInProgressRef = useRef(false);
   const skipAutoAuthRef = useRef(false);
+  const sessionCheckedRef = useRef(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   // Keep local connection state in sync with the shared wallet store so connect
   // / disconnect on any surface (landing, chat, dev-bypass) reflects in quest.
@@ -75,11 +77,61 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return unsubscribe;
   }, []);
 
-  // Under dev-bypass, acquire a real quest JWT from the backend so authenticated
-  // quest screens load seeded data instead of being blocked by auth guards.
+  // Hydrate the quest auth store from the shared `tasmil_auth` cookie (set by
+  // signing in on /chat or /quest — same backend). `/api/auth/me` returns
+  // `{ user: { id, walletAddress, … } }`; quest-specific fields are filled in
+  // afterwards by the /users/me sync effect below. Returns true on a live session.
+  const loadSessionUser = useCallback(async (): Promise<boolean> => {
+    try {
+      const res = await apiClient.get("/api/auth/me");
+      // The client interceptor unwraps `{ success, data }`, but be defensive.
+      const body = res.data as {
+        user?: Partial<AuthUser>;
+        data?: { user?: Partial<AuthUser> };
+      };
+      const su = body?.user ?? body?.data?.user;
+      if (su?.walletAddress) {
+        setAuthUser({
+          id: su.id ?? "",
+          walletAddress: su.walletAddress,
+          username: su.username ?? "",
+          avatarUrl: su.avatarUrl ?? null,
+          tier: su.tier ?? "bronze",
+          totalPoints: su.totalPoints ?? 0,
+          loginStreak: su.loginStreak ?? 0,
+          referralCode: su.referralCode ?? null,
+          role: su.role ?? "user",
+        });
+        // Mark this wallet as already authenticated so the auto-auth effect
+        // doesn't fire a redundant challenge for it.
+        authAttemptedRef.current = su.walletAddress;
+        return true;
+      }
+    } catch {
+      // No valid session.
+    }
+    return false;
+  }, [setAuthUser]);
+
+  // Restore an existing cookie session first so the quest shares the /chat login
+  // instead of re-challenging. Only fall back to the dev bypass when there is no
+  // real session.
   useEffect(() => {
-    void ensureQuestDevSession();
-  }, []);
+    if (sessionCheckedRef.current) return;
+    sessionCheckedRef.current = true;
+    (async () => {
+      try {
+        const ok = await loadSessionUser();
+        if (!ok) await ensureQuestDevSession();
+      } finally {
+        setSessionChecked(true);
+        // Clear the initial `isLoading: true` boot state. `setUser` already does
+        // this when a session is found; this covers the logged-out path so the
+        // Connect button doesn't stay stuck on "Connecting…".
+        setLoading(false);
+      }
+    })();
+  }, [loadSessionUser, setLoading]);
 
   // ─── Init StellarWalletsKit (browser-only) ───────────────────────────────
 
@@ -190,10 +242,18 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (!raw) return;
 
     const { updateUser, user: currentUser } = useQuestAuthStore.getState();
+    // Note: the session is first seeded from /auth/me (id + walletAddress only),
+    // so also sync when the richer profile fields (username/tier/streak/etc.)
+    // differ — otherwise a matching id + totalPoints would skip the update and
+    // the username would stay blank.
     if (
       !currentUser ||
       currentUser.id !== String(raw.id ?? "") ||
-      currentUser.totalPoints !== Number(raw.totalPoints ?? 0)
+      currentUser.totalPoints !== Number(raw.totalPoints ?? 0) ||
+      currentUser.username !== String(raw.username ?? "") ||
+      currentUser.tier !== String(raw.tier ?? "") ||
+      currentUser.loginStreak !== Number(raw.loginStreak ?? 0) ||
+      (currentUser.referralCode ?? null) !== (raw.referralCode ? String(raw.referralCode) : null)
     ) {
       updateUser({
         id: String(raw.id ?? ""),
@@ -232,11 +292,14 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setSigning(false);
 
       try {
-        // 1. Get challenge from backend (baseURL is /api)
-        const challengeRes = await apiClient.post<{
-          data: { nonce: string; message: string };
-        }>("/auth/challenge", { walletAddress: publicKey });
-        const { message } = challengeRes.data.data;
+        // 1. Get challenge from backend (baseURL is /api). The backend DTO
+        // expects `publicKey` (not `walletAddress`).
+        const challengeRes = await apiClient.post("/api/auth/challenge", { publicKey });
+        const cbody = challengeRes.data as {
+          message?: string;
+          data?: { message?: string };
+        };
+        const message = cbody?.message ?? cbody?.data?.message ?? "";
 
         // 2. Network check (Freighter only — gracefully skip others)
         try {
@@ -279,14 +342,12 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               ((signResult as Record<string, unknown>).signature as string | undefined) ??
               String(signResult));
 
-        // 4. Verify with backend (cookie-based auth — no tokens returned)
+        // 4. Verify with backend (cookie-based auth — no tokens returned). The
+        // backend DTO expects `publicKey`. The verify route sets the
+        // `tasmil_auth` cookie; hydrate the full user from /auth/me afterwards.
         setSigning(false);
-        const verifyRes = await apiClient.post<{
-          data: { user: AuthUser };
-        }>("/auth/verify", { walletAddress: publicKey, signedMessage });
-
-        const { user: userData } = verifyRes.data.data;
-        setAuthUser(userData);
+        await apiClient.post("/api/auth/verify", { publicKey, signedMessage });
+        await loadSessionUser();
         toast.success("Wallet verified successfully!");
       } catch (error: unknown) {
         const isAxiosError = error && typeof error === "object" && "response" in error;
@@ -317,7 +378,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setSigning(false);
       }
     },
-    [isAuthenticated, user, setAuthUser, setLoading]
+    [isAuthenticated, user, loadSessionUser, setLoading]
   );
 
   // ─── Auto-auth when address becomes known ────────────────────────────────
@@ -329,6 +390,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     if (
+      sessionChecked &&
       kitReady &&
       isConnected &&
       address &&
@@ -342,7 +404,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       authenticateWithWalletRef.current(address);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kitReady, isConnected, address, isAuthenticated, user, signing, isAuthenticating]);
+  }, [sessionChecked, kitReady, isConnected, address, isAuthenticated, user, signing, isAuthenticating]);
 
   // ─── Connect ─────────────────────────────────────────────────────────────
 

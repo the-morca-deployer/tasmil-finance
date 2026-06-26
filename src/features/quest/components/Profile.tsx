@@ -199,6 +199,27 @@ const mapTier: Record<string, string> = { bronze: "/ranks/bronze.png", silver: "
 function OverviewTab() {
   const { user } = useQuestAuthStore();
   const { data: pointsData } = useUsersControllerGetPointsHistory(user?.id ?? "", withAuth as never);
+  const { data: refData } = useReferralControllerGetMyReferral(withAuth as never);
+
+  // Backend returns `{ referralCode, totalEarned, totalInvited, rates }`. The
+  // client interceptor unwraps the `{ success, data }` envelope, so handle both.
+  const referral = useMemo(
+    () =>
+      unwrapEnvelope<{
+        referralCode?: string | null;
+        totalEarned?: number;
+        totalInvited?: number;
+        rates?: { layer: number; rateBps: number }[];
+      }>(refData) ?? {},
+    [refData],
+  );
+  const refCode = referral.referralCode ?? user?.referralCode ?? "—";
+  const refEarned = referral.totalEarned ?? 0;
+  const refInvited = referral.totalInvited ?? 0;
+  const refRate = (layer: number) => {
+    const bps = (referral.rates ?? []).find((r) => r.layer === layer)?.rateBps;
+    return bps != null ? `${Math.round(bps / 100)}%` : "—";
+  };
 
   const ledger = useMemo(() => {
     const raw = pointsData as { data?: { items?: RawLedgerEntry[] } } | { items?: RawLedgerEntry[] } | undefined;
@@ -206,7 +227,7 @@ function OverviewTab() {
     return items.slice(0, 5);
   }, [pointsData]);
 
-  const points = user?.totalPoints ?? 12450;
+  const points = user?.totalPoints ?? 0;
   const t = user?.tier?.toLowerCase() ?? "bronze";
   const tierOrder = ["bronze", "silver", "gold", "diamond"];
   const tierCurrentIdx = tierOrder.indexOf(t);
@@ -355,13 +376,13 @@ function OverviewTab() {
                   <linearGradient id="fg" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0" stopColor="#FCD34D"/><stop offset="0.5" stopColor="#FB923C"/><stop offset="1" stopColor="#F43F5E"/></linearGradient>
                   <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" fill="url(#fg)"/>
                 </svg>
-                {user?.loginStreak ?? 7}
+                {user?.loginStreak ?? 0}
               </div>
               <div className="text-[12px] text-[rgba(244,247,251,0.58)] mt-2">day streak</div>
             </div>
             <div className="border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] px-[22px] py-[20px] flex flex-col">
               <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)]">Quests Done</div>
-              <div className="text-[40px] font-extrabold font-mono tracking-[-0.03em] leading-none mt-2">{(user?.loginStreak ?? 7) * 6}</div>
+              <div className="text-[40px] font-extrabold font-mono tracking-[-0.03em] leading-none mt-2">0</div>
               <div className="text-[12px] text-[rgba(244,247,251,0.58)] mt-2">total quests</div>
             </div>
           </div>
@@ -371,10 +392,10 @@ function OverviewTab() {
           <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-[rgba(244,247,251,0.58)]">Referral Program</div>
           <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)] mt-[18px]">Your Code</div>
           <div className="text-[28px] font-black font-mono text-[var(--text)]" style={{ letterSpacing: 3, margin: "6px 0 16px" }}>
-            {user?.referralCode ?? "TASMIL-X7K9"}
+            {refCode}
           </div>
           <div className="flex gap-2">
-            <Button variant="primary" size="sm" block onClick={() => { navigator.clipboard?.writeText(user?.referralCode ?? ""); toast.success("Copied!"); }}>
+            <Button variant="primary" size="sm" block onClick={() => { navigator.clipboard?.writeText(refCode === "—" ? "" : refCode); toast.success("Copied!"); }}>
               <Copy size={13} /> Copy Code
             </Button>
             <Button variant="ghost" size="sm" block>
@@ -386,16 +407,12 @@ function OverviewTab() {
           <div className="rounded-[14px] border border-[rgba(255,255,255,0.08)] mt-3" style={{ background: "rgba(32,32,36,0.30)", padding: "16px 18px" }}>
             <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)]">Total Earned From Refs</div>
             <div className="flex items-center gap-[6px] text-[26px] font-extrabold font-mono text-[var(--accent)] mt-2" style={{ letterSpacing: "-0.02em" }}>
-              1,250<Pts />
+              {fmt(refEarned)}<Pts />
             </div>
             <div className="flex gap-6 pt-[14px] mt-[14px] border-t border-[rgba(255,255,255,0.08)]">
               <div>
-                <div className="text-[18px] font-bold font-mono">14</div>
+                <div className="text-[18px] font-bold font-mono">{fmt(refInvited)}</div>
                 <div className="text-[10px] font-semibold tracking-[0.1em] uppercase text-[rgba(244,247,251,0.34)] mt-0.5">Total invited</div>
-              </div>
-              <div>
-                <div className="text-[18px] font-bold font-mono text-[var(--green)]">9</div>
-                <div className="text-[10px] font-semibold tracking-[0.1em] uppercase text-[rgba(244,247,251,0.34)] mt-0.5">Active</div>
               </div>
             </div>
           </div>
@@ -406,9 +423,9 @@ function OverviewTab() {
               <span className="text-[9px] font-bold tracking-[0.1em] uppercase text-[var(--accent)] bg-[var(--accent-soft)] px-[9px] py-1 rounded-[100px]">Tier 1</span>
             </div>
             <div className="flex gap-[14px] mt-[14px]">
-              {([["L1", "10%", "Direct"], ["L2", "3%", "Indirect"], ["L3", "1%", "3rd"]] as const).map(([k, pct, sub]) => (
+              {([["L1", 1, "Direct"], ["L2", 2, "Indirect"], ["L3", 3, "3rd"]] as const).map(([k, layer, sub]) => (
                 <div key={k} className="flex flex-col gap-[3px]">
-                  <span className="text-[20px] font-extrabold font-mono text-[var(--accent)]" style={{ letterSpacing: "-0.02em" }}>{pct}</span>
+                  <span className="text-[20px] font-extrabold font-mono text-[var(--accent)]" style={{ letterSpacing: "-0.02em" }}>{refRate(layer)}</span>
                   <span className="text-[9px] font-semibold tracking-[0.08em] uppercase text-[rgba(244,247,251,0.34)]">{k} {sub}</span>
                 </div>
               ))}
@@ -663,23 +680,25 @@ function ReferralsTab() {
   const referralTree = useMemo(() => unwrapEnvelope<ReferralTree>(treeRaw), [treeRaw]);
   const treeNodes = referralTree?.tree ?? [];
 
-  const refDataObj = useMemo(() => {
-    const d = refData as { data?: Record<string, unknown> } | undefined;
-    return d?.data ?? {};
-  }, [refData]);
+  // Client interceptor unwraps the `{ success, data }` envelope, so handle both.
+  const refDataObj = useMemo(
+    () => unwrapEnvelope<Record<string, unknown>>(refData) ?? {},
+    [refData],
+  );
 
   const refs = useMemo(() => {
-    const d = refsData as { data?: RawReferral[] } | RawReferral[] | undefined;
-    if (Array.isArray(d)) return d;
-    return d?.data ?? [];
+    const d = unwrapEnvelope<RawReferral[]>(refsData);
+    return Array.isArray(d) ? d : [];
   }, [refsData]);
 
+  // Backend fields: `referralCode`, `totalEarned`, `totalInvited`, `rates`.
+  // There is no "active referrals" metric, so derive it from the list status.
   const rates = (refDataObj as { rates?: { layer: number; rateBps: number }[] })?.rates ?? [];
-  const totalEarned = (refDataObj as { totalEarned?: number })?.totalEarned ?? 1250;
-  const totalReferrals = (refDataObj as { totalReferrals?: number })?.totalReferrals ?? 14;
-  const activeReferrals = (refDataObj as { activeReferrals?: number })?.activeReferrals ?? 9;
-  const referralCode = (refDataObj as { code?: string })?.code ?? user?.referralCode ?? "TASMIL-X7K9";
-  const l1Rate = rates.find((r) => r.layer === 1)?.rateBps ?? 1000;
+  const totalEarned = (refDataObj as { totalEarned?: number })?.totalEarned ?? 0;
+  const totalReferrals = (refDataObj as { totalInvited?: number })?.totalInvited ?? refs.length;
+  const activeReferrals = refs.filter((r) => (r.status ?? "active") === "active").length;
+  const referralCode = (refDataObj as { referralCode?: string })?.referralCode ?? user?.referralCode ?? "—";
+  const l1Rate = rates.find((r) => r.layer === 1)?.rateBps ?? 0;
 
   const howCards = [
     {
@@ -695,7 +714,7 @@ function ReferralsTab() {
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="19" height="19"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M10 13l-3.5 3.5M14 13l3.5 3.5"/></svg>
       ),
-      pct: `${Math.round((rates.find((r) => r.layer === 2)?.rateBps ?? 300) / 100)}%`,
+      pct: `${Math.round((rates.find((r) => r.layer === 2)?.rateBps ?? 0) / 100)}%`,
       tier: "L2 Indirect",
       title: "Network Rewards",
       desc: "Earn from your friends' referrals' quest activity as they grow.",
@@ -704,7 +723,7 @@ function ReferralsTab() {
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="19" height="19"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z"/></svg>
       ),
-      pct: `${Math.round((rates.find((r) => r.layer === 3)?.rateBps ?? 100) / 100)}%`,
+      pct: `${Math.round((rates.find((r) => r.layer === 3)?.rateBps ?? 0) / 100)}%`,
       tier: "L3 Deep Network",
       title: "3rd Layer Earnings",
       desc: "Earn 1% from third-level referrals' quest activity, forever.",

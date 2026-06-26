@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Copy, LogOut, Wallet } from "lucide-react";
+import { ChevronDown, Copy, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
@@ -13,8 +13,8 @@ import {
   useUsersControllerGetMe,
 } from "@/gen-quest";
 import { cn } from "@/lib/utils";
-import { buttonClasses } from "./ui/button";
-import { qAvatar } from "../lib/avatar";
+import { AddressAvatar } from "@/shared/components/connect-wallet-button";
+import { Button } from "@/shared/ui/button";
 import { $, withAuth } from "../lib/kubb-config";
 import { useQuestAuthStore } from "../store/use-quest-auth";
 import { Flame, PtsCoin } from "./icons";
@@ -39,8 +39,13 @@ const shorten = (addr: string) =>
 
 export function QuestNav() {
   const path = usePathname() ?? "";
-  const { data } = useUsersControllerGetMe($);
   const { user, isAuthenticated } = useQuestAuthStore();
+  // Only probe /users/me when there is a quest session — avoids a 401 on every
+  // page load while logged out.
+  const { data } = useUsersControllerGetMe({
+    ...$,
+    query: { ...$.query, enabled: isAuthenticated },
+  });
   const queryClient = useQueryClient();
 
   // The /me payload is typed `any` by the generator; read the fields we need.
@@ -201,41 +206,33 @@ export function QuestNav() {
           {fmt(streak)}
         </button>
 
-        {/* .wallet-chip with hover dropdown (Copy Address / Disconnect) */}
+        {/* Wallet chip — matches main /chat navbar (TopbarWallet) */}
         {address && (
           <div className="group relative">
-            <span
-              className={cn(
-                "inline-flex items-center gap-[10px] cursor-pointer",
-                "py-[5px] pl-[6px] pr-[14px] rounded-quest-pill",
-                "bg-[var(--surface)] border border-[var(--line-2)]",
-              )}
+            <button
+              type="button"
+              data-testid="wallet-connected"
+              className="flex h-10 items-center gap-2.5 rounded-full border border-border bg-transparent px-3.5 font-medium text-base text-foreground transition-colors hover:bg-accent"
             >
-              {/* .av */}
-              <span
-                className="block w-[30px] h-[30px] rounded-full flex-none"
-                style={{ background: qAvatar(address) }}
-              />
-              {/* .addr */}
-              <span className="font-mono text-[13px] text-[var(--text)] max-[680px]:hidden">
-                {shorten(address)}
-              </span>
-            </span>
+              <AddressAvatar address={address} size="size-6" iconSize="size-3.5" />
+              <span className="max-[680px]:hidden">{shorten(address)}</span>
+              <ChevronDown className="h-4 w-4 opacity-60" />
+            </button>
 
-            {/* Hover dropdown */}
-            <div className="invisible absolute right-0 top-full z-50 mt-2 w-48 translate-y-2 rounded-xl border border-[var(--line-2)] bg-[var(--surface)] opacity-0 shadow-[0_12px_30px_-12px_#000] transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+            {/* Hover dropdown (Copy Address / Disconnect) */}
+            <div className="invisible absolute right-0 top-full z-50 mt-2 w-48 translate-y-2 rounded-xl border border-border bg-popover opacity-0 shadow-lg transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
               <div className="p-1">
                 <button
                   type="button"
                   onClick={copyAddress}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] text-[var(--muted)] hover:bg-white/5 hover:text-[var(--text)]"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-muted-foreground text-sm hover:bg-accent hover:text-foreground"
                 >
                   <Copy size={14} /> Copy Address
                 </button>
                 <button
                   type="button"
                   onClick={() => disconnect()}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] text-destructive hover:bg-destructive/10"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-red-400 text-sm hover:bg-red-500/10"
                 >
                   <LogOut size={14} /> Disconnect
                 </button>
@@ -244,17 +241,18 @@ export function QuestNav() {
           </div>
         )}
 
-        {/* Connect Wallet — shown when no wallet is connected */}
+        {/* Connect Wallet — matches main navbar gradient button */}
         {!address && (
-          <button
-            type="button"
+          <Button
+            size="sm"
+            variant="gradient"
             onClick={() => connect()}
             disabled={isAuthenticating}
-            className={buttonClasses({ variant: "primary", size: "sm" })}
+            data-testid="connect-wallet"
+            className="h-9 rounded-full px-4 font-bold text-sm"
           >
-            <Wallet size={16} />
             {isAuthenticating ? "Connecting..." : "Connect Wallet"}
-          </button>
+          </Button>
         )}
       </div>
     </nav>

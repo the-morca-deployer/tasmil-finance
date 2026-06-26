@@ -1,15 +1,31 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { CampaignCard, type CampaignCardData } from "@/features/quest/components/CampaignCard";
 import { Rise } from "@/features/quest/components/Rise";
 import { buttonClasses } from "@/features/quest/components/ui/button";
+import apiClient from "@/features/quest/lib/api-client";
 import { mapApiCampaignsResponse } from "@/features/quest/lib/campaign-mapper";
 import { $ } from "@/features/quest/lib/kubb-config";
+import { unwrapEnvelope } from "@/features/quest/lib/season-types";
 import { toCampaignCardData } from "@/features/quest/types";
 import { useCampaignsControllerFindAll } from "@/gen-quest/hooks";
+
+interface PlatformStats {
+  questers?: number;
+  campaigns?: number;
+  pointsGiven?: number;
+}
+
+/** Compact number: 1234 -> "1.2k", 1_200_000 -> "1.2M". */
+function compact(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}k`;
+  return n.toLocaleString("en-US");
+}
 
 const WHY_CARD =
   "rounded-quest-card border border-quest-line [background:var(--quest-card-grad)] px-7 py-[26px] transition-[border-color,transform] duration-[400ms] ease-quest hover:-translate-y-[3px] hover:border-quest-accent-line";
@@ -21,6 +37,14 @@ const STAT_LABEL = "mt-[9px] text-[10px] font-bold uppercase tracking-[0.2em] te
 
 export default function Explore() {
   const { data, isLoading } = useCampaignsControllerFindAll({ isFeatured: true }, $);
+  // Public platform stats — `/quest/analytics/system` is admin-only (403 for
+  // regular users), so use the public `/quest/stats` endpoint instead.
+  const { data: statsRaw } = useQuery({
+    queryKey: ["quest", "platform-stats"],
+    queryFn: async () => (await apiClient.get("/api/quest/stats")).data,
+    staleTime: 5 * 60 * 1000,
+  });
+  const stats = useMemo(() => unwrapEnvelope<PlatformStats>(statsRaw) ?? {}, [statsRaw]);
 
   const items: CampaignCardData[] = useMemo(() => {
     if (!data) return [];
@@ -61,16 +85,16 @@ export default function Explore() {
           </div>
           <div className="relative z-[1] mt-[clamp(40px,6vw,72px)] grid grid-cols-3 border-t border-quest-line-2 bg-black/40 backdrop-blur-[10px]">
             <div className="px-[clamp(20px,4vw,40px)] py-[22px]">
-              <div className={`${STAT_VALUE} text-quest-accent`}>12,400+</div>
+              <div className={`${STAT_VALUE} text-quest-accent`}>{compact(stats.questers ?? 0)}</div>
               <div className={STAT_LABEL}>Questers</div>
             </div>
             <div className="border-l border-quest-line px-[clamp(20px,4vw,40px)] py-[22px]">
-              <div className={STAT_VALUE}>24</div>
+              <div className={STAT_VALUE}>{compact(stats.campaigns ?? 0)}</div>
               <div className={STAT_LABEL}>Campaigns</div>
             </div>
             <div className="border-l border-quest-line px-[clamp(20px,4vw,40px)] py-[22px]">
               <div className={`${STAT_VALUE} text-quest-accent`}>
-                1.2M
+                {compact(stats.pointsGiven ?? 0)}
                 <svg
                   className="inline-block flex-none"
                   viewBox="0 0 24 24"

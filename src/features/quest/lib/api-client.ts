@@ -2,8 +2,11 @@
 // Auth is handled via httpOnly cookie (tasmil_auth) — no token management needed.
 import axios, { type AxiosInstance } from "axios";
 
+// No baseURL: the auto-generated quest client URLs already include the full
+// same-origin path (e.g. `/api/quest/campaigns`), which the Next.js proxy
+// forwards to the backend. Hand-written auth calls below use `/api/...` too.
+// (A `/api` baseURL would double the prefix → `/api/api/quest/*`.)
 export const questApiClient = axios.create({
-  baseURL: "/api",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });

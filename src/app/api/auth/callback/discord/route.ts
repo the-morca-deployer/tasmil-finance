@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://quest.tasmil-finance.xyz";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://tasmil.finance";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);

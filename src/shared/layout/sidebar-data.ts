@@ -105,7 +105,7 @@ const _sidebarData: SidebarData = {
       items: [
         {
           title: "Strategy",
-          url: "https://strategy.tasmil-finance.xyz",
+          url: "https://strategy.tasmil.finance",
           icon: TrendingUp,
         },
       ],
@@ -132,7 +132,7 @@ const _sidebarData: SidebarData = {
       items: [
         {
           title: "Quest",
-          url: "https://quest.tasmil-finance.xyz",
+          url: "/quest",
           icon: Trophy,
         },
       ],

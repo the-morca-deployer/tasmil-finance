@@ -26,7 +26,6 @@ const PtsCoin = ({ className = "inline-block flex-none w-[15px] h-[15px]" }: { c
 );
 
 interface AnalyticsUser { username?: string; walletAddress?: string; totalPoints?: number; loginStreak?: number; }
-interface AnalyticsEnvelope { data?: AnalyticsUser[]; }
 
 function shortAddr(a?: string) {
   if (!a) return "";
@@ -47,7 +46,9 @@ export default function Leaderboard() {
 
   const currentRaw = metric === "points" ? globalRaw : streakRaw;
   const rows = useMemo(() => {
-    const arr = (currentRaw as AnalyticsEnvelope | undefined)?.data ?? [];
+    // The client interceptor unwraps `{ success, data }`, so the real backend
+    // arrives as the bare array; mocks arrive as `{ data: [...] }`. Handle both.
+    const arr = unwrapEnvelope<AnalyticsUser[]>(currentRaw) ?? [];
     return (Array.isArray(arr) ? arr : []).map((u: AnalyticsUser, i: number) => ({
       rank: i + 1, name: u.username || shortAddr(u.walletAddress), address: u.walletAddress ?? "",
       score: metric === "points" ? (u.totalPoints ?? 0) : (u.loginStreak ?? 0), rankMove: 0,

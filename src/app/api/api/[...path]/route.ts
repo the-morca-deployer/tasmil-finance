@@ -185,7 +185,7 @@ const MOCK_MY_SEASON_RESULT = {
 };
 
 const MOCK_REFERRAL = {
-  data: { code: "TASMIL-X7K9", referralLink: "https://tasmil-finance.xyz/r/TASMIL-X7K9", totalReferrals: 14, activeReferrals: 9, totalEarned: 1250, rates: [{ layer: 1, rateBps: 1000 }, { layer: 2, rateBps: 300 }, { layer: 3, rateBps: 100 }] },
+  data: { code: "TASMIL-X7K9", referralLink: "https://tasmil.finance/r/TASMIL-X7K9", totalReferrals: 14, activeReferrals: 9, totalEarned: 1250, rates: [{ layer: 1, rateBps: 1000 }, { layer: 2, rateBps: 300 }, { layer: 3, rateBps: 100 }] },
 };
 
 const MOCK_REFERRALS_LIST = {
