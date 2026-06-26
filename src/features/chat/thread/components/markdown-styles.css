@@ -26,8 +26,3 @@
 }
 
 /* Table styles are handled by Tailwind components in markdown-text.tsx */
-
-/* Hide table rows where all cells are empty (AI sometimes generates empty separator rows) */
-.markdown-content tr:not(:has(td:not(:empty), th:not(:empty))) {
-  display: none;
-}

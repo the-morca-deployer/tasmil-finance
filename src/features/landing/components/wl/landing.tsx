@@ -107,36 +107,128 @@ function Hero({ accent, motion }) {
 
 function ReferralLoop() {
   const arrow = (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   );
   const loop = [
     {
-      ico: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" /></svg>,
+      ico: (
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" />
+        </svg>
+      ),
       n: "Step 1",
-      head: <>Share your <span className="accent">invite link</span></>,
+      head: (
+        <>
+          Share your <span className="accent">invite link</span>
+        </>
+      ),
       sub: "Pass it to people who'd actually use Tasmil — only real signups count.",
     },
     {
-      ico: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5Z" /></svg>,
+      ico: (
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5Z" />
+        </svg>
+      ),
       n: "Step 2",
-      head: <><span className="accent">+50 points</span> each</>,
+      head: (
+        <>
+          <span className="accent">+50 points</span> each
+        </>
+      ),
       sub: "Every accepted referral earns points, plus big one-time milestone bonuses.",
     },
     {
-      ico: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 17l6-6 4 4 8-8M21 7v5M21 7h-5" /></svg>,
+      ico: (
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 17l6-6 4 4 8-8M21 7v5M21 7h-5" />
+        </svg>
+      ),
       n: "Step 3",
       head: <>Climb the cohorts</>,
       sub: "More accepted referrals push you into an earlier wave with earlier access.",
     },
   ];
   const cohorts = [
-    { rank: "01", name: "Founding", wave: "Wave 1", gate: "50+ refs", access: "First-ever access", pts: "5,100", peak: true },
-    { rank: "02", name: "Cohort 2", wave: "Wave 2", gate: "30–49 refs", access: "Months before launch", pts: "2,100" },
-    { rank: "03", name: "Cohort 3", wave: "Wave 3", gate: "10–29 refs", access: "Weeks before launch", pts: "800" },
-    { rank: "04", name: "Cohort 4", wave: "Wave 4 · Early", gate: "1–9 refs", access: "Priority queue", pts: "150" },
-    { rank: "—", name: "Unranked", wave: "Wave 4", gate: "0 refs", access: "Standard launch", pts: "0" },
+    {
+      rank: "01",
+      name: "Founding",
+      wave: "Wave 1",
+      gate: "50+ refs",
+      access: "First-ever access",
+      pts: "5,100",
+      peak: true,
+    },
+    {
+      rank: "02",
+      name: "Cohort 2",
+      wave: "Wave 2",
+      gate: "30–49 refs",
+      access: "Months before launch",
+      pts: "2,100",
+    },
+    {
+      rank: "03",
+      name: "Cohort 3",
+      wave: "Wave 3",
+      gate: "10–29 refs",
+      access: "Weeks before launch",
+      pts: "800",
+    },
+    {
+      rank: "04",
+      name: "Cohort 4",
+      wave: "Wave 4 · Early",
+      gate: "1–9 refs",
+      access: "Priority queue",
+      pts: "150",
+    },
+    {
+      rank: "—",
+      name: "Unranked",
+      wave: "Wave 4",
+      gate: "0 refs",
+      access: "Standard launch",
+      pts: "0",
+    },
   ];
   const earn = [
     { label: "A friend joins with your link", pts: "+50" },
@@ -180,10 +272,22 @@ function ReferralLoop() {
 
         <div className="loop3-cycle" aria-hidden="true">
           <svg className="cycle-line" viewBox="0 0 1000 46" preserveAspectRatio="none" fill="none">
-            <path d="M835 0 V20 Q835 32 823 32 H177 Q165 32 165 20 V8" stroke="var(--accent)" strokeWidth="2.2" strokeDasharray="6 6" strokeLinecap="round" />
+            <path
+              d="M835 0 V20 Q835 32 823 32 H177 Q165 32 165 20 V8"
+              stroke="var(--accent)"
+              strokeWidth="2.2"
+              strokeDasharray="6 6"
+              strokeLinecap="round"
+            />
           </svg>
           <svg className="cycle-head" viewBox="0 0 16 14" fill="none">
-            <path d="M2 11 L8 2 L14 11" stroke="var(--accent)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M2 11 L8 2 L14 11"
+              stroke="var(--accent)"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
 

@@ -45,13 +45,7 @@ export const Flame = ({
   </svg>
 );
 
-export const Usdc = ({
-  className,
-  style,
-}: {
-  className?: string;
-  style?: React.CSSProperties;
-}) => (
+export const Usdc = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
   <svg className={className} style={style} viewBox="0 0 16 16" aria-hidden>
     <path
       fill="#3e73c4"
@@ -92,7 +86,7 @@ export const Icon = {
         <circle cx="11" cy="11" r="7" />
         <path d="m20 20-3.5-3.5" />
       </>,
-      p,
+      p
     ),
   trophy: (p: P) =>
     line(
@@ -102,7 +96,7 @@ export const Icon = {
         <path d="M12 14v3M9 21h6M10 21l.5-4h3l.5 4" />
       </>,
       p,
-      1.8,
+      1.8
     ),
   bolt: (p: P) => line(<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" />, p, 1.9),
   globe: (p: P) =>
@@ -112,7 +106,7 @@ export const Icon = {
         <path d="M3 12h18M12 3c2.5 2.6 4 5.8 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.8-4-9s1.5-6.4 4-9Z" />
       </>,
       p,
-      1.8,
+      1.8
     ),
   clock: (p: P) =>
     line(
@@ -120,7 +114,7 @@ export const Icon = {
         <circle cx="12" cy="12" r="9" />
         <path d="M12 7v5l3 2" />
       </>,
-      p,
+      p
     ),
   gift: (p: P) =>
     line(
@@ -129,7 +123,7 @@ export const Icon = {
         <path d="M12 8v13M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M7.5 8a2.5 2.5 0 0 1 0-5C9 3 12 5 12 8c0-3 3-5 4.5-5a2.5 2.5 0 0 1 0 5" />
       </>,
       p,
-      1.9,
+      1.9
     ),
   check: (p: P) => line(<path d="M20 6 9 17l-5-5" />, p, 2.6),
   share: (p: P) =>
@@ -141,7 +135,7 @@ export const Icon = {
         <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
       </>,
       p,
-      1.9,
+      1.9
     ),
   users: (p: P) =>
     line(
@@ -151,7 +145,7 @@ export const Icon = {
         <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
       </>,
       p,
-      1.9,
+      1.9
     ),
   copy: (p: P) =>
     line(
@@ -159,7 +153,7 @@ export const Icon = {
         <rect x="9" y="9" width="13" height="13" rx="2" />
         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
       </>,
-      p,
+      p
     ),
   pin: (p: P) =>
     line(
@@ -167,7 +161,7 @@ export const Icon = {
         <path d="M12 21s-7-4.5-7-10a7 7 0 0 1 14 0c0 5.5-7 10-7 10Z" />
         <circle cx="12" cy="11" r="2.5" />
       </>,
-      p,
+      p
     ),
   bars: (p: P) => line(<path d="M4 19V9M10 19V5M16 19v-7M22 19H2" />, p),
   link: (p: P) =>
@@ -177,7 +171,7 @@ export const Icon = {
         <path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07L12.5 19.5" />
       </>,
       p,
-      1.9,
+      1.9
     ),
   grid: (p: P) =>
     line(
@@ -187,7 +181,7 @@ export const Icon = {
         <rect x="3" y="14" width="7" height="7" rx="1" />
         <rect x="14" y="14" width="7" height="7" rx="1" />
       </>,
-      p,
+      p
     ),
   target: (p: P) =>
     line(
@@ -196,7 +190,7 @@ export const Icon = {
         <circle cx="12" cy="12" r="5" />
         <circle cx="12" cy="12" r="1" />
       </>,
-      p,
+      p
     ),
   at: (p: P) =>
     line(
@@ -204,7 +198,7 @@ export const Icon = {
         <circle cx="12" cy="12" r="4" />
         <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94" />
       </>,
-      p,
+      p
     ),
   network: (p: P) =>
     line(
@@ -214,7 +208,7 @@ export const Icon = {
         <circle cx="19" cy="19" r="2.5" />
         <path d="M12 7.5v4M10 13l-3.5 3.5M14 13l3.5 3.5" />
       </>,
-      p,
+      p
     ),
   chev: (p: P) => line(<path d="M9 18l6-6-6-6" />, p, 2.2),
   pencil: (p: P) =>
@@ -223,7 +217,7 @@ export const Icon = {
         <path d="M12 20h9" />
         <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
       </>,
-      p,
+      p
     ),
   close: (p: P) => line(<path d="M18 6 6 18M6 6l12 12" />, p),
   x: (p: P) => (

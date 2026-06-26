@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { QuestHeaderBadges } from "@/features/quest/components/QuestHeaderBadges";
+import { WalletRankInfo } from "@/features/quest/components/WalletRankInfo";
 import { SponsorIndicator } from "@/features/sponsorship/components/sponsor-indicator";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { NavLink } from "./nav-link";
@@ -26,20 +28,21 @@ export function TopNavBar({ sidebarData }: TopNavBarProps) {
     >
       <Link href="/chat/new" className="flex items-center gap-2.5">
         <Image src={sidebarData.header.logo_url} width={40} height={40} alt="Logo" />
-        <span className="animate-shimmer-text bg-[length:200%_100%] bg-gradient-to-r from-[#b5eaff] via-white to-[#00bfff] bg-clip-text font-bold text-xl text-transparent">
+        <span className="animate-shimmer-text bg-[length:200%_100%] bg-gradient-to-r from-[#b5eaff] via-white to-[#00bfff] bg-clip-text font-bold text-transparent text-xl">
           {sidebarData.header.brand_name}
         </span>
       </Link>
 
-      <div className="ml-6 flex items-center gap-6 overflow-x-auto">
+      <div className="ml-6 flex items-center gap-4 overflow-x-auto">
         {items.map((item) => (
           <NavLink key={item.url} item={item} />
         ))}
       </div>
 
       <div className="ml-auto flex items-center gap-3">
+        <QuestHeaderBadges />
         <SponsorIndicator />
-        <ConnectWalletButton variant="topbar" />
+        <ConnectWalletButton variant="topbar" rankSlot={<WalletRankInfo />} />
       </div>
     </nav>
   );

@@ -19,7 +19,7 @@ describe("PrizePoolBanner", () => {
         totalPointsPool={13500}
         endAt={future}
         playersCount={247}
-      />,
+      />
     );
     expect(screen.getByText("80")).toBeInTheDocument();
     expect(screen.getByText(/USDC/i)).toBeInTheDocument();
@@ -29,12 +29,7 @@ describe("PrizePoolBanner", () => {
 
   it("renders the four countdown unit labels", () => {
     render(
-      <PrizePoolBanner
-        prizePoolUsdc="80"
-        totalPointsPool={13500}
-        endAt={future}
-        playersCount={1}
-      />,
+      <PrizePoolBanner prizePoolUsdc="80" totalPointsPool={13500} endAt={future} playersCount={1} />
     );
     expect(screen.getByText(/Days/i)).toBeInTheDocument();
     expect(screen.getByText(/Hrs/i)).toBeInTheDocument();

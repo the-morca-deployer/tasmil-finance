@@ -1,7 +1,5 @@
-"use client";
-
-import { Explore } from "@/features/quest";
+import { redirect } from "next/navigation";
 
 export default function QuestHomePage() {
-  return <Explore />;
+  redirect("/quest/explore");
 }

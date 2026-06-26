@@ -1,3 +1,20 @@
+import type { CampaignCardData } from "./components/CampaignCard";
+
+export function toCampaignCardData(c: Campaign): CampaignCardData {
+  return {
+    id: c.id,
+    title: c.title,
+    sponsor: c.chain,
+    pointsReward: c.points,
+    status: c.status === "closed" ? "closed" : "ongoing",
+    endsAt: c.endDate ?? "",
+    coverUrl: c.coverUrl ?? c.banner ?? null,
+    description: c.description,
+    participants: c.participants,
+    participantAvatars: c.avatars,
+  };
+}
+
 export interface CampaignStep {
   id: string;
   type:

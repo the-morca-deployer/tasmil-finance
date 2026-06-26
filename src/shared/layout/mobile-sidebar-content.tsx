@@ -145,9 +145,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
               <div className="flex w-full flex-col gap-2">
                 {/* Quest Card */}
                 <a
-                  href="https://quest.tasmil-finance.xyz"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/quest"
                   className="block"
                 >
                   <div className="group relative h-32 cursor-pointer overflow-hidden rounded-xl border border-border bg-zinc-900 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20">

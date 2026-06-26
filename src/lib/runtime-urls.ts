@@ -48,15 +48,6 @@ export function getServerBackendBaseUrl(env: NodeJS.ProcessEnv = process.env): s
   return "http://localhost:6756";
 }
 
-export function getServerQuestBackendBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
-  const url = env.QUEST_BACKEND_INTERNAL_URL ?? env.NEXT_PUBLIC_QUEST_BACKEND_URL;
-  if (url) return trimTrailingSlash(url);
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("Missing required environment variable: QUEST_BACKEND_INTERNAL_URL");
-  }
-  return "http://localhost:5555";
-}
-
 export function getBrowserBackendBaseUrl(
   _env: NodeJS.ProcessEnv = process.env,
   locationOrigin: string | null | undefined = typeof window !== "undefined"
@@ -81,20 +72,7 @@ type ProxyTarget = {
   exact: string[];
 };
 
-// Quest-backend owns a subset of /api/admin/* and /api/referral/* paths that
-// must be matched BEFORE main-backend prefixes — keep these entries strictly
-// more specific than the main-backend ones below.
 const PROXY_TARGETS = {
-  questBackend: {
-    baseUrl: getServerQuestBackendBaseUrl,
-    prefixes: [
-      "/api/admin/referral",
-      "/api/admin/seasons",
-      "/api/seasons",
-      "/api/referral/leaderboard",
-    ],
-    exact: [],
-  },
   ai: {
     baseUrl: getServerAiBaseUrl,
     prefixes: ["/assistants", "/threads", "/runs", "/agui"],
@@ -143,16 +121,9 @@ export function getBackendProxyRewrites(env: NodeJS.ProcessEnv = process.env): P
   return buildRewrites(PROXY_TARGETS.backend, env);
 }
 
-export function getQuestBackendProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyRewrite[] {
-  return buildRewrites(PROXY_TARGETS.questBackend, env);
-}
-
-/** All upstream proxy rewrites, for next.config rewrites().
- *  Quest-backend entries come first so that more-specific paths like
- *  /api/admin/referral win over the broader /api/admin prefix. */
+/** All upstream proxy rewrites, for next.config rewrites(). */
 export function getProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyRewrite[] {
   return [
-    ...getQuestBackendProxyRewrites(env),
     ...getBackendProxyRewrites(env),
     ...getAiProxyRewrites(env),
   ];

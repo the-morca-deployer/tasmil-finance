@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useSeasonsControllerMyResult, useSeasonsControllerRevealAck } from "@/gen-quest";
 import { withAuth } from "../lib/kubb-config";
-import { useQuestAuthStore } from "../store/use-quest-auth";
 import { type SeasonMeResult, unwrapEnvelope } from "../lib/season-types";
+import { useQuestAuthStore } from "../store/use-quest-auth";
 import { RankReveal } from "./RankReveal";
 
 /**
@@ -29,6 +29,7 @@ export function RankRevealGate() {
 
   return (
     <RankReveal
+      open
       rank={result.finalRank}
       usdcReward={result.usdcReward}
       pointsReward={result.pointsReward}

@@ -1,7 +1,7 @@
 "use client";
 
-import { LeaderboardPage } from "@/features/quest";
+import { Leaderboard } from "@/features/quest";
 
 export default function QuestLeaderboardPage() {
-  return <LeaderboardPage />;
+  return <Leaderboard />;
 }

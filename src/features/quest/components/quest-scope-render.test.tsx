@@ -12,7 +12,7 @@ describe("quest scoped render", () => {
           {Icon.trophy({ width: 16 })}
         </div>
         <div data-testid="outside">main app</div>
-      </>,
+      </>
     );
 
     const scope = container.querySelector('[data-testid="scope"]');

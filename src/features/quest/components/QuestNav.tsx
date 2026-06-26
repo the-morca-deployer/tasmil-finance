@@ -1,22 +1,26 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { ChevronDown, Copy, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
+import { useWallet } from "@/features/quest/context/wallet-context";
 import {
+  usersControllerGetMeQueryKey,
   useUsersControllerDailyLogin,
   useUsersControllerGetCheckInStatus,
   useUsersControllerGetMe,
-  usersControllerGetMeQueryKey,
 } from "@/gen-quest";
+import { cn } from "@/lib/utils";
+import { AddressAvatar } from "@/shared/components/connect-wallet-button";
+import { Button } from "@/shared/ui/button";
 import { $, withAuth } from "../lib/kubb-config";
-import { qAvatar } from "../lib/avatar";
 import { useQuestAuthStore } from "../store/use-quest-auth";
 import { Flame, PtsCoin } from "./icons";
 
 const LINKS = [
-  { href: "/quest/quest", label: "Explore" },
+  { href: "/quest", label: "Explore" },
   { href: "/quest/campaigns", label: "Campaigns" },
   { href: "/quest/leaderboard", label: "Leaderboard" },
   { href: "/quest/profile", label: "My Quests" },
@@ -35,15 +39,27 @@ const shorten = (addr: string) =>
 
 export function QuestNav() {
   const path = usePathname() ?? "";
-  const { data } = useUsersControllerGetMe($);
   const { user, isAuthenticated } = useQuestAuthStore();
+  // Only probe /users/me when there is a quest session — avoids a 401 on every
+  // page load while logged out.
+  const { data } = useUsersControllerGetMe({
+    ...$,
+    query: { ...$.query, enabled: isAuthenticated },
+  });
   const queryClient = useQueryClient();
 
   // The /me payload is typed `any` by the generator; read the fields we need.
+  const { connect, disconnect, isAuthenticating } = useWallet();
   const me = ((data as { data?: MeFields } | undefined)?.data ?? {}) as MeFields;
   const points = me.totalPoints ?? 0;
   const streak = me.loginStreak ?? 0;
   const address = me.walletAddress ?? user?.walletAddress ?? "";
+
+  const copyAddress = () => {
+    if (!address) return;
+    navigator.clipboard.writeText(address);
+    toast.success("Address copied");
+  };
 
   const { data: checkInData, refetch: refetchCheckIn } = useUsersControllerGetCheckInStatus({
     ...withAuth,
@@ -65,9 +81,7 @@ export function QuestNav() {
         await refetchCheckIn();
         const awarded = (result as { data?: { pointsAwarded?: number } } | undefined)?.data
           ?.pointsAwarded;
-        toast.success(
-          awarded ? `Check-in successful! +${awarded} points` : "Check-in successful!"
-        );
+        toast.success(awarded ? `Check-in successful! +${awarded} points` : "Check-in successful!");
       },
       onError: (error: Error) => {
         toast.error(error.message || "Failed to check in. Please try again.");
@@ -81,6 +95,11 @@ export function QuestNav() {
   };
 
   const isActive = (href: string) => {
+    // Explore lives at /quest (and /quest/explore); don't let its prefix match
+    // every other /quest/* route.
+    if (href === "/quest") {
+      return path === "/quest" || path.startsWith("/quest/explore");
+    }
     if (href === "/quest/campaigns") {
       return path.startsWith("/quest/campaigns") || path.startsWith("/quest/campaign");
     }
@@ -88,31 +107,97 @@ export function QuestNav() {
   };
 
   return (
-    <nav className="nav">
-      <Link className="nav-brand" href="/quest/quest">
-        <span>
-          Tasmil <span className="fin">Quest</span>
+    <nav
+      className={cn(
+        "sticky top-0 z-50",
+        "grid grid-cols-[1fr_auto_1fr] items-center",
+        "px-[clamp(20px,5vw,56px)] py-4",
+        "bg-[rgba(20,20,25,0.72)] backdrop-blur-[18px]",
+        "border-b border-[var(--line)]",
+      )}
+    >
+      {/* Brand — .brand + .mk + .brand-name */}
+      <Link
+        className={cn(
+          "flex items-center gap-3",
+          "font-bold text-[22px] tracking-[-0.03em]",
+          "justify-self-start no-underline text-inherit",
+          "max-[680px]:text-[15px] max-[680px]:gap-2",
+        )}
+        href="/quest"
+      >
+        <img
+          className="w-[34px] h-[34px] flex-none block"
+          src="/tasmil-tf-logo.png"
+          alt="Tasmil"
+          width="34"
+          height="34"
+        />
+        <span
+          className={cn(
+            "bg-[linear-gradient(100deg,#fff_0%,#67e8f9_100%)]",
+            "bg-clip-text text-transparent",
+          )}
+        >
+          Tasmil Quest
         </span>
       </Link>
-      <div className="nav-links">
+
+      {/* Nav links — .nav-links + .nav-item + .nav-item.active */}
+      <div className="flex gap-0.5 justify-self-center max-[680px]:hidden">
         {LINKS.map((l) => (
           <Link
             key={l.href}
-            className={`nav-item${isActive(l.href) ? " active" : ""}`}
+            className={cn(
+              "relative text-[16px] font-semibold px-4 py-[9px] rounded-quest-pill",
+              "transition-[color,background] duration-[250ms] cursor-pointer",
+              isActive(l.href)
+                ? [
+                    "text-[var(--text)]",
+                    // .nav-item.active::after
+                    "after:content-[''] after:absolute after:left-[15px] after:right-[15px]",
+                    "after:bottom-[1px] after:h-0.5 after:rounded-[2px]",
+                    "after:bg-[var(--accent)]",
+                    "after:shadow-[0_0_10px_var(--accent-glow)]",
+                  ].join(" ")
+                : [
+                    "text-[var(--muted)]",
+                    "hover:text-[var(--text)] hover:bg-white/[0.05]",
+                  ].join(" "),
+            )}
             href={l.href}
           >
             {l.label}
           </Link>
         ))}
       </div>
-      <div className="nav-right">
-        <span className="stat-pill pts">
+
+      {/* Right side — .nav-right */}
+      <div className="flex items-center gap-3 justify-self-end">
+        {/* .stat-pill.pts */}
+        <span
+          className={cn(
+            "inline-flex items-center gap-[7px] text-[13.5px] font-semibold",
+            "px-[14px] py-[8px] rounded-quest-pill",
+            "bg-[var(--surface)] border border-[var(--line-2)]",
+            "text-quest-accent [&_svg]:text-quest-accent",
+            "max-[680px]:hidden",
+          )}
+        >
           <PtsCoin style={{ width: 20, height: 20 }} />
           {fmt(points)}
         </span>
+
+        {/* .stat-pill.streak */}
         <button
           type="button"
-          className={`stat-pill streak${hasCheckedIn ? " checked-in" : ""}`}
+          className={cn(
+            "inline-flex items-center gap-[7px] text-[13.5px] font-semibold",
+            "px-[14px] py-[8px] rounded-quest-pill",
+            "bg-[var(--surface)] border border-[var(--line-2)]",
+            "text-quest-amber [&_svg]:text-quest-amber",
+            "max-[680px]:hidden",
+          )}
           onClick={handleCheckIn}
           disabled={!isAuthenticated || hasCheckedIn || dailyLogin.isPending}
           aria-label={hasCheckedIn ? "Checked in today" : "Daily check-in"}
@@ -120,11 +205,54 @@ export function QuestNav() {
           <Flame style={{ width: 19, height: 19 }} />
           {fmt(streak)}
         </button>
+
+        {/* Wallet chip — matches main /chat navbar (TopbarWallet) */}
         {address && (
-          <span className="wallet-chip">
-            <span className="av" style={{ background: qAvatar(address) }} />
-            <span className="addr">{shorten(address)}</span>
-          </span>
+          <div className="group relative">
+            <button
+              type="button"
+              data-testid="wallet-connected"
+              className="flex h-10 items-center gap-2.5 rounded-full border border-border bg-transparent px-3.5 font-medium text-base text-foreground transition-colors hover:bg-accent"
+            >
+              <AddressAvatar address={address} size="size-6" iconSize="size-3.5" />
+              <span className="max-[680px]:hidden">{shorten(address)}</span>
+              <ChevronDown className="h-4 w-4 opacity-60" />
+            </button>
+
+            {/* Hover dropdown (Copy Address / Disconnect) */}
+            <div className="invisible absolute right-0 top-full z-50 mt-2 w-48 translate-y-2 rounded-xl border border-border bg-popover opacity-0 shadow-lg transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+              <div className="p-1">
+                <button
+                  type="button"
+                  onClick={copyAddress}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-muted-foreground text-sm hover:bg-accent hover:text-foreground"
+                >
+                  <Copy size={14} /> Copy Address
+                </button>
+                <button
+                  type="button"
+                  onClick={() => disconnect()}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-red-400 text-sm hover:bg-red-500/10"
+                >
+                  <LogOut size={14} /> Disconnect
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Connect Wallet — matches main navbar gradient button */}
+        {!address && (
+          <Button
+            size="sm"
+            variant="gradient"
+            onClick={() => connect()}
+            disabled={isAuthenticating}
+            data-testid="connect-wallet"
+            className="h-9 rounded-full px-4 font-bold text-sm"
+          >
+            {isAuthenticating ? "Connecting..." : "Connect Wallet"}
+          </Button>
         )}
       </div>
     </nav>

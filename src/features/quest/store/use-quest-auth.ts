@@ -1,5 +1,7 @@
+// After merge, quest uses main backend's cookie-based auth (tasmil_auth cookie).
+// This file provides the same interface (useQuestAuthStore) for backward
+// compatibility with existing imports, but reads state from the main app's auth.
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 export interface AuthUser {
   id: string;
@@ -14,83 +16,26 @@ export interface AuthUser {
 }
 
 interface AuthState {
-  // Core state
-  accessToken: string | null;
-  refreshToken: string | null;
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-
-  // Actions
-  setTokens: (accessToken: string, refreshToken: string) => void;
-  setUser: (user: AuthUser) => void;
-  setAuthState: (state: { accessToken: string; refreshToken: string; user: AuthUser }) => void;
-  setLoading: (isLoading: boolean) => void;
-  updateUser: (updates: Partial<AuthUser>) => void;
+  setUser: (user: AuthUser | null) => void;
+  setLoading: (loading: boolean) => void;
+  updateUser: (partial: Partial<AuthUser>) => void;
   logout: () => void;
 }
 
-export const useQuestAuthStore = create<AuthState>()(
-  persist(
-    (set, get) => ({
-      // Initial state
-      accessToken: null,
-      refreshToken: null,
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-
-      // Actions
-      setTokens: (accessToken, refreshToken) =>
-        set({
-          accessToken,
-          refreshToken,
-          isAuthenticated: true,
-        }),
-
-      setUser: (user) =>
-        set({
-          user,
-          isAuthenticated: true,
-        }),
-
-      setAuthState: ({ accessToken, refreshToken, user }) =>
-        set({
-          accessToken,
-          refreshToken,
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-        }),
-
-      setLoading: (isLoading) => set({ isLoading }),
-
-      updateUser: (updates) => {
-        const currentUser = get().user;
-        if (currentUser) {
-          set({
-            user: { ...currentUser, ...updates },
-          });
-        }
-      },
-
-      logout: () =>
-        set({
-          accessToken: null,
-          refreshToken: null,
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-        }),
-    }),
-    {
-      name: "quest-auth-storage",
-      partialize: (state) => ({
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-        user: state.user,
-        isAuthenticated: state.isAuthenticated,
-      }),
-    }
-  )
-);
+// Quest auth store — now backed by main backend cookie session.
+// isAuthenticated is set by wallet-context after GET /api/auth/me succeeds.
+export const useQuestAuthStore = create<AuthState>()((set, get) => ({
+  user: null,
+  isAuthenticated: false,
+  isLoading: true,
+  setUser: (user) => set({ user, isAuthenticated: !!user, isLoading: false }),
+  setLoading: (loading) => set({ isLoading: loading }),
+  updateUser: (partial) => {
+    const current = get().user;
+    if (current) set({ user: { ...current, ...partial } });
+  },
+  logout: () => set({ user: null, isAuthenticated: false, isLoading: false }),
+}));

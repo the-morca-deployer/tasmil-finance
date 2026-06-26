@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
-import { Button } from "@/features/quest/components/ui/button";
-import { toast } from "sonner";
-import { CheckCircle2, Loader2, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { CheckCircle2, Loader2, X } from "lucide-react";
+import React, { useCallback, useEffect } from "react";
+import { toast } from "sonner";
 import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
+import { Button } from "@/features/quest/components/ui/button";
 
 // Social Icons
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -100,16 +100,16 @@ export const SocialConnectCard: React.FC<SocialConnectCardProps> = ({
         <div className="flex items-center gap-2">
           <CheckCircle2 size={20} className="text-success" />
           <Button
-            size="icon"
+            type="button"
             variant="ghost"
-            className="h-8 w-8 text-muted hover:text-danger hover:bg-danger/10"
+            className="h-8 w-8 p-0 text-muted hover:text-danger hover:bg-danger/10 flex items-center justify-center"
             onClick={onDisconnect}
           >
             <X size={16} />
           </Button>
         </div>
       ) : (
-        <Button size="sm" variant="outline" className="h-8 text-xs" onClick={onConnect}>
+        <Button type="button" variant="ghost" size="sm" className="h-8 text-xs" onClick={onConnect}>
           Connect
         </Button>
       )}
@@ -127,7 +127,7 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
   onRefetch,
 }) => {
   const queryClient = useQueryClient();
-  const { accessToken } = useQuestAuthStore();
+  const { isAuthenticated } = useQuestAuthStore();
   const [loadingProvider, setLoadingProvider] = React.useState<SocialProvider | null>(null);
 
   const getLinkedAccount = (provider: SocialProvider) => {
@@ -146,7 +146,9 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
         if (event.data.success) {
           toast.success("Account connected successfully!");
           onRefetch();
-          queryClient.invalidateQueries({ queryKey: ["social-accounts-controller-get-social-accounts"] });
+          queryClient.invalidateQueries({
+            queryKey: ["social-accounts-controller-get-social-accounts"],
+          });
         }
       }
     };
@@ -263,7 +265,7 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
 
   const handleDisconnect = useCallback(
     async (provider: SocialProvider) => {
-      if (!accessToken) {
+      if (!isAuthenticated) {
         toast.error("Please login first");
         return;
       }
@@ -271,14 +273,10 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
       setLoadingProvider(provider);
 
       try {
+        // Cookie-based auth — no Bearer token needed
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5555/api"}/users/me/social-accounts/${provider}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
+          `/api/quest/social-accounts/${provider}`,
+          { method: "DELETE", credentials: "include" }
         );
 
         if (!res.ok) {
@@ -288,14 +286,16 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
 
         toast.success(`${provider} account disconnected`);
         onRefetch();
-        queryClient.invalidateQueries({ queryKey: ["social-accounts-controller-get-social-accounts"] });
+        queryClient.invalidateQueries({
+          queryKey: ["social-accounts-controller-get-social-accounts"],
+        });
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Failed to disconnect account");
       } finally {
         setLoadingProvider(null);
       }
     },
-    [accessToken, onRefetch, queryClient]
+    [isAuthenticated, onRefetch, queryClient]
   );
 
   const providers: SocialProvider[] = ["Discord", "X", "Telegram"];
@@ -320,4 +320,3 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
 };
 
 export default SocialConnectSection;
-

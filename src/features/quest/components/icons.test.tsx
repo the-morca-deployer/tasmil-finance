@@ -8,7 +8,7 @@ describe("quest icons", () => {
         <PtsCoin />
         <Flame />
         <Usdc />
-      </>,
+      </>
     );
     expect(container.querySelectorAll("svg")).toHaveLength(3);
   });

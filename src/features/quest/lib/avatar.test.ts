@@ -30,7 +30,7 @@ describe("qAvatar", () => {
     const a = h % 360;
     const b = (h * 3 + 90) % 360;
     expect(qAvatar("seed-1")).toBe(
-      `radial-gradient(circle at 32% 28%,hsl(${a} 80% 70%),hsl(${b} 75% 42%) 75%)`,
+      `radial-gradient(circle at 32% 28%,hsl(${a} 80% 70%),hsl(${b} 75% 42%) 75%)`
     );
   });
 });

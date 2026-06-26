@@ -19,8 +19,8 @@ export default function AdminSettingsPage() {
         <div className="space-y-1">
           <div className="font-medium">Waitlist mode</div>
           <p className="max-w-md text-muted-foreground text-sm">
-            When on, a wallet must have redeemed an access code to sign in. When off, any wallet
-            can connect and use the app directly. Default: off.
+            When on, a wallet must have redeemed an access code to sign in. When off, any wallet can
+            connect and use the app directly. Default: off.
           </p>
         </div>
 

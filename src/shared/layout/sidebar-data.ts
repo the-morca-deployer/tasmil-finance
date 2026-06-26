@@ -9,6 +9,7 @@ import {
   Share2,
   Shield,
   Tractor,
+  TrendingUp,
   Trophy,
   Wallet,
 } from "lucide-react";
@@ -103,6 +104,15 @@ const _sidebarData: SidebarData = {
     {
       items: [
         {
+          title: "Strategy",
+          url: "https://strategy.tasmil.finance",
+          icon: TrendingUp,
+        },
+      ],
+    },
+    {
+      items: [
+        {
           title: "Aggregator",
           url: "/aggregator",
           icon: ArrowLeftRight,
@@ -121,8 +131,8 @@ const _sidebarData: SidebarData = {
     {
       items: [
         {
-          title: "Tasmil Quest",
-          url: "https://quest.tasmil-finance.xyz",
+          title: "Quest",
+          url: "/quest",
           icon: Trophy,
         },
       ],

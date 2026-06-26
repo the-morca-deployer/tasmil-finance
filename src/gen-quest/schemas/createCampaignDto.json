@@ -1,1 +1,16 @@
-{"type":"object","properties":{"title":{"type":"string"},"description":{"type":"string"},"descriptionDetail":{"type":"string"},"coverUrl":{"type":"string"},"category":{"type":"string","enum":["DeFi","NFT","Infra","Gaming","Other"]},"rewardPoints":{"type":"number"},"minTasksToComplete":{"type":"number"},"startAt":{"type":"string"},"endAt":{"type":"string"}},"required":["title","rewardPoints","minTasksToComplete"],"x-readme-ref-name":"CreateCampaignDto"}
+{
+  "type": "object",
+  "properties": {
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "descriptionDetail": { "type": "string" },
+    "coverUrl": { "type": "string" },
+    "category": { "type": "string", "enum": ["DeFi", "NFT", "Infra", "Gaming", "Other"] },
+    "rewardPoints": { "type": "number" },
+    "minTasksToComplete": { "type": "number" },
+    "startAt": { "type": "string" },
+    "endAt": { "type": "string" }
+  },
+  "required": ["title", "rewardPoints", "minTasksToComplete"],
+  "x-readme-ref-name": "CreateCampaignDto"
+}

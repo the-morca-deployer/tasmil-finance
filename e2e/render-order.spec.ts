@@ -74,15 +74,28 @@ test("Render order: Thinking... and AI text never appear simultaneously", async 
       // THE REGRESSION CHECK: in one atomic snapshot, Thinking... and AI text must NOT coexist
       if (substantiveText.length > 0 && simultaneousViolation === null) {
         simultaneousViolation = substantiveText;
-        log.push({ type: "simultaneous-violation", elapsed: Date.now() - t0, content: substantiveText });
+        log.push({
+          type: "simultaneous-violation",
+          elapsed: Date.now() - t0,
+          content: substantiveText,
+        });
         await page.screenshot({ path: "e2e/test-results/render-violation.png" });
       }
     }
 
     // Once Thinking... has appeared and then gone, capture the final text
-    if (thinkingAt !== null && !thinkingVisible && finalTextAfterThinking === null && substantiveText.length > 0) {
+    if (
+      thinkingAt !== null &&
+      !thinkingVisible &&
+      finalTextAfterThinking === null &&
+      substantiveText.length > 0
+    ) {
       finalTextAfterThinking = substantiveText;
-      log.push({ type: "final-text-after-thinking", elapsed: Date.now() - t0, content: substantiveText });
+      log.push({
+        type: "final-text-after-thinking",
+        elapsed: Date.now() - t0,
+        content: substantiveText,
+      });
       await page.screenshot({ path: "e2e/test-results/render-03-final.png" });
       break;
     }

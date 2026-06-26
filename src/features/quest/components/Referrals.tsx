@@ -10,7 +10,9 @@ import { Icon, PtsCoin } from "./icons";
 const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 const pct = (bps: number) => `${Math.round(bps / 100)}%`;
 
-const Pts = () => <PtsCoin style={{ width: 14, height: 14, verticalAlign: "-2px", marginLeft: 3 }} />;
+const Pts = () => (
+  <PtsCoin style={{ width: 18, height: 18, verticalAlign: "-3px", marginLeft: 3 }} />
+);
 
 const LayerBadge = ({ l }: { l: number }) => (
   <span className="inline-flex items-center rounded-full border border-border bg-secondary px-2 py-0.5 font-semibold text-[11px] text-foreground">
@@ -59,7 +61,11 @@ function TreeRow({ node, depth }: { node: ReferralTreeNode; depth: number }) {
       >
         <span className="w-4 flex-none text-muted-foreground">
           {hasKids ? (
-            <Icon.chev width={14} height={14} style={{ transform: open ? "rotate(90deg)" : "none" }} />
+            <Icon.chev
+              width={14}
+              height={14}
+              style={{ transform: open ? "rotate(90deg)" : "none" }}
+            />
           ) : null}
         </span>
         <span
@@ -168,14 +174,22 @@ export function Referrals() {
         <button
           type="button"
           onClick={() => setView("list")}
-          className={`pnav-item${view === "list" ? " active" : ""}`}
+          className={`flex items-center gap-3 text-[14px] font-semibold px-[14px] py-[10px] rounded-[14px] cursor-pointer transition-[color,background] duration-[250ms] text-left bg-transparent border-none ${
+            view === "list"
+              ? "text-[var(--accent)] bg-[var(--accent-soft)]"
+              : "text-[rgba(244,247,251,0.58)] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.04)]"
+          }`}
         >
           Referral List
         </button>
         <button
           type="button"
           onClick={() => setView("tree")}
-          className={`pnav-item${view === "tree" ? " active" : ""}`}
+          className={`flex items-center gap-3 text-[14px] font-semibold px-[14px] py-[10px] rounded-[14px] cursor-pointer transition-[color,background] duration-[250ms] text-left bg-transparent border-none ${
+            view === "tree"
+              ? "text-[var(--accent)] bg-[var(--accent-soft)]"
+              : "text-[rgba(244,247,251,0.58)] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.04)]"
+          }`}
         >
           Referral Tree
         </button>

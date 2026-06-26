@@ -377,7 +377,7 @@ function AccessFlow() {
               className="btn-block btn-lg"
               style={{ marginTop: 14 }}
               onClick={() => {
-                window.location.href = "https://app.tasmil-finance.xyz/chat";
+                window.location.href = "https://tasmil.finance";
               }}
             >
               Enter dashboard <span className="arr">→</span>

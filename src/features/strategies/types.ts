@@ -113,6 +113,8 @@ export interface StrategyListItem {
   agents?: AssetIcon[];
   chain?: AssetIcon;
   hasPoints?: boolean;
+  tvlUsd?: number;
+  userCount?: number;
 }
 
 export interface FeaturedStrategy {
