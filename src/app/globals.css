@@ -1744,3 +1744,9 @@
 .quest-scope .qref-stats { display:flex; gap:24px; margin-top:12px; }
 
 } /* end @layer components (Quest feature styles) */
+
+/* Design feedback: remove decorative eyebrow flanking lines ("— —") app-wide */
+.quest-scope .eyebrow::before,
+.quest-scope .eyebrow::after,
+.quest-scope .page-eyebrow::before,
+.quest-scope .page-eyebrow::after { display: none !important; }

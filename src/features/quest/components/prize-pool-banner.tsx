@@ -27,7 +27,7 @@ export function PrizePoolBanner({
     <section
       className={cn(
         "relative overflow-hidden",
-        "border border-[var(--quest-line)] rounded-quest-card",
+        "border border-[var(--line)] rounded-quest-card",
         "bg-[linear-gradient(160deg,rgba(32,32,36,0.4),rgba(16,16,18,0.4))]",
         "mb-[50px] shadow-[0_30px_80px_-48px_#000]",
       )}
@@ -52,7 +52,7 @@ export function PrizePoolBanner({
             <div
               className={cn(
                 "w-[50px] h-[50px] rounded-[15px] flex-none grid place-items-center",
-                "bg-[linear-gradient(160deg,var(--quest-gold-soft),transparent)]",
+                "bg-[linear-gradient(160deg,var(--gold-soft),transparent)]",
                 "border border-[rgba(251,197,74,0.28)]",
                 "text-quest-gold shadow-[0_0_26px_-8px_rgba(251,197,74,0.4)]",
               )}
@@ -64,14 +64,14 @@ export function PrizePoolBanner({
               <div
                 className={cn(
                   "text-[12.5px] font-bold tracking-[0.16em] uppercase",
-                  "text-[var(--quest-dim)]",
+                  "text-[var(--dim)]",
                 )}
               >
                 This season&rsquo;s prize pool
               </div>
               {/* .bn-note */}
-              <div className="text-[14px] text-[var(--quest-muted)] mt-[5px]">
-                <b className="text-[var(--quest-text)] font-bold">{fmt(playersCount)}</b>{" "}
+              <div className="text-[14px] text-[var(--muted)] mt-[5px]">
+                <b className="text-[var(--text)] font-bold">{fmt(playersCount)}</b>{" "}
                 players competing
               </div>
             </div>
@@ -103,7 +103,7 @@ export function PrizePoolBanner({
               <span
                 className={cn(
                   "text-[10px] font-bold tracking-[0.16em] uppercase",
-                  "text-[var(--quest-dim)]",
+                  "text-[var(--dim)]",
                 )}
               >
                 USDC
@@ -134,7 +134,7 @@ export function PrizePoolBanner({
               <span
                 className={cn(
                   "text-[10px] font-bold tracking-[0.16em] uppercase",
-                  "text-[var(--quest-dim)]",
+                  "text-[var(--dim)]",
                 )}
               >
                 Points
@@ -147,16 +147,16 @@ export function PrizePoolBanner({
         <div
           className={cn(
             "p-[24px_26px] flex flex-col justify-center",
-            "border-l border-[var(--quest-line)]",
+            "border-l border-[var(--line)]",
             "items-center text-center",
-            "max-[920px]:border-l-0 max-[920px]:border-t max-[920px]:border-[var(--quest-line)]",
+            "max-[920px]:border-l-0 max-[920px]:border-t max-[920px]:border-[var(--line)]",
           )}
         >
           {/* .bn-count-lab */}
           <div
             className={cn(
               "text-[10.5px] font-bold tracking-[0.16em] uppercase",
-              "text-[var(--quest-dim)] inline-flex items-center gap-[7px] mb-[14px]",
+              "text-[var(--dim)] inline-flex items-center gap-[7px] mb-[14px]",
             )}
           >
             <Icon.clock width={16} height={16} />
@@ -186,7 +186,7 @@ export function PrizePoolBanner({
                 <span
                   className={cn(
                     "text-[9.5px] font-semibold tracking-[0.14em] uppercase",
-                    "text-[var(--quest-dim)]",
+                    "text-[var(--dim)]",
                   )}
                 >
                   {lbl}

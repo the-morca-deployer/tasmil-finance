@@ -33,14 +33,14 @@ const buttonVariants = cva(
         // .btn-primary: background:var(--grad); color:var(--accent-ink);
         // hover: transform:translateY(-2px); box-shadow:0 12px 40px -8px var(--accent-glow);
         primary: [
-          "[background:var(--quest-grad)] text-[var(--quest-accent-ink)]",
+          "[background:var(--quest-grad)] text-[var(--accent-ink)]",
           "hover:-translate-y-[2px] hover:shadow-[0_12px_40px_-8px_var(--color-quest-accent-glow)]",
         ].join(" "),
         // .btn-ghost: background:rgba(255,255,255,0.04); border-color:var(--line-2); color:var(--text); backdrop-filter:blur(8px);
         // hover: background:rgba(255,255,255,0.09); border-color:var(--accent); transform:translateY(-2px);
         ghost: [
-          "bg-white/[0.04] border-[var(--quest-line-2)] text-[var(--quest-text)] backdrop-blur-[8px]",
-          "hover:bg-white/[0.09] hover:border-[var(--quest-accent)] hover:-translate-y-[2px]",
+          "bg-white/[0.04] border-[var(--line-2)] text-[var(--text)] backdrop-blur-[8px]",
+          "hover:bg-white/[0.09] hover:border-[var(--accent)] hover:-translate-y-[2px]",
         ].join(" "),
         // .btn-accent: background:var(--accent-soft); border-color:var(--accent-line); color:var(--accent);
         // hover: background:rgba(103,232,249,0.22); border-color:var(--accent); transform:translateY(-2px);
@@ -51,7 +51,7 @@ const buttonVariants = cva(
         // .btn-green: background:linear-gradient(110deg,#fff,var(--green) 60%,#0f9b6c); color:#03241a;
         // hover: transform:translateY(-2px); box-shadow:0 12px 40px -8px rgba(110,231,183,0.45);
         green: [
-          "[background:linear-gradient(110deg,#fff,var(--quest-green)_60%,#0f9b6c)] text-[#03241a]",
+          "[background:linear-gradient(110deg,#fff,var(--green)_60%,#0f9b6c)] text-[#03241a]",
           "hover:-translate-y-[2px] hover:shadow-[0_12px_40px_-8px_rgba(110,231,183,0.45)]",
         ].join(" "),
       },

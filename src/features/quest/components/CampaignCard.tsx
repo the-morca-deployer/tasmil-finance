@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/features/quest/components/ui/badge";
 import { buttonClasses } from "@/features/quest/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AvatarStack } from "./AvatarStack";
 
 export interface CampaignCardData {
   id: string;
@@ -15,61 +16,6 @@ export interface CampaignCardData {
   description?: string;
   participants?: number;
   participantAvatars?: string[];
-}
-
-function qHash(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = (h << 5) - h + s.charCodeAt(i);
-    h |= 0;
-  }
-  return Math.abs(h);
-}
-
-function qAvatar(seed: string): string {
-  const h = qHash(seed);
-  const a = h % 360;
-  const b = (h * 3 + 90) % 360;
-  return `radial-gradient(circle at 32% 28%, hsl(${a} 80% 70%), hsl(${b} 75% 42%) 75%)`;
-}
-
-function fmtCount(n: number): string {
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return String(n);
-}
-
-function AvatarStack({
-  campaignId,
-  avatars,
-  total,
-}: {
-  campaignId: string;
-  avatars: string[];
-  total: number;
-}) {
-  const shown = avatars.slice(0, 4);
-  const hasFallbacks = shown.length === 0 && total > 0;
-  const fallbackSeeds = hasFallbacks ? [0, 1, 2, 3] : [];
-
-  return (
-    <div className="flex items-center">
-      {shown.map((url, i) => (
-        <span
-          key={i}
-          className="h-7 w-7 rounded-full border-2 border-[#0c0c0e] -ml-[9px] first:ml-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${url})` }}
-        />
-      ))}
-      {fallbackSeeds.map((i) => (
-        <span
-          key={`fb-${i}`}
-          className="h-7 w-7 rounded-full border-2 border-[#0c0c0e] -ml-[9px] first:ml-0"
-          style={{ background: qAvatar(campaignId + i) }}
-        />
-      ))}
-      <span className="ml-2 font-mono text-[12px] text-quest-muted">{fmtCount(total)}</span>
-    </div>
-  );
 }
 
 export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
@@ -90,11 +36,24 @@ export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
     >
       {/* Cover */}
       <div className="relative h-[184px] overflow-hidden border-b border-quest-line bg-[#0c0e10]">
-        <div className="brand-mark">
-          {campaign.coverUrl ? <img alt="" src={campaign.coverUrl} /> : null}
-        </div>
-        <span className="ph-tag">tasmil://{campaign.sponsor.toLowerCase().replace(/\s+/g, "-")}</span>
-        <Badge variant={closed ? "closed" : "ongoing"}>{closed ? "Closed" : "Ongoing"}</Badge>
+        {campaign.coverUrl ? (
+          <img
+            alt=""
+            src={campaign.coverUrl}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[600ms] ease-quest group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "repeating-linear-gradient(135deg,rgba(255,255,255,0.03) 0 12px,transparent 12px 24px), linear-gradient(160deg,var(--accent-soft),rgba(14,165,233,0.05))",
+            }}
+          />
+        )}
+        <Badge variant={closed ? "closed" : "ongoing"} className="absolute top-[13px] left-[13px]">
+          {closed ? "Closed" : "Ongoing"}
+        </Badge>
         <span className="absolute top-[13px] right-[13px] inline-flex items-center gap-[6px] rounded-quest-pill border border-quest-accent-line bg-[rgba(8,10,12,0.7)] px-4 py-[7px] font-mono text-[12px] font-bold text-quest-accent backdrop-blur-[6px]">
           +{campaign.pointsReward.toLocaleString("en-US")}
           <svg className="h-4 w-4" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
@@ -120,8 +79,8 @@ export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
       </div>
       {/* Footer */}
       <div className="flex items-center justify-between gap-3 px-5 pt-[14px] pb-[18px]">
-        <AvatarStack campaignId={campaign.id} avatars={avatars} total={participants} />
-        <span className={buttonClasses({ variant: "ghost", size: "sm" })}>
+        <AvatarStack seed={campaign.id} avatars={avatars} total={participants} />
+        <span className={buttonClasses({ variant: "primary", size: "sm" })}>
           {closed ? "View" : "Start Quest"}
           <ArrowRight size={14} />
         </span>

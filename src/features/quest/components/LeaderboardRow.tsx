@@ -36,7 +36,7 @@ export function LeaderboardRow({ rank, name, address, score, rankMove, metric, t
   );
 
   const reward = top10 && ptsRewards[rank]
-    ? <span className="inline-flex items-center gap-[5px] text-[12px] font-bold font-mono py-[5px] px-[12px] rounded-quest-pill bg-quest-accent-soft border border-quest-accent-line text-quest-accent cursor-default [&_svg]:w-[12px] [&_svg]:h-[12px]">+{ptsRewards[rank]!.toLocaleString()}<svg className="inline-block flex-none" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    ? <span className="inline-flex items-center gap-[5px] text-[13px] font-bold font-mono py-[5px] px-[12px] rounded-quest-pill bg-quest-accent-soft border border-quest-accent-line text-quest-accent cursor-default [&_svg]:w-[15px] [&_svg]:h-[15px]">+{ptsRewards[rank]!.toLocaleString()}<svg className="inline-block flex-none" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <linearGradient id="rewPts" x1="0.15" y1="0.1" x2="0.85" y2="0.9"><stop stopColor="#A5F3FC"/><stop offset="1" stopColor="#0EA5E9"/></linearGradient>
         <circle cx="12" cy="12" r="9" fill="url(#rewPts)"/><path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A"/>
       </svg></span>

@@ -5,6 +5,7 @@ import { mapApiCampaignsResponse } from "@/features/quest/lib/campaign-mapper";
 import { toCampaignCardData } from "@/features/quest/types";
 import { cn } from "@/lib/utils";
 import { useCampaignsControllerFindAll } from "@/gen-quest/hooks";
+import { $ } from "@/features/quest/lib/kubb-config";
 import { CampaignCard, type CampaignCardData } from "./CampaignCard";
 import { Rise } from "./Rise";
 import { Button } from "./ui/button";
@@ -20,7 +21,7 @@ export default function Campaigns() {
   const [search, setSearch] = useState("");
   const [showSkeleton, setShowSkeleton] = useState(true);
 
-  const { data, isLoading } = useCampaignsControllerFindAll();
+  const { data, isLoading } = useCampaignsControllerFindAll({}, $);
 
   useEffect(() => {
     const t = setTimeout(() => setShowSkeleton(false), 650);

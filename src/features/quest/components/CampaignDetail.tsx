@@ -24,7 +24,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/features/quest/components/ui/avatar";
+import { AvatarStack } from "@/features/quest/components/AvatarStack";
 import { Badge } from "@/features/quest/components/ui/badge";
 import { Button } from "@/features/quest/components/ui/button";
 
@@ -1221,7 +1221,6 @@ const CampaignDetail: React.FC = () => {
   // Pre-join state: authenticated but not joined yet
   if (isAuthenticated && !hasJoined) {
     const campaignAvatars = avatarsFromMeta.length > 0 ? avatarsFromMeta : campaign?.avatars || [];
-    const avatarsToShow = campaignAvatars.slice(0, 5);
 
     return (
       <div>
@@ -1249,18 +1248,12 @@ const CampaignDetail: React.FC = () => {
                 <p className="mt-[14px] text-[17px] text-quest-muted leading-[1.6] max-w-[60ch]">{campaign.description}</p>
               )}
               <div className="mt-5 flex items-center gap-3">
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  {avatarsToShow.map((url: string, i: number) => (
-                    <Avatar
-                      key={i}
-                      className="w-8 h-8 border-2 border-background"
-                      style={{ marginLeft: i > 0 ? -8 : 0, zIndex: 5 - i }}
-                    >
-                      <AvatarImage src={url} />
-                      <AvatarFallback>U</AvatarFallback>
-                    </Avatar>
-                  ))}
-                </div>
+                <AvatarStack
+                  seed={campaign.id}
+                  avatars={campaignAvatars}
+                  total={campaign.participants}
+                  showCount={false}
+                />
                 <span className="text-[14px] text-quest-muted">
                   <b>{campaign.participants.toLocaleString()}</b> questers joined
                 </span>
@@ -1356,12 +1349,7 @@ const CampaignDetail: React.FC = () => {
   }
 
   // Full campaign detail (joined, authenticated)
-  const maxAvatars = 5;
   const campaignAvatars = avatarsFromMeta.length > 0 ? avatarsFromMeta : campaign?.avatars || [];
-  const avatarsToShow = campaignAvatars.slice(0, maxAvatars);
-  const shownCount =
-    avatarsToShow.length > 0 ? avatarsToShow.length : Math.min(campaign.participants, 4);
-  const extra = campaign.participants - shownCount;
 
   return (
     <>
@@ -1393,32 +1381,12 @@ const CampaignDetail: React.FC = () => {
             )}
 
             <div className="mt-5 flex items-center gap-3">
-              <div className="flex items-center">
-                {avatarsToShow.length > 0
-                  ? avatarsToShow.map((url: string, i: number) => (
-                      <span
-                        key={i}
-                        className="w-7 h-7 rounded-full border-2 border-[#0c0c0e]"
-                        style={{
-                          marginLeft: i > 0 ? -9 : 0,
-                          background: url ? `url(${url}) center/cover` : `radial-gradient(circle, hsl(${(i * 60) % 360} 70% 60%), hsl(${((i * 60) + 180) % 360} 70% 40%))`,
-                        }}
-                      />
-                    ))
-                  : Array.from({ length: Math.min(campaign.participants, 4) }).map((_, i) => (
-                      <span
-                        key={i}
-                        className="w-7 h-7 rounded-full border-2 border-[#0c0c0e]"
-                        style={{
-                          marginLeft: i > 0 ? -9 : 0,
-                          background: `radial-gradient(circle, hsl(${(i * 60) % 360} 70% 60%), hsl(${((i * 60) + 180) % 360} 70% 40%))`,
-                        }}
-                      />
-                    ))}
-                {extra > 0 && (
-                  <span className="ml-2 text-[12px] font-mono text-quest-muted">+{extra > 1000 ? `${(extra / 1000).toFixed(0)}k` : extra}</span>
-                )}
-              </div>
+              <AvatarStack
+                seed={campaign.id}
+                avatars={campaignAvatars}
+                total={campaign.participants}
+                showCount={false}
+              />
               <span className="text-[14px] text-quest-muted">
                 <b>{campaign.participants.toLocaleString()}</b> questers joined
               </span>

@@ -11,7 +11,7 @@ const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 const pct = (bps: number) => `${Math.round(bps / 100)}%`;
 
 const Pts = () => (
-  <PtsCoin style={{ width: 14, height: 14, verticalAlign: "-2px", marginLeft: 3 }} />
+  <PtsCoin style={{ width: 18, height: 18, verticalAlign: "-3px", marginLeft: 3 }} />
 );
 
 const LayerBadge = ({ l }: { l: number }) => (

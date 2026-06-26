@@ -1,9 +1,11 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { Copy, LogOut, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
+import { useWallet } from "@/features/quest/context/wallet-context";
 import {
   usersControllerGetMeQueryKey,
   useUsersControllerDailyLogin,
@@ -11,6 +13,7 @@ import {
   useUsersControllerGetMe,
 } from "@/gen-quest";
 import { cn } from "@/lib/utils";
+import { buttonClasses } from "./ui/button";
 import { qAvatar } from "../lib/avatar";
 import { $, withAuth } from "../lib/kubb-config";
 import { useQuestAuthStore } from "../store/use-quest-auth";
@@ -41,10 +44,17 @@ export function QuestNav() {
   const queryClient = useQueryClient();
 
   // The /me payload is typed `any` by the generator; read the fields we need.
+  const { connect, disconnect, isAuthenticating } = useWallet();
   const me = ((data as { data?: MeFields } | undefined)?.data ?? {}) as MeFields;
   const points = me.totalPoints ?? 0;
   const streak = me.loginStreak ?? 0;
   const address = me.walletAddress ?? user?.walletAddress ?? "";
+
+  const copyAddress = () => {
+    if (!address) return;
+    navigator.clipboard.writeText(address);
+    toast.success("Address copied");
+  };
 
   const { data: checkInData, refetch: refetchCheckIn } = useUsersControllerGetCheckInStatus({
     ...withAuth,
@@ -80,6 +90,11 @@ export function QuestNav() {
   };
 
   const isActive = (href: string) => {
+    // Explore lives at /quest (and /quest/explore); don't let its prefix match
+    // every other /quest/* route.
+    if (href === "/quest") {
+      return path === "/quest" || path.startsWith("/quest/explore");
+    }
     if (href === "/quest/campaigns") {
       return path.startsWith("/quest/campaigns") || path.startsWith("/quest/campaign");
     }
@@ -93,7 +108,7 @@ export function QuestNav() {
         "grid grid-cols-[1fr_auto_1fr] items-center",
         "px-[clamp(20px,5vw,56px)] py-4",
         "bg-[rgba(20,20,25,0.72)] backdrop-blur-[18px]",
-        "border-b border-[var(--quest-line)]",
+        "border-b border-[var(--line)]",
       )}
     >
       {/* Brand — .brand + .mk + .brand-name */}
@@ -133,16 +148,16 @@ export function QuestNav() {
               "transition-[color,background] duration-[250ms] cursor-pointer",
               isActive(l.href)
                 ? [
-                    "text-[var(--quest-text)]",
+                    "text-[var(--text)]",
                     // .nav-item.active::after
                     "after:content-[''] after:absolute after:left-[15px] after:right-[15px]",
                     "after:bottom-[1px] after:h-0.5 after:rounded-[2px]",
-                    "after:bg-[var(--quest-accent)]",
-                    "after:shadow-[0_0_10px_var(--quest-accent-glow)]",
+                    "after:bg-[var(--accent)]",
+                    "after:shadow-[0_0_10px_var(--accent-glow)]",
                   ].join(" ")
                 : [
-                    "text-[var(--quest-muted)]",
-                    "hover:text-[var(--quest-text)] hover:bg-white/[0.05]",
+                    "text-[var(--muted)]",
+                    "hover:text-[var(--text)] hover:bg-white/[0.05]",
                   ].join(" "),
             )}
             href={l.href}
@@ -159,8 +174,8 @@ export function QuestNav() {
           className={cn(
             "inline-flex items-center gap-[7px] text-[13.5px] font-semibold",
             "px-[14px] py-[8px] rounded-quest-pill",
-            "bg-[var(--quest-surface)] border border-[var(--quest-line-2)]",
-            "text-quest-green [&_svg]:text-quest-green",
+            "bg-[var(--surface)] border border-[var(--line-2)]",
+            "text-quest-accent [&_svg]:text-quest-accent",
             "max-[680px]:hidden",
           )}
         >
@@ -174,7 +189,7 @@ export function QuestNav() {
           className={cn(
             "inline-flex items-center gap-[7px] text-[13.5px] font-semibold",
             "px-[14px] py-[8px] rounded-quest-pill",
-            "bg-[var(--quest-surface)] border border-[var(--quest-line-2)]",
+            "bg-[var(--surface)] border border-[var(--line-2)]",
             "text-quest-amber [&_svg]:text-quest-amber",
             "max-[680px]:hidden",
           )}
@@ -186,25 +201,60 @@ export function QuestNav() {
           {fmt(streak)}
         </button>
 
-        {/* .wallet-chip */}
+        {/* .wallet-chip with hover dropdown (Copy Address / Disconnect) */}
         {address && (
-          <span
-            className={cn(
-              "inline-flex items-center gap-[10px]",
-              "py-[5px] pl-[6px] pr-[14px] rounded-quest-pill",
-              "bg-[var(--quest-surface)] border border-[var(--quest-line-2)]",
-            )}
-          >
-            {/* .av */}
+          <div className="group relative">
             <span
-              className="block w-[30px] h-[30px] rounded-full flex-none"
-              style={{ background: qAvatar(address) }}
-            />
-            {/* .addr */}
-            <span className="font-mono text-[13px] text-[var(--quest-text)] max-[680px]:hidden">
-              {shorten(address)}
+              className={cn(
+                "inline-flex items-center gap-[10px] cursor-pointer",
+                "py-[5px] pl-[6px] pr-[14px] rounded-quest-pill",
+                "bg-[var(--surface)] border border-[var(--line-2)]",
+              )}
+            >
+              {/* .av */}
+              <span
+                className="block w-[30px] h-[30px] rounded-full flex-none"
+                style={{ background: qAvatar(address) }}
+              />
+              {/* .addr */}
+              <span className="font-mono text-[13px] text-[var(--text)] max-[680px]:hidden">
+                {shorten(address)}
+              </span>
             </span>
-          </span>
+
+            {/* Hover dropdown */}
+            <div className="invisible absolute right-0 top-full z-50 mt-2 w-48 translate-y-2 rounded-xl border border-[var(--line-2)] bg-[var(--surface)] opacity-0 shadow-[0_12px_30px_-12px_#000] transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+              <div className="p-1">
+                <button
+                  type="button"
+                  onClick={copyAddress}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] text-[var(--muted)] hover:bg-white/5 hover:text-[var(--text)]"
+                >
+                  <Copy size={14} /> Copy Address
+                </button>
+                <button
+                  type="button"
+                  onClick={() => disconnect()}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] text-destructive hover:bg-destructive/10"
+                >
+                  <LogOut size={14} /> Disconnect
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Connect Wallet — shown when no wallet is connected */}
+        {!address && (
+          <button
+            type="button"
+            onClick={() => connect()}
+            disabled={isAuthenticating}
+            className={buttonClasses({ variant: "primary", size: "sm" })}
+          >
+            <Wallet size={16} />
+            {isAuthenticating ? "Connecting..." : "Connect Wallet"}
+          </button>
         )}
       </div>
     </nav>

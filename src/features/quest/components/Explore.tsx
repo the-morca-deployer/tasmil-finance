@@ -42,7 +42,7 @@ export default function Explore() {
             aria-hidden="true"
           />
           <div className="relative z-[1] px-[clamp(24px,5vw,64px)] pt-[clamp(40px,7vw,84px)]">
-            <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px] before:content-[''] before:w-[26px] before:h-px before:bg-quest-accent before:opacity-60">June 2026 Season</div>
+            <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px]">June 2026 Season</div>
             <h1 className="mt-[18px] max-w-[14ch] text-[clamp(34px,5.4vw,62px)] font-extrabold leading-[1.02] tracking-[-0.04em]">
               Embark on your <span style={{ background: "var(--grad)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Tasmil journey</span>
             </h1>

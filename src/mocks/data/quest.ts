@@ -327,10 +327,50 @@ export const MOCK_REFERRAL = {
 
 export const MOCK_REFERRALS_LIST = {
   data: [
+    // Layer 1 (direct, 10%)
     { id: "ref-1", username: "trader_mike", layer: 1, joinedAt: "2024-05-01T00:00:00Z", points: 2300, ptsEarned: 230, status: "active" },
     { id: "ref-2", username: "stargazer99", layer: 1, joinedAt: "2024-05-15T00:00:00Z", points: 1800, ptsEarned: 180, status: "active" },
     { id: "ref-3", username: "nftcollector", layer: 1, joinedAt: "2024-06-01T00:00:00Z", points: 1200, ptsEarned: 120, status: "inactive" },
+    // Layer 2 (indirect, 3%)
+    { id: "ref-4", username: "yield_hunter", layer: 2, joinedAt: "2024-06-10T00:00:00Z", points: 1500, ptsEarned: 45, status: "active" },
+    { id: "ref-5", username: "moonshot_max", layer: 2, joinedAt: "2024-06-18T00:00:00Z", points: 900, ptsEarned: 27, status: "active" },
+    // Layer 3 (deep network, 1%)
+    { id: "ref-6", username: "defi_degen", layer: 3, joinedAt: "2024-06-22T00:00:00Z", points: 1100, ptsEarned: 11, status: "active" },
+    { id: "ref-7", username: "stellar_sam", layer: 3, joinedAt: "2024-06-25T00:00:00Z", points: 600, ptsEarned: 6, status: "inactive" },
   ],
+};
+
+// Nested referral tree (L1 -> L2 -> L3) for the "Referral Tree" view.
+export const MOCK_REFERRAL_TREE = {
+  data: {
+    rates: [
+      { layer: 1, rateBps: 1000 },
+      { layer: 2, rateBps: 300 },
+      { layer: 3, rateBps: 100 },
+    ],
+    totalCommissionPoints: 619,
+    tree: [
+      {
+        userId: "u1", name: "trader_mike", layer: 1, q: 2300, e: 230, status: "active",
+        children: [
+          {
+            userId: "u4", name: "yield_hunter", layer: 2, q: 1500, e: 45, status: "active",
+            children: [
+              { userId: "u6", name: "defi_degen", layer: 3, q: 1100, e: 11, status: "active", children: [] },
+            ],
+          },
+          {
+            userId: "u5", name: "moonshot_max", layer: 2, q: 900, e: 27, status: "active",
+            children: [
+              { userId: "u7", name: "stellar_sam", layer: 3, q: 600, e: 6, status: "inactive", children: [] },
+            ],
+          },
+        ],
+      },
+      { userId: "u2", name: "stargazer99", layer: 1, q: 1800, e: 180, status: "active", children: [] },
+      { userId: "u3", name: "nftcollector", layer: 1, q: 1200, e: 120, status: "inactive", children: [] },
+    ],
+  },
 };
 
 // ============================================================

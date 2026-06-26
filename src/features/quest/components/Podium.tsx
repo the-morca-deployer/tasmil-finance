@@ -44,7 +44,10 @@ export function Podium({ rows, metric, usdcRewards = ["50", "20", "10"], ptsRewa
               <div className="relative mb-[11px] overflow-visible">
                 <div
                   className={cn(
-                    "pod-crown absolute left-1/2 -translate-x-1/2 z-[3] pointer-events-none [filter:drop-shadow(0_7px_10px_rgba(0,0,0,0.55))]",
+                    // Centering + crownbob animation come from the global `.pod-crown`
+                    // rule (left:50%; transform:translateX(-50%)). Do NOT add a Tailwind
+                    // translate here or it double-shifts the crown off-center.
+                    "pod-crown absolute z-[3] pointer-events-none",
                     is1st && "top-[-74px] w-[74px]",
                     is2nd && "top-[-54px] w-[52px] [animation-delay:.25s]",
                     is3rd && "top-[-54px] w-[52px] [animation-delay:.5s]",
@@ -71,19 +74,16 @@ export function Podium({ rows, metric, usdcRewards = ["50", "20", "10"], ptsRewa
                 {r.name}
               </div>
               <div className="font-mono text-[14px] text-quest-dim mt-[3px]">{scoreStr}</div>
-              <div className="flex items-center justify-center gap-[6px] mt-[9px] flex-wrap">
-                <span className="pp usdc inline-flex items-center gap-[5px] font-mono text-[14px] font-bold py-[5px] px-[12px] rounded-quest-pill whitespace-nowrap text-quest-accent bg-quest-accent-soft border border-quest-accent-line">
+              <div className="flex items-center justify-center mt-[9px]">
+                <span className="inline-flex items-center gap-[5px] font-mono text-[13px] font-bold py-[5px] px-[12px] rounded-quest-pill whitespace-nowrap text-quest-accent bg-quest-accent-soft border border-quest-accent-line">
                   {usdcRewards[place]}
-                  <img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} />
-                  USDC
-                </span>
-                <span className="pp pts inline-flex items-center gap-[5px] font-mono text-[14px] font-bold py-[5px] px-[12px] rounded-quest-pill whitespace-nowrap text-quest-accent bg-quest-accent-soft border border-quest-accent-line">
-                  +{fmt(ptsRewards[place]!)}
-                  <svg className="inline-block flex-none w-[15px] h-[15px]" style={{ verticalAlign: -3, marginLeft: 4 }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" />
+                  <span className="text-quest-dim">+</span>
+                  {fmt(ptsRewards[place]!)}
+                  <svg className="inline-block flex-none w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <linearGradient id="ppGrad" x1="0.15" y1="0.1" x2="0.85" y2="0.9"><stop stopColor="#A5F3FC"/><stop offset="1" stopColor="#0EA5E9"/></linearGradient>
                     <circle cx="12" cy="12" r="9" fill="url(#ppGrad)"/><path d="M12.7 6.4l-4.3 6.05h2.9l-.9 4.45 4.4-6.2h-3z" fill="#04141A"/>
                   </svg>
-                  PTS
                 </span>
               </div>
               <div className="relative w-full mt-[20px] flex flex-col">

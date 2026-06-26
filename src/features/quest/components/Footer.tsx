@@ -16,7 +16,7 @@ export default function Footer() {
       {/* .footer: position:relative; padding:96px 0 0; overflow:hidden; background:#000; min-height:clamp(680px,72vw,960px) */}
       {/* ::before: top border gradient line with glow */}
       <footer
-        className="relative overflow-hidden bg-black"
+        className="relative overflow-hidden border-t border-[var(--line)] bg-black"
         style={{
           padding: "96px 0 0",
           minHeight: "clamp(680px,72vw,960px)",

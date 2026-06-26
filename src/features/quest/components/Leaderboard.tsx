@@ -62,7 +62,7 @@ export default function Leaderboard() {
         {/* page-head */}
         <header className="text-center mb-[40px]">
           {/* page-eyebrow */}
-          <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px] mb-[14px] before:content-[''] before:w-[26px] before:h-px before:bg-quest-accent before:opacity-60 after:content-[''] after:w-[26px] after:h-px after:bg-quest-accent after:opacity-60">June 2026</div>
+          <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px] mb-[14px]">June 2026</div>
           {/* page-title */}
           <h1 className="text-[clamp(38px,5.5vw,64px)] font-extrabold tracking-[-0.04em] leading-none">
             <span style={{ background: "var(--grad)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Leaderboard</span>
@@ -103,22 +103,26 @@ export default function Leaderboard() {
                 </div>
               </div>
               {/* bn-figures */}
-              <div className="flex items-stretch justify-center gap-[12px]">
+              <div className="flex items-stretch justify-center gap-[12px] max-[440px]:flex-col">
                 {/* bn-fig usdc */}
-                <div className="flex flex-col items-center justify-center gap-[7px] py-[14px] px-[20px] rounded-[16px] bg-quest-accent-soft border border-quest-accent-line min-w-[128px]">
-                  <span className="text-[clamp(26px,2.6vw,34px)] font-extrabold tracking-[-0.03em] leading-none whitespace-nowrap inline-flex items-center text-quest-accent">
-                    <CountUp value={Number(season?.prizePoolUsdc ?? 80)} duration={1.6} />
-                    <img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} />
+                <div className="flex items-center gap-[13px] py-[13px] px-[18px] rounded-[16px] bg-quest-accent-soft border border-quest-accent-line min-w-[150px] text-left">
+                  <img src="/token/usdc.png" alt="" className="w-[40px] h-[40px] rounded-full flex-none" />
+                  <span className="flex flex-col">
+                    <span className="text-[clamp(24px,2.4vw,32px)] font-extrabold tracking-[-0.03em] leading-none text-quest-accent">
+                      <CountUp value={Number(season?.prizePoolUsdc ?? 80)} duration={1.6} />
+                    </span>
+                    <span className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim mt-[3px]">USDC</span>
                   </span>
-                  <span className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim">USDC</span>
                 </div>
                 {/* bn-fig pts */}
-                <div className="flex flex-col items-center justify-center gap-[7px] py-[14px] px-[20px] rounded-[16px] bg-quest-accent-soft border border-quest-accent-line min-w-[128px]">
-                  <span className="text-[clamp(26px,2.6vw,34px)] font-extrabold tracking-[-0.03em] leading-none whitespace-nowrap inline-flex items-center text-quest-accent">
-                    +<CountUp value={ptsPool} duration={1.6} />
-                    <PtsCoin />
+                <div className="flex items-center gap-[13px] py-[13px] px-[18px] rounded-[16px] bg-quest-accent-soft border border-quest-accent-line min-w-[150px] text-left">
+                  <PtsCoin className="w-[40px] h-[40px] flex-none" />
+                  <span className="flex flex-col">
+                    <span className="text-[clamp(24px,2.4vw,32px)] font-extrabold tracking-[-0.03em] leading-none text-quest-accent">
+                      <CountUp value={ptsPool} duration={1.6} />
+                    </span>
+                    <span className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim mt-[3px]">Points</span>
                   </span>
-                  <span className="text-[10px] font-bold tracking-[0.16em] uppercase text-quest-dim">Points</span>
                 </div>
               </div>
             </div>
@@ -190,8 +194,8 @@ export default function Leaderboard() {
                 <span>{metric === "points" ? "Points" : "Streak"} Leaderboard</span>
               </div>
               <div className="inline-flex bg-quest-surface border border-quest-line-2 rounded-quest-pill p-1 gap-0.5">
-                <button type="button" className={cn("cursor-pointer rounded-quest-pill border-none bg-transparent px-[18px] py-2 text-[13.5px] font-semibold text-quest-muted transition-[color,background] duration-[250ms] hover:text-quest-text", metric === "points" && "text-[var(--quest-accent-ink)] [background:var(--quest-grad)]")} onClick={() => setMetric("points")}>Points</button>
-                <button type="button" className={cn("cursor-pointer rounded-quest-pill border-none bg-transparent px-[18px] py-2 text-[13.5px] font-semibold text-quest-muted transition-[color,background] duration-[250ms] hover:text-quest-text", metric === "streak" && "text-[var(--quest-accent-ink)] [background:var(--quest-grad)]")} onClick={() => setMetric("streak")}>Streak</button>
+                <button type="button" className={cn("cursor-pointer rounded-quest-pill border-none bg-transparent px-[18px] py-2 text-[13.5px] font-semibold text-quest-muted transition-[color,background] duration-[250ms] hover:text-quest-text", metric === "points" && "text-[var(--accent-ink)] [background:var(--quest-grad)]")} onClick={() => setMetric("points")}>Points</button>
+                <button type="button" className={cn("cursor-pointer rounded-quest-pill border-none bg-transparent px-[18px] py-2 text-[13.5px] font-semibold text-quest-muted transition-[color,background] duration-[250ms] hover:text-quest-text", metric === "streak" && "text-[var(--accent-ink)] [background:var(--quest-grad)]")} onClick={() => setMetric("streak")}>Streak</button>
               </div>
             </div>
             {/* rows */}
@@ -218,8 +222,8 @@ export default function Leaderboard() {
                 <span className="w-[36px] h-[36px] flex-none grid place-items-center"><img src="/ranks/golden.png" alt="" className="w-full h-full object-contain block" /></span>
                 <span className="text-[13px] font-bold tracking-[-0.01em] flex-1">1st Place</span>
                 <span className="flex gap-[7px]">
-                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">50<img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} /></span>
-                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">+5,000<PtsCoin /></span>
+                  <span className="text-[13px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">50<img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} /></span>
+                  <span className="text-[13px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">+5,000<PtsCoin /></span>
                 </span>
               </div>
               {/* prize-card p2 */}
@@ -227,8 +231,8 @@ export default function Leaderboard() {
                 <span className="w-[36px] h-[36px] flex-none grid place-items-center"><img src="/ranks/silver.png" alt="" className="w-full h-full object-contain block" /></span>
                 <span className="text-[13px] font-bold tracking-[-0.01em] flex-1">2nd Place</span>
                 <span className="flex gap-[7px]">
-                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">20<img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} /></span>
-                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">+3,000<PtsCoin /></span>
+                  <span className="text-[13px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">20<img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} /></span>
+                  <span className="text-[13px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">+3,000<PtsCoin /></span>
                 </span>
               </div>
               {/* prize-card p3 */}
@@ -236,8 +240,8 @@ export default function Leaderboard() {
                 <span className="w-[36px] h-[36px] flex-none grid place-items-center"><img src="/ranks/bronze.png" alt="" className="w-full h-full object-contain block" /></span>
                 <span className="text-[13px] font-bold tracking-[-0.01em] flex-1">3rd Place</span>
                 <span className="flex gap-[7px]">
-                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">10<img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} /></span>
-                  <span className="text-[11.5px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">+2,000<PtsCoin /></span>
+                  <span className="text-[13px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">10<img src="/token/usdc.png" alt="" className="inline-block flex-none w-[15px] h-[15px] rounded-full" style={{ verticalAlign: -3, marginLeft: 4 }} /></span>
+                  <span className="text-[13px] font-bold font-mono py-[5px] px-[10px] rounded-[9px] whitespace-nowrap bg-quest-accent-soft border border-quest-accent-line text-quest-accent">+2,000<PtsCoin /></span>
                 </span>
               </div>
             </div>

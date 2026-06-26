@@ -22,15 +22,15 @@ export function SocialConnectCard({
   onDisconnect,
 }: SocialConnectCardProps) {
   return (
-    // .social-card: flex items-center gap-[14px] p-[14px_16px] border border-[var(--quest-line)]
-    //               rounded-quest-sm bg-[var(--quest-surface-2)] transition-[border-color] duration-[250ms]
-    //               hover: border-[var(--quest-accent-line)]
+    // .social-card: flex items-center gap-[14px] p-[14px_16px] border border-[var(--line)]
+    //               rounded-quest-sm bg-[var(--surface-2)] transition-[border-color] duration-[250ms]
+    //               hover: border-[var(--accent-line)]
     <div
       className={cn(
         "flex items-center gap-[14px] p-[14px_16px]",
-        "border border-[var(--quest-line)] rounded-quest-sm",
-        "bg-[var(--quest-surface-2)] transition-[border-color] duration-[250ms]",
-        "hover:border-[var(--quest-accent-line)]",
+        "border border-[var(--line)] rounded-quest-sm",
+        "bg-[var(--surface-2)] transition-[border-color] duration-[250ms]",
+        "hover:border-[var(--accent-line)]",
       )}
     >
       <div className="social-card-head">

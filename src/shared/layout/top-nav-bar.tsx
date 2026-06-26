@@ -33,7 +33,7 @@ export function TopNavBar({ sidebarData }: TopNavBarProps) {
         </span>
       </Link>
 
-      <div className="ml-6 flex items-center gap-2 overflow-x-auto">
+      <div className="ml-6 flex items-center gap-4 overflow-x-auto">
         {items.map((item) => (
           <NavLink key={item.url} item={item} />
         ))}
