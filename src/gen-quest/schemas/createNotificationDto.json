@@ -1,10 +1,1 @@
-{
-  "type": "object",
-  "properties": {
-    "userId": { "type": "string", "description": "Target user id, empty for broadcast" },
-    "title": { "type": "string" },
-    "body": { "type": "string" }
-  },
-  "required": ["title", "body"],
-  "x-readme-ref-name": "CreateNotificationDto"
-}
+{"type":"object","properties":{"userId":{"type":"string","description":"Target user id, empty for broadcast"},"title":{"type":"string"},"body":{"type":"string"}},"required":["title","body"],"x-readme-ref-name":"CreateNotificationDto"}
