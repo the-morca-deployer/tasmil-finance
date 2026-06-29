@@ -11,7 +11,10 @@ import { WalletRankInfo } from "@/features/quest/components/WalletRankInfo";
 import { useWallet } from "@/features/quest/context/wallet-context";
 import { variantFromAvatarUrl } from "@/features/quest/lib/avatar";
 import { withAuth } from "@/features/quest/lib/kubb-config";
+import { buildShareUrl } from "@/features/quest/lib/referral-link";
+import { unwrapEnvelope } from "@/features/quest/lib/season-types";
 import {
+  useReferralControllerGetMyReferral,
   usersControllerGetMeQueryKey,
   useUsersControllerDailyLogin,
   useUsersControllerGetCheckInStatus,
@@ -67,6 +70,21 @@ const Navbar: React.FC = () => {
   } = useWallet();
 
   const queryClient = useQueryClient();
+
+  // Referral data
+  const { data: refRaw } = useReferralControllerGetMyReferral(withAuth as never);
+  const refData = unwrapEnvelope<{
+    referralCode: string | null;
+    referredBy: { code: string | null; name: string | null; walletAddress: string | null } | null;
+  }>(refRaw);
+  const myCode = refData?.referralCode ?? null;
+  const referrer = refData?.referredBy ?? null;
+  const referrerLabel =
+    referrer?.name ??
+    referrer?.code ??
+    (referrer?.walletAddress
+      ? `${referrer.walletAddress.slice(0, 4)}…${referrer.walletAddress.slice(-4)}`
+      : "—");
 
   // Streak lives on the user object from the auth store
   const streak = user?.loginStreak ?? 0;
@@ -300,6 +318,15 @@ const Navbar: React.FC = () => {
               <div className="absolute right-0 top-full mt-2 w-48 bg-surface border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all translate-y-2 group-hover:translate-y-0">
                 <WalletRankInfo />
                 <div className="p-1">
+                  {myCode && (
+                    <button
+                      onClick={() => navigator.clipboard?.writeText(buildShareUrl(myCode))}
+                      className="w-full text-left px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-white/5 flex items-center gap-2"
+                    >
+                      <Copy size={14} /> Referral: {myCode}
+                    </button>
+                  )}
+                  <div className="px-3 py-2 text-xs text-muted">Referred by: {referrerLabel}</div>
                   <button
                     onClick={copyAddress}
                     className="w-full text-left px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-white/5 flex items-center gap-2"
@@ -436,6 +463,17 @@ const Navbar: React.FC = () => {
                     <span className="text-muted font-medium">Account</span>
                     <span className="text-foreground font-mono text-sm">{displayAddress}</span>
                   </div>
+
+                  {myCode && (
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard?.writeText(buildShareUrl(myCode))}
+                      className="w-full text-left px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-white/5 flex items-center gap-2"
+                    >
+                      <Copy size={14} /> Referral: {myCode}
+                    </button>
+                  )}
+                  <div className="px-3 py-2 text-xs text-muted">Referred by: {referrerLabel}</div>
 
                   <div className="flex gap-3">
                     <Button
