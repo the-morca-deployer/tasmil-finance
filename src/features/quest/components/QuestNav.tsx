@@ -65,8 +65,8 @@ export function QuestNav() {
       query: { ...$.query, enabled: isAuthenticated, staleTime: 0, gcTime: 0 },
     });
   const hasCheckedIn =
-    ((checkInStatusData as { data?: { hasCheckedIn?: boolean } } | undefined)?.data
-      ?.hasCheckedIn) ?? false;
+    (checkInStatusData as { data?: { hasCheckedIn?: boolean } } | undefined)?.data?.hasCheckedIn ??
+    false;
 
   // Daily login mutation
   const dailyLogin = useUsersControllerDailyLogin({
@@ -185,22 +185,22 @@ export function QuestNav() {
           {fmt(points)}
         </span>
 
-        {/* .stat-pill.streak — always shows; clickable to check in when not yet done today */}
+        {/* .stat-pill.streak — same color; text shows whether check-in is due */}
         <button
           type="button"
           className={cn(
             "inline-flex items-center gap-[7px] text-[13.5px] font-semibold",
-            "px-[14px] py-[8px] rounded-quest-pill",
+            "px-[14px] py-[8px] rounded-quest-pill max-[680px]:hidden",
             "bg-[var(--surface)] border border-[var(--line-2)]",
-            "text-quest-amber [&_svg]:text-quest-amber",
-            "max-[680px]:hidden"
+            "text-quest-amber [&_svg]:text-quest-amber"
           )}
           onClick={handleCheckIn}
           disabled={!isAuthenticated || hasCheckedIn || dailyLogin.isPending}
           aria-label={hasCheckedIn ? "Checked in today" : "Daily check-in"}
+          title={hasCheckedIn ? "Checked in today" : "Click to check in (+points)"}
         >
           <Flame style={{ width: 19, height: 19 }} />
-          {fmt(streak)}
+          {dailyLogin.isPending ? "…" : hasCheckedIn ? `${fmt(streak)} ✓` : "Check in"}
         </button>
 
         {/* Wallet chip — matches main /chat navbar (TopbarWallet) */}
