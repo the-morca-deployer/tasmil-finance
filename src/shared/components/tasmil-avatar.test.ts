@@ -14,7 +14,10 @@ describe("normalizeSeed", () => {
   });
 });
 describe("TASMIL_AVATAR_COLORS", () => {
-  it("is the exact brand palette", () => {
-    expect(TASMIL_AVATAR_COLORS).toEqual(["#67e8f9", "#0ea5e9", "#0369a1", "#04141a", "#d9fbff"]);
+  it("is the diverse per-wallet palette", () => {
+    expect(TASMIL_AVATAR_COLORS).toEqual(["#22d3ee", "#6366f1", "#a855f7", "#ec4899", "#f59e0b"]);
+  });
+  it("has five distinct hues for seed variety", () => {
+    expect(new Set(TASMIL_AVATAR_COLORS).size).toBe(5);
   });
 });

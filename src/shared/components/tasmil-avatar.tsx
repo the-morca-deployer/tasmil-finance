@@ -1,7 +1,9 @@
 import Avatar from "boring-avatars";
 import { cn } from "@/lib/utils";
 
-export const TASMIL_AVATAR_COLORS = ["#67e8f9", "#0ea5e9", "#0369a1", "#04141a", "#d9fbff"];
+// Diverse palette so each seed (wallet) produces a visibly distinct avatar,
+// rather than every avatar reading as the same brand-cyan blob.
+export const TASMIL_AVATAR_COLORS = ["#22d3ee", "#6366f1", "#a855f7", "#ec4899", "#f59e0b"];
 export type TasmilAvatarVariant = "marble" | "bauhaus" | "beam" | "pixel" | "ring" | "sunset";
 
 export function normalizeSeed(seed: string | null | undefined): string {
