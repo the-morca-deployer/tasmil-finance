@@ -32,8 +32,13 @@ interface AddressAvatarProps {
 }
 
 function sizeClassToPx(size: string): number {
-  const n = Number.parseInt(size.replace(/[^0-9]/g, ""), 10);
-  return Number.isFinite(n) && n > 0 ? n * 4 : 48;
+  // Arbitrary pixel value, e.g. "size-[30px]" → 30 (already px, no scaling).
+  const bracketPx = size.match(/\[(\d+(?:\.\d+)?)px\]/);
+  if (bracketPx) return Math.round(Number(bracketPx[1]));
+  // Tailwind spacing unit, e.g. "size-8" → 8 × 4px = 32.
+  const unit = size.match(/(\d+(?:\.\d+)?)/);
+  if (unit) return Math.round(Number(unit[1]) * 4);
+  return 48;
 }
 
 const AddressAvatar = ({ address, size = "size-12" }: AddressAvatarProps) => (

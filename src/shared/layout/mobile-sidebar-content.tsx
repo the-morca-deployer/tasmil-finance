@@ -17,8 +17,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/di
 import { Typography } from "@/shared/ui/typography";
 
 const AddressAvatar = ({ address, size = "size-12" }: { address: string; size?: string }) => {
-  const px = Number.parseInt(size.replace(/[^0-9]/g, ""), 10);
-  return <TasmilAvatar seed={address} size={Number.isFinite(px) && px > 0 ? px * 4 : 48} />;
+  const bracketPx = size.match(/\[(\d+(?:\.\d+)?)px\]/);
+  const unit = size.match(/(\d+(?:\.\d+)?)/);
+  const px = bracketPx ? Number(bracketPx[1]) : unit ? Number(unit[1]) * 4 : 48;
+  return <TasmilAvatar seed={address} size={Math.round(px)} />;
 };
 
 export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {

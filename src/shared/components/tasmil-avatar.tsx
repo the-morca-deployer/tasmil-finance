@@ -27,7 +27,7 @@ export function TasmilAvatar({
   return (
     <span
       className={cn(
-        "inline-block overflow-hidden rounded-full [&>svg]:block [&>svg]:h-full [&>svg]:w-full",
+        "inline-block shrink-0 overflow-hidden rounded-full [&>svg]:block [&>svg]:h-full [&>svg]:w-full",
         fill && "h-full w-full",
         className
       )}
