@@ -1,9 +1,9 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Copy, Edit2, Gift, Info } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 import React, { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Rise } from "@/features/quest/components/Rise";
@@ -26,6 +26,7 @@ import {
   tierRewardsControllerListQueryKey,
   useReferralControllerGetMyReferral,
   useReferralControllerGetTree,
+  usersControllerGetMeQueryKey,
   useSocialAccountsControllerFindAll,
   useTierRewardsControllerClaim,
   useTierRewardsControllerList,
@@ -33,7 +34,6 @@ import {
   useUsersControllerGetPointsHistory,
   useUsersControllerGetReferrals,
   useUsersControllerUpdateProfile,
-  usersControllerGetMeQueryKey,
 } from "@/gen-quest/hooks";
 import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 
@@ -395,14 +395,18 @@ function RankTiersDialog({
       onSuccess: async (res: unknown) => {
         await queryClient.invalidateQueries({ queryKey: usersControllerGetMeQueryKey() });
         await queryClient.invalidateQueries({ queryKey: tierRewardsControllerListQueryKey() });
-        const awarded = (res as { data?: { pointsAwarded?: number } } | undefined)?.data
-          ?.pointsAwarded;
+        // The API interceptor unwraps the { success, data } envelope, so the
+        // mutation result is the bare payload; fall back to .data defensively.
+        const payload = res as
+          | { pointsAwarded?: number; data?: { pointsAwarded?: number } }
+          | undefined;
+        const awarded = payload?.pointsAwarded ?? payload?.data?.pointsAwarded;
         toast.success(awarded ? `Reward claimed! +${awarded} pts` : "Reward claimed!");
       },
       onError: (e: unknown) => {
         const env = e as { response?: { status?: number } };
         toast[env.response?.status === 409 ? "info" : "error"](
-          env.response?.status === 409 ? "Already claimed" : "Could not claim reward",
+          env.response?.status === 409 ? "Already claimed" : "Could not claim reward"
         );
       },
     },
