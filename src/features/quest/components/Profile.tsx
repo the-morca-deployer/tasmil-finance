@@ -418,13 +418,13 @@ function RankTiersDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: "rgba(0,0,0,0.65)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.78)", backdropFilter: "blur(8px)" }}
       onClick={() => onOpenChange(false)}
     >
       <div
-        className="relative w-full max-w-[480px] max-h-[80vh] overflow-y-auto rounded-[24px] border border-[rgba(255,255,255,0.1)] [background:var(--card-grad)] shadow-[0_24px_64px_rgba(0,0,0,0.7)]"
-        style={{ padding: "28px 24px" }}
+        className="relative w-full max-w-[480px] max-h-[80vh] overflow-y-auto rounded-[24px] border border-[rgba(255,255,255,0.1)] shadow-[0_24px_64px_rgba(0,0,0,0.7)]"
+        style={{ padding: "28px 24px", background: "linear-gradient(160deg, #202024, #0f0f11)" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* header */}
