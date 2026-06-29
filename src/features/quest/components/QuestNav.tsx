@@ -237,25 +237,24 @@ export function QuestNav() {
           {fmt(points)}
         </span>
 
-        {/* .stat-pill.streak — only rendered when a daily campaign+loginTask exist */}
-        {loginTaskId && (
-          <button
-            type="button"
-            className={cn(
-              "inline-flex items-center gap-[7px] text-[13.5px] font-semibold",
-              "px-[14px] py-[8px] rounded-quest-pill",
-              "bg-[var(--surface)] border border-[var(--line-2)]",
-              "text-quest-amber [&_svg]:text-quest-amber",
-              "max-[680px]:hidden"
-            )}
-            onClick={handleCheckIn}
-            disabled={!isAuthenticated || hasCheckedIn || claimMutation.isPending}
-            aria-label={hasCheckedIn ? "Checked in today" : "Daily check-in"}
-          >
-            <Flame style={{ width: 19, height: 19 }} />
-            {fmt(streak)}
-          </button>
-        )}
+        {/* .stat-pill.streak — always shows the login streak; check-in click is
+            enabled only when the daily LOGIN_CHECKIN task is resolved. */}
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-[7px] text-[13.5px] font-semibold",
+            "px-[14px] py-[8px] rounded-quest-pill",
+            "bg-[var(--surface)] border border-[var(--line-2)]",
+            "text-quest-amber [&_svg]:text-quest-amber",
+            "max-[680px]:hidden"
+          )}
+          onClick={handleCheckIn}
+          disabled={!isAuthenticated || !loginTaskId || hasCheckedIn || claimMutation.isPending}
+          aria-label={hasCheckedIn ? "Checked in today" : "Daily check-in"}
+        >
+          <Flame style={{ width: 19, height: 19 }} />
+          {fmt(streak)}
+        </button>
 
         {/* Wallet chip — matches main /chat navbar (TopbarWallet) */}
         {address && (
