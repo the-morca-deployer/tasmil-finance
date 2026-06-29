@@ -100,10 +100,6 @@ export { creditControllerGetMe } from "@/gen-quest/client/credit-controller-get-
 export { creditControllerListLedger } from "@/gen-quest/client/credit-controller-list-ledger";
 export { creditInternalControllerApply } from "@/gen-quest/client/credit-internal-controller-apply";
 export { creditPackageControllerList } from "@/gen-quest/client/credit-package-controller-list";
-export { dailyMissionsAdminControllerCreate } from "@/gen-quest/client/daily-missions-admin-controller-create";
-export { dailyMissionsAdminControllerList } from "@/gen-quest/client/daily-missions-admin-controller-list";
-export { dailyMissionsAdminControllerRemove } from "@/gen-quest/client/daily-missions-admin-controller-remove";
-export { dailyMissionsAdminControllerUpdate } from "@/gen-quest/client/daily-missions-admin-controller-update";
 export { dailyMissionsControllerComplete } from "@/gen-quest/client/daily-missions-controller-complete";
 export { dailyMissionsControllerList } from "@/gen-quest/client/daily-missions-controller-list";
 export { debugLogControllerLog } from "@/gen-quest/client/debug-log-controller-log";

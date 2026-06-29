@@ -69,7 +69,7 @@ export function QuestNav() {
     query: { ...$.query, enabled: isAuthenticated },
   });
   const missions = unwrapEnvelope<DailyMission[]>(missionsData) ?? [];
-  const loginMission = missions.find((m) => m.code === "daily-login");
+  const loginMission = missions.find((m) => m.type === "LOGIN_CHECKIN");
   const hasCheckedIn = loginMission?.completedToday ?? false;
 
   const complete = useDailyMissionsControllerComplete({
@@ -89,8 +89,8 @@ export function QuestNav() {
   });
 
   const handleCheckIn = () => {
-    if (complete.isPending || hasCheckedIn) return;
-    complete.mutate({ code: "daily-login" });
+    if (complete.isPending || hasCheckedIn || !loginMission) return;
+    complete.mutate({ taskId: loginMission.taskId });
   };
 
   const isActive = (href: string) => {

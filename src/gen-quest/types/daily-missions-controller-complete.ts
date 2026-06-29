@@ -8,7 +8,7 @@ export type DailyMissionsControllerCompletePathParams = {
     /**
      * @type string
     */
-    code: string;
+    taskId: string;
 };
 
 export type DailyMissionsControllerComplete201 = any;

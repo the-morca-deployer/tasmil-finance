@@ -10,11 +10,11 @@ export interface FomoActive {
 }
 
 export interface DailyMission {
-  id: string;
-  code: string;
+  taskId: string;
+  campaignId: string;
+  type: "LOGIN_CHECKIN" | "STRATEGY_CHECKIN" | "REFERRAL";
   title: string;
   description?: string | null;
-  type: "LOGIN_CHECKIN" | "STRATEGY_CHECKIN" | "REFERRAL";
   pointReward: number;
   order: number;
   completedToday: boolean;

@@ -16,7 +16,20 @@ jest.mock("@/gen-quest", () => ({
   }),
   useDailyMissionsControllerComplete: () => ({ mutate: completeMutate, isPending: false }),
   useDailyMissionsControllerList: () => ({
-    data: { data: [{ code: "daily-login", completedToday: missionState.completedToday }] },
+    data: {
+      data: [
+        {
+          taskId: "task-login-001",
+          campaignId: "campaign-daily-001",
+          type: "LOGIN_CHECKIN",
+          title: "Daily Login",
+          pointReward: 10,
+          order: 1,
+          completedToday: missionState.completedToday,
+          pointsAwarded: null,
+        },
+      ],
+    },
   }),
   dailyMissionsControllerListQueryKey: () => ["dm"],
   usersControllerGetMeQueryKey: () => ["me"],
@@ -62,7 +75,7 @@ describe("QuestNav", () => {
     render(<QuestNav />);
     fireEvent.click(screen.getByRole("button", { name: /daily check-in/i }));
     expect(completeMutate).toHaveBeenCalledTimes(1);
-    expect(completeMutate).toHaveBeenCalledWith({ code: "daily-login" });
+    expect(completeMutate).toHaveBeenCalledWith({ taskId: "task-login-001" });
   });
   it("disables check-in once already checked in", () => {
     missionState.completedToday = true;

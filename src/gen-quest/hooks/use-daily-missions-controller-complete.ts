@@ -9,28 +9,28 @@ import type { UseMutationOptions, UseMutationResult, QueryClient } from "@tansta
 import { dailyMissionsControllerComplete } from "@/gen-quest/client/daily-missions-controller-complete";
 import { mutationOptions, useMutation } from "@tanstack/react-query";
 
-export const dailyMissionsControllerCompleteMutationKey = () => [{ url: '/api/quest/daily-missions/:code/complete' }] as const
+export const dailyMissionsControllerCompleteMutationKey = () => [{ url: '/api/quest/daily-missions/:taskId/complete' }] as const
 
 export type DailyMissionsControllerCompleteMutationKey = ReturnType<typeof dailyMissionsControllerCompleteMutationKey>
 
 export function dailyMissionsControllerCompleteMutationOptions<TContext = unknown>(config: Partial<RequestConfig> & { client?: Client } = {}) {
 
         const mutationKey = dailyMissionsControllerCompleteMutationKey()
-        return mutationOptions<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, {code: DailyMissionsControllerCompletePathParams["code"]}, TContext>({
+        return mutationOptions<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, {taskId: DailyMissionsControllerCompletePathParams["taskId"]}, TContext>({
           mutationKey,
-          mutationFn: async({ code }) => {
-            return dailyMissionsControllerComplete(code, config)
+          mutationFn: async({ taskId }) => {
+            return dailyMissionsControllerComplete(taskId, config)
           },
         })
 
 }
 
 /**
- * {@link /api/quest/daily-missions/:code/complete}
+ * {@link /api/quest/daily-missions/:taskId/complete}
  */
 export function useDailyMissionsControllerComplete<TContext>(options: 
 {
-  mutation?: UseMutationOptions<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, {code: DailyMissionsControllerCompletePathParams["code"]}, TContext> & { client?: QueryClient },
+  mutation?: UseMutationOptions<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, {taskId: DailyMissionsControllerCompletePathParams["taskId"]}, TContext> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: Client },
 }
  = {}) {
@@ -39,13 +39,13 @@ export function useDailyMissionsControllerComplete<TContext>(options:
           const { client: queryClient, ...mutationOptions } = mutation;
           const mutationKey = mutationOptions.mutationKey ?? dailyMissionsControllerCompleteMutationKey()
 
-          const baseOptions = dailyMissionsControllerCompleteMutationOptions(config) as UseMutationOptions<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, {code: DailyMissionsControllerCompletePathParams["code"]}, TContext>
+          const baseOptions = dailyMissionsControllerCompleteMutationOptions(config) as UseMutationOptions<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, {taskId: DailyMissionsControllerCompletePathParams["taskId"]}, TContext>
           
 
-          return useMutation<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, {code: DailyMissionsControllerCompletePathParams["code"]}, TContext>({
+          return useMutation<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, {taskId: DailyMissionsControllerCompletePathParams["taskId"]}, TContext>({
             ...baseOptions,
             mutationKey,
             ...mutationOptions,
-          }, queryClient) as UseMutationResult<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, {code: DailyMissionsControllerCompletePathParams["code"]}, TContext>
+          }, queryClient) as UseMutationResult<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, {taskId: DailyMissionsControllerCompletePathParams["taskId"]}, TContext>
       
 }

@@ -7,19 +7,19 @@ import fetch from "@/lib/kubb-backend-client";
 import type { DailyMissionsControllerCompleteMutationResponse, DailyMissionsControllerCompletePathParams } from "@/gen-quest/types/daily-missions-controller-complete";
 import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
 
-function getDailyMissionsControllerCompleteUrl(code: DailyMissionsControllerCompletePathParams["code"]) {
-  const res = { method: 'POST', url: `/api/quest/daily-missions/${code}/complete` as const }
+function getDailyMissionsControllerCompleteUrl(taskId: DailyMissionsControllerCompletePathParams["taskId"]) {
+  const res = { method: 'POST', url: `/api/quest/daily-missions/${taskId}/complete` as const }
   return res
 }
 
 /**
- * {@link /api/quest/daily-missions/:code/complete}
+ * {@link /api/quest/daily-missions/:taskId/complete}
  */
-export async function dailyMissionsControllerComplete(code: DailyMissionsControllerCompletePathParams["code"], config: Partial<RequestConfig> & { client?: Client } = {}) {
+export async function dailyMissionsControllerComplete(taskId: DailyMissionsControllerCompletePathParams["taskId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
 
 
-  const res = await request<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, unknown>({ method : "POST", url : getDailyMissionsControllerCompleteUrl(code).url.toString(), ... requestConfig })
+  const res = await request<DailyMissionsControllerCompleteMutationResponse, ResponseErrorConfig<Error>, unknown>({ method : "POST", url : getDailyMissionsControllerCompleteUrl(taskId).url.toString(), ... requestConfig })
   return res.data
 }

@@ -83,7 +83,7 @@ export default function DailyMissions() {
     <div className="flex flex-col gap-3">
       {missions.map((m) => (
         <div
-          key={m.id}
+          key={m.taskId}
           className="flex items-center justify-between rounded-quest-card border border-[var(--line-2)] bg-[var(--surface)] px-4 py-3"
         >
           <div className="min-w-0 flex-1">
@@ -96,7 +96,7 @@ export default function DailyMissions() {
             type="button"
             className="ml-4 shrink-0 rounded-quest-pill border border-[var(--line-2)] bg-transparent px-4 py-2 text-sm font-semibold text-quest-amber transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
             disabled={m.completedToday || complete.isPending}
-            onClick={() => complete.mutate({ code: m.code })}
+            onClick={() => complete.mutate({ taskId: m.taskId })}
           >
             {m.completedToday ? "Done" : `+${m.pointReward}`}
           </button>
