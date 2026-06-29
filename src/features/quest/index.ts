@@ -1,14 +1,14 @@
 // Quest feature barrel exports
 
-export { Button, buttonClasses, buttonVariants } from "./components/ui/button";
 export { AutoReconnect } from "./components/auto-reconnect";
-export { QuestBeams } from "./components/QuestBeams";
 // Core screen components
 export { CampaignCard, type CampaignCardData } from "./components/CampaignCard";
 export { default as CampaignDetail } from "./components/CampaignDetail";
 export { default as Campaigns } from "./components/Campaigns";
+export { default as DailyMissions } from "./components/DailyMissions";
 // Components — read views
 export { default as Explore } from "./components/Explore";
+export { default as FomoBanner } from "./components/FomoBanner";
 export { default as QuestFooter } from "./components/Footer";
 export { Flame, Icon, type IconKey, PtsCoin, Usdc } from "./components/icons";
 // Leaderboard (ported)
@@ -18,8 +18,10 @@ export { LedgerRow } from "./components/LedgerRow";
 export { default as QuestNavbar } from "./components/Navbar";
 export { PayoutStatusBadge } from "./components/PayoutStatusBadge";
 export { Podium } from "./components/Podium";
+export { PrizeEmail } from "./components/PrizeEmail";
 export { default as Profile } from "./components/Profile";
 export { PaginationBar } from "./components/pagination-bar";
+export { QuestBeams } from "./components/QuestBeams";
 export { QuestNav } from "./components/QuestNav";
 export { QuestStep, type QuestStepProps } from "./components/QuestStep";
 export { RankMove } from "./components/RankMove";
@@ -35,8 +37,7 @@ export {
 } from "./components/social/SocialConnectButtons";
 export { TelegramButton } from "./components/TelegramButton";
 export { TFLoader } from "./components/TFLoader";
-export { PrizeEmail } from "./components/PrizeEmail";
-export { default as DailyMissions } from "./components/DailyMissions";
+export { Button, buttonClasses, buttonVariants } from "./components/ui/button";
+export { Progress } from "./components/ui/progress";
 // Foundation helpers + primitives (Phase 1)
 export { qAvatar, qHash } from "./lib/avatar";
-export { Progress } from "./components/ui/progress";
