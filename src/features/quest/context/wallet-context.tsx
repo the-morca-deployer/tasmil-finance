@@ -14,9 +14,13 @@ import {
 } from "react";
 import { toast } from "sonner";
 import apiClient from "@/features/quest/lib/api-client";
-import { buildVerifyPayload, readPendingReferralCode } from "@/features/quest/lib/referral-link";
 import { ensureQuestDevSession } from "@/features/quest/lib/dev-login-bridge";
 import { withAuth } from "@/features/quest/lib/kubb-config";
+import {
+  buildVerifyPayload,
+  clearPendingReferralCode,
+  readPendingReferralCode,
+} from "@/features/quest/lib/referral-link";
 import { activeNetwork } from "@/features/quest/lib/stellar";
 import { type AuthUser, useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
 import { useQuestWalletStore } from "@/features/quest/store/use-quest-wallet";
@@ -348,7 +352,24 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         // `tasmil_auth` cookie; hydrate the full user from /auth/me afterwards.
         setSigning(false);
         const referredByCode = readPendingReferralCode();
-        await apiClient.post("/api/auth/verify", buildVerifyPayload(publicKey, signedMessage, referredByCode));
+        await apiClient.post(
+          "/api/auth/verify",
+          buildVerifyPayload(publicKey, signedMessage, referredByCode)
+        );
+        // Clear the pending code so a second wallet on the same browser cannot
+        // re-send the first user's referral code. Also strip ?ref= from the URL.
+        clearPendingReferralCode();
+        if (typeof window !== "undefined") {
+          try {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has("ref")) {
+              url.searchParams.delete("ref");
+              window.history.replaceState({}, "", url.toString());
+            }
+          } catch {
+            // ignore – e.g. invalid href in SSR/test environments
+          }
+        }
         await loadSessionUser();
         toast.success("Wallet verified successfully!");
       } catch (error: unknown) {

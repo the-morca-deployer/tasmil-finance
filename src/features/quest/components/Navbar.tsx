@@ -71,8 +71,11 @@ const Navbar: React.FC = () => {
 
   const queryClient = useQueryClient();
 
-  // Referral data
-  const { data: refRaw } = useReferralControllerGetMyReferral(withAuth as never);
+  // Referral data — guard matches sibling hooks so it only fires when authenticated
+  const { data: refRaw } = useReferralControllerGetMyReferral({
+    ...withAuth,
+    query: { enabled: isAuthenticated && !!user },
+  } as never);
   const refData = unwrapEnvelope<{
     referralCode: string | null;
     referredBy: { code: string | null; name: string | null; walletAddress: string | null } | null;

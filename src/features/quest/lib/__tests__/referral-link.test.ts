@@ -1,10 +1,38 @@
-import { buildShareUrl, buildVerifyPayload, readPendingReferralCode } from "../referral-link";
+import {
+  buildShareUrl,
+  buildVerifyPayload,
+  clearPendingReferralCode,
+  readPendingReferralCode,
+} from "../referral-link";
+
+// ─── helpers ──────────────────────────────────────────────────────────────────
+// Isolate buildShareUrl tests from whatever NEXT_PUBLIC_APP_URL nextJest loads
+// from .env.local, so they deterministically exercise window.location.origin.
+let savedAppUrl: string | undefined;
+beforeEach(() => {
+  savedAppUrl = process.env.NEXT_PUBLIC_APP_URL;
+  delete process.env.NEXT_PUBLIC_APP_URL;
+});
+afterEach(() => {
+  if (savedAppUrl !== undefined) {
+    process.env.NEXT_PUBLIC_APP_URL = savedAppUrl;
+  } else {
+    delete process.env.NEXT_PUBLIC_APP_URL;
+  }
+});
 
 describe("referral-link", () => {
   // ── buildShareUrl ──────────────────────────────────────────────────────────
 
-  it("buildShareUrl returns the canonical /r/ url", () => {
-    expect(buildShareUrl("CODE-A")).toBe("https://tasmil.finance/r/CODE-A");
+  it("buildShareUrl uses window.location.origin as the base when NEXT_PUBLIC_APP_URL is unset", () => {
+    // jsdom sets window.location.origin = "http://localhost"
+    expect(buildShareUrl("CODE-A")).toBe("http://localhost/r/CODE-A");
+  });
+
+  it("buildShareUrl prefers NEXT_PUBLIC_APP_URL when set", () => {
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.tasmil-finance.xyz";
+    expect(buildShareUrl("CODE-A")).toBe("https://app.tasmil-finance.xyz/r/CODE-A");
+    delete process.env.NEXT_PUBLIC_APP_URL;
   });
 
   // ── readPendingReferralCode ────────────────────────────────────────────────
@@ -36,11 +64,23 @@ describe("referral-link", () => {
     });
   });
 
+  // ── clearPendingReferralCode ───────────────────────────────────────────────
+
+  it("clearPendingReferralCode removes the pending code from localStorage", () => {
+    localStorage.setItem("tasmil.referral.pendingCode", "CLEAR-ME");
+    clearPendingReferralCode();
+    expect(localStorage.getItem("tasmil.referral.pendingCode")).toBeNull();
+  });
+
   // ── buildVerifyPayload ────────────────────────────────────────────────────
 
   it("buildVerifyPayload includes referredByCode when present", () => {
     const payload = buildVerifyPayload("pub-key", "sig", "CODE-A");
-    expect(payload).toEqual({ publicKey: "pub-key", signedMessage: "sig", referredByCode: "CODE-A" });
+    expect(payload).toEqual({
+      publicKey: "pub-key",
+      signedMessage: "sig",
+      referredByCode: "CODE-A",
+    });
   });
 
   it("buildVerifyPayload omits referredByCode when null", () => {

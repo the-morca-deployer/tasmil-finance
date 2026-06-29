@@ -135,7 +135,13 @@ const mockSetReferralCode = setCodeClient.usersControllerSetReferralCode as Mock
 const mockInvalidateQueries = rq.__invalidateQueries as Mock;
 
 describe("Profile referral actions", () => {
+  // Clear NEXT_PUBLIC_APP_URL so buildShareUrl falls back to window.location.origin
+  // ("http://localhost" in jsdom) regardless of what .env.local sets.
+  let savedAppUrl: string | undefined;
   beforeEach(() => {
+    savedAppUrl = process.env.NEXT_PUBLIC_APP_URL;
+    delete process.env.NEXT_PUBLIC_APP_URL;
+
     // Default: user has a valid referral code
     mockGetMyReferral.mockReturnValue({
       data: { referralCode: "CODE-A", totalEarned: 0, totalInvited: 0, rates: [] },
@@ -151,6 +157,13 @@ describe("Profile referral actions", () => {
       configurable: true,
     });
   });
+  afterEach(() => {
+    if (savedAppUrl !== undefined) {
+      process.env.NEXT_PUBLIC_APP_URL = savedAppUrl;
+    } else {
+      delete process.env.NEXT_PUBLIC_APP_URL;
+    }
+  });
 
   it("Share Link copies the canonical /r/ url", async () => {
     render(<Profile />);
@@ -159,7 +172,8 @@ describe("Profile referral actions", () => {
     fireEvent.click(shareBtn);
 
     await waitFor(() => {
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith("https://tasmil.finance/r/CODE-A");
+      // NEXT_PUBLIC_APP_URL is cleared in beforeEach; jsdom window.location.origin = "http://localhost"
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith("http://localhost/r/CODE-A");
     });
   });
 
