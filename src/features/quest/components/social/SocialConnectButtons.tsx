@@ -4,8 +4,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Loader2, X } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
 import { toast } from "sonner";
-import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
 import { Button } from "@/features/quest/components/ui/button";
+import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
 
 // Social Icons
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -274,10 +274,10 @@ export const SocialConnectSection: React.FC<SocialConnectSectionProps> = ({
 
       try {
         // Cookie-based auth — no Bearer token needed
-        const res = await fetch(
-          `/api/quest/social-accounts/${provider}`,
-          { method: "DELETE", credentials: "include" }
-        );
+        const res = await fetch(`/api/quest/social-accounts/${provider}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
 
         if (!res.ok) {
           const errorData = await res.json();

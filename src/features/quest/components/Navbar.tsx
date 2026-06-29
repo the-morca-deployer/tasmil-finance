@@ -6,9 +6,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/features/quest/components/ui/avatar";
 import { Button, buttonClasses } from "@/features/quest/components/ui/button";
 import { useWallet } from "@/features/quest/context/wallet-context";
+import { variantFromAvatarUrl } from "@/features/quest/lib/avatar";
 import { withAuth } from "@/features/quest/lib/kubb-config";
 import {
   usersControllerGetMeQueryKey,
@@ -17,6 +17,7 @@ import {
   useUsersControllerGetMyCampaigns,
 } from "@/gen-quest/hooks";
 import { cn } from "@/lib/utils";
+import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 
 // Shared chip base — mirrors the quest navbar (QuestNav) so the PTS, streak
 // and wallet chips render identically (same height, radius, border, surface).
@@ -26,16 +27,6 @@ const CHIP_BASE = cn(
   "rounded-quest-pill bg-quest-surface border border-quest-line-2",
   "transition-colors"
 );
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function avatarFromAddress(addr: string): string {
-  if (!addr) return "linear-gradient(135deg, #67E8F9, #0EA5E9)";
-  const hash = Array.from(addr).reduce((a, c) => a + c.charCodeAt(0), 0);
-  const h1 = (hash * 7) % 360;
-  const h2 = (hash * 13) % 360;
-  return `linear-gradient(135deg, hsl(${h1}, 70%, 60%), hsl(${h2}, 70%, 45%))`;
-}
 
 // ─── NavItem ─────────────────────────────────────────────────────────────────
 
@@ -138,11 +129,6 @@ const Navbar: React.FC = () => {
   const handleCheckIn = () => {
     if (dailyLoginMutation.isPending) return;
     dailyLoginMutation.mutate(undefined);
-  };
-
-  const getAvatarUrl = (walletAddress?: string) => {
-    if (user?.avatarUrl) return user.avatarUrl;
-    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${walletAddress ?? "default"}`;
   };
 
   const copyAddress = () => {
@@ -294,17 +280,12 @@ const Navbar: React.FC = () => {
             <div className="relative group">
               <span className={cn(CHIP_BASE, "cursor-pointer gap-[10px] pl-[6px] text-quest-text")}>
                 {/* .av: block; width:30px; height:30px; border-radius:50%; flex:none */}
-                <span
-                  className="block h-[30px] w-[30px] flex-none rounded-full"
-                  style={{ background: avatarFromAddress(address ?? "") }}
-                >
-                  <Avatar className="h-[30px] w-[30px]">
-                    <AvatarImage src={getAvatarUrl(address ?? undefined)} />
-                    <AvatarFallback>
-                      {displayAddress?.charAt(0).toUpperCase() ?? "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                </span>
+                <TasmilAvatar
+                  seed={address ?? ""}
+                  variant={variantFromAvatarUrl(user?.avatarUrl)}
+                  size={30}
+                  className="flex-none"
+                />
                 {/* .addr: font-family:var(--font-mono); font-size:13px; color:var(--text) */}
                 <span
                   className="text-[13px] text-quest-text"

@@ -211,7 +211,7 @@ export function QuestNav() {
               title={hasCheckedIn ? "Checked in today" : "Click to check in (+points)"}
             >
               <Flame style={{ width: 19, height: 19 }} />
-              {dailyLogin.isPending ? "…" : hasCheckedIn ? `${fmt(streak)} ✓` : "Check in"}
+              {dailyLogin.isPending ? "…" : hasCheckedIn ? `${fmt(streak)}` : "Check in"}
             </button>
           </>
         )}

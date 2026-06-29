@@ -31,7 +31,7 @@ export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
         "transition-[border-color,transform,box-shadow] duration-[400ms] ease-quest",
         "hover:-translate-y-1 hover:border-quest-accent-line hover:shadow-[0_30px_70px_-32px_#000,0_0_50px_-28px_var(--color-quest-accent-glow)]",
         closed &&
-          "opacity-[0.62] cursor-default hover:translate-y-0 hover:border-quest-line hover:shadow-none",
+          "opacity-[0.62] cursor-default hover:translate-y-0 hover:border-quest-line hover:shadow-none"
       )}
     >
       {/* Cover */}

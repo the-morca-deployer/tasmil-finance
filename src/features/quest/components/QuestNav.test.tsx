@@ -53,10 +53,10 @@ describe("QuestNav", () => {
     );
   });
   it("shows points and streak from /me", () => {
-    checkInState.hasCheckedIn = true; // streak number is shown in the checked-in pill ("1 ✓")
+    checkInState.hasCheckedIn = true; // streak number is shown in the checked-in pill ("1")
     render(<QuestNav />);
     expect(screen.getByText("360")).toBeInTheDocument();
-    expect(screen.getByText("1 ✓")).toBeInTheDocument();
+    expect(screen.getByText("1")).toBeInTheDocument();
   });
   it("checks in when the streak pill is clicked", () => {
     render(<QuestNav />);

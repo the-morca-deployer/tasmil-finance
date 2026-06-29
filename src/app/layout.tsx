@@ -2,9 +2,9 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import { Geist_Mono, Hanken_Grotesk } from "next/font/google";
 import localFont from "next/font/local";
+import { MockProvider } from "@/mocks/MockProvider";
 import { AppProvider } from "@/providers/app-provider";
 import { ServiceWorkerRegistrar } from "@/shared/components/service-worker-registrar";
-import { MockProvider } from "@/mocks/MockProvider";
 import "./globals.css";
 
 const outfit = localFont({

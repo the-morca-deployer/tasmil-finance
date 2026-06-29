@@ -404,7 +404,16 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       authenticateWithWalletRef.current(address);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionChecked, kitReady, isConnected, address, isAuthenticated, user, signing, isAuthenticating]);
+  }, [
+    sessionChecked,
+    kitReady,
+    isConnected,
+    address,
+    isAuthenticated,
+    user,
+    signing,
+    isAuthenticating,
+  ]);
 
   // ─── Connect ─────────────────────────────────────────────────────────────
 

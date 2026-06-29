@@ -8,7 +8,11 @@ import { toast } from "sonner";
 import { Rise } from "@/features/quest/components/Rise";
 import { Button } from "@/features/quest/components/ui/button";
 import { useWallet } from "@/features/quest/context/wallet-context";
-import { qAvatar } from "@/features/quest/lib/avatar";
+import {
+  QUEST_AVATAR_VARIANTS,
+  variantFromAvatarUrl,
+  variantToken,
+} from "@/features/quest/lib/avatar";
 import { $, withAuth } from "@/features/quest/lib/kubb-config";
 import {
   type ReferralTree,
@@ -26,6 +30,7 @@ import {
   useUsersControllerGetReferrals,
   useUsersControllerUpdateProfile,
 } from "@/gen-quest/hooks";
+import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
 
@@ -74,35 +79,10 @@ function isValidSlug(s: string | null): s is TabSlug {
   return TAB_SLUGS.includes(s as TabSlug);
 }
 
-// Avatar gradient
-function avatarBg(seed: string) {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) {
-    h = (h << 5) - h + seed.charCodeAt(i);
-    h |= 0;
-  }
-  const a = Math.abs(h) % 360,
-    b = (Math.abs(h) * 3 + 90) % 360;
-  return `radial-gradient(circle at 32% 28%, hsl(${a} 80% 70%), hsl(${b} 75% 42%) 75%)`;
-}
-
 function shortAddr(a?: string) {
   if (!a) return "";
   return a.length <= 10 ? a : `${a.slice(0, 6)}...${a.slice(-4)}`;
 }
-
-const AV_COLORS = [
-  "linear-gradient(135deg,#67E8F9,#0EA5E9)",
-  "linear-gradient(135deg,#6EE7B7,#14B8A6)",
-  "linear-gradient(135deg,#818CF8,#4F46E5)",
-  "linear-gradient(135deg,#FBC54A,#E0915A)",
-  "linear-gradient(135deg,#F472B6,#DB2777)",
-  "linear-gradient(135deg,#C9D4E0,#64748B)",
-  "linear-gradient(135deg,#34D399,#059669)",
-  "linear-gradient(135deg,#A78BFA,#7C3AED)",
-  "linear-gradient(135deg,#FB7185,#E11D48)",
-  "linear-gradient(135deg,#38BDF8,#2563EB)",
-];
 
 // ---- Sidebar ----
 function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }) {
@@ -214,14 +194,13 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
     <div className="px-4 pt-[26px] pb-[26px] flex flex-col gap-5 max-[720px]:border-b max-[720px]:border-b-[rgba(255,255,255,0.08)] max-[720px]:p-4">
       <div className="flex flex-col items-start px-2 pt-[6px] pb-[2px]">
         <div className="relative w-24 h-24 mb-[14px] max-[720px]:w-16 max-[720px]:h-16">
-          <div
-            className="w-24 h-24 rounded-full border-[3px] border-[var(--accent)] shadow-[0_0_0_4px_var(--accent-soft)] bg-cover bg-center max-[720px]:w-16 max-[720px]:h-16"
-            style={{
-              background: user?.avatarUrl
-                ? `url(${user.avatarUrl})`
-                : avatarBg(user?.walletAddress ?? "default"),
-            }}
-          />
+          <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-[var(--accent)] shadow-[0_0_0_4px_var(--accent-soft)] max-[720px]:w-16 max-[720px]:h-16">
+            <TasmilAvatar
+              seed={user?.walletAddress ?? "default"}
+              variant={variantFromAvatarUrl(user?.avatarUrl)}
+              size="full"
+            />
+          </div>
           <button
             className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full grid place-items-center bg-[var(--surface)] border border-[rgba(255,255,255,0.14)] cursor-pointer text-[rgba(244,247,251,0.58)] hover:text-[var(--accent)] hover:border-[rgba(103,232,249,0.32)]"
             onClick={() => setShowAvPicker(!showAvPicker)}
@@ -298,19 +277,19 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
 
       {showAvPicker && (
         <div>
-          <div className="grid grid-cols-5 gap-[10px]">
-            {AV_COLORS.map((bg, i) => (
+          <div className="grid grid-cols-3 gap-[10px]">
+            {QUEST_AVATAR_VARIANTS.map((v) => (
               <button
-                key={i}
-                className="w-full aspect-square rounded-[14px] cursor-pointer border-2 border-transparent transition-[border-color,transform] duration-[250ms] hover:scale-105"
-                style={{ background: bg }}
+                key={v}
+                type="button"
+                className="w-full aspect-square rounded-[14px] cursor-pointer border-2 border-transparent overflow-hidden transition-[border-color,transform] duration-[250ms] hover:scale-105 hover:border-[var(--accent)]"
                 onClick={() => {
-                  updateUser({
-                    avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=quest${i}`,
-                  });
+                  updateUser({ avatarUrl: variantToken(v) });
                   setShowAvPicker(false);
                 }}
-              />
+              >
+                <TasmilAvatar seed={user?.walletAddress ?? "default"} variant={v} size="full" />
+              </button>
             ))}
           </div>
         </div>
@@ -1016,10 +995,7 @@ function TreeRow({ node, depth }: { node: ReferralTreeNode; depth: number }) {
           ) : null}
         </span>
         {/* avatar */}
-        <span
-          className="w-[28px] h-[28px] rounded-full flex-none block"
-          style={{ background: qAvatar(node.name) }}
-        />
+        <TasmilAvatar seed={node.name} size={28} className="flex-none" />
         {/* name */}
         <span className="flex-1 min-w-0 font-mono text-[13px] font-semibold truncate">
           {node.name}
@@ -1394,10 +1370,7 @@ function ReferralsTab() {
                 >
                   {/* rl-user */}
                   <div className="flex items-center gap-[10px] min-w-0">
-                    <span
-                      className="w-[30px] h-[30px] rounded-full flex-none block"
-                      style={{ background: avatarBg(r.username ?? "u") }}
-                    />
+                    <TasmilAvatar seed={r.username ?? "u"} size={30} className="flex-none" />
                     <span className="font-mono text-[13px] font-semibold truncate">
                       {r.username ?? "User"}
                     </span>

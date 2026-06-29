@@ -122,7 +122,7 @@ export const MOCK_PORTFOLIO_HISTORY = {
       date: new Date(Date.now() - daysAgo * 86400000).toISOString().slice(0, 10),
       value: Number.parseFloat(baseValue.toFixed(2)),
       pnl: Number.parseFloat((baseValue - 12000).toFixed(2)),
-      pnlPercent: Number.parseFloat(((baseValue - 12000) / 12000 * 100).toFixed(2)),
+      pnlPercent: Number.parseFloat((((baseValue - 12000) / 12000) * 100).toFixed(2)),
     };
   }),
 };

@@ -33,7 +33,10 @@ export default function Footer() {
         />
 
         {/* .wrap: max-width:var(--maxw); margin:0 auto; padding-inline:var(--gutter) */}
-        <div className="mx-auto w-full" style={{ maxWidth: "var(--maxw)", paddingInline: "var(--gutter)" }}>
+        <div
+          className="mx-auto w-full"
+          style={{ maxWidth: "var(--maxw)", paddingInline: "var(--gutter)" }}
+        >
           {/* .foot-grid: grid 1.8fr 1fr 1fr 1fr; gap:clamp(32px,4vw,60px); z-index:2
              @media(max-width:1000px): grid-cols:1fr 1fr 1fr
              @media(max-width:780px): grid-cols:1fr 1fr
@@ -44,9 +47,7 @@ export default function Footer() {
           >
             {/* .foot-brand: flex col; align-items:flex-start; gap:22px; max-width:340px
                  @media(max-width:1000px): grid-column:1 / -1; max-width:420px */}
-            <div
-              className="flex flex-col items-start gap-[22px] max-w-[340px] max-[1000px]:[grid-column:1_/_-1] max-[1000px]:max-w-[420px]"
-            >
+            <div className="flex flex-col items-start gap-[22px] max-w-[340px] max-[1000px]:[grid-column:1_/_-1] max-[1000px]:max-w-[420px]">
               {/* .brand (footer variant): flex; align-items:center; gap:15px; font-weight:700; font-size:30px; letter-spacing:-0.03em */}
               {/* .brand-name: gradient text */}
               {/* .mk (footer): width:48px; height:48px */}
@@ -73,7 +74,10 @@ export default function Footer() {
                 </span>
               </a>
               {/* .foot-desc: font-size:16.5px; line-height:1.62; color:rgba(244,247,251,0.82) */}
-              <p className="text-[16.5px] leading-[1.62]" style={{ color: "rgba(244,247,251,0.82)" }}>
+              <p
+                className="text-[16.5px] leading-[1.62]"
+                style={{ color: "rgba(244,247,251,0.82)" }}
+              >
                 An automated DeFi yield protocol on Stellar. Deposit USDC or XLM, pick a risk level,
                 and Tasmil Finance rebalances across the best protocols, non-custodial.
               </p>
@@ -82,31 +86,113 @@ export default function Footer() {
             {/* .foot-col: flex flex-col; gap:16px */}
             <div className="flex flex-col gap-4">
               {/* .foot-head: font-size:12.5px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); margin-bottom:4px */}
-              <div
-                className="mb-1 text-[12.5px] font-bold uppercase tracking-[0.2em] text-quest-accent"
-              >
+              <div className="mb-1 text-[12.5px] font-bold uppercase tracking-[0.2em] text-quest-accent">
                 Quest
               </div>
               {/* .foot-col a: font-size:15px; color:rgba(244,247,251,0.78); transition:color .25s */}
-              <a href="/quest" className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text" style={{ color: "rgba(244,247,251,0.78)" }}>Explore</a>
-              <a href="/quest/campaigns" className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text" style={{ color: "rgba(244,247,251,0.78)" }}>Campaigns</a>
-              <a href="/quest/leaderboard" className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text" style={{ color: "rgba(244,247,251,0.78)" }}>Leaderboard</a>
-              <a href="/quest/profile" className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text" style={{ color: "rgba(244,247,251,0.78)" }}>Profile</a>
+              <a
+                href="/quest"
+                className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text"
+                style={{ color: "rgba(244,247,251,0.78)" }}
+              >
+                Explore
+              </a>
+              <a
+                href="/quest/campaigns"
+                className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text"
+                style={{ color: "rgba(244,247,251,0.78)" }}
+              >
+                Campaigns
+              </a>
+              <a
+                href="/quest/leaderboard"
+                className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text"
+                style={{ color: "rgba(244,247,251,0.78)" }}
+              >
+                Leaderboard
+              </a>
+              <a
+                href="/quest/profile"
+                className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text"
+                style={{ color: "rgba(244,247,251,0.78)" }}
+              >
+                Profile
+              </a>
             </div>
 
             <div className="flex flex-col gap-4">
-              <div className="mb-1 text-[12.5px] font-bold uppercase tracking-[0.2em] text-quest-accent">Protocols</div>
-              <a href="https://blend.finance" target="_blank" rel="noopener" className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text" style={{ color: "rgba(244,247,251,0.78)" }}>Blend</a>
-              <a href="https://soroswap.io" target="_blank" rel="noopener" className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text" style={{ color: "rgba(244,247,251,0.78)" }}>Soroswap</a>
-              <a href="https://aquarius.finance" target="_blank" rel="noopener" className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text" style={{ color: "rgba(244,247,251,0.78)" }}>Aquarius</a>
-              <a href="https://phoenixdefi.io" target="_blank" rel="noopener" className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text" style={{ color: "rgba(244,247,251,0.78)" }}>Phoenix</a>
+              <div className="mb-1 text-[12.5px] font-bold uppercase tracking-[0.2em] text-quest-accent">
+                Protocols
+              </div>
+              <a
+                href="https://blend.finance"
+                target="_blank"
+                rel="noopener"
+                className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text"
+                style={{ color: "rgba(244,247,251,0.78)" }}
+              >
+                Blend
+              </a>
+              <a
+                href="https://soroswap.io"
+                target="_blank"
+                rel="noopener"
+                className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text"
+                style={{ color: "rgba(244,247,251,0.78)" }}
+              >
+                Soroswap
+              </a>
+              <a
+                href="https://aquarius.finance"
+                target="_blank"
+                rel="noopener"
+                className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text"
+                style={{ color: "rgba(244,247,251,0.78)" }}
+              >
+                Aquarius
+              </a>
+              <a
+                href="https://phoenixdefi.io"
+                target="_blank"
+                rel="noopener"
+                className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text"
+                style={{ color: "rgba(244,247,251,0.78)" }}
+              >
+                Phoenix
+              </a>
             </div>
 
             <div className="flex flex-col gap-4">
-              <div className="mb-1 text-[12.5px] font-bold uppercase tracking-[0.2em] text-quest-accent">Network</div>
-              <a href="https://stellar.org" target="_blank" rel="noopener" className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text" style={{ color: "rgba(244,247,251,0.78)" }}>Stellar</a>
-              <a href="https://soroban.stellar.org" target="_blank" rel="noopener" className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text" style={{ color: "rgba(244,247,251,0.78)" }}>Soroban</a>
-              <a href="https://stellar.expert" target="_blank" rel="noopener" className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text" style={{ color: "rgba(244,247,251,0.78)" }}>Stellar Expert</a>
+              <div className="mb-1 text-[12.5px] font-bold uppercase tracking-[0.2em] text-quest-accent">
+                Network
+              </div>
+              <a
+                href="https://stellar.org"
+                target="_blank"
+                rel="noopener"
+                className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text"
+                style={{ color: "rgba(244,247,251,0.78)" }}
+              >
+                Stellar
+              </a>
+              <a
+                href="https://soroban.stellar.org"
+                target="_blank"
+                rel="noopener"
+                className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text"
+                style={{ color: "rgba(244,247,251,0.78)" }}
+              >
+                Soroban
+              </a>
+              <a
+                href="https://stellar.expert"
+                target="_blank"
+                rel="noopener"
+                className="text-[15px] transition-colors duration-[250ms] hover:text-quest-text"
+                style={{ color: "rgba(244,247,251,0.78)" }}
+              >
+                Stellar Expert
+              </a>
             </div>
           </div>
         </div>
@@ -117,18 +203,42 @@ export default function Footer() {
           {/* .fa-col: flex:1; position:relative */}
           {/* .fa-col::before: absolute; left/right/bottom:0; height:var(--h); gradient; scaleY(0) -> scaleY(1) on .in */}
           <div className="absolute inset-0 flex fa-cols" ref={colsRef}>
-            <span className="fa-col relative flex-1" style={{ "--h": "30%" } as React.CSSProperties} />
-            <span className="fa-col relative flex-1" style={{ "--h": "46%" } as React.CSSProperties} />
-            <span className="fa-col relative flex-1" style={{ "--h": "60%" } as React.CSSProperties} />
-            <span className="fa-col relative flex-1" style={{ "--h": "72%" } as React.CSSProperties} />
-            <span className="fa-col relative flex-1" style={{ "--h": "60%" } as React.CSSProperties} />
-            <span className="fa-col relative flex-1" style={{ "--h": "46%" } as React.CSSProperties} />
-            <span className="fa-col relative flex-1" style={{ "--h": "30%" } as React.CSSProperties} />
+            <span
+              className="fa-col relative flex-1"
+              style={{ "--h": "30%" } as React.CSSProperties}
+            />
+            <span
+              className="fa-col relative flex-1"
+              style={{ "--h": "46%" } as React.CSSProperties}
+            />
+            <span
+              className="fa-col relative flex-1"
+              style={{ "--h": "60%" } as React.CSSProperties}
+            />
+            <span
+              className="fa-col relative flex-1"
+              style={{ "--h": "72%" } as React.CSSProperties}
+            />
+            <span
+              className="fa-col relative flex-1"
+              style={{ "--h": "60%" } as React.CSSProperties}
+            />
+            <span
+              className="fa-col relative flex-1"
+              style={{ "--h": "46%" } as React.CSSProperties}
+            />
+            <span
+              className="fa-col relative flex-1"
+              style={{ "--h": "30%" } as React.CSSProperties}
+            />
           </div>
         </div>
 
         {/* second .wrap block */}
-        <div className="mx-auto w-full" style={{ maxWidth: "var(--maxw)", paddingInline: "var(--gutter)" }}>
+        <div
+          className="mx-auto w-full"
+          style={{ maxWidth: "var(--maxw)", paddingInline: "var(--gutter)" }}
+        >
           {/* .fa-top: position:relative; z-index:2; margin-top:clamp(60px,9vw,128px); flex col; gap:15px */}
           <div
             className="relative z-[2] flex flex-col gap-[15px]"
@@ -145,7 +255,12 @@ export default function Footer() {
                 className="grid place-items-center rounded-[9px] border border-quest-line-2 bg-white/[0.06] text-quest-text transition-colors duration-[250ms] hover:border-quest-accent-line hover:bg-[var(--accent-soft)] hover:text-quest-accent"
                 style={{ width: "34px", height: "34px" }}
               >
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ width: "17px", height: "17px" }}>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  style={{ width: "17px", height: "17px" }}
+                >
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
               </a>
@@ -162,7 +277,8 @@ export default function Footer() {
                 className="mt-[3px] block text-[14px] text-quest-dim"
                 style={{ maxWidth: "560px" }}
               >
-                For informational purposes only, not financial advice. DeFi yields are variable and capital is at risk.
+                For informational purposes only, not financial advice. DeFi yields are variable and
+                capital is at risk.
               </span>
             </div>
           </div>

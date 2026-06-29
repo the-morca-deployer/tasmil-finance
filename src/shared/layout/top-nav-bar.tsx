@@ -24,7 +24,7 @@ export function TopNavBar({ sidebarData }: TopNavBarProps) {
   return (
     <nav
       data-testid="top-nav-bar"
-      className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-6 border-border border-b bg-background px-4"
+      className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-6 border-border border-b bg-[rgba(20,20,25,0.72)] px-[clamp(20px,5vw,56px)] backdrop-blur-[18px]"
     >
       <Link href="/chat/new" className="flex items-center gap-2.5">
         <Image src={sidebarData.header.logo_url} width={40} height={40} alt="Logo" />
@@ -33,7 +33,7 @@ export function TopNavBar({ sidebarData }: TopNavBarProps) {
         </span>
       </Link>
 
-      <div className="ml-6 flex items-center gap-4 overflow-x-auto">
+      <div className="flex items-center gap-0.5 max-[900px]:hidden">
         {items.map((item) => (
           <NavLink key={item.url} item={item} />
         ))}

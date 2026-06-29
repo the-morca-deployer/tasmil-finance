@@ -19,7 +19,7 @@ questApiClient.interceptors.response.use(
     }
     return response;
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 );
 
 // Kubb client wrapper — required by auto-generated hooks via kubb-config.ts

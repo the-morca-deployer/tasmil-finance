@@ -29,22 +29,14 @@ export function PrizePoolBanner({
         "relative overflow-hidden",
         "border border-[var(--line)] rounded-quest-card",
         "bg-[linear-gradient(160deg,rgba(32,32,36,0.4),rgba(16,16,18,0.4))]",
-        "mb-[50px] shadow-[0_30px_80px_-48px_#000]",
+        "mb-[50px] shadow-[0_30px_80px_-48px_#000]"
       )}
     >
       {/* .banner-grid: 3-col (1.12fr 0.66fr 1.28fr), collapses to 1 col at ≤920px */}
-      <div
-        className={cn(
-          "grid grid-cols-[1.12fr_0.66fr_1.28fr]",
-          "max-[920px]:grid-cols-1",
-        )}
-      >
+      <div className={cn("grid grid-cols-[1.12fr_0.66fr_1.28fr]", "max-[920px]:grid-cols-1")}>
         {/* .bn-seg.bn-prize — first segment, no left border */}
         <div
-          className={cn(
-            "p-[24px_26px] flex flex-col justify-center",
-            "items-center text-center",
-          )}
+          className={cn("p-[24px_26px] flex flex-col justify-center", "items-center text-center")}
         >
           {/* .bn-prize-head */}
           <div className="flex items-center gap-[13px] mb-5">
@@ -54,7 +46,7 @@ export function PrizePoolBanner({
                 "w-[50px] h-[50px] rounded-[15px] flex-none grid place-items-center",
                 "bg-[linear-gradient(160deg,var(--gold-soft),transparent)]",
                 "border border-[rgba(251,197,74,0.28)]",
-                "text-quest-gold shadow-[0_0_26px_-8px_rgba(251,197,74,0.4)]",
+                "text-quest-gold shadow-[0_0_26px_-8px_rgba(251,197,74,0.4)]"
               )}
             >
               <Icon.trophy width={22} height={22} />
@@ -64,15 +56,15 @@ export function PrizePoolBanner({
               <div
                 className={cn(
                   "text-[12.5px] font-bold tracking-[0.16em] uppercase",
-                  "text-[var(--dim)]",
+                  "text-[var(--dim)]"
                 )}
               >
                 This season&rsquo;s prize pool
               </div>
               {/* .bn-note */}
               <div className="text-[14px] text-[var(--muted)] mt-[5px]">
-                <b className="text-[var(--text)] font-bold">{fmt(playersCount)}</b>{" "}
-                players competing
+                <b className="text-[var(--text)] font-bold">{fmt(playersCount)}</b> players
+                competing
               </div>
             </div>
           </div>
@@ -84,14 +76,14 @@ export function PrizePoolBanner({
               className={cn(
                 "flex flex-col items-center justify-center gap-[7px]",
                 "p-[14px_20px] rounded-[16px] min-w-[128px]",
-                "bg-quest-accent-soft border border-quest-accent-line",
+                "bg-quest-accent-soft border border-quest-accent-line"
               )}
             >
               <span
                 className={cn(
                   "text-[clamp(26px,2.6vw,34px)] font-extrabold tracking-[-0.03em]",
                   "leading-none whitespace-nowrap inline-flex items-center",
-                  "text-quest-accent",
+                  "text-quest-accent"
                 )}
               >
                 {prizePoolUsdc}{" "}
@@ -103,7 +95,7 @@ export function PrizePoolBanner({
               <span
                 className={cn(
                   "text-[10px] font-bold tracking-[0.16em] uppercase",
-                  "text-[var(--dim)]",
+                  "text-[var(--dim)]"
                 )}
               >
                 USDC
@@ -115,14 +107,14 @@ export function PrizePoolBanner({
               className={cn(
                 "flex flex-col items-center justify-center gap-[7px]",
                 "p-[14px_20px] rounded-[16px] min-w-[128px]",
-                "bg-quest-accent-soft border border-quest-accent-line",
+                "bg-quest-accent-soft border border-quest-accent-line"
               )}
             >
               <span
                 className={cn(
                   "text-[clamp(26px,2.6vw,34px)] font-extrabold tracking-[-0.03em]",
                   "leading-none whitespace-nowrap inline-flex items-center",
-                  "text-quest-accent",
+                  "text-quest-accent"
                 )}
               >
                 +{fmt(totalPointsPool)}{" "}
@@ -134,7 +126,7 @@ export function PrizePoolBanner({
               <span
                 className={cn(
                   "text-[10px] font-bold tracking-[0.16em] uppercase",
-                  "text-[var(--dim)]",
+                  "text-[var(--dim)]"
                 )}
               >
                 Points
@@ -149,14 +141,14 @@ export function PrizePoolBanner({
             "p-[24px_26px] flex flex-col justify-center",
             "border-l border-[var(--line)]",
             "items-center text-center",
-            "max-[920px]:border-l-0 max-[920px]:border-t max-[920px]:border-[var(--line)]",
+            "max-[920px]:border-l-0 max-[920px]:border-t max-[920px]:border-[var(--line)]"
           )}
         >
           {/* .bn-count-lab */}
           <div
             className={cn(
               "text-[10.5px] font-bold tracking-[0.16em] uppercase",
-              "text-[var(--dim)] inline-flex items-center gap-[7px] mb-[14px]",
+              "text-[var(--dim)] inline-flex items-center gap-[7px] mb-[14px]"
             )}
           >
             <Icon.clock width={16} height={16} />
@@ -177,7 +169,7 @@ export function PrizePoolBanner({
                   className={cn(
                     "font-mono text-[26px] font-bold text-quest-accent",
                     "bg-white/[0.06] border border-quest-accent-line rounded-[10px]",
-                    "px-[10px] py-[6px] min-w-[50px] text-center tracking-[-0.02em]",
+                    "px-[10px] py-[6px] min-w-[50px] text-center tracking-[-0.02em]"
                   )}
                 >
                   {val}
@@ -186,7 +178,7 @@ export function PrizePoolBanner({
                 <span
                   className={cn(
                     "text-[9.5px] font-semibold tracking-[0.14em] uppercase",
-                    "text-[var(--dim)]",
+                    "text-[var(--dim)]"
                   )}
                 >
                   {lbl}

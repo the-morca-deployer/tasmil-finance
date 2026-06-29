@@ -332,7 +332,6 @@ export function GasSponsorshipDetailClient() {
         <section style={{ padding: "56px 0 30px" }}>
           <div className="grid items-center" style={{ gridTemplateColumns: "1fr auto", gap: 60 }}>
             <div style={{ minWidth: 0 }}>
-              <SecEyebrow style={{ marginBottom: 18 }}>Gas Sponsorship</SecEyebrow>
               <h1
                 style={{
                   fontSize: "clamp(40px, 5.4vw, 56px)",
@@ -563,7 +562,6 @@ export function GasSponsorshipDetailClient() {
         {/* RECENT TX */}
         {showRecent && cfg && (
           <Section style={{ marginTop: 46 }}>
-            <SecEyebrow>Activity</SecEyebrow>
             <SecTitle>Recent sponsored transactions</SecTitle>
             <div
               className="flex flex-col"
@@ -733,7 +731,6 @@ export function GasSponsorshipDetailClient() {
 
         {/* HOW IT WORKS */}
         <Section style={{ marginTop: 46 }}>
-          <SecEyebrow>How it works</SecEyebrow>
           <SecTitle>A passive perk, nothing to claim</SecTitle>
           <div
             className="grid"
@@ -773,7 +770,6 @@ export function GasSponsorshipDetailClient() {
 
         {/* LIMITS */}
         <Section style={{ marginTop: 46 }}>
-          <SecEyebrow>The fine print</SecEyebrow>
           <SecTitle>Limits and rules</SecTitle>
           <div style={{ ...cardStyle, padding: "28px 30px", marginTop: 24 }}>
             <div
@@ -838,7 +834,6 @@ export function GasSponsorshipDetailClient() {
 
         {/* FAQ */}
         <Section style={{ marginTop: 46 }}>
-          <SecEyebrow>Questions</SecEyebrow>
           <SecTitle>Frequently asked</SecTitle>
           <FaqAccordion />
         </Section>
@@ -961,33 +956,6 @@ function heroSub(state: SponsorshipDetailState, cohortSize: number): string {
 }
 
 // ───────────────────────── leaf components ─────────────────────────
-
-function SecEyebrow({
-  children,
-  style,
-}: {
-  children: React.ReactNode;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <span
-      className="inline-flex items-center"
-      style={{
-        gap: 11,
-        fontSize: 12,
-        fontWeight: 700,
-        letterSpacing: "0.22em",
-        textTransform: "uppercase",
-        color: T.accent,
-        marginBottom: 18,
-        ...style,
-      }}
-    >
-      <span style={{ width: 24, height: 1, background: T.accent, opacity: 0.55 }} />
-      {children}
-    </span>
-  );
-}
 
 function SecTitle({ children }: { children: React.ReactNode }) {
   return (

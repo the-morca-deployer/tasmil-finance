@@ -1,4 +1,4 @@
-import { qAvatar } from "../lib/avatar";
+import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 
 function fmtCount(n: number): string {
   if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
@@ -22,13 +22,7 @@ interface AvatarStackProps {
  * Overlapping participant avatar stack shared by the explore card and the
  * campaign detail page so they render identically.
  */
-export function AvatarStack({
-  seed,
-  avatars,
-  total,
-  max = 4,
-  showCount = true,
-}: AvatarStackProps) {
+export function AvatarStack({ seed, avatars, total, max = 4, showCount = true }: AvatarStackProps) {
   const urls = (avatars ?? []).filter(Boolean).slice(0, max);
   const fallbackCount = urls.length === 0 ? Math.min(total, max) : 0;
 
@@ -42,10 +36,11 @@ export function AvatarStack({
         />
       ))}
       {Array.from({ length: fallbackCount }).map((_, i) => (
-        <span
+        <TasmilAvatar
           key={`fb-${i}`}
-          className="h-7 w-7 rounded-full border-2 border-[#0c0c0e] -ml-[9px] first:ml-0"
-          style={{ background: qAvatar(seed + i) }}
+          seed={seed + i}
+          size={28}
+          className="border-2 border-[#0c0c0e] -ml-[9px] first:ml-0"
         />
       ))}
       {showCount && (

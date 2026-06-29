@@ -46,11 +46,21 @@ function fireConfetti(container: HTMLElement, tier: Tier) {
     const dx = Math.cos(ang) * dist;
     const dy = Math.sin(ang) * dist + 40;
     const rot = Math.random() * 720 - 360;
-    piece.animate([
-      { transform: "translate(-50%,-50%) translate(0,0) rotate(0deg)", opacity: 1 },
-      { transform: `translate(-50%,-50%) translate(${dx * 0.6}px,${dy * 0.55 - 50}px) rotate(${rot * 0.6}deg)`, opacity: 1, offset: 0.55 },
-      { transform: `translate(-50%,-50%) translate(${dx}px,${dy}px) rotate(${rot}deg)`, opacity: 0 },
-    ], { duration: 1000 + Math.random() * 500, easing: "cubic-bezier(0.18,0.7,0.3,1)" }).onfinish = () => piece.remove();
+    piece.animate(
+      [
+        { transform: "translate(-50%,-50%) translate(0,0) rotate(0deg)", opacity: 1 },
+        {
+          transform: `translate(-50%,-50%) translate(${dx * 0.6}px,${dy * 0.55 - 50}px) rotate(${rot * 0.6}deg)`,
+          opacity: 1,
+          offset: 0.55,
+        },
+        {
+          transform: `translate(-50%,-50%) translate(${dx}px,${dy}px) rotate(${rot}deg)`,
+          opacity: 0,
+        },
+      ],
+      { duration: 1000 + Math.random() * 500, easing: "cubic-bezier(0.18,0.7,0.3,1)" }
+    ).onfinish = () => piece.remove();
   }
 }
 
@@ -58,12 +68,22 @@ function fireConfetti(container: HTMLElement, tier: Tier) {
 function flyCrown(img: HTMLImageElement) {
   const fromX = (Math.random() > 0.5 ? 1 : -1) * (120 + Math.random() * 40);
   img.style.opacity = "0";
-  const a = img.animate([
-    { transform: `translate(${fromX}px,-210px) rotate(${fromX > 0 ? 40 : -40}deg) scale(0.35)`, opacity: 0 },
-    { transform: `translate(${fromX * 0.18}px,-40px) rotate(${fromX > 0 ? 10 : -10}deg) scale(0.8)`, opacity: 1, offset: 0.45 },
-    { transform: "translate(0,5px) rotate(3deg) scale(1.14)", opacity: 1, offset: 0.78 },
-    { transform: "translate(0,0) rotate(0deg) scale(1)", opacity: 1 },
-  ], { duration: 1000, easing: "cubic-bezier(0.34,1.4,0.5,1)", fill: "forwards" });
+  const a = img.animate(
+    [
+      {
+        transform: `translate(${fromX}px,-210px) rotate(${fromX > 0 ? 40 : -40}deg) scale(0.35)`,
+        opacity: 0,
+      },
+      {
+        transform: `translate(${fromX * 0.18}px,-40px) rotate(${fromX > 0 ? 10 : -10}deg) scale(0.8)`,
+        opacity: 1,
+        offset: 0.45,
+      },
+      { transform: "translate(0,5px) rotate(3deg) scale(1.14)", opacity: 1, offset: 0.78 },
+      { transform: "translate(0,0) rotate(0deg) scale(1)", opacity: 1 },
+    ],
+    { duration: 1000, easing: "cubic-bezier(0.34,1.4,0.5,1)", fill: "forwards" }
+  );
   a.onfinish = () => {
     a.cancel();
     img.style.opacity = "1";
@@ -82,7 +102,10 @@ function animateCount(el: HTMLElement, target: number, done: () => void) {
     const p = Math.min(1, (now - t0) / dur);
     el.textContent = `#${Math.round(start + (target - start) * ease(p))}`;
     if (p < 1) requestAnimationFrame(step);
-    else { el.textContent = `#${target}`; done(); }
+    else {
+      el.textContent = `#${target}`;
+      done();
+    }
   };
   requestAnimationFrame(step);
 }
@@ -100,7 +123,14 @@ export interface RankRevealProps {
 }
 
 export function RankReveal({
-  rank, usdcReward, pointsReward, badge, seasonName, onClaim, onClose, open,
+  rank,
+  usdcReward,
+  pointsReward,
+  badge,
+  seasonName,
+  onClaim,
+  onClose,
+  open,
 }: RankRevealProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const revealRef = useRef<HTMLDivElement>(null);
@@ -131,7 +161,8 @@ export function RankReveal({
     if (reduced) {
       card.classList.add("in");
       plinth.textContent = `#${rank}`;
-      crown.style.opacity = "1"; crown.classList.add("bob");
+      crown.style.opacity = "1";
+      crown.classList.add("bob");
       copyBlock.classList.add("in");
       list.querySelectorAll(".ci").forEach((c) => c.classList.add("in"));
       btn.classList.add("in");
@@ -155,7 +186,9 @@ export function RankReveal({
 
         // Phase 3: Stagger checklist
         const items = list.querySelectorAll(".ci");
-        items.forEach((c, i) => { setTimeout(() => c.classList.add("in"), 520 + i * 130); });
+        items.forEach((c, i) => {
+          setTimeout(() => c.classList.add("in"), 520 + i * 130);
+        });
         setTimeout(() => btn.classList.add("in"), 520 + items.length * 130);
       });
     }, 420);
@@ -189,21 +222,13 @@ export function RankReveal({
            opacity:0; transform:scale(.93) translateY(10px); transition:opacity .5s,transform .5s ease-out
            .rank-card.in: opacity:1; transform:none
            NOTE: opacity/transform/transition kept in quest.css only (inline styles override .in class) */}
-      <div
-        className={`rank-card t-${tier}`}
-        ref={cardRef}
-      >
+      <div className={`rank-card t-${tier}`} ref={cardRef}>
         {onClose && (
           // .card-close: absolute; top:18px; right:18px; width:38px; height:38px; border-radius:50%;
           //   grid place-items-center; cursor:pointer; background:rgba(255,255,255,0.05); border:1px solid var(--line-2);
           //   color:var(--muted); transition:background .2s,color .2s,transform .2s; z-index:1
           //   :hover: background:rgba(255,255,255,0.09); color:var(--text); transform:rotate(90deg)
-          <button
-            type="button"
-            className="card-close"
-            onClick={onClose}
-            aria-label="Close"
-          >
+          <button type="button" className="card-close" onClick={onClose} aria-label="Close">
             <Icon.close width={17} height={17} />
           </button>
         )}
@@ -246,7 +271,9 @@ export function RankReveal({
                  -webkit-background-clip:text; color:transparent; filter:drop-shadow(…)
                  t-* variants set background-image — kept via quest.css
                  .pop animation: numpop .5s — kept via quest.css @keyframes */}
-            <span className="plinth-num" ref={plinthRef}>#{rank}</span>
+            <span className="plinth-num" ref={plinthRef}>
+              #{rank}
+            </span>
           </div>
         </div>
 
@@ -256,16 +283,24 @@ export function RankReveal({
           {/* .eyebrow (rank-card variant): inline-flex; align-items:center; gap:11px; font-size:12px; font-weight:700;
                letter-spacing:0.22em; text-transform:uppercase; color:var(--accent); margin-bottom:13px
                ::before/::after: content:""; width:24px; height:1px; background:var(--accent); opacity:.55 */}
-          <div className="text-[12px] font-bold tracking-[0.22em] uppercase text-quest-accent inline-flex items-center gap-[11px] before:content-[''] before:w-[24px] before:h-px before:bg-quest-accent before:opacity-55 after:content-[''] after:w-[24px] after:h-px after:bg-quest-accent after:opacity-55">{seasonName} Season</div>
+          <div className="text-[12px] font-bold tracking-[0.22em] uppercase text-quest-accent inline-flex items-center gap-[11px] before:content-[''] before:w-[24px] before:h-px before:bg-quest-accent before:opacity-55 after:content-[''] after:w-[24px] after:h-px after:bg-quest-accent after:opacity-55">
+            {seasonName} Season
+          </div>
           {/* .title: font-size:38px; font-weight:800; letter-spacing:-0.035em; line-height:1.04
                .grad: gradient text */}
           <h2 className="title">
             {rank === 1 ? (
-              <>You&rsquo;re the <span className="grad">champion</span></>
+              <>
+                You&rsquo;re the <span className="grad">champion</span>
+              </>
             ) : rank <= 3 ? (
-              <>You made the <span className="grad">podium</span></>
+              <>
+                You made the <span className="grad">podium</span>
+              </>
             ) : (
-              <>You finished <span className="grad">top 10</span></>
+              <>
+                You finished <span className="grad">top 10</span>
+              </>
             )}
           </h2>
           {/* .sub: margin-top:14px; font-size:16px; color:var(--muted); line-height:1.55; max-width:380px; mx-auto */}
@@ -284,16 +319,26 @@ export function RankReveal({
             <div className="ci">
               {/* .tick: flex:none; width:30px; height:30px; border-radius:50%; grid place-items-center;
                    background:var(--accent-soft); border:1px solid var(--accent-line); color:var(--accent) */}
-              <span className="tick"><Icon.check width={15} height={15} /></span>
-              <span><b>{usdcReward} USDC</b> sent to your wallet</span>
+              <span className="tick">
+                <Icon.check width={15} height={15} />
+              </span>
+              <span>
+                <b>{usdcReward} USDC</b> sent to your wallet
+              </span>
             </div>
           )}
           <div className="ci">
-            <span className="tick"><Icon.check width={15} height={15} /></span>
-            <span><b>+{fmt(pointsReward)} PTS</b> added to your balance</span>
+            <span className="tick">
+              <Icon.check width={15} height={15} />
+            </span>
+            <span>
+              <b>+{fmt(pointsReward)} PTS</b> added to your balance
+            </span>
           </div>
           <div className="ci">
-            <span className="tick"><Icon.check width={15} height={15} /></span>
+            <span className="tick">
+              <Icon.check width={15} height={15} />
+            </span>
             <span>Season badge unlocked</span>
           </div>
         </div>
@@ -309,7 +354,9 @@ export function RankReveal({
              .arr: transition:transform .35s var(--ease)  :hover .arr: translateX(4px) */}
         <button type="button" className="claim-btn" ref={btnRef} onClick={onClaim}>
           <span>{hasUsdc ? "Claim my reward" : "Claim my points"}</span>
-          <span className="arr"><Icon.arrow width={18} height={18} /></span>
+          <span className="arr">
+            <Icon.arrow width={18} height={18} />
+          </span>
         </button>
       </div>
     </div>,

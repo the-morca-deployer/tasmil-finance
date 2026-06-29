@@ -67,236 +67,239 @@ export function QuestBeams() {
     let rafId: number;
     let renderer: import("three").WebGLRenderer | null = null;
 
-    import("three").then((THREE) => {
-      if (!canvas) return;
+    import("three")
+      .then((THREE) => {
+        if (!canvas) return;
 
-      function hexToColor(hex: string): import("three").Color {
-        const c = hex.replace("#", "");
-        return new THREE.Color(
-          parseInt(c.slice(0, 2), 16) / 255,
-          parseInt(c.slice(2, 4), 16) / 255,
-          parseInt(c.slice(4, 6), 16) / 255,
-        );
-      }
+        function hexToColor(hex: string): import("three").Color {
+          const c = hex.replace("#", "");
+          return new THREE.Color(
+            parseInt(c.slice(0, 2), 16) / 255,
+            parseInt(c.slice(2, 4), 16) / 255,
+            parseInt(c.slice(4, 6), 16) / 255
+          );
+        }
 
-      function extendMaterial(
-        cfg: {
+        function extendMaterial(cfg: {
           header?: string;
           vertexHeader?: string;
           vertex?: Record<string, string>;
           fragment?: Record<string, string>;
           material?: Record<string, unknown>;
           uniforms?: Record<string, unknown>;
-        },
-      ): import("three").ShaderMaterial {
-        const physical = THREE.ShaderLib.physical;
-        const uniforms = THREE.UniformsUtils.clone(physical.uniforms);
-        const defaults = new THREE.MeshStandardMaterial(
-          (cfg.material as ConstructorParameters<typeof THREE.MeshStandardMaterial>[0]) ?? {},
-        );
+        }): import("three").ShaderMaterial {
+          const physical = THREE.ShaderLib.physical;
+          const uniforms = THREE.UniformsUtils.clone(physical.uniforms);
+          const defaults = new THREE.MeshStandardMaterial(
+            (cfg.material as ConstructorParameters<typeof THREE.MeshStandardMaterial>[0]) ?? {}
+          );
 
-        if (defaults.color && uniforms["diffuse"]) uniforms["diffuse"].value = defaults.color.clone();
-        if (defaults.roughness !== undefined && uniforms["roughness"])
-          uniforms["roughness"].value = defaults.roughness;
-        if (defaults.metalness !== undefined && uniforms["metalness"])
-          uniforms["metalness"].value = defaults.metalness;
+          if (defaults.color && uniforms["diffuse"])
+            uniforms["diffuse"].value = defaults.color.clone();
+          if (defaults.roughness !== undefined && uniforms["roughness"])
+            uniforms["roughness"].value = defaults.roughness;
+          if (defaults.metalness !== undefined && uniforms["metalness"])
+            uniforms["metalness"].value = defaults.metalness;
 
-        for (const key of Object.keys(cfg.uniforms ?? {})) {
-          const u = (cfg.uniforms ?? {})[key];
-          uniforms[key] =
-            u !== null && typeof u === "object" && "value" in (u as object)
-              ? (u as { value: unknown })
-              : { value: u };
-        }
-
-        let vert =
-          (cfg.header ?? "") + "\n" + (cfg.vertexHeader ?? "") + "\n" + physical.vertexShader;
-        let frag =
-          (cfg.header ?? "") + "\n" + physical.fragmentShader;
-
-        for (const tok of Object.keys(cfg.vertex ?? {})) {
-          vert = vert.replace(tok, tok + "\n" + (cfg.vertex ?? {})[tok]);
-        }
-        for (const tok of Object.keys(cfg.fragment ?? {})) {
-          frag = frag.replace(tok, tok + "\n" + (cfg.fragment ?? {})[tok]);
-        }
-
-        return new THREE.ShaderMaterial({
-          defines: Object.assign({}, (physical as { defines?: Record<string, unknown> }).defines ?? {}),
-          uniforms,
-          vertexShader: vert,
-          fragmentShader: frag,
-          lights: true,
-          fog: !!(cfg.material && cfg.material["fog"]),
-          side: THREE.DoubleSide,
-        });
-      }
-
-      function createGeometry(
-        n: number,
-        width: number,
-        height: number,
-        spacing: number,
-        heightSegments: number,
-      ): import("three").BufferGeometry {
-        const geo = new THREE.BufferGeometry();
-        const numVerts = n * (heightSegments + 1) * 2;
-        const numFaces = n * heightSegments * 2;
-        const positions = new Float32Array(numVerts * 3);
-        const indices = new Uint32Array(numFaces * 3);
-        const uvs = new Float32Array(numVerts * 2);
-
-        let vOff = 0;
-        let iOff = 0;
-        let uvOff = 0;
-        const totalW = n * width + (n - 1) * spacing;
-        const xBase = -totalW / 2;
-
-        for (let i = 0; i < n; i++) {
-          const xOffset = xBase + i * (width + spacing);
-          const uvRandX = Math.random() * 300;
-          const uvRandY = Math.random() * 300;
-          for (let j = 0; j <= heightSegments; j++) {
-            const y = height * (j / heightSegments - 0.5);
-            const base3 = vOff * 3;
-            positions[base3] = xOffset;
-            positions[base3 + 1] = y;
-            positions[base3 + 2] = 0;
-            positions[base3 + 3] = xOffset + width;
-            positions[base3 + 4] = y;
-            positions[base3 + 5] = 0;
-            const uvy = j / heightSegments;
-            uvs[uvOff] = uvRandX;
-            uvs[uvOff + 1] = uvy + uvRandY;
-            uvs[uvOff + 2] = uvRandX + 1;
-            uvs[uvOff + 3] = uvy + uvRandY;
-            if (j < heightSegments) {
-              const a = vOff;
-              const b = vOff + 1;
-              const c = vOff + 2;
-              const d = vOff + 3;
-              indices[iOff] = a;
-              indices[iOff + 1] = b;
-              indices[iOff + 2] = c;
-              indices[iOff + 3] = c;
-              indices[iOff + 4] = b;
-              indices[iOff + 5] = d;
-              iOff += 6;
-            }
-            vOff += 2;
-            uvOff += 4;
+          for (const key of Object.keys(cfg.uniforms ?? {})) {
+            const u = (cfg.uniforms ?? {})[key];
+            uniforms[key] =
+              u !== null && typeof u === "object" && "value" in (u as object)
+                ? (u as { value: unknown })
+                : { value: u };
           }
+
+          let vert =
+            (cfg.header ?? "") + "\n" + (cfg.vertexHeader ?? "") + "\n" + physical.vertexShader;
+          let frag = (cfg.header ?? "") + "\n" + physical.fragmentShader;
+
+          for (const tok of Object.keys(cfg.vertex ?? {})) {
+            vert = vert.replace(tok, tok + "\n" + (cfg.vertex ?? {})[tok]);
+          }
+          for (const tok of Object.keys(cfg.fragment ?? {})) {
+            frag = frag.replace(tok, tok + "\n" + (cfg.fragment ?? {})[tok]);
+          }
+
+          return new THREE.ShaderMaterial({
+            defines: Object.assign(
+              {},
+              (physical as { defines?: Record<string, unknown> }).defines ?? {}
+            ),
+            uniforms,
+            vertexShader: vert,
+            fragmentShader: frag,
+            lights: true,
+            fog: !!(cfg.material && cfg.material["fog"]),
+            side: THREE.DoubleSide,
+          });
         }
 
-        geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-        geo.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
-        geo.setIndex(new THREE.BufferAttribute(indices, 1));
-        geo.computeVertexNormals();
-        return geo;
-      }
+        function createGeometry(
+          n: number,
+          width: number,
+          height: number,
+          spacing: number,
+          heightSegments: number
+        ): import("three").BufferGeometry {
+          const geo = new THREE.BufferGeometry();
+          const numVerts = n * (heightSegments + 1) * 2;
+          const numFaces = n * heightSegments * 2;
+          const positions = new Float32Array(numVerts * 3);
+          const indices = new Uint32Array(numFaces * 3);
+          const uvs = new Float32Array(numVerts * 2);
 
-      renderer = new THREE.WebGLRenderer({
-        canvas,
-        antialias: false,
-        powerPreference: "high-performance",
+          let vOff = 0;
+          let iOff = 0;
+          let uvOff = 0;
+          const totalW = n * width + (n - 1) * spacing;
+          const xBase = -totalW / 2;
+
+          for (let i = 0; i < n; i++) {
+            const xOffset = xBase + i * (width + spacing);
+            const uvRandX = Math.random() * 300;
+            const uvRandY = Math.random() * 300;
+            for (let j = 0; j <= heightSegments; j++) {
+              const y = height * (j / heightSegments - 0.5);
+              const base3 = vOff * 3;
+              positions[base3] = xOffset;
+              positions[base3 + 1] = y;
+              positions[base3 + 2] = 0;
+              positions[base3 + 3] = xOffset + width;
+              positions[base3 + 4] = y;
+              positions[base3 + 5] = 0;
+              const uvy = j / heightSegments;
+              uvs[uvOff] = uvRandX;
+              uvs[uvOff + 1] = uvy + uvRandY;
+              uvs[uvOff + 2] = uvRandX + 1;
+              uvs[uvOff + 3] = uvy + uvRandY;
+              if (j < heightSegments) {
+                const a = vOff;
+                const b = vOff + 1;
+                const c = vOff + 2;
+                const d = vOff + 3;
+                indices[iOff] = a;
+                indices[iOff + 1] = b;
+                indices[iOff + 2] = c;
+                indices[iOff + 3] = c;
+                indices[iOff + 4] = b;
+                indices[iOff + 5] = d;
+                iOff += 6;
+              }
+              vOff += 2;
+              uvOff += 4;
+            }
+          }
+
+          geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+          geo.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
+          geo.setIndex(new THREE.BufferAttribute(indices, 1));
+          geo.computeVertexNormals();
+          return geo;
+        }
+
+        renderer = new THREE.WebGLRenderer({
+          canvas,
+          antialias: false,
+          powerPreference: "high-performance",
+        });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+
+        const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+        camera.position.set(0, 0, 20);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 1));
+        const dirLight = new THREE.DirectionalLight(hexToColor(LIGHT_COLOR), 1);
+        dirLight.position.set(0, 3, 10);
+        scene.add(dirLight);
+
+        const mat = extendMaterial({
+          header: [
+            "varying vec3 vEye;",
+            "varying float vNoise;",
+            "varying vec2 vUv;",
+            "varying vec3 vPosition;",
+            "uniform float time;",
+            "uniform float uSpeed;",
+            "uniform float uNoiseIntensity;",
+            "uniform float uScale;",
+            NOISE_GLSL,
+          ].join("\n"),
+          vertexHeader: [
+            "float getPos(vec3 pos){",
+            "  vec3 np=vec3(pos.x*0.,pos.y-uv.y,pos.z+time*uSpeed*3.)*uScale;",
+            "  return cnoise(np);",
+            "}",
+            "vec3 getCurrentPos(vec3 pos){vec3 np=pos;np.z+=getPos(pos);return np;}",
+            "vec3 getNormal(vec3 pos){",
+            "  vec3 cp=getCurrentPos(pos);",
+            "  vec3 nx=getCurrentPos(pos+vec3(0.01,0.,0.));",
+            "  vec3 nz=getCurrentPos(pos+vec3(0.,-0.01,0.));",
+            "  return normalize(cross(normalize(nz-cp),normalize(nx-cp)));",
+            "}",
+          ].join("\n"),
+          vertex: {
+            "#include <begin_vertex>": "transformed.z+=getPos(transformed.xyz);",
+            "#include <beginnormal_vertex>": "objectNormal=getNormal(position.xyz);",
+          },
+          fragment: {
+            "#include <dithering_fragment>":
+              "float rn=noise(gl_FragCoord.xy);\ngl_FragColor.rgb-=rn/15.*uNoiseIntensity;",
+          },
+          material: { fog: true },
+          uniforms: {
+            diffuse: hexToColor("#000000"),
+            time: { value: 0 },
+            roughness: 0.3,
+            metalness: 0.3,
+            uSpeed: { value: SPEED },
+            envMapIntensity: 10,
+            uNoiseIntensity: NOISE_INTENSITY,
+            uScale: SCALE,
+          },
+        });
+
+        const geo = createGeometry(BEAM_NUMBER, BEAM_WIDTH, BEAM_HEIGHT, 0, 100);
+        const group = new THREE.Group();
+        group.rotation.z = THREE.MathUtils.degToRad(ROTATION_DEG);
+        group.add(new THREE.Mesh(geo, mat));
+        scene.add(group);
+
+        function resize() {
+          const w = (canvas as HTMLCanvasElement).offsetWidth || window.innerWidth;
+          const h = (canvas as HTMLCanvasElement).offsetHeight || window.innerHeight;
+          renderer?.setSize(w, h, false);
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+        }
+        resize();
+        window.addEventListener("resize", resize, { passive: true });
+
+        let prev = performance.now();
+        function animate() {
+          rafId = requestAnimationFrame(animate);
+          const now = performance.now();
+          const timeUniform = mat.uniforms["time"];
+          if (timeUniform) timeUniform.value += (0.1 * (now - prev)) / 1000;
+          prev = now;
+          renderer?.render(scene, camera);
+        }
+        animate();
+
+        return () => {
+          cancelAnimationFrame(rafId);
+          window.removeEventListener("resize", resize);
+          geo.dispose();
+          mat.dispose();
+          renderer?.dispose();
+          renderer = null;
+        };
+      })
+      .catch((err: unknown) => {
+        console.error("[QuestBeams] Failed to load THREE.js:", err);
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x000000);
-
-      const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
-      camera.position.set(0, 0, 20);
-
-      scene.add(new THREE.AmbientLight(0xffffff, 1));
-      const dirLight = new THREE.DirectionalLight(hexToColor(LIGHT_COLOR), 1);
-      dirLight.position.set(0, 3, 10);
-      scene.add(dirLight);
-
-      const mat = extendMaterial({
-        header: [
-          "varying vec3 vEye;",
-          "varying float vNoise;",
-          "varying vec2 vUv;",
-          "varying vec3 vPosition;",
-          "uniform float time;",
-          "uniform float uSpeed;",
-          "uniform float uNoiseIntensity;",
-          "uniform float uScale;",
-          NOISE_GLSL,
-        ].join("\n"),
-        vertexHeader: [
-          "float getPos(vec3 pos){",
-          "  vec3 np=vec3(pos.x*0.,pos.y-uv.y,pos.z+time*uSpeed*3.)*uScale;",
-          "  return cnoise(np);",
-          "}",
-          "vec3 getCurrentPos(vec3 pos){vec3 np=pos;np.z+=getPos(pos);return np;}",
-          "vec3 getNormal(vec3 pos){",
-          "  vec3 cp=getCurrentPos(pos);",
-          "  vec3 nx=getCurrentPos(pos+vec3(0.01,0.,0.));",
-          "  vec3 nz=getCurrentPos(pos+vec3(0.,-0.01,0.));",
-          "  return normalize(cross(normalize(nz-cp),normalize(nx-cp)));",
-          "}",
-        ].join("\n"),
-        vertex: {
-          "#include <begin_vertex>": "transformed.z+=getPos(transformed.xyz);",
-          "#include <beginnormal_vertex>": "objectNormal=getNormal(position.xyz);",
-        },
-        fragment: {
-          "#include <dithering_fragment>":
-            "float rn=noise(gl_FragCoord.xy);\ngl_FragColor.rgb-=rn/15.*uNoiseIntensity;",
-        },
-        material: { fog: true },
-        uniforms: {
-          diffuse: hexToColor("#000000"),
-          time: { value: 0 },
-          roughness: 0.3,
-          metalness: 0.3,
-          uSpeed: { value: SPEED },
-          envMapIntensity: 10,
-          uNoiseIntensity: NOISE_INTENSITY,
-          uScale: SCALE,
-        },
-      });
-
-      const geo = createGeometry(BEAM_NUMBER, BEAM_WIDTH, BEAM_HEIGHT, 0, 100);
-      const group = new THREE.Group();
-      group.rotation.z = THREE.MathUtils.degToRad(ROTATION_DEG);
-      group.add(new THREE.Mesh(geo, mat));
-      scene.add(group);
-
-      function resize() {
-        const w = (canvas as HTMLCanvasElement).offsetWidth || window.innerWidth;
-        const h = (canvas as HTMLCanvasElement).offsetHeight || window.innerHeight;
-        renderer?.setSize(w, h, false);
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-      }
-      resize();
-      window.addEventListener("resize", resize, { passive: true });
-
-      let prev = performance.now();
-      function animate() {
-        rafId = requestAnimationFrame(animate);
-        const now = performance.now();
-        const timeUniform = mat.uniforms["time"];
-        if (timeUniform) timeUniform.value += (0.1 * (now - prev)) / 1000;
-        prev = now;
-        renderer?.render(scene, camera);
-      }
-      animate();
-
-      return () => {
-        cancelAnimationFrame(rafId);
-        window.removeEventListener("resize", resize);
-        geo.dispose();
-        mat.dispose();
-        renderer?.dispose();
-        renderer = null;
-      };
-    }).catch((err: unknown) => {
-      console.error("[QuestBeams] Failed to load THREE.js:", err);
-    });
 
     return () => {
       cancelAnimationFrame(rafId);

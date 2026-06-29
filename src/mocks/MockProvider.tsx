@@ -1,8 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { seedQuestAuth } from "./seed-quest-auth";
 import { applyMockAdapter } from "./apply-mocks";
+import { seedQuestAuth } from "./seed-quest-auth";
 
 const MOCK = process.env.NEXT_PUBLIC_MOCK_API === "true";
 

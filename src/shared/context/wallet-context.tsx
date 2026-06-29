@@ -257,18 +257,22 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (cancelled) return;
         const w = new WatchWalletChanges(3000);
         watcher = w;
-        w.watch((p: { address: string; network: string; networkPassphrase: string; error?: unknown }) => {
-          if (p?.error || !p?.networkPassphrase) return; // non-Freighter wallet / not connected → ignore
-          const mismatch = p.networkPassphrase !== APP_NETWORK_PASSPHRASE;
-          setWalletNetwork(p.network ?? null);
-          setNetworkMismatch(mismatch);
-          if (mismatch && !prevMismatchRef.current) {
-            toast.error(`Wrong wallet network. Switch Freighter to ${APP_NETWORK_NAME} to continue.`);
-          } else if (!mismatch && prevMismatchRef.current) {
-            toast.success(`Wallet is on ${APP_NETWORK_NAME} — you can continue.`);
+        w.watch(
+          (p: { address: string; network: string; networkPassphrase: string; error?: unknown }) => {
+            if (p?.error || !p?.networkPassphrase) return; // non-Freighter wallet / not connected → ignore
+            const mismatch = p.networkPassphrase !== APP_NETWORK_PASSPHRASE;
+            setWalletNetwork(p.network ?? null);
+            setNetworkMismatch(mismatch);
+            if (mismatch && !prevMismatchRef.current) {
+              toast.error(
+                `Wrong wallet network. Switch Freighter to ${APP_NETWORK_NAME} to continue.`
+              );
+            } else if (!mismatch && prevMismatchRef.current) {
+              toast.success(`Wallet is on ${APP_NETWORK_NAME} — you can continue.`);
+            }
+            prevMismatchRef.current = mismatch;
           }
-          prevMismatchRef.current = mismatch;
-        });
+        );
       })
       .catch(() => {});
     return () => {

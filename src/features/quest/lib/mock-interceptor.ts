@@ -4,26 +4,26 @@
  */
 import type { AxiosInstance } from "axios";
 import {
-  getCampaignsEnvelope,
+  buildTaskClaimStatus,
+  buildTaskStatus,
   getCampaignById,
+  getCampaignsEnvelope,
   getNotJoinedEnvelope,
-  MOCK_USER_ME,
   MOCK_CHECK_IN_STATUS,
+  MOCK_CURRENT_SEASON,
   MOCK_DAILY_LOGIN_RESULT,
-  MOCK_POINTS_HISTORY,
-  MOCK_MY_CAMPAIGNS_PENDING,
+  MOCK_LEADERBOARD,
   MOCK_MY_CAMPAIGNS_CLAIMABLE,
   MOCK_MY_CAMPAIGNS_CLAIMED,
-  MOCK_LEADERBOARD,
-  MOCK_STREAK_LEADERBOARD,
-  MOCK_CURRENT_SEASON,
+  MOCK_MY_CAMPAIGNS_PENDING,
   MOCK_MY_SEASON_RESULT,
+  MOCK_POINTS_HISTORY,
   MOCK_REFERRAL,
   MOCK_REFERRALS_LIST,
   MOCK_SOCIAL_ACCOUNTS,
+  MOCK_STREAK_LEADERBOARD,
+  MOCK_USER_ME,
   MUTATION_SUCCESS,
-  buildTaskStatus,
-  buildTaskClaimStatus,
 } from "@/mocks/data/quest";
 
 const QB = "/api/api";
@@ -44,7 +44,8 @@ export function installQuestMocks(client: AxiosInstance) {
     const url = config.url;
 
     const mock = (data: unknown) => {
-      (config as unknown as Record<string, unknown>).adapter = () => respond(config as unknown as Record<string, unknown>, data);
+      (config as unknown as Record<string, unknown>).adapter = () =>
+        respond(config as unknown as Record<string, unknown>, data);
       return config;
     };
 
@@ -114,10 +115,16 @@ export function installQuestMocks(client: AxiosInstance) {
     // Auth
     if (url === `${QB}/auth/wallet-nonce`) return mock({ nonce: "mock-nonce" });
     if (url?.match(/^\/api\/api\/auth\/(wallet-login|username-login)$/)) {
-      return mock({ success: true, data: { accessToken: "mock-jwt", refreshToken: "mock-refresh", user: MOCK_USER_ME.data } });
+      return mock({
+        success: true,
+        data: { accessToken: "mock-jwt", refreshToken: "mock-refresh", user: MOCK_USER_ME.data },
+      });
     }
     if (url?.match(/^\/api\/api\/auth\/refresh$/)) {
-      return mock({ success: true, data: { accessToken: "mock-jwt", refreshToken: "mock-refresh" } });
+      return mock({
+        success: true,
+        data: { accessToken: "mock-jwt", refreshToken: "mock-refresh" },
+      });
     }
     if (url?.match(/^\/api\/api\/auth\/logout$/)) return mock(MUTATION_SUCCESS);
 
