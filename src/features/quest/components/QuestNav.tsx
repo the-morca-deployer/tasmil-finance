@@ -4,16 +4,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, Copy, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
 import { toast } from "sonner";
 import { useWallet } from "@/features/quest/context/wallet-context";
-import { unwrapEnvelope } from "@/features/quest/lib/season-types";
 import {
-  useCampaignsControllerFindAll,
-  useCampaignsControllerFindOne,
-  useTasksControllerClaimTask,
-  useTasksControllerGetClaimStatus,
   usersControllerGetMeQueryKey,
+  useUsersControllerDailyLogin,
+  useUsersControllerGetCheckInStatus,
   useUsersControllerGetMe,
 } from "@/gen-quest";
 import { cn } from "@/lib/utils";
@@ -34,24 +30,6 @@ interface MeFields {
   totalPoints?: number;
   loginStreak?: number;
   walletAddress?: string;
-}
-
-interface CampaignItem {
-  id?: string;
-  isDaily?: boolean;
-  [key: string]: unknown;
-}
-
-interface TaskItem {
-  id?: string;
-  type?: string;
-  taskType?: string;
-  [key: string]: unknown;
-}
-
-interface ClaimStatusData {
-  completedToday?: boolean;
-  claimed?: boolean;
 }
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
@@ -80,53 +58,23 @@ export function QuestNav() {
     toast.success("Address copied");
   };
 
-  // Find the daily campaign from the campaigns list
-  const { data: campaignsData } = useCampaignsControllerFindAll(
-    {},
-    {
+  // Check-in status from the simple endpoint
+  const { data: checkInStatusData, refetch: refetchCheckInStatus } =
+    useUsersControllerGetCheckInStatus({
       ...$,
-      query: { ...$.query, enabled: isAuthenticated },
-    }
-  );
-  const campaigns = unwrapEnvelope<CampaignItem[]>(campaignsData) ?? [];
-  const dailyCampaign = campaigns.find((c) => c.isDaily === true);
-  const dailyCampaignId = dailyCampaign?.id;
+      query: { ...$.query, enabled: isAuthenticated, staleTime: 0, gcTime: 0 },
+    });
+  const hasCheckedIn =
+    ((checkInStatusData as { data?: { hasCheckedIn?: boolean } } | undefined)?.data
+      ?.hasCheckedIn) ?? false;
 
-  // Fetch the daily campaign's tasks to find the LOGIN_CHECKIN task
-  const { data: dailyCampaignData } = useCampaignsControllerFindOne(dailyCampaignId, {
-    ...$,
-    query: { ...$.query, enabled: !!dailyCampaignId },
-  });
-
-  const loginTask = useMemo<TaskItem | undefined>(() => {
-    if (!dailyCampaignData) return undefined;
-    const payload = (dailyCampaignData as { data?: unknown } | undefined)?.data ?? dailyCampaignData;
-    const tasks: TaskItem[] =
-      (payload as { tasks?: TaskItem[] })?.tasks ??
-      ((payload as { campaign?: { tasks?: TaskItem[] } })?.campaign?.tasks) ??
-      [];
-    return tasks.find(
-      (t) =>
-        (t.type ?? t.taskType)?.toUpperCase() === "LOGIN_CHECKIN"
-    );
-  }, [dailyCampaignData]);
-
-  const loginTaskId = loginTask?.id;
-
-  // Get completedToday state for the LOGIN_CHECKIN task
-  const { data: claimStatusRaw } = useTasksControllerGetClaimStatus(loginTaskId, {
-    ...$,
-    query: { ...$.query, enabled: !!loginTaskId },
-  });
-  const claimStatus = ((claimStatusRaw as { data?: ClaimStatusData } | undefined)?.data ??
-    claimStatusRaw) as ClaimStatusData | undefined;
-  const hasCheckedIn = claimStatus?.completedToday ?? false;
-
-  const claimMutation = useTasksControllerClaimTask({
+  // Daily login mutation
+  const dailyLogin = useUsersControllerDailyLogin({
     ...withAuth,
     mutation: {
       onSuccess: async (result) => {
         await queryClient.invalidateQueries({ queryKey: usersControllerGetMeQueryKey() });
+        await refetchCheckInStatus();
         const awarded = (result as { data?: { pointsAwarded?: number } } | undefined)?.data
           ?.pointsAwarded;
         toast.success(awarded ? `Check-in successful! +${awarded} points` : "Check-in successful!");
@@ -143,8 +91,8 @@ export function QuestNav() {
   });
 
   const handleCheckIn = () => {
-    if (claimMutation.isPending || hasCheckedIn || !loginTaskId) return;
-    claimMutation.mutate({ id: loginTaskId });
+    if (dailyLogin.isPending || hasCheckedIn) return;
+    dailyLogin.mutate(undefined);
   };
 
   const isActive = (href: string) => {
@@ -237,8 +185,7 @@ export function QuestNav() {
           {fmt(points)}
         </span>
 
-        {/* .stat-pill.streak — always shows the login streak; check-in click is
-            enabled only when the daily LOGIN_CHECKIN task is resolved. */}
+        {/* .stat-pill.streak — always shows; clickable to check in when not yet done today */}
         <button
           type="button"
           className={cn(
@@ -249,7 +196,7 @@ export function QuestNav() {
             "max-[680px]:hidden"
           )}
           onClick={handleCheckIn}
-          disabled={!isAuthenticated || !loginTaskId || hasCheckedIn || claimMutation.isPending}
+          disabled={!isAuthenticated || hasCheckedIn || dailyLogin.isPending}
           aria-label={hasCheckedIn ? "Checked in today" : "Daily check-in"}
         >
           <Flame style={{ width: 19, height: 19 }} />
