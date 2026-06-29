@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { Button, buttonClasses } from "@/features/quest/components/ui/button";
+import { WalletRankInfo } from "@/features/quest/components/WalletRankInfo";
 import { useWallet } from "@/features/quest/context/wallet-context";
 import { variantFromAvatarUrl } from "@/features/quest/lib/avatar";
 import { withAuth } from "@/features/quest/lib/kubb-config";
@@ -297,6 +298,7 @@ const Navbar: React.FC = () => {
 
               {/* Hover dropdown */}
               <div className="absolute right-0 top-full mt-2 w-48 bg-surface border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all translate-y-2 group-hover:translate-y-0">
+                <WalletRankInfo />
                 <div className="p-1">
                   <button
                     onClick={copyAddress}
