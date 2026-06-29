@@ -18,6 +18,15 @@ import {
 } from "@/gen-quest/hooks";
 import { cn } from "@/lib/utils";
 
+// Shared chip base — mirrors the quest navbar (QuestNav) so the PTS, streak
+// and wallet chips render identically (same height, radius, border, surface).
+const CHIP_BASE = cn(
+  "inline-flex h-10 items-center gap-[7px]",
+  "px-[14px] text-[13.5px] font-semibold",
+  "rounded-quest-pill bg-quest-surface border border-quest-line-2",
+  "transition-colors"
+);
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function avatarFromAddress(addr: string): string {
@@ -179,7 +188,14 @@ const Navbar: React.FC = () => {
           className="flex items-center gap-[15px] font-extrabold no-underline"
           style={{ fontSize: "30px", letterSpacing: "-0.03em" }}
         >
-          <img src="/tasmil-tf-logo.png" alt="Tasmil" width="48" height="48" className="flex-none" style={{ width: "48px", height: "48px" }} />
+          <img
+            src="/tasmil-tf-logo.png"
+            alt="Tasmil"
+            width="48"
+            height="48"
+            className="flex-none"
+            style={{ width: "48px", height: "48px" }}
+          />
           <span
             style={{
               background: "linear-gradient(100deg,#fff 0%,var(--accent) 100%)",
@@ -228,10 +244,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center gap-3">
             {/* .stat-pill.pts: inline-flex; align-items:center; gap:7px; font-size:13.5px; font-weight:600;
                  padding:8px 14px; border-radius:var(--r-pill); background:var(--surface); border:1px solid var(--line-2); color:var(--green) */}
-            <span
-              className="inline-flex items-center gap-[7px] rounded-quest-pill border border-quest-line-2 bg-quest-surface text-[13.5px] font-semibold text-quest-green"
-              style={{ padding: "8px 14px" }}
-            >
+            <span className={cn(CHIP_BASE, "text-quest-green [&_svg]:text-quest-green")}>
               <Loader2 className="w-[14px] h-[14px] animate-spin" />
               Authenticating...
             </span>
@@ -239,42 +252,38 @@ const Navbar: React.FC = () => {
         ) : (
           <div className="flex items-center gap-3">
             {/* Points pill — .stat-pill.pts: color:var(--green) */}
-            <span
-              className="inline-flex items-center gap-[7px] rounded-quest-pill border border-quest-line-2 bg-quest-surface text-[13.5px] font-semibold text-quest-green"
-              style={{ padding: "8px 14px" }}
-            >
+            <span className={cn(CHIP_BASE, "text-quest-green [&_svg]:text-quest-green")}>
               <Coins className="w-[14px] h-[14px]" />
               {points.toLocaleString()}
             </span>
 
             {/* Streak pill — with check-in button if not yet checked in today */}
             {!hasCheckedIn ? (
-              <Button
+              <button
                 type="button"
                 onClick={handleCheckIn}
                 disabled={dailyLoginMutation.isPending}
-                variant="ghost"
-                size="sm"
-                className="gap-2"
+                className={cn(
+                  CHIP_BASE,
+                  "text-quest-amber [&_svg]:text-quest-amber",
+                  "hover:bg-white/[0.05] disabled:cursor-default disabled:hover:bg-quest-surface"
+                )}
               >
                 {dailyLoginMutation.isPending ? (
                   <>
                     <Loader2 size={14} className="animate-spin" />
-                    <span className="text-sm font-semibold">Checking in...</span>
+                    Checking in...
                   </>
                 ) : (
                   <>
                     <Flame size={14} />
-                    <span className="text-sm font-semibold">Check-in ({streak}d)</span>
+                    Check-in ({streak}d)
                   </>
                 )}
-              </Button>
+              </button>
             ) : (
               /* .stat-pill.streak: color:var(--amber) */
-              <span
-                className="inline-flex items-center gap-[7px] rounded-quest-pill border border-quest-line-2 bg-quest-surface text-[13.5px] font-semibold text-quest-amber"
-                style={{ padding: "8px 14px" }}
-              >
+              <span className={cn(CHIP_BASE, "text-quest-amber [&_svg]:text-quest-amber")}>
                 <Flame className="w-[14px] h-[14px]" />
                 {streak}d
               </span>
@@ -283,10 +292,7 @@ const Navbar: React.FC = () => {
             {/* Wallet chip — .wallet-chip: inline-flex; align-items:center; gap:10px; padding:5px 14px 5px 6px;
                  border-radius:var(--r-pill); background:var(--surface); border:1px solid var(--line-2) */}
             <div className="relative group">
-              <span
-                className="inline-flex cursor-pointer items-center gap-[10px] rounded-quest-pill border border-quest-line-2 bg-quest-surface"
-                style={{ padding: "5px 14px 5px 6px" }}
-              >
+              <span className={cn(CHIP_BASE, "cursor-pointer gap-[10px] pl-[6px] text-quest-text")}>
                 {/* .av: block; width:30px; height:30px; border-radius:50%; flex:none */}
                 <span
                   className="block h-[30px] w-[30px] flex-none rounded-full"
@@ -464,7 +470,12 @@ const Navbar: React.FC = () => {
                         disconnect();
                         setIsMobileMenuOpen(false);
                       }}
-                      className={buttonClasses({ variant: "ghost", size: "sm", className: "flex-1 gap-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:translate-y-0 hover:border-transparent" })}
+                      className={buttonClasses({
+                        variant: "ghost",
+                        size: "sm",
+                        className:
+                          "flex-1 gap-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:translate-y-0 hover:border-transparent",
+                      })}
                     >
                       <LogOut size={14} /> Disconnect
                     </button>

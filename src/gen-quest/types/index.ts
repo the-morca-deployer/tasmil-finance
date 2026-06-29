@@ -106,7 +106,6 @@ export type { ChatUsageInternalControllerGetSnapshot200, ChatUsageInternalContro
 export type { ConfirmVolumeIntentDto } from "@/gen-quest/types/confirm-volume-intent-dto";
 export type { CreateAdminDto } from "@/gen-quest/types/create-admin-dto";
 export type { CreateCampaignDto, CreateCampaignDtoCategoryEnumKey } from "@/gen-quest/types/create-campaign-dto";
-export type { CreateDailyMissionDto, CreateDailyMissionDtoTypeEnumKey } from "@/gen-quest/types/create-daily-mission-dto";
 export type { CreateFomoEventDto } from "@/gen-quest/types/create-fomo-event-dto";
 export type { CreateNotificationDto } from "@/gen-quest/types/create-notification-dto";
 export type { CreateQuestCampaignDto } from "@/gen-quest/types/create-quest-campaign-dto";
@@ -120,12 +119,6 @@ export type { CreditControllerListLedger200, CreditControllerListLedgerQuery, Cr
 export type { CreditInternalControllerApply201, CreditInternalControllerApplyMutation, CreditInternalControllerApplyMutationRequest, CreditInternalControllerApplyMutationResponse } from "@/gen-quest/types/credit-internal-controller-apply";
 export type { CreditPackageControllerList200, CreditPackageControllerListQuery, CreditPackageControllerListQueryResponse } from "@/gen-quest/types/credit-package-controller-list";
 export type { CreditPackageDto } from "@/gen-quest/types/credit-package-dto";
-export type { DailyMissionsAdminControllerCreate201, DailyMissionsAdminControllerCreateMutation, DailyMissionsAdminControllerCreateMutationRequest, DailyMissionsAdminControllerCreateMutationResponse } from "@/gen-quest/types/daily-missions-admin-controller-create";
-export type { DailyMissionsAdminControllerList200, DailyMissionsAdminControllerListQuery, DailyMissionsAdminControllerListQueryResponse } from "@/gen-quest/types/daily-missions-admin-controller-list";
-export type { DailyMissionsAdminControllerRemove200, DailyMissionsAdminControllerRemoveMutation, DailyMissionsAdminControllerRemoveMutationResponse, DailyMissionsAdminControllerRemovePathParams } from "@/gen-quest/types/daily-missions-admin-controller-remove";
-export type { DailyMissionsAdminControllerUpdate200, DailyMissionsAdminControllerUpdateMutation, DailyMissionsAdminControllerUpdateMutationRequest, DailyMissionsAdminControllerUpdateMutationResponse, DailyMissionsAdminControllerUpdatePathParams } from "@/gen-quest/types/daily-missions-admin-controller-update";
-export type { DailyMissionsControllerComplete201, DailyMissionsControllerCompleteMutation, DailyMissionsControllerCompleteMutationResponse, DailyMissionsControllerCompletePathParams } from "@/gen-quest/types/daily-missions-controller-complete";
-export type { DailyMissionsControllerList200, DailyMissionsControllerListQuery, DailyMissionsControllerListQueryResponse } from "@/gen-quest/types/daily-missions-controller-list";
 export type { DebugLogControllerLog201, DebugLogControllerLogMutation, DebugLogControllerLogMutationResponse } from "@/gen-quest/types/debug-log-controller-log";
 export type { DeployAccountDto } from "@/gen-quest/types/deploy-account-dto";
 export type { FomoAdminControllerCreate201, FomoAdminControllerCreateMutation, FomoAdminControllerCreateMutationRequest, FomoAdminControllerCreateMutationResponse } from "@/gen-quest/types/fomo-admin-controller-create";
@@ -247,7 +240,6 @@ export type { TxMetaDto, TxMetaDtoActionEnumKey, TxMetaDtoProtocolEnumKey } from
 export type { TxSubmitControllerSubmit201, TxSubmitControllerSubmitMutation, TxSubmitControllerSubmitMutationRequest, TxSubmitControllerSubmitMutationResponse } from "@/gen-quest/types/tx-submit-controller-submit";
 export type { UpdateCampaignDto, UpdateCampaignDtoCategoryEnumKey } from "@/gen-quest/types/update-campaign-dto";
 export type { UpdateConfigDto } from "@/gen-quest/types/update-config-dto";
-export type { UpdateDailyMissionDto, UpdateDailyMissionDtoTypeEnumKey } from "@/gen-quest/types/update-daily-mission-dto";
 export type { UpdateFomoEventDto } from "@/gen-quest/types/update-fomo-event-dto";
 export type { UpdatePresetDto } from "@/gen-quest/types/update-preset-dto";
 export type { UpdateProfileDto } from "@/gen-quest/types/update-profile-dto";
@@ -294,7 +286,6 @@ export { applyDeltaDtoReasonEnum } from "@/gen-quest/types/apply-delta-dto";
 export { campaignsControllerFindAllQueryParamsCategoryEnum } from "@/gen-quest/types/campaigns-controller-find-all";
 export { campaignsControllerGetNotJoinedCampaignsQueryParamsCategoryEnum } from "@/gen-quest/types/campaigns-controller-get-not-joined-campaigns";
 export { createCampaignDtoCategoryEnum } from "@/gen-quest/types/create-campaign-dto";
-export { createDailyMissionDtoTypeEnum } from "@/gen-quest/types/create-daily-mission-dto";
 export { createTaskDtoTaskTypeEnum } from "@/gen-quest/types/create-task-dto";
 export { createTopupQuoteDtoRailEnum } from "@/gen-quest/types/create-topup-quote-dto";
 export { poolsControllerGetPoolsQueryParamsRiskPresetEnum } from "@/gen-quest/types/pools-controller-get-pools";
@@ -307,7 +298,6 @@ export { submitAiTxMetaDtoProtocolEnum } from "@/gen-quest/types/submit-ai-tx-me
 export { txMetaDtoActionEnum } from "@/gen-quest/types/tx-meta-dto";
 export { txMetaDtoProtocolEnum } from "@/gen-quest/types/tx-meta-dto";
 export { updateCampaignDtoCategoryEnum } from "@/gen-quest/types/update-campaign-dto";
-export { updateDailyMissionDtoTypeEnum } from "@/gen-quest/types/update-daily-mission-dto";
 export { updateSeasonDtoStatusEnum } from "@/gen-quest/types/update-season-dto";
 export { updateTaskDtoTaskTypeEnum } from "@/gen-quest/types/update-task-dto";
 export { usersControllerGetMyCampaignsQueryParamsStatusEnum } from "@/gen-quest/types/users-controller-get-my-campaigns";

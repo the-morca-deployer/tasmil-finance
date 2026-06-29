@@ -1,55 +1,81 @@
-export type Tier = "bronze" | "silver" | "gold" | "platinum" | "diamond";
+// ─── Quest rank (single source of truth) ─────────────────────────────────────
+// Eight points-based ranks, low → high:
+//   Unranked → Bronze → Silver → Gold → Platinum → Emerald → Diamond → Master
+// Display rank is derived purely from `totalPoints`. The backend `UserTier`
+// enum (5 cohorts) is intentionally NOT used for display — every quest surface
+// derives its rank from THIS module so label and progress always agree.
 
-export function tierFromVolume(usd: number): Tier {
-  if (usd >= 10_000) return "diamond";
-  if (usd >= 2_000) return "platinum";
-  if (usd >= 500) return "gold";
-  if (usd >= 100) return "silver";
-  return "bronze";
-}
+export type QuestRank =
+  | "Unranked"
+  | "Bronze"
+  | "Silver"
+  | "Gold"
+  | "Platinum"
+  | "Emerald"
+  | "Diamond"
+  | "Master";
 
-export const TIER_STYLES: Record<Tier, { label: string; bg: string; text: string }> = {
-  bronze: { label: "Bronze", bg: "bg-amber-700/20", text: "text-amber-300" },
-  silver: { label: "Silver", bg: "bg-slate-300/20", text: "text-slate-200" },
-  gold: { label: "Gold", bg: "bg-yellow-400/20", text: "text-yellow-300" },
-  platinum: { label: "Platinum", bg: "bg-cyan-300/20", text: "text-cyan-200" },
-  diamond: { label: "Diamond", bg: "bg-blue-400/20", text: "text-blue-200" },
-};
-
-// ─── Quest tier display (points-based, Phase 2) ──────────────────────────────
-// Separate concern from `tierFromVolume` above: maps quest POINTS to a display
-// tier plus progress metadata for the Profile level bar.
-export type QuestTier = "Bronze" | "Silver" | "Gold" | "Diamond";
-
-export interface TierDisplay {
-  tier: QuestTier;
-  nextTier: QuestTier | null;
-  progress: number;
-  toNext: number;
-}
-
-const TIER_BANDS: { tier: QuestTier; min: number; max: number | null }[] = [
-  { tier: "Bronze", min: 0, max: 500 },
-  { tier: "Silver", min: 500, max: 2500 },
-  { tier: "Gold", min: 2500, max: 5000 },
-  { tier: "Diamond", min: 5000, max: null },
+// [min inclusive, max exclusive | null].
+const RANK_BANDS: { rank: QuestRank; min: number; max: number | null }[] = [
+  { rank: "Unranked", min: 0, max: 100 },
+  { rank: "Bronze", min: 100, max: 300 },
+  { rank: "Silver", min: 300, max: 700 },
+  { rank: "Gold", min: 700, max: 1500 },
+  { rank: "Platinum", min: 1500, max: 3000 },
+  { rank: "Emerald", min: 3000, max: 6000 },
+  { rank: "Diamond", min: 6000, max: 10000 },
+  { rank: "Master", min: 10000, max: null },
 ];
 
-export function tierDisplay(points: number): TierDisplay {
+/** Ordered low → high. */
+export const RANK_ORDER: QuestRank[] = RANK_BANDS.map((b) => b.rank);
+
+export interface RankDisplay {
+  rank: QuestRank;
+  /** Next rank up, or null at the top (Master). */
+  nextRank: QuestRank | null;
+  /** Progress through the current band, 0..1 (1 at the top band). */
+  progress: number;
+  /** Points remaining until the next rank (0 at the top band). */
+  toNext: number;
+  /** Band lower bound (inclusive). */
+  min: number;
+  /** Band upper bound (exclusive), or null at the top band. */
+  max: number | null;
+}
+
+/** Derive rank + progress metadata from a raw point total. */
+export function rankFromPoints(points: number): RankDisplay {
   const p = Number.isFinite(points) ? Math.max(0, points) : 0;
-  // Pick the band whose range contains `p`; defaults to the top (Diamond) band.
-  const idx = TIER_BANDS.findIndex((b) => p >= b.min && (b.max === null || p < b.max));
-  const safeIdx = idx === -1 ? TIER_BANDS.length - 1 : idx;
-  const band = TIER_BANDS[safeIdx]!;
+  const idx = RANK_BANDS.findIndex((b) => p >= b.min && (b.max === null || p < b.max));
+  const safeIdx = idx === -1 ? RANK_BANDS.length - 1 : idx;
+  const band = RANK_BANDS[safeIdx]!;
   if (band.max === null) {
-    return { tier: band.tier, nextTier: null, progress: 1, toNext: 0 };
+    return { rank: band.rank, nextRank: null, progress: 1, toNext: 0, min: band.min, max: null };
   }
-  const next = TIER_BANDS[safeIdx + 1]!;
+  const next = RANK_BANDS[safeIdx + 1]!;
   const span = band.max - band.min;
   return {
-    tier: band.tier,
-    nextTier: next.tier,
-    progress: (p - band.min) / span,
+    rank: band.rank,
+    nextRank: next.rank,
+    progress: span > 0 ? (p - band.min) / span : 1,
     toNext: band.max - p,
+    min: band.min,
+    max: band.max,
   };
 }
+
+/**
+ * Per-rank visuals. `cssKey` selects the colour family used by consumers;
+ * `asset` is the badge image under /public/ranks for each rank.
+ */
+export const RANK_STYLES: Record<QuestRank, { label: string; cssKey: string; asset: string }> = {
+  Unranked: { label: "Unranked", cssKey: "muted", asset: "/ranks/unrank.png" },
+  Bronze: { label: "Bronze", cssKey: "bronze", asset: "/ranks/bronze.png" },
+  Silver: { label: "Silver", cssKey: "silver", asset: "/ranks/silver.png" },
+  Gold: { label: "Gold", cssKey: "gold", asset: "/ranks/golden.png" },
+  Platinum: { label: "Platinum", cssKey: "platinum", asset: "/ranks/platinum.png" },
+  Emerald: { label: "Emerald", cssKey: "emerald", asset: "/ranks/emerald.png" },
+  Diamond: { label: "Diamond", cssKey: "diamond", asset: "/ranks/diamond.png" },
+  Master: { label: "Master", cssKey: "master", asset: "/ranks/master.png" },
+};
