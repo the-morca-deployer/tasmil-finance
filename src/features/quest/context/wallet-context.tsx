@@ -14,6 +14,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 import apiClient from "@/features/quest/lib/api-client";
+import { buildVerifyPayload, readPendingReferralCode } from "@/features/quest/lib/referral-link";
 import { ensureQuestDevSession } from "@/features/quest/lib/dev-login-bridge";
 import { withAuth } from "@/features/quest/lib/kubb-config";
 import { activeNetwork } from "@/features/quest/lib/stellar";
@@ -346,7 +347,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         // backend DTO expects `publicKey`. The verify route sets the
         // `tasmil_auth` cookie; hydrate the full user from /auth/me afterwards.
         setSigning(false);
-        await apiClient.post("/api/auth/verify", { publicKey, signedMessage });
+        const referredByCode = readPendingReferralCode();
+        await apiClient.post("/api/auth/verify", buildVerifyPayload(publicKey, signedMessage, referredByCode));
         await loadSessionUser();
         toast.success("Wallet verified successfully!");
       } catch (error: unknown) {
