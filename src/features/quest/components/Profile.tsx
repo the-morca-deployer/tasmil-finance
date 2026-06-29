@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Copy, Edit2, Gift, Info } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -15,6 +15,8 @@ import {
   variantToken,
 } from "@/features/quest/lib/avatar";
 import { $, withAuth } from "@/features/quest/lib/kubb-config";
+import { buildShareUrl } from "@/features/quest/lib/referral-link";
+import { usersControllerSetReferralCode } from "@/gen-quest/client/users-controller-set-referral-code";
 import {
   type ReferralTree,
   type ReferralTreeNode,
@@ -23,6 +25,7 @@ import {
 import { type QuestRank, RANK_ORDER, RANK_STYLES, rankFromPoints } from "@/features/quest/lib/tier";
 import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
 import {
+  referralControllerGetMyReferralQueryKey,
   tierRewardsControllerListQueryKey,
   useReferralControllerGetMyReferral,
   useReferralControllerGetTree,
@@ -866,7 +869,16 @@ function OverviewTab() {
             >
               <Copy size={13} /> Copy Code
             </Button>
-            <Button variant="ghost" size="sm" block>
+            <Button
+              variant="ghost"
+              size="sm"
+              block
+              onClick={() => {
+                if (!refCode || refCode === "—") return;
+                navigator.clipboard?.writeText(buildShareUrl(refCode));
+                toast.success("Link copied!");
+              }}
+            >
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -1247,6 +1259,22 @@ function ReferralsTab() {
   const { data: treeRaw, isLoading: treeLoading } = useReferralControllerGetTree($);
   const [view, setView] = useState<"list" | "tree">("list");
   const { user } = useQuestAuthStore();
+  const queryClient = useQueryClient();
+  const [draftCode, setDraftCode] = useState("");
+  const [showCodeInput, setShowCodeInput] = useState(false);
+
+  const setCodeMutation = useMutation({
+    mutationFn: (code: string) => usersControllerSetReferralCode({ data: { code } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: referralControllerGetMyReferralQueryKey() });
+      setDraftCode("");
+      setShowCodeInput(false);
+      toast.success("Referral code updated!");
+    },
+    onError: () => {
+      toast.error("Could not set custom code");
+    },
+  });
 
   const referralTree = useMemo(() => unwrapEnvelope<ReferralTree>(treeRaw), [treeRaw]);
   const treeNodes = referralTree?.tree ?? [];
@@ -1271,6 +1299,18 @@ function ReferralsTab() {
   const referralCode =
     (refDataObj as { referralCode?: string })?.referralCode ?? user?.referralCode ?? "—";
   const l1Rate = rates.find((r) => r.layer === 1)?.rateBps ?? 0;
+
+  const onShareLink = () => {
+    if (!referralCode || referralCode === "—") return;
+    navigator.clipboard?.writeText(buildShareUrl(referralCode));
+    toast.success("Link copied!");
+  };
+
+  const onSetCustomCode = async () => {
+    const normalized = draftCode.trim().toUpperCase();
+    if (!normalized) return;
+    await setCodeMutation.mutateAsync(normalized);
+  };
 
   const howCards = [
     {
@@ -1387,7 +1427,7 @@ function ReferralsTab() {
               <button
                 className="inline-flex items-center gap-2 text-[12px] font-semibold text-[rgba(244,247,251,0.58)] bg-none border-none cursor-pointer transition-[color] duration-200 hover:text-[var(--accent)] p-0"
                 style={{ background: "none" }}
-                onClick={() => {}}
+                onClick={() => setShowCodeInput((v) => !v)}
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -1408,18 +1448,41 @@ function ReferralsTab() {
             <div className="text-[28px] font-black font-mono mb-4" style={{ letterSpacing: 4 }}>
               {referralCode}
             </div>
+            {showCodeInput && (
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  value={draftCode}
+                  onChange={(e) =>
+                    setDraftCode(e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ""))
+                  }
+                  placeholder="YOUR-CODE"
+                  maxLength={20}
+                  className="flex-1 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.14)] rounded-[8px] px-3 py-[7px] text-[13px] font-mono text-[var(--text)] outline-none focus:border-[var(--accent)]"
+                />
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={onSetCustomCode}
+                  disabled={!draftCode.trim() || setCodeMutation.isPending}
+                >
+                  Save
+                </Button>
+              </div>
+            )}
             <div className="flex gap-[10px]">
               <Button
                 variant="primary"
                 size="sm"
                 onClick={() => {
+                  if (!referralCode || referralCode === "—") return;
                   navigator.clipboard?.writeText(referralCode);
                   toast.success("Copied!");
                 }}
               >
                 <Copy size={13} /> Copy Code
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={onShareLink}>
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
