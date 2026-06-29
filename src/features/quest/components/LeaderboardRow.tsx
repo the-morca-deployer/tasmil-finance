@@ -1,5 +1,5 @@
-import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 import { cn } from "@/lib/utils";
+import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 
 interface LeaderboardRowProps {
   rank: number;
