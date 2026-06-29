@@ -119,8 +119,6 @@ export type { CreditControllerListLedger200, CreditControllerListLedgerQuery, Cr
 export type { CreditInternalControllerApply201, CreditInternalControllerApplyMutation, CreditInternalControllerApplyMutationRequest, CreditInternalControllerApplyMutationResponse } from "@/gen-quest/types/credit-internal-controller-apply";
 export type { CreditPackageControllerList200, CreditPackageControllerListQuery, CreditPackageControllerListQueryResponse } from "@/gen-quest/types/credit-package-controller-list";
 export type { CreditPackageDto } from "@/gen-quest/types/credit-package-dto";
-export type { DailyMissionsControllerComplete201, DailyMissionsControllerCompleteMutation, DailyMissionsControllerCompleteMutationResponse, DailyMissionsControllerCompletePathParams } from "@/gen-quest/types/daily-missions-controller-complete";
-export type { DailyMissionsControllerList200, DailyMissionsControllerListQuery, DailyMissionsControllerListQueryResponse } from "@/gen-quest/types/daily-missions-controller-list";
 export type { DebugLogControllerLog201, DebugLogControllerLogMutation, DebugLogControllerLogMutationResponse } from "@/gen-quest/types/debug-log-controller-log";
 export type { DeployAccountDto } from "@/gen-quest/types/deploy-account-dto";
 export type { FomoAdminControllerCreate201, FomoAdminControllerCreateMutation, FomoAdminControllerCreateMutationRequest, FomoAdminControllerCreateMutationResponse } from "@/gen-quest/types/fomo-admin-controller-create";

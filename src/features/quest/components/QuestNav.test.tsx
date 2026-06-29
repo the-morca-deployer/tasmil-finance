@@ -1,37 +1,50 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { QuestNav } from "./QuestNav";
 
-const completeMutate = jest.fn();
-const missionState = { completedToday: false };
+const claimMutate = jest.fn();
+const claimState = { completedToday: false };
 
 jest.mock("next/navigation", () => ({ usePathname: () => "/quest/campaigns" }));
 jest.mock("@tanstack/react-query", () => ({
   useQueryClient: () => ({ invalidateQueries: jest.fn() }),
 }));
-jest.mock("sonner", () => ({ toast: { success: jest.fn(), error: jest.fn() } }));
-jest.mock("../lib/kubb-config", () => ({ withAuth: {}, $: {} }));
+jest.mock("sonner", () => ({ toast: { success: jest.fn(), error: jest.fn(), info: jest.fn() } }));
+jest.mock("../lib/kubb-config", () => ({ withAuth: {}, $: { query: {} } }));
 jest.mock("@/gen-quest", () => ({
   useUsersControllerGetMe: () => ({
     data: { data: { totalPoints: 360, loginStreak: 1, walletAddress: "GABC...XYZ" } },
   }),
-  useDailyMissionsControllerComplete: () => ({ mutate: completeMutate, isPending: false }),
-  useDailyMissionsControllerList: () => ({
+  useCampaignsControllerFindAll: () => ({
     data: {
       data: [
         {
-          taskId: "task-login-001",
-          campaignId: "campaign-daily-001",
-          type: "LOGIN_CHECKIN",
-          title: "Daily Login",
-          pointReward: 10,
-          order: 1,
-          completedToday: missionState.completedToday,
-          pointsAwarded: null,
+          id: "campaign-daily-001",
+          isDaily: true,
+          title: "Daily Missions",
         },
       ],
     },
   }),
-  dailyMissionsControllerListQueryKey: () => ["dm"],
+  useCampaignsControllerFindOne: () => ({
+    data: {
+      data: {
+        id: "campaign-daily-001",
+        isDaily: true,
+        tasks: [
+          {
+            id: "task-login-001",
+            type: "LOGIN_CHECKIN",
+            title: "Daily Login",
+            pointReward: 10,
+          },
+        ],
+      },
+    },
+  }),
+  useTasksControllerGetClaimStatus: () => ({
+    data: { data: { completedToday: claimState.completedToday, claimed: false } },
+  }),
+  useTasksControllerClaimTask: () => ({ mutate: claimMutate, isPending: false }),
   usersControllerGetMeQueryKey: () => ["me"],
 }));
 jest.mock("../context/wallet-context", () => ({
@@ -43,8 +56,8 @@ jest.mock("../store/use-quest-auth", () => ({
 
 describe("QuestNav", () => {
   beforeEach(() => {
-    completeMutate.mockReset();
-    missionState.completedToday = false;
+    claimMutate.mockReset();
+    claimState.completedToday = false;
   });
 
   it("renders nav links with production routes", () => {
@@ -61,7 +74,6 @@ describe("QuestNav", () => {
   });
   it("marks Campaigns active on /quest/campaigns", () => {
     render(<QuestNav />);
-    // Active link uses text-[var(--text)]; inactive links use text-[var(--muted)]
     expect(screen.getByRole("link", { name: /Campaigns/i }).className).toContain(
       "text-[var(--text)]"
     );
@@ -74,11 +86,11 @@ describe("QuestNav", () => {
   it("checks in when the streak pill is clicked", () => {
     render(<QuestNav />);
     fireEvent.click(screen.getByRole("button", { name: /daily check-in/i }));
-    expect(completeMutate).toHaveBeenCalledTimes(1);
-    expect(completeMutate).toHaveBeenCalledWith({ taskId: "task-login-001" });
+    expect(claimMutate).toHaveBeenCalledTimes(1);
+    expect(claimMutate).toHaveBeenCalledWith({ id: "task-login-001" });
   });
   it("disables check-in once already checked in", () => {
-    missionState.completedToday = true;
+    claimState.completedToday = true;
     render(<QuestNav />);
     const pill = screen.getByRole("button", { name: /checked in today/i });
     expect(pill).toBeDisabled();

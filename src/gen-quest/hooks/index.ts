@@ -141,9 +141,6 @@ export type { CreditControllerListLedgerQueryKey } from "@/gen-quest/hooks/use-c
 export type { CreditInternalControllerApplyMutationKey } from "@/gen-quest/hooks/use-credit-internal-controller-apply";
 export type { CreditPackageControllerListSuspenseQueryKey } from "@/gen-quest/hooks/use-credit-package-controller-list-suspense";
 export type { CreditPackageControllerListQueryKey } from "@/gen-quest/hooks/use-credit-package-controller-list";
-export type { DailyMissionsControllerCompleteMutationKey } from "@/gen-quest/hooks/use-daily-missions-controller-complete";
-export type { DailyMissionsControllerListSuspenseQueryKey } from "@/gen-quest/hooks/use-daily-missions-controller-list-suspense";
-export type { DailyMissionsControllerListQueryKey } from "@/gen-quest/hooks/use-daily-missions-controller-list";
 export type { DebugLogControllerLogMutationKey } from "@/gen-quest/hooks/use-debug-log-controller-log";
 export type { FomoAdminControllerCreateMutationKey } from "@/gen-quest/hooks/use-fomo-admin-controller-create";
 export type { FomoAdminControllerListSuspenseQueryKey } from "@/gen-quest/hooks/use-fomo-admin-controller-list-suspense";
@@ -753,15 +750,6 @@ export { useCreditPackageControllerListSuspense } from "@/gen-quest/hooks/use-cr
 export { creditPackageControllerListQueryKey } from "@/gen-quest/hooks/use-credit-package-controller-list";
 export { creditPackageControllerListQueryOptions } from "@/gen-quest/hooks/use-credit-package-controller-list";
 export { useCreditPackageControllerList } from "@/gen-quest/hooks/use-credit-package-controller-list";
-export { dailyMissionsControllerCompleteMutationKey } from "@/gen-quest/hooks/use-daily-missions-controller-complete";
-export { dailyMissionsControllerCompleteMutationOptions } from "@/gen-quest/hooks/use-daily-missions-controller-complete";
-export { useDailyMissionsControllerComplete } from "@/gen-quest/hooks/use-daily-missions-controller-complete";
-export { dailyMissionsControllerListSuspenseQueryKey } from "@/gen-quest/hooks/use-daily-missions-controller-list-suspense";
-export { dailyMissionsControllerListSuspenseQueryOptions } from "@/gen-quest/hooks/use-daily-missions-controller-list-suspense";
-export { useDailyMissionsControllerListSuspense } from "@/gen-quest/hooks/use-daily-missions-controller-list-suspense";
-export { dailyMissionsControllerListQueryKey } from "@/gen-quest/hooks/use-daily-missions-controller-list";
-export { dailyMissionsControllerListQueryOptions } from "@/gen-quest/hooks/use-daily-missions-controller-list";
-export { useDailyMissionsControllerList } from "@/gen-quest/hooks/use-daily-missions-controller-list";
 export { debugLogControllerLogMutationKey } from "@/gen-quest/hooks/use-debug-log-controller-log";
 export { debugLogControllerLogMutationOptions } from "@/gen-quest/hooks/use-debug-log-controller-log";
 export { useDebugLogControllerLog } from "@/gen-quest/hooks/use-debug-log-controller-log";

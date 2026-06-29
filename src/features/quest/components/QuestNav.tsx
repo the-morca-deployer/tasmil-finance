@@ -4,14 +4,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, Copy, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import { useWallet } from "@/features/quest/context/wallet-context";
-import type { DailyMission } from "@/features/quest/lib/fomo-types";
 import { unwrapEnvelope } from "@/features/quest/lib/season-types";
 import {
-  dailyMissionsControllerListQueryKey,
-  useDailyMissionsControllerComplete,
-  useDailyMissionsControllerList,
+  useCampaignsControllerFindAll,
+  useCampaignsControllerFindOne,
+  useTasksControllerClaimTask,
+  useTasksControllerGetClaimStatus,
   usersControllerGetMeQueryKey,
   useUsersControllerGetMe,
 } from "@/gen-quest";
@@ -35,6 +36,24 @@ interface MeFields {
   walletAddress?: string;
 }
 
+interface CampaignItem {
+  id?: string;
+  isDaily?: boolean;
+  [key: string]: unknown;
+}
+
+interface TaskItem {
+  id?: string;
+  type?: string;
+  taskType?: string;
+  [key: string]: unknown;
+}
+
+interface ClaimStatusData {
+  completedToday?: boolean;
+  claimed?: boolean;
+}
+
 const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 
 const shorten = (addr: string) =>
@@ -43,15 +62,12 @@ const shorten = (addr: string) =>
 export function QuestNav() {
   const path = usePathname() ?? "";
   const { user, isAuthenticated } = useQuestAuthStore();
-  // Only probe /users/me when there is a quest session — avoids a 401 on every
-  // page load while logged out.
   const { data } = useUsersControllerGetMe({
     ...$,
     query: { ...$.query, enabled: isAuthenticated },
   });
   const queryClient = useQueryClient();
 
-  // The /me payload is typed `any` by the generator; read the fields we need.
   const { connect, disconnect, isAuthenticating } = useWallet();
   const me = ((data as { data?: MeFields } | undefined)?.data ?? {}) as MeFields;
   const points = me.totalPoints ?? 0;
@@ -64,38 +80,74 @@ export function QuestNav() {
     toast.success("Address copied");
   };
 
-  const { data: missionsData } = useDailyMissionsControllerList({
-    ...$,
-    query: { ...$.query, enabled: isAuthenticated },
-  });
-  const missions = unwrapEnvelope<DailyMission[]>(missionsData) ?? [];
-  const loginMission = missions.find((m) => m.type === "LOGIN_CHECKIN");
-  const hasCheckedIn = loginMission?.completedToday ?? false;
+  // Find the daily campaign from the campaigns list
+  const { data: campaignsData } = useCampaignsControllerFindAll(
+    {},
+    {
+      ...$,
+      query: { ...$.query, enabled: isAuthenticated },
+    }
+  );
+  const campaigns = unwrapEnvelope<CampaignItem[]>(campaignsData) ?? [];
+  const dailyCampaign = campaigns.find((c) => c.isDaily === true);
+  const dailyCampaignId = dailyCampaign?.id;
 
-  const complete = useDailyMissionsControllerComplete({
+  // Fetch the daily campaign's tasks to find the LOGIN_CHECKIN task
+  const { data: dailyCampaignData } = useCampaignsControllerFindOne(dailyCampaignId, {
+    ...$,
+    query: { ...$.query, enabled: !!dailyCampaignId },
+  });
+
+  const loginTask = useMemo<TaskItem | undefined>(() => {
+    if (!dailyCampaignData) return undefined;
+    const payload = (dailyCampaignData as { data?: unknown } | undefined)?.data ?? dailyCampaignData;
+    const tasks: TaskItem[] =
+      (payload as { tasks?: TaskItem[] })?.tasks ??
+      ((payload as { campaign?: { tasks?: TaskItem[] } })?.campaign?.tasks) ??
+      [];
+    return tasks.find(
+      (t) =>
+        (t.type ?? t.taskType)?.toUpperCase() === "LOGIN_CHECKIN"
+    );
+  }, [dailyCampaignData]);
+
+  const loginTaskId = loginTask?.id;
+
+  // Get completedToday state for the LOGIN_CHECKIN task
+  const { data: claimStatusRaw } = useTasksControllerGetClaimStatus(loginTaskId, {
+    ...$,
+    query: { ...$.query, enabled: !!loginTaskId },
+  });
+  const claimStatus = ((claimStatusRaw as { data?: ClaimStatusData } | undefined)?.data ??
+    claimStatusRaw) as ClaimStatusData | undefined;
+  const hasCheckedIn = claimStatus?.completedToday ?? false;
+
+  const claimMutation = useTasksControllerClaimTask({
     ...withAuth,
     mutation: {
       onSuccess: async (result) => {
-        await queryClient.invalidateQueries({ queryKey: dailyMissionsControllerListQueryKey() });
         await queryClient.invalidateQueries({ queryKey: usersControllerGetMeQueryKey() });
         const awarded = (result as { data?: { pointsAwarded?: number } } | undefined)?.data
           ?.pointsAwarded;
         toast.success(awarded ? `Check-in successful! +${awarded} points` : "Check-in successful!");
       },
-      onError: (error: Error) => {
-        toast.error(error.message || "Failed to check in. Please try again.");
+      onError: (error: unknown) => {
+        const envelope = error as { response?: { status?: number; data?: { message?: string } } };
+        if (envelope.response?.status === 409) {
+          toast.info("Already checked in today");
+        } else {
+          toast.error("Failed to check in. Please try again.");
+        }
       },
     },
   });
 
   const handleCheckIn = () => {
-    if (complete.isPending || hasCheckedIn || !loginMission) return;
-    complete.mutate({ taskId: loginMission.taskId });
+    if (claimMutation.isPending || hasCheckedIn || !loginTaskId) return;
+    claimMutation.mutate({ id: loginTaskId });
   };
 
   const isActive = (href: string) => {
-    // Explore lives at /quest (and /quest/explore); don't let its prefix match
-    // every other /quest/* route.
     if (href === "/quest") {
       return path === "/quest" || path.startsWith("/quest/explore");
     }
@@ -153,7 +205,6 @@ export function QuestNav() {
               isActive(l.href)
                 ? [
                     "text-[var(--text)]",
-                    // .nav-item.active::after
                     "after:content-[''] after:absolute after:left-[15px] after:right-[15px]",
                     "after:bottom-[1px] after:h-0.5 after:rounded-[2px]",
                     "after:bg-[var(--accent)]",
@@ -186,23 +237,25 @@ export function QuestNav() {
           {fmt(points)}
         </span>
 
-        {/* .stat-pill.streak */}
-        <button
-          type="button"
-          className={cn(
-            "inline-flex items-center gap-[7px] text-[13.5px] font-semibold",
-            "px-[14px] py-[8px] rounded-quest-pill",
-            "bg-[var(--surface)] border border-[var(--line-2)]",
-            "text-quest-amber [&_svg]:text-quest-amber",
-            "max-[680px]:hidden"
-          )}
-          onClick={handleCheckIn}
-          disabled={!isAuthenticated || hasCheckedIn || complete.isPending}
-          aria-label={hasCheckedIn ? "Checked in today" : "Daily check-in"}
-        >
-          <Flame style={{ width: 19, height: 19 }} />
-          {fmt(streak)}
-        </button>
+        {/* .stat-pill.streak — only rendered when a daily campaign+loginTask exist */}
+        {loginTaskId && (
+          <button
+            type="button"
+            className={cn(
+              "inline-flex items-center gap-[7px] text-[13.5px] font-semibold",
+              "px-[14px] py-[8px] rounded-quest-pill",
+              "bg-[var(--surface)] border border-[var(--line-2)]",
+              "text-quest-amber [&_svg]:text-quest-amber",
+              "max-[680px]:hidden"
+            )}
+            onClick={handleCheckIn}
+            disabled={!isAuthenticated || hasCheckedIn || claimMutation.isPending}
+            aria-label={hasCheckedIn ? "Checked in today" : "Daily check-in"}
+          >
+            <Flame style={{ width: 19, height: 19 }} />
+            {fmt(streak)}
+          </button>
+        )}
 
         {/* Wallet chip — matches main /chat navbar (TopbarWallet) */}
         {address && (

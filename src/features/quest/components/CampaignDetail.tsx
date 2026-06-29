@@ -69,6 +69,7 @@ interface TaskStatusData {
 /** Per-task claim response read off useTasksControllerGetClaimStatus. */
 interface TaskClaimData {
   claimed?: boolean;
+  completedToday?: boolean;
   claim?: { pointsEarned?: number };
 }
 
@@ -136,6 +137,7 @@ interface CampaignDetailPayload {
   meta?: { avatars?: string[] };
   id?: string;
   tasks?: ApiTask[];
+  isDaily?: boolean;
 }
 
 /** Mutation variables for linking a social account. */
@@ -172,6 +174,7 @@ interface QuestItemProps {
   step: CampaignStep;
   taskId?: string;
   isAuthenticated?: boolean;
+  isDaily?: boolean;
   onVerified?: () => void;
   onProfileUpdate?: () => void;
   socialAccounts?: SocialAccount[];
@@ -183,6 +186,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
   step,
   taskId,
   isAuthenticated,
+  isDaily = false,
   onVerified,
   onProfileUpdate,
   socialAccounts = [],
@@ -226,7 +230,11 @@ const QuestItem: React.FC<QuestItemProps> = ({
     ...withAuth,
     mutation: {
       onSuccess: async () => {
-        toast.success("Task reward claimed successfully!");
+        if (isDaily) {
+          toast.success("Check-in successful!");
+        } else {
+          toast.success("Task reward claimed successfully!");
+        }
         refetchClaimStatus();
         refetchTaskStatus();
         await queryClient.invalidateQueries({
@@ -239,10 +247,16 @@ const QuestItem: React.FC<QuestItemProps> = ({
         onProfileUpdate?.();
       },
       onError: (error: unknown) => {
-        console.error("Claim task error:", error);
-        toast.error(
-          extractApiErrorMessage(error, "Failed to claim task reward. Please try again.")
-        );
+        const envelope = error as ApiErrorEnvelope;
+        if (isDaily && envelope.response?.status === 409) {
+          toast.info("Already checked in today");
+          refetchClaimStatus();
+        } else {
+          console.error("Claim task error:", error);
+          toast.error(
+            extractApiErrorMessage(error, "Failed to claim task reward. Please try again.")
+          );
+        }
       },
     },
   });
@@ -416,7 +430,9 @@ const QuestItem: React.FC<QuestItemProps> = ({
     }
   };
 
-  const isClaimed = claimStatus?.claimed || false;
+  const isClaimed = isDaily
+    ? (claimStatus?.completedToday ?? false)
+    : (claimStatus?.claimed ?? false);
 
   return (
     <div
@@ -509,6 +525,49 @@ const QuestItem: React.FC<QuestItemProps> = ({
               </Button>
 
               {(() => {
+                // Daily tasks: skip verify, show direct check-in button
+                if (isDaily) {
+                  if (isClaimed) {
+                    return (
+                      <div className="flex flex-col gap-[4px]">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled
+                          style={{ opacity: 0.55 }}
+                        >
+                          <CheckCircle2 size={14} />
+                          Done today ✓
+                        </Button>
+                        <span className="text-[11px] text-quest-dim pl-[2px]">Resets daily</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="sm"
+                      disabled={claimTaskMutation.isPending}
+                      onClick={handleClaimTask}
+                    >
+                      {claimTaskMutation.isPending ? (
+                        <>
+                          <span className="w-[13px] h-[13px] border-2 border-current border-t-transparent rounded-full inline-block animate-[quest-spin_0.7s_linear_infinite]" />
+                          Checking in...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 size={14} />
+                          Check in{step.points ? ` (+${step.points})` : ""}
+                        </>
+                      )}
+                    </Button>
+                  );
+                }
+
+                // Non-daily tasks: existing verify → claim flow
                 const requiredPlatform = getRequiredPlatform(step.type);
                 const needsSocialAccount = requiredPlatform && !hasRequiredSocialAccount(step.type);
                 const rawStatus = taskStatus?.status?.toUpperCase();
@@ -920,6 +979,13 @@ const CampaignDetail: React.FC = () => {
     if (!payload) return [];
     const nestedTasks = (payload.campaign as { tasks?: ApiTask[] } | undefined)?.tasks;
     return nestedTasks ?? payload.tasks ?? [];
+  }, [payload]);
+
+  const isDaily = useMemo<boolean>(() => {
+    if (!payload) return false;
+    if (payload.isDaily) return true;
+    const nested = payload.campaign as { isDaily?: boolean } | undefined;
+    return nested?.isDaily ?? false;
   }, [payload]);
 
   const hasJoined = !!participation;
@@ -1418,6 +1484,7 @@ const CampaignDetail: React.FC = () => {
                     key={task.id}
                     taskId={task.id}
                     isAuthenticated={isAuthenticated}
+                    isDaily={isDaily}
                     socialAccounts={socialAccounts}
                     onConnectSocial={handleConnectSocial}
                     onLinkTelegramAccount={handleLinkTelegramAccount}
@@ -1441,6 +1508,7 @@ const CampaignDetail: React.FC = () => {
                     key={step.id}
                     taskId={step.id}
                     isAuthenticated={isAuthenticated}
+                    isDaily={isDaily}
                     socialAccounts={socialAccounts}
                     onConnectSocial={handleConnectSocial}
                     onLinkTelegramAccount={handleLinkTelegramAccount}
