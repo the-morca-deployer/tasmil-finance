@@ -26,6 +26,7 @@ export { QuestStep, type QuestStepProps } from "./components/QuestStep";
 export { RankMove } from "./components/RankMove";
 export { RankReveal } from "./components/RankReveal";
 export { RankRevealGate } from "./components/RankRevealGate";
+export { TierRewardRevealGate } from "./components/TierRewardRevealGate";
 export { Referrals } from "./components/Referrals";
 export { Rise } from "./components/Rise";
 export { StatRing } from "./components/StatRing";
