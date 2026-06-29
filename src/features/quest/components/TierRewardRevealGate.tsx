@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
+import { withAuth } from "@/features/quest/lib/kubb-config";
+import { RANK_ORDER } from "@/features/quest/lib/tier";
 import {
   useTierRewardsControllerList,
   useTierRewardsControllerClaim,
   tierRewardsControllerListQueryKey,
   usersControllerGetMeQueryKey,
 } from "@/gen-quest/hooks";
-import { withAuth } from "../lib/kubb-config";
-import { RANK_ORDER, type QuestRank } from "../lib/tier";
-import { useQuestAuthStore } from "../store/use-quest-auth";
 import { TierRewardReveal } from "./TierRewardReveal";
 
 interface TierRewardItem {
@@ -21,20 +21,25 @@ interface TierRewardItem {
   claimable: boolean;
 }
 
-/**
- * Auto-shows a sequential tier-reward reveal dialog for every claimable tier
- * (Bronze → … → Master) as soon as an authenticated user lands on a /quest route.
- * One dialog is shown at a time; dismissing or claiming advances to the next.
- */
 export function TierRewardRevealGate() {
   const isAuthenticated = useQuestAuthStore((s) => s.isAuthenticated);
+  const [dismissed, setDismissed] = useState(false);
   const queryClient = useQueryClient();
-  const [idx, setIdx] = useState(0);
 
-  const { data: raw } = useTierRewardsControllerList({
+  const { data } = useTierRewardsControllerList({
     ...withAuth,
     query: { enabled: isAuthenticated },
   });
+  const rewards: TierRewardItem[] = Array.isArray(data)
+    ? (data as TierRewardItem[])
+    : ((data as { data?: TierRewardItem[] } | undefined)?.data ?? []);
+
+  const queue = rewards
+    .filter((r) => r.claimable)
+    .sort(
+      (a, b) =>
+        RANK_ORDER.indexOf(a.tier as never) - RANK_ORDER.indexOf(b.tier as never),
+    );
 
   const claim = useTierRewardsControllerClaim({
     ...withAuth,
@@ -42,37 +47,21 @@ export function TierRewardRevealGate() {
       onSuccess: async () => {
         await queryClient.invalidateQueries({ queryKey: usersControllerGetMeQueryKey() });
         await queryClient.invalidateQueries({ queryKey: tierRewardsControllerListQueryKey() });
-        setIdx((i) => i + 1);
       },
     },
   });
 
-  if (!isAuthenticated) return null;
-
-  const all: TierRewardItem[] = Array.isArray(raw)
-    ? (raw as TierRewardItem[])
-    : ((raw as { data?: TierRewardItem[] } | undefined)?.data ?? []);
-
-  // Filter claimable items and sort by rank order (lowest tier first)
-  const claimable = all
-    .filter((r) => r.claimable)
-    .sort(
-      (a, b) =>
-        RANK_ORDER.indexOf(a.tier as QuestRank) - RANK_ORDER.indexOf(b.tier as QuestRank)
-    );
-
-  const current = claimable[idx];
-
-  if (!current) return null;
+  if (!isAuthenticated || dismissed || queue.length === 0) return null;
+  const current = queue[0]!;
 
   return (
     <TierRewardReveal
       open
-      tier={current.tier as QuestRank}
+      tier={current.tier}
       points={current.points}
-      loading={claim.isPending}
+      claiming={claim.isPending}
       onClaim={() => claim.mutate({ tier: current.tier })}
-      onClose={() => setIdx((i) => i + 1)}
+      onClose={() => setDismissed(true)}
     />
   );
 }
