@@ -16,7 +16,6 @@ import {
 } from "@/features/quest/lib/avatar";
 import { $, withAuth } from "@/features/quest/lib/kubb-config";
 import { buildShareUrl } from "@/features/quest/lib/referral-link";
-import { usersControllerSetReferralCode } from "@/gen-quest/client/users-controller-set-referral-code";
 import {
   type ReferralTree,
   type ReferralTreeNode,
@@ -24,6 +23,7 @@ import {
 } from "@/features/quest/lib/season-types";
 import { type QuestRank, RANK_ORDER, RANK_STYLES, rankFromPoints } from "@/features/quest/lib/tier";
 import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
+import { usersControllerSetReferralCode } from "@/gen-quest/client/users-controller-set-referral-code";
 import {
   referralControllerGetMyReferralQueryKey,
   tierRewardsControllerListQueryKey,
