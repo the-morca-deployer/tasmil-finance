@@ -52,6 +52,15 @@ const TARGETS: Record<string, Target> = {
       `${stripSlash(process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:6756")}/api-json`,
     clientImportPath: "@/lib/kubb-backend-client",
   },
+  // Quest routes live on the MAIN backend (port 6756); the frontend proxies
+  // /api/quest/* there. Shared custom client (JWT auth via kubb-backend-client).
+  quest: {
+    dir: "./src/gen-quest",
+    tempSpec: "./temp-openapi-quest.json",
+    specUrl: () =>
+      `${stripSlash(process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:6756")}/api-json`,
+    clientImportPath: "@/lib/kubb-backend-client",
+  },
 };
 
 const key = process.env.KUBB_TARGET ?? "";

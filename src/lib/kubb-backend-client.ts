@@ -11,10 +11,10 @@
  * client so the gen-backend hook files can import compatible types.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import backendAxios from "@/lib/kubb-backend";
 
-export type { RequestConfig, ResponseErrorConfig };
+export type { Client, RequestConfig, ResponseErrorConfig };
 
 /**
  * Drop-in for @kubb/plugin-client/clients/axios fetch.

@@ -1,0 +1,1 @@
+{"type":"object","properties":{"code":{"type":"string"},"title":{"type":"string"},"description":{"type":"string"},"type":{"type":"string","enum":["LOGIN_CHECKIN","STRATEGY_CHECKIN","REFERRAL"]},"pointReward":{"type":"number","minimum":1},"order":{"type":"number","default":0},"isActive":{"type":"boolean","default":true}},"x-readme-ref-name":"UpdateDailyMissionDto"}

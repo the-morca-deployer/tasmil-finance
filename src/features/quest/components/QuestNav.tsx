@@ -6,10 +6,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { useWallet } from "@/features/quest/context/wallet-context";
+import type { DailyMission } from "@/features/quest/lib/fomo-types";
+import { unwrapEnvelope } from "@/features/quest/lib/season-types";
 import {
+  dailyMissionsControllerListQueryKey,
+  useDailyMissionsControllerComplete,
+  useDailyMissionsControllerList,
   usersControllerGetMeQueryKey,
-  useUsersControllerDailyLogin,
-  useUsersControllerGetCheckInStatus,
   useUsersControllerGetMe,
 } from "@/gen-quest";
 import { cn } from "@/lib/utils";
@@ -61,24 +64,20 @@ export function QuestNav() {
     toast.success("Address copied");
   };
 
-  const { data: checkInData, refetch: refetchCheckIn } = useUsersControllerGetCheckInStatus({
-    ...withAuth,
-    query: {
-      enabled: isAuthenticated,
-      refetchOnWindowFocus: false,
-      staleTime: 0,
-      gcTime: 0,
-    },
+  const { data: missionsData } = useDailyMissionsControllerList({
+    ...$,
+    query: { ...$.query, enabled: isAuthenticated },
   });
-  const hasCheckedIn =
-    (checkInData as { data?: { hasCheckedIn?: boolean } } | undefined)?.data?.hasCheckedIn ?? false;
+  const missions = unwrapEnvelope<DailyMission[]>(missionsData) ?? [];
+  const loginMission = missions.find((m) => m.code === "daily-login");
+  const hasCheckedIn = loginMission?.completedToday ?? false;
 
-  const dailyLogin = useUsersControllerDailyLogin({
+  const complete = useDailyMissionsControllerComplete({
     ...withAuth,
     mutation: {
       onSuccess: async (result) => {
+        await queryClient.invalidateQueries({ queryKey: dailyMissionsControllerListQueryKey() });
         await queryClient.invalidateQueries({ queryKey: usersControllerGetMeQueryKey() });
-        await refetchCheckIn();
         const awarded = (result as { data?: { pointsAwarded?: number } } | undefined)?.data
           ?.pointsAwarded;
         toast.success(awarded ? `Check-in successful! +${awarded} points` : "Check-in successful!");
@@ -90,8 +89,8 @@ export function QuestNav() {
   });
 
   const handleCheckIn = () => {
-    if (dailyLogin.isPending || hasCheckedIn) return;
-    dailyLogin.mutate(undefined);
+    if (complete.isPending || hasCheckedIn) return;
+    complete.mutate({ code: "daily-login" });
   };
 
   const isActive = (href: string) => {
@@ -113,7 +112,7 @@ export function QuestNav() {
         "grid grid-cols-[1fr_auto_1fr] items-center",
         "px-[clamp(20px,5vw,56px)] py-4",
         "bg-[rgba(20,20,25,0.72)] backdrop-blur-[18px]",
-        "border-b border-[var(--line)]",
+        "border-b border-[var(--line)]"
       )}
     >
       {/* Brand — .brand + .mk + .brand-name */}
@@ -122,7 +121,7 @@ export function QuestNav() {
           "flex items-center gap-3",
           "font-bold text-[22px] tracking-[-0.03em]",
           "justify-self-start no-underline text-inherit",
-          "max-[680px]:text-[15px] max-[680px]:gap-2",
+          "max-[680px]:text-[15px] max-[680px]:gap-2"
         )}
         href="/quest"
       >
@@ -136,7 +135,7 @@ export function QuestNav() {
         <span
           className={cn(
             "bg-[linear-gradient(100deg,#fff_0%,#67e8f9_100%)]",
-            "bg-clip-text text-transparent",
+            "bg-clip-text text-transparent"
           )}
         >
           Tasmil Quest
@@ -160,10 +159,9 @@ export function QuestNav() {
                     "after:bg-[var(--accent)]",
                     "after:shadow-[0_0_10px_var(--accent-glow)]",
                   ].join(" ")
-                : [
-                    "text-[var(--muted)]",
-                    "hover:text-[var(--text)] hover:bg-white/[0.05]",
-                  ].join(" "),
+                : ["text-[var(--muted)]", "hover:text-[var(--text)] hover:bg-white/[0.05]"].join(
+                    " "
+                  )
             )}
             href={l.href}
           >
@@ -181,7 +179,7 @@ export function QuestNav() {
             "px-[14px] py-[8px] rounded-quest-pill",
             "bg-[var(--surface)] border border-[var(--line-2)]",
             "text-quest-accent [&_svg]:text-quest-accent",
-            "max-[680px]:hidden",
+            "max-[680px]:hidden"
           )}
         >
           <PtsCoin style={{ width: 20, height: 20 }} />
@@ -196,10 +194,10 @@ export function QuestNav() {
             "px-[14px] py-[8px] rounded-quest-pill",
             "bg-[var(--surface)] border border-[var(--line-2)]",
             "text-quest-amber [&_svg]:text-quest-amber",
-            "max-[680px]:hidden",
+            "max-[680px]:hidden"
           )}
           onClick={handleCheckIn}
-          disabled={!isAuthenticated || hasCheckedIn || dailyLogin.isPending}
+          disabled={!isAuthenticated || hasCheckedIn || complete.isPending}
           aria-label={hasCheckedIn ? "Checked in today" : "Daily check-in"}
         >
           <Flame style={{ width: 19, height: 19 }} />

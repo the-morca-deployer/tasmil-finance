@@ -1,0 +1,1 @@
+{"type":"object","properties":{"walletAddress":{"type":"string","example":"GABC...XYZ"}},"required":["walletAddress"],"x-readme-ref-name":"AdminChallengeDto"}
