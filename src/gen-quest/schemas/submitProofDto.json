@@ -1,8 +1,1 @@
-{
-  "type": "object",
-  "properties": {
-    "proofData": { "type": "string", "description": "Proof content such as URL or text" }
-  },
-  "required": ["proofData"],
-  "x-readme-ref-name": "SubmitProofDto"
-}
+{"type":"object","properties":{"proofData":{"type":"string","description":"Proof content such as URL or text"}},"required":["proofData"],"x-readme-ref-name":"SubmitProofDto"}

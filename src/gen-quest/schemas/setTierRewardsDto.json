@@ -1,0 +1,1 @@
+{"type":"object","properties":{"rewards":{"type":"array","items":{"type":"object","properties":{"tier":{"type":"string"},"points":{"type":"number","minimum":0},"isActive":{"type":"boolean"}},"required":["tier"],"x-readme-ref-name":"TierRewardItemDto"}}},"required":["rewards"],"x-readme-ref-name":"SetTierRewardsDto"}
