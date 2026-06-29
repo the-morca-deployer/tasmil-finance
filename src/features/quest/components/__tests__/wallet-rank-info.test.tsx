@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { WalletRankInfo } from "../WalletRankInfo";
 
 jest.mock("@/gen-quest/hooks", () => ({
-  useUsersControllerGetMe: () => ({ data: { data: { tier: "COHORT_4", totalPoints: 10 } } }),
+  useUsersControllerGetMe: () => ({ data: { tier: "COHORT_4", totalPoints: 150 } }),
   useSeasonsControllerMyResult: () => ({ data: { data: { finalRank: 34, percentile: 92 } } }),
 }));
 
@@ -11,6 +11,6 @@ describe("WalletRankInfo", () => {
     render(<WalletRankInfo />);
     expect(screen.getByTestId("wallet-rank-info")).toHaveTextContent("#34");
     expect(screen.getByTestId("wallet-rank-info")).toHaveTextContent(/bronze/i);
-    expect(screen.getByTestId("wallet-rank-info")).toHaveTextContent("10");
+    expect(screen.getByTestId("wallet-rank-info")).toHaveTextContent("150");
   });
 });

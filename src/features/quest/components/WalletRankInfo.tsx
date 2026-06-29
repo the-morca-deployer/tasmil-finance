@@ -1,5 +1,7 @@
 "use client";
 
+import { $ } from "@/features/quest/lib/kubb-config";
+import { rankFromPoints } from "@/features/quest/lib/tier";
 import { useSeasonsControllerMyResult, useUsersControllerGetMe } from "@/gen-quest/hooks";
 
 type QuestProfile = {
@@ -12,23 +14,16 @@ type SeasonResult = {
   percentile?: number;
 };
 
-const TIER_LABEL: Record<string, string> = {
-  COHORT_4: "Bronze",
-  COHORT_3: "Silver",
-  COHORT_2: "Gold",
-  COHORT_1: "Diamond",
-  UNRANKED: "Unranked",
-};
-
 export function WalletRankInfo() {
-  const me = useUsersControllerGetMe();
-  const profile = (me.data?.data as QuestProfile | undefined) ?? null;
+  // `$` already unwraps the `{ success, data }` envelope → `me.data` is the profile.
+  const me = useUsersControllerGetMe($);
+  const profile = (me.data as QuestProfile | undefined) ?? null;
   const myResult = useSeasonsControllerMyResult();
   const result = myResult.data?.data as SeasonResult | undefined;
 
   if (!profile) return null;
 
-  const tier = TIER_LABEL[profile.tier ?? "UNRANKED"] ?? "Unranked";
+  const tier = rankFromPoints(profile.totalPoints ?? 0).rank;
   const parts: string[] = [
     result?.finalRank != null ? `#${result.finalRank}` : null,
     result?.percentile != null ? `top ${result.percentile}%` : null,

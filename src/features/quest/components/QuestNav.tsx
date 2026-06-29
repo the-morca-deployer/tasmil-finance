@@ -37,6 +37,16 @@ const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 const shorten = (addr: string) =>
   addr.length > 12 ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : addr;
 
+// Shared base so the PTS, check-in and wallet chips render identically
+// (same height, radius, border, surface and text size). Each chip layers
+// its own accent color on top.
+const CHIP_BASE = cn(
+  "inline-flex h-10 items-center gap-[7px]",
+  "px-[14px] text-[13.5px] font-semibold",
+  "rounded-quest-pill bg-[var(--surface)] border border-[var(--line-2)]",
+  "transition-colors"
+);
+
 export function QuestNav() {
   const path = usePathname() ?? "";
   const { user, isAuthenticated } = useQuestAuthStore();
@@ -47,7 +57,9 @@ export function QuestNav() {
   const queryClient = useQueryClient();
 
   const { connect, disconnect, isAuthenticating } = useWallet();
-  const me = ((data as { data?: MeFields } | undefined)?.data ?? {}) as MeFields;
+  // `$` routes through questApiClient, whose interceptor already unwraps the
+  // `{ success, data }` envelope — so `data` IS the profile (no extra `.data`).
+  const me = ((data as MeFields | undefined) ?? {}) as MeFields;
   const points = me.totalPoints ?? 0;
   const streak = me.loginStreak ?? 0;
   const address = me.walletAddress ?? user?.walletAddress ?? "";
@@ -65,8 +77,7 @@ export function QuestNav() {
       query: { ...$.query, enabled: isAuthenticated, staleTime: 0, gcTime: 0 },
     });
   const hasCheckedIn =
-    (checkInStatusData as { data?: { hasCheckedIn?: boolean } } | undefined)?.data?.hasCheckedIn ??
-    false;
+    (checkInStatusData as { hasCheckedIn?: boolean } | undefined)?.hasCheckedIn ?? false;
 
   // Daily login mutation
   const dailyLogin = useUsersControllerDailyLogin({
@@ -75,8 +86,7 @@ export function QuestNav() {
       onSuccess: async (result) => {
         await queryClient.invalidateQueries({ queryKey: usersControllerGetMeQueryKey() });
         await refetchCheckInStatus();
-        const awarded = (result as { data?: { pointsAwarded?: number } } | undefined)?.data
-          ?.pointsAwarded;
+        const awarded = (result as { pointsAwarded?: number } | undefined)?.pointsAwarded;
         toast.success(awarded ? `Check-in successful! +${awarded} points` : "Check-in successful!");
       },
       onError: (error: unknown) => {
@@ -171,37 +181,40 @@ export function QuestNav() {
 
       {/* Right side — .nav-right */}
       <div className="flex items-center gap-3 justify-self-end">
-        {/* .stat-pill.pts */}
-        <span
-          className={cn(
-            "inline-flex items-center gap-[7px] text-[13.5px] font-semibold",
-            "px-[14px] py-[8px] rounded-quest-pill",
-            "bg-[var(--surface)] border border-[var(--line-2)]",
-            "text-quest-accent [&_svg]:text-quest-accent",
-            "max-[680px]:hidden"
-          )}
-        >
-          <PtsCoin style={{ width: 20, height: 20 }} />
-          {fmt(points)}
-        </span>
+        {/* PTS + streak chips only make sense once the wallet is connected/authenticated */}
+        {isAuthenticated && (
+          <>
+            {/* .stat-pill.pts */}
+            <span
+              className={cn(
+                CHIP_BASE,
+                "text-quest-accent [&_svg]:text-quest-accent",
+                "max-[680px]:hidden"
+              )}
+            >
+              <PtsCoin style={{ width: 20, height: 20 }} />
+              {fmt(points)}
+            </span>
 
-        {/* .stat-pill.streak — same color; text shows whether check-in is due */}
-        <button
-          type="button"
-          className={cn(
-            "inline-flex items-center gap-[7px] text-[13.5px] font-semibold",
-            "px-[14px] py-[8px] rounded-quest-pill max-[680px]:hidden",
-            "bg-[var(--surface)] border border-[var(--line-2)]",
-            "text-quest-amber [&_svg]:text-quest-amber"
-          )}
-          onClick={handleCheckIn}
-          disabled={!isAuthenticated || hasCheckedIn || dailyLogin.isPending}
-          aria-label={hasCheckedIn ? "Checked in today" : "Daily check-in"}
-          title={hasCheckedIn ? "Checked in today" : "Click to check in (+points)"}
-        >
-          <Flame style={{ width: 19, height: 19 }} />
-          {dailyLogin.isPending ? "…" : hasCheckedIn ? `${fmt(streak)} ✓` : "Check in"}
-        </button>
+            {/* .stat-pill.streak — same color; text shows whether check-in is due */}
+            <button
+              type="button"
+              className={cn(
+                CHIP_BASE,
+                "text-quest-amber [&_svg]:text-quest-amber",
+                "hover:bg-white/[0.05] disabled:cursor-default disabled:hover:bg-[var(--surface)]",
+                "max-[680px]:hidden"
+              )}
+              onClick={handleCheckIn}
+              disabled={hasCheckedIn || dailyLogin.isPending}
+              aria-label={hasCheckedIn ? "Checked in today" : "Daily check-in"}
+              title={hasCheckedIn ? "Checked in today" : "Click to check in (+points)"}
+            >
+              <Flame style={{ width: 19, height: 19 }} />
+              {dailyLogin.isPending ? "…" : hasCheckedIn ? `${fmt(streak)} ✓` : "Check in"}
+            </button>
+          </>
+        )}
 
         {/* Wallet chip — matches main /chat navbar (TopbarWallet) */}
         {address && (
@@ -209,9 +222,9 @@ export function QuestNav() {
             <button
               type="button"
               data-testid="wallet-connected"
-              className="flex h-10 items-center gap-2.5 rounded-full border border-border bg-transparent px-3.5 font-medium text-base text-foreground transition-colors hover:bg-accent"
+              className={cn(CHIP_BASE, "text-[var(--text)] hover:bg-white/[0.05]")}
             >
-              <AddressAvatar address={address} size="size-6" iconSize="size-3.5" />
+              <AddressAvatar address={address} size="size-5" iconSize="size-3" />
               <span className="max-[680px]:hidden">{shorten(address)}</span>
               <ChevronDown className="h-4 w-4 opacity-60" />
             </button>

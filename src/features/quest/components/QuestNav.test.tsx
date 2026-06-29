@@ -12,10 +12,10 @@ jest.mock("sonner", () => ({ toast: { success: jest.fn(), error: jest.fn(), info
 jest.mock("../lib/kubb-config", () => ({ withAuth: {}, $: { query: {} } }));
 jest.mock("@/gen-quest", () => ({
   useUsersControllerGetMe: () => ({
-    data: { data: { totalPoints: 360, loginStreak: 1, walletAddress: "GABC...XYZ" } },
+    data: { totalPoints: 360, loginStreak: 1, walletAddress: "GABC...XYZ" },
   }),
   useUsersControllerGetCheckInStatus: () => ({
-    data: { data: { hasCheckedIn: checkInState.hasCheckedIn } },
+    data: { hasCheckedIn: checkInState.hasCheckedIn },
     refetch: jest.fn(),
   }),
   useUsersControllerDailyLogin: () => ({ mutate: dailyLoginMutate, isPending: false }),

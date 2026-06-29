@@ -2,6 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { Coins, Flame } from "lucide-react";
+import { $, withAuth } from "@/features/quest/lib/kubb-config";
 import {
   usersControllerGetMeQueryKey,
   useUsersControllerDailyLogin,
@@ -14,19 +15,22 @@ type QuestProfile = {
   loginStreak?: number;
 };
 
-type CheckInData = {
-  canCheckIn?: boolean;
-};
-
 export function QuestHeaderBadges() {
   const queryClient = useQueryClient();
-  const me = useUsersControllerGetMe();
-  const profile = (me.data?.data as QuestProfile | undefined) ?? null;
+  // `$` routes through questApiClient, whose interceptor already unwraps the
+  // `{ success, data }` envelope — so `me.data` IS the profile (no extra `.data`).
+  const me = useUsersControllerGetMe($);
+  const profile = (me.data as QuestProfile | undefined) ?? null;
 
-  const checkIn = useUsersControllerGetCheckInStatus();
-  const canCheckIn = (checkIn.data?.data as CheckInData | undefined)?.canCheckIn ?? false;
+  // Backend `GET /quest/users/me/check-in-status` returns `{ hasCheckedIn }`
+  // (there is no `canCheckIn`); you can check in only when you haven't yet.
+  const checkIn = useUsersControllerGetCheckInStatus($);
+  const hasCheckedIn =
+    (checkIn.data as { hasCheckedIn?: boolean } | undefined)?.hasCheckedIn ?? false;
+  const canCheckIn = !hasCheckedIn;
 
   const dailyLogin = useUsersControllerDailyLogin({
+    ...withAuth,
     mutation: {
       onSuccess: () => queryClient.invalidateQueries({ queryKey: usersControllerGetMeQueryKey() }),
     },
