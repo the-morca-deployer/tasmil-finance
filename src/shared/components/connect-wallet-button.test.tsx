@@ -47,7 +47,7 @@ describe("ConnectWalletButton variant='topbar'", () => {
     render(<ConnectWalletButton variant="topbar" />);
     const trigger = screen.getByTestId("wallet-connected");
     expect(trigger).toHaveTextContent("GABC…XY");
-    expect(trigger.querySelector(".bg-gradient-to-br")).not.toBeNull();
+    expect(trigger.querySelector(".rounded-full")).not.toBeNull();
   });
 
   it("opens dropdown with Credits row showing formatted balance", async () => {

@@ -1,11 +1,11 @@
 "use client";
 
-import { Check, ChevronDown, Copy, ExternalLink, LogOut, User } from "lucide-react";
+import { Check, ChevronDown, Copy, ExternalLink, LogOut } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { useCredits } from "@/features/credits/use-credits";
-import { cn } from "@/lib/utils";
+import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 import { getExplorerUrl, isMainnet } from "@/shared/config/stellar";
 import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
@@ -31,38 +31,14 @@ interface AddressAvatarProps {
   iconSize?: string;
 }
 
-const AddressAvatar = ({ address, size = "size-12", iconSize }: AddressAvatarProps) => {
-  const hash = address.split("").reduce((acc, char) => {
-    const newAcc = (acc << 5) - acc + char.charCodeAt(0);
-    return newAcc & newAcc;
-  }, 0);
+function sizeClassToPx(size: string): number {
+  const n = Number.parseInt(size.replace(/[^0-9]/g, ""), 10);
+  return Number.isFinite(n) && n > 0 ? n * 4 : 48;
+}
 
-  const colors = [
-    "bg-gradient-to-br from-blue-500 to-purple-600",
-    "bg-gradient-to-br from-green-500 to-blue-600",
-    "bg-gradient-to-br from-purple-500 to-pink-600",
-    "bg-gradient-to-br from-orange-500 to-red-600",
-    "bg-gradient-to-br from-cyan-500 to-blue-600",
-    "bg-gradient-to-br from-pink-500 to-purple-600",
-    "bg-gradient-to-br from-yellow-500 to-orange-600",
-    "bg-gradient-to-br from-indigo-500 to-purple-600",
-  ];
-
-  const colorIndex = Math.abs(hash) % colors.length;
-  const gradientClass = colors[colorIndex];
-
-  return (
-    <div
-      className={cn(
-        "flex items-center justify-center rounded-full border-2 border-white/20 font-bold text-sm text-white",
-        size,
-        gradientClass
-      )}
-    >
-      <User className={cn("size-5", iconSize)} />
-    </div>
-  );
-};
+const AddressAvatar = ({ address, size = "size-12" }: AddressAvatarProps) => (
+  <TasmilAvatar seed={address} size={sizeClassToPx(size)} />
+);
 
 interface ConnectWalletButtonProps {
   variant?: "topbar" | "sidebar";
@@ -206,10 +182,10 @@ function TopbarWallet({
         <button
           type="button"
           data-testid="wallet-connected"
-          className="flex h-10 items-center gap-2.5 rounded-full border border-border bg-transparent px-3.5 font-medium text-base text-foreground transition-colors hover:bg-accent"
+          className="inline-flex h-10 items-center gap-[10px] rounded-quest-pill border border-quest-line-2 bg-quest-surface pr-[14px] pl-[6px] font-semibold text-[13.5px] text-quest-text transition-colors hover:bg-white/[0.05]"
         >
-          <AddressAvatar address={address ?? ""} size="size-6" iconSize="size-3.5" />
-          <span>{displayAddress}</span>
+          <AddressAvatar address={address ?? ""} size="size-[30px]" iconSize="size-3.5" />
+          <span className="font-mono">{displayAddress}</span>
           <ChevronDown className="h-4 w-4 opacity-60" />
         </button>
       </DropdownMenuTrigger>

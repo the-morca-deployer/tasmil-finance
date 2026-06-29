@@ -1,12 +1,13 @@
 "use client";
 
-import { Copy, User } from "lucide-react";
+import { Copy } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
+import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 import { useWallet } from "@/shared/context/wallet-context";
 import { sidebarData } from "@/shared/layout/sidebar-data";
 import { Badge } from "@/shared/ui/badge";
@@ -15,38 +16,9 @@ import { Button } from "@/shared/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
 import { Typography } from "@/shared/ui/typography";
 
-// Component to generate abstract avatar from address
 const AddressAvatar = ({ address, size = "size-12" }: { address: string; size?: string }) => {
-  const hash = address.split("").reduce((acc, char) => {
-    const newAcc = (acc << 5) - acc + char.charCodeAt(0);
-    return newAcc & newAcc;
-  }, 0);
-
-  const colors = [
-    "bg-gradient-to-br from-blue-500 to-purple-600",
-    "bg-gradient-to-br from-green-500 to-blue-600",
-    "bg-gradient-to-br from-purple-500 to-pink-600",
-    "bg-gradient-to-br from-orange-500 to-red-600",
-    "bg-gradient-to-br from-cyan-500 to-blue-600",
-    "bg-gradient-to-br from-pink-500 to-purple-600",
-    "bg-gradient-to-br from-yellow-500 to-orange-600",
-    "bg-gradient-to-br from-indigo-500 to-purple-600",
-  ];
-
-  const colorIndex = Math.abs(hash) % colors.length;
-  const gradientClass = colors[colorIndex];
-
-  return (
-    <div
-      className={cn(
-        "flex items-center justify-center rounded-full border-2 border-white/20 font-bold text-sm text-white",
-        size,
-        gradientClass
-      )}
-    >
-      <User className="size-5" />
-    </div>
-  );
+  const px = Number.parseInt(size.replace(/[^0-9]/g, ""), 10);
+  return <TasmilAvatar seed={address} size={Number.isFinite(px) && px > 0 ? px * 4 : 48} />;
 };
 
 export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
@@ -144,10 +116,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
             return (
               <div className="flex w-full flex-col gap-2">
                 {/* Quest Card */}
-                <a
-                  href="/quest"
-                  className="block"
-                >
+                <a href="/quest" className="block">
                   <div className="group relative h-32 cursor-pointer overflow-hidden rounded-xl border border-border bg-zinc-900 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20">
                     <div className="absolute inset-0">
                       <Balatro
