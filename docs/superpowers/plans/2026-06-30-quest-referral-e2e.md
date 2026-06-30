@@ -16,6 +16,7 @@
 - Commission cascade depth is capped at 3 layers (`MAX_LAYERS = 3`, existing).
 - `referredByCode` on `/auth/verify` must be strictly optional and must not change existing login behavior when absent.
 - Commission rates are config-driven (`QuestReferralConfig`: L1=1000, L2=300, L3=100 bps, seeded). Do not hard-code rates in new code.
+- **Referral code format: UPPERCASE letters + digits only** (plus the existing `TASMIL-` style hyphen), e.g. `TASMIL-X7K9` — never lowercase. Generated codes use uppercase+digits. Custom codes are validated/normalized to uppercase (`.trim().toUpperCase()`, allowed charset `[A-Z0-9-]`). Any incoming `referredByCode` (from `?ref=`, localStorage, or a typed code) is normalized with `.trim().toUpperCase()` **before** the DB lookup, so a lowercased URL still matches.
 - Backend lint/format: follow existing module style. Frontend: Biome — 2-space indent, double quotes, `import type`, no `any`, no `console.log`.
 
 ---

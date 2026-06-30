@@ -40,11 +40,10 @@ describe("submitSignatureProof", () => {
     expect(mockSignFn).toHaveBeenCalledWith(CHALLENGE_MSG);
 
     // (c) POSTed publicKey + signedMessage to the verify-signature endpoint
-    expect(mockPost).toHaveBeenNthCalledWith(
-      2,
-      `/api/quest/tasks/${TASK_ID}/verify-signature`,
-      { publicKey: PUBLIC_KEY, signedMessage: SIGNED_HEX }
-    );
+    expect(mockPost).toHaveBeenNthCalledWith(2, `/api/quest/tasks/${TASK_ID}/verify-signature`, {
+      publicKey: PUBLIC_KEY,
+      signedMessage: SIGNED_HEX,
+    });
 
     // (d) resolves with the backend's success payload
     expect(result).toEqual({ success: true, message: "Signature verified!" });

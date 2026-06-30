@@ -33,8 +33,8 @@ import {
   mapApiCampaignsResponse,
   mapApiCampaignToCampaign,
 } from "@/features/quest/lib/campaign-mapper";
-import { submitSignatureProof } from "@/features/quest/lib/sign-message-verify";
 import { $, withAuth } from "@/features/quest/lib/kubb-config";
+import { submitSignatureProof } from "@/features/quest/lib/sign-message-verify";
 import type { CampaignStep } from "@/features/quest/types";
 import {
   useCampaignsControllerClaimCampaign,
@@ -346,7 +346,10 @@ export const QuestItem: React.FC<QuestItemProps> = ({
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "";
         // User rejected the wallet prompt — reset quietly without a toast.
-        if (msg.toLowerCase().includes("user rejected") || msg.toLowerCase().includes("user cancelled")) {
+        if (
+          msg.toLowerCase().includes("user rejected") ||
+          msg.toLowerCase().includes("user cancelled")
+        ) {
           setStatus("idle");
           return;
         }
