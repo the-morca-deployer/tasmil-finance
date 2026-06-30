@@ -39,6 +39,12 @@ interface WalletContextType {
   user: AuthUser | null;
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
+  /**
+   * Signs an arbitrary message with the currently-connected wallet and returns
+   * the signed string.  Throws if no wallet is connected or the user rejects.
+   * Used by the sign_message quest task to produce a verifiable proof.
+   */
+  signMessage: (message: string) => Promise<string>;
 }
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -476,6 +482,30 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     await disconnectAll();
   }, [logoutMutation]);
 
+  // ─── signMessage ─────────────────────────────────────────────────────────
+
+  const signMessage = useCallback(
+    async (message: string): Promise<string> => {
+      if (!address) throw new Error("No wallet connected");
+      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
+      try {
+        StellarWalletsKit.setWallet(address);
+      } catch {
+        /* ignore – some wallets don't need explicit selection */
+      }
+      const signResult = await StellarWalletsKit.signMessage(message, {
+        address,
+        networkPassphrase: activeNetwork.networkPassphrase,
+      });
+      return typeof signResult === "string"
+        ? signResult
+        : (((signResult as Record<string, unknown>).signedMessage as string | undefined) ??
+            ((signResult as Record<string, unknown>).signature as string | undefined) ??
+            String(signResult));
+    },
+    [address]
+  );
+
   // ─── Derived ─────────────────────────────────────────────────────────────
 
   const displayAddress = useMemo(() => {
@@ -497,6 +527,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         user,
         connect,
         disconnect,
+        signMessage,
       }}
     >
       {children}

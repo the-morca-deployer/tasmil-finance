@@ -33,6 +33,7 @@ import {
   mapApiCampaignsResponse,
   mapApiCampaignToCampaign,
 } from "@/features/quest/lib/campaign-mapper";
+import { submitSignatureProof } from "@/features/quest/lib/sign-message-verify";
 import { $, withAuth } from "@/features/quest/lib/kubb-config";
 import type { CampaignStep } from "@/features/quest/types";
 import {
@@ -197,6 +198,7 @@ export const QuestItem: React.FC<QuestItemProps> = ({
   const [status, setStatus] = useState<"idle" | "verifying" | "completed" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const { address, signMessage } = useWallet();
 
   // Fetch task status to check if verified
   const { data: taskStatusRaw, refetch: refetchTaskStatus } = useTasksControllerGetStatus(
@@ -310,7 +312,7 @@ export const QuestItem: React.FC<QuestItemProps> = ({
     },
   });
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     if (!taskId) {
       toast.error("Task ID is missing");
       return;
@@ -319,6 +321,44 @@ export const QuestItem: React.FC<QuestItemProps> = ({
       toast.error("Please connect your wallet first");
       return;
     }
+
+    // sign_message: fetch a fresh challenge, sign it, POST proof to backend.
+    if (step.checkId === "sign_message") {
+      if (!address) {
+        toast.error("No wallet address found. Please reconnect.");
+        return;
+      }
+      setStatus("verifying");
+      setErrorMessage(null);
+      try {
+        const result = await submitSignatureProof(taskId, address, signMessage);
+        if (result.success) {
+          setStatus("completed");
+          toast.success(result.message || "Signature verified!");
+          onVerified?.();
+          refetchTaskStatus();
+        } else {
+          setStatus("error");
+          setErrorMessage(result.message);
+          toast.error(result.message || "Verification failed");
+          setTimeout(() => setStatus("idle"), 2000);
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "";
+        // User rejected the wallet prompt — reset quietly without a toast.
+        if (msg.toLowerCase().includes("user rejected") || msg.toLowerCase().includes("user cancelled")) {
+          setStatus("idle");
+          return;
+        }
+        const displayMsg = msg || "Signing failed. Please try again.";
+        setStatus("error");
+        setErrorMessage(displayMsg);
+        toast.error(displayMsg);
+        setTimeout(() => setStatus("idle"), 2000);
+      }
+      return;
+    }
+
     setStatus("verifying");
     setErrorMessage(null);
     verifyTaskMutation.mutate({ id: taskId });
@@ -419,7 +459,7 @@ export const QuestItem: React.FC<QuestItemProps> = ({
 
   const handleVerifyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    handleVerify();
+    void handleVerify();
   };
 
   const handleConnectClick = (e: React.MouseEvent) => {
@@ -511,10 +551,16 @@ export const QuestItem: React.FC<QuestItemProps> = ({
                 type="button"
                 variant="ghost"
                 size="sm"
+                disabled={step.checkId === "sign_message" && status === "verifying"}
                 onClick={(e) => {
                   e.stopPropagation();
-                  const skipTracking =
-                    step.checkId === "wallet_connect" || step.checkId === "sign_message";
+                  // sign_message: the "Sign and Verify" label already describes
+                  // the action — trigger the wallet sign flow directly.
+                  if (step.checkId === "sign_message") {
+                    void handleVerify();
+                    return;
+                  }
+                  const skipTracking = step.checkId === "wallet_connect";
                   if (step.type === "visit" && taskId && !skipTracking) {
                     const trackingUrl = `/quest/visit/${taskId}?url=${encodeURIComponent(step.actionUrl)}`;
                     window.open(trackingUrl, "_blank");
@@ -523,8 +569,17 @@ export const QuestItem: React.FC<QuestItemProps> = ({
                   }
                 }}
               >
-                {getActionLabel(step.type)}
-                <ExternalLink size={12} />
+                {step.checkId === "sign_message" && status === "verifying" ? (
+                  <>
+                    <span className="w-[13px] h-[13px] border-2 border-current border-t-transparent rounded-full inline-block animate-[quest-spin_0.7s_linear_infinite]" />
+                    Signing...
+                  </>
+                ) : (
+                  <>
+                    {getActionLabel(step.type)}
+                    <ExternalLink size={12} />
+                  </>
+                )}
               </Button>
 
               {(() => {
