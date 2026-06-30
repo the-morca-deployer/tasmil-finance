@@ -42,10 +42,10 @@ export async function submitSignatureProof(
   const signedMessage = await signFn(challengeMessage);
 
   // 3. Submit the proof to the dedicated backend endpoint.
-  const verifyRes = await questApiClient.post(
-    `/api/quest/tasks/${taskId}/verify-signature`,
-    { publicKey, signedMessage }
-  );
+  const verifyRes = await questApiClient.post(`/api/quest/tasks/${taskId}/verify-signature`, {
+    publicKey,
+    signedMessage,
+  });
   const body = verifyRes.data as { success?: boolean; message?: string };
   return {
     success: body?.success ?? false,
