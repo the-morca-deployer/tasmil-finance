@@ -29,9 +29,11 @@ describe("referral-link", () => {
     expect(buildShareUrl("CODE-A")).toBe("http://localhost/r/CODE-A");
   });
 
-  it("buildShareUrl prefers NEXT_PUBLIC_APP_URL when set", () => {
+  it("buildShareUrl prefers the current browser origin even when NEXT_PUBLIC_APP_URL is set", () => {
+    // In a browser the share link must point at the domain the user is actually
+    // on (jsdom origin = "http://localhost"), not a build-time configured URL.
     process.env.NEXT_PUBLIC_APP_URL = "https://app.tasmil-finance.xyz";
-    expect(buildShareUrl("CODE-A")).toBe("https://app.tasmil-finance.xyz/r/CODE-A");
+    expect(buildShareUrl("CODE-A")).toBe("http://localhost/r/CODE-A");
     delete process.env.NEXT_PUBLIC_APP_URL;
   });
 

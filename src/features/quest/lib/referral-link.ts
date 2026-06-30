@@ -1,19 +1,11 @@
 const PENDING_KEY = "tasmil.referral.pendingCode";
 
-/**
- * Returns the base origin for share links, in priority order:
- *  1. NEXT_PUBLIC_APP_URL (explicit config — set in all environments)
- *  2. window.location.origin (browser client calls, e.g. click handlers)
- *  3. Hard-coded production origin as SSR/unknown-environment fallback
- */
-function getShareOrigin(): string {
-  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL;
-  if (typeof window !== "undefined") return window.location.origin;
-  return "https://app.tasmil-finance.xyz";
-}
-
 export function buildShareUrl(code: string): string {
-  return `${getShareOrigin()}/r/${code}`;
+  // Always use the domain the user is currently on — never .env or a hard-coded
+  // host. Share links are built inside click handlers, so window is defined; the
+  // empty-origin branch only guards SSR (where this is never actually called).
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  return `${origin}/r/${code}`;
 }
 
 export function readPendingReferralCode(): string | null {

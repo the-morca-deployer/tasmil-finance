@@ -20,7 +20,7 @@ import {
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -181,6 +181,7 @@ interface QuestItemProps {
   socialAccounts?: SocialAccount[];
   onConnectSocial?: (provider: "X" | "Discord" | "Telegram") => void;
   onLinkTelegramAccount?: (accountData: LinkAccountData) => void;
+  onCompletionChange?: (taskId: string, completed: boolean) => void;
 }
 
 export const QuestItem: React.FC<QuestItemProps> = ({
@@ -193,6 +194,7 @@ export const QuestItem: React.FC<QuestItemProps> = ({
   socialAccounts = [],
   onConnectSocial,
   onLinkTelegramAccount,
+  onCompletionChange,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [status, setStatus] = useState<"idle" | "verifying" | "completed" | "error">("idle");
@@ -224,8 +226,13 @@ export const QuestItem: React.FC<QuestItemProps> = ({
     }
   );
 
-  const taskStatus = (taskStatusRaw as { data?: TaskStatusData } | undefined)?.data;
-  const claimStatus = (claimStatusRaw as { data?: TaskClaimData } | undefined)?.data;
+  // The quest axios client unwraps the backend's { success, data } envelope, so
+  // the hook usually returns the inner object directly. Read defensively to
+  // support both the unwrapped object and a still-wrapped { data } shape.
+  const taskStatusObj = taskStatusRaw as (TaskStatusData & { data?: TaskStatusData }) | undefined;
+  const taskStatus = (taskStatusObj?.data ?? taskStatusObj) as TaskStatusData | undefined;
+  const claimStatusObj = claimStatusRaw as (TaskClaimData & { data?: TaskClaimData }) | undefined;
+  const claimStatus = (claimStatusObj?.data ?? claimStatusObj) as TaskClaimData | undefined;
 
   // Claim task mutation
   const claimTaskMutation = useTasksControllerClaimTask({
@@ -287,7 +294,12 @@ export const QuestItem: React.FC<QuestItemProps> = ({
     ...withAuth,
     mutation: {
       onSuccess: (data: unknown) => {
-        const innerData = (data as VerifyTaskResponse)?.data;
+        // Client may unwrap the { success, data } envelope, so accept either the
+        // inner { success, message } object or a still-wrapped { data } shape.
+        const verifyRaw = data as
+          | (VerifyTaskResponse["data"] & { data?: VerifyTaskResponse["data"] })
+          | undefined;
+        const innerData = verifyRaw?.data ?? verifyRaw;
         if (innerData?.success) {
           setStatus("completed");
           toast.success(innerData.message || "Task verified successfully!");
@@ -400,7 +412,7 @@ export const QuestItem: React.FC<QuestItemProps> = ({
       case "visit":
         return <ExternalLink size={20} className="text-brand-mid" />;
       default:
-        return <ExternalLink size={20} className="text-muted" />;
+        return <ExternalLink size={20} className="text-quest-muted" />;
     }
   };
 
@@ -477,14 +489,21 @@ export const QuestItem: React.FC<QuestItemProps> = ({
     ? (claimStatus?.completedToday ?? false)
     : (claimStatus?.claimed ?? false);
 
+  const isCompleted = isClaimed || status === "completed";
+
+  // Report completion upward so the parent can drive the quest-progress bar.
+  useEffect(() => {
+    if (taskId) onCompletionChange?.(taskId, isCompleted);
+  }, [taskId, isCompleted, onCompletionChange]);
+
   return (
     <div
       className={cn(
         "border border-quest-line [border-left-width:2px] [border-left-color:var(--color-quest-line)] rounded-quest-sm bg-quest-surface-2 overflow-hidden transition-[border-color,background] duration-300",
         isExpanded &&
           "[border-left-color:var(--color-quest-accent)] [background:rgba(20,20,22,0.75)]",
-        (isClaimed || status === "completed") &&
-          "[border-color:var(--color-quest-green-line)] [border-left-color:var(--color-quest-green)]"
+        isCompleted &&
+          "[border-color:var(--color-quest-green-line)] [border-left-color:var(--color-quest-green-line)]"
       )}
     >
       <button
@@ -495,23 +514,25 @@ export const QuestItem: React.FC<QuestItemProps> = ({
         <div
           className={cn(
             "w-9 h-9 rounded-[10px] grid place-items-center bg-quest-surface border border-quest-line-2 text-quest-text flex-none",
-            (isClaimed || status === "completed") &&
-              "bg-quest-green-soft border-quest-green-line text-quest-green"
+            isCompleted && "bg-quest-green-soft border-quest-green-line text-quest-green"
           )}
         >
-          {isClaimed || status === "completed" ? (
-            <CheckCircle2 size={18} />
-          ) : (
-            getStepIcon(step.type, step.checkId)
-          )}
+          {isCompleted ? <CheckCircle2 size={18} /> : getStepIcon(step.type, step.checkId)}
         </div>
-        <span className="text-[15px] font-semibold tracking-[-0.01em]">{step.label}</span>
+        <span
+          className={cn(
+            "text-[15px] font-semibold tracking-[-0.01em] transition-colors",
+            isCompleted && "text-quest-muted line-through"
+          )}
+        >
+          {step.label}
+        </span>
 
         {step.points ? (
           <span
             className={cn(
               "text-[13px] font-bold font-mono text-quest-accent inline-flex items-center gap-[3px] whitespace-nowrap",
-              (isClaimed || status === "completed") && "text-quest-green"
+              isCompleted && "text-quest-green"
             )}
           >
             +{step.points}
@@ -590,19 +611,16 @@ export const QuestItem: React.FC<QuestItemProps> = ({
                 if (isDaily) {
                   if (isClaimed) {
                     return (
-                      <div className="flex flex-col gap-[4px]">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          disabled
-                          style={{ opacity: 0.55 }}
-                        >
-                          <CheckCircle2 size={14} />
-                          Done today ✓
-                        </Button>
-                        <span className="text-[11px] text-quest-dim pl-[2px]">Resets daily</span>
-                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled
+                        style={{ opacity: 0.55 }}
+                      >
+                        <CheckCircle2 size={14} />
+                        Done today ✓
+                      </Button>
                     );
                   }
                   return (
@@ -894,6 +912,27 @@ function PtsCoin({ size = 26 }: { size?: number }) {
   );
 }
 
+function CampaignBanner({ coverUrl }: { coverUrl?: string | null }) {
+  return (
+    <div className="relative h-[172px] border-b border-quest-line overflow-hidden [background:repeating-linear-gradient(135deg,rgba(255,255,255,0.04)_0_10px,transparent_10px_20px),linear-gradient(160deg,rgba(103,232,249,0.16),rgba(14,165,233,0.05))]">
+      {coverUrl ? (
+        <img
+          src={coverUrl}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-[0.92]"
+        />
+      ) : (
+        <div className="absolute inset-0 grid place-items-center text-quest-accent/40">
+          <Trophy size={42} />
+        </div>
+      )}
+      <span className="absolute top-[13px] right-[13px] text-[10px] font-bold tracking-[0.14em] uppercase text-quest-text px-[11px] py-[6px] rounded-quest-pill bg-[rgba(8,10,12,0.7)] backdrop-blur-[6px] border border-quest-line-2">
+        Points
+      </span>
+    </div>
+  );
+}
+
 const mapTaskType = (taskType?: string): CampaignStep["type"] => {
   if (!taskType) return "verify";
   const lowerType = taskType.toLowerCase();
@@ -1059,6 +1098,20 @@ const CampaignDetail: React.FC = () => {
     const nested = payload.campaign as { isDaily?: boolean } | undefined;
     return nested?.isDaily ?? false;
   }, [payload]);
+
+  // Track per-task completion (reported up by each QuestItem) to drive the
+  // quest-progress bar.
+  const [completedTaskIds, setCompletedTaskIds] = useState<Record<string, boolean>>({});
+  const handleCompletionChange = useCallback((taskId: string, completed: boolean) => {
+    setCompletedTaskIds((prev) =>
+      (prev[taskId] ?? false) === completed ? prev : { ...prev, [taskId]: completed }
+    );
+  }, []);
+
+  const totalTaskCount = tasks.length || campaign?.steps?.length || 0;
+  const completedTaskCount = Object.values(completedTaskIds).filter(Boolean).length;
+  const progressPct =
+    totalTaskCount > 0 ? Math.round((completedTaskCount / totalTaskCount) * 100) : 0;
 
   const hasJoined = !!participation;
 
@@ -1324,15 +1377,14 @@ const CampaignDetail: React.FC = () => {
               )}
               <div className="mt-5 flex items-center gap-3">
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Users size={16} style={{ color: "var(--color-muted)" }} />
+                  <Users size={16} style={{ color: "var(--color-quest-muted)" }} />
                   <span className="text-[14px] text-quest-muted">
                     <b>{campaign.participants.toLocaleString()}</b> participants
                   </span>
                 </div>
                 <span
-                  className="text-[14px] text-quest-muted"
+                  className="text-[14px] text-quest-accent"
                   style={{
-                    color: "var(--color-accent)",
                     fontWeight: 700,
                     fontFamily: "var(--font-mono)",
                   }}
@@ -1344,20 +1396,7 @@ const CampaignDetail: React.FC = () => {
 
             <div>
               <div className="border border-quest-line rounded-quest-card [background:var(--quest-card-grad)] overflow-hidden">
-                <div className="relative h-[172px] border-b border-quest-line bg-[#0c0e10] overflow-hidden">
-                  <div className="absolute inset-0">
-                    {campaign.coverUrl && (
-                      <img
-                        src={campaign.coverUrl}
-                        alt=""
-                        className="w-full h-full object-cover opacity-[0.92]"
-                      />
-                    )}
-                  </div>
-                  <span className="absolute top-[13px] right-[13px] text-[10px] font-bold tracking-[0.14em] uppercase text-quest-text px-[11px] py-[6px] rounded-quest-pill bg-[rgba(8,10,12,0.7)] backdrop-blur-[6px] border border-quest-line-2">
-                    Points
-                  </span>
-                </div>
+                <CampaignBanner coverUrl={campaign.coverUrl ?? campaign.banner} />
                 <div className="px-[22px] py-5">
                   <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-quest-muted">
                     Reward points
@@ -1372,7 +1411,7 @@ const CampaignDetail: React.FC = () => {
                     <Wallet size={18} />
                     Connect Wallet to Join
                   </Button>
-                  <p className="text-sm text-muted mt-3">
+                  <p className="text-sm text-quest-muted mt-3">
                     Connect your wallet to join this campaign and start earning rewards.
                   </p>
                 </div>
@@ -1483,20 +1522,7 @@ const CampaignDetail: React.FC = () => {
 
             <div>
               <div className="border border-quest-line rounded-quest-card [background:var(--quest-card-grad)] overflow-hidden">
-                <div className="relative h-[172px] border-b border-quest-line bg-[#0c0e10] overflow-hidden">
-                  <div className="absolute inset-0">
-                    {campaign.coverUrl && (
-                      <img
-                        src={campaign.coverUrl}
-                        alt=""
-                        className="w-full h-full object-cover opacity-[0.92]"
-                      />
-                    )}
-                  </div>
-                  <span className="absolute top-[13px] right-[13px] text-[10px] font-bold tracking-[0.14em] uppercase text-quest-text px-[11px] py-[6px] rounded-quest-pill bg-[rgba(8,10,12,0.7)] backdrop-blur-[6px] border border-quest-line-2">
-                    Points
-                  </span>
-                </div>
+                <CampaignBanner coverUrl={campaign.coverUrl ?? campaign.banner} />
                 <div className="px-[22px] py-5">
                   <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-quest-muted">
                     Reward points
@@ -1619,17 +1645,15 @@ const CampaignDetail: React.FC = () => {
                     Quest progress
                   </span>
                   <span className="text-[12px] font-mono font-bold text-quest-accent">
-                    {tasks.length > 0
-                      ? `${tasks.length} tasks`
-                      : campaign.steps?.length
-                        ? `${campaign.steps.length} tasks`
-                        : "0 tasks"}
+                    {totalTaskCount > 0
+                      ? `${completedTaskCount}/${totalTaskCount} tasks`
+                      : "0 tasks"}
                   </span>
                 </div>
                 <div className="h-[9px] rounded-quest-pill bg-black/45 border border-quest-line overflow-hidden">
                   <div
                     className="h-full rounded-quest-pill [background:var(--quest-grad)] shadow-[0_0_16px_-2px_var(--color-quest-accent-glow)] transition-[width] duration-[800ms] ease-quest-out"
-                    style={{ width: "0%" }}
+                    style={{ width: `${progressPct}%` }}
                   />
                 </div>
               </div>
@@ -1646,6 +1670,7 @@ const CampaignDetail: React.FC = () => {
                       onConnectSocial={handleConnectSocial}
                       onLinkTelegramAccount={handleLinkTelegramAccount}
                       onProfileUpdate={handleProfileUpdate}
+                      onCompletionChange={handleCompletionChange}
                       step={{
                         id: task.id,
                         label: task.title || task.name || `Task ${index + 1}`,
@@ -1670,6 +1695,7 @@ const CampaignDetail: React.FC = () => {
                       onConnectSocial={handleConnectSocial}
                       onLinkTelegramAccount={handleLinkTelegramAccount}
                       onProfileUpdate={handleProfileUpdate}
+                      onCompletionChange={handleCompletionChange}
                       step={step}
                     />
                   ))
@@ -1743,20 +1769,7 @@ const CampaignDetail: React.FC = () => {
           <div>
             <Rise delay={0.1}>
               <div className="border border-quest-line rounded-quest-card [background:var(--quest-card-grad)] overflow-hidden">
-                <div className="relative h-[172px] border-b border-quest-line bg-[#0c0e10] overflow-hidden">
-                  <div className="absolute inset-0">
-                    {campaign.coverUrl && (
-                      <img
-                        src={campaign.coverUrl}
-                        alt=""
-                        className="w-full h-full object-cover opacity-[0.92]"
-                      />
-                    )}
-                  </div>
-                  <span className="absolute top-[13px] right-[13px] text-[10px] font-bold tracking-[0.14em] uppercase text-quest-text px-[11px] py-[6px] rounded-quest-pill bg-[rgba(8,10,12,0.7)] backdrop-blur-[6px] border border-quest-line-2">
-                    Points
-                  </span>
-                </div>
+                <CampaignBanner coverUrl={campaign.coverUrl ?? campaign.banner} />
                 <div className="px-[22px] py-5">
                   <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-quest-muted">
                     Reward points
@@ -1783,25 +1796,39 @@ const CampaignDetail: React.FC = () => {
                   </div>
                 </div>
                 <div className="px-[22px] py-[18px] flex flex-col gap-[10px]">
-                  <Button
-                    type="button"
-                    variant="primary"
-                    block
-                    disabled={claimCampaignMutation.isPending}
-                    onClick={handleClaimReward}
-                  >
-                    {claimCampaignMutation.isPending ? (
-                      <>
-                        <Loader2 size={18} className="animate-spin" />
-                        Claiming...
-                      </>
-                    ) : (
-                      <>
-                        <Gift size={18} />
-                        Claim Reward
-                      </>
-                    )}
-                  </Button>
+                  {isDaily ? (
+                    // Daily campaigns credit points per task (each task awards its
+                    // own points and resets daily), so there is no separate
+                    // campaign-level reward to claim — a "Claim Reward" button here
+                    // would award nothing and mislead users.
+                    <div className="rounded-quest-sm border border-quest-line bg-quest-surface-2 px-[14px] py-3 flex items-start gap-[10px]">
+                      <Gift size={16} className="text-quest-accent mt-[2px] flex-none" />
+                      <p className="text-[13px] text-quest-muted leading-[1.5]">
+                        Points are credited automatically as you complete each task. Tasks reset
+                        daily — come back tomorrow to earn again.
+                      </p>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="primary"
+                      block
+                      disabled={claimCampaignMutation.isPending}
+                      onClick={handleClaimReward}
+                    >
+                      {claimCampaignMutation.isPending ? (
+                        <>
+                          <Loader2 size={18} className="animate-spin" />
+                          Claiming...
+                        </>
+                      ) : (
+                        <>
+                          <Gift size={18} />
+                          Claim Reward
+                        </>
+                      )}
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     variant="ghost"
