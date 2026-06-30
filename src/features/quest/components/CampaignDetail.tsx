@@ -182,7 +182,7 @@ interface QuestItemProps {
   onLinkTelegramAccount?: (accountData: LinkAccountData) => void;
 }
 
-const QuestItem: React.FC<QuestItemProps> = ({
+export const QuestItem: React.FC<QuestItemProps> = ({
   step,
   taskId,
   isAuthenticated,
@@ -231,7 +231,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
     mutation: {
       onSuccess: async () => {
         if (isDaily) {
-          toast.success("Check-in successful!");
+          toast.success("Reward claimed!");
         } else {
           toast.success("Task reward claimed successfully!");
         }
@@ -249,7 +249,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
       onError: (error: unknown) => {
         const envelope = error as ApiErrorEnvelope;
         if (isDaily && envelope.response?.status === 409) {
-          toast.info("Already checked in today");
+          toast.info("Already completed today");
           refetchClaimStatus();
         } else {
           console.error("Claim task error:", error);
@@ -332,7 +332,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
 
   const getStepIcon = (type: string, checkId?: string) => {
     const lowerType = type.toLowerCase();
-    if (lowerType === "visit" && checkId) {
+    if ((lowerType === "visit" || lowerType === "browse") && checkId) {
       if (checkId === "wallet_connect") return <Wallet size={20} className="text-brand-mid" />;
       if (checkId === "sign_message") return <ShieldCheck size={20} className="text-brand-mid" />;
       if (checkId === "first_chat") return <MessageSquare size={20} className="text-brand-mid" />;
@@ -387,7 +387,7 @@ const QuestItem: React.FC<QuestItemProps> = ({
   const getActionLabel = (type: string) => {
     if (step.actionLabel) return step.actionLabel;
     const lowerType = type.toLowerCase();
-    if (lowerType === "visit" && step.checkId) {
+    if ((lowerType === "visit" || lowerType === "browse") && step.checkId) {
       if (step.checkId === "wallet_connect") return "Connect Wallet";
       if (step.checkId === "sign_message") return "Sign and Verify";
       if (step.checkId === "first_chat") return "Chat with Agent";
