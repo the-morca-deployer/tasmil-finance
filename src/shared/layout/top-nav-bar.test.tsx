@@ -21,6 +21,16 @@ jest.mock("@/shared/layout/nav-link", () => ({
   ),
 }));
 
+// QuestHeaderBadges and SponsorIndicator each call react-query hooks; mock them
+// so this suite can render TopNavBar's own layout without a QueryClientProvider.
+jest.mock("@/features/quest/components/QuestHeaderBadges", () => ({
+  QuestHeaderBadges: () => <div data-testid="quest-header-badges" />,
+}));
+
+jest.mock("@/features/sponsorship/components/sponsor-indicator", () => ({
+  SponsorIndicator: () => null,
+}));
+
 const fakeData = {
   user: { name: "u", email: "e", avatar: "/a.svg" },
   header: { logo_url: "/logo.png", brand_name: "Tasmil Finance", tagline: "" },

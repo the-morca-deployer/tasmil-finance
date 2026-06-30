@@ -38,7 +38,7 @@ const STAT_VALUE =
 const STAT_LABEL = "mt-[9px] text-[10px] font-bold uppercase tracking-[0.2em] text-quest-muted";
 
 export default function Explore() {
-  const { data, isLoading } = useCampaignsControllerFindAll({ isFeatured: true }, $);
+  const { data, isLoading } = useCampaignsControllerFindAll({}, $);
   const { data: fomoData } = useFomoControllerGetActive($);
   const fomo = unwrapEnvelope<FomoActive>(fomoData);
   // Public platform stats — `/quest/analytics/system` is admin-only (403 for
@@ -53,7 +53,7 @@ export default function Explore() {
   const items: CampaignCardData[] = useMemo(() => {
     if (!data) return [];
     const campaigns = mapApiCampaignsResponse(data);
-    return campaigns.slice(0, 6).map(toCampaignCardData);
+    return campaigns.map(toCampaignCardData);
   }, [data]);
 
   return (
@@ -232,20 +232,8 @@ export default function Explore() {
         <section>
           <div className="mb-6 flex items-end justify-between gap-4">
             <h2 className="text-[clamp(22px,3vw,30px)] font-extrabold tracking-[-0.03em]">
-              Featured campaigns
+              Campaigns
             </h2>
-            <Link
-              href="/quest/campaigns"
-              className="group inline-flex items-center gap-[7px] text-[14px] font-semibold text-quest-accent"
-            >
-              View all
-              <span
-                className="inline-flex transition-transform duration-300 ease-quest group-hover:translate-x-1"
-                aria-hidden="true"
-              >
-                <ArrowRight size={15} strokeWidth={2.4} />
-              </span>
-            </Link>
           </div>
           <div className="grid grid-cols-3 gap-[22px] max-[980px]:grid-cols-2 max-[640px]:grid-cols-1">
             {isLoading ? (
@@ -283,7 +271,7 @@ export default function Explore() {
                   <path d="M12 8v4M12 16h.01" />
                 </svg>
                 <div className="text-[18px] font-bold tracking-[-0.02em] text-quest-text">
-                  No featured campaigns this season.
+                  No campaigns yet.
                 </div>
                 <div className="text-[14px] text-quest-muted">
                   Check back soon or browse all campaigns.

@@ -23,18 +23,14 @@ function mapToListItem(item: any): StrategyListItem {
       handle: item.publisherAddress
         ? `${item.publisherAddress.slice(0, 4)}...${item.publisherAddress.slice(-4)}`
         : "",
-      created_at: item.createdAt
-        ? new Date(item.createdAt).toLocaleDateString("en-GB")
-        : "",
+      created_at: item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-GB") : "",
     },
     tags: item.tags ?? [],
     category: item.riskTier ?? item.template,
     assets: item.baseAsset
       ? [{ src: `/token/${item.baseAsset.toLowerCase()}.svg`, alt: item.baseAsset }]
       : [],
-    agents: item.template
-      ? [{ src: `/agents/${item.template}.svg`, alt: item.template }]
-      : [],
+    agents: item.template ? [{ src: `/agents/${item.template}.svg`, alt: item.template }] : [],
     chain: { src: "/token/stellar.svg", alt: "Stellar" },
     tvlUsd: item.tvlUsd ?? 0,
     userCount: item.userCount ?? 0,
@@ -53,9 +49,7 @@ function mapToDetail(item: any): Strategy {
         handle: item.publisherAddress
           ? `${item.publisherAddress.slice(0, 4)}...${item.publisherAddress.slice(-4)}`
           : "",
-        created_at: item.createdAt
-          ? new Date(item.createdAt).toLocaleDateString("en-GB")
-          : "",
+        created_at: item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-GB") : "",
       },
       current_apy: formatApy(apy),
       expiry_date: "",

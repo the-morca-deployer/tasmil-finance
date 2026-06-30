@@ -1,6 +1,7 @@
 "use client";
 
-import { CheckCircle2, Copy, Edit2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CheckCircle2, Copy, Edit2, Gift, Info } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { Suspense, useMemo, useState } from "react";
@@ -8,8 +9,13 @@ import { toast } from "sonner";
 import { Rise } from "@/features/quest/components/Rise";
 import { Button } from "@/features/quest/components/ui/button";
 import { useWallet } from "@/features/quest/context/wallet-context";
-import { qAvatar } from "@/features/quest/lib/avatar";
+import {
+  QUEST_AVATAR_VARIANTS,
+  variantFromAvatarUrl,
+  variantToken,
+} from "@/features/quest/lib/avatar";
 import { $, withAuth } from "@/features/quest/lib/kubb-config";
+import { buildShareUrl } from "@/features/quest/lib/referral-link";
 import {
   type ReferralTree,
   type ReferralTreeNode,
@@ -17,15 +23,22 @@ import {
 } from "@/features/quest/lib/season-types";
 import { type QuestRank, RANK_ORDER, RANK_STYLES, rankFromPoints } from "@/features/quest/lib/tier";
 import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
+import { usersControllerSetReferralCode } from "@/gen-quest/client/users-controller-set-referral-code";
 import {
+  referralControllerGetMyReferralQueryKey,
+  tierRewardsControllerListQueryKey,
   useReferralControllerGetMyReferral,
   useReferralControllerGetTree,
+  usersControllerGetMeQueryKey,
   useSocialAccountsControllerFindAll,
+  useTierRewardsControllerClaim,
+  useTierRewardsControllerList,
   useUsersControllerGetMyCampaigns,
   useUsersControllerGetPointsHistory,
   useUsersControllerGetReferrals,
   useUsersControllerUpdateProfile,
 } from "@/gen-quest/hooks";
+import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
 
@@ -65,6 +78,13 @@ interface RawReferral {
   ptsEarned?: number;
   status?: string;
 }
+interface TierRewardItem {
+  tier: string;
+  points: number;
+  reached: boolean;
+  claimed: boolean;
+  claimable: boolean;
+}
 
 // Tab slugs — must match the ?tab= URL param values
 const TAB_SLUGS = ["overview", "my-quest", "referrals", "social"] as const;
@@ -74,35 +94,10 @@ function isValidSlug(s: string | null): s is TabSlug {
   return TAB_SLUGS.includes(s as TabSlug);
 }
 
-// Avatar gradient
-function avatarBg(seed: string) {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) {
-    h = (h << 5) - h + seed.charCodeAt(i);
-    h |= 0;
-  }
-  const a = Math.abs(h) % 360,
-    b = (Math.abs(h) * 3 + 90) % 360;
-  return `radial-gradient(circle at 32% 28%, hsl(${a} 80% 70%), hsl(${b} 75% 42%) 75%)`;
-}
-
 function shortAddr(a?: string) {
   if (!a) return "";
   return a.length <= 10 ? a : `${a.slice(0, 6)}...${a.slice(-4)}`;
 }
-
-const AV_COLORS = [
-  "linear-gradient(135deg,#67E8F9,#0EA5E9)",
-  "linear-gradient(135deg,#6EE7B7,#14B8A6)",
-  "linear-gradient(135deg,#818CF8,#4F46E5)",
-  "linear-gradient(135deg,#FBC54A,#E0915A)",
-  "linear-gradient(135deg,#F472B6,#DB2777)",
-  "linear-gradient(135deg,#C9D4E0,#64748B)",
-  "linear-gradient(135deg,#34D399,#059669)",
-  "linear-gradient(135deg,#A78BFA,#7C3AED)",
-  "linear-gradient(135deg,#FB7185,#E11D48)",
-  "linear-gradient(135deg,#38BDF8,#2563EB)",
-];
 
 // ---- Sidebar ----
 function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }) {
@@ -214,14 +209,13 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
     <div className="px-4 pt-[26px] pb-[26px] flex flex-col gap-5 max-[720px]:border-b max-[720px]:border-b-[rgba(255,255,255,0.08)] max-[720px]:p-4">
       <div className="flex flex-col items-start px-2 pt-[6px] pb-[2px]">
         <div className="relative w-24 h-24 mb-[14px] max-[720px]:w-16 max-[720px]:h-16">
-          <div
-            className="w-24 h-24 rounded-full border-[3px] border-[var(--accent)] shadow-[0_0_0_4px_var(--accent-soft)] bg-cover bg-center max-[720px]:w-16 max-[720px]:h-16"
-            style={{
-              background: user?.avatarUrl
-                ? `url(${user.avatarUrl})`
-                : avatarBg(user?.walletAddress ?? "default"),
-            }}
-          />
+          <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-[var(--accent)] shadow-[0_0_0_4px_var(--accent-soft)] max-[720px]:w-16 max-[720px]:h-16">
+            <TasmilAvatar
+              seed={user?.walletAddress ?? "default"}
+              variant={variantFromAvatarUrl(user?.avatarUrl)}
+              size="full"
+            />
+          </div>
           <button
             className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full grid place-items-center bg-[var(--surface)] border border-[rgba(255,255,255,0.14)] cursor-pointer text-[rgba(244,247,251,0.58)] hover:text-[var(--accent)] hover:border-[rgba(103,232,249,0.32)]"
             onClick={() => setShowAvPicker(!showAvPicker)}
@@ -298,19 +292,19 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
 
       {showAvPicker && (
         <div>
-          <div className="grid grid-cols-5 gap-[10px]">
-            {AV_COLORS.map((bg, i) => (
+          <div className="grid grid-cols-3 gap-[10px]">
+            {QUEST_AVATAR_VARIANTS.map((v) => (
               <button
-                key={i}
-                className="w-full aspect-square rounded-[14px] cursor-pointer border-2 border-transparent transition-[border-color,transform] duration-[250ms] hover:scale-105"
-                style={{ background: bg }}
+                key={v}
+                type="button"
+                className="w-full aspect-square rounded-[14px] cursor-pointer border-2 border-transparent overflow-hidden transition-[border-color,transform] duration-[250ms] hover:scale-105 hover:border-[var(--accent)]"
                 onClick={() => {
-                  updateUser({
-                    avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=quest${i}`,
-                  });
+                  updateUser({ avatarUrl: variantToken(v) });
                   setShowAvPicker(false);
                 }}
-              />
+              >
+                <TasmilAvatar seed={user?.walletAddress ?? "default"} variant={v} size="full" />
+              </button>
             ))}
           </div>
         </div>
@@ -384,14 +378,205 @@ const RANK_ABBR: Record<QuestRank, string> = {
   Master: "MA",
 };
 
+// ---- Rank Tiers Dialog ----
+function RankTiersDialog({
+  open,
+  onOpenChange,
+  points,
+  rewards,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  points: number;
+  rewards: TierRewardItem[];
+}) {
+  const queryClient = useQueryClient();
+  const rewardByTier = new Map(rewards.map((r) => [r.tier, r]));
+  const claim = useTierRewardsControllerClaim({
+    ...withAuth,
+    mutation: {
+      onSuccess: async (res: unknown) => {
+        await queryClient.invalidateQueries({ queryKey: usersControllerGetMeQueryKey() });
+        await queryClient.invalidateQueries({ queryKey: tierRewardsControllerListQueryKey() });
+        // The API interceptor unwraps the { success, data } envelope, so the
+        // mutation result is the bare payload; fall back to .data defensively.
+        const payload = res as
+          | { pointsAwarded?: number; data?: { pointsAwarded?: number } }
+          | undefined;
+        const awarded = payload?.pointsAwarded ?? payload?.data?.pointsAwarded;
+        toast.success(awarded ? `Reward claimed! +${awarded} pts` : "Reward claimed!");
+      },
+      onError: (e: unknown) => {
+        const env = e as { response?: { status?: number } };
+        toast[env.response?.status === 409 ? "info" : "error"](
+          env.response?.status === 409 ? "Already claimed" : "Could not claim reward"
+        );
+      },
+    },
+  });
+  const currentRank = rankFromPoints(points).rank;
+  const rd = rankFromPoints(points);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.78)", backdropFilter: "blur(8px)" }}
+      onClick={() => onOpenChange(false)}
+    >
+      <div
+        className="relative w-full max-w-[480px] max-h-[80vh] overflow-y-auto rounded-[24px] border border-[rgba(255,255,255,0.1)] shadow-[0_24px_64px_rgba(0,0,0,0.7)]"
+        style={{ padding: "28px 24px", background: "linear-gradient(160deg, #202024, #0f0f11)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* header */}
+        <div className="flex items-center justify-between mb-[22px]">
+          <div className="text-[18px] font-bold tracking-[-0.025em]">Rank Tiers</div>
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="w-8 h-8 rounded-[10px] grid place-items-center text-[rgba(244,247,251,0.58)] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.06)] border-none bg-transparent cursor-pointer"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              width={16}
+              height={16}
+            >
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* tier rows */}
+        <div className="flex flex-col gap-[10px]">
+          {RANK_ORDER.map((rank) => {
+            const rv = rankVar(rank);
+            const asset = rankAsset(rank);
+            const rankIdx = RANK_ORDER.indexOf(rank);
+            const currentIdx = RANK_ORDER.indexOf(currentRank);
+            const isReached = rankIdx <= currentIdx;
+
+            return (
+              <div
+                key={rank}
+                className="rounded-[16px] border px-[16px] py-[14px]"
+                style={{
+                  borderColor: isReached ? rv.line : "rgba(255,255,255,0.08)",
+                  background: isReached ? rv.soft : "rgba(32,32,36,0.30)",
+                }}
+              >
+                <div className="flex items-center gap-[12px]">
+                  {asset ? (
+                    <img
+                      src={asset}
+                      alt=""
+                      className="object-contain flex-none"
+                      style={{
+                        width: 32,
+                        height: 32,
+                        opacity: isReached ? 1 : 0.45,
+                        filter: isReached
+                          ? "drop-shadow(0 2px 4px rgba(0,0,0,0.5))"
+                          : "saturate(0.4)",
+                      }}
+                    />
+                  ) : (
+                    <span
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 999,
+                        background: rv.soft,
+                        border: `1px solid ${rv.line}`,
+                        opacity: isReached ? 1 : 0.45,
+                        flexShrink: 0,
+                        display: "inline-block",
+                      }}
+                    />
+                  )}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-[8px]">
+                      <span
+                        className="text-[13px] font-bold tracking-[-0.01em]"
+                        style={{ color: isReached ? rv.color : "rgba(244,247,251,0.58)" }}
+                      >
+                        {rank}
+                      </span>
+                      {rank === currentRank && (
+                        <span
+                          className="text-[9px] font-bold tracking-[0.1em] uppercase px-[7px] py-[2px] rounded-[100px] border"
+                          style={{ color: rv.color, background: rv.soft, borderColor: rv.line }}
+                        >
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    {rank === currentRank && rd.nextRank && (
+                      <div className="mt-[4px] text-[11px] text-[rgba(244,247,251,0.5)]">
+                        <b className="font-mono" style={{ color: rv.color }}>
+                          {fmt(Math.max(0, rd.toNext))}
+                        </b>{" "}
+                        pts to {rd.nextRank}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {(() => {
+                  const r = rewardByTier.get(rank);
+                  if (!r || r.points <= 0) return null;
+                  if (r.claimed)
+                    return (
+                      <div className="mt-[6px] text-[11px] font-semibold text-quest-green">
+                        Reward claimed ✓
+                      </div>
+                    );
+                  if (r.claimable)
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => claim.mutate({ tier: rank })}
+                        disabled={claim.isPending}
+                        className="mt-[8px] inline-flex items-center gap-[6px] rounded-quest-pill border border-quest-line-2 bg-quest-surface px-[12px] py-[6px] text-[12px] font-bold text-quest-amber hover:brightness-110 disabled:opacity-50"
+                      >
+                        <Gift className="w-[13px] h-[13px]" /> Claim +{r.points} pts
+                      </button>
+                    );
+                  return (
+                    <div className="mt-[6px] text-[11px] text-[rgba(244,247,251,0.5)]">
+                      Reward: +{r.points} pts (reach this tier)
+                    </div>
+                  );
+                })()}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ---- Overview Tab ----
 function OverviewTab() {
   const { user } = useQuestAuthStore();
+  const [tiersOpen, setTiersOpen] = useState(false);
   const { data: pointsData } = useUsersControllerGetPointsHistory(
     user?.id ?? "",
     withAuth as never
   );
   const { data: refData } = useReferralControllerGetMyReferral(withAuth as never);
+  const { data: tierRewardsData } = useTierRewardsControllerList($);
+  const rewards: TierRewardItem[] = Array.isArray(tierRewardsData)
+    ? (tierRewardsData as TierRewardItem[])
+    : ((tierRewardsData as { data?: TierRewardItem[] } | undefined)?.data ?? []);
+  const claimableCount = rewards.filter((r) => r.claimable).length;
 
   // Backend returns `{ referralCode, totalEarned, totalInvited, rates }`. The
   // client interceptor unwraps the `{ success, data }` envelope, so handle both.
@@ -452,8 +637,10 @@ function OverviewTab() {
                 <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)] whitespace-nowrap">
                   Current Points
                 </div>
-                <span
-                  className="inline-flex items-center gap-[6px] text-[10px] font-bold tracking-[0.14em] uppercase py-[5px] px-[11px] rounded-[100px] border flex-none"
+                <button
+                  type="button"
+                  onClick={() => setTiersOpen(true)}
+                  className="inline-flex items-center gap-[6px] text-[10px] font-bold tracking-[0.14em] uppercase py-[5px] px-[11px] rounded-[100px] border flex-none cursor-pointer bg-transparent hover:brightness-110"
                   style={{ color: curVar.color, background: curVar.soft, borderColor: curVar.line }}
                 >
                   {rankAsset(currentRank) && (
@@ -464,7 +651,14 @@ function OverviewTab() {
                     />
                   )}
                   {currentRank} tier
-                </span>
+                  <Info className="w-[11px] h-[11px] opacity-60" />
+                  {claimableCount > 0 && (
+                    <span className="relative inline-flex">
+                      <Gift className="w-[14px] h-[14px] text-quest-amber" />
+                      <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500" />
+                    </span>
+                  )}
+                </button>
               </div>
 
               <div className="flex items-center justify-between gap-6 flex-wrap">
@@ -675,7 +869,16 @@ function OverviewTab() {
             >
               <Copy size={13} /> Copy Code
             </Button>
-            <Button variant="ghost" size="sm" block>
+            <Button
+              variant="ghost"
+              size="sm"
+              block
+              onClick={() => {
+                if (!refCode || refCode === "—") return;
+                navigator.clipboard?.writeText(buildShareUrl(refCode));
+                toast.success("Link copied!");
+              }}
+            >
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -781,6 +984,13 @@ function OverviewTab() {
           ))}
         </div>
       )}
+
+      <RankTiersDialog
+        open={tiersOpen}
+        onOpenChange={setTiersOpen}
+        points={points}
+        rewards={rewards}
+      />
     </div>
   );
 }
@@ -1016,10 +1226,7 @@ function TreeRow({ node, depth }: { node: ReferralTreeNode; depth: number }) {
           ) : null}
         </span>
         {/* avatar */}
-        <span
-          className="w-[28px] h-[28px] rounded-full flex-none block"
-          style={{ background: qAvatar(node.name) }}
-        />
+        <TasmilAvatar seed={node.name} size={28} className="flex-none" />
         {/* name */}
         <span className="flex-1 min-w-0 font-mono text-[13px] font-semibold truncate">
           {node.name}
@@ -1052,6 +1259,22 @@ function ReferralsTab() {
   const { data: treeRaw, isLoading: treeLoading } = useReferralControllerGetTree($);
   const [view, setView] = useState<"list" | "tree">("list");
   const { user } = useQuestAuthStore();
+  const queryClient = useQueryClient();
+  const [draftCode, setDraftCode] = useState("");
+  const [showCodeInput, setShowCodeInput] = useState(false);
+
+  const setCodeMutation = useMutation({
+    mutationFn: (code: string) => usersControllerSetReferralCode({ data: { code } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: referralControllerGetMyReferralQueryKey() });
+      setDraftCode("");
+      setShowCodeInput(false);
+      toast.success("Referral code updated!");
+    },
+    onError: () => {
+      toast.error("Could not set custom code");
+    },
+  });
 
   const referralTree = useMemo(() => unwrapEnvelope<ReferralTree>(treeRaw), [treeRaw]);
   const treeNodes = referralTree?.tree ?? [];
@@ -1076,6 +1299,18 @@ function ReferralsTab() {
   const referralCode =
     (refDataObj as { referralCode?: string })?.referralCode ?? user?.referralCode ?? "—";
   const l1Rate = rates.find((r) => r.layer === 1)?.rateBps ?? 0;
+
+  const onShareLink = () => {
+    if (!referralCode || referralCode === "—") return;
+    navigator.clipboard?.writeText(buildShareUrl(referralCode));
+    toast.success("Link copied!");
+  };
+
+  const onSetCustomCode = async () => {
+    const normalized = draftCode.trim().toUpperCase();
+    if (!normalized) return;
+    await setCodeMutation.mutateAsync(normalized);
+  };
 
   const howCards = [
     {
@@ -1192,7 +1427,7 @@ function ReferralsTab() {
               <button
                 className="inline-flex items-center gap-2 text-[12px] font-semibold text-[rgba(244,247,251,0.58)] bg-none border-none cursor-pointer transition-[color] duration-200 hover:text-[var(--accent)] p-0"
                 style={{ background: "none" }}
-                onClick={() => {}}
+                onClick={() => setShowCodeInput((v) => !v)}
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -1213,18 +1448,41 @@ function ReferralsTab() {
             <div className="text-[28px] font-black font-mono mb-4" style={{ letterSpacing: 4 }}>
               {referralCode}
             </div>
+            {showCodeInput && (
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  value={draftCode}
+                  onChange={(e) =>
+                    setDraftCode(e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ""))
+                  }
+                  placeholder="YOUR-CODE"
+                  maxLength={20}
+                  className="flex-1 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.14)] rounded-[8px] px-3 py-[7px] text-[13px] font-mono text-[var(--text)] outline-none focus:border-[var(--accent)]"
+                />
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={onSetCustomCode}
+                  disabled={!draftCode.trim() || setCodeMutation.isPending}
+                >
+                  Save
+                </Button>
+              </div>
+            )}
             <div className="flex gap-[10px]">
               <Button
                 variant="primary"
                 size="sm"
                 onClick={() => {
+                  if (!referralCode || referralCode === "—") return;
                   navigator.clipboard?.writeText(referralCode);
                   toast.success("Copied!");
                 }}
               >
                 <Copy size={13} /> Copy Code
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={onShareLink}>
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -1394,10 +1652,7 @@ function ReferralsTab() {
                 >
                   {/* rl-user */}
                   <div className="flex items-center gap-[10px] min-w-0">
-                    <span
-                      className="w-[30px] h-[30px] rounded-full flex-none block"
-                      style={{ background: avatarBg(r.username ?? "u") }}
-                    />
+                    <TasmilAvatar seed={r.username ?? "u"} size={30} className="flex-none" />
                     <span className="font-mono text-[13px] font-semibold truncate">
                       {r.username ?? "User"}
                     </span>

@@ -16,8 +16,10 @@ export function NavLink({ item }: { item: NavItem }) {
       href={item.url}
       data-active={isActive ? "true" : "false"}
       className={cn(
-        "font-medium text-base transition-colors",
-        isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+        "relative rounded-quest-pill px-4 py-[9px] font-semibold text-[15px] transition-[color,background] duration-[250ms]",
+        isActive
+          ? "text-foreground after:absolute after:right-[15px] after:bottom-[1px] after:left-[15px] after:h-[2px] after:rounded-[2px] after:bg-quest-accent after:shadow-[0_0_10px_var(--color-quest-accent-glow)] after:content-['']"
+          : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
       )}
       {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
     >

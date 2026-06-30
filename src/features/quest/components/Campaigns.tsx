@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { mapApiCampaignsResponse } from "@/features/quest/lib/campaign-mapper";
-import { toCampaignCardData } from "@/features/quest/types";
-import { cn } from "@/lib/utils";
-import { useCampaignsControllerFindAll } from "@/gen-quest/hooks";
 import { $ } from "@/features/quest/lib/kubb-config";
+import { toCampaignCardData } from "@/features/quest/types";
+import { useCampaignsControllerFindAll } from "@/gen-quest/hooks";
+import { cn } from "@/lib/utils";
 import { CampaignCard, type CampaignCardData } from "./CampaignCard";
 import { Rise } from "./Rise";
 import { Button } from "./ui/button";
@@ -39,8 +39,7 @@ export default function Campaigns() {
     if (search.trim()) {
       const q = search.toLowerCase();
       items = items.filter(
-        (c) =>
-          c.title.toLowerCase().includes(q) || (c.description ?? "").toLowerCase().includes(q),
+        (c) => c.title.toLowerCase().includes(q) || (c.description ?? "").toLowerCase().includes(q)
       );
     }
     return items;
@@ -59,7 +58,16 @@ export default function Campaigns() {
         <div className="mb-[26px] flex flex-wrap items-end justify-between gap-6">
           <div>
             <h1 className="text-[clamp(34px,5vw,56px)] font-extrabold leading-none tracking-[-0.04em]">
-              <span style={{ background: "var(--grad)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Campaigns</span>
+              <span
+                style={{
+                  background: "var(--grad)",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  color: "transparent",
+                }}
+              >
+                Campaigns
+              </span>
             </h1>
             <p className="mt-3 text-[16px] text-quest-muted">
               Discover quests across the Stellar ecosystem and earn rewards.
@@ -76,7 +84,7 @@ export default function Campaigns() {
                 key={v}
                 className={cn(
                   SEG_BTN,
-                  filter === v && "text-quest-accent-ink [background:var(--quest-grad)]",
+                  filter === v && "text-quest-accent-ink [background:var(--quest-grad)]"
                 )}
                 onClick={() => setFilter(v)}
                 type="button"

@@ -106,15 +106,12 @@ describe("runtime URL helpers", () => {
     process.env.AI_INTERNAL_URL = "http://ai:8001/";
     process.env.BACKEND_INTERNAL_URL = "http://backend:6756/";
 
-    const {
-      getProxyRewrites,
-      getAiProxyRewrites,
-      getBackendProxyRewrites,
-    } = await import("./runtime-urls");
+    const { getProxyRewrites, getAiProxyRewrites, getBackendProxyRewrites } = await import(
+      "./runtime-urls"
+    );
 
     expect(getProxyRewrites()).toHaveLength(
-      getAiProxyRewrites().length +
-        getBackendProxyRewrites().length
+      getAiProxyRewrites().length + getBackendProxyRewrites().length
     );
   });
 });

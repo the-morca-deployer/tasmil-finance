@@ -23,7 +23,7 @@ export default function ReferralLandingPage({ params }: PageProps) {
       } catch {
         /* storage disabled — non-fatal */
       }
-      router.replace(`/?ref=${encodeURIComponent(code)}`);
+      router.replace(`/quest?ref=${encodeURIComponent(code)}`);
     })();
   }, [params, router]);
 

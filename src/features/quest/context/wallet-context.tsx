@@ -16,6 +16,11 @@ import { toast } from "sonner";
 import apiClient from "@/features/quest/lib/api-client";
 import { ensureQuestDevSession } from "@/features/quest/lib/dev-login-bridge";
 import { withAuth } from "@/features/quest/lib/kubb-config";
+import {
+  buildVerifyPayload,
+  clearPendingReferralCode,
+  readPendingReferralCode,
+} from "@/features/quest/lib/referral-link";
 import { activeNetwork } from "@/features/quest/lib/stellar";
 import { type AuthUser, useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
 import { useQuestWalletStore } from "@/features/quest/store/use-quest-wallet";
@@ -34,6 +39,12 @@ interface WalletContextType {
   user: AuthUser | null;
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
+  /**
+   * Signs an arbitrary message with the currently-connected wallet and returns
+   * the signed string.  Throws if no wallet is connected or the user rejects.
+   * Used by the sign_message quest task to produce a verifiable proof.
+   */
+  signMessage: (message: string) => Promise<string>;
 }
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -346,7 +357,25 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         // backend DTO expects `publicKey`. The verify route sets the
         // `tasmil_auth` cookie; hydrate the full user from /auth/me afterwards.
         setSigning(false);
-        await apiClient.post("/api/auth/verify", { publicKey, signedMessage });
+        const referredByCode = readPendingReferralCode();
+        await apiClient.post(
+          "/api/auth/verify",
+          buildVerifyPayload(publicKey, signedMessage, referredByCode)
+        );
+        // Clear the pending code so a second wallet on the same browser cannot
+        // re-send the first user's referral code. Also strip ?ref= from the URL.
+        clearPendingReferralCode();
+        if (typeof window !== "undefined") {
+          try {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has("ref")) {
+              url.searchParams.delete("ref");
+              window.history.replaceState({}, "", url.toString());
+            }
+          } catch {
+            // ignore – e.g. invalid href in SSR/test environments
+          }
+        }
         await loadSessionUser();
         toast.success("Wallet verified successfully!");
       } catch (error: unknown) {
@@ -404,7 +433,16 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       authenticateWithWalletRef.current(address);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionChecked, kitReady, isConnected, address, isAuthenticated, user, signing, isAuthenticating]);
+  }, [
+    sessionChecked,
+    kitReady,
+    isConnected,
+    address,
+    isAuthenticated,
+    user,
+    signing,
+    isAuthenticating,
+  ]);
 
   // ─── Connect ─────────────────────────────────────────────────────────────
 
@@ -444,6 +482,30 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     await disconnectAll();
   }, [logoutMutation]);
 
+  // ─── signMessage ─────────────────────────────────────────────────────────
+
+  const signMessage = useCallback(
+    async (message: string): Promise<string> => {
+      if (!address) throw new Error("No wallet connected");
+      const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
+      try {
+        StellarWalletsKit.setWallet(address);
+      } catch {
+        /* ignore – some wallets don't need explicit selection */
+      }
+      const signResult = await StellarWalletsKit.signMessage(message, {
+        address,
+        networkPassphrase: activeNetwork.networkPassphrase,
+      });
+      return typeof signResult === "string"
+        ? signResult
+        : (((signResult as Record<string, unknown>).signedMessage as string | undefined) ??
+            ((signResult as Record<string, unknown>).signature as string | undefined) ??
+            String(signResult));
+    },
+    [address]
+  );
+
   // ─── Derived ─────────────────────────────────────────────────────────────
 
   const displayAddress = useMemo(() => {
@@ -465,6 +527,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         user,
         connect,
         disconnect,
+        signMessage,
       }}
     >
       {children}

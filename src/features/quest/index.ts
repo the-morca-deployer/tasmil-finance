@@ -36,7 +36,8 @@ export {
 } from "./components/social/SocialConnectButtons";
 export { TelegramButton } from "./components/TelegramButton";
 export { TFLoader } from "./components/TFLoader";
+export { TierRewardRevealGate } from "./components/TierRewardRevealGate";
 export { Button, buttonClasses, buttonVariants } from "./components/ui/button";
 export { Progress } from "./components/ui/progress";
 // Foundation helpers + primitives (Phase 1)
-export { qAvatar, qHash } from "./lib/avatar";
+export { QUEST_AVATAR_VARIANTS, variantFromAvatarUrl, variantToken } from "./lib/avatar";

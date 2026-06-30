@@ -22,7 +22,9 @@ export function LedgerRow({ occurredAt, source, delta }: LedgerRowProps) {
     // ledger-row: not in quest.css — flex row with border-b
     <div className="flex items-center justify-between gap-3 py-[10px] border-b border-[rgba(255,255,255,0.08)] text-[13px] text-[rgba(244,247,251,0.58)]">
       {/* ledger-time: timestamp label */}
-      <div className="font-mono text-[11px] text-[rgba(244,247,251,0.34)] whitespace-nowrap">{relativeTime(occurredAt)}</div>
+      <div className="font-mono text-[11px] text-[rgba(244,247,251,0.34)] whitespace-nowrap">
+        {relativeTime(occurredAt)}
+      </div>
       {/* ledger-source: description */}
       <div className="flex-1 truncate">{source}</div>
       {/* ledger-delta pos/neg: colored delta */}

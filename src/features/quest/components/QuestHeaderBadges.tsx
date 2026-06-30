@@ -1,7 +1,8 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Coins, Flame } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { $, withAuth } from "@/features/quest/lib/kubb-config";
 import {
   usersControllerGetMeQueryKey,
@@ -9,14 +10,134 @@ import {
   useUsersControllerGetCheckInStatus,
   useUsersControllerGetMe,
 } from "@/gen-quest/hooks";
+import { cn } from "@/lib/utils";
+import { Flame, PtsCoin } from "./icons";
 
 type QuestProfile = {
   totalPoints?: number;
   loginStreak?: number;
 };
 
+// Shared chip base — mirrors QuestNav so the PTS, streak and wallet chips in the
+// main-app top bar render identically (same height, radius, border, surface).
+const CHIP_BASE = cn(
+  "inline-flex h-10 items-center gap-[7px]",
+  "px-[14px] text-[13.5px] font-semibold",
+  "rounded-quest-pill bg-quest-surface border border-quest-line-2",
+  "transition-colors"
+);
+
+// Hover card — same visual language as the gas-sponsor indicator tooltip
+// (dark surface, glow ring, uppercase eyebrow, fade + slide on reveal).
+function HoverCard({
+  show,
+  accent,
+  eyebrow,
+  meta,
+  title,
+  body,
+}: {
+  show: boolean;
+  accent: string;
+  eyebrow: string;
+  meta?: string;
+  title: string;
+  body: string;
+}) {
+  return (
+    // Outer wrapper anchors at the chip's bottom edge and adds a transparent
+    // top "bridge" (paddingTop) so the pointer can travel from the chip into the
+    // card without crossing a dead gap — keeps the card open long enough to
+    // click the CTA.
+    <span
+      style={{
+        position: "absolute",
+        top: "100%",
+        right: 0,
+        zIndex: 50,
+        paddingTop: 10,
+        opacity: show ? 1 : 0,
+        pointerEvents: show ? "auto" : "none",
+        transform: show ? "translateY(0)" : "translateY(-4px)",
+        transition: "opacity .18s ease, transform .18s ease",
+      }}
+    >
+      <span
+        style={{
+          display: "block",
+          width: 240,
+          padding: "12px 14px",
+          borderRadius: 12,
+          background: "rgba(15,17,21,0.96)",
+          border: "1px solid rgba(255,255,255,0.14)",
+          boxShadow: "0 14px 32px -10px #000, 0 0 24px -10px rgba(103,232,249,0.4)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+            marginBottom: 8,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              color: accent,
+            }}
+          >
+            {eyebrow}
+          </span>
+          {meta ? (
+            <span
+              style={{
+                fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                fontSize: 11,
+                color: "rgba(244,247,251,0.58)",
+              }}
+            >
+              {meta}
+            </span>
+          ) : null}
+        </div>
+        <div style={{ fontSize: 13.5, fontWeight: 700, color: "#F4F7FB", marginBottom: 2 }}>
+          {title}
+        </div>
+        <div style={{ fontSize: 12.5, color: "rgba(244,247,251,0.58)", lineHeight: 1.4 }}>
+          {body}
+        </div>
+        <Link
+          href="/quest/profile"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            marginTop: 10,
+            paddingTop: 10,
+            borderTop: "1px solid rgba(255,255,255,0.08)",
+            fontSize: 12.5,
+            fontWeight: 700,
+            color: accent,
+            textDecoration: "none",
+          }}
+        >
+          View Profile →
+        </Link>
+      </span>
+    </span>
+  );
+}
+
 export function QuestHeaderBadges() {
   const queryClient = useQueryClient();
+  const [ptsHover, setPtsHover] = useState(false);
+  const [streakHover, setStreakHover] = useState(false);
   // `$` routes through questApiClient, whose interceptor already unwraps the
   // `{ success, data }` envelope — so `me.data` IS the profile (no extra `.data`).
   const me = useUsersControllerGetMe($);
@@ -38,25 +159,64 @@ export function QuestHeaderBadges() {
 
   if (!profile) return null;
 
+  const points = profile.totalPoints ?? 0;
+  const streak = profile.loginStreak ?? 0;
+
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
       <span
-        data-testid="quest-points-badge"
-        className="flex h-9 items-center gap-1.5 rounded-full border border-border px-3 font-bold text-sm"
+        className="relative"
+        onMouseEnter={() => setPtsHover(true)}
+        onMouseLeave={() => setPtsHover(false)}
       >
-        <Coins className="h-4 w-4 text-[#67e8f9]" />
-        {(profile.totalPoints ?? 0).toLocaleString()}
+        <span
+          data-testid="quest-points-badge"
+          className={cn(CHIP_BASE, "text-quest-accent [&_svg]:text-quest-accent")}
+        >
+          <PtsCoin style={{ width: 20, height: 20 }} />
+          {points.toLocaleString()}
+        </span>
+        <HoverCard
+          show={ptsHover}
+          accent="#67E8F9"
+          eyebrow="Quest Points"
+          title={`${points.toLocaleString()} PTS`}
+          body="Earned from quests, campaigns and daily check-ins. Spend them on rewards."
+        />
       </span>
-      <button
-        type="button"
-        data-testid="quest-streak-badge"
-        disabled={!canCheckIn || dailyLogin.isPending}
-        onClick={() => dailyLogin.mutate()}
-        className="flex h-9 items-center gap-1.5 rounded-full border border-border px-3 font-bold text-sm text-orange-400 disabled:opacity-60"
+
+      <span
+        className="relative"
+        onMouseEnter={() => setStreakHover(true)}
+        onMouseLeave={() => setStreakHover(false)}
       >
-        <Flame className="h-4 w-4" />
-        {profile.loginStreak ?? 0}
-      </button>
+        <button
+          type="button"
+          data-testid="quest-streak-badge"
+          disabled={!canCheckIn || dailyLogin.isPending}
+          onClick={() => dailyLogin.mutate()}
+          className={cn(
+            CHIP_BASE,
+            "text-quest-amber [&_svg]:text-quest-amber",
+            "hover:bg-white/[0.05] disabled:cursor-default disabled:hover:bg-quest-surface"
+          )}
+        >
+          <Flame style={{ width: 19, height: 19 }} />
+          {streak}
+        </button>
+        <HoverCard
+          show={streakHover}
+          accent="#FBBF24"
+          eyebrow="Daily Streak"
+          meta={`${streak}d`}
+          title={hasCheckedIn ? "Checked in today" : "Check-in available"}
+          body={
+            hasCheckedIn
+              ? "Come back tomorrow to keep your streak alive."
+              : "Click the flame to check in and earn bonus points."
+          }
+        />
+      </span>
     </div>
   );
 }
