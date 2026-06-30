@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   TasksControllerSubmitProofMutationRequest,
   TasksControllerSubmitProofMutationResponse,
   TasksControllerSubmitProofPathParams,
 } from "@/gen-quest/types/tasks-controller-submit-proof";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getTasksControllerSubmitProofUrl(id: TasksControllerSubmitProofPathParams["id"]) {
   const res = { method: "POST", url: `/api/quest/tasks/${id}/submit-proof` as const };

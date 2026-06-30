@@ -1,17 +1,24 @@
-// Deterministic gradient avatar from a seed (ported from tasmil-app-quest).
+import type { TasmilAvatarVariant } from "@/shared/components/tasmil-avatar";
 
-export function qHash(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = (h << 5) - h + s.charCodeAt(i);
-    h |= 0;
-  }
-  return Math.abs(h);
+export const QUEST_AVATAR_VARIANTS: TasmilAvatarVariant[] = [
+  "marble",
+  "bauhaus",
+  "beam",
+  "pixel",
+  "ring",
+  "sunset",
+];
+
+const TOKEN_PREFIX = "tasmil:";
+
+export function variantToken(variant: TasmilAvatarVariant): string {
+  return `${TOKEN_PREFIX}${variant}`;
 }
 
-export function qAvatar(seed: string): string {
-  const h = qHash(seed);
-  const a = h % 360;
-  const b = (h * 3 + 90) % 360;
-  return `radial-gradient(circle at 32% 28%,hsl(${a} 80% 70%),hsl(${b} 75% 42%) 75%)`;
+export function variantFromAvatarUrl(avatarUrl?: string | null): TasmilAvatarVariant {
+  if (avatarUrl?.startsWith(TOKEN_PREFIX)) {
+    const candidate = avatarUrl.slice(TOKEN_PREFIX.length) as TasmilAvatarVariant;
+    if (QUEST_AVATAR_VARIANTS.includes(candidate)) return candidate;
+  }
+  return "marble";
 }

@@ -14,7 +14,8 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { referralControllerGetMyReferral } from "@/gen-quest/client/referral-controller-get-my-referral";
 import type { ReferralControllerGetMyReferralQueryResponse } from "@/gen-quest/types/referral-controller-get-my-referral";
 
-export const referralControllerGetMyReferralQueryKey = () => [{ url: "/api/quest/referral/me" }] as const;
+export const referralControllerGetMyReferralQueryKey = () =>
+  [{ url: "/api/quest/referral/me" }] as const;
 
 export type ReferralControllerGetMyReferralQueryKey = ReturnType<
   typeof referralControllerGetMyReferralQueryKey

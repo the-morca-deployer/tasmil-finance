@@ -5,14 +5,16 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { CampaignCard, type CampaignCardData } from "@/features/quest/components/CampaignCard";
+import FomoBanner from "@/features/quest/components/FomoBanner";
 import { Rise } from "@/features/quest/components/Rise";
 import { buttonClasses } from "@/features/quest/components/ui/button";
 import apiClient from "@/features/quest/lib/api-client";
 import { mapApiCampaignsResponse } from "@/features/quest/lib/campaign-mapper";
+import type { FomoActive } from "@/features/quest/lib/fomo-types";
 import { $ } from "@/features/quest/lib/kubb-config";
 import { unwrapEnvelope } from "@/features/quest/lib/season-types";
 import { toCampaignCardData } from "@/features/quest/types";
-import { useCampaignsControllerFindAll } from "@/gen-quest/hooks";
+import { useCampaignsControllerFindAll, useFomoControllerGetActive } from "@/gen-quest/hooks";
 
 interface PlatformStats {
   questers?: number;
@@ -36,7 +38,9 @@ const STAT_VALUE =
 const STAT_LABEL = "mt-[9px] text-[10px] font-bold uppercase tracking-[0.2em] text-quest-muted";
 
 export default function Explore() {
-  const { data, isLoading } = useCampaignsControllerFindAll({ isFeatured: true }, $);
+  const { data, isLoading } = useCampaignsControllerFindAll({}, $);
+  const { data: fomoData } = useFomoControllerGetActive($);
+  const fomo = unwrapEnvelope<FomoActive>(fomoData);
   // Public platform stats — `/quest/analytics/system` is admin-only (403 for
   // regular users), so use the public `/quest/stats` endpoint instead.
   const { data: statsRaw } = useQuery({
@@ -49,11 +53,25 @@ export default function Explore() {
   const items: CampaignCardData[] = useMemo(() => {
     if (!data) return [];
     const campaigns = mapApiCampaignsResponse(data);
-    return campaigns.slice(0, 6).map(toCampaignCardData);
+    return campaigns.map(toCampaignCardData);
   }, [data]);
 
   return (
     <div>
+      <FomoBanner />
+      {fomo ? (
+        <div className="mb-4 flex items-center justify-between rounded-quest-card border border-quest-amber bg-quest-amber/10 px-5 py-3">
+          <span className="text-[14px] font-semibold text-quest-amber">
+            Leaderboard battle is live — see where you rank!
+          </span>
+          <Link
+            href="/quest/leaderboard"
+            className="inline-flex items-center gap-[6px] rounded-quest-pill bg-quest-amber px-4 py-1.5 text-[13px] font-bold text-black transition-opacity hover:opacity-80"
+          >
+            View leaderboard →
+          </Link>
+        </div>
+      ) : null}
       {/* HERO */}
       <Rise>
         <section className="relative mb-[46px] overflow-hidden rounded-quest-card border border-quest-line shadow-[0_40px_100px_-50px_#000]">
@@ -66,18 +84,36 @@ export default function Explore() {
             aria-hidden="true"
           />
           <div className="relative z-[1] px-[clamp(24px,5vw,64px)] pt-[clamp(40px,7vw,84px)]">
-            <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px]">June 2026 Season</div>
+            <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px]">
+              June 2026 Season
+            </div>
             <h1 className="mt-[18px] max-w-[14ch] text-[clamp(34px,5.4vw,62px)] font-extrabold leading-[1.02] tracking-[-0.04em]">
-              Embark on your <span style={{ background: "var(--grad)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>Tasmil journey</span>
+              Embark on your{" "}
+              <span
+                style={{
+                  background: "var(--grad)",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  color: "transparent",
+                }}
+              >
+                Tasmil journey
+              </span>
             </h1>
             <p className="mt-4 max-w-[48ch] text-[clamp(15px,1.6vw,18px)] leading-[1.55] text-quest-muted">
               Complete tasks across the Stellar ecosystem, earn points and climb the monthly
               leaderboard for real USDC rewards.
             </p>
             <div className="mt-[26px]">
-              <Link href="/quest/campaigns" className={buttonClasses({ variant: "primary", size: "lg" })}>
+              <Link
+                href="/quest/campaigns"
+                className={buttonClasses({ variant: "primary", size: "lg" })}
+              >
                 Start Questing
-                <span className="inline-flex transition-transform duration-[350ms] ease-quest group-hover:translate-x-1" aria-hidden="true">
+                <span
+                  className="inline-flex transition-transform duration-[350ms] ease-quest group-hover:translate-x-1"
+                  aria-hidden="true"
+                >
                   <ArrowRight size={17} strokeWidth={2.4} />
                 </span>
               </Link>
@@ -85,7 +121,9 @@ export default function Explore() {
           </div>
           <div className="relative z-[1] mt-[clamp(40px,6vw,72px)] grid grid-cols-3 border-t border-quest-line-2 bg-black/40 backdrop-blur-[10px]">
             <div className="px-[clamp(20px,4vw,40px)] py-[22px]">
-              <div className={`${STAT_VALUE} text-quest-accent`}>{compact(stats.questers ?? 0)}</div>
+              <div className={`${STAT_VALUE} text-quest-accent`}>
+                {compact(stats.questers ?? 0)}
+              </div>
               <div className={STAT_LABEL}>Questers</div>
             </div>
             <div className="border-l border-quest-line px-[clamp(20px,4vw,40px)] py-[22px]">
@@ -159,8 +197,8 @@ export default function Explore() {
             <h3 className="mb-[9px] text-[18px] font-bold tracking-[-0.02em]">Climb ranks</h3>
             <p className="text-[14px] leading-[1.6] text-quest-muted">
               Every quest pushes you higher on the{" "}
-              <b className="font-bold text-quest-text">monthly leaderboard</b> where the top 10 split
-              the prize pool.
+              <b className="font-bold text-quest-text">monthly leaderboard</b> where the top 10
+              split the prize pool.
             </p>
           </div>
           <div className={WHY_CARD}>
@@ -178,7 +216,9 @@ export default function Explore() {
                 <path d="M3 12h18M12 3c2.5 2.6 4 5.8 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.8-4-9s1.5-6.4 4-9Z" />
               </svg>
             </div>
-            <h3 className="mb-[9px] text-[18px] font-bold tracking-[-0.02em]">Join the community</h3>
+            <h3 className="mb-[9px] text-[18px] font-bold tracking-[-0.02em]">
+              Join the community
+            </h3>
             <p className="text-[14px] leading-[1.6] text-quest-muted">
               Compete globally with thousands of questers and{" "}
               <b className="font-bold text-quest-text">make your mark on Stellar</b>.
@@ -192,20 +232,8 @@ export default function Explore() {
         <section>
           <div className="mb-6 flex items-end justify-between gap-4">
             <h2 className="text-[clamp(22px,3vw,30px)] font-extrabold tracking-[-0.03em]">
-              Featured campaigns
+              Campaigns
             </h2>
-            <Link
-              href="/quest/campaigns"
-              className="group inline-flex items-center gap-[7px] text-[14px] font-semibold text-quest-accent"
-            >
-              View all
-              <span
-                className="inline-flex transition-transform duration-300 ease-quest group-hover:translate-x-1"
-                aria-hidden="true"
-              >
-                <ArrowRight size={15} strokeWidth={2.4} />
-              </span>
-            </Link>
           </div>
           <div className="grid grid-cols-3 gap-[22px] max-[980px]:grid-cols-2 max-[640px]:grid-cols-1">
             {isLoading ? (
@@ -243,7 +271,7 @@ export default function Explore() {
                   <path d="M12 8v4M12 16h.01" />
                 </svg>
                 <div className="text-[18px] font-bold tracking-[-0.02em] text-quest-text">
-                  No featured campaigns this season.
+                  No campaigns yet.
                 </div>
                 <div className="text-[14px] text-quest-muted">
                   Check back soon or browse all campaigns.

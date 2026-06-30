@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type { SeasonsControllerCurrentQueryResponse } from "@/gen-quest/types/seasons-controller-current";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getSeasonsControllerCurrentUrl() {
   const res = { method: "GET", url: `/api/quest/seasons/current` as const };

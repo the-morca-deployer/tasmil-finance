@@ -1,36 +1,32 @@
-import { qAvatar, qHash } from "./avatar";
+import { QUEST_AVATAR_VARIANTS, variantFromAvatarUrl, variantToken } from "./avatar";
 
-describe("qHash", () => {
-  it("is deterministic for the same seed", () => {
-    expect(qHash("GDQI...3I6R")).toBe(qHash("GDQI...3I6R"));
-  });
-
-  it("returns a non-negative integer", () => {
-    const h = qHash("alice");
-    expect(Number.isInteger(h)).toBe(true);
-    expect(h).toBeGreaterThanOrEqual(0);
-  });
-
-  it("returns 0 for the empty string", () => {
-    expect(qHash("")).toBe(0);
-  });
-
-  it("differs across distinct seeds", () => {
-    expect(qHash("alice")).not.toBe(qHash("bob"));
+describe("variantToken", () => {
+  it("formats the token", () => {
+    expect(variantToken("bauhaus")).toBe("tasmil:bauhaus");
   });
 });
 
-describe("qAvatar", () => {
-  it("is deterministic for the same seed", () => {
-    expect(qAvatar("seed-1")).toBe(qAvatar("seed-1"));
+describe("variantFromAvatarUrl", () => {
+  it("parses a valid token", () => {
+    expect(variantFromAvatarUrl("tasmil:pixel")).toBe("pixel");
   });
-
-  it("produces a radial-gradient with two hsl stops derived from the hash", () => {
-    const h = qHash("seed-1");
-    const a = h % 360;
-    const b = (h * 3 + 90) % 360;
-    expect(qAvatar("seed-1")).toBe(
-      `radial-gradient(circle at 32% 28%,hsl(${a} 80% 70%),hsl(${b} 75% 42%) 75%)`
+  it("falls back to marble for empty/null", () => {
+    expect(variantFromAvatarUrl(null)).toBe("marble");
+    expect(variantFromAvatarUrl(undefined)).toBe("marble");
+    expect(variantFromAvatarUrl("")).toBe("marble");
+  });
+  it("falls back for legacy dicebear", () => {
+    expect(variantFromAvatarUrl("https://api.dicebear.com/7.x/avataaars/svg?seed=quest3")).toBe(
+      "marble"
     );
+  });
+  it("falls back for unknown token", () => {
+    expect(variantFromAvatarUrl("tasmil:notreal")).toBe("marble");
+  });
+});
+
+describe("QUEST_AVATAR_VARIANTS", () => {
+  it("lists six variants in order", () => {
+    expect(QUEST_AVATAR_VARIANTS).toEqual(["marble", "bauhaus", "beam", "pixel", "ring", "sunset"]);
   });
 });

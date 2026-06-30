@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   AdminControllerRemoveTaskMutationResponse,
   AdminControllerRemoveTaskPathParams,
 } from "@/gen-quest/types/admin-controller-remove-task";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAdminControllerRemoveTaskUrl(taskId: AdminControllerRemoveTaskPathParams["taskId"]) {
   const res = { method: "DELETE", url: `/api/quest/admin/tasks/${taskId}` as const };

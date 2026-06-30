@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "action": { "type": "string", "enum": ["DEPOSIT", "WITHDRAW", "REBALANCE", "HARVEST"] },
+    "protocol": {
+      "type": "string",
+      "enum": ["TASMIL_VAULT", "BLEND", "SOROSWAP", "AQUARIUS", "PHOENIX", "DEFINDEX"]
+    },
+    "asset": { "type": "string" },
+    "poolLabel": { "type": "string" }
+  },
+  "required": ["action", "protocol"],
+  "x-readme-ref-name": "SubmitAiTxMetaDto"
+}

@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   NotificationsControllerSendMutationRequest,
   NotificationsControllerSendMutationResponse,
 } from "@/gen-quest/types/notifications-controller-send";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getNotificationsControllerSendUrl() {
   const res = { method: "POST", url: `/api/quest/notifications/send` as const };

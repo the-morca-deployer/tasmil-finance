@@ -3,24 +3,24 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   SocialAccountsControllerUnlinkAccount404,
   SocialAccountsControllerUnlinkAccountMutationResponse,
   SocialAccountsControllerUnlinkAccountPathParams,
 } from "@/gen-quest/types/social-accounts-controller-unlink-account";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getSocialAccountsControllerUnlinkAccountUrl(
   platform: SocialAccountsControllerUnlinkAccountPathParams["platform"]
 ) {
-  const res = { method: "DELETE", url: `/api/quest/social-accounts/${platform}` as const };
+  const res = { method: "DELETE", url: `/api/quest/users/me/social-accounts/${platform}` as const };
   return res;
 }
 
 /**
  * @summary Unlink a social account
- * {@link /api/quest/social-accounts/:platform}
+ * {@link /api/quest/users/me/social-accounts/:platform}
  */
 export async function socialAccountsControllerUnlinkAccount(
   platform: SocialAccountsControllerUnlinkAccountPathParams["platform"],

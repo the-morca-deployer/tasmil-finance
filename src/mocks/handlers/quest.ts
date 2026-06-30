@@ -3,28 +3,28 @@
  * Quest API uses same-origin requests via baseURL: "/api" → paths are /api/api/...
  * Response interceptor unwraps { success, data } envelopes automatically.
  */
-import { http, HttpResponse, delay } from "msw";
+import { delay, HttpResponse, http } from "msw";
 import {
-  getCampaignsEnvelope,
+  buildTaskClaimStatus,
+  buildTaskStatus,
   getCampaignById,
+  getCampaignsEnvelope,
   getNotJoinedEnvelope,
-  MOCK_USER_ME,
   MOCK_CHECK_IN_STATUS,
+  MOCK_CURRENT_SEASON,
   MOCK_DAILY_LOGIN_RESULT,
-  MOCK_POINTS_HISTORY,
-  MOCK_MY_CAMPAIGNS_PENDING,
+  MOCK_LEADERBOARD,
   MOCK_MY_CAMPAIGNS_CLAIMABLE,
   MOCK_MY_CAMPAIGNS_CLAIMED,
-  MOCK_LEADERBOARD,
-  MOCK_STREAK_LEADERBOARD,
-  MOCK_CURRENT_SEASON,
+  MOCK_MY_CAMPAIGNS_PENDING,
   MOCK_MY_SEASON_RESULT,
+  MOCK_POINTS_HISTORY,
   MOCK_REFERRAL,
   MOCK_REFERRALS_LIST,
   MOCK_SOCIAL_ACCOUNTS,
+  MOCK_STREAK_LEADERBOARD,
+  MOCK_USER_ME,
   MUTATION_SUCCESS,
-  buildTaskStatus,
-  buildTaskClaimStatus,
 } from "../data/quest";
 
 const D = 150;
@@ -40,9 +40,16 @@ export const questHandlers = [
     const active = url.searchParams.get("active");
     const isFeatured = url.searchParams.get("isFeatured");
 
-    if (active === "true") return HttpResponse.json(getCampaignsEnvelope((c) => !!(c.startAt && new Date(c.endAt || "") > new Date())));
-    if (active === "false") return HttpResponse.json(getCampaignsEnvelope((c) => !!(c.endAt && new Date(c.endAt) < new Date())));
-    if (isFeatured === "true") return HttpResponse.json(getCampaignsEnvelope((c) => !!c.isFeatured));
+    if (active === "true")
+      return HttpResponse.json(
+        getCampaignsEnvelope((c) => !!(c.startAt && new Date(c.endAt || "") > new Date()))
+      );
+    if (active === "false")
+      return HttpResponse.json(
+        getCampaignsEnvelope((c) => !!(c.endAt && new Date(c.endAt) < new Date()))
+      );
+    if (isFeatured === "true")
+      return HttpResponse.json(getCampaignsEnvelope((c) => !!c.isFeatured));
     return HttpResponse.json(getCampaignsEnvelope(() => true));
   }),
 
@@ -199,7 +206,11 @@ export const questHandlers = [
     await delay(300);
     return HttpResponse.json({
       success: true,
-      data: { accessToken: "mock-quest-jwt", refreshToken: "mock-quest-refresh", user: MOCK_USER_ME.data },
+      data: {
+        accessToken: "mock-quest-jwt",
+        refreshToken: "mock-quest-refresh",
+        user: MOCK_USER_ME.data,
+      },
     });
   }),
 
@@ -220,7 +231,11 @@ export const questHandlers = [
     await delay(300);
     return HttpResponse.json({
       success: true,
-      data: { accessToken: "mock-quest-jwt", refreshToken: "mock-quest-refresh", user: MOCK_USER_ME.data },
+      data: {
+        accessToken: "mock-quest-jwt",
+        refreshToken: "mock-quest-refresh",
+        user: MOCK_USER_ME.data,
+      },
     });
   }),
 

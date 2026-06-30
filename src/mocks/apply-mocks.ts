@@ -13,27 +13,27 @@
 import { questApiClient } from "@/features/quest/lib/api-client";
 
 import {
-  getCampaignsEnvelope,
+  buildTaskClaimStatus,
+  buildTaskStatus,
   getCampaignById,
+  getCampaignsEnvelope,
   getNotJoinedEnvelope,
-  MOCK_USER_ME,
   MOCK_CHECK_IN_STATUS,
+  MOCK_CURRENT_SEASON,
   MOCK_DAILY_LOGIN_RESULT,
-  MOCK_POINTS_HISTORY,
-  MOCK_MY_CAMPAIGNS_PENDING,
+  MOCK_LEADERBOARD,
   MOCK_MY_CAMPAIGNS_CLAIMABLE,
   MOCK_MY_CAMPAIGNS_CLAIMED,
-  MOCK_LEADERBOARD,
-  MOCK_STREAK_LEADERBOARD,
-  MOCK_CURRENT_SEASON,
+  MOCK_MY_CAMPAIGNS_PENDING,
   MOCK_MY_SEASON_RESULT,
+  MOCK_POINTS_HISTORY,
   MOCK_REFERRAL,
   MOCK_REFERRAL_TREE,
   MOCK_REFERRALS_LIST,
   MOCK_SOCIAL_ACCOUNTS,
+  MOCK_STREAK_LEADERBOARD,
+  MOCK_USER_ME,
   MUTATION_SUCCESS,
-  buildTaskStatus,
-  buildTaskClaimStatus,
 } from "./data/quest";
 
 // gen-quest client files emit URLs like /api/quest/campaigns (QB)
@@ -68,8 +68,10 @@ export function applyMockAdapter() {
     // ── Campaigns ──
     if (url === `${QB}/campaigns`) {
       const p = config.params || {};
-      if ((p as Record<string, unknown>).active === "true") return mock(getCampaignsEnvelope(() => true));
-      if ((p as Record<string, unknown>).isFeatured === "true") return mock(getCampaignsEnvelope((c) => !!c.isFeatured));
+      if ((p as Record<string, unknown>).active === "true")
+        return mock(getCampaignsEnvelope(() => true));
+      if ((p as Record<string, unknown>).isFeatured === "true")
+        return mock(getCampaignsEnvelope((c) => !!c.isFeatured));
       return mock(getCampaignsEnvelope(() => true));
     }
     if (url === `${QB}/campaigns/not-joined`) return mock(getNotJoinedEnvelope());
@@ -114,10 +116,12 @@ export function applyMockAdapter() {
     if (url === `${QB}/users/me/referrals`) return mock(MOCK_REFERRALS_LIST);
     if (url === `${QB}/users/me/check-in-status`) return mock(MOCK_CHECK_IN_STATUS);
     if (url === `${QB}/users/me/daily-login`) return mock(MOCK_DAILY_LOGIN_RESULT);
-    if (url?.match(/^\/api\/quest\/users\/[^/]+\/points-history$/)) return mock(MOCK_POINTS_HISTORY);
+    if (url?.match(/^\/api\/quest\/users\/[^/]+\/points-history$/))
+      return mock(MOCK_POINTS_HISTORY);
 
     // ── Social Accounts ──
-    if (url === `${QB}/social-accounts` && config.method !== "delete") return mock(MOCK_SOCIAL_ACCOUNTS);
+    if (url === `${QB}/social-accounts` && config.method !== "delete")
+      return mock(MOCK_SOCIAL_ACCOUNTS);
     if (url?.match(/^\/api\/quest\/social-accounts\/[^/]+\/link$/)) return mock(MUTATION_SUCCESS);
     if (url?.match(/^\/api\/quest\/social-accounts\/[^/]+$/) && config.method === "delete")
       return mock(MUTATION_SUCCESS);
@@ -152,7 +156,10 @@ export function applyMockAdapter() {
       });
     }
     if (url === `${AB}/refresh`)
-      return mock({ success: true, data: { accessToken: "mock-jwt-refreshed", refreshToken: "mock-refresh" } });
+      return mock({
+        success: true,
+        data: { accessToken: "mock-jwt-refreshed", refreshToken: "mock-refresh" },
+      });
     if (url === `${AB}/logout`) return mock(MUTATION_SUCCESS);
 
     // ── Notifications ──

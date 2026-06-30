@@ -4,7 +4,7 @@
  */
 
 export const createCampaignDtoCategoryEnum = {
-  DeFi: "DeFi",
+  DEFI: "DEFI",
   NFT: "NFT",
   Infra: "Infra",
   Gaming: "Gaming",

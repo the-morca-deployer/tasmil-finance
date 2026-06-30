@@ -1,0 +1,6 @@
+{
+  "type": "object",
+  "properties": { "route": { "type": "string", "enum": ["dashboard", "chat", "farming"] } },
+  "required": ["route"],
+  "x-readme-ref-name": "VisitSponsorshipDto"
+}

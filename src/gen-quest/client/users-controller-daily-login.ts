@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type { UsersControllerDailyLoginMutationResponse } from "@/gen-quest/types/users-controller-daily-login";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getUsersControllerDailyLoginUrl() {
   const res = { method: "POST", url: `/api/quest/users/me/daily-login` as const };

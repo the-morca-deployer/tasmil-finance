@@ -15,7 +15,7 @@ import type {
 } from "@/gen-quest/types/social-accounts-controller-link-account";
 
 export const socialAccountsControllerLinkAccountMutationKey = () =>
-  [{ url: "/api/quest/social-accounts/:platform/link" }] as const;
+  [{ url: "/api/quest/users/me/social-accounts/:platform/link" }] as const;
 
 export type SocialAccountsControllerLinkAccountMutationKey = ReturnType<
   typeof socialAccountsControllerLinkAccountMutationKey
@@ -45,7 +45,7 @@ export function socialAccountsControllerLinkAccountMutationOptions<TContext = un
 
 /**
  * @summary Link a social account
- * {@link /api/quest/social-accounts/:platform/link}
+ * {@link /api/quest/users/me/social-accounts/:platform/link}
  */
 export function useSocialAccountsControllerLinkAccount<TContext>(
   options: {

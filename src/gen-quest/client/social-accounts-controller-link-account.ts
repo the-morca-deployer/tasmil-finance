@@ -3,25 +3,28 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   SocialAccountsControllerLinkAccount409,
   SocialAccountsControllerLinkAccountMutationRequest,
   SocialAccountsControllerLinkAccountMutationResponse,
   SocialAccountsControllerLinkAccountPathParams,
 } from "@/gen-quest/types/social-accounts-controller-link-account";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getSocialAccountsControllerLinkAccountUrl(
   platform: SocialAccountsControllerLinkAccountPathParams["platform"]
 ) {
-  const res = { method: "POST", url: `/api/quest/social-accounts/${platform}/link` as const };
+  const res = {
+    method: "POST",
+    url: `/api/quest/users/me/social-accounts/${platform}/link` as const,
+  };
   return res;
 }
 
 /**
  * @summary Link a social account
- * {@link /api/quest/social-accounts/:platform/link}
+ * {@link /api/quest/users/me/social-accounts/:platform/link}
  */
 export async function socialAccountsControllerLinkAccount(
   platform: SocialAccountsControllerLinkAccountPathParams["platform"],

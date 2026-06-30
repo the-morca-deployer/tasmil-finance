@@ -18,7 +18,8 @@ const TARGETS = {
     temp: "temp-openapi-backend.json",
   },
   quest: {
-    url: process.env.NEXT_PUBLIC_QUEST_API_URL || "http://localhost:5555",
+    // Quest routes live on the main backend (port 6756); align with kubb.config.ts
+    url: process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:6756",
     temp: "temp-openapi-quest.json",
   },
 };

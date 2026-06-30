@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useReferralControllerGetTree } from "@/gen-quest";
-import { qAvatar } from "../lib/avatar";
+import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 import { $ } from "../lib/kubb-config";
 import { type ReferralTree, type ReferralTreeNode, unwrapEnvelope } from "../lib/season-types";
 import { Icon, PtsCoin } from "./icons";
@@ -68,10 +68,7 @@ function TreeRow({ node, depth }: { node: ReferralTreeNode; depth: number }) {
             />
           ) : null}
         </span>
-        <span
-          className="block h-7 w-7 flex-none rounded-full"
-          style={{ background: qAvatar(node.name) }}
-        />
+        <TasmilAvatar seed={node.name} size={28} className="flex-none" />
         <span className="min-w-0 flex-1 truncate font-medium text-foreground text-sm">
           {node.name}
         </span>
@@ -216,10 +213,7 @@ export function Referrals() {
                 className="grid grid-cols-[1fr_70px_110px_110px] items-center gap-3 px-4 py-3"
               >
                 <span className="flex min-w-0 items-center gap-2">
-                  <span
-                    className="block h-7 w-7 flex-none rounded-full"
-                    style={{ background: qAvatar(u.name) }}
-                  />
+                  <TasmilAvatar seed={u.name} size={28} className="flex-none" />
                   <span className="truncate font-medium text-foreground text-sm">{u.name}</span>
                   <StatusBadge s={u.status} />
                 </span>

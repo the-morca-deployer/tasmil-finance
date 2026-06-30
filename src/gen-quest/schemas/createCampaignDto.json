@@ -5,7 +5,7 @@
     "description": { "type": "string" },
     "descriptionDetail": { "type": "string" },
     "coverUrl": { "type": "string" },
-    "category": { "type": "string", "enum": ["DeFi", "NFT", "Infra", "Gaming", "Other"] },
+    "category": { "type": "string", "enum": ["DEFI", "NFT", "Infra", "Gaming", "Other"] },
     "rewardPoints": { "type": "number" },
     "minTasksToComplete": { "type": "number" },
     "startAt": { "type": "string" },

@@ -1,5 +1,7 @@
 "use client";
 
+import { $ } from "@/features/quest/lib/kubb-config";
+import { RANK_STYLES, rankFromPoints } from "@/features/quest/lib/tier";
 import { useSeasonsControllerMyResult, useUsersControllerGetMe } from "@/gen-quest/hooks";
 
 type QuestProfile = {
@@ -12,36 +14,38 @@ type SeasonResult = {
   percentile?: number;
 };
 
-const TIER_LABEL: Record<string, string> = {
-  COHORT_4: "Bronze",
-  COHORT_3: "Silver",
-  COHORT_2: "Gold",
-  COHORT_1: "Diamond",
-  UNRANKED: "Unranked",
-};
-
 export function WalletRankInfo() {
-  const me = useUsersControllerGetMe();
-  const profile = (me.data?.data as QuestProfile | undefined) ?? null;
+  // `$` already unwraps the `{ success, data }` envelope → `me.data` is the profile.
+  const me = useUsersControllerGetMe($);
+  const profile = (me.data as QuestProfile | undefined) ?? null;
   const myResult = useSeasonsControllerMyResult();
   const result = myResult.data?.data as SeasonResult | undefined;
 
   if (!profile) return null;
 
-  const tier = TIER_LABEL[profile.tier ?? "UNRANKED"] ?? "Unranked";
-  const parts: string[] = [
+  const tier = rankFromPoints(profile.totalPoints ?? 0).rank;
+  const style = RANK_STYLES[tier];
+  const seasonParts: string[] = [
     result?.finalRank != null ? `#${result.finalRank}` : null,
     result?.percentile != null ? `top ${result.percentile}%` : null,
-    tier,
-    `${(profile.totalPoints ?? 0).toLocaleString()} pts`,
   ].filter((p): p is string => p !== null);
 
   return (
     <div
       data-testid="wallet-rank-info"
-      className="border-b border-border px-3 py-2 text-muted-foreground text-xs"
+      className="flex items-center gap-2 border-b border-border px-3 py-2 text-muted-foreground text-xs"
     >
-      {parts.join(" · ")}
+      <img
+        src={style.asset}
+        alt={style.label}
+        width={18}
+        height={18}
+        className="flex-none object-contain [filter:drop-shadow(0_1px_2px_rgba(0,0,0,0.4))]"
+      />
+      <span>
+        {seasonParts.length > 0 ? `${seasonParts.join(" · ")} · ` : ""}
+        {style.label} · {(profile.totalPoints ?? 0).toLocaleString()} pts
+      </span>
     </div>
   );
 }

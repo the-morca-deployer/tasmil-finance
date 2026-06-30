@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type { SeasonsControllerRevealAckMutationResponse } from "@/gen-quest/types/seasons-controller-reveal-ack";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getSeasonsControllerRevealAckUrl() {
   const res = { method: "POST", url: `/api/quest/seasons/me/reveal-ack` as const };

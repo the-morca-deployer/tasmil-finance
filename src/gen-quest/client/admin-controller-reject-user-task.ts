@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   AdminControllerRejectUserTaskMutationResponse,
   AdminControllerRejectUserTaskPathParams,
 } from "@/gen-quest/types/admin-controller-reject-user-task";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAdminControllerRejectUserTaskUrl(id: AdminControllerRejectUserTaskPathParams["id"]) {
   const res = { method: "POST", url: `/api/quest/admin/user-tasks/${id}/reject` as const };

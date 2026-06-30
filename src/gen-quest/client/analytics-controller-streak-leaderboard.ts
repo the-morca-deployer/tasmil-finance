@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type { AnalyticsControllerStreakLeaderboardQueryResponse } from "@/gen-quest/types/analytics-controller-streak-leaderboard";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAnalyticsControllerStreakLeaderboardUrl() {
   const res = { method: "GET", url: `/api/quest/leaderboard/streak` as const };

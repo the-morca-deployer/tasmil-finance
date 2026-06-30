@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type { AuthControllerLogoutMutationResponse } from "@/gen-quest/types/auth-controller-logout";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAuthControllerLogoutUrl() {
   const res = { method: "POST", url: `/api/auth/logout` as const };
@@ -13,6 +13,7 @@ function getAuthControllerLogoutUrl() {
 }
 
 /**
+ * @summary Logout and clear auth cookie
  * {@link /api/auth/logout}
  */
 export async function authControllerLogout(

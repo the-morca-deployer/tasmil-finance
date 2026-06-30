@@ -3,8 +3,10 @@
  * Do not edit manually.
  */
 
+import type { _Object } from "@/gen-quest/types/object";
+
 export const campaignsControllerFindAllQueryParamsCategoryEnum = {
-  DeFi: "DeFi",
+  DEFI: "DEFI",
   NFT: "NFT",
   Infra: "Infra",
   Gaming: "Gaming",
@@ -15,6 +17,14 @@ export type CampaignsControllerFindAllQueryParamsCategoryEnumKey =
   (typeof campaignsControllerFindAllQueryParamsCategoryEnum)[keyof typeof campaignsControllerFindAllQueryParamsCategoryEnum];
 
 export type CampaignsControllerFindAllQueryParams = {
+  /**
+   * @type object | undefined
+   */
+  page?: _Object;
+  /**
+   * @type object | undefined
+   */
+  limit?: _Object;
   /**
    * @type string | undefined
    */

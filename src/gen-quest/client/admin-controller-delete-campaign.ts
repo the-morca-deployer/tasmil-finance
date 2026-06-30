@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   AdminControllerDeleteCampaignMutationResponse,
   AdminControllerDeleteCampaignPathParams,
 } from "@/gen-quest/types/admin-controller-delete-campaign";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAdminControllerDeleteCampaignUrl(id: AdminControllerDeleteCampaignPathParams["id"]) {
   const res = { method: "DELETE", url: `/api/quest/admin/campaigns/${id}` as const };

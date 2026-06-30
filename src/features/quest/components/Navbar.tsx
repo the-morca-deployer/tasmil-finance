@@ -6,27 +6,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/features/quest/components/ui/avatar";
 import { Button, buttonClasses } from "@/features/quest/components/ui/button";
+import { WalletRankInfo } from "@/features/quest/components/WalletRankInfo";
 import { useWallet } from "@/features/quest/context/wallet-context";
+import { variantFromAvatarUrl } from "@/features/quest/lib/avatar";
 import { withAuth } from "@/features/quest/lib/kubb-config";
+import { buildShareUrl } from "@/features/quest/lib/referral-link";
+import { unwrapEnvelope } from "@/features/quest/lib/season-types";
 import {
+  useReferralControllerGetMyReferral,
   usersControllerGetMeQueryKey,
   useUsersControllerDailyLogin,
   useUsersControllerGetCheckInStatus,
   useUsersControllerGetMyCampaigns,
 } from "@/gen-quest/hooks";
 import { cn } from "@/lib/utils";
+import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function avatarFromAddress(addr: string): string {
-  if (!addr) return "linear-gradient(135deg, #67E8F9, #0EA5E9)";
-  const hash = Array.from(addr).reduce((a, c) => a + c.charCodeAt(0), 0);
-  const h1 = (hash * 7) % 360;
-  const h2 = (hash * 13) % 360;
-  return `linear-gradient(135deg, hsl(${h1}, 70%, 60%), hsl(${h2}, 70%, 45%))`;
-}
+// Shared chip base — mirrors the quest navbar (QuestNav) so the PTS, streak
+// and wallet chips render identically (same height, radius, border, surface).
+const CHIP_BASE = cn(
+  "inline-flex h-10 items-center gap-[7px]",
+  "px-[14px] text-[13.5px] font-semibold",
+  "rounded-quest-pill bg-quest-surface border border-quest-line-2",
+  "transition-colors"
+);
 
 // ─── NavItem ─────────────────────────────────────────────────────────────────
 
@@ -66,6 +70,24 @@ const Navbar: React.FC = () => {
   } = useWallet();
 
   const queryClient = useQueryClient();
+
+  // Referral data — guard matches sibling hooks so it only fires when authenticated
+  const { data: refRaw } = useReferralControllerGetMyReferral({
+    ...withAuth,
+    query: { enabled: isAuthenticated && !!user },
+  } as never);
+  const refData = unwrapEnvelope<{
+    referralCode: string | null;
+    referredBy: { code: string | null; name: string | null; walletAddress: string | null } | null;
+  }>(refRaw);
+  const myCode = refData?.referralCode ?? null;
+  const referrer = refData?.referredBy ?? null;
+  const referrerLabel =
+    referrer?.name ??
+    referrer?.code ??
+    (referrer?.walletAddress
+      ? `${referrer.walletAddress.slice(0, 4)}…${referrer.walletAddress.slice(-4)}`
+      : "—");
 
   // Streak lives on the user object from the auth store
   const streak = user?.loginStreak ?? 0;
@@ -131,11 +153,6 @@ const Navbar: React.FC = () => {
     dailyLoginMutation.mutate(undefined);
   };
 
-  const getAvatarUrl = (walletAddress?: string) => {
-    if (user?.avatarUrl) return user.avatarUrl;
-    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${walletAddress ?? "default"}`;
-  };
-
   const copyAddress = () => {
     if (address) {
       navigator.clipboard.writeText(address);
@@ -179,7 +196,14 @@ const Navbar: React.FC = () => {
           className="flex items-center gap-[15px] font-extrabold no-underline"
           style={{ fontSize: "30px", letterSpacing: "-0.03em" }}
         >
-          <img src="/tasmil-tf-logo.png" alt="Tasmil" width="48" height="48" className="flex-none" style={{ width: "48px", height: "48px" }} />
+          <img
+            src="/tasmil-tf-logo.png"
+            alt="Tasmil"
+            width="48"
+            height="48"
+            className="flex-none"
+            style={{ width: "48px", height: "48px" }}
+          />
           <span
             style={{
               background: "linear-gradient(100deg,#fff 0%,var(--accent) 100%)",
@@ -228,10 +252,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center gap-3">
             {/* .stat-pill.pts: inline-flex; align-items:center; gap:7px; font-size:13.5px; font-weight:600;
                  padding:8px 14px; border-radius:var(--r-pill); background:var(--surface); border:1px solid var(--line-2); color:var(--green) */}
-            <span
-              className="inline-flex items-center gap-[7px] rounded-quest-pill border border-quest-line-2 bg-quest-surface text-[13.5px] font-semibold text-quest-green"
-              style={{ padding: "8px 14px" }}
-            >
+            <span className={cn(CHIP_BASE, "text-quest-green [&_svg]:text-quest-green")}>
               <Loader2 className="w-[14px] h-[14px] animate-spin" />
               Authenticating...
             </span>
@@ -239,42 +260,38 @@ const Navbar: React.FC = () => {
         ) : (
           <div className="flex items-center gap-3">
             {/* Points pill — .stat-pill.pts: color:var(--green) */}
-            <span
-              className="inline-flex items-center gap-[7px] rounded-quest-pill border border-quest-line-2 bg-quest-surface text-[13.5px] font-semibold text-quest-green"
-              style={{ padding: "8px 14px" }}
-            >
+            <span className={cn(CHIP_BASE, "text-quest-green [&_svg]:text-quest-green")}>
               <Coins className="w-[14px] h-[14px]" />
               {points.toLocaleString()}
             </span>
 
             {/* Streak pill — with check-in button if not yet checked in today */}
             {!hasCheckedIn ? (
-              <Button
+              <button
                 type="button"
                 onClick={handleCheckIn}
                 disabled={dailyLoginMutation.isPending}
-                variant="ghost"
-                size="sm"
-                className="gap-2"
+                className={cn(
+                  CHIP_BASE,
+                  "text-quest-amber [&_svg]:text-quest-amber",
+                  "hover:bg-white/[0.05] disabled:cursor-default disabled:hover:bg-quest-surface"
+                )}
               >
                 {dailyLoginMutation.isPending ? (
                   <>
                     <Loader2 size={14} className="animate-spin" />
-                    <span className="text-sm font-semibold">Checking in...</span>
+                    Checking in...
                   </>
                 ) : (
                   <>
                     <Flame size={14} />
-                    <span className="text-sm font-semibold">Check-in ({streak}d)</span>
+                    Check-in ({streak}d)
                   </>
                 )}
-              </Button>
+              </button>
             ) : (
               /* .stat-pill.streak: color:var(--amber) */
-              <span
-                className="inline-flex items-center gap-[7px] rounded-quest-pill border border-quest-line-2 bg-quest-surface text-[13.5px] font-semibold text-quest-amber"
-                style={{ padding: "8px 14px" }}
-              >
+              <span className={cn(CHIP_BASE, "text-quest-amber [&_svg]:text-quest-amber")}>
                 <Flame className="w-[14px] h-[14px]" />
                 {streak}d
               </span>
@@ -283,22 +300,14 @@ const Navbar: React.FC = () => {
             {/* Wallet chip — .wallet-chip: inline-flex; align-items:center; gap:10px; padding:5px 14px 5px 6px;
                  border-radius:var(--r-pill); background:var(--surface); border:1px solid var(--line-2) */}
             <div className="relative group">
-              <span
-                className="inline-flex cursor-pointer items-center gap-[10px] rounded-quest-pill border border-quest-line-2 bg-quest-surface"
-                style={{ padding: "5px 14px 5px 6px" }}
-              >
+              <span className={cn(CHIP_BASE, "cursor-pointer gap-[10px] pl-[6px] text-quest-text")}>
                 {/* .av: block; width:30px; height:30px; border-radius:50%; flex:none */}
-                <span
-                  className="block h-[30px] w-[30px] flex-none rounded-full"
-                  style={{ background: avatarFromAddress(address ?? "") }}
-                >
-                  <Avatar className="h-[30px] w-[30px]">
-                    <AvatarImage src={getAvatarUrl(address ?? undefined)} />
-                    <AvatarFallback>
-                      {displayAddress?.charAt(0).toUpperCase() ?? "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                </span>
+                <TasmilAvatar
+                  seed={address ?? ""}
+                  variant={variantFromAvatarUrl(user?.avatarUrl)}
+                  size={30}
+                  className="flex-none"
+                />
                 {/* .addr: font-family:var(--font-mono); font-size:13px; color:var(--text) */}
                 <span
                   className="text-[13px] text-quest-text"
@@ -310,7 +319,17 @@ const Navbar: React.FC = () => {
 
               {/* Hover dropdown */}
               <div className="absolute right-0 top-full mt-2 w-48 bg-surface border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all translate-y-2 group-hover:translate-y-0">
+                <WalletRankInfo />
                 <div className="p-1">
+                  {myCode && (
+                    <button
+                      onClick={() => navigator.clipboard?.writeText(buildShareUrl(myCode))}
+                      className="w-full text-left px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-white/5 flex items-center gap-2"
+                    >
+                      <Copy size={14} /> Referral: {myCode}
+                    </button>
+                  )}
+                  <div className="px-3 py-2 text-xs text-muted">Referred by: {referrerLabel}</div>
                   <button
                     onClick={copyAddress}
                     className="w-full text-left px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-white/5 flex items-center gap-2"
@@ -448,6 +467,17 @@ const Navbar: React.FC = () => {
                     <span className="text-foreground font-mono text-sm">{displayAddress}</span>
                   </div>
 
+                  {myCode && (
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard?.writeText(buildShareUrl(myCode))}
+                      className="w-full text-left px-3 py-2 rounded-lg text-sm text-muted hover:text-white hover:bg-white/5 flex items-center gap-2"
+                    >
+                      <Copy size={14} /> Referral: {myCode}
+                    </button>
+                  )}
+                  <div className="px-3 py-2 text-xs text-muted">Referred by: {referrerLabel}</div>
+
                   <div className="flex gap-3">
                     <Button
                       type="button"
@@ -464,7 +494,12 @@ const Navbar: React.FC = () => {
                         disconnect();
                         setIsMobileMenuOpen(false);
                       }}
-                      className={buttonClasses({ variant: "ghost", size: "sm", className: "flex-1 gap-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:translate-y-0 hover:border-transparent" })}
+                      className={buttonClasses({
+                        variant: "ghost",
+                        size: "sm",
+                        className:
+                          "flex-1 gap-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:translate-y-0 hover:border-transparent",
+                      })}
                     >
                       <LogOut size={14} /> Disconnect
                     </button>

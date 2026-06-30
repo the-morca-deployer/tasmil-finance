@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type { ReferralControllerGetLeaderboardQueryResponse } from "@/gen-quest/types/referral-controller-get-leaderboard";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getReferralControllerGetLeaderboardUrl() {
   const res = { method: "GET", url: `/api/quest/referral/leaderboard` as const };

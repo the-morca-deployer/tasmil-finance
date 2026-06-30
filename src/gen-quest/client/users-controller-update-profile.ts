@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   UsersControllerUpdateProfileMutationRequest,
   UsersControllerUpdateProfileMutationResponse,
 } from "@/gen-quest/types/users-controller-update-profile";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getUsersControllerUpdateProfileUrl() {
   const res = { method: "PATCH", url: `/api/quest/users/me` as const };

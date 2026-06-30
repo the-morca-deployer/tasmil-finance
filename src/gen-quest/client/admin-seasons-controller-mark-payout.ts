@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   AdminSeasonsControllerMarkPayoutMutationRequest,
   AdminSeasonsControllerMarkPayoutMutationResponse,
   AdminSeasonsControllerMarkPayoutPathParams,
 } from "@/gen-quest/types/admin-seasons-controller-mark-payout";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAdminSeasonsControllerMarkPayoutUrl(
   id: AdminSeasonsControllerMarkPayoutPathParams["id"]

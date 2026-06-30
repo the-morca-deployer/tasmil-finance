@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   NotificationsControllerListQueryParams,
   NotificationsControllerListQueryResponse,
 } from "@/gen-quest/types/notifications-controller-list";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getNotificationsControllerListUrl() {
   const res = { method: "GET", url: `/api/quest/notifications` as const };

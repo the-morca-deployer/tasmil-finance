@@ -38,7 +38,7 @@ export async function connectWallet(): Promise<string | null> {
 /**
  * Global sign-out. Disconnects the wallet and clears BOTH backend sessions so a
  * Disconnect on any surface logs the user out everywhere. All network calls are
- * best-effort; failures never block local clearing. Redirects home at the end.
+ * best-effort; failures never block local clearing. Stays on the current page.
  */
 export async function disconnectAll(): Promise<void> {
   try {
@@ -76,9 +76,5 @@ export async function disconnectAll(): Promise<void> {
       /* ignore */
     }
     delete (window as { __TASMIL_E2E_WALLET__?: unknown }).__TASMIL_E2E_WALLET__;
-  }
-
-  if (typeof window !== "undefined" && window.location.pathname !== "/") {
-    window.location.replace("/");
   }
 }

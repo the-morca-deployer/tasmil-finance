@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   AdminSeasonsControllerEndMutationResponse,
   AdminSeasonsControllerEndPathParams,
 } from "@/gen-quest/types/admin-seasons-controller-end";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAdminSeasonsControllerEndUrl(id: AdminSeasonsControllerEndPathParams["id"]) {
   const res = { method: "POST", url: `/api/quest/admin/seasons/${id}/end` as const };

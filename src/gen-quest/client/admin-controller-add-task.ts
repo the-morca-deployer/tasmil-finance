@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   AdminControllerAddTaskMutationRequest,
   AdminControllerAddTaskMutationResponse,
   AdminControllerAddTaskPathParams,
 } from "@/gen-quest/types/admin-controller-add-task";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAdminControllerAddTaskUrl(campaignId: AdminControllerAddTaskPathParams["campaignId"]) {
   const res = { method: "POST", url: `/api/quest/admin/campaigns/${campaignId}/tasks` as const };

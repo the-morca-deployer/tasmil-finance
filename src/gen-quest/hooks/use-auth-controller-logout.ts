@@ -31,6 +31,7 @@ export function authControllerLogoutMutationOptions<TContext = unknown>(
 }
 
 /**
+ * @summary Logout and clear auth cookie
  * {@link /api/auth/logout}
  */
 export function useAuthControllerLogout<TContext>(

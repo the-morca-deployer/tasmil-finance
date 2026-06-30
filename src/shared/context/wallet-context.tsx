@@ -9,7 +9,12 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { toast } from "sonner";
 import { isDevBypassDisconnected } from "@/lib/dev-bypass";
 import { getBrowserBackendBaseUrl } from "@/lib/runtime-urls";
-import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
+import {
+  APP_NETWORK_NAME,
+  APP_NETWORK_PASSPHRASE,
+  checkWalletNetwork,
+  parseSigningError,
+} from "@/lib/stellar-network-check";
 import { activeNetwork } from "@/shared/config/stellar";
 import { AuthBootstrap } from "@/shared/context/auth-bootstrap";
 import { getKitModulesUtils, getKitSdk, getKitTypes } from "@/shared/lib/stellar-kit";
@@ -29,6 +34,8 @@ interface WalletContextType {
   disconnect: () => Promise<void>;
   signTransaction: (xdr: string) => Promise<string>;
   forceReauth: () => Promise<void>;
+  walletNetwork: string | null;
+  networkMismatch: boolean;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -73,6 +80,9 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [address, setAddress] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [kitReady, setKitReady] = useState(false);
+  const [walletNetwork, setWalletNetwork] = useState<string | null>(null);
+  const [networkMismatch, setNetworkMismatch] = useState(false);
+  const prevMismatchRef = useRef(false);
 
   const { setWalletState, reset: resetWallet, setSigning, signing } = useWalletStore();
   const {
@@ -236,6 +246,40 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kitReady, resetWallet, setWalletState]);
+
+  // Live-detect Freighter network switches via WatchWalletChanges
+  useEffect(() => {
+    if (!isConnected || typeof window === "undefined") return;
+    let watcher: { stop: () => void } | null = null;
+    let cancelled = false;
+    import("@stellar/freighter-api")
+      .then(({ WatchWalletChanges }) => {
+        if (cancelled) return;
+        const w = new WatchWalletChanges(3000);
+        watcher = w;
+        w.watch(
+          (p: { address: string; network: string; networkPassphrase: string; error?: unknown }) => {
+            if (p?.error || !p?.networkPassphrase) return; // non-Freighter wallet / not connected → ignore
+            const mismatch = p.networkPassphrase !== APP_NETWORK_PASSPHRASE;
+            setWalletNetwork(p.network ?? null);
+            setNetworkMismatch(mismatch);
+            if (mismatch && !prevMismatchRef.current) {
+              toast.error(
+                `Wrong wallet network. Switch Freighter to ${APP_NETWORK_NAME} to continue.`
+              );
+            } else if (!mismatch && prevMismatchRef.current) {
+              toast.success(`Wallet is on ${APP_NETWORK_NAME} — you can continue.`);
+            }
+            prevMismatchRef.current = mismatch;
+          }
+        );
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+      watcher?.stop();
+    };
+  }, [isConnected]);
 
   // Check if current auth state is valid (token exists and user matches address)
   const isAuthValid = useCallback((walletAddress: string) => {
@@ -740,6 +784,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     disconnect,
     signTransaction,
     forceReauth,
+    walletNetwork,
+    networkMismatch,
   };
 
   return (

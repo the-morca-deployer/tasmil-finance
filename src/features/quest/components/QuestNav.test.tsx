@@ -1,25 +1,29 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { QuestNav } from "./QuestNav";
 
-const dailyMutate = jest.fn();
+const dailyLoginMutate = jest.fn();
 const checkInState = { hasCheckedIn: false };
 
 jest.mock("next/navigation", () => ({ usePathname: () => "/quest/campaigns" }));
 jest.mock("@tanstack/react-query", () => ({
   useQueryClient: () => ({ invalidateQueries: jest.fn() }),
+  useQuery: () => ({ data: "0", isLoading: false }),
 }));
-jest.mock("sonner", () => ({ toast: { success: jest.fn(), error: jest.fn() } }));
-jest.mock("../lib/kubb-config", () => ({ withAuth: {} }));
+jest.mock("sonner", () => ({ toast: { success: jest.fn(), error: jest.fn(), info: jest.fn() } }));
+jest.mock("../lib/kubb-config", () => ({ withAuth: {}, $: { query: {} } }));
 jest.mock("@/gen-quest", () => ({
   useUsersControllerGetMe: () => ({
-    data: { data: { totalPoints: 360, loginStreak: 1, walletAddress: "GABC...XYZ" } },
+    data: { totalPoints: 360, loginStreak: 1, walletAddress: "GABC...XYZ" },
   }),
   useUsersControllerGetCheckInStatus: () => ({
-    data: { data: { hasCheckedIn: checkInState.hasCheckedIn } },
+    data: { hasCheckedIn: checkInState.hasCheckedIn },
     refetch: jest.fn(),
   }),
-  useUsersControllerDailyLogin: () => ({ mutate: dailyMutate, isPending: false }),
+  useUsersControllerDailyLogin: () => ({ mutate: dailyLoginMutate, isPending: false }),
   usersControllerGetMeQueryKey: () => ["me"],
+}));
+jest.mock("../context/wallet-context", () => ({
+  useWallet: () => ({ connect: jest.fn(), disconnect: jest.fn(), isAuthenticating: false }),
 }));
 jest.mock("../store/use-quest-auth", () => ({
   useQuestAuthStore: () => ({ user: { walletAddress: "GABCDEF...WXYZ" }, isAuthenticated: true }),
@@ -27,7 +31,7 @@ jest.mock("../store/use-quest-auth", () => ({
 
 describe("QuestNav", () => {
   beforeEach(() => {
-    dailyMutate.mockReset();
+    dailyLoginMutate.mockReset();
     checkInState.hasCheckedIn = false;
   });
 
@@ -45,9 +49,12 @@ describe("QuestNav", () => {
   });
   it("marks Campaigns active on /quest/campaigns", () => {
     render(<QuestNav />);
-    expect(screen.getByRole("link", { name: /Campaigns/i }).className).toContain("active");
+    expect(screen.getByRole("link", { name: /Campaigns/i }).className).toContain(
+      "text-[var(--text)]"
+    );
   });
   it("shows points and streak from /me", () => {
+    checkInState.hasCheckedIn = true; // streak number is shown in the checked-in pill ("1")
     render(<QuestNav />);
     expect(screen.getByText("360")).toBeInTheDocument();
     expect(screen.getByText("1")).toBeInTheDocument();
@@ -55,7 +62,8 @@ describe("QuestNav", () => {
   it("checks in when the streak pill is clicked", () => {
     render(<QuestNav />);
     fireEvent.click(screen.getByRole("button", { name: /daily check-in/i }));
-    expect(dailyMutate).toHaveBeenCalledTimes(1);
+    expect(dailyLoginMutate).toHaveBeenCalledTimes(1);
+    expect(dailyLoginMutate).toHaveBeenCalledWith(undefined);
   });
   it("disables check-in once already checked in", () => {
     checkInState.hasCheckedIn = true;

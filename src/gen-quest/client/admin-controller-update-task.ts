@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   AdminControllerUpdateTaskMutationRequest,
   AdminControllerUpdateTaskMutationResponse,
   AdminControllerUpdateTaskPathParams,
 } from "@/gen-quest/types/admin-controller-update-task";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAdminControllerUpdateTaskUrl(taskId: AdminControllerUpdateTaskPathParams["taskId"]) {
   const res = { method: "PATCH", url: `/api/quest/admin/tasks/${taskId}` as const };

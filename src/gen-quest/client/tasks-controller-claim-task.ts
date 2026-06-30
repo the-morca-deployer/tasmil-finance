@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   TasksControllerClaimTaskMutationResponse,
   TasksControllerClaimTaskPathParams,
 } from "@/gen-quest/types/tasks-controller-claim-task";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getTasksControllerClaimTaskUrl(id: TasksControllerClaimTaskPathParams["id"]) {
   const res = { method: "POST", url: `/api/quest/tasks/${id}/claim` as const };

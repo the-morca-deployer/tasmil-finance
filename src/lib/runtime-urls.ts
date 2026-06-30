@@ -123,8 +123,5 @@ export function getBackendProxyRewrites(env: NodeJS.ProcessEnv = process.env): P
 
 /** All upstream proxy rewrites, for next.config rewrites(). */
 export function getProxyRewrites(env: NodeJS.ProcessEnv = process.env): ProxyRewrite[] {
-  return [
-    ...getBackendProxyRewrites(env),
-    ...getAiProxyRewrites(env),
-  ];
+  return [...getBackendProxyRewrites(env), ...getAiProxyRewrites(env)];
 }

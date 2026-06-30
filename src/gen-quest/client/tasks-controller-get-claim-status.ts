@@ -3,20 +3,20 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   TasksControllerGetClaimStatusPathParams,
   TasksControllerGetClaimStatusQueryResponse,
 } from "@/gen-quest/types/tasks-controller-get-claim-status";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getTasksControllerGetClaimStatusUrl(id: TasksControllerGetClaimStatusPathParams["id"]) {
-  const res = { method: "GET", url: `/api/quest/tasks/${id}/claim-status` as const };
+  const res = { method: "GET", url: `/api/quest/tasks/${id}/claim/status` as const };
   return res;
 }
 
 /**
- * {@link /api/quest/tasks/:id/claim-status}
+ * {@link /api/quest/tasks/:id/claim/status}
  */
 export async function tasksControllerGetClaimStatus(
   id: TasksControllerGetClaimStatusPathParams["id"],

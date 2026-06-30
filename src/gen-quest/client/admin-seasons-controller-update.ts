@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   AdminSeasonsControllerUpdateMutationRequest,
   AdminSeasonsControllerUpdateMutationResponse,
   AdminSeasonsControllerUpdatePathParams,
 } from "@/gen-quest/types/admin-seasons-controller-update";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAdminSeasonsControllerUpdateUrl(id: AdminSeasonsControllerUpdatePathParams["id"]) {
   const res = { method: "PATCH", url: `/api/quest/admin/seasons/${id}` as const };

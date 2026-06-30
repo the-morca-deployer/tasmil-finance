@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   UsersControllerGetMyCampaignsQueryParams,
   UsersControllerGetMyCampaignsQueryResponse,
 } from "@/gen-quest/types/users-controller-get-my-campaigns";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getUsersControllerGetMyCampaignsUrl() {
   const res = { method: "GET", url: `/api/quest/users/me/campaign` as const };

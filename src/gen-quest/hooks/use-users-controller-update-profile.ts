@@ -12,7 +12,8 @@ import type {
   UsersControllerUpdateProfileMutationResponse,
 } from "@/gen-quest/types/users-controller-update-profile";
 
-export const usersControllerUpdateProfileMutationKey = () => [{ url: "/api/quest/users/me" }] as const;
+export const usersControllerUpdateProfileMutationKey = () =>
+  [{ url: "/api/quest/users/me" }] as const;
 
 export type UsersControllerUpdateProfileMutationKey = ReturnType<
   typeof usersControllerUpdateProfileMutationKey

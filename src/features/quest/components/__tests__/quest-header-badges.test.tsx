@@ -8,14 +8,14 @@ jest.mock("@tanstack/react-query", () => ({
 }));
 jest.mock("@/gen-quest/hooks", () => ({
   useUsersControllerGetMe: () => mockGetMe(),
-  useUsersControllerGetCheckInStatus: () => ({ data: { data: { canCheckIn: true } } }),
+  useUsersControllerGetCheckInStatus: () => ({ data: { hasCheckedIn: false } }),
   useUsersControllerDailyLogin: () => ({ mutate: jest.fn(), isPending: false }),
   usersControllerGetMeQueryKey: () => ["users", "me"],
 }));
 
 describe("QuestHeaderBadges", () => {
   it("renders points and streak when a quest profile exists", () => {
-    mockGetMe.mockReturnValue({ data: { data: { totalPoints: 10, loginStreak: 1 } } });
+    mockGetMe.mockReturnValue({ data: { totalPoints: 10, loginStreak: 1 } });
     render(<QuestHeaderBadges />);
     expect(screen.getByTestId("quest-points-badge")).toHaveTextContent("10");
     expect(screen.getByTestId("quest-streak-badge")).toHaveTextContent("1");

@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   AdminSeasonsControllerSetRankRewardsMutationRequest,
   AdminSeasonsControllerSetRankRewardsMutationResponse,
   AdminSeasonsControllerSetRankRewardsPathParams,
 } from "@/gen-quest/types/admin-seasons-controller-set-rank-rewards";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAdminSeasonsControllerSetRankRewardsUrl(
   id: AdminSeasonsControllerSetRankRewardsPathParams["id"]

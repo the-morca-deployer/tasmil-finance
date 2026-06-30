@@ -2,18 +2,13 @@
  * MSW handlers for the NestJS backend API (port 6756).
  * These paths are same-origin (Next.js proxies them).
  */
-import { http, HttpResponse, delay } from "msw";
+import { delay, HttpResponse, http } from "msw";
+import { MOCK_ACTIVITY, MOCK_POSITION, MOCK_PRESETS, MOCK_REBALANCE_STATUS } from "../data/account";
 import {
-  MOCK_POSITION,
-  MOCK_ACTIVITY,
-  MOCK_PRESETS,
-  MOCK_REBALANCE_STATUS,
-} from "../data/account";
-import {
+  MOCK_AQUARIUS_POSITIONS,
+  MOCK_BLEND_POSITIONS,
   MOCK_POOLS,
   MOCK_PORTFOLIO_HISTORY,
-  MOCK_BLEND_POSITIONS,
-  MOCK_AQUARIUS_POSITIONS,
   MOCK_SNAPSHOT_RESPONSE,
 } from "../data/pools";
 
@@ -41,7 +36,10 @@ export const backendHandlers = [
 
   http.post("/api/account/deploy", async () => {
     await delay(800);
-    return HttpResponse.json({ success: true, data: { vaultAddress: "GCKZLW2GFO4WMXFF3OICHXELSB75HOZS2YT5PKHLBWRZ2EQMH5FNNHTB" } });
+    return HttpResponse.json({
+      success: true,
+      data: { vaultAddress: "GCKZLW2GFO4WMXFF3OICHXELSB75HOZS2YT5PKHLBWRZ2EQMH5FNNHTB" },
+    });
   }),
 
   http.post("/api/account/fund", async () => {
@@ -131,7 +129,10 @@ export const backendHandlers = [
 
   http.get("/api/user", async () => {
     await delay(SIMULATED_DELAY);
-    return HttpResponse.json({ success: true, data: { accountId: "GDQI7LOGDRQRM5OXEIEY7TDHUYEHGQ7RX3KOJU3FNUP6HBDHUGWA3I6R" } });
+    return HttpResponse.json({
+      success: true,
+      data: { accountId: "GDQI7LOGDRQRM5OXEIEY7TDHUYEHGQ7RX3KOJU3FNUP6HBDHUGWA3I6R" },
+    });
   }),
 
   // ------- Topup -------
@@ -159,6 +160,9 @@ export const backendHandlers = [
 
   http.get("/api/auth/challenge", async () => {
     await delay(200);
-    return HttpResponse.json({ success: true, data: { challenge: "sign-this-mock-challenge-string" } });
+    return HttpResponse.json({
+      success: true,
+      data: { challenge: "sign-this-mock-challenge-string" },
+    });
   }),
 ];

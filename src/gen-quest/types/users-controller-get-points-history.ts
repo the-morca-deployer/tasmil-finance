@@ -3,6 +3,8 @@
  * Do not edit manually.
  */
 
+import type { _Object } from "@/gen-quest/types/object";
+
 export type UsersControllerGetPointsHistoryPathParams = {
   /**
    * @type string
@@ -11,6 +13,14 @@ export type UsersControllerGetPointsHistoryPathParams = {
 };
 
 export type UsersControllerGetPointsHistoryQueryParams = {
+  /**
+   * @type object | undefined
+   */
+  page?: _Object;
+  /**
+   * @type object | undefined
+   */
+  limit?: _Object;
   /**
    * @type string | undefined
    */

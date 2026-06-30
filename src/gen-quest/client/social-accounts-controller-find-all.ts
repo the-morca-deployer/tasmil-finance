@@ -3,18 +3,18 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type { SocialAccountsControllerFindAllQueryResponse } from "@/gen-quest/types/social-accounts-controller-find-all";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getSocialAccountsControllerFindAllUrl() {
-  const res = { method: "GET", url: `/api/quest/social-accounts` as const };
+  const res = { method: "GET", url: `/api/quest/users/me/social-accounts` as const };
   return res;
 }
 
 /**
  * @summary Get all linked social accounts
- * {@link /api/quest/social-accounts}
+ * {@link /api/quest/users/me/social-accounts}
  */
 export async function socialAccountsControllerFindAll(
   config: Partial<RequestConfig> & { client?: Client } = {}

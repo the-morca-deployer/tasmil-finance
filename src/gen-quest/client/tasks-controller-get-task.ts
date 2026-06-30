@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type {
   TasksControllerGetTaskPathParams,
   TasksControllerGetTaskQueryResponse,
 } from "@/gen-quest/types/tasks-controller-get-task";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getTasksControllerGetTaskUrl(id: TasksControllerGetTaskPathParams["id"]) {
   const res = { method: "GET", url: `/api/quest/tasks/${id}` as const };

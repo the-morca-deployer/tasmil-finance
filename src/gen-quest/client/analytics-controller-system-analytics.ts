@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
-import fetch from "@kubb/plugin-client/clients/axios";
 import type { AnalyticsControllerSystemAnalyticsQueryResponse } from "@/gen-quest/types/analytics-controller-system-analytics";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
+import fetch from "@/lib/kubb-backend-client";
 
 function getAnalyticsControllerSystemAnalyticsUrl() {
   const res = { method: "GET", url: `/api/quest/analytics/system` as const };

@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "tier": { "type": "string" },
+    "points": { "type": "number", "minimum": 0 },
+    "isActive": { "type": "boolean" }
+  },
+  "required": ["tier"],
+  "x-readme-ref-name": "TierRewardItemDto"
+}
