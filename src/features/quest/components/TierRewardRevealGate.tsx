@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
+import { useState } from "react";
 import { withAuth } from "@/features/quest/lib/kubb-config";
 import { RANK_ORDER } from "@/features/quest/lib/tier";
+import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
 import {
-  useTierRewardsControllerList,
-  useTierRewardsControllerClaim,
   tierRewardsControllerListQueryKey,
   usersControllerGetMeQueryKey,
+  useTierRewardsControllerClaim,
+  useTierRewardsControllerList,
 } from "@/gen-quest/hooks";
 import { TierRewardReveal } from "./TierRewardReveal";
 
@@ -36,10 +36,7 @@ export function TierRewardRevealGate() {
 
   const queue = rewards
     .filter((r) => r.claimable)
-    .sort(
-      (a, b) =>
-        RANK_ORDER.indexOf(a.tier as never) - RANK_ORDER.indexOf(b.tier as never),
-    );
+    .sort((a, b) => RANK_ORDER.indexOf(a.tier as never) - RANK_ORDER.indexOf(b.tier as never));
 
   const claim = useTierRewardsControllerClaim({
     ...withAuth,

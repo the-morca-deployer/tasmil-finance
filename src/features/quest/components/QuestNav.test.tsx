@@ -7,6 +7,7 @@ const checkInState = { hasCheckedIn: false };
 jest.mock("next/navigation", () => ({ usePathname: () => "/quest/campaigns" }));
 jest.mock("@tanstack/react-query", () => ({
   useQueryClient: () => ({ invalidateQueries: jest.fn() }),
+  useQuery: () => ({ data: "0", isLoading: false }),
 }));
 jest.mock("sonner", () => ({ toast: { success: jest.fn(), error: jest.fn(), info: jest.fn() } }));
 jest.mock("../lib/kubb-config", () => ({ withAuth: {}, $: { query: {} } }));

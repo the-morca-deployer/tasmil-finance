@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog, DialogContent } from "@/features/quest/components/ui/dialog";
-import { RANK_STYLES, type QuestRank } from "@/features/quest/lib/tier";
+import { type QuestRank, RANK_STYLES } from "@/features/quest/lib/tier";
 
 export function TierRewardReveal({
   open,

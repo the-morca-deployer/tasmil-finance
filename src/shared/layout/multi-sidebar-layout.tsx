@@ -1,8 +1,9 @@
 "use client";
 
-import { PanelLeft, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { SponsorIndicator } from "@/features/sponsorship/components/sponsor-indicator";
 import { cn } from "@/lib/utils";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
@@ -36,13 +37,16 @@ function MobileHeader({ sidebarData }: { sidebarData: SidebarData }) {
         </span>
       </Link>
       <div className="ml-auto flex items-center gap-2">
+        {/* Keep the gas-sponsorship badge visible on mobile (renders nothing when not enrolled). */}
+        <SponsorIndicator />
         <ConnectWalletButton variant="topbar" />
         <button
           type="button"
+          aria-label="Open menu"
           onClick={toggleLeftSidebar}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground transition-colors hover:bg-accent"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-quest-line-2 bg-quest-surface text-foreground outline-none transition-colors hover:bg-white/[0.05]"
         >
-          <PanelLeft className="h-5 w-5" />
+          <Menu className="h-5 w-5" />
         </button>
       </div>
     </header>
@@ -72,7 +76,11 @@ function MobileLayout({
 
       {/* Left sidebar sheet - no border, custom close button */}
       <Sheet open={leftSidebarOpen} onOpenChange={setLeftSidebarOpen}>
-        <SheetContent side="right" className="w-[280px] border-l-0 p-0" hideCloseButton>
+        <SheetContent
+          side="right"
+          className="w-[300px] max-w-[88vw] border-l-0 p-0"
+          hideCloseButton
+        >
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation</SheetTitle>
           </SheetHeader>

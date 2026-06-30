@@ -26,7 +26,6 @@ export { QuestStep, type QuestStepProps } from "./components/QuestStep";
 export { RankMove } from "./components/RankMove";
 export { RankReveal } from "./components/RankReveal";
 export { RankRevealGate } from "./components/RankRevealGate";
-export { TierRewardRevealGate } from "./components/TierRewardRevealGate";
 export { Referrals } from "./components/Referrals";
 export { Rise } from "./components/Rise";
 export { StatRing } from "./components/StatRing";
@@ -37,6 +36,7 @@ export {
 } from "./components/social/SocialConnectButtons";
 export { TelegramButton } from "./components/TelegramButton";
 export { TFLoader } from "./components/TFLoader";
+export { TierRewardRevealGate } from "./components/TierRewardRevealGate";
 export { Button, buttonClasses, buttonVariants } from "./components/ui/button";
 export { Progress } from "./components/ui/progress";
 // Foundation helpers + primitives (Phase 1)

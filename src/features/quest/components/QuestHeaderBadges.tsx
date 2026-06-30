@@ -1,6 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useState } from "react";
 import { $, withAuth } from "@/features/quest/lib/kubb-config";
 import {
@@ -44,60 +45,91 @@ function HoverCard({
   body: string;
 }) {
   return (
+    // Outer wrapper anchors at the chip's bottom edge and adds a transparent
+    // top "bridge" (paddingTop) so the pointer can travel from the chip into the
+    // card without crossing a dead gap — keeps the card open long enough to
+    // click the CTA.
     <span
       style={{
         position: "absolute",
-        top: "calc(100% + 10px)",
+        top: "100%",
         right: 0,
         zIndex: 50,
-        width: 240,
-        padding: "12px 14px",
-        borderRadius: 12,
-        background: "rgba(15,17,21,0.96)",
-        border: "1px solid rgba(255,255,255,0.14)",
-        boxShadow: "0 14px 32px -10px #000, 0 0 24px -10px rgba(103,232,249,0.4)",
+        paddingTop: 10,
         opacity: show ? 1 : 0,
         pointerEvents: show ? "auto" : "none",
         transform: show ? "translateY(0)" : "translateY(-4px)",
         transition: "opacity .18s ease, transform .18s ease",
       }}
     >
-      <div
+      <span
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 10,
-          marginBottom: 8,
+          display: "block",
+          width: 240,
+          padding: "12px 14px",
+          borderRadius: 12,
+          background: "rgba(15,17,21,0.96)",
+          border: "1px solid rgba(255,255,255,0.14)",
+          boxShadow: "0 14px 32px -10px #000, 0 0 24px -10px rgba(103,232,249,0.4)",
         }}
       >
-        <span
+        <div
           style={{
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: "0.16em",
-            textTransform: "uppercase",
-            color: accent,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+            marginBottom: 8,
           }}
         >
-          {eyebrow}
-        </span>
-        {meta ? (
           <span
             style={{
-              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
               fontSize: 11,
-              color: "rgba(244,247,251,0.58)",
+              fontWeight: 700,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              color: accent,
             }}
           >
-            {meta}
+            {eyebrow}
           </span>
-        ) : null}
-      </div>
-      <div style={{ fontSize: 13.5, fontWeight: 700, color: "#F4F7FB", marginBottom: 2 }}>
-        {title}
-      </div>
-      <div style={{ fontSize: 12.5, color: "rgba(244,247,251,0.58)", lineHeight: 1.4 }}>{body}</div>
+          {meta ? (
+            <span
+              style={{
+                fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                fontSize: 11,
+                color: "rgba(244,247,251,0.58)",
+              }}
+            >
+              {meta}
+            </span>
+          ) : null}
+        </div>
+        <div style={{ fontSize: 13.5, fontWeight: 700, color: "#F4F7FB", marginBottom: 2 }}>
+          {title}
+        </div>
+        <div style={{ fontSize: 12.5, color: "rgba(244,247,251,0.58)", lineHeight: 1.4 }}>
+          {body}
+        </div>
+        <Link
+          href="/quest/profile"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            marginTop: 10,
+            paddingTop: 10,
+            borderTop: "1px solid rgba(255,255,255,0.08)",
+            fontSize: 12.5,
+            fontWeight: 700,
+            color: accent,
+            textDecoration: "none",
+          }}
+        >
+          View Profile →
+        </Link>
+      </span>
     </span>
   );
 }

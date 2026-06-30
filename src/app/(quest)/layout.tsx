@@ -1,6 +1,12 @@
 "use client";
 
-import { AutoReconnect, QuestFooter, QuestNav, RankRevealGate, TierRewardRevealGate } from "@/features/quest";
+import {
+  AutoReconnect,
+  QuestFooter,
+  QuestNav,
+  RankRevealGate,
+  TierRewardRevealGate,
+} from "@/features/quest";
 import { WalletProvider } from "@/features/quest/context/wallet-context";
 
 export default function QuestLayout({ children }: { children: React.ReactNode }) {

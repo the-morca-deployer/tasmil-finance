@@ -15,6 +15,13 @@ jest.mock("@/shared/config/stellar", () => ({
 jest.mock("./replay-menu-item", () => ({
   ReplayMenuItem: () => <div data-testid="replay-menu-item" />,
 }));
+jest.mock("@/features/quest/lib/kubb-config", () => ({ $: {} }));
+jest.mock("@/gen-quest/hooks", () => ({
+  useUsersControllerGetMe: () => ({ data: { totalPoints: 35, loginStreak: 3 } }),
+}));
+jest.mock("@tanstack/react-query", () => ({
+  useQuery: () => ({ data: "100", isLoading: false }),
+}));
 
 const mockWallet = jest.fn();
 const mockCredits = jest.fn();

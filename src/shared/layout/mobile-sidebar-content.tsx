@@ -1,255 +1,237 @@
 "use client";
 
-import { Copy } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Check, LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { toast } from "sonner";
+import { Flame, PtsCoin } from "@/features/quest/components/icons";
+import { $, withAuth } from "@/features/quest/lib/kubb-config";
+import { RANK_STYLES, rankFromPoints } from "@/features/quest/lib/tier";
+import {
+  usersControllerGetMeQueryKey,
+  useUsersControllerDailyLogin,
+  useUsersControllerGetCheckInStatus,
+  useUsersControllerGetMe,
+} from "@/gen-quest/hooks";
 import { cn } from "@/lib/utils";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 import { useWallet } from "@/shared/context/wallet-context";
 import { sidebarData } from "@/shared/layout/sidebar-data";
 import { Badge } from "@/shared/ui/badge";
-import Balatro from "@/shared/ui/balatro";
-import { Button } from "@/shared/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
-import { Typography } from "@/shared/ui/typography";
 
-const AddressAvatar = ({ address, size = "size-12" }: { address: string; size?: string }) => {
-  const bracketPx = size.match(/\[(\d+(?:\.\d+)?)px\]/);
-  const unit = size.match(/(\d+(?:\.\d+)?)/);
-  const px = bracketPx ? Number(bracketPx[1]) : unit ? Number(unit[1]) * 4 : 48;
-  return <TasmilAvatar seed={address} size={Math.round(px)} />;
+type QuestProfile = {
+  totalPoints?: number;
+  loginStreak?: number;
 };
 
 export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
-  const [depositOpen, setDepositOpen] = useState(false);
   const { isConnected, address, displayAddress, disconnect } = useWallet();
+  const queryClient = useQueryClient();
+
+  // `$` routes through questApiClient, whose interceptor already unwraps the
+  // `{ success, data }` envelope — so `me.data` IS the profile (no extra `.data`).
+  const me = useUsersControllerGetMe($);
+  const profile = (me.data as QuestProfile | undefined) ?? null;
+  const points = profile?.totalPoints ?? 0;
+  const streak = profile?.loginStreak ?? 0;
+  const rankStyle = RANK_STYLES[rankFromPoints(points).rank];
+
+  const checkIn = useUsersControllerGetCheckInStatus($);
+  const hasCheckedIn =
+    (checkIn.data as { hasCheckedIn?: boolean } | undefined)?.hasCheckedIn ?? false;
+
+  const dailyLogin = useUsersControllerDailyLogin({
+    ...withAuth,
+    mutation: {
+      onSuccess: (result) => {
+        void queryClient.invalidateQueries({ queryKey: usersControllerGetMeQueryKey() });
+        const awarded = (result as { pointsAwarded?: number } | undefined)?.pointsAwarded;
+        toast.success(awarded ? `Check-in successful! +${awarded} points` : "Check-in successful!");
+      },
+      onError: (error: unknown) => {
+        const envelope = error as { response?: { status?: number } };
+        if (envelope.response?.status === 409) {
+          toast.info("Already checked in today");
+        } else {
+          toast.error("Failed to check in. Please try again.");
+        }
+      },
+    },
+  });
+
+  const handleCheckIn = () => {
+    if (dailyLogin.isPending || hasCheckedIn) return;
+    dailyLogin.mutate();
+  };
+
+  const items = sidebarData.navGroups.flatMap((g) => g.items);
 
   return (
     <div className="flex h-full w-full flex-col bg-sidebar">
-      {/* Header */}
-      <div className="flex-shrink-0 p-4">
+      {/* Header — brand + network badge (the parent renders the X close button) */}
+      <div className="flex-shrink-0 border-border border-b p-4">
         <Link
           href="/chat/new"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2.5"
           {...(onClose && { onClick: onClose })}
         >
           <Image
             alt={sidebarData.header.brand_name}
-            height={45}
+            height={36}
             src={sidebarData.header.logo_url}
-            width={45}
+            width={36}
           />
-          <div className="ml-1 grid flex-1 gap-1 text-left leading-tight">
-            <div className="flex items-center gap-2">
-              <span className="animate-shimmer-text bg-[length:200%_100%] bg-gradient-to-r from-[#b5eaff] via-white to-[#00bfff] bg-clip-text font-semibold text-transparent text-xl">
-                {sidebarData.header.brand_name}
-              </span>
-              <Badge
-                className="h-4 rounded-full border-0 bg-[image:var(--brand-grad)] px-1.5 py-0 font-bold text-[8px] text-black"
-                variant="outline"
-              >
-                {process.env.NEXT_PUBLIC_STELLAR_NETWORK === "mainnet" ? "MAINNET" : "TESTNET"}
-              </Badge>
-            </div>
-            <Typography className="text-sm">{sidebarData.header.tagline}</Typography>
-          </div>
+          <span className="flex items-center gap-2">
+            <span className="animate-shimmer-text bg-[length:200%_100%] bg-gradient-to-r from-[#b5eaff] via-white to-[#00bfff] bg-clip-text font-bold text-lg text-transparent">
+              {sidebarData.header.brand_name}
+            </span>
+            <Badge
+              className="h-4 rounded-full border-0 bg-[image:var(--brand-grad)] px-1.5 py-0 font-bold text-[8px] text-black"
+              variant="outline"
+            >
+              {process.env.NEXT_PUBLIC_STELLAR_NETWORK === "mainnet" ? "MAINNET" : "TESTNET"}
+            </Badge>
+          </span>
         </Link>
       </div>
 
-      {/* Navigation */}
-      <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-4">
-        <nav className="space-y-2">
-          {sidebarData.navGroups.map((group, groupIndex) => (
-            <div key={groupIndex} className="space-y-2">
-              {group.items.map((item) => {
-                const isExternal = item.url.startsWith("http");
-                // Check if active - also highlight Agents for /chat/* routes
-                const isActive =
-                  !isExternal &&
-                  (pathname === item.url ||
-                    pathname.startsWith(`${item.url}/`) ||
-                    (item.url === "/chat/new" && pathname.startsWith("/chat/")));
-                return (
-                  <Link
-                    key={item.url}
-                    href={item.url}
-                    {...(onClose && { onClick: onClose })}
-                    {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className={cn(
-                      "flex items-center gap-3 rounded-full px-4 py-3 font-medium text-sm transition-colors",
-                      isActive
-                        ? "bg-[image:var(--brand-grad)] text-black shadow-md"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                    )}
-                  >
-                    {item.icon && (
-                      <item.icon
-                        className={cn(
-                          "h-5 w-5",
-                          isActive ? "text-black" : "text-sidebar-foreground"
-                        )}
-                      />
-                    )}
-                    <span
-                      className={isActive ? "font-semibold text-black" : "text-sidebar-foreground"}
-                    >
-                      {item.title}
-                    </span>
-                  </Link>
-                );
-              })}
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-4">
+        {/* Profile — flat (only the stat tiles are bordered) */}
+        {isConnected && address && (
+          <div className="flex flex-col gap-3 border-border border-b pb-4">
+            <div className="flex items-center gap-2.5">
+              <TasmilAvatar seed={address} size={36} className="flex-none" />
+              <div className="flex min-w-0 flex-col">
+                <span className="font-mono text-quest-text text-sm">{displayAddress}</span>
+                <span className="mt-0.5 flex items-center gap-1.5">
+                  <img
+                    src={rankStyle.asset}
+                    alt={rankStyle.label}
+                    width={16}
+                    height={16}
+                    className="flex-none object-contain [filter:drop-shadow(0_1px_2px_rgba(0,0,0,0.4))]"
+                  />
+                  <span className="text-quest-muted text-xs">{rankStyle.label}</span>
+                </span>
+              </div>
             </div>
-          ))}
-        </nav>
-      </div>
 
-      {/* Footer - Wallet functionality */}
-      <div className="flex-shrink-0 p-2">
-        <div>
-          {(() => {
-            if (!isConnected) {
-              return <ConnectWalletButton />;
-            }
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-[12px] border border-quest-line-2 bg-quest-surface px-3 py-2">
+                <div className="flex items-center gap-1.5">
+                  <PtsCoin style={{ width: 18, height: 18 }} />
+                  <span className="font-semibold text-[16px] text-quest-accent">
+                    {points.toLocaleString()}
+                  </span>
+                </div>
+                <span className="mt-0.5 block text-[10px] text-quest-muted uppercase tracking-[0.12em]">
+                  Points
+                </span>
+              </div>
+              <div className="rounded-[12px] border border-quest-line-2 bg-quest-surface px-3 py-2">
+                <div className="flex items-center gap-1.5">
+                  <Flame style={{ width: 18, height: 18 }} />
+                  <span className="font-semibold text-[16px] text-quest-amber">{streak}d</span>
+                </div>
+                <span className="mt-0.5 block text-[10px] text-quest-muted uppercase tracking-[0.12em]">
+                  Streak
+                </span>
+              </div>
+            </div>
 
+            <button
+              type="button"
+              onClick={handleCheckIn}
+              disabled={hasCheckedIn || dailyLogin.isPending}
+              className={cn(
+                "inline-flex w-full items-center justify-center gap-2 rounded-[10px] border py-2 font-semibold text-[13px] transition-opacity",
+                hasCheckedIn
+                  ? "border-quest-line-2 bg-quest-surface text-quest-muted disabled:cursor-default"
+                  : "border-quest-accent-line bg-quest-accent-soft text-quest-accent hover:opacity-90 disabled:opacity-60"
+              )}
+            >
+              {hasCheckedIn ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Checked in today
+                </>
+              ) : (
+                "Daily check-in"
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Navigation */}
+        <nav className="flex flex-col gap-1">
+          <span className="px-1 pb-1 text-[11px] text-quest-muted uppercase tracking-[0.14em]">
+            Navigate
+          </span>
+          {items.map((item) => {
+            const isExternal = item.url.startsWith("http");
+            const isActive =
+              !isExternal &&
+              (pathname === item.url ||
+                pathname.startsWith(`${item.url}/`) ||
+                (item.url === "/chat/new" && pathname.startsWith("/chat/")));
             return (
-              <div className="flex w-full flex-col gap-2">
-                {/* Quest Card */}
-                <a href="/quest" className="block">
-                  <div className="group relative h-32 cursor-pointer overflow-hidden rounded-xl border border-border bg-zinc-900 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20">
-                    <div className="absolute inset-0">
-                      <Balatro
-                        isRotate={false}
-                        mouseInteraction={true}
-                        pixelFilter={700}
-                        color3="#4b555902"
-                        color2="#516d72ff"
-                        color1="#56c8eeff"
-                      />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                    <div className="relative z-10 flex h-full flex-col justify-end p-4">
-                      <Typography className="mb-1 text-white" size="lg" weight="bold">
-                        Complete Quests
-                      </Typography>
-                      <Typography className="mb-2 text-gray-300" size="xs">
-                        Earn rewards by completing tasks
-                      </Typography>
-                      <div className="flex items-center gap-1 text-primary transition-all group-hover:gap-2">
-                        <Typography className="text-primary" size="sm" weight="semibold">
-                          Start Now
-                        </Typography>
-                        <svg
-                          className="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 7l5 5m0 0l-5 5m5-5H6"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </a>
-
-                {/* User Info */}
-                <Button
-                  className="flex h-auto items-center justify-start gap-2 rounded-xl bg-zinc-800/50 p-3 backdrop-blur-sm transition-all hover:bg-zinc-800/70"
-                  onClick={disconnect}
-                  variant="ghost"
-                >
-                  <AddressAvatar address={address || ""} size="size-8" />
-                  <div className="flex flex-1 items-center justify-between">
-                    <Typography className="text-white" size="sm" weight="medium">
-                      {displayAddress}
-                    </Typography>
-                    <Typography className="text-gray-400" size="xs">
-                      Disconnect
-                    </Typography>
-                  </div>
-                </Button>
-
-                {/* Social Links */}
-                <div className="flex items-center justify-center gap-4 py-1">
-                  <a
-                    className="text-gray-400 transition-colors hover:text-white"
-                    href="https://x.com/tasmilfinance"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                    </svg>
-                  </a>
-                  <a
-                    className="text-gray-400 transition-colors hover:text-white"
-                    href="https://tasmil.gitbook.io/tasmil-docs"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    <Typography className="text-gray-400 hover:text-white" size="xs" weight="bold">
-                      DOCS
-                    </Typography>
-                  </a>
-                </div>
-              </div>
+              <Link
+                key={item.url}
+                href={item.url}
+                {...(onClose && { onClick: onClose })}
+                {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                className={cn(
+                  "relative flex items-center gap-3 rounded-[10px] px-3 py-3 font-medium text-sm transition-colors",
+                  isActive
+                    ? "bg-quest-accent-soft font-semibold text-quest-accent"
+                    : "text-sidebar-foreground hover:bg-white/[0.05] hover:text-foreground"
+                )}
+              >
+                {isActive && (
+                  <span className="absolute top-2 bottom-2 left-0 w-[3px] rounded-full bg-quest-accent shadow-[0_0_8px_var(--color-quest-accent-glow)]" />
+                )}
+                {item.icon && (
+                  <item.icon
+                    className={cn(
+                      "h-5 w-5",
+                      isActive ? "text-quest-accent" : "text-sidebar-foreground"
+                    )}
+                  />
+                )}
+                {item.title}
+              </Link>
             );
-          })()}
+          })}
+        </nav>
 
-          {/* Deposit Dialog */}
-          <Dialog onOpenChange={setDepositOpen} open={depositOpen}>
-            <DialogContent className="max-w-lg border-zinc-800 bg-zinc-900">
-              <DialogHeader>
-                <DialogTitle className="text-2xl">Deposit</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="flex gap-4 rounded-xl bg-zinc-800/50 p-4">
-                  <div className="flex-1 space-y-2">
-                    <Typography className="text-gray-400" size="sm">
-                      Your Wallet Address
-                    </Typography>
-                    <Typography className="break-all font-mono text-white" size="xs">
-                      {address || "Not connected"}
-                    </Typography>
-                    <Button
-                      className="mt-2 flex items-center gap-2 rounded-md text-gray-400 hover:text-white"
-                      onClick={() => {
-                        if (address) {
-                          navigator.clipboard.writeText(address);
-                        }
-                      }}
-                      variant="secondary"
-                    >
-                      <Copy className="h-4 w-4" />
-                      <Typography size="xs">Copy Address</Typography>
-                    </Button>
-                  </div>
-                </div>
-
-                <Button
-                  className="w-full rounded-full"
-                  onClick={() => {
-                    if (address) {
-                      navigator.clipboard.writeText(address);
-                    }
-                  }}
-                  variant="gradient"
-                >
-                  Copy Address
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+        {/* Disconnected — show only the connect CTA below the nav links */}
+        {!isConnected && (
+          <div className="mt-1">
+            <ConnectWalletButton />
+          </div>
+        )}
       </div>
+
+      {/* Disconnect footer — pinned bottom, only when connected */}
+      {isConnected && (
+        <div className="flex-shrink-0 border-border border-t p-3">
+          <button
+            type="button"
+            onClick={() => {
+              void disconnect();
+              onClose?.();
+            }}
+            className="inline-flex w-full items-center gap-2 rounded-[10px] px-3 py-3 text-red-400 text-sm transition-colors hover:bg-red-500/10"
+          >
+            <LogOut className="h-4 w-4" />
+            Disconnect
+          </button>
+        </div>
+      )}
     </div>
   );
 }
