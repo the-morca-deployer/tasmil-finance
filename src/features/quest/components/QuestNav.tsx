@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDown, Copy, ExternalLink, LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { useWallet } from "@/features/quest/context/wallet-context";
@@ -90,10 +90,13 @@ export function QuestNav() {
   useEffect(() => {
     setMenuOpen(false);
   }, [path]);
-  const { data } = useUsersControllerGetMe({
-    ...$,
-    query: { ...$.query, enabled: isAuthenticated },
-  });
+  // Memoize the query options object so TanStack Query does not see a new JS
+  // reference on every render and trigger a re-render cascade.
+  const userMeOpts = useMemo(
+    () => ({ ...$, query: { ...$.query, enabled: isAuthenticated } }),
+    [isAuthenticated]
+  );
+  const { data } = useUsersControllerGetMe(userMeOpts);
   const queryClient = useQueryClient();
 
   const { connect, disconnect, isAuthenticating } = useWallet();
@@ -127,11 +130,12 @@ export function QuestNav() {
   };
 
   // Check-in status from the simple endpoint
+  const checkInOpts = useMemo(
+    () => ({ ...$, query: { ...$.query, enabled: isAuthenticated, staleTime: 0, gcTime: 0 } }),
+    [isAuthenticated]
+  );
   const { data: checkInStatusData, refetch: refetchCheckInStatus } =
-    useUsersControllerGetCheckInStatus({
-      ...$,
-      query: { ...$.query, enabled: isAuthenticated, staleTime: 0, gcTime: 0 },
-    });
+    useUsersControllerGetCheckInStatus(checkInOpts);
   const hasCheckedIn =
     (checkInStatusData as { hasCheckedIn?: boolean } | undefined)?.hasCheckedIn ?? false;
 

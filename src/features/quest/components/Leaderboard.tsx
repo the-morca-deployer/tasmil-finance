@@ -14,6 +14,7 @@ import {
   type SeasonMeResult,
   unwrapEnvelope,
 } from "@/features/quest/lib/season-types";
+import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
 import {
   useAnalyticsControllerGlobalLeaderboard,
   useAnalyticsControllerStreakLeaderboard,
@@ -52,21 +53,34 @@ function shortAddr(a?: string) {
 
 export default function Leaderboard() {
   const [metric, setMetric] = useState<"points" | "streak">("points");
+  const isAuthenticated = useQuestAuthStore((s) => s.isAuthenticated);
 
-  const { data: globalRaw } = useAnalyticsControllerGlobalLeaderboard({
-    ...$,
-    query: { ...$.query, enabled: metric === "points" },
-  });
-  const { data: streakRaw } = useAnalyticsControllerStreakLeaderboard({
-    ...$,
-    query: { ...$.query, enabled: metric === "streak" },
-  });
+  const globalOpts = useMemo(
+    () => ({ ...$, query: { ...$.query, enabled: metric === "points" } }),
+    [metric]
+  );
+  const streakOpts = useMemo(
+    () => ({ ...$, query: { ...$.query, enabled: metric === "streak" } }),
+    [metric]
+  );
+  // Only fetch "my result" when the user is authenticated — avoids 401 cascades
+  // that contribute to infinite re-render loops.
+  const myResultOpts = useMemo(
+    () => ({ ...$, query: { ...$.query, enabled: isAuthenticated } }),
+    [isAuthenticated]
+  );
+  const { data: globalRaw } = useAnalyticsControllerGlobalLeaderboard(globalOpts);
+  const { data: streakRaw } = useAnalyticsControllerStreakLeaderboard(streakOpts);
   const { data: seasonRaw } = useSeasonsControllerCurrent($);
-  const { data: myResultRaw } = useSeasonsControllerMyResult($);
+  const { data: myResultRaw } = useSeasonsControllerMyResult(myResultOpts);
 
   const season = useMemo(() => unwrapEnvelope<CurrentSeason>(seasonRaw), [seasonRaw]);
   const myResult = useMemo(() => unwrapEnvelope<SeasonMeResult>(myResultRaw), [myResultRaw]);
-  const cd = useSeasonCountdown(season?.endAt ?? new Date().toISOString());
+  // Stable fallback for countdown — new Date().toISOString() creates a fresh
+  // string on every render, which would cause useSeasonCountdown's useEffect
+  // to fire setState on every render → infinite re-render loop.
+  const countdownEnd = useMemo(() => season?.endAt ?? new Date().toISOString(), [season?.endAt]);
+  const cd = useSeasonCountdown(countdownEnd);
 
   const currentRaw = metric === "points" ? globalRaw : streakRaw;
   const rows = useMemo(() => {

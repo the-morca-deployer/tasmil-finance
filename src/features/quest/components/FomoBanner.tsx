@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useCountdown } from "@/features/quest/hooks/use-countdown";
 import type { FomoActive } from "@/features/quest/lib/fomo-types";
 import { $ } from "@/features/quest/lib/kubb-config";
@@ -7,7 +8,10 @@ import { unwrapEnvelope } from "@/features/quest/lib/season-types";
 import { useFomoControllerGetActive } from "@/gen-quest";
 
 export default function FomoBanner() {
-  const { data } = useFomoControllerGetActive($);
+  // Fomo is a public endpoint — strip auth client and disable retry to avoid
+  // 401 cascades that amplify re-render loops.
+  const fomoOpts = useMemo(() => ({ query: { ...$.query, retry: 0, enabled: true } }), []);
+  const { data } = useFomoControllerGetActive(fomoOpts);
   const active = unwrapEnvelope<FomoActive>(data);
   const cd = useCountdown(active?.endAt);
   if (!active || cd.ended) return null;

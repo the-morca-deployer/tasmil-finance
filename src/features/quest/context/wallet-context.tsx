@@ -225,18 +225,26 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // ─── Sync user data from API ─────────────────────────────────────────────
 
   const queryEnabled = isAuthenticated && !!user;
-  const { data: userDataFromApi } = useUsersControllerGetMe({
-    ...withAuth,
-    query: {
-      enabled: queryEnabled,
-      staleTime: 5000,
-      gcTime: 30000,
-      refetchOnWindowFocus: false,
-      refetchOnMount: true,
-      refetchOnReconnect: false,
-      retry: 1,
-    },
-  });
+  const userMeOptions = useMemo(
+    () => ({
+      ...withAuth,
+      query: {
+        enabled: queryEnabled,
+        staleTime: 5000,
+        gcTime: 30000,
+        refetchOnWindowFocus: false,
+        refetchOnMount: true,
+        refetchOnReconnect: false,
+        retry: 1,
+      },
+    }),
+    [queryEnabled]
+  );
+  const { data: userDataFromApi } = useUsersControllerGetMe(userMeOptions);
+
+  // Ref-based guard: only apply updateUser when the API data fingerprint
+  // actually changed — not just because TanStack Query returned a new JS ref.
+  const lastSyncedFingerprintRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!userDataFromApi || !isAuthenticated) return;
@@ -251,6 +259,21 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           ? response
           : null;
     if (!raw) return;
+
+    // Build a stable fingerprint so the effect doesn't re-fire on every render
+    // when TanStack Query hands back a fresh JS reference for the same JSON.
+    const fingerprint = JSON.stringify({
+      id: raw.id,
+      walletAddress: raw.walletAddress,
+      username: raw.username,
+      tier: raw.tier,
+      totalPoints: raw.totalPoints,
+      loginStreak: raw.loginStreak,
+      referralCode: raw.referralCode,
+      role: raw.role,
+    });
+    if (lastSyncedFingerprintRef.current === fingerprint) return;
+    lastSyncedFingerprintRef.current = fingerprint;
 
     const { updateUser, user: currentUser } = useQuestAuthStore.getState();
     // Note: the session is first seeded from /auth/me (id + walletAddress only),
@@ -515,24 +538,37 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const points = user?.totalPoints ?? 0;
 
-  return (
-    <WalletContext.Provider
-      value={{
-        isConnected,
-        isAuthenticated,
-        isAuthenticating: isAuthenticating || signing,
-        address,
-        displayAddress,
-        points,
-        user,
-        connect,
-        disconnect,
-        signMessage,
-      }}
-    >
-      {children}
-    </WalletContext.Provider>
+  // Memoize the context value so consumers (useWallet) don't re-render on
+  // every WalletProvider render — only when a consumed field actually changes.
+  const ctx = useMemo<WalletContextType>(
+    () => ({
+      isConnected,
+      isAuthenticated,
+      isAuthenticating: isAuthenticating || signing,
+      address,
+      displayAddress,
+      points,
+      user,
+      connect,
+      disconnect,
+      signMessage,
+    }),
+    [
+      isConnected,
+      isAuthenticated,
+      isAuthenticating,
+      signing,
+      address,
+      displayAddress,
+      points,
+      user,
+      connect,
+      disconnect,
+      signMessage,
+    ]
   );
+
+  return <WalletContext.Provider value={ctx}>{children}</WalletContext.Provider>;
 };
 
 export const useWallet = () => {

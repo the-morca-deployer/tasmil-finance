@@ -1884,9 +1884,7 @@ function ProfileContent() {
 const Profile: React.FC = () => {
   return (
     <Rise>
-      <Suspense fallback={<div style={{ minHeight: "50vh" }} />}>
-        <ProfileContent />
-      </Suspense>
+      <ProfileContent />
     </Rise>
   );
 };

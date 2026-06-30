@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSeasonsControllerMyResult, useSeasonsControllerRevealAck } from "@/gen-quest";
 import { withAuth } from "../lib/kubb-config";
 import { type SeasonMeResult, unwrapEnvelope } from "../lib/season-types";
@@ -14,10 +14,11 @@ import { RankReveal } from "./RankReveal";
  */
 export function RankRevealGate() {
   const isAuthenticated = useQuestAuthStore((s) => s.isAuthenticated);
-  const { data: raw } = useSeasonsControllerMyResult({
-    ...withAuth,
-    query: { enabled: isAuthenticated },
-  });
+  const myResultOpts = useMemo(
+    () => ({ ...withAuth, query: { enabled: isAuthenticated } }),
+    [isAuthenticated]
+  );
+  const { data: raw } = useSeasonsControllerMyResult(myResultOpts);
   const ack = useSeasonsControllerRevealAck(withAuth);
   const [dismissed, setDismissed] = useState(false);
 
