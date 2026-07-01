@@ -261,8 +261,11 @@ export function QuestNav() {
         )}
 
         {/* Wallet chip — avatar-only on mobile, full chip at lg; opens a click/tap
-            dropdown so it works on touch (mirrors the strategy WalletMenu). */}
-        {address && (
+            dropdown so it works on touch (mirrors the strategy WalletMenu). Gated on
+            both `address` and `isAuthenticated`: `address` falls back to the
+            `getMe` query's cached data, which lingers after disconnect since a
+            disabled query keeps its last result instead of clearing it. */}
+        {address && isAuthenticated && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
@@ -347,7 +350,7 @@ export function QuestNav() {
         )}
 
         {/* Connect Wallet — matches main navbar gradient button */}
-        {!address && (
+        {!(address && isAuthenticated) && (
           <Button
             size="sm"
             variant="gradient"
@@ -514,7 +517,7 @@ export function QuestNav() {
               </div>
 
               {/* Disconnect footer — pinned bottom, only when connected */}
-              {address && (
+              {address && isAuthenticated && (
                 <div className="border-quest-line-2 border-t p-3">
                   <button
                     type="button"

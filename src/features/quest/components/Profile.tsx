@@ -206,7 +206,7 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
   const headerAsset = rankAsset(headerRank);
 
   return (
-    <div className="px-4 pt-[26px] pb-[26px] flex flex-col gap-5 max-[720px]:border-b max-[720px]:border-b-[rgba(255,255,255,0.08)] max-[720px]:p-4">
+    <div className="px-4 pt-[26px] pb-[26px] flex flex-col gap-5 max-[720px]:border-b max-[720px]:border-b-[#27272a] max-[720px]:p-4">
       <div className="flex flex-col items-start px-2 pt-[6px] pb-[2px]">
         <div className="relative w-24 h-24 mb-[14px] max-[720px]:w-16 max-[720px]:h-16">
           <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-[var(--accent)] shadow-[0_0_0_4px_var(--accent-soft)] max-[720px]:w-16 max-[720px]:h-16">
@@ -217,7 +217,7 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
             />
           </div>
           <button
-            className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full grid place-items-center bg-[var(--surface)] border border-[rgba(255,255,255,0.14)] cursor-pointer text-[rgba(244,247,251,0.58)] hover:text-[var(--accent)] hover:border-[rgba(103,232,249,0.32)]"
+            className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full grid place-items-center bg-[var(--surface)] border border-[#3f3f46] cursor-pointer text-[#a1a1aa] hover:text-[var(--accent)] hover:border-[rgba(103,232,249,0.32)]"
             onClick={() => setShowAvPicker(!showAvPicker)}
             aria-label="Change avatar"
           >
@@ -245,7 +245,7 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
               {user?.username ?? "Quester"}
             </span>
             <button
-              className="w-6 h-6 grid place-items-center rounded-[6px] cursor-pointer text-[rgba(244,247,251,0.34)] bg-transparent border-none hover:text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+              className="w-6 h-6 grid place-items-center rounded-[6px] cursor-pointer text-[#71717a] bg-transparent border-none hover:text-[var(--accent)] hover:bg-[var(--accent-soft)]"
               onClick={() => {
                 setNewName(user?.username ?? "");
                 setEditingName(true);
@@ -258,7 +258,7 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
         )}
 
         <button
-          className="inline-flex items-center gap-[6px] font-mono text-[13px] text-[rgba(244,247,251,0.34)] cursor-pointer bg-transparent border-none px-2 py-1 mt-2 rounded-[6px] hover:text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+          className="inline-flex items-center gap-[6px] font-mono text-[13px] text-[#71717a] cursor-pointer bg-transparent border-none px-2 py-1 mt-2 rounded-[6px] hover:text-[var(--accent)] hover:bg-[var(--accent-soft)]"
           onClick={() => {
             navigator.clipboard?.writeText(user?.walletAddress ?? "");
             setCopied(true);
@@ -288,7 +288,7 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
         </span>
       </div>
 
-      <div className="h-px bg-[rgba(255,255,255,0.08)]" />
+      <div className="h-px bg-[#27272a]" />
 
       {showAvPicker && (
         <div>
@@ -317,7 +317,7 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
             className={`flex items-center gap-3 text-[14px] font-semibold px-[14px] py-[10px] rounded-[14px] cursor-pointer transition-[color,background] duration-[250ms] text-left bg-transparent border-none w-full ${
               tab === it.id
                 ? "text-[var(--accent)] bg-[var(--accent-soft)]"
-                : "text-[rgba(244,247,251,0.58)] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.04)]"
+                : "text-[#a1a1aa] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.04)]"
             }`}
             onClick={() => setTab(it.id)}
             type="button"
@@ -427,7 +427,7 @@ function RankTiersDialog({
     >
       <div
         className="relative w-full max-w-[480px] max-h-[80vh] overflow-y-auto rounded-[24px] border border-[rgba(255,255,255,0.1)] shadow-[0_24px_64px_rgba(0,0,0,0.7)]"
-        style={{ padding: "28px 24px", background: "linear-gradient(160deg, #202024, #0f0f11)" }}
+        style={{ padding: "28px 24px", background: "var(--card-grad)" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* header */}
@@ -436,7 +436,7 @@ function RankTiersDialog({
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="w-8 h-8 rounded-[10px] grid place-items-center text-[rgba(244,247,251,0.58)] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.06)] border-none bg-transparent cursor-pointer"
+            className="w-8 h-8 rounded-[10px] grid place-items-center text-[#a1a1aa] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.06)] border-none bg-transparent cursor-pointer"
           >
             <svg
               viewBox="0 0 24 24"
@@ -467,7 +467,7 @@ function RankTiersDialog({
                 key={rank}
                 className="rounded-[16px] border px-[16px] py-[14px]"
                 style={{
-                  borderColor: isReached ? rv.line : "rgba(255,255,255,0.08)",
+                  borderColor: isReached ? rv.line : "#27272a",
                   background: isReached ? rv.soft : "rgba(32,32,36,0.30)",
                 }}
               >
@@ -504,7 +504,7 @@ function RankTiersDialog({
                     <div className="flex items-center gap-[8px]">
                       <span
                         className="text-[13px] font-bold tracking-[-0.01em]"
-                        style={{ color: isReached ? rv.color : "rgba(244,247,251,0.58)" }}
+                        style={{ color: isReached ? rv.color : "#a1a1aa" }}
                       >
                         {rank}
                       </span>
@@ -631,10 +631,10 @@ function OverviewTab() {
         style={{ gridTemplateColumns: "minmax(0,1fr) 320px" }}
       >
         <div className="flex flex-col gap-[14px] min-w-0">
-          <div className="border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] overflow-hidden">
+          <div className="border border-[#27272a] rounded-[22px] [background:var(--card-grad)] overflow-hidden">
             <div className="px-[30px] pt-[28px] pb-[22px]">
               <div className="flex items-center justify-between gap-4 mb-[18px]">
-                <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)] whitespace-nowrap">
+                <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#71717a] whitespace-nowrap">
                   Current Points
                 </div>
                 <button
@@ -675,7 +675,7 @@ function OverviewTab() {
                 </div>
 
                 <div
-                  className="flex gap-[2px] rounded-[11px] border border-[rgba(255,255,255,0.08)] flex-none"
+                  className="flex gap-[2px] rounded-[11px] border border-[#27272a] flex-none"
                   style={{ padding: 5, background: "rgba(32,32,36,0.30)" }}
                 >
                   {RANK_ORDER.map((rank, i) => {
@@ -690,7 +690,7 @@ function OverviewTab() {
                           width: 34,
                           padding: "7px 3px",
                           background: isOn ? rv.soft : "none",
-                          color: isOn ? rv.color : "rgba(244,247,251,0.34)",
+                          color: isOn ? rv.color : "#71717a",
                           border: "none",
                         }}
                       >
@@ -726,7 +726,7 @@ function OverviewTab() {
               </div>
             </div>
 
-            <div className="flex items-center gap-[18px] px-[26px] py-[22px] border-t border-[rgba(255,255,255,0.08)]">
+            <div className="flex items-center gap-[18px] px-[26px] py-[22px] border-t border-[#27272a]">
               <div className="flex flex-col items-center gap-[7px] flex-none w-16">
                 {rankAsset(currentRank) ? (
                   <img
@@ -756,7 +756,7 @@ function OverviewTab() {
 
               <div className="flex-1">
                 <div
-                  className="relative h-3 rounded-[100px] border border-[rgba(255,255,255,0.08)] overflow-hidden"
+                  className="relative h-3 rounded-[100px] border border-[#27272a] overflow-hidden"
                   style={{ background: "var(--surface)" }}
                 >
                   <div
@@ -764,7 +764,7 @@ function OverviewTab() {
                     style={{ width: `${progress * 100}%` }}
                   />
                 </div>
-                <div className="mt-[9px] text-[12px] text-[rgba(244,247,251,0.58)] text-center">
+                <div className="mt-[9px] text-[12px] text-[#a1a1aa] text-center">
                   {nextRank ? (
                     <>
                       <b className="text-[var(--accent)] font-mono">{fmt(Math.max(0, toNext))}</b>
@@ -809,8 +809,8 @@ function OverviewTab() {
           </div>
 
           <div className="grid grid-cols-2 gap-[14px]">
-            <div className="border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] px-[22px] py-[20px] flex flex-col">
-              <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)]">
+            <div className="border border-[#27272a] rounded-[22px] [background:var(--card-grad)] px-[22px] py-[20px] flex flex-col">
+              <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#71717a]">
                 Daily Streak
               </div>
               <div className="text-[40px] font-extrabold font-mono tracking-[-0.03em] leading-none flex items-center gap-[10px] mt-2">
@@ -827,28 +827,28 @@ function OverviewTab() {
                 </svg>
                 {user?.loginStreak ?? 0}
               </div>
-              <div className="text-[12px] text-[rgba(244,247,251,0.58)] mt-2">day streak</div>
+              <div className="text-[12px] text-[#a1a1aa] mt-2">day streak</div>
             </div>
-            <div className="border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] px-[22px] py-[20px] flex flex-col">
-              <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)]">
+            <div className="border border-[#27272a] rounded-[22px] [background:var(--card-grad)] px-[22px] py-[20px] flex flex-col">
+              <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#71717a]">
                 Quests Done
               </div>
               <div className="text-[40px] font-extrabold font-mono tracking-[-0.03em] leading-none mt-2">
                 0
               </div>
-              <div className="text-[12px] text-[rgba(244,247,251,0.58)] mt-2">total quests</div>
+              <div className="text-[12px] text-[#a1a1aa] mt-2">total quests</div>
             </div>
           </div>
         </div>
 
         <div
-          className="border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] flex flex-col min-w-0"
+          className="border border-[#27272a] rounded-[22px] [background:var(--card-grad)] flex flex-col min-w-0"
           style={{ padding: 22 }}
         >
-          <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-[rgba(244,247,251,0.58)]">
+          <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#a1a1aa]">
             Referral Program
           </div>
-          <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)] mt-[18px]">
+          <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#71717a] mt-[18px]">
             Your Code
           </div>
           <div
@@ -898,10 +898,10 @@ function OverviewTab() {
           </div>
 
           <div
-            className="rounded-[14px] border border-[rgba(255,255,255,0.08)] mt-3"
+            className="rounded-[14px] border border-[#27272a] mt-3"
             style={{ background: "rgba(32,32,36,0.30)", padding: "16px 18px" }}
           >
-            <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)]">
+            <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#71717a]">
               Total Earned From Refs
             </div>
             <div
@@ -911,10 +911,10 @@ function OverviewTab() {
               {fmt(refEarned)}
               <Pts />
             </div>
-            <div className="flex gap-6 pt-[14px] mt-[14px] border-t border-[rgba(255,255,255,0.08)]">
+            <div className="flex gap-6 pt-[14px] mt-[14px] border-t border-[#27272a]">
               <div>
                 <div className="text-[18px] font-bold font-mono">{fmt(refInvited)}</div>
-                <div className="text-[10px] font-semibold tracking-[0.1em] uppercase text-[rgba(244,247,251,0.34)] mt-0.5">
+                <div className="text-[10px] font-semibold tracking-[0.1em] uppercase text-[#71717a] mt-0.5">
                   Total invited
                 </div>
               </div>
@@ -922,11 +922,11 @@ function OverviewTab() {
           </div>
 
           <div
-            className="rounded-[14px] border border-[rgba(255,255,255,0.08)] mt-3"
+            className="rounded-[14px] border border-[#27272a] mt-3"
             style={{ background: "rgba(32,32,36,0.30)", padding: "16px 18px" }}
           >
             <div className="flex items-center justify-between gap-[10px]">
-              <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)]">
+              <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#71717a]">
                 Referral Rates
               </span>
               <span className="text-[9px] font-bold tracking-[0.1em] uppercase text-[var(--accent)] bg-[var(--accent-soft)] px-[9px] py-1 rounded-[100px]">
@@ -948,7 +948,7 @@ function OverviewTab() {
                   >
                     {refRate(layer)}
                   </span>
-                  <span className="text-[9px] font-semibold tracking-[0.08em] uppercase text-[rgba(244,247,251,0.34)]">
+                  <span className="text-[9px] font-semibold tracking-[0.08em] uppercase text-[#71717a]">
                     {k} {sub}
                   </span>
                 </div>
@@ -1038,14 +1038,12 @@ function MyQuestsTab() {
       <h1 className="text-[30px] font-extrabold tracking-[-0.035em] mb-[22px]">My Quests</h1>
 
       {/* subtabs — with pill count badge */}
-      <div className="flex gap-[2px] border-b border-[rgba(255,255,255,0.08)] mb-[22px]">
+      <div className="flex gap-[2px] border-b border-[#27272a] mb-[22px]">
         {subtabs.map((s) => (
           <button
             key={s.id}
             className={`relative inline-flex items-center gap-2 text-[14px] font-semibold bg-none border-none px-4 py-3 cursor-pointer transition-[color] duration-[250ms] ${
-              subtab === s.id
-                ? "text-[var(--accent)]"
-                : "text-[rgba(244,247,251,0.58)] hover:text-[var(--text)]"
+              subtab === s.id ? "text-[var(--accent)]" : "text-[#a1a1aa] hover:text-[var(--text)]"
             }`}
             style={{ background: "none" }}
             onClick={() => setSubtab(s.id)}
@@ -1055,7 +1053,7 @@ function MyQuestsTab() {
               className={`text-[11px] font-bold font-mono px-[7px] py-[2px] rounded-[100px] ${
                 subtab === s.id
                   ? "bg-[var(--accent-soft)] text-[var(--accent)]"
-                  : "bg-[var(--surface)] text-[rgba(244,247,251,0.58)]"
+                  : "bg-[var(--surface)] text-[#a1a1aa]"
               }`}
             >
               {items.length}
@@ -1074,7 +1072,7 @@ function MyQuestsTab() {
           <div className="text-[18px] font-bold tracking-[-0.02em] text-[var(--text)]">
             No {subtab} quests
           </div>
-          <div className="text-[14px] text-[rgba(244,247,251,0.58)]">
+          <div className="text-[14px] text-[#a1a1aa]">
             {subtab === "pending"
               ? "Join campaigns to start earning."
               : "Complete tasks to claim rewards."}
@@ -1092,10 +1090,10 @@ function MyQuestsTab() {
               <Link
                 key={c.id}
                 href={`/quest/campaign/${c.id}`}
-                className="border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] overflow-hidden transition-[border-color,transform] duration-300 hover:border-[rgba(103,232,249,0.32)] hover:-translate-y-[3px] flex flex-col"
+                className="border border-[#27272a] rounded-[22px] [background:var(--card-grad)] overflow-hidden transition-[border-color,transform] duration-300 hover:border-[rgba(103,232,249,0.32)] hover:-translate-y-[3px] flex flex-col"
               >
                 {/* qc-cover: image cover (like Explore) + pts badge */}
-                <div className="relative h-[128px] overflow-hidden border-b border-[rgba(255,255,255,0.08)] bg-[#0c0e10]">
+                <div className="relative h-[128px] overflow-hidden border-b border-[#27272a] bg-quest-surface">
                   {cover ? (
                     <img
                       alt=""
@@ -1123,13 +1121,13 @@ function MyQuestsTab() {
                   <div className="text-[16px] font-bold tracking-[-0.02em] mb-[7px]">
                     {ct.title as string}
                   </div>
-                  <div className="text-[13px] text-[rgba(244,247,251,0.58)] leading-[1.55] mb-4 flex-1">
+                  <div className="text-[13px] text-[#a1a1aa] leading-[1.55] mb-4 flex-1">
                     {(ct.description as string) ?? ""}
                   </div>
 
                   {/* qc-foot: status label + CTA button */}
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold tracking-[0.1em] uppercase text-[rgba(244,247,251,0.58)]">
+                    <span className="text-[10px] font-bold tracking-[0.1em] uppercase text-[#a1a1aa]">
                       {subtab}
                     </span>
                     <Button
@@ -1170,7 +1168,7 @@ function LayerBadge({ l }: { l: number }) {
       className={`inline-block text-[9px] font-bold tracking-[0.06em] uppercase px-[7px] py-[3px] rounded-[100px] border whitespace-nowrap ${
         isL1
           ? "text-[var(--accent)] bg-[var(--accent-soft)] border-[rgba(103,232,249,0.32)]"
-          : "text-[rgba(244,247,251,0.58)] bg-[var(--surface)] border-[rgba(255,255,255,0.14)]"
+          : "text-[#a1a1aa] bg-[var(--surface)] border-[#3f3f46]"
       }`}
     >
       L{l}
@@ -1184,7 +1182,7 @@ function StatusBadge({ s }: { s: "active" | "inactive" }) {
       className={`inline-flex items-center rounded-full px-[7px] py-[3px] text-[9px] font-bold tracking-[0.06em] uppercase border whitespace-nowrap ${
         s === "active"
           ? "text-[var(--green)] bg-[rgba(52,211,153,0.12)] border-[rgba(52,211,153,0.28)]"
-          : "text-[rgba(244,247,251,0.34)] bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.08)]"
+          : "text-[#71717a] bg-[rgba(255,255,255,0.04)] border-[#27272a]"
       }`}
     >
       {s}
@@ -1204,11 +1202,11 @@ function TreeRow({ node, depth }: { node: ReferralTreeNode; depth: number }) {
       <button
         type="button"
         onClick={() => hasKids && setOpen((o) => !o)}
-        className="flex w-full items-center gap-3 border-b border-[rgba(255,255,255,0.08)] py-[11px] text-left transition-[background] duration-200 hover:bg-[rgba(255,255,255,0.04)]"
+        className="flex w-full items-center gap-3 border-b border-[#27272a] py-[11px] text-left transition-[background] duration-200 hover:bg-[rgba(255,255,255,0.04)]"
         style={{ paddingLeft, paddingRight: 16 }}
       >
         {/* chevron */}
-        <span className="w-4 flex-none text-[rgba(244,247,251,0.34)]">
+        <span className="w-4 flex-none text-[#71717a]">
           {hasKids ? (
             <svg
               viewBox="0 0 24 24"
@@ -1235,7 +1233,7 @@ function TreeRow({ node, depth }: { node: ReferralTreeNode; depth: number }) {
         <LayerBadge l={node.layer} />
         <StatusBadge s={node.status} />
         {/* quest pts */}
-        <span className="w-[90px] text-right font-mono text-[12px] text-[rgba(244,247,251,0.58)] tabular-nums">
+        <span className="w-[90px] text-right font-mono text-[12px] text-[#a1a1aa] tabular-nums">
           {node.q.toLocaleString("en-US")}
           <Pts />
         </span>
@@ -1392,8 +1390,8 @@ function ReferralsTab() {
         style={{ gridTemplateColumns: "1fr 280px", alignItems: "stretch" }}
       >
         {/* ref-hero */}
-        <div className="border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] px-[30px] py-[28px]">
-          <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-[rgba(244,247,251,0.58)]">
+        <div className="border border-[#27272a] rounded-[22px] [background:var(--card-grad)] px-[30px] py-[28px]">
+          <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#a1a1aa]">
             Referral Program
           </div>
           <h2 className="text-[30px] font-extrabold tracking-[-0.03em] leading-[1.2] mt-[14px] max-w-[460px]">
@@ -1410,22 +1408,22 @@ function ReferralsTab() {
             </span>{" "}
             of their Quest Points
           </h2>
-          <p className="text-[14px] text-[rgba(244,247,251,0.58)] leading-[1.6] mt-4 mb-[26px] max-w-[440px]">
+          <p className="text-[14px] text-[#a1a1aa] leading-[1.6] mt-4 mb-[26px] max-w-[440px]">
             Earn from your referrals' quest points across three layers, forever. No expiry and no
             minimum.
           </p>
 
           {/* codebox */}
           <div
-            className="border border-[rgba(255,255,255,0.14)] rounded-[14px] px-5 py-[18px]"
+            className="border border-[#3f3f46] rounded-[14px] px-5 py-[18px]"
             style={{ background: "rgba(32,32,36,0.30)" }}
           >
             <div className="flex items-center justify-between gap-3 mb-[10px]">
-              <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)]">
+              <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#71717a]">
                 Your Referral Code
               </span>
               <button
-                className="inline-flex items-center gap-2 text-[12px] font-semibold text-[rgba(244,247,251,0.58)] bg-none border-none cursor-pointer transition-[color] duration-200 hover:text-[var(--accent)] p-0"
+                className="inline-flex items-center gap-2 text-[12px] font-semibold text-[#a1a1aa] bg-none border-none cursor-pointer transition-[color] duration-200 hover:text-[var(--accent)] p-0"
                 style={{ background: "none" }}
                 onClick={() => setShowCodeInput((v) => !v)}
               >
@@ -1458,7 +1456,7 @@ function ReferralsTab() {
                   }
                   placeholder="YOUR-CODE"
                   maxLength={20}
-                  className="flex-1 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.14)] rounded-[8px] px-3 py-[7px] text-[13px] font-mono text-[var(--text)] outline-none focus:border-[var(--accent)]"
+                  className="flex-1 bg-[rgba(255,255,255,0.06)] border border-[#3f3f46] rounded-[8px] px-3 py-[7px] text-[13px] font-mono text-[var(--text)] outline-none focus:border-[var(--accent)]"
                 />
                 <Button
                   variant="primary"
@@ -1504,7 +1502,7 @@ function ReferralsTab() {
         </div>
 
         {/* earn-card */}
-        <div className="border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] px-[22px] py-[22px] flex flex-col">
+        <div className="border border-[#27272a] rounded-[22px] [background:var(--card-grad)] px-[22px] py-[22px] flex flex-col">
           <div className="flex items-center justify-between mb-[18px]">
             <h3 className="text-[16px] font-bold">My Earnings</h3>
             <span className="text-[10px] font-bold tracking-[0.08em] uppercase text-[var(--accent)] bg-[var(--accent-soft)] border border-[rgba(103,232,249,0.32)] px-[10px] py-1 rounded-[100px]">
@@ -1512,7 +1510,7 @@ function ReferralsTab() {
             </span>
           </div>
 
-          <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)]">
+          <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#71717a]">
             Commission Amount
           </div>
           <div
@@ -1523,9 +1521,9 @@ function ReferralsTab() {
             <Pts />
           </div>
 
-          <div className="h-px bg-[rgba(255,255,255,0.08)] my-[18px]" />
+          <div className="h-px bg-[#27272a] my-[18px]" />
 
-          <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)]">
+          <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#71717a]">
             Earn Rate (F1)
           </div>
           <div
@@ -1535,12 +1533,12 @@ function ReferralsTab() {
             {Math.round(l1Rate / 100)}%
           </div>
 
-          <div className="h-px bg-[rgba(255,255,255,0.08)] my-[18px]" />
+          <div className="h-px bg-[#27272a] my-[18px]" />
 
           <div className="flex gap-[30px]">
             <div>
               <div className="text-[20px] font-bold font-mono">{totalReferrals}</div>
-              <div className="text-[10px] font-semibold tracking-[0.1em] uppercase text-[rgba(244,247,251,0.34)] mt-0.5">
+              <div className="text-[10px] font-semibold tracking-[0.1em] uppercase text-[#71717a] mt-0.5">
                 Total Invited
               </div>
             </div>
@@ -1548,19 +1546,19 @@ function ReferralsTab() {
               <div className="text-[20px] font-bold font-mono text-[var(--green)]">
                 {activeReferrals}
               </div>
-              <div className="text-[10px] font-semibold tracking-[0.1em] uppercase text-[rgba(244,247,251,0.34)] mt-0.5">
+              <div className="text-[10px] font-semibold tracking-[0.1em] uppercase text-[#71717a] mt-0.5">
                 Active
               </div>
             </div>
           </div>
 
           <div className="mt-auto pt-[18px]">
-            <div className="h-px bg-[rgba(255,255,255,0.08)] mb-[18px]" />
-            <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[rgba(244,247,251,0.34)] mb-2">
+            <div className="h-px bg-[#27272a] mb-[18px]" />
+            <div className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#71717a] mb-2">
               Quest PTS toward Tier 2
             </div>
             <div
-              className="relative h-3 rounded-[100px] border border-[rgba(255,255,255,0.08)] overflow-hidden"
+              className="relative h-3 rounded-[100px] border border-[#27272a] overflow-hidden"
               style={{ background: "var(--surface)" }}
             >
               <div
@@ -1577,7 +1575,7 @@ function ReferralsTab() {
         {howCards.map((h) => (
           <div
             key={h.tier}
-            className="border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] p-[22px]"
+            className="border border-[#27272a] rounded-[22px] [background:var(--card-grad)] p-[22px]"
           >
             <div className="flex items-start justify-between mb-[18px]">
               <div className="w-[38px] h-[38px] rounded-[12px] grid place-items-center bg-[var(--accent-soft)] border border-[rgba(103,232,249,0.32)] text-[var(--accent)]">
@@ -1590,11 +1588,11 @@ function ReferralsTab() {
                 {h.pct}
               </span>
             </div>
-            <div className="text-[9px] font-bold tracking-[0.14em] uppercase text-[rgba(244,247,251,0.34)] mb-1">
+            <div className="text-[9px] font-bold tracking-[0.14em] uppercase text-[#71717a] mb-1">
               {h.tier}
             </div>
             <div className="text-[15px] font-bold tracking-[-0.02em] mb-[9px]">{h.title}</div>
-            <p className="text-[12.5px] text-[rgba(244,247,251,0.58)] leading-[1.55]">{h.desc}</p>
+            <p className="text-[12.5px] text-[#a1a1aa] leading-[1.55]">{h.desc}</p>
           </div>
         ))}
       </div>
@@ -1602,16 +1600,14 @@ function ReferralsTab() {
       {/* SECTION C: list / tree toggle + table */}
       <div className="mt-[26px]">
         {/* lt-tabs */}
-        <div className="flex gap-[2px] border-b border-[rgba(255,255,255,0.08)] mb-4">
+        <div className="flex gap-[2px] border-b border-[#27272a] mb-4">
           {(["list", "tree"] as const).map((v) => (
             <button
               key={v}
               type="button"
               onClick={() => setView(v)}
               className={`relative text-[11px] font-bold tracking-[0.14em] uppercase bg-none border-none px-[14px] py-[11px] cursor-pointer transition-[color] duration-200 ${
-                view === v
-                  ? "text-[var(--accent)]"
-                  : "text-[rgba(244,247,251,0.58)] hover:text-[var(--text)]"
+                view === v ? "text-[var(--accent)]" : "text-[#a1a1aa] hover:text-[var(--text)]"
               }`}
               style={{ background: "none" }}
             >
@@ -1625,15 +1621,15 @@ function ReferralsTab() {
 
         {view === "list" ? (
           refs.length === 0 ? (
-            <div className="text-center py-12 text-[13px] text-[rgba(244,247,251,0.58)]">
+            <div className="text-center py-12 text-[13px] text-[#a1a1aa]">
               No referrals yet. Share your code to get started.
             </div>
           ) : (
             /* reflist */
-            <div className="border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] overflow-hidden">
+            <div className="border border-[#27272a] rounded-[22px] [background:var(--card-grad)] overflow-hidden">
               {/* rl-head: 5-col grid */}
               <div
-                className="grid items-center gap-[10px] px-[22px] py-[11px] text-[10px] font-bold tracking-[0.12em] uppercase text-[rgba(244,247,251,0.34)] border-b border-[rgba(255,255,255,0.08)]"
+                className="grid items-center gap-[10px] px-[22px] py-[11px] text-[10px] font-bold tracking-[0.12em] uppercase text-[#71717a] border-b border-[#27272a]"
                 style={{
                   gridTemplateColumns: "1.6fr 0.7fr 1fr 1fr",
                   background: "rgba(0,0,0,0.25)",
@@ -1647,7 +1643,7 @@ function ReferralsTab() {
               {refs.map((r, i) => (
                 <div
                   key={i}
-                  className="grid items-center gap-[10px] px-[22px] py-[14px] border-b border-[rgba(255,255,255,0.08)] last:border-b-0 transition-[background] duration-200 hover:bg-[var(--accent-soft)]"
+                  className="grid items-center gap-[10px] px-[22px] py-[14px] border-b border-[#27272a] last:border-b-0 transition-[background] duration-200 hover:bg-[var(--accent-soft)]"
                   style={{ gridTemplateColumns: "1.6fr 0.7fr 1fr 1fr" }}
                 >
                   {/* rl-user */}
@@ -1663,14 +1659,14 @@ function ReferralsTab() {
                       className={`inline-block text-[9px] font-bold tracking-[0.06em] uppercase px-[7px] py-[3px] rounded-[100px] border whitespace-nowrap ${
                         (r.layer ?? 1) === 1
                           ? "text-[var(--accent)] bg-[var(--accent-soft)] border-[rgba(103,232,249,0.32)]"
-                          : "text-[rgba(244,247,251,0.58)] bg-[var(--surface)] border-[rgba(255,255,255,0.14)]"
+                          : "text-[#a1a1aa] bg-[var(--surface)] border-[#3f3f46]"
                       }`}
                     >
                       L{r.layer ?? 1}
                     </span>
                   </span>
                   {/* joined */}
-                  <span className="text-[12px] text-[rgba(244,247,251,0.58)]">
+                  <span className="text-[12px] text-[#a1a1aa]">
                     {r.joinedAt ? new Date(r.joinedAt).toLocaleDateString() : ""}
                   </span>
                   {/* pts (total) */}
@@ -1684,18 +1680,16 @@ function ReferralsTab() {
           )
         ) : /* referral tree — real nested hierarchy */
         treeLoading ? (
-          <div className="text-center py-12 text-[13px] text-[rgba(244,247,251,0.58)]">
-            Loading tree…
-          </div>
+          <div className="text-center py-12 text-[13px] text-[#a1a1aa]">Loading tree…</div>
         ) : treeNodes.length === 0 ? (
-          <div className="text-center py-12 text-[13px] text-[rgba(244,247,251,0.58)]">
+          <div className="text-center py-12 text-[13px] text-[#a1a1aa]">
             Referral tree will appear once you have active referrals.
           </div>
         ) : (
-          <div className="border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] overflow-hidden">
+          <div className="border border-[#27272a] rounded-[22px] [background:var(--card-grad)] overflow-hidden">
             {/* rt-head */}
             <div
-              className="flex items-center gap-3 pl-[52px] pr-4 py-[11px] text-[10px] font-bold tracking-[0.12em] uppercase text-[rgba(244,247,251,0.34)] border-b border-[rgba(255,255,255,0.08)]"
+              className="flex items-center gap-3 pl-[52px] pr-4 py-[11px] text-[10px] font-bold tracking-[0.12em] uppercase text-[#71717a] border-b border-[#27272a]"
               style={{ background: "rgba(0,0,0,0.25)" }}
             >
               <span className="flex-1">Username</span>
@@ -1769,9 +1763,9 @@ function SocialTab() {
           return (
             <div
               key={s.platform}
-              className="flex items-center gap-4 px-[22px] py-[18px] border border-[rgba(255,255,255,0.08)] rounded-[22px] [background:var(--card-grad)] transition-[border-color] duration-[250ms] hover:border-[rgba(103,232,249,0.32)]"
+              className="flex items-center gap-4 px-[22px] py-[18px] border border-[#27272a] rounded-[22px] [background:var(--card-grad)] transition-[border-color] duration-[250ms] hover:border-[rgba(103,232,249,0.32)]"
             >
-              <div className="w-[46px] h-[46px] rounded-[13px] flex-none grid place-items-center bg-[var(--surface)] border border-[rgba(255,255,255,0.14)]">
+              <div className="w-[46px] h-[46px] rounded-[13px] flex-none grid place-items-center bg-[var(--surface)] border border-[#3f3f46]">
                 {s.icon}
               </div>
               <div className="flex-1 min-w-0">
@@ -1779,7 +1773,7 @@ function SocialTab() {
                   {connected ? (acc?.username ?? s.platform) : s.label}
                 </div>
                 <div
-                  className={`text-[12.5px] mt-[2px] ${connected ? "text-[var(--green)]" : "text-[rgba(244,247,251,0.58)]"}`}
+                  className={`text-[12.5px] mt-[2px] ${connected ? "text-[var(--green)]" : "text-[#a1a1aa]"}`}
                 >
                   {connected ? "Connected" : "Not connected"}
                 </div>
@@ -1850,7 +1844,7 @@ function ProfileContent() {
         <div className="text-[18px] font-bold tracking-[-0.02em] text-[var(--text)]">
           Connect your wallet
         </div>
-        <div className="text-[14px] text-[rgba(244,247,251,0.58)]">
+        <div className="text-[14px] text-[#a1a1aa]">
           Link your Stellar wallet to access quests, referrals, and rewards.
         </div>
         <Button type="button" variant="primary" onClick={connect} style={{ marginTop: 16 }}>

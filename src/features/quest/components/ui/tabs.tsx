@@ -28,7 +28,7 @@ const TabsTrigger = React.forwardRef<
     className={cn(
       "relative inline-flex items-center justify-center whitespace-nowrap",
       "px-[18px] py-3 text-[15px] font-semibold tracking-[-0.01em]",
-      "text-[rgba(244,247,251,0.58)] transition-colors duration-200",
+      "text-[#a1a1aa] transition-colors duration-200",
       "hover:text-[#F4F7FB]",
       "focus-visible:outline-none",
       "disabled:pointer-events-none disabled:opacity-40",

@@ -35,7 +35,7 @@ export function CampaignCard({ campaign }: { campaign: CampaignCardData }) {
       )}
     >
       {/* Cover */}
-      <div className="relative h-[184px] overflow-hidden border-b border-quest-line bg-[#0c0e10]">
+      <div className="relative h-[184px] overflow-hidden border-b border-quest-line bg-quest-surface">
         {campaign.coverUrl ? (
           <img
             alt=""
