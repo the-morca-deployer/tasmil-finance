@@ -111,7 +111,7 @@ export default function Leaderboard() {
         <header className="text-center mb-[40px]">
           {/* page-eyebrow */}
           <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px] mb-[14px]">
-            June 2026
+            {season?.name ?? "—"}
           </div>
           {/* page-title */}
           <h1 className="text-[clamp(38px,5.5vw,64px)] font-extrabold tracking-[-0.04em] leading-none">
