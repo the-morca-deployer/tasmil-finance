@@ -21,7 +21,11 @@ export function TierRewardReveal({
   const asset = RANK_STYLES[tier as QuestRank]?.asset ?? "/ranks/unrank.png";
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="quest-scope max-w-[400px] text-center">
+      {/* `quest-scope` re-exposes quest CSS vars here since Radix portals this
+          outside the page's `.quest-scope` wrapper — but that class also carries
+          page-wrapper layout rules (`min-height: 100vh`, `width: 100%`) that would
+          otherwise stretch this dialog card to the full viewport height. */}
+      <DialogContent className="quest-scope min-h-0 w-auto max-w-[400px] text-center">
         <div className="flex flex-col items-center gap-3 py-2">
           <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[rgba(244,247,251,0.55)]">
             Rank reward unlocked

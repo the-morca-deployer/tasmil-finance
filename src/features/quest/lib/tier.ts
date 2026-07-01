@@ -17,14 +17,14 @@ export type QuestRank =
 
 // [min inclusive, max exclusive | null].
 const RANK_BANDS: { rank: QuestRank; min: number; max: number | null }[] = [
-  { rank: "Unranked", min: 0, max: 100 },
-  { rank: "Bronze", min: 100, max: 300 },
-  { rank: "Silver", min: 300, max: 700 },
-  { rank: "Gold", min: 700, max: 1500 },
-  { rank: "Platinum", min: 1500, max: 3000 },
-  { rank: "Emerald", min: 3000, max: 6000 },
-  { rank: "Diamond", min: 6000, max: 10000 },
-  { rank: "Master", min: 10000, max: null },
+  { rank: "Unranked", min: 0, max: 500 },
+  { rank: "Bronze", min: 500, max: 1500 },
+  { rank: "Silver", min: 1500, max: 3500 },
+  { rank: "Gold", min: 3500, max: 7500 },
+  { rank: "Platinum", min: 7500, max: 15000 },
+  { rank: "Emerald", min: 15000, max: 30000 },
+  { rank: "Diamond", min: 30000, max: 50000 },
+  { rank: "Master", min: 50000, max: null },
 ];
 
 /** Ordered low → high. */
