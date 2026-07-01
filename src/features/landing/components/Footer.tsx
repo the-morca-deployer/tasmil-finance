@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { BrandLogo } from "@/shared/components/brand-logo";
+
 export default function Footer() {
   return (
     <>
@@ -6,16 +8,7 @@ export default function Footer() {
         <div className="wrap">
           <div className="foot-grid">
             <div className="foot-brand">
-              <a className="brand" href="#top">
-                <img
-                  className="mk"
-                  src="/tasmil-logo.png"
-                  alt="Tasmil Finance"
-                  width="40"
-                  height="40"
-                />
-                <span className="brand-name">Tasmil Finance</span>
-              </a>
+              <BrandLogo href="#top" logoSrc="/tasmil-logo.png" text="Tasmil Finance" size="lg" />
               <p className="foot-desc">
                 An automated DeFi yield protocol on Stellar. Deposit USDC or XLM, pick a risk level,
                 and Tasmil Finance rebalances across the best protocols, non-custodial.

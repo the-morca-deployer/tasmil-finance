@@ -69,7 +69,7 @@ function HoverCard({
           padding: "12px 14px",
           borderRadius: 12,
           background: "rgba(15,17,21,0.96)",
-          border: "1px solid rgba(255,255,255,0.14)",
+          border: "1px solid #3f3f46",
           boxShadow: "0 14px 32px -10px #000, 0 0 24px -10px rgba(103,232,249,0.4)",
         }}
       >
@@ -98,7 +98,7 @@ function HoverCard({
               style={{
                 fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
                 fontSize: 11,
-                color: "rgba(244,247,251,0.58)",
+                color: "#a1a1aa",
               }}
             >
               {meta}
@@ -108,9 +108,7 @@ function HoverCard({
         <div style={{ fontSize: 13.5, fontWeight: 700, color: "#F4F7FB", marginBottom: 2 }}>
           {title}
         </div>
-        <div style={{ fontSize: 12.5, color: "rgba(244,247,251,0.58)", lineHeight: 1.4 }}>
-          {body}
-        </div>
+        <div style={{ fontSize: 12.5, color: "#a1a1aa", lineHeight: 1.4 }}>{body}</div>
         <Link
           href="/quest/profile"
           style={{
@@ -120,7 +118,7 @@ function HoverCard({
             gap: 6,
             marginTop: 10,
             paddingTop: 10,
-            borderTop: "1px solid rgba(255,255,255,0.08)",
+            borderTop: "1px solid #27272a",
             fontSize: 12.5,
             fontWeight: 700,
             color: accent,

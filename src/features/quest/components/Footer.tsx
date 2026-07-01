@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef } from "react";
+import { BrandLogo } from "@/shared/components/brand-logo";
 
 export default function Footer() {
   const colsRef = useRef<HTMLDivElement>(null);
@@ -13,10 +14,10 @@ export default function Footer() {
 
   return (
     <>
-      {/* .footer: position:relative; padding:96px 0 0; overflow:hidden; background:#000; min-height:clamp(680px,72vw,960px) */}
+      {/* .footer: position:relative; padding:96px 0 0; overflow:hidden; background:var(--bg); min-height:clamp(680px,72vw,960px) */}
       {/* ::before: top border gradient line with glow */}
       <footer
-        className="relative overflow-hidden border-t border-[var(--line)] bg-black"
+        className="relative overflow-hidden border-t border-[var(--line)] bg-quest-bg"
         style={{
           padding: "96px 0 0",
           minHeight: "clamp(680px,72vw,960px)",
@@ -51,28 +52,12 @@ export default function Footer() {
               {/* .brand (footer variant): flex; align-items:center; gap:15px; font-weight:700; font-size:30px; letter-spacing:-0.03em */}
               {/* .brand-name: gradient text */}
               {/* .mk (footer): width:48px; height:48px */}
-              <a
+              <BrandLogo
                 href="/quest"
-                className="flex items-center gap-[15px] font-bold no-underline"
-                style={{ fontSize: "30px", letterSpacing: "-0.03em" }}
-              >
-                <img
-                  src="/tasmil-tf-logo.png"
-                  alt=""
-                  className="flex-none"
-                  style={{ width: "48px", height: "48px" }}
-                />
-                <span
-                  style={{
-                    background: "linear-gradient(100deg,#fff 0%,var(--accent) 100%)",
-                    WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    color: "transparent",
-                  }}
-                >
-                  Tasmil Quest
-                </span>
-              </a>
+                logoSrc="/tasmil-tf-logo.png"
+                text="Tasmil Quest"
+                size="lg"
+              />
               {/* .foot-desc: font-size:16.5px; line-height:1.62; color:rgba(244,247,251,0.82) */}
               <p
                 className="text-[16.5px] leading-[1.62]"
@@ -197,8 +182,8 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* .foot-aurora: position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; background:#000 */}
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-black">
+        {/* .foot-aurora: position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; background:var(--bg) */}
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-quest-bg">
           {/* .fa-cols: position:absolute; inset:0; display:flex */}
           {/* .fa-col: flex:1; position:relative */}
           {/* .fa-col::before: absolute; left/right/bottom:0; height:var(--h); gradient; scaleY(0) -> scaleY(1) on .in */}

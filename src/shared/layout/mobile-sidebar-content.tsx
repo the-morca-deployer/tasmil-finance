@@ -2,7 +2,6 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { Check, LogOut } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
@@ -16,6 +15,7 @@ import {
   useUsersControllerGetMe,
 } from "@/gen-quest/hooks";
 import { cn } from "@/lib/utils";
+import { BrandLogo } from "@/shared/components/brand-logo";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 import { useWallet } from "@/shared/context/wallet-context";
@@ -74,29 +74,22 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
     <div className="flex h-full w-full flex-col bg-sidebar">
       {/* Header — brand + network badge (the parent renders the X close button) */}
       <div className="flex-shrink-0 border-border border-b p-4">
-        <Link
+        <BrandLogo
           href="/chat/new"
-          className="flex items-center gap-2.5"
-          {...(onClose && { onClick: onClose })}
-        >
-          <Image
-            alt={sidebarData.header.brand_name}
-            height={36}
-            src={sidebarData.header.logo_url}
-            width={36}
-          />
-          <span className="flex items-center gap-2">
-            <span className="animate-shimmer-text bg-[length:200%_100%] bg-gradient-to-r from-[#b5eaff] via-white to-[#00bfff] bg-clip-text font-bold text-lg text-transparent">
-              {sidebarData.header.brand_name}
-            </span>
+          logoSrc={sidebarData.header.logo_url}
+          text={sidebarData.header.brand_name}
+          alt={sidebarData.header.brand_name}
+          size="sm"
+          onClick={onClose}
+          trailing={
             <Badge
               className="h-4 rounded-full border-0 bg-[image:var(--brand-grad)] px-1.5 py-0 font-bold text-[8px] text-black"
               variant="outline"
             >
               {process.env.NEXT_PUBLIC_STELLAR_NETWORK === "mainnet" ? "MAINNET" : "TESTNET"}
             </Badge>
-          </span>
-        </Link>
+          }
+        />
       </div>
 
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-4">

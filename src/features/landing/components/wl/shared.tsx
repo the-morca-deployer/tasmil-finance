@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
+import { BrandLogo } from "@/shared/components/brand-logo";
 import { useWallet as useWalletCtx } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { mountBeams } from "./beams";
@@ -541,16 +542,7 @@ function Nav({ variant, codeHref, homeHref }) {
     <>
       <nav className={"nav" + (scrolled ? " scrolled" : "")}>
         <div className="wrap nav-inner">
-          <Link className="brand" href="/">
-            <Image
-              className="mk"
-              src="/tasmil-logo.png"
-              alt="Tasmil Finance"
-              width={34}
-              height={34}
-            />
-            <span className="brand-name">Tasmil Finance</span>
-          </Link>
+          <BrandLogo href="/" logoSrc="/tasmil-logo.png" text="Tasmil Finance" size="md" />
           {variant === "landing" ? (
             <div className="nav-center">
               <Link className="nav-link" href="#how">
@@ -589,16 +581,13 @@ function Nav({ variant, codeHref, homeHref }) {
       {/* Mobile sidebar */}
       <div className={"wl-sidebar" + (open ? " open" : "")} aria-hidden={!open}>
         <div className="wl-sidebar-head">
-          <Link className="brand" href="/" onClick={() => setOpen(false)}>
-            <Image
-              className="mk"
-              src="/tasmil-logo.png"
-              alt="Tasmil Finance"
-              width={34}
-              height={34}
-            />
-            <span className="brand-name">Tasmil Finance</span>
-          </Link>
+          <BrandLogo
+            href="/"
+            logoSrc="/tasmil-logo.png"
+            text="Tasmil Finance"
+            size="md"
+            onClick={() => setOpen(false)}
+          />
           <Button
             variant="ghost"
             className="wl-sidebar-close"
@@ -701,16 +690,12 @@ function Footer() {
       <div className="wrap">
         <div className="foot-grid">
           <div className="foot-brand">
-            <Link className="brand" href={L + "#top"}>
-              <Image
-                className="mk"
-                src="/tasmil-logo.png"
-                alt="Tasmil Finance"
-                width={40}
-                height={40}
-              />
-              <span className="brand-name">Tasmil Finance</span>
-            </Link>
+            <BrandLogo
+              href={L + "#top"}
+              logoSrc="/tasmil-logo.png"
+              text="Tasmil Finance"
+              size="md"
+            />
             <p className="foot-desc">
               An automated DeFi yield protocol on Stellar. Deposit USDC or XLM, pick a risk level,
               and Tasmil Finance rebalances across the best protocols, non-custodial.

@@ -20,7 +20,7 @@ import {
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -607,46 +607,10 @@ export const QuestItem: React.FC<QuestItemProps> = ({
               </Button>
 
               {(() => {
-                // Daily tasks: skip verify, show direct check-in button
-                if (isDaily) {
-                  if (isClaimed) {
-                    return (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        disabled
-                        style={{ opacity: 0.55 }}
-                      >
-                        <CheckCircle2 size={14} />
-                        Done today ✓
-                      </Button>
-                    );
-                  }
-                  return (
-                    <Button
-                      type="button"
-                      variant="primary"
-                      size="sm"
-                      disabled={claimTaskMutation.isPending}
-                      onClick={handleClaimTask}
-                    >
-                      {claimTaskMutation.isPending ? (
-                        <>
-                          <span className="w-[13px] h-[13px] border-2 border-current border-t-transparent rounded-full inline-block animate-[quest-spin_0.7s_linear_infinite]" />
-                          Checking in...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 size={14} />
-                          Check in{step.points ? ` (+${step.points})` : ""}
-                        </>
-                      )}
-                    </Button>
-                  );
-                }
-
-                // Non-daily tasks: existing verify → claim flow
+                // Daily tasks now share the same verify → claim flow as
+                // non-daily tasks: the backend's /verify endpoint reports
+                // today's eligibility (e.g. already checked in) without
+                // persisting anything, and /claim re-validates atomically.
                 const requiredPlatform = getRequiredPlatform(step.type);
                 const needsSocialAccount = requiredPlatform && !hasRequiredSocialAccount(step.type);
                 const rawStatus = taskStatus?.status?.toUpperCase();
@@ -675,7 +639,10 @@ export const QuestItem: React.FC<QuestItemProps> = ({
                 }
 
                 if (isVerified && !isClaimed) {
-                  const pointsEarned = taskStatus?.pointsEarned || 0;
+                  // Daily tasks never populate taskStatus.pointsEarned (their
+                  // status check only reports COMPLETED/PENDING) — fall back
+                  // to the step's configured reward.
+                  const pointsEarned = taskStatus?.pointsEarned || step.points || 0;
                   return (
                     <Button
                       type="button"
@@ -701,7 +668,10 @@ export const QuestItem: React.FC<QuestItemProps> = ({
 
                 if (isClaimed) {
                   const pointsEarned =
-                    taskStatus?.pointsEarned || claimStatus?.claim?.pointsEarned || 0;
+                    taskStatus?.pointsEarned ||
+                    claimStatus?.claim?.pointsEarned ||
+                    step.points ||
+                    0;
                   return (
                     <Button
                       type="button"
@@ -1061,6 +1031,19 @@ const CampaignDetail: React.FC = () => {
       enabled: !!id,
     },
   });
+
+  // This query fires as soon as `id` is known, which can be before the wallet
+  // finishes authenticating (cookie not set yet) — that first response caches
+  // `participation: null` for up to `$`'s 5min staleTime. Refetch on the
+  // false→true auth transition so we pick up the real participation status
+  // instead of showing "Join Campaign" for a campaign already joined.
+  const wasAuthenticatedRef = useRef(isAuthenticated);
+  useEffect(() => {
+    if (isAuthenticated && !wasAuthenticatedRef.current) {
+      refetchCampaign();
+    }
+    wasAuthenticatedRef.current = isAuthenticated;
+  }, [isAuthenticated, refetchCampaign]);
 
   // Normalize the wrapped/flat findOne payload once.
   const payload = useMemo<CampaignDetailPayload | null>(() => {

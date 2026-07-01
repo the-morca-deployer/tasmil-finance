@@ -175,6 +175,7 @@ export const adminSidebarData: SidebarData = {
         { title: "Quest Campaigns", url: "/admin/quest-campaigns", icon: Trophy },
         { title: "Quest Wallets", url: "/admin/quests", icon: Wallet },
         { title: "Referral Rates", url: "/admin/referral-config", icon: Share2 },
+        { title: "Tier Bands", url: "/admin/tier-bands", icon: TrendingUp },
       ],
     },
     {

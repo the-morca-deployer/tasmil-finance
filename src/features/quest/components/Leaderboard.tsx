@@ -11,6 +11,7 @@ import { useSeasonCountdown } from "@/features/quest/hooks/use-season-countdown"
 import { $ } from "@/features/quest/lib/kubb-config";
 import {
   type CurrentSeason,
+  type SeasonLeaderboardEntry,
   type SeasonMeResult,
   unwrapEnvelope,
 } from "@/features/quest/lib/season-types";
@@ -19,6 +20,7 @@ import {
   useAnalyticsControllerGlobalLeaderboard,
   useAnalyticsControllerStreakLeaderboard,
   useSeasonsControllerCurrent,
+  useSeasonsControllerLeaderboard,
   useSeasonsControllerMyResult,
 } from "@/gen-quest/hooks";
 import { cn } from "@/lib/utils";
@@ -54,6 +56,7 @@ function shortAddr(a?: string) {
 export default function Leaderboard() {
   const [metric, setMetric] = useState<"points" | "streak">("points");
   const isAuthenticated = useQuestAuthStore((s) => s.isAuthenticated);
+  const currentUser = useQuestAuthStore((s) => s.user);
 
   const globalOpts = useMemo(
     () => ({ ...$, query: { ...$.query, enabled: metric === "points" } }),
@@ -73,14 +76,32 @@ export default function Leaderboard() {
   const { data: streakRaw } = useAnalyticsControllerStreakLeaderboard(streakOpts);
   const { data: seasonRaw } = useSeasonsControllerCurrent($);
   const { data: myResultRaw } = useSeasonsControllerMyResult(myResultOpts);
+  // `seasons/me` only ever returns finalized (ENDED/REVEALED) season results —
+  // it can't report a rank while a season is still ACTIVE. For a live season we
+  // derive "my position" from the season leaderboard instead (see myPosition).
+  const { data: seasonLeaderboardRaw } = useSeasonsControllerLeaderboard($);
 
   const season = useMemo(() => unwrapEnvelope<CurrentSeason>(seasonRaw), [seasonRaw]);
   const myResult = useMemo(() => unwrapEnvelope<SeasonMeResult>(myResultRaw), [myResultRaw]);
-  // Stable fallback for countdown — new Date().toISOString() creates a fresh
-  // string on every render, which would cause useSeasonCountdown's useEffect
-  // to fire setState on every render → infinite re-render loop.
-  const countdownEnd = useMemo(() => season?.endAt ?? new Date().toISOString(), [season?.endAt]);
-  const cd = useSeasonCountdown(countdownEnd);
+  const seasonLeaderboard = useMemo(
+    () => unwrapEnvelope<SeasonLeaderboardEntry[]>(seasonLeaderboardRaw) ?? [],
+    [seasonLeaderboardRaw]
+  );
+  const myPosition = useMemo(() => {
+    if (season?.status === "ACTIVE") {
+      const mine = currentUser
+        ? seasonLeaderboard.find((e) => e.userId === currentUser.id)
+        : undefined;
+      return mine ? { rank: mine.rank, points: mine.seasonPoints } : null;
+    }
+    return myResult ? { rank: myResult.finalRank, points: myResult.finalPoints } : null;
+  }, [season?.status, seasonLeaderboard, currentUser, myResult]);
+  // `season?.endAt` is a primitive (string | undefined), so it's a stable
+  // effect dependency on its own — no need to coin a fresh fallback timestamp
+  // each render. Passing undefined when there's no active season lets the
+  // hook report `ended: true` for the right reason instead of always
+  // recomputing against "now".
+  const cd = useSeasonCountdown(season?.endAt);
 
   const currentRaw = metric === "points" ? globalRaw : streakRaw;
   const rows = useMemo(() => {
@@ -111,7 +132,7 @@ export default function Leaderboard() {
         <header className="text-center mb-[40px]">
           {/* page-eyebrow */}
           <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px] mb-[14px]">
-            June 2026
+            {season?.name ?? "—"}
           </div>
           {/* page-title */}
           <h1 className="text-[clamp(38px,5.5vw,64px)] font-extrabold tracking-[-0.04em] leading-none">
@@ -280,14 +301,14 @@ export default function Leaderboard() {
               {/* bn-action-big */}
               <div className="flex items-baseline gap-[9px] flex-wrap mt-[12px]">
                 <b className="text-[28px] font-extrabold tracking-[-0.03em] text-quest-accent leading-none whitespace-nowrap">
-                  {myResult ? `#${myResult.finalRank}` : "--"}
+                  {myPosition ? `#${myPosition.rank}` : "--"}
                 </b>
                 <span className="text-[13px] text-quest-muted whitespace-nowrap">current rank</span>
               </div>
               {/* bn-action-sub */}
               <div className="text-[13px] text-quest-muted leading-[1.5] mt-[8px]">
                 <b className="text-quest-text font-bold">
-                  {myResult?.finalPoints?.toLocaleString() ?? "0"}
+                  {myPosition?.points?.toLocaleString() ?? "0"}
                 </b>{" "}
                 points earned this season
               </div>

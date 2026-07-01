@@ -21,7 +21,7 @@ export function StatRing({ value, label, display, size = 140 }: StatRingProps) {
           cx={size / 2}
           cy={size / 2}
           r={r}
-          stroke="var(--line-2, rgba(255,255,255,0.14))"
+          stroke="var(--line-2, #3f3f46)"
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -45,7 +45,7 @@ export function StatRing({ value, label, display, size = 140 }: StatRingProps) {
           {display}
         </div>
         {/* stat-ring-label */}
-        <div className="text-[10px] font-bold tracking-[0.16em] uppercase text-[rgba(244,247,251,0.34)] mt-1">
+        <div className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#71717a] mt-1">
           {label}
         </div>
       </div>
