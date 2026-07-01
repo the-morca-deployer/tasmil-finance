@@ -21,6 +21,7 @@ import {
   useUsersControllerGetMyCampaigns,
 } from "@/gen-quest/hooks";
 import { cn } from "@/lib/utils";
+import { BrandLogo } from "@/shared/components/brand-logo";
 import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 
 // Shared chip base — mirrors the quest navbar (QuestNav) so the PTS, streak
@@ -173,13 +174,13 @@ const Navbar: React.FC = () => {
 
   return (
     // .nav: sticky top:0; z-index:50; grid 1fr auto 1fr; align-items:center; padding:16px clamp(20px,5vw,56px);
-    //       background:rgba(20,20,25,0.72); backdrop-filter:blur(18px); border-bottom:1px solid var(--line)
+    //       background:rgba(9,9,11,0.72); backdrop-filter:blur(18px); border-bottom:1px solid var(--line)
     // NOTE: original component used flex justify-between (not grid); preserving that layout for mobile compat
     <header
       className="sticky top-0 z-50 flex items-center justify-between"
       style={{
         padding: "16px clamp(20px, 5vw, 56px)",
-        background: "rgba(20,20,25,0.72)",
+        background: "rgba(9,9,11,0.72)",
         backdropFilter: "blur(18px)",
         WebkitBackdropFilter: "blur(18px)",
         borderBottom: "1px solid var(--line)",
@@ -191,30 +192,13 @@ const Navbar: React.FC = () => {
       {/* .brand-name: gradient text */}
       {/* .mk (nav): width:48px; height:48px */}
       <div className="flex items-center">
-        <Link
+        <BrandLogo
           href="/quest/explore"
-          className="flex items-center gap-[15px] font-extrabold no-underline"
-          style={{ fontSize: "30px", letterSpacing: "-0.03em" }}
-        >
-          <img
-            src="/tasmil-tf-logo.png"
-            alt="Tasmil"
-            width="48"
-            height="48"
-            className="flex-none"
-            style={{ width: "48px", height: "48px" }}
-          />
-          <span
-            style={{
-              background: "linear-gradient(100deg,#fff 0%,var(--accent) 100%)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
-            }}
-          >
-            Tasmil Quest
-          </span>
-        </Link>
+          logoSrc="/tasmil-tf-logo.png"
+          text="Tasmil Quest"
+          alt="Tasmil"
+          size="lg"
+        />
 
         {sponsoredName ? (
           <span

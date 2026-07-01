@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { QuestHeaderBadges } from "@/features/quest/components/QuestHeaderBadges";
 import { WalletRankInfo } from "@/features/quest/components/WalletRankInfo";
 import { SponsorIndicator } from "@/features/sponsorship/components/sponsor-indicator";
+import { BrandLogo } from "@/shared/components/brand-logo";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
 import { NavLink } from "./nav-link";
 import type { SidebarData } from "./sidebar-data";
@@ -26,12 +25,13 @@ export function TopNavBar({ sidebarData }: TopNavBarProps) {
       data-testid="top-nav-bar"
       className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-6 border-border border-b bg-[rgba(20,20,25,0.72)] px-[clamp(20px,5vw,56px)] backdrop-blur-[18px]"
     >
-      <Link href="/chat/new" className="flex items-center gap-2.5">
-        <Image src={sidebarData.header.logo_url} width={40} height={40} alt="Logo" />
-        <span className="animate-shimmer-text bg-[length:200%_100%] bg-gradient-to-r from-[#b5eaff] via-white to-[#00bfff] bg-clip-text font-bold text-transparent text-xl">
-          {sidebarData.header.brand_name}
-        </span>
-      </Link>
+      <BrandLogo
+        href="/chat/new"
+        logoSrc={sidebarData.header.logo_url}
+        text={sidebarData.header.brand_name}
+        alt="Logo"
+        size="md"
+      />
 
       <div className="flex items-center gap-0.5 max-[900px]:hidden">
         {items.map((item) => (

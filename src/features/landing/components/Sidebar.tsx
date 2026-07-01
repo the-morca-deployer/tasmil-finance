@@ -1,14 +1,13 @@
 // @ts-nocheck
+import { BrandLogo } from "@/shared/components/brand-logo";
+
 export default function Sidebar() {
   return (
     <>
       <div className="nav-scrim" id="navScrim"></div>
       <aside className="sidebar" id="sidebar" aria-hidden="true">
         <div className="sidebar-head">
-          <a className="brand" href="#top">
-            <img className="mk" src="/tasmil-logo.png" alt="" width="28" height="28" />
-            <span className="brand-name">Tasmil Finance</span>
-          </a>
+          <BrandLogo href="#top" logoSrc="/tasmil-logo.png" text="Tasmil Finance" size="md" />
           <button className="sidebar-close" id="sbClose" type="button" aria-label="Close menu">
             ×
           </button>

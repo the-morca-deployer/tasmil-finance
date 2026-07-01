@@ -80,7 +80,7 @@ export default function Explore() {
             aria-hidden="true"
           />
           <div
-            className="absolute inset-0 [background:radial-gradient(circle_at_20%_60%,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.4)_60%,transparent_100%),linear-gradient(0deg,rgba(0,0,0,0.85)_4%,rgba(0,0,0,0.25)_46%,transparent_78%)]"
+            className="absolute inset-0 [background:radial-gradient(circle_at_20%_60%,rgba(0,0,0,0.75)_0%,rgba(0,0,0,0.3)_60%,transparent_100%),linear-gradient(0deg,rgba(0,0,0,0.7)_4%,rgba(0,0,0,0.18)_46%,transparent_78%)]"
             aria-hidden="true"
           />
           <div className="relative z-[1] px-[clamp(24px,5vw,64px)] pt-[clamp(40px,7vw,84px)]">
@@ -119,7 +119,7 @@ export default function Explore() {
               </Link>
             </div>
           </div>
-          <div className="relative z-[1] mt-[clamp(40px,6vw,72px)] grid grid-cols-3 border-t border-quest-line-2 bg-black/40 backdrop-blur-[10px]">
+          <div className="relative z-[1] mt-[clamp(40px,6vw,72px)] grid grid-cols-3 border-t border-quest-line-2 bg-quest-surface/70 backdrop-blur-[10px]">
             <div className="px-[clamp(20px,4vw,40px)] py-[22px]">
               <div className={`${STAT_VALUE} text-quest-accent`}>
                 {compact(stats.questers ?? 0)}

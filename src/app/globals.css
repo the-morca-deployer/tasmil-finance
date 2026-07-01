@@ -195,15 +195,16 @@
   --color-sponsor-gold: #fbc54a;
   --color-sponsor-gold-hi: #fff0c2;
 
-  /* Quest palette (matches tmp/quest-tasmil/tasmil-quest.css) */
-  --color-quest-bg: #000000;
+  /* Quest palette — aligned to tasmil-strategy's solid dark tokens for
+     consistent card/border/text contrast across the two apps. */
+  --color-quest-bg: #09090b;
   --color-quest-bg-2: #141416;
-  --color-quest-surface: #1c1c1f;
-  --color-quest-surface-2: rgba(32, 32, 36, 0.3);
-  --color-quest-text: #f4f7fb;
-  --color-quest-muted: rgba(244, 247, 251, 0.58);
-  --color-quest-dim: rgba(244, 247, 251, 0.34);
-  --color-quest-faint: rgba(244, 247, 251, 0.14);
+  --color-quest-surface: #18181b;
+  --color-quest-surface-2: rgba(39, 39, 42, 0.4);
+  --color-quest-text: #fafafa;
+  --color-quest-muted: #a1a1aa;
+  --color-quest-dim: #71717a;
+  --color-quest-faint: #52525b;
   --color-quest-accent: #67e8f9;
   --color-quest-accent-2: #0ea5e9;
   --color-quest-accent-deep: #0369a1;
@@ -217,8 +218,8 @@
   --color-quest-amber: #fbbf24;
   --color-quest-amber-soft: rgba(251, 191, 36, 0.14);
   --color-quest-amber-line: rgba(251, 191, 36, 0.32);
-  --color-quest-line: rgba(255, 255, 255, 0.08);
-  --color-quest-line-2: rgba(255, 255, 255, 0.14);
+  --color-quest-line: #27272a;
+  --color-quest-line-2: #3f3f46;
   --color-quest-gold: #fbc54a;
   --color-quest-gold-soft: rgba(251, 197, 74, 0.12);
   --color-quest-gold-line: rgba(251, 197, 74, 0.34);
@@ -292,7 +293,7 @@
 
 .quest-scope {
   --quest-grad: linear-gradient(110deg, #ffffff 0%, #67e8f9 52%, #0ea5e9 100%);
-  --quest-card-grad: linear-gradient(160deg, rgba(32, 32, 36, 0.55), rgba(16, 16, 18, 0.55));
+  --quest-card-grad: linear-gradient(160deg, #1c1c20, #18181b);
 }
 
 /*
@@ -1063,14 +1064,14 @@
 
   /* ── Design Tokens ── */
   .quest-scope {
-    --bg: #000000;
+    --bg: #09090b;
     --bg-2: #141416;
-    --surface: #1c1c1f;
-    --surface-2: rgba(32, 32, 36, 0.3);
-    --text: #f4f7fb;
-    --muted: rgba(244, 247, 251, 0.58);
-    --dim: rgba(244, 247, 251, 0.34);
-    --faint: rgba(244, 247, 251, 0.14);
+    --surface: #18181b;
+    --surface-2: rgba(39, 39, 42, 0.4);
+    --text: #fafafa;
+    --muted: #a1a1aa;
+    --dim: #71717a;
+    --faint: #52525b;
     --accent: #67e8f9;
     --accent-2: #0ea5e9;
     --accent-deep: #0369a1;
@@ -1085,14 +1086,14 @@
     --amber: #fbbf24;
     --amber-soft: rgba(251, 191, 36, 0.14);
     --amber-line: rgba(251, 191, 36, 0.32);
-    --line: rgba(255, 255, 255, 0.08);
-    --line-2: rgba(255, 255, 255, 0.14);
+    --line: #27272a;
+    --line-2: #3f3f46;
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --font: var(--font-sans);
     --font-mono: var(--font-mono);
     --grad: linear-gradient(110deg, #ffffff 0%, var(--accent) 52%, var(--accent-2) 100%);
-    --card-grad: linear-gradient(160deg, rgba(32, 32, 36, 0.55), rgba(16, 16, 18, 0.55));
+    --card-grad: linear-gradient(160deg, #1c1c20, #18181b);
     --r-pill: 100px;
     --r-card: 22px;
     --r-sm: 14px;

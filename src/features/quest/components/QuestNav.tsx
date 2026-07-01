@@ -16,6 +16,7 @@ import {
   useUsersControllerGetMe,
 } from "@/gen-quest";
 import { cn } from "@/lib/utils";
+import { BrandLogo } from "@/shared/components/brand-logo";
 import { AddressAvatar } from "@/shared/components/connect-wallet-button";
 import { activeNetwork, getExplorerUrl } from "@/shared/config/stellar";
 import { Button } from "@/shared/ui/button";
@@ -185,32 +186,15 @@ export function QuestNav() {
         "border-b border-[var(--line)]"
       )}
     >
-      {/* Brand — .brand + .mk + .brand-name */}
-      <Link
-        className={cn(
-          "flex items-center gap-3",
-          "font-bold text-[22px] tracking-[-0.03em]",
-          "justify-self-start no-underline text-inherit",
-          "max-[680px]:text-[15px] max-[680px]:gap-2"
-        )}
+      {/* Brand */}
+      <BrandLogo
         href="/quest"
-      >
-        <img
-          className="w-[34px] h-[34px] flex-none block"
-          src="/tasmil-tf-logo.png"
-          alt="Tasmil"
-          width="34"
-          height="34"
-        />
-        <span
-          className={cn(
-            "bg-[linear-gradient(100deg,#fff_0%,#67e8f9_100%)]",
-            "bg-clip-text text-transparent"
-          )}
-        >
-          Tasmil Quest
-        </span>
-      </Link>
+        logoSrc="/tasmil-tf-logo.png"
+        text="Tasmil Quest"
+        alt="Tasmil"
+        size="md"
+        className="justify-self-start"
+      />
 
       {/* Nav links — .nav-links + .nav-item + .nav-item.active */}
       <div className="flex gap-0.5 justify-self-center max-[680px]:hidden">
@@ -411,22 +395,14 @@ export function QuestNav() {
             {/* Drawer panel */}
             <aside className="fixed top-0 right-0 z-[200] flex h-full w-[300px] max-w-[88vw] animate-in flex-col border-quest-line-2 border-l bg-quest-surface duration-300 slide-in-from-right">
               <div className="flex items-center justify-between border-quest-line-2 border-b px-4 py-4">
-                <Link
+                <BrandLogo
                   href="/quest"
+                  logoSrc="/tasmil-tf-logo.png"
+                  text="Tasmil Quest"
+                  alt="Tasmil"
+                  size="sm"
                   onClick={() => setMenuOpen(false)}
-                  className="flex min-w-0 items-center gap-2.5"
-                >
-                  <img
-                    src="/tasmil-tf-logo.png"
-                    alt="Tasmil"
-                    width={26}
-                    height={26}
-                    className="h-[26px] w-[26px] flex-none"
-                  />
-                  <span className="truncate bg-[linear-gradient(100deg,#fff_0%,#67e8f9_100%)] bg-clip-text font-bold text-[17px] text-transparent">
-                    Tasmil Quest
-                  </span>
-                </Link>
+                />
                 <button
                   type="button"
                   aria-label="Close menu"

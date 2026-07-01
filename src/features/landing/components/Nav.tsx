@@ -1,15 +1,13 @@
 // @ts-nocheck
 import { APP_ENTRY, isWaitlistMode } from "@/lib/waitlist-mode";
+import { BrandLogo } from "@/shared/components/brand-logo";
 
 export default function Nav() {
   const waitlist = isWaitlistMode();
   return (
     <>
       <nav className="nav" id="nav">
-        <a className="brand" href="#top">
-          <img className="mk" src="/tasmil-logo.png" alt="Tasmil Finance" width="40" height="40" />
-          <span className="brand-name">Tasmil Finance</span>
-        </a>
+        <BrandLogo href="#top" logoSrc="/tasmil-logo.png" text="Tasmil Finance" size="md" />
         <div className="nav-center">
           <a href="#features">How it works</a>
           <a href="#features">Product</a>
