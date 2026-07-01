@@ -1,0 +1,1 @@
+{"type":"object","properties":{"entryIds":{"type":"array","items":{"type":"string"}}},"required":["entryIds"],"x-readme-ref-name":"BulkSendAccessDto"}

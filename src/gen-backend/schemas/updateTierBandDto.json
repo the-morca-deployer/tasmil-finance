@@ -1,0 +1,1 @@
+{"type":"object","properties":{"min":{"type":"number","minimum":1,"description":"Points required to reach this tier"}},"required":["min"],"x-readme-ref-name":"UpdateTierBandDto"}
