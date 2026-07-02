@@ -56,14 +56,6 @@ export interface CreateSeasonInput {
   prizePoolUsdc?: string;
 }
 
-export interface UpdateSeasonInput {
-  name?: string;
-  startAt?: string;
-  endAt?: string;
-  prizePoolUsdc?: string;
-  status?: SeasonStatus;
-}
-
 export interface BatchPayoutItem {
   resultId: string;
   paidTxHash?: string;
@@ -109,21 +101,6 @@ export function useCreateSeason() {
       toast.success("Season created");
     },
     onError: (error) => toast.error("Failed to create season", { description: error.message }),
-  });
-}
-
-export function useUpdateSeason(id: string) {
-  const queryClient = useQueryClient();
-  // Backend returns raw unmapped rows (Decimal fields not stringified, rankRewards absent);
-  // do not consume without mapping.
-  return useMutation<unknown, Error, UpdateSeasonInput>({
-    mutationFn: (data) =>
-      adminFetch<unknown>(`/api/admin/quest-seasons/${id}`, { method: "PATCH", body: data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SEASONS_KEY });
-      toast.success("Season updated");
-    },
-    onError: (error) => toast.error("Failed to update season", { description: error.message }),
   });
 }
 

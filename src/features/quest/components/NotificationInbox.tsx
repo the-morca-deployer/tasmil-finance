@@ -40,7 +40,10 @@ export function NotificationInbox() {
     () => ({ ...$, query: { ...$.query, enabled: isAuthenticated } }),
     [isAuthenticated]
   );
-  const { data, isLoading } = useNotificationsControllerList({ page: 1, limit }, opts as never);
+  const { data, isLoading, isError } = useNotificationsControllerList(
+    { page: 1, limit },
+    opts as never
+  );
 
   const parsed =
     (data as { data?: NotificationListShape } | NotificationListShape | undefined) ?? {};
@@ -74,6 +77,10 @@ export function NotificationInbox() {
         <div className="max-h-[380px] overflow-y-auto">
           {isLoading ? (
             <div className="px-3 py-6 text-center text-[13px] text-quest-muted">Loading</div>
+          ) : isError ? (
+            <div className="px-3 py-6 text-center text-[13px] text-quest-muted">
+              Could not load notifications
+            </div>
           ) : items.length === 0 ? (
             <div className="px-3 py-6 text-center text-[13px] text-quest-muted">
               You have no notifications yet

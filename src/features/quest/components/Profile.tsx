@@ -136,7 +136,18 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
   const handleSaveEmail = () => {
     const trimmed = email.trim();
     if (!trimmed) return;
-    setEmail.mutate({ data: { email: trimmed } });
+    setEmail.mutate(
+      { data: { email: trimmed } },
+      {
+        onSuccess: () => {
+          updateUser({ email: trimmed });
+          toast.success("Email saved");
+        },
+        onError: () => {
+          toast.error("Could not save email. Please try again.");
+        },
+      }
+    );
   };
 
   const handleSaveName = () => {
