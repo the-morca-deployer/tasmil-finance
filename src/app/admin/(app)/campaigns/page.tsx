@@ -8,7 +8,6 @@ import {
   useCampaignStatus,
   useSendCampaign,
 } from "@/features/admin-whitelist/hooks/use-campaigns";
-import { ExportCsvButton } from "@/shared/components/export-csv-button";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -282,12 +281,9 @@ export default function AdminCampaignsPage() {
 
       {/* Right panel — history table */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="mb-4 flex items-center justify-between">
-          <Typography variant="h2" className="font-bold text-xl">
-            Campaign History
-          </Typography>
-          <ExportCsvButton endpoint="/api/admin/campaigns/export" />
-        </div>
+        <Typography variant="h2" className="mb-4 font-bold text-xl">
+          Campaign History
+        </Typography>
 
         {isLoading ? (
           <div className="flex flex-1 items-center justify-center">

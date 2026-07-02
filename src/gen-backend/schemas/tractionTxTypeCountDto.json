@@ -1,1 +1,0 @@
-{"type":"object","properties":{"type":{"type":"string","description":"Activity type","example":"DEPOSIT"},"count":{"type":"number","description":"All-time count","example":640}},"required":["type","count"],"x-readme-ref-name":"TractionTxTypeCountDto"}

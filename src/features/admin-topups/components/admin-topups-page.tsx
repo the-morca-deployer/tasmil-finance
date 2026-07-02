@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ExportCsvButton } from "@/shared/components/export-csv-button";
 import { Button } from "@/shared/ui/button";
 import { useCancelTopup, useFiatPendingTopups, useFulfillTopup } from "../hooks/use-admin-topups";
 
@@ -49,10 +48,7 @@ export function AdminTopupsPage() {
 
   return (
     <main data-testid="admin-topups-root" className="mx-auto w-full max-w-5xl px-6 py-10">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-bold text-2xl tracking-tight">Pending fiat topups</h1>
-        <ExportCsvButton endpoint="/api/admin/topups/export" />
-      </div>
+      <h1 className="mb-6 font-bold text-2xl tracking-tight">Pending fiat topups</h1>
       {topups.length === 0 ? (
         <p data-testid="admin-topups-empty" className="text-muted-foreground">
           No pending fiat topups.

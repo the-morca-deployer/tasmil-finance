@@ -1,1 +1,0 @@
-{"type":"object","properties":{"id":{"type":"string"},"createdAt":{"format":"date-time","type":"string"},"type":{"type":"string"},"keeperWalletAddress":{"type":"string"},"amountUsd":{"type":"number","nullable":true},"txHash":{"type":"string","nullable":true}},"required":["id","createdAt","type","keeperWalletAddress","amountUsd","txHash"],"x-readme-ref-name":"TransactionRowDto"}

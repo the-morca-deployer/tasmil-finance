@@ -21,10 +21,6 @@ jest.mock("@/gen-quest", () => ({
   }),
   useUsersControllerDailyLogin: () => ({ mutate: dailyLoginMutate, isPending: false }),
   usersControllerGetMeQueryKey: () => ["me"],
-  useNotificationsControllerList: () => ({
-    data: { data: { items: [], total: 0 } },
-    isLoading: false,
-  }),
 }));
 jest.mock("../context/wallet-context", () => ({
   useWallet: () => ({ connect: jest.fn(), disconnect: jest.fn(), isAuthenticating: false }),
