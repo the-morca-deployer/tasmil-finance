@@ -30,6 +30,7 @@ import {
 import { $, withAuth } from "../lib/kubb-config";
 import { useQuestAuthStore } from "../store/use-quest-auth";
 import { Flame, PtsCoin } from "./icons";
+import { NotificationInbox } from "./NotificationInbox";
 
 const LINKS = [
   { href: "/quest", label: "Explore" },
@@ -259,6 +260,8 @@ export function QuestNav() {
             </button>
           </>
         )}
+
+        {isAuthenticated && <NotificationInbox />}
 
         {/* Wallet chip — avatar-only on mobile, full chip at lg; opens a click/tap
             dropdown so it works on touch (mirrors the strategy WalletMenu). Gated on
