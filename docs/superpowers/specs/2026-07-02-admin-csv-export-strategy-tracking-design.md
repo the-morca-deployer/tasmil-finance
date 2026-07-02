@@ -45,7 +45,7 @@ These tables are admin-scale (hundreds to low tens of thousands of rows); a buff
 
 ### Proxy routes
 
-Following the existing pattern, each export endpoint gets a Next.js proxy route under `src/app/api/admin/.../export/route.ts` that forwards the request with the Bearer token and pipes the response body + `Content-Type` + `Content-Disposition` headers through unchanged (no JSON re-encoding).
+**Amended during planning:** no proxy routes are needed. `next.config` already rewrites `/api/admin/:path*` (and after a one-line addition, `/api/marketplace/:path*`) straight to the backend, and App Router route handlers only shadow their exact paths — so new `.../export` endpoints are reachable from the browser at the same path, CSV body and headers intact.
 
 ---
 
@@ -74,18 +74,21 @@ Derived status, computed in the marketplace service and returned as a `status` s
 | `PUBLISHED` | `isApproved == true && isActive == true` |
 | `INACTIVE` | `isApproved == true && isActive == false` |
 
-### New backend endpoints (marketplace module, `AdminGuard`)
+### New backend endpoints
+
+**Amended during planning:** the marketplace module's existing admin endpoints use a *different* auth system (`AuthGuard`+`AdminGuard`, user JWTs from `/auth/login` — what the tasmil-strategy app uses) than the tasmil-finance admin (`AdminAuthGuard`, admin JWTs from `/admin-auth`). The tasmil-finance admin token cannot call them. So the new endpoints live in a new `MarketplaceAdminController` in the **admin module** at `admin/marketplace/*`, guarded by `AdminAuthGuard`:
 
 | Endpoint | Returns |
 |---|---|
-| `GET /api/marketplace/admin/strategies?status=` | All strategies: id, name, slug, derived status, publisher name/address, base asset, risk tier, perf fee bps, keeper wallet, publish tx hash, TVL, depositor count, publishedAt/createdAt. TVL and depositor count come from the latest `StrategyNavSnapshot` and `ManagedAccount` counts. |
-| `GET /api/marketplace/admin/overview` | KPI aggregates: total TVL, total depositors, counts by status, publisher count. |
-| `GET /api/marketplace/admin/publishers` | Publishers from `StrategyPublisher`: name, stellar address, commission bps, strategy count, created date. |
-| `POST /api/marketplace/strategies/:id/reject` | Sets `rejectedAt = now()`. Only valid while the strategy is `PENDING`; returns 409 otherwise. |
-| `GET /api/marketplace/admin/strategies/export` | CSV of the strategies table (Part 1 service). |
-| `GET /api/marketplace/admin/publishers/export` | CSV of the publishers table. |
+| `GET /api/admin/marketplace/strategies?status=` | All strategies: id, name, slug, derived status, publisher name/address, base asset, risk tier, perf fee bps, keeper wallet, publish tx hash, TVL, depositor count, publishedAt. TVL and depositor count come from `StrategyPerformance` (tvlUsd, userCount). |
+| `GET /api/admin/marketplace/overview` | KPI aggregates: total TVL, total depositors, counts by status, publisher count. |
+| `GET /api/admin/marketplace/publishers` | Publishers from `StrategyPublisher`: name, stellar address, commission bps, strategy count, created date. |
+| `POST /api/admin/marketplace/strategies/:id/approve` | Sets `isApproved/isActive = true` and clears `rejectedAt`. |
+| `POST /api/admin/marketplace/strategies/:id/reject` | Sets `rejectedAt = now()`. Only valid while the strategy is `PENDING`; returns 409 otherwise. |
+| `GET /api/admin/marketplace/strategies/export` | CSV of the strategies table (Part 1 utility). |
+| `GET /api/admin/marketplace/publishers/export` | CSV of the publishers table. |
 
-Reused as-is: `GET /marketplace/admin/pending`, `POST /marketplace/strategies/:id/approve`, `GET /marketplace/strategies/:id/participants`, `GET /marketplace/leaderboard`.
+Reused as-is (public, no auth): `GET /marketplace/strategies/:id/participants`, `GET /marketplace/leaderboard`. The marketplace module's own `admin/pending` + `approve` endpoints stay untouched for the tasmil-strategy app; `listPendingStrategies` additionally excludes rejected rows.
 
 ### Tabs
 
