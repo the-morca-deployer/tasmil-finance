@@ -26,6 +26,42 @@ const TASK_TYPES = [
 ];
 const CATEGORIES = ["BLEND", "SOROSWAP", "AQUARIUS"];
 
+// checkId input spec per task type. Both enum casings map to one group.
+// See the plan's "checkId / urlAction per taskType" table.
+type CheckIdSpec = { label: string; placeholder: string; required: boolean } | null;
+
+function checkIdSpecFor(taskType: string): CheckIdSpec {
+  switch (taskType) {
+    case "X_FOLLOW":
+    case "X_Follow":
+      return { label: "Twitter handle to follow", placeholder: "handle (no @)", required: true };
+    case "X_RETWEET":
+    case "X_Retweet":
+    case "X_COMMENT":
+    case "X_Comment":
+    case "X_Like":
+      return { label: "Tweet ID", placeholder: "1234567890", required: true };
+    case "TELEGRAM_JOIN":
+    case "Telegram":
+      return { label: "Telegram channel ID", placeholder: "channel_id", required: true };
+    case "DISCORD_JOIN":
+    case "Discord":
+      return { label: "Discord guild ID", placeholder: "guild_id", required: true };
+    case "ONCHAIN":
+    case "Onchain":
+      return {
+        label: "Contract address or sentinel",
+        placeholder: "C... or wallet_connect / sign_message",
+        required: true,
+      };
+    case "BROWSE":
+    case "Visit":
+      return { label: "Check ID (optional)", placeholder: "e.g. vault_preview", required: false };
+    default:
+      return null; // AGENT_*, VOLUME_SWAP, LOGIN_CHECKIN, STRATEGY_CHECKIN, REFERRAL
+  }
+}
+
 const inputStyle: React.CSSProperties = {
   padding: "8px 12px",
   borderRadius: 8,
@@ -71,7 +107,9 @@ interface TaskFormState {
   pointReward: number;
   order: number;
   isActive: boolean;
-  metadata: string;
+  checkId: string;
+  urlAction: string;
+  extraMetadata: string; // advanced escape hatch, raw JSON for keys outside checkId/urlAction
 }
 
 const defaultTaskForm: TaskFormState = {
@@ -81,8 +119,41 @@ const defaultTaskForm: TaskFormState = {
   pointReward: 100,
   order: 0,
   isActive: true,
-  metadata: "{}",
+  checkId: "",
+  urlAction: "",
+  extraMetadata: "",
 };
+
+function taskToForm(t: QuestTask): TaskFormState {
+  const meta = (t.metadata ?? {}) as Record<string, unknown>;
+  const { checkId, urlAction, ...rest } = meta;
+  return {
+    title: t.title,
+    description: t.description ?? "",
+    type: t.type,
+    pointReward: t.pointReward,
+    order: t.order,
+    isActive: t.isActive,
+    checkId: typeof checkId === "string" ? checkId : "",
+    urlAction: typeof urlAction === "string" ? urlAction : "",
+    extraMetadata: Object.keys(rest).length ? JSON.stringify(rest) : "",
+  };
+}
+
+function buildTaskMetadata(data: TaskFormState): Record<string, unknown> {
+  let extra: Record<string, unknown> = {};
+  if (data.extraMetadata.trim()) {
+    try {
+      extra = JSON.parse(data.extraMetadata);
+    } catch {
+      extra = {};
+    }
+  }
+  const meta: Record<string, unknown> = { ...extra };
+  if (data.checkId.trim()) meta.checkId = data.checkId.trim();
+  if (data.urlAction.trim()) meta.urlAction = data.urlAction.trim();
+  return meta;
+}
 
 function TaskForm({
   initial,
@@ -150,6 +221,31 @@ function TaskForm({
           style={inputStyle}
         />
       </div>
+      {(() => {
+        const spec = checkIdSpecFor(form.type);
+        if (!spec) return null;
+        return (
+          <div>
+            <label
+              style={{
+                fontSize: 12,
+                color: "rgba(245,248,252,0.5)",
+                display: "block",
+                marginBottom: 4,
+              }}
+            >
+              {spec.label}
+            </label>
+            <input
+              placeholder={spec.placeholder}
+              value={form.checkId}
+              onChange={(e) => set("checkId", e.target.value)}
+              style={inputStyle}
+              aria-label={spec.label}
+            />
+          </div>
+        );
+      })()}
       <div>
         <label
           style={{
@@ -159,15 +255,34 @@ function TaskForm({
             marginBottom: 4,
           }}
         >
-          Metadata (JSON)
+          Link (opens for the user)
         </label>
-        <textarea
-          value={form.metadata}
-          onChange={(e) => set("metadata", e.target.value)}
-          rows={2}
-          style={{ ...inputStyle, resize: "none", fontFamily: "monospace", fontSize: 11 }}
+        <input
+          placeholder="https://..."
+          value={form.urlAction}
+          onChange={(e) => set("urlAction", e.target.value)}
+          style={inputStyle}
+          aria-label="Task link"
         />
       </div>
+      <details>
+        <summary style={{ fontSize: 12, color: "rgba(245,248,252,0.5)", cursor: "pointer" }}>
+          Advanced (raw JSON metadata)
+        </summary>
+        <textarea
+          value={form.extraMetadata}
+          onChange={(e) => set("extraMetadata", e.target.value)}
+          rows={2}
+          placeholder='{"customKey":"value"}'
+          style={{
+            ...inputStyle,
+            resize: "none",
+            fontFamily: "monospace",
+            fontSize: 11,
+            marginTop: 6,
+          }}
+        />
+      </details>
       <label
         style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, cursor: "pointer" }}
       >
@@ -268,24 +383,31 @@ export default function QuestCampaignDetailPage() {
   }
 
   async function handleAddTask(data: TaskFormState) {
-    let metadata: Record<string, unknown> | undefined;
-    try {
-      metadata = JSON.parse(data.metadata);
-    } catch {
-      metadata = undefined;
-    }
-    await addTask.mutateAsync({ ...data, metadata });
+    await addTask.mutateAsync({
+      title: data.title,
+      description: data.description,
+      type: data.type,
+      pointReward: data.pointReward,
+      order: data.order,
+      isActive: data.isActive,
+      metadata: buildTaskMetadata(data),
+    });
     setAddingTask(false);
   }
 
   async function handleUpdateTask(taskId: string, data: TaskFormState) {
-    let metadata: Record<string, unknown> | undefined;
-    try {
-      metadata = JSON.parse(data.metadata);
-    } catch {
-      metadata = undefined;
-    }
-    await updateTask.mutateAsync({ taskId, data: { ...data, metadata } });
+    await updateTask.mutateAsync({
+      taskId,
+      data: {
+        title: data.title,
+        description: data.description,
+        type: data.type,
+        pointReward: data.pointReward,
+        order: data.order,
+        isActive: data.isActive,
+        metadata: buildTaskMetadata(data),
+      },
+    });
     setEditingTaskId(null);
   }
 
@@ -535,15 +657,7 @@ export default function QuestCampaignDetailPage() {
             <div key={task.id}>
               {editingTaskId === task.id ? (
                 <TaskForm
-                  initial={{
-                    title: task.title,
-                    description: task.description ?? "",
-                    type: task.type,
-                    pointReward: task.pointReward,
-                    order: task.order,
-                    isActive: task.isActive,
-                    metadata: task.metadata ? JSON.stringify(task.metadata, null, 2) : "{}",
-                  }}
+                  initial={taskToForm(task)}
                   onSave={(data) => handleUpdateTask(task.id, data)}
                   onCancel={() => setEditingTaskId(null)}
                   isPending={updateTask.isPending}
