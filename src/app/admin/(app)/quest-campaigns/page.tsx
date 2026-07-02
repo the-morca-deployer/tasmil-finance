@@ -49,12 +49,31 @@ function CreateCampaignModal({ onClose }: { onClose: () => void }) {
     protocol: "",
     category: "BLEND",
     description: "",
+    descriptionDetail: "",
+    coverUrl: "",
+    rewardPoints: 0,
+    minTasksToComplete: 1,
+    maxParticipants: "",
+    isDaily: false,
+    isFeatured: false,
   });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.title.trim()) return;
-    await create.mutateAsync(form);
+    await create.mutateAsync({
+      title: form.title.trim(),
+      protocol: form.protocol.trim() || undefined,
+      category: form.category,
+      description: form.description.trim() || undefined,
+      descriptionDetail: form.descriptionDetail.trim() || undefined,
+      coverUrl: form.coverUrl.trim() || undefined,
+      rewardPoints: form.rewardPoints || undefined,
+      minTasksToComplete: form.minTasksToComplete || undefined,
+      maxParticipants: form.maxParticipants ? Number(form.maxParticipants) : undefined,
+      isDaily: form.isDaily,
+      isFeatured: form.isFeatured,
+    });
     onClose();
   }
 
@@ -116,6 +135,79 @@ function CreateCampaignModal({ onClose }: { onClose: () => void }) {
           rows={3}
           style={{ ...inputStyle, resize: "none" }}
         />
+        <input
+          placeholder="Cover image URL"
+          value={form.coverUrl}
+          onChange={(e) => setForm((f) => ({ ...f, coverUrl: e.target.value }))}
+          style={inputStyle}
+        />
+        <textarea
+          placeholder="Detailed description"
+          value={form.descriptionDetail}
+          onChange={(e) => setForm((f) => ({ ...f, descriptionDetail: e.target.value }))}
+          rows={3}
+          style={{ ...inputStyle, resize: "none" }}
+        />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+          <input
+            type="number"
+            placeholder="Reward points"
+            value={form.rewardPoints}
+            onChange={(e) => setForm((f) => ({ ...f, rewardPoints: Number(e.target.value) }))}
+            style={inputStyle}
+            aria-label="Reward points"
+          />
+          <input
+            type="number"
+            placeholder="Min tasks"
+            value={form.minTasksToComplete}
+            onChange={(e) => setForm((f) => ({ ...f, minTasksToComplete: Number(e.target.value) }))}
+            style={inputStyle}
+            aria-label="Minimum tasks to complete"
+          />
+          <input
+            type="number"
+            placeholder="Max participants"
+            value={form.maxParticipants}
+            onChange={(e) => setForm((f) => ({ ...f, maxParticipants: e.target.value }))}
+            style={inputStyle}
+            aria-label="Max participants"
+          />
+        </div>
+        <div style={{ display: "flex", gap: 18 }}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={form.isDaily}
+              onChange={(e) => setForm((f) => ({ ...f, isDaily: e.target.checked }))}
+            />
+            Daily campaign
+          </label>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={form.isFeatured}
+              onChange={(e) => setForm((f) => ({ ...f, isFeatured: e.target.checked }))}
+            />
+            Featured
+          </label>
+        </div>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button type="button" onClick={onClose} style={cancelBtnStyle}>
             Cancel

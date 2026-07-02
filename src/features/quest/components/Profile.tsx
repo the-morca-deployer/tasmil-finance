@@ -36,6 +36,7 @@ import {
   useUsersControllerGetMyCampaigns,
   useUsersControllerGetPointsHistory,
   useUsersControllerGetReferrals,
+  useUsersControllerSetEmail,
   useUsersControllerUpdateProfile,
 } from "@/gen-quest/hooks";
 import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
@@ -69,6 +70,27 @@ interface RawLedgerEntry {
   campaignTitle?: string;
   points?: number;
   delta?: number;
+  multiplier?: string | number | null;
+}
+// Human-readable labels for every QuestPointLedger source (Phase 1 ledger).
+// Copy obeys the quest design rules: no emoji, no dashes as separators.
+const POINT_SOURCE_LABELS: Record<string, string> = {
+  TASK_CLAIM: "Task completed",
+  CAMPAIGN_CLAIM: "Campaign reward",
+  REFERRAL_EVENT: "Referral bonus",
+  REFERRAL_COMMISSION: "Referral commission",
+  TIER_REWARD: "Tier reward",
+  SEASON_RANK_REWARD: "Season prize",
+  DAILY_LOGIN: "Daily check-in",
+  ADMIN_GIFT: "Gift",
+};
+
+function ledgerLabel(e: RawLedgerEntry): string {
+  if (e.campaignTitle) return e.campaignTitle;
+  if (e.description) return e.description;
+  const label = e.source ? POINT_SOURCE_LABELS[e.source] : undefined;
+  if (label) return label;
+  return e.source ?? "Activity";
 }
 interface RawReferral {
   username?: string;
@@ -108,6 +130,25 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
   const [copied, setCopied] = useState(false);
 
   const updateName = useUsersControllerUpdateProfile();
+  const setEmail = useUsersControllerSetEmail();
+  const [email, setEmailValue] = useState(user?.email ?? "");
+
+  const handleSaveEmail = () => {
+    const trimmed = email.trim();
+    if (!trimmed) return;
+    setEmail.mutate(
+      { data: { email: trimmed } },
+      {
+        onSuccess: () => {
+          updateUser({ email: trimmed });
+          toast.success("Email saved");
+        },
+        onError: () => {
+          toast.error("Could not save email. Please try again.");
+        },
+      }
+    );
+  };
 
   const handleSaveName = () => {
     if (newName.trim()) {
@@ -285,6 +326,38 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
             />
           )}
           {headerRank}
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-2 px-2">
+        <label
+          htmlFor="quest-email"
+          className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#71717a]"
+        >
+          Email for prize notifications
+        </label>
+        <div className="flex items-center gap-2">
+          <input
+            id="quest-email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmailValue(e.target.value)}
+            className="input"
+            style={{ fontSize: 13, padding: "7px 10px", flex: 1 }}
+          />
+          <button
+            type="button"
+            onClick={handleSaveEmail}
+            disabled={setEmail.isPending || !email.trim()}
+            aria-label="Save email"
+            className="rounded-[8px] border border-[rgba(103,232,249,0.32)] bg-[var(--accent-soft)] px-3 py-[7px] text-[12px] font-semibold text-[var(--accent)] disabled:opacity-50"
+          >
+            {setEmail.isPending ? "Saving" : "Save"}
+          </button>
+        </div>
+        <span className="text-[11px] text-[#71717a]">
+          Optional. We use it only to email you when a prize is sent.
         </span>
       </div>
 
@@ -974,12 +1047,23 @@ function OverviewTab() {
                 color: "var(--muted)",
               }}
             >
-              <span>{e.campaignTitle ?? e.description ?? e.source ?? "Activity"}</span>
-              <span
-                style={{ fontFamily: "var(--font-mono)", color: "var(--accent)", fontWeight: 600 }}
-              >
-                +{e.points ?? e.delta ?? 0}
-              </span>
+              <span>{ledgerLabel(e)}</span>
+              {(() => {
+                const amount = e.delta ?? e.points ?? 0;
+                const positive = amount >= 0;
+                return (
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      color: positive ? "var(--accent)" : "#f87171",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {positive ? "+" : ""}
+                    {fmt(amount)}
+                  </span>
+                );
+              })()}
             </div>
           ))}
         </div>

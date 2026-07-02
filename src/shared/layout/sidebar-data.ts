@@ -2,16 +2,20 @@ import {
   ArrowLeftRight,
   BarChart3,
   Bot,
+  Flame,
+  Gift,
   Home,
   KeyRound,
   ListChecks,
   Mail,
+  Medal,
   Settings,
   Share2,
   Shield,
   Tractor,
   TrendingUp,
   Trophy,
+  Users,
   Wallet,
 } from "lucide-react";
 
@@ -176,8 +180,12 @@ export const adminSidebarData: SidebarData = {
     {
       title: "Quest Management",
       items: [
+        { title: "Quest Seasons", url: "/admin/quest-seasons", icon: Medal },
         { title: "Quest Campaigns", url: "/admin/quest-campaigns", icon: Trophy },
+        { title: "FOMO Events", url: "/admin/quest-fomo", icon: Flame },
+        { title: "Quest Gifts", url: "/admin/quest-gifts", icon: Gift },
         { title: "Quest Wallets", url: "/admin/quests", icon: Wallet },
+        { title: "Quest Users", url: "/admin/quest-users", icon: Users },
         { title: "Referral Rates", url: "/admin/referral-config", icon: Share2 },
         { title: "Tier Bands", url: "/admin/tier-bands", icon: TrendingUp },
       ],

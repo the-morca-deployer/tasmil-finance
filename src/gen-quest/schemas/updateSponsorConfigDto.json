@@ -1,13 +1,1 @@
-{
-  "type": "object",
-  "properties": {
-    "maxSlots": { "type": "number" },
-    "maxTxPerUserPerDay": { "type": "number" },
-    "active": { "type": "boolean" },
-    "rule": { "type": "string" },
-    "xlmAlertThreshold": { "type": "number" },
-    "xlmCriticalThreshold": { "type": "number" },
-    "telegramChatId": { "type": "string" }
-  },
-  "x-readme-ref-name": "UpdateSponsorConfigDto"
-}
+{"type":"object","properties":{"maxSlots":{"type":"number"},"maxTxPerUserPerDay":{"type":"number"},"active":{"type":"boolean"},"rule":{"type":"string"},"xlmAlertThreshold":{"type":"number"},"xlmCriticalThreshold":{"type":"number"},"telegramChatId":{"type":"string"}},"x-readme-ref-name":"UpdateSponsorConfigDto"}
