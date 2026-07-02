@@ -16,15 +16,6 @@ export interface QuestCampaign {
   startAt: string | null;
   endAt: string | null;
   createdAt: string;
-  logoUrl?: string | null;
-  maxParticipants?: number | null;
-  isDaily?: boolean;
-  isFeatured?: boolean;
-  metadata?: {
-    rewardPoints?: number;
-    minTasksToComplete?: number;
-    descriptionDetail?: string;
-  } | null;
   _count?: { tasks: number };
 }
 
@@ -43,23 +34,6 @@ export interface QuestTask {
 
 export interface QuestCampaignDetail extends QuestCampaign {
   tasks: QuestTask[];
-}
-
-export interface CampaignWriteInput {
-  title?: string;
-  protocol?: string;
-  category?: string;
-  description?: string;
-  descriptionDetail?: string;
-  coverUrl?: string;
-  isActive?: boolean;
-  isDaily?: boolean;
-  isFeatured?: boolean;
-  maxParticipants?: number;
-  rewardPoints?: number;
-  minTasksToComplete?: number;
-  startAt?: string;
-  endAt?: string;
 }
 
 export function useQuestCampaigns() {
@@ -83,7 +57,7 @@ export function useQuestCampaignDetail(id: string | null) {
 export function useCreateQuestCampaign() {
   const queryClient = useQueryClient();
   const router = useRouter();
-  return useMutation<QuestCampaign, Error, CampaignWriteInput>({
+  return useMutation<QuestCampaign, Error, Partial<QuestCampaign>>({
     mutationFn: (data) =>
       adminFetch<QuestCampaign>("/api/admin/quest-campaigns", { method: "POST", body: data }),
     onSuccess: (campaign) => {
@@ -99,7 +73,7 @@ export function useCreateQuestCampaign() {
 
 export function useUpdateQuestCampaign(id: string) {
   const queryClient = useQueryClient();
-  return useMutation<QuestCampaign, Error, CampaignWriteInput>({
+  return useMutation<QuestCampaign, Error, Partial<QuestCampaign>>({
     mutationFn: (data) =>
       adminFetch<QuestCampaign>(`/api/admin/quest-campaigns/${id}`, { method: "PUT", body: data }),
     onSuccess: () => {

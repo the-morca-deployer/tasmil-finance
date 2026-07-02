@@ -1,1 +1,0 @@
-{"type":"object","properties":{"publicKey":{"type":"string","description":"Stellar public key that signed the challenge message"},"signedMessage":{"type":"string","description":"Ed25519 signature of the challenge message, base64 or hex encoded (64-byte detached or NaCl signed blob)"}},"required":["publicKey","signedMessage"],"x-readme-ref-name":"SignMessageProofDto"}

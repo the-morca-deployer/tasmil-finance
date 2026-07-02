@@ -7,7 +7,6 @@ import {
   useGenerateCodes,
   useRevokeCode,
 } from "@/features/admin-whitelist/hooks/use-admin-codes";
-import { ExportCsvButton } from "@/shared/components/export-csv-button";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -120,18 +119,15 @@ export default function AdminCodesPage() {
 
       {/* Right panel — table */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Typography variant="h2" className="font-bold text-xl">
-              All Codes
-            </Typography>
-            {data && (
-              <span className="rounded-full bg-muted px-2.5 py-0.5 font-semibold text-xs">
-                {data.total}
-              </span>
-            )}
-          </div>
-          <ExportCsvButton endpoint="/api/admin/codes/export" />
+        <div className="mb-4 flex items-center gap-3">
+          <Typography variant="h2" className="font-bold text-xl">
+            All Codes
+          </Typography>
+          {data && (
+            <span className="rounded-full bg-muted px-2.5 py-0.5 font-semibold text-xs">
+              {data.total}
+            </span>
+          )}
         </div>
 
         {isLoadingCodes ? (

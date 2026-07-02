@@ -1,1 +1,0 @@
-{"type":"object","properties":{"title":{"type":"string"},"description":{"type":"string"},"protocol":{"type":"string"},"category":{"type":"string"},"logoUrl":{"type":"string"},"startAt":{"type":"string"},"endAt":{"type":"string"},"maxParticipants":{"type":"number"},"isActive":{"type":"boolean"}},"required":["title"],"x-readme-ref-name":"CreateQuestCampaignDto"}

@@ -1,1 +1,15 @@
-{"type":"object","properties":{"title":{"type":"string"},"description":{"type":"string"},"descriptionDetail":{"type":"string"},"coverUrl":{"type":"string"},"category":{"type":"string","enum":["DEFI","NFT","Infra","Gaming","Other"]},"rewardPoints":{"type":"number"},"minTasksToComplete":{"type":"number"},"startAt":{"type":"string"},"endAt":{"type":"string"}},"x-readme-ref-name":"UpdateCampaignDto"}
+{
+  "type": "object",
+  "properties": {
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "descriptionDetail": { "type": "string" },
+    "coverUrl": { "type": "string" },
+    "category": { "type": "string", "enum": ["DEFI", "NFT", "Infra", "Gaming", "Other"] },
+    "rewardPoints": { "type": "number" },
+    "minTasksToComplete": { "type": "number" },
+    "startAt": { "type": "string" },
+    "endAt": { "type": "string" }
+  },
+  "x-readme-ref-name": "UpdateCampaignDto"
+}

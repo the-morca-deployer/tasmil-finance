@@ -1,1 +1,0 @@
-{"type":"object","properties":{"cohortSize":{"type":"number","minimum":1,"maximum":10000},"maxTxPerUser":{"type":"number","minimum":0,"maximum":1000},"maxXlmPerTx":{"type":"string","description":"Decimal string, e.g. \"0.1\""},"enabled":{"type":"boolean"}},"x-readme-ref-name":"UpdateConfigDto"}

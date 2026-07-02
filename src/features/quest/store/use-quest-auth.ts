@@ -8,7 +8,6 @@ export interface AuthUser {
   username: string;
   walletAddress: string;
   avatarUrl?: string | null;
-  email?: string | null;
   tier: string;
   totalPoints: number;
   loginStreak: number;
