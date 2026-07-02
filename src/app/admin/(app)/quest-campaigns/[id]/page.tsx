@@ -52,7 +52,14 @@ interface CampaignFormState {
   protocol: string;
   category: string;
   description: string;
+  descriptionDetail: string;
+  coverUrl: string;
   isActive: boolean;
+  isDaily: boolean;
+  isFeatured: boolean;
+  rewardPoints: number;
+  minTasksToComplete: number;
+  maxParticipants: string;
   startAt: string;
   endAt: string;
 }
@@ -232,14 +239,26 @@ export default function QuestCampaignDetailPage() {
     protocol: campaign.protocol,
     category: campaign.category,
     description: campaign.description ?? "",
+    descriptionDetail: campaign.metadata?.descriptionDetail ?? "",
+    coverUrl: campaign.logoUrl ?? "",
     isActive: campaign.isActive,
+    isDaily: campaign.isDaily ?? false,
+    isFeatured: campaign.isFeatured ?? false,
+    rewardPoints: campaign.metadata?.rewardPoints ?? 0,
+    minTasksToComplete: campaign.metadata?.minTasksToComplete ?? 1,
+    maxParticipants: campaign.maxParticipants != null ? String(campaign.maxParticipants) : "",
     startAt: campaign.startAt ? campaign.startAt.slice(0, 10) : "",
     endAt: campaign.endAt ? campaign.endAt.slice(0, 10) : "",
   };
 
   async function handleSaveCampaign() {
     if (!campaignForm) return;
-    await updateCampaign.mutateAsync(campaignForm);
+    await updateCampaign.mutateAsync({
+      ...campaignForm,
+      maxParticipants: campaignForm.maxParticipants
+        ? Number(campaignForm.maxParticipants)
+        : undefined,
+    });
     setCampaignForm(null);
   }
 
@@ -315,6 +334,15 @@ export default function QuestCampaignDetailPage() {
               { label: "Title", key: "title" as const, type: "text" },
               { label: "Protocol", key: "protocol" as const, type: "text" },
               { label: "Description", key: "description" as const, type: "text" },
+              { label: "Cover URL", key: "coverUrl" as const, type: "text" },
+              { label: "Detailed description", key: "descriptionDetail" as const, type: "text" },
+              { label: "Reward points", key: "rewardPoints" as const, type: "number" },
+              {
+                label: "Min tasks to complete",
+                key: "minTasksToComplete" as const,
+                type: "number",
+              },
+              { label: "Max participants", key: "maxParticipants" as const, type: "number" },
               { label: "Start Date", key: "startAt" as const, type: "date" },
               { label: "End Date", key: "endAt" as const, type: "date" },
             ] satisfies { label: string; key: keyof CampaignFormState; type: string }[]
@@ -332,8 +360,15 @@ export default function QuestCampaignDetailPage() {
               </label>
               <input
                 type={type}
-                value={(form[key] as string) ?? ""}
-                onChange={(e) => setCampaignForm({ ...form, [key]: e.target.value })}
+                value={String(form[key] ?? "")}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  if (key === "rewardPoints" || key === "minTasksToComplete") {
+                    setCampaignForm({ ...form, [key]: Number(raw) });
+                  } else {
+                    setCampaignForm({ ...form, [key]: raw });
+                  }
+                }}
                 style={inputStyle}
               />
             </div>
@@ -362,22 +397,56 @@ export default function QuestCampaignDetailPage() {
               ))}
             </select>
           </div>
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontSize: 13,
-              cursor: "pointer",
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={(form.isActive as boolean) ?? true}
-              onChange={(e) => setCampaignForm({ ...form, isActive: e.target.checked })}
-            />
-            Active
-          </label>
+          <div style={{ display: "flex", gap: 18 }}>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={form.isActive ?? true}
+                onChange={(e) => setCampaignForm({ ...form, isActive: e.target.checked })}
+              />
+              Active
+            </label>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={form.isDaily ?? false}
+                onChange={(e) => setCampaignForm({ ...form, isDaily: e.target.checked })}
+              />
+              Daily campaign
+            </label>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={form.isFeatured ?? false}
+                onChange={(e) => setCampaignForm({ ...form, isFeatured: e.target.checked })}
+              />
+              Featured
+            </label>
+          </div>
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <button
               type="button"
