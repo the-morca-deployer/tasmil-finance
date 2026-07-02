@@ -15,7 +15,6 @@ const payload = {
   },
   volumeTvl: [{ date: "2026-06-01", volumeUsd: 100, cumulativeTvlUsd: 100 }],
   userGrowth: [{ date: "2026-06-01", newUsers: 3, cumulativeUsers: 8 }],
-  txByType: [{ type: "DEPOSIT", count: 640 }],
   updatedAt: "2026-07-02T12:00:00.000Z",
 };
 
@@ -34,7 +33,6 @@ describe("TractionDashboard", () => {
     expect(screen.getByText("$125.0k")).toBeInTheDocument();
     expect(screen.getByText("Volume & TVL — last 90 days")).toBeInTheDocument();
     expect(screen.getByText("User growth — last 90 days")).toBeInTheDocument();
-    expect(screen.getByText("DEPOSIT")).toBeInTheDocument();
     expect(screen.getByText(/Live data — updated/)).toBeInTheDocument();
   });
 

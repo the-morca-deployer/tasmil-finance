@@ -5,7 +5,6 @@ import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
 import { useTraction } from "../hooks/use-traction";
 import { KpiCards } from "./kpi-cards";
-import { TxBreakdown } from "./tx-breakdown";
 import { UserGrowthChart } from "./user-growth-chart";
 import { VolumeTvlChart } from "./volume-tvl-chart";
 
@@ -48,7 +47,6 @@ export function TractionDashboard() {
       <KpiCards summary={data?.summary} isLoading={isLoading} />
       <VolumeTvlChart data={data?.volumeTvl} isLoading={isLoading} />
       <UserGrowthChart data={data?.userGrowth} isLoading={isLoading} />
-      <TxBreakdown items={data?.txByType} isLoading={isLoading} />
 
       <footer className="mt-4 border-border border-t pt-4 text-center">
         <a
