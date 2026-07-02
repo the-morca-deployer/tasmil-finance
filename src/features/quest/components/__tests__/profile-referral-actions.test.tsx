@@ -74,6 +74,7 @@ jest.mock("@/gen-quest/hooks", () => ({
   useUsersControllerUpdateProfile: jest
     .fn()
     .mockReturnValue({ mutate: jest.fn(), isPending: false }),
+  useUsersControllerSetEmail: jest.fn().mockReturnValue({ mutate: jest.fn(), isPending: false }),
   useUsersControllerGetMyCampaigns: jest
     .fn()
     .mockReturnValue({ data: { data: [] }, isLoading: false }),

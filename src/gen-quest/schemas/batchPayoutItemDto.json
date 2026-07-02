@@ -1,0 +1,1 @@
+{"type":"object","properties":{"resultId":{"type":"string"},"paidTxHash":{"type":"string"}},"required":["resultId"],"x-readme-ref-name":"BatchPayoutItemDto"}

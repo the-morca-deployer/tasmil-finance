@@ -28,6 +28,7 @@ jest.mock("@/gen-quest/hooks", () => ({
   useSocialAccountsControllerLinkAccount: () => ({ mutate: jest.fn(), isPending: false }),
   useSocialAccountsControllerUnlinkAccount: () => ({ mutate: jest.fn(), isPending: false }),
   useUsersControllerUpdateProfile: () => ({ mutate: jest.fn(), isPending: false }),
+  useUsersControllerSetEmail: () => ({ mutate: jest.fn(), isPending: false }),
   useUsersControllerGetMyCampaigns: () => ({ data: { data: [] }, isLoading: false }),
   useReferralControllerGetMyReferral: () => ({ data: undefined }),
   useUsersControllerGetReferrals: () => ({ data: { data: [] } }),

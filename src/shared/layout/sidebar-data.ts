@@ -1,16 +1,22 @@
 import {
   ArrowLeftRight,
+  BarChart3,
   Bot,
+  Flame,
+  Gift,
   Home,
   KeyRound,
   ListChecks,
   Mail,
+  Medal,
   Settings,
   Share2,
   Shield,
+  Store,
   Tractor,
   TrendingUp,
   Trophy,
+  Users,
   Wallet,
 } from "lucide-react";
 
@@ -159,7 +165,10 @@ export const adminSidebarData: SidebarData = {
   navGroups: [
     {
       title: "Overview",
-      items: [{ title: "Dashboard", url: "/admin/dashboard", icon: Home }],
+      items: [
+        { title: "Dashboard", url: "/admin/dashboard", icon: Home },
+        { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
+      ],
     },
     {
       title: "Waitlist",
@@ -172,8 +181,12 @@ export const adminSidebarData: SidebarData = {
     {
       title: "Quest Management",
       items: [
+        { title: "Quest Seasons", url: "/admin/quest-seasons", icon: Medal },
         { title: "Quest Campaigns", url: "/admin/quest-campaigns", icon: Trophy },
+        { title: "FOMO Events", url: "/admin/quest-fomo", icon: Flame },
+        { title: "Quest Gifts", url: "/admin/quest-gifts", icon: Gift },
         { title: "Quest Wallets", url: "/admin/quests", icon: Wallet },
+        { title: "Quest Users", url: "/admin/quest-users", icon: Users },
         { title: "Referral Rates", url: "/admin/referral-config", icon: Share2 },
         { title: "Tier Bands", url: "/admin/tier-bands", icon: TrendingUp },
       ],
@@ -181,6 +194,10 @@ export const adminSidebarData: SidebarData = {
     {
       title: "Gas Sponsor",
       items: [{ title: "Sponsor", url: "/admin/sponsor", icon: Shield }],
+    },
+    {
+      title: "Marketplace",
+      items: [{ title: "Strategies", url: "/admin/strategies", icon: Store }],
     },
     {
       title: "System",
