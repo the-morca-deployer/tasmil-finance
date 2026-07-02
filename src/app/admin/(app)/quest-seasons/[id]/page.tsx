@@ -266,7 +266,7 @@ function MarkPaidModal({
       >
         <h3 style={{ fontSize: 16, fontWeight: 700 }}>Mark payout paid</h3>
         <div style={{ fontSize: 13, color: "rgba(245,248,252,0.7)" }}>
-          Rank #{row.finalRank} · {truncate(row.walletAddress)} · {row.usdcReward} USDC ·{" "}
+          Rank #{row.finalRank}, {truncate(row.walletAddress)} receives {row.usdcReward} USDC and{" "}
           {row.pointsReward} pts
         </div>
         <label style={{ fontSize: 12, opacity: 0.7 }}>
@@ -589,7 +589,7 @@ export default function SeasonDetailPage() {
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800 }}>{season.name}</h1>
             <div style={{ fontSize: 13, color: "rgba(245,248,252,0.5)", marginTop: 4 }}>
-              {season.status} ·{" "}
+              {season.status},{" "}
               {season.prizePoolUsdc ? `${season.prizePoolUsdc} USDC pool` : "no pool set"}
             </div>
           </div>

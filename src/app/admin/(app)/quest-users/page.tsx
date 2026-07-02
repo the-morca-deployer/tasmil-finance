@@ -113,10 +113,13 @@ function OverridesEditor({ user }: { user: QuestUserLookup }) {
   const del = useDeleteUserOverride();
   const [form, setForm] = useState<Record<number, OverrideFormRow>>(() => seedOverrideForm(user));
 
-  // Re-seed when the server data changes (after save/delete/refetch or a new lookup).
+  // Re-seed only on a genuinely new lookup (userId changes), not on every refetch
+  // triggered by a sibling mutation (segment save, override delete) — otherwise
+  // in-progress unsaved edits in this form get silently overwritten by the refetch.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally re-seed only on a new user, not on every field change within the same user
   useEffect(() => {
     setForm(seedOverrideForm(user));
-  }, [user]);
+  }, [user.userId]);
 
   function update(layer: number, patch: Partial<OverrideFormRow>) {
     setForm((f) => {
