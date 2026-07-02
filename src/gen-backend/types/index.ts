@@ -8,7 +8,7 @@ export type { AccountControllerBuildSetupTxs201, AccountControllerBuildSetupTxsM
 export type { AccountControllerBuildWithdrawTx201, AccountControllerBuildWithdrawTxMutation, AccountControllerBuildWithdrawTxMutationRequest, AccountControllerBuildWithdrawTxMutationResponse } from "@/gen-backend/types/account-controller-build-withdraw-tx";
 export type { AccountControllerDepositExecute201, AccountControllerDepositExecuteMutation, AccountControllerDepositExecuteMutationResponse } from "@/gen-backend/types/account-controller-deposit-execute";
 export type { AccountControllerDepositFund201, AccountControllerDepositFundMutation, AccountControllerDepositFundMutationResponse } from "@/gen-backend/types/account-controller-deposit-fund";
-export type { AccountControllerGetActivity200, AccountControllerGetActivityPathParams, AccountControllerGetActivityQuery, AccountControllerGetActivityQueryParams, AccountControllerGetActivityQueryResponse } from "@/gen-backend/types/account-controller-get-activity";
+export type { AccountControllerGetActivity200, AccountControllerGetActivityPathParams, AccountControllerGetActivityQuery, AccountControllerGetActivityQueryParams, AccountControllerGetActivityQueryParamsCategoryEnumKey, AccountControllerGetActivityQueryResponse } from "@/gen-backend/types/account-controller-get-activity";
 export type { AccountControllerGetPosition200, AccountControllerGetPositionPathParams, AccountControllerGetPositionQuery, AccountControllerGetPositionQueryResponse } from "@/gen-backend/types/account-controller-get-position";
 export type { AccountControllerGetPresets200, AccountControllerGetPresetsQuery, AccountControllerGetPresetsQueryParams, AccountControllerGetPresetsQueryResponse } from "@/gen-backend/types/account-controller-get-presets";
 export type { AccountControllerGetTradingAccount200, AccountControllerGetTradingAccountQuery, AccountControllerGetTradingAccountQueryResponse } from "@/gen-backend/types/account-controller-get-trading-account";
@@ -307,6 +307,7 @@ export type { WelcomeRewardControllerMarkSeen201, WelcomeRewardControllerMarkSee
 export type { WelcomeRewardControllerScanVolume201, WelcomeRewardControllerScanVolumeMutation, WelcomeRewardControllerScanVolumeMutationResponse } from "@/gen-backend/types/welcome-reward-controller-scan-volume";
 export type { WelcomeRewardControllerTrackTransaction201, WelcomeRewardControllerTrackTransactionMutation, WelcomeRewardControllerTrackTransactionMutationRequest, WelcomeRewardControllerTrackTransactionMutationResponse } from "@/gen-backend/types/welcome-reward-controller-track-transaction";
 export type { WithdrawDto } from "@/gen-backend/types/withdraw-dto";
+export { accountControllerGetActivityQueryParamsCategoryEnum } from "@/gen-backend/types/account-controller-get-activity";
 export { adminControllerGetTransactionsQueryParamsFormatEnum } from "@/gen-backend/types/admin-controller-get-transactions";
 export { adminControllerGetVolumeTvlQueryParamsFormatEnum } from "@/gen-backend/types/admin-controller-get-volume-tvl";
 export { adminControllerGetVolumeTvlQueryParamsGranularityEnum } from "@/gen-backend/types/admin-controller-get-volume-tvl";

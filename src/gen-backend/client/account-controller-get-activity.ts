@@ -16,7 +16,7 @@ function getAccountControllerGetActivityUrl(publicKey: AccountControllerGetActiv
  * @summary Get recent activity log for a managed account
  * {@link /api/account/activity/:publicKey}
  */
-export async function accountControllerGetActivity(publicKey: AccountControllerGetActivityPathParams["publicKey"], params: AccountControllerGetActivityQueryParams, config: Partial<RequestConfig> & { client?: Client } = {}) {
+export async function accountControllerGetActivity(publicKey: AccountControllerGetActivityPathParams["publicKey"], params?: AccountControllerGetActivityQueryParams, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
 

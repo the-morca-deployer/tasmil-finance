@@ -9,11 +9,11 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import { accountControllerGetActivity } from "@/gen-backend/client/account-controller-get-activity";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
-export const accountControllerGetActivityQueryKey = (publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params: AccountControllerGetActivityQueryParams) => [{ url: '/api/account/activity/:publicKey', params: {publicKey:publicKey} }, ...(params ? [params] : [])] as const
+export const accountControllerGetActivityQueryKey = (publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params?: AccountControllerGetActivityQueryParams) => [{ url: '/api/account/activity/:publicKey', params: {publicKey:publicKey} }, ...(params ? [params] : [])] as const
 
 export type AccountControllerGetActivityQueryKey = ReturnType<typeof accountControllerGetActivityQueryKey>
 
-export function accountControllerGetActivityQueryOptions(publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params: AccountControllerGetActivityQueryParams, config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function accountControllerGetActivityQueryOptions(publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params?: AccountControllerGetActivityQueryParams, config: Partial<RequestConfig> & { client?: Client } = {}) {
 
         const queryKey = accountControllerGetActivityQueryKey(publicKey, params)
         return queryOptions<AccountControllerGetActivityQueryResponse, ResponseErrorConfig<Error>, AccountControllerGetActivityQueryResponse, typeof queryKey>({
@@ -30,7 +30,7 @@ export function accountControllerGetActivityQueryOptions(publicKey: AccountContr
  * @summary Get recent activity log for a managed account
  * {@link /api/account/activity/:publicKey}
  */
-export function useAccountControllerGetActivity<TData = AccountControllerGetActivityQueryResponse, TQueryData = AccountControllerGetActivityQueryResponse, TQueryKey extends QueryKey = AccountControllerGetActivityQueryKey>(publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params: AccountControllerGetActivityQueryParams, options: 
+export function useAccountControllerGetActivity<TData = AccountControllerGetActivityQueryResponse, TQueryData = AccountControllerGetActivityQueryResponse, TQueryKey extends QueryKey = AccountControllerGetActivityQueryKey>(publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params?: AccountControllerGetActivityQueryParams, options: 
 {
   query?: Partial<QueryObserverOptions<AccountControllerGetActivityQueryResponse, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: Client }

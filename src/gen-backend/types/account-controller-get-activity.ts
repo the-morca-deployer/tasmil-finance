@@ -11,19 +11,27 @@ export type AccountControllerGetActivityPathParams = {
     publicKey: string;
 };
 
+export const accountControllerGetActivityQueryParamsCategoryEnum = {
+    protocol: "protocol",
+    reward: "reward",
+    wallet: "wallet"
+} as const;
+
+export type AccountControllerGetActivityQueryParamsCategoryEnumKey = (typeof accountControllerGetActivityQueryParamsCategoryEnum)[keyof typeof accountControllerGetActivityQueryParamsCategoryEnum];
+
 export type AccountControllerGetActivityQueryParams = {
     /**
-     * @type string
+     * @type number | undefined
     */
-    limit: string;
+    limit?: number;
     /**
-     * @type string
+     * @type string | undefined
     */
-    cursor: string;
+    cursor?: string;
     /**
-     * @type string
+     * @type string | undefined
     */
-    category: string;
+    category?: AccountControllerGetActivityQueryParamsCategoryEnumKey;
 };
 
 export type AccountControllerGetActivity200 = any;

@@ -9,11 +9,11 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import { accountControllerGetActivity } from "@/gen-backend/client/account-controller-get-activity";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
-export const accountControllerGetActivitySuspenseQueryKey = (publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params: AccountControllerGetActivityQueryParams) => [{ url: '/api/account/activity/:publicKey', params: {publicKey:publicKey} }, ...(params ? [params] : [])] as const
+export const accountControllerGetActivitySuspenseQueryKey = (publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params?: AccountControllerGetActivityQueryParams) => [{ url: '/api/account/activity/:publicKey', params: {publicKey:publicKey} }, ...(params ? [params] : [])] as const
 
 export type AccountControllerGetActivitySuspenseQueryKey = ReturnType<typeof accountControllerGetActivitySuspenseQueryKey>
 
-export function accountControllerGetActivitySuspenseQueryOptions(publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params: AccountControllerGetActivityQueryParams, config: Partial<RequestConfig> & { client?: Client } = {}) {
+export function accountControllerGetActivitySuspenseQueryOptions(publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params?: AccountControllerGetActivityQueryParams, config: Partial<RequestConfig> & { client?: Client } = {}) {
 
         const queryKey = accountControllerGetActivitySuspenseQueryKey(publicKey, params)
         return queryOptions<AccountControllerGetActivityQueryResponse, ResponseErrorConfig<Error>, AccountControllerGetActivityQueryResponse, typeof queryKey>({
@@ -30,7 +30,7 @@ export function accountControllerGetActivitySuspenseQueryOptions(publicKey: Acco
  * @summary Get recent activity log for a managed account
  * {@link /api/account/activity/:publicKey}
  */
-export function useAccountControllerGetActivitySuspense<TData = AccountControllerGetActivityQueryResponse, TQueryKey extends QueryKey = AccountControllerGetActivitySuspenseQueryKey>(publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params: AccountControllerGetActivityQueryParams, options: 
+export function useAccountControllerGetActivitySuspense<TData = AccountControllerGetActivityQueryResponse, TQueryKey extends QueryKey = AccountControllerGetActivitySuspenseQueryKey>(publicKey: AccountControllerGetActivityPathParams["publicKey"] | undefined, params?: AccountControllerGetActivityQueryParams, options: 
 {
   query?: Partial<UseSuspenseQueryOptions<AccountControllerGetActivityQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: Client }
