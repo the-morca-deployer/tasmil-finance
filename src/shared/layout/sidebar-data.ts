@@ -6,6 +6,7 @@ import {
   KeyRound,
   ListChecks,
   Mail,
+  Medal,
   Settings,
   Share2,
   Shield,
@@ -176,6 +177,7 @@ export const adminSidebarData: SidebarData = {
     {
       title: "Quest Management",
       items: [
+        { title: "Quest Seasons", url: "/admin/quest-seasons", icon: Medal },
         { title: "Quest Campaigns", url: "/admin/quest-campaigns", icon: Trophy },
         { title: "Quest Wallets", url: "/admin/quests", icon: Wallet },
         { title: "Referral Rates", url: "/admin/referral-config", icon: Share2 },
