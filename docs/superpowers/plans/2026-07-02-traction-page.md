@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Two repos: `backend` (`/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/backend`) and `tasmil-finance` (`/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/tasmil-finance`). Every command below states which repo it runs in. Both repos are currently on `deploy/staging`; feature branches start there.
-- **Never push to `deploy/prod`.** Feature branch → PR → user merges. Check CI after any merge (`gh run list --repo Tasmil-Finance/<repo> --limit 3`).
+- **Never push to `deploy/prod`.** Feature branch → PR → user merges. **PR base: `deploy/staging`** (user decision 2026-07-02 — feature branches are based on staging, and recent projects merge feature → staging via PR; promotion staging → prod is the user's separate step). Staging merges trigger no CI/deploy (the mirror workflow only fires on `deploy/prod`); run `gh run list --repo Tasmil-Finance/<repo> --limit 3` after any later promotion to `deploy/prod`.
 - Endpoint path: `GET /api/public/traction` — **no auth** (user decision). Cache key `public:traction:v1`, TTL 300 s, window 90 days, day granularity.
 - Backend wraps every success response in `{ success: true, data }` (global `TransformInterceptor`); Kubb-generated types are the **inner** DTO, so frontend hooks must unwrap with `select: (res) => res.data` (established pattern: `src/features/account/hooks/use-account-api.ts`).
 - Page copy is **English**; route metadata sets `robots: { index: false, follow: false }`.
@@ -1600,7 +1600,7 @@ git commit -m "feat(traction): public /traction route with noindex metadata"
 ```bash
 cd /Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/backend
 git push -u origin feat/public-traction-endpoint
-gh pr create --repo Tasmil-Finance/backend --base deploy/prod --head feat/public-traction-endpoint \
+gh pr create --repo Tasmil-Finance/backend --base deploy/staging --head feat/public-traction-endpoint \
   --title "feat(public): GET /public/traction endpoint for the foundation traction page" \
   --body "$(cat <<'EOF'
 ## Summary
@@ -1624,7 +1624,7 @@ EOF
 ```bash
 cd /Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/tasmil-finance
 git push -u origin feat/traction-page
-gh pr create --repo Tasmil-Finance/tasmil-finance --base deploy/prod --head feat/traction-page \
+gh pr create --repo Tasmil-Finance/tasmil-finance --base deploy/staging --head feat/traction-page \
   --title "feat(traction): public /traction page for the foundation" \
   --body "$(cat <<'EOF'
 ## Summary
@@ -1636,7 +1636,7 @@ gh pr create --repo Tasmil-Finance/tasmil-finance --base deploy/prod --head feat
 - [x] `pnpm test -- src/features/traction`, `pnpm type-check`, `pnpm build`
 - [ ] After deploy: open https://tasmil.finance/traction and verify live data
 
-**Merge order: deploy the backend PR first** — the page 404s its data call until `/api/public/traction` exists in prod.
+**Merge order: merge the backend PR first.** Staging merges do not deploy; when promoting staging → prod later, promote backend before (or with) the frontend — the page 404s its data call until `/api/public/traction` exists in prod.
 
 Spec: `docs/superpowers/specs/2026-07-02-traction-page-design.md`
 
@@ -1647,7 +1647,7 @@ EOF
 
 - [ ] **Step 3: Stop — hand both PR URLs to the user**
 
-Do not merge. After the user merges (backend first), verify each repo:
+Do not merge. Staging PRs trigger no CI. Later, when the user promotes `deploy/staging` → `deploy/prod` (backend first), verify:
 
 ```bash
 gh run list --repo Tasmil-Finance/backend --limit 3
