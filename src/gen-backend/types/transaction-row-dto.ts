@@ -22,11 +22,11 @@ export type TransactionRowDto = {
     */
     keeperWalletAddress: string;
     /**
-     * @type object
+     * @type number
     */
-    amountUsd: object | null;
+    amountUsd: number | null;
     /**
-     * @type object
+     * @type string
     */
-    txHash: object | null;
+    txHash: string | null;
 };

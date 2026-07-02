@@ -26,7 +26,7 @@ export type WalletRowDto = {
     */
     joinedAt: string;
     /**
-     * @type object
+     * @type string, date-time
     */
-    lastActivityAt: object | null;
+    lastActivityAt: string | null;
 };
