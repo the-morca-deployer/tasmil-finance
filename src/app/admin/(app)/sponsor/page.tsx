@@ -19,6 +19,7 @@ import {
   useTestTelegramAlert,
   useUpdateSponsorConfig,
 } from "@/features/admin/hooks/use-admin-sponsor";
+import { ExportCsvButton } from "@/shared/components/export-csv-button";
 
 const LIMIT = 20;
 
@@ -862,7 +863,17 @@ function CohortFallbackLogTable() {
 export default function SponsorAdminPage() {
   return (
     <div style={{ padding: "24px 32px", maxWidth: 960 }}>
-      <h1 style={{ fontWeight: 700, fontSize: 22, margin: "0 0 20px" }}>Gas Sponsor</h1>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          margin: "0 0 20px",
+        }}
+      >
+        <h1 style={{ fontWeight: 700, fontSize: 22 }}>Gas Sponsor</h1>
+        <ExportCsvButton endpoint="/api/admin/sponsor/logs/export" />
+      </div>
       <BalanceCard />
       <ConfigCard />
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>

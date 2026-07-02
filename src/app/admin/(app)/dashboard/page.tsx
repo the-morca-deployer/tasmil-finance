@@ -17,6 +17,7 @@ import { useAdminDashboard } from "@/features/admin-whitelist/hooks/use-admin-da
 import { type QuestStats, useQuestStats } from "@/features/admin-whitelist/hooks/use-quest-stats";
 import { useRegistrationStats } from "@/features/admin-whitelist/hooks/use-registration-stats";
 import { cn } from "@/lib/utils";
+import { ExportCsvButton } from "@/shared/components/export-csv-button";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Typography } from "@/shared/ui/typography";
@@ -798,13 +799,16 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-10 p-8">
-      <div>
-        <Typography variant="h1" className="font-bold text-3xl">
-          Overview
-        </Typography>
-        <Typography variant="p" className="mt-1 text-muted-foreground">
-          Platform metrics — waitlist, email delivery, quest performance
-        </Typography>
+      <div className="flex items-start justify-between">
+        <div>
+          <Typography variant="h1" className="font-bold text-3xl">
+            Overview
+          </Typography>
+          <Typography variant="p" className="mt-1 text-muted-foreground">
+            Platform metrics — waitlist, email delivery, quest performance
+          </Typography>
+        </div>
+        <ExportCsvButton endpoint="/api/admin/stats/registrations/export" params={{ days: "30" }} />
       </div>
 
       {/* ── WAITLIST ── */}
