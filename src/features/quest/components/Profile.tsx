@@ -36,6 +36,7 @@ import {
   useUsersControllerGetMyCampaigns,
   useUsersControllerGetPointsHistory,
   useUsersControllerGetReferrals,
+  useUsersControllerSetEmail,
   useUsersControllerUpdateProfile,
 } from "@/gen-quest/hooks";
 import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
@@ -129,6 +130,14 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
   const [copied, setCopied] = useState(false);
 
   const updateName = useUsersControllerUpdateProfile();
+  const setEmail = useUsersControllerSetEmail();
+  const [email, setEmailValue] = useState(user?.email ?? "");
+
+  const handleSaveEmail = () => {
+    const trimmed = email.trim();
+    if (!trimmed) return;
+    setEmail.mutate({ data: { email: trimmed } });
+  };
 
   const handleSaveName = () => {
     if (newName.trim()) {
@@ -306,6 +315,38 @@ function Sidebar({ tab, setTab }: { tab: TabSlug; setTab: (t: TabSlug) => void }
             />
           )}
           {headerRank}
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-2 px-2">
+        <label
+          htmlFor="quest-email"
+          className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#71717a]"
+        >
+          Email for prize notifications
+        </label>
+        <div className="flex items-center gap-2">
+          <input
+            id="quest-email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmailValue(e.target.value)}
+            className="input"
+            style={{ fontSize: 13, padding: "7px 10px", flex: 1 }}
+          />
+          <button
+            type="button"
+            onClick={handleSaveEmail}
+            disabled={setEmail.isPending || !email.trim()}
+            aria-label="Save email"
+            className="rounded-[8px] border border-[rgba(103,232,249,0.32)] bg-[var(--accent-soft)] px-3 py-[7px] text-[12px] font-semibold text-[var(--accent)] disabled:opacity-50"
+          >
+            {setEmail.isPending ? "Saving" : "Save"}
+          </button>
+        </div>
+        <span className="text-[11px] text-[#71717a]">
+          Optional. We use it only to email you when a prize is sent.
         </span>
       </div>
 
