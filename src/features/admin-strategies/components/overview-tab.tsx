@@ -20,7 +20,14 @@ function Kpi({ label, value }: { label: string; value: string }) {
         background: "rgba(255,255,255,0.03)",
       }}
     >
-      <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 1.5, color: "rgba(245,248,252,0.4)" }}>
+      <div
+        style={{
+          fontSize: 10,
+          textTransform: "uppercase",
+          letterSpacing: 1.5,
+          color: "rgba(245,248,252,0.4)",
+        }}
+      >
         {label}
       </div>
       <div style={{ fontSize: 24, fontWeight: 800, marginTop: 4 }}>{value}</div>
@@ -38,7 +45,11 @@ function ParticipantsRow({ strategyId }: { strategyId: string }) {
     );
   const participants = data ?? [];
   if (participants.length === 0)
-    return <div style={{ padding: 14, color: "rgba(245,248,252,0.4)", fontSize: 12 }}>No participants</div>;
+    return (
+      <div style={{ padding: 14, color: "rgba(245,248,252,0.4)", fontSize: 12 }}>
+        No participants
+      </div>
+    );
   return (
     <table style={{ width: "100%", fontSize: 12 }}>
       <thead>
@@ -59,7 +70,9 @@ function ParticipantsRow({ strategyId }: { strategyId: string }) {
               {p.deposited.toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </td>
             <td style={{ padding: "6px 10px", textAlign: "right" }}>{p.sharePct}%</td>
-            <td style={{ padding: "6px 10px", color: "rgba(245,248,252,0.6)" }}>{p.joined.slice(0, 10)}</td>
+            <td style={{ padding: "6px 10px", color: "rgba(245,248,252,0.6)" }}>
+              {p.joined.slice(0, 10)}
+            </td>
           </tr>
         ))}
       </tbody>

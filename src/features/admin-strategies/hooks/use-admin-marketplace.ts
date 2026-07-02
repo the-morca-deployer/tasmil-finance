@@ -17,9 +17,7 @@ async function marketplaceAdminFetch<T>(path: string, method = "GET"): Promise<T
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers.Authorization = `Bearer ${token}`;
   const res = await fetch(path, { method, headers });
-  const json = (await res.json().catch(() => null)) as
-    | { data?: T; message?: string }
-    | null;
+  const json = (await res.json().catch(() => null)) as { data?: T; message?: string } | null;
   if (res.status === 401) {
     useAdminAuthStore.getState().clearAuth();
     if (typeof window !== "undefined") window.location.assign("/admin/login");
@@ -32,9 +30,7 @@ async function marketplaceAdminFetch<T>(path: string, method = "GET"): Promise<T
 /** Public marketplace endpoints return { success, data } — unwrap without auth. */
 async function marketplacePublicFetch<T>(path: string): Promise<T> {
   const res = await fetch(path);
-  const json = (await res.json().catch(() => null)) as
-    | { data?: T; message?: string }
-    | null;
+  const json = (await res.json().catch(() => null)) as { data?: T; message?: string } | null;
   if (!res.ok) throw new Error(json?.message ?? `HTTP ${res.status}`);
   return (json?.data ?? json) as T;
 }

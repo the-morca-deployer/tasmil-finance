@@ -40,9 +40,7 @@ export function StrategiesTab() {
     action: "approve" | "reject";
   } | null>(null);
 
-  const { data, isLoading, isError } = useAdminStrategies(
-    status === "ALL" ? undefined : status
-  );
+  const { data, isLoading, isError } = useAdminStrategies(status === "ALL" ? undefined : status);
   const approve = useApproveStrategy();
   const reject = useRejectStrategy();
 
@@ -131,7 +129,13 @@ export function StrategiesTab() {
                 </td>
                 <td style={{ padding: 10 }}>
                   {s.publisherName ?? "—"}
-                  <div style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(245,248,252,0.4)" }}>
+                  <div
+                    style={{
+                      fontFamily: "monospace",
+                      fontSize: 11,
+                      color: "rgba(245,248,252,0.4)",
+                    }}
+                  >
                     {short(s.publisherAddress)}
                   </div>
                 </td>
@@ -153,7 +157,9 @@ export function StrategiesTab() {
                       <button
                         type="button"
                         disabled={approve.isPending || reject.isPending}
-                        onClick={() => setConfirmAction({ id: s.id, name: s.name, action: "approve" })}
+                        onClick={() =>
+                          setConfirmAction({ id: s.id, name: s.name, action: "approve" })
+                        }
                         style={{
                           padding: "5px 10px",
                           borderRadius: 8,
@@ -169,7 +175,9 @@ export function StrategiesTab() {
                       <button
                         type="button"
                         disabled={approve.isPending || reject.isPending}
-                        onClick={() => setConfirmAction({ id: s.id, name: s.name, action: "reject" })}
+                        onClick={() =>
+                          setConfirmAction({ id: s.id, name: s.name, action: "reject" })
+                        }
                         style={{
                           padding: "5px 10px",
                           borderRadius: 8,
@@ -200,7 +208,9 @@ export function StrategiesTab() {
             padding: "12px 16px",
             borderRadius: 10,
             background:
-              confirmAction.action === "approve" ? "rgba(74,222,128,0.08)" : "rgba(251,113,133,0.08)",
+              confirmAction.action === "approve"
+                ? "rgba(74,222,128,0.08)"
+                : "rgba(251,113,133,0.08)",
             border: "1px solid rgba(255,255,255,0.1)",
           }}
         >

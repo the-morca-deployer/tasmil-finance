@@ -8,6 +8,7 @@ import {
   Settings,
   Share2,
   Shield,
+  Store,
   Tractor,
   TrendingUp,
   Trophy,
@@ -181,6 +182,10 @@ export const adminSidebarData: SidebarData = {
     {
       title: "Gas Sponsor",
       items: [{ title: "Sponsor", url: "/admin/sponsor", icon: Shield }],
+    },
+    {
+      title: "Marketplace",
+      items: [{ title: "Strategies", url: "/admin/strategies", icon: Store }],
     },
     {
       title: "System",
