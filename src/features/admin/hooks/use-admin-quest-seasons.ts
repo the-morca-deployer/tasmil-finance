@@ -99,9 +99,11 @@ export function useSeasonResults(seasonId: string | null, page = 1, limit = 50) 
 
 export function useCreateSeason() {
   const queryClient = useQueryClient();
-  return useMutation<SeasonView, Error, CreateSeasonInput>({
+  // Backend returns raw unmapped rows (Decimal fields not stringified, rankRewards absent);
+  // do not consume without mapping.
+  return useMutation<unknown, Error, CreateSeasonInput>({
     mutationFn: (data) =>
-      adminFetch<SeasonView>("/api/admin/quest-seasons", { method: "POST", body: data }),
+      adminFetch<unknown>("/api/admin/quest-seasons", { method: "POST", body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SEASONS_KEY });
       toast.success("Season created");
@@ -112,9 +114,11 @@ export function useCreateSeason() {
 
 export function useUpdateSeason(id: string) {
   const queryClient = useQueryClient();
-  return useMutation<SeasonView, Error, UpdateSeasonInput>({
+  // Backend returns raw unmapped rows (Decimal fields not stringified, rankRewards absent);
+  // do not consume without mapping.
+  return useMutation<unknown, Error, UpdateSeasonInput>({
     mutationFn: (data) =>
-      adminFetch<SeasonView>(`/api/admin/quest-seasons/${id}`, { method: "PATCH", body: data }),
+      adminFetch<unknown>(`/api/admin/quest-seasons/${id}`, { method: "PATCH", body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SEASONS_KEY });
       toast.success("Season updated");
@@ -138,9 +142,9 @@ export function useEndSeason() {
 
 export function useSetRankRewards(id: string) {
   const queryClient = useQueryClient();
-  return useMutation<SeasonView, Error, { rewards: SeasonRankReward[] }>({
+  return useMutation<SeasonRankReward[], Error, { rewards: SeasonRankReward[] }>({
     mutationFn: (body) =>
-      adminFetch<SeasonView>(`/api/admin/quest-seasons/${id}/rank-rewards`, {
+      adminFetch<SeasonRankReward[]>(`/api/admin/quest-seasons/${id}/rank-rewards`, {
         method: "PUT",
         body,
       }),
@@ -154,9 +158,11 @@ export function useSetRankRewards(id: string) {
 
 export function useMarkPayout(seasonId: string) {
   const queryClient = useQueryClient();
-  return useMutation<SeasonResultRow, Error, { resultId: string; paidTxHash?: string }>({
+  // Backend returns raw unmapped rows (Decimal fields not stringified, rankRewards absent);
+  // do not consume without mapping.
+  return useMutation<unknown, Error, { resultId: string; paidTxHash?: string }>({
     mutationFn: ({ resultId, paidTxHash }) =>
-      adminFetch<SeasonResultRow>(`/api/admin/quest-seasons/results/${resultId}/payout`, {
+      adminFetch<unknown>(`/api/admin/quest-seasons/results/${resultId}/payout`, {
         method: "PATCH",
         body: paidTxHash ? { paidTxHash } : {},
       }),

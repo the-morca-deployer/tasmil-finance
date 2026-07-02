@@ -300,9 +300,12 @@ function MarkPaidModal({
   );
 }
 
+const RESULTS_PAGE_LIMIT = 50;
+
 // ---- Payout history + batch ----
 function PayoutHistory({ seasonId }: { seasonId: string }) {
-  const { data, isLoading, isError } = useSeasonResults(seasonId);
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError } = useSeasonResults(seasonId, page, RESULTS_PAGE_LIMIT);
   const batch = useBatchPayout(seasonId);
   const resendNote = useResendNotification(seasonId);
   const resendEmail = useResendEmail(seasonId);
@@ -314,7 +317,18 @@ function PayoutHistory({ seasonId }: { seasonId: string }) {
     Record<string, { success: boolean; error?: string }>
   >({});
 
+  // Selection spans a single page's rows; changing pages would leave stale/invisible
+  // selections that are confusing (and dangerous for a payout action), so reset on page change.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: page is a trigger, not read in the body
+  useEffect(() => {
+    setBatchMode(false);
+    setSelected({});
+    setRowResults({});
+  }, [page]);
+
   const rows = data?.items ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / RESULTS_PAGE_LIMIT));
   const pending = rows.filter((r) => r.payoutStatus === "PENDING");
 
   function toggleSelect(id: string) {
@@ -381,126 +395,158 @@ function PayoutHistory({ seasonId }: { seasonId: string }) {
           No results yet. Payout history appears once the season has ended.
         </div>
       ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-          <thead>
-            <tr style={{ textAlign: "left", color: "rgba(245,248,252,0.4)" }}>
-              {batchMode && <th style={{ padding: "6px 8px" }} />}
-              <th style={{ padding: "6px 8px" }}>Rank</th>
-              <th style={{ padding: "6px 8px" }}>Wallet</th>
-              <th style={{ padding: "6px 8px" }}>User</th>
-              <th style={{ padding: "6px 8px" }}>Email</th>
-              <th style={{ padding: "6px 8px" }}>USDC</th>
-              <th style={{ padding: "6px 8px" }}>Points</th>
-              <th style={{ padding: "6px 8px" }}>Status</th>
-              <th style={{ padding: "6px 8px" }}>Tx</th>
-              <th style={{ padding: "6px 8px" }}>Paid at</th>
-              <th style={{ padding: "6px 8px" }}>Notified</th>
-              <th style={{ padding: "6px 8px" }} />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => {
-              const isSelected = r.id in selected;
-              const rr = rowResults[r.id];
-              return (
-                <tr key={r.id} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                  {batchMode && (
-                    <td style={{ padding: "6px 8px" }}>
-                      {r.payoutStatus === "PENDING" && (
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleSelect(r.id)}
-                          aria-label={`Select rank ${r.finalRank}`}
-                        />
-                      )}
+        <>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ textAlign: "left", color: "rgba(245,248,252,0.4)" }}>
+                {batchMode && <th style={{ padding: "6px 8px" }} />}
+                <th style={{ padding: "6px 8px" }}>Rank</th>
+                <th style={{ padding: "6px 8px" }}>Wallet</th>
+                <th style={{ padding: "6px 8px" }}>User</th>
+                <th style={{ padding: "6px 8px" }}>Email</th>
+                <th style={{ padding: "6px 8px" }}>USDC</th>
+                <th style={{ padding: "6px 8px" }}>Points</th>
+                <th style={{ padding: "6px 8px" }}>Status</th>
+                <th style={{ padding: "6px 8px" }}>Tx</th>
+                <th style={{ padding: "6px 8px" }}>Paid at</th>
+                <th style={{ padding: "6px 8px" }}>Notified</th>
+                <th style={{ padding: "6px 8px" }} />
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => {
+                const isSelected = r.id in selected;
+                const rr = rowResults[r.id];
+                return (
+                  <tr key={r.id} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                    {batchMode && (
+                      <td style={{ padding: "6px 8px" }}>
+                        {r.payoutStatus === "PENDING" && (
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelect(r.id)}
+                            aria-label={`Select rank ${r.finalRank}`}
+                          />
+                        )}
+                      </td>
+                    )}
+                    <td style={{ padding: "6px 8px", fontWeight: 600 }}>#{r.finalRank}</td>
+                    <td style={{ padding: "6px 8px", fontFamily: "var(--font-mono, monospace)" }}>
+                      {truncate(r.walletAddress)}
                     </td>
-                  )}
-                  <td style={{ padding: "6px 8px", fontWeight: 600 }}>#{r.finalRank}</td>
-                  <td style={{ padding: "6px 8px", fontFamily: "var(--font-mono, monospace)" }}>
-                    {truncate(r.walletAddress)}
-                  </td>
-                  <td style={{ padding: "6px 8px" }}>{r.username ?? "—"}</td>
-                  <td style={{ padding: "6px 8px" }}>{r.email ?? "—"}</td>
-                  <td style={{ padding: "6px 8px" }}>{r.usdcReward}</td>
-                  <td style={{ padding: "6px 8px" }}>{r.pointsReward}</td>
-                  <td style={{ padding: "6px 8px" }}>
-                    <span
-                      style={{
-                        padding: "2px 8px",
-                        borderRadius: 6,
-                        fontSize: 11,
-                        background:
-                          r.payoutStatus === "PAID"
-                            ? "rgba(52,211,153,0.12)"
-                            : "rgba(251,191,36,0.12)",
-                        color: r.payoutStatus === "PAID" ? "#34D399" : "#FBBF24",
-                      }}
-                    >
-                      {r.payoutStatus === "PAID" ? "Paid" : "Pending"}
-                    </span>
-                    {rr && (
+                    <td style={{ padding: "6px 8px" }}>{r.username ?? "—"}</td>
+                    <td style={{ padding: "6px 8px" }}>{r.email ?? "—"}</td>
+                    <td style={{ padding: "6px 8px" }}>{r.usdcReward}</td>
+                    <td style={{ padding: "6px 8px" }}>{r.pointsReward}</td>
+                    <td style={{ padding: "6px 8px" }}>
                       <span
                         style={{
-                          marginLeft: 8,
+                          padding: "2px 8px",
+                          borderRadius: 6,
                           fontSize: 11,
-                          color: rr.success ? "#34D399" : "#FB7185",
+                          background:
+                            r.payoutStatus === "PAID"
+                              ? "rgba(52,211,153,0.12)"
+                              : "rgba(251,191,36,0.12)",
+                          color: r.payoutStatus === "PAID" ? "#34D399" : "#FBBF24",
                         }}
                       >
-                        {rr.success ? "batch ok" : `batch failed: ${rr.error ?? "error"}`}
+                        {r.payoutStatus === "PAID" ? "Paid" : "Pending"}
                       </span>
-                    )}
-                  </td>
-                  <td style={{ padding: "6px 8px", fontFamily: "var(--font-mono, monospace)" }}>
-                    {r.paidTxHash ? (
-                      <span title={r.paidTxHash}>{truncate(r.paidTxHash)}</span>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td style={{ padding: "6px 8px", fontSize: 12, color: "rgba(245,248,252,0.6)" }}>
-                    {fmtDateTime(r.paidAt)}
-                  </td>
-                  <td style={{ padding: "6px 8px" }}>{r.notifiedAt ? "Yes" : "No"}</td>
-                  <td style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>
-                    {batchMode && isSelected ? (
-                      <input
-                        placeholder="tx hash (optional)"
-                        value={selected[r.id] ?? ""}
-                        onChange={(e) => setSelected((s) => ({ ...s, [r.id]: e.target.value }))}
-                        style={{ ...inputStyle, width: 160 }}
-                        aria-label={`Batch tx hash rank ${r.finalRank}`}
-                      />
-                    ) : r.payoutStatus === "PENDING" && !batchMode ? (
-                      <button type="button" onClick={() => setMarkRow(r)} style={smallBtnStyle}>
-                        Mark Paid
-                      </button>
-                    ) : r.payoutStatus === "PAID" ? (
-                      <span style={{ display: "inline-flex", gap: 6 }}>
-                        <button
-                          type="button"
-                          onClick={() => resendNote.mutate(r.id)}
-                          disabled={resendNote.isPending}
-                          style={smallBtnStyle}
+                      {rr && (
+                        <span
+                          style={{
+                            marginLeft: 8,
+                            fontSize: 11,
+                            color: rr.success ? "#34D399" : "#FB7185",
+                          }}
                         >
-                          Resend notification
+                          {rr.success ? "batch ok" : `batch failed: ${rr.error ?? "error"}`}
+                        </span>
+                      )}
+                    </td>
+                    <td style={{ padding: "6px 8px", fontFamily: "var(--font-mono, monospace)" }}>
+                      {r.paidTxHash ? (
+                        <span title={r.paidTxHash}>{truncate(r.paidTxHash)}</span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td
+                      style={{ padding: "6px 8px", fontSize: 12, color: "rgba(245,248,252,0.6)" }}
+                    >
+                      {fmtDateTime(r.paidAt)}
+                    </td>
+                    <td style={{ padding: "6px 8px" }}>{r.notifiedAt ? "Yes" : "No"}</td>
+                    <td style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>
+                      {batchMode && isSelected ? (
+                        <input
+                          placeholder="tx hash (optional)"
+                          value={selected[r.id] ?? ""}
+                          onChange={(e) => setSelected((s) => ({ ...s, [r.id]: e.target.value }))}
+                          style={{ ...inputStyle, width: 160 }}
+                          aria-label={`Batch tx hash rank ${r.finalRank}`}
+                        />
+                      ) : r.payoutStatus === "PENDING" && !batchMode ? (
+                        <button type="button" onClick={() => setMarkRow(r)} style={smallBtnStyle}>
+                          Mark Paid
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => resendEmail.mutate(r.id)}
-                          disabled={resendEmail.isPending}
-                          style={smallBtnStyle}
-                        >
-                          Resend email
-                        </button>
-                      </span>
-                    ) : null}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                      ) : r.payoutStatus === "PAID" ? (
+                        <span style={{ display: "inline-flex", gap: 6 }}>
+                          <button
+                            type="button"
+                            onClick={() => resendNote.mutate(r.id)}
+                            disabled={resendNote.isPending}
+                            style={smallBtnStyle}
+                          >
+                            Resend notification
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => resendEmail.mutate(r.id)}
+                            disabled={resendEmail.isPending}
+                            style={smallBtnStyle}
+                          >
+                            Resend email
+                          </button>
+                        </span>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              gap: 10,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              style={cancelBtnStyle}
+            >
+              Prev
+            </button>
+            <span style={{ fontSize: 12, color: "rgba(245,248,252,0.5)" }}>
+              Page {page} of {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              style={cancelBtnStyle}
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
 
       {markRow && (
