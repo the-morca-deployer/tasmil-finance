@@ -56,6 +56,29 @@ describe("WalletsTable", () => {
     expect(screen.getByText("No wallets in this period")).toBeInTheDocument();
   });
 
+  it("shows a distinct error state instead of the empty state when isError is true", () => {
+    render(
+      <WalletsTable
+        rows={[]}
+        total={0}
+        sort="volume"
+        order="desc"
+        onSortChange={jest.fn()}
+        search=""
+        onSearchChange={jest.fn()}
+        page={1}
+        pageSize={20}
+        onPageChange={jest.fn()}
+        isLoading={false}
+        isError={true}
+        onExport={jest.fn()}
+      />
+    );
+
+    expect(screen.getByText("Failed to load — try again")).toBeInTheDocument();
+    expect(screen.queryByText("No wallets in this period")).not.toBeInTheDocument();
+  });
+
   it("toggles sort order when clicking the active sort column header", () => {
     const onSortChange = jest.fn();
     render(

@@ -12,6 +12,7 @@ export interface TransactionsLogTableProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   isLoading: boolean;
+  isError?: boolean;
   onExport: () => void;
 }
 
@@ -22,6 +23,7 @@ export function TransactionsLogTable({
   pageSize,
   onPageChange,
   isLoading,
+  isError = false,
   onExport,
 }: TransactionsLogTableProps) {
   const lastPage = Math.max(1, Math.ceil(total / pageSize));
@@ -37,6 +39,10 @@ export function TransactionsLogTable({
 
       {isLoading ? (
         <div className="flex justify-center p-10 text-muted-foreground text-xs">Loading…</div>
+      ) : isError ? (
+        <div className="p-10 text-center text-muted-foreground text-xs">
+          Failed to load — try again
+        </div>
       ) : rows.length === 0 ? (
         <div className="p-10 text-center text-muted-foreground text-xs">
           No transactions in this period

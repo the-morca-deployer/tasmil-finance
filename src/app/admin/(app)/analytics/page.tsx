@@ -67,9 +67,17 @@ export default function AnalyticsPage() {
         <DateRangePicker value={range} onChange={setRange} />
       </div>
 
-      <VolumeTvlChart data={volumeTvl.data} isLoading={volumeTvl.isLoading} />
+      <VolumeTvlChart
+        data={volumeTvl.data}
+        isLoading={volumeTvl.isLoading}
+        isError={volumeTvl.isError}
+      />
 
-      <TransactionsStatsCards stats={transactionsStats.data} isLoading={transactionsStats.isLoading} />
+      <TransactionsStatsCards
+        stats={transactionsStats.data}
+        isLoading={transactionsStats.isLoading}
+        isError={transactionsStats.isError}
+      />
 
       <WalletsTable
         rows={wallets.data?.rows ?? []}
@@ -90,6 +98,7 @@ export default function AnalyticsPage() {
         pageSize={WALLETS_PAGE_SIZE}
         onPageChange={setWalletPage}
         isLoading={wallets.isLoading}
+        isError={wallets.isError}
         onExport={() =>
           exportCsv(
             `/api/admin/analytics/wallets?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}&sort=${encodeURIComponent(walletSort)}&order=${encodeURIComponent(walletOrder)}${walletSearch ? `&search=${encodeURIComponent(walletSearch)}` : ""}&format=csv`,
@@ -105,6 +114,7 @@ export default function AnalyticsPage() {
         pageSize={TX_PAGE_SIZE}
         onPageChange={setTxPage}
         isLoading={transactions.isLoading}
+        isError={transactions.isError}
         onExport={() =>
           exportCsv(
             `/api/admin/analytics/transactions?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}&format=csv`,

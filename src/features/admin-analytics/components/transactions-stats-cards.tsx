@@ -6,12 +6,18 @@ import type { TransactionsStats } from "../types";
 export function TransactionsStatsCards({
   stats,
   isLoading,
+  isError = false,
 }: {
   stats: TransactionsStats | undefined;
   isLoading: boolean;
+  isError?: boolean;
 }) {
   if (isLoading) {
     return <div className="p-6 text-muted-foreground text-xs">Loading…</div>;
+  }
+
+  if (isError) {
+    return <div className="p-6 text-muted-foreground text-xs">Failed to load — try again</div>;
   }
 
   return (

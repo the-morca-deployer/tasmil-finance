@@ -17,9 +17,11 @@ import type { VolumeTvlPoint } from "../types";
 export function VolumeTvlChart({
   data,
   isLoading,
+  isError = false,
 }: {
   data: VolumeTvlPoint[] | undefined;
   isLoading: boolean;
+  isError?: boolean;
 }) {
   const points = data ?? [];
 
@@ -37,6 +39,10 @@ export function VolumeTvlChart({
         {isLoading ? (
           <div className="flex h-40 items-center justify-center text-muted-foreground text-xs">
             Loading…
+          </div>
+        ) : isError ? (
+          <div className="flex h-40 items-center justify-center text-muted-foreground text-xs">
+            Failed to load — try again
           </div>
         ) : points.length === 0 ? (
           <div className="flex h-40 items-center justify-center text-muted-foreground text-xs">

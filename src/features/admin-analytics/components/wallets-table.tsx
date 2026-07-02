@@ -29,6 +29,7 @@ export interface WalletsTableProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   isLoading: boolean;
+  isError?: boolean;
   onExport: () => void;
 }
 
@@ -44,6 +45,7 @@ export function WalletsTable({
   pageSize,
   onPageChange,
   isLoading,
+  isError = false,
   onExport,
 }: WalletsTableProps) {
   const lastPage = Math.max(1, Math.ceil(total / pageSize));
@@ -69,6 +71,10 @@ export function WalletsTable({
 
       {isLoading ? (
         <div className="flex justify-center p-10 text-muted-foreground text-xs">Loading…</div>
+      ) : isError ? (
+        <div className="p-10 text-center text-muted-foreground text-xs">
+          Failed to load — try again
+        </div>
       ) : rows.length === 0 ? (
         <div className="p-10 text-center text-muted-foreground text-xs">
           No wallets in this period
