@@ -89,6 +89,7 @@ const PROXY_TARGETS = {
       "/api/credit",
       "/api/email",
       "/api/internal/credit",
+      "/api/marketplace",
       "/api/pools",
       "/api/protocol",
       "/api/rebalance",
