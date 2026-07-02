@@ -69,6 +69,27 @@ interface RawLedgerEntry {
   campaignTitle?: string;
   points?: number;
   delta?: number;
+  multiplier?: string | number | null;
+}
+// Human-readable labels for every QuestPointLedger source (Phase 1 ledger).
+// Copy obeys the quest design rules: no emoji, no dashes as separators.
+const POINT_SOURCE_LABELS: Record<string, string> = {
+  TASK_CLAIM: "Task completed",
+  CAMPAIGN_CLAIM: "Campaign reward",
+  REFERRAL_EVENT: "Referral bonus",
+  REFERRAL_COMMISSION: "Referral commission",
+  TIER_REWARD: "Tier reward",
+  SEASON_RANK_REWARD: "Season prize",
+  DAILY_LOGIN: "Daily check-in",
+  ADMIN_GIFT: "Gift",
+};
+
+function ledgerLabel(e: RawLedgerEntry): string {
+  if (e.campaignTitle) return e.campaignTitle;
+  if (e.description) return e.description;
+  const label = e.source ? POINT_SOURCE_LABELS[e.source] : undefined;
+  if (label) return label;
+  return e.source ?? "Activity";
 }
 interface RawReferral {
   username?: string;
@@ -974,12 +995,23 @@ function OverviewTab() {
                 color: "var(--muted)",
               }}
             >
-              <span>{e.campaignTitle ?? e.description ?? e.source ?? "Activity"}</span>
-              <span
-                style={{ fontFamily: "var(--font-mono)", color: "var(--accent)", fontWeight: 600 }}
-              >
-                +{e.points ?? e.delta ?? 0}
-              </span>
+              <span>{ledgerLabel(e)}</span>
+              {(() => {
+                const amount = e.delta ?? e.points ?? 0;
+                const positive = amount >= 0;
+                return (
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      color: positive ? "var(--accent)" : "#f87171",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {positive ? "+" : ""}
+                    {fmt(amount)}
+                  </span>
+                );
+              })()}
             </div>
           ))}
         </div>
