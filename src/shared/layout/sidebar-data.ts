@@ -1,5 +1,6 @@
 import {
   ArrowLeftRight,
+  BarChart3,
   Bot,
   Home,
   KeyRound,
@@ -159,7 +160,10 @@ export const adminSidebarData: SidebarData = {
   navGroups: [
     {
       title: "Overview",
-      items: [{ title: "Dashboard", url: "/admin/dashboard", icon: Home }],
+      items: [
+        { title: "Dashboard", url: "/admin/dashboard", icon: Home },
+        { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
+      ],
     },
     {
       title: "Waitlist",

@@ -1,0 +1,1 @@
+{"type":"object","properties":{"title":{"type":"string"},"description":{"type":"string"},"startAt":{"type":"string"},"endAt":{"type":"string"},"multiplier":{"type":"number","minimum":1},"countdownDays":{"type":"number","default":3},"isActive":{"type":"boolean","default":true}},"x-readme-ref-name":"UpdateFomoEventDto"}
