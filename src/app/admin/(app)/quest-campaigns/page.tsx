@@ -8,6 +8,7 @@ import {
   useCreateQuestCampaign,
   useQuestCampaigns,
 } from "@/features/admin/hooks/use-admin-quest-campaigns";
+import { ExportCsvButton } from "@/shared/components/export-csv-button";
 
 const CATEGORIES = ["BLEND", "SOROSWAP", "AQUARIUS"];
 
@@ -143,14 +144,17 @@ export default function QuestCampaignsPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <h1 style={{ fontSize: 22, fontWeight: 800 }}>Quest Campaigns</h1>
-        <button
-          type="button"
-          onClick={() => setShowCreate(true)}
-          style={{ ...primaryBtnStyle, display: "flex", alignItems: "center", gap: 6 }}
-        >
-          <Plus size={14} />
-          New Campaign
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <ExportCsvButton endpoint="/api/admin/quest-campaigns/export" />
+          <button
+            type="button"
+            onClick={() => setShowCreate(true)}
+            style={{ ...primaryBtnStyle, display: "flex", alignItems: "center", gap: 6 }}
+          >
+            <Plus size={14} />
+            New Campaign
+          </button>
+        </div>
       </div>
 
       <input

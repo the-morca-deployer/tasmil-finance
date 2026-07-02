@@ -19,6 +19,7 @@ import {
 } from "@/features/admin/hooks/use-admin-waitlist";
 import type { EmailDispatch } from "@/features/admin/types";
 import { useAdminDashboard } from "@/features/admin-whitelist/hooks/use-admin-dashboard";
+import { ExportCsvButton } from "@/shared/components/export-csv-button";
 
 const LIMIT = 20;
 
@@ -192,7 +193,13 @@ export default function WaitlistPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <h1 style={{ fontSize: 22, fontWeight: 800 }}>Waitlist</h1>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800 }}>Waitlist</h1>
+        <ExportCsvButton
+          endpoint="/api/admin/waitlist/entries/export"
+          params={search ? { search } : undefined}
+        />
+      </div>
 
       <StatusCards />
 
