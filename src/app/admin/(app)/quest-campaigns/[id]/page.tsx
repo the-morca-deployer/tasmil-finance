@@ -37,10 +37,13 @@ function checkIdSpecFor(taskType: string): CheckIdSpec {
       return { label: "Twitter handle to follow", placeholder: "handle (no @)", required: true };
     case "X_RETWEET":
     case "X_Retweet":
+      return { label: "Tweet ID to retweet", placeholder: "1234567890", required: true };
     case "X_COMMENT":
     case "X_Comment":
+      return { label: "Tweet ID to comment on", placeholder: "1234567890", required: true };
     case "X_Like":
-      return { label: "Tweet ID", placeholder: "1234567890", required: true };
+    case "X_LIKE":
+      return { label: "Tweet ID to like", placeholder: "1234567890", required: true };
     case "TELEGRAM_JOIN":
     case "Telegram":
       return { label: "Telegram channel ID", placeholder: "channel_id", required: true };
@@ -59,6 +62,28 @@ function checkIdSpecFor(taskType: string): CheckIdSpec {
       return { label: "Check ID (optional)", placeholder: "e.g. vault_preview", required: false };
     default:
       return null; // AGENT_*, VOLUME_SWAP, LOGIN_CHECKIN, STRATEGY_CHECKIN, REFERRAL
+  }
+}
+
+// Per the plan's mapping table, BROWSE/Visit task types require a urlAction link.
+function urlRequiredFor(taskType: string): boolean {
+  switch (taskType) {
+    case "BROWSE":
+    case "Visit":
+      return true;
+    default:
+      return false;
+  }
+}
+
+// Validates the advanced raw-JSON metadata textarea. Empty text counts as valid (no extra keys).
+function validateMetadataJson(text: string): string | null {
+  if (!text.trim()) return null;
+  try {
+    JSON.parse(text);
+    return null;
+  } catch {
+    return "Invalid JSON. Fix it or clear the field.";
   }
 }
 
@@ -126,7 +151,32 @@ const defaultTaskForm: TaskFormState = {
 
 function taskToForm(t: QuestTask): TaskFormState {
   const meta = (t.metadata ?? {}) as Record<string, unknown>;
-  const { checkId, urlAction, ...rest } = meta;
+  const rest: Record<string, unknown> = { ...meta };
+
+  // Legacy raw-JSON entries may have stored checkId/urlAction as a non-string
+  // (e.g. a numeric ID). Coerce scalars into the field; leave objects/arrays
+  // untouched in the rest-bucket so they survive in extraMetadata instead of
+  // being silently dropped.
+  const resolveField = (key: "checkId" | "urlAction"): string => {
+    const value = meta[key];
+    if (typeof value === "string") {
+      delete rest[key];
+      return value;
+    }
+    if (value !== null && typeof value === "object") {
+      return "";
+    }
+    if (value !== undefined && value !== null) {
+      delete rest[key];
+      return String(value);
+    }
+    delete rest[key];
+    return "";
+  };
+
+  const checkId = resolveField("checkId");
+  const urlAction = resolveField("urlAction");
+
   return {
     title: t.title,
     description: t.description ?? "",
@@ -134,8 +184,8 @@ function taskToForm(t: QuestTask): TaskFormState {
     pointReward: t.pointReward,
     order: t.order,
     isActive: t.isActive,
-    checkId: typeof checkId === "string" ? checkId : "",
-    urlAction: typeof urlAction === "string" ? urlAction : "",
+    checkId,
+    urlAction,
     extraMetadata: Object.keys(rest).length ? JSON.stringify(rest) : "",
   };
 }
@@ -167,7 +217,15 @@ function TaskForm({
   isPending: boolean;
 }) {
   const [form, setForm] = useState(initial);
+  const [metadataError, setMetadataError] = useState<string | null>(() =>
+    validateMetadataJson(initial.extraMetadata)
+  );
   const set = (k: keyof TaskFormState, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
+
+  const spec = checkIdSpecFor(form.type);
+  const checkIdMissing = !!spec?.required && !form.checkId.trim();
+  const urlActionMissing = urlRequiredFor(form.type) && !form.urlAction.trim();
+  const canSave = !metadataError && !checkIdMissing && !urlActionMissing && !!form.title.trim();
 
   return (
     <div
@@ -221,31 +279,32 @@ function TaskForm({
           style={inputStyle}
         />
       </div>
-      {(() => {
-        const spec = checkIdSpecFor(form.type);
-        if (!spec) return null;
-        return (
-          <div>
-            <label
-              style={{
-                fontSize: 12,
-                color: "rgba(245,248,252,0.5)",
-                display: "block",
-                marginBottom: 4,
-              }}
-            >
-              {spec.label}
-            </label>
-            <input
-              placeholder={spec.placeholder}
-              value={form.checkId}
-              onChange={(e) => set("checkId", e.target.value)}
-              style={inputStyle}
-              aria-label={spec.label}
-            />
-          </div>
-        );
-      })()}
+      {spec && (
+        <div>
+          <label
+            style={{
+              fontSize: 12,
+              color: "rgba(245,248,252,0.5)",
+              display: "block",
+              marginBottom: 4,
+            }}
+          >
+            {spec.label}
+          </label>
+          <input
+            placeholder={spec.placeholder}
+            value={form.checkId}
+            onChange={(e) => set("checkId", e.target.value)}
+            style={inputStyle}
+            aria-label={spec.label}
+          />
+          {checkIdMissing && (
+            <div style={{ fontSize: 11, color: "#FB7185", marginTop: 4 }}>
+              {spec.label} is required.
+            </div>
+          )}
+        </div>
+      )}
       <div>
         <label
           style={{
@@ -264,6 +323,11 @@ function TaskForm({
           style={inputStyle}
           aria-label="Task link"
         />
+        {urlActionMissing && (
+          <div style={{ fontSize: 11, color: "#FB7185", marginTop: 4 }}>
+            A link is required for this task type.
+          </div>
+        )}
       </div>
       <details>
         <summary style={{ fontSize: 12, color: "rgba(245,248,252,0.5)", cursor: "pointer" }}>
@@ -271,7 +335,11 @@ function TaskForm({
         </summary>
         <textarea
           value={form.extraMetadata}
-          onChange={(e) => set("extraMetadata", e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            set("extraMetadata", value);
+            setMetadataError(validateMetadataJson(value));
+          }}
           rows={2}
           placeholder='{"customKey":"value"}'
           style={{
@@ -282,6 +350,9 @@ function TaskForm({
             marginTop: 6,
           }}
         />
+        {metadataError && (
+          <div style={{ fontSize: 11, color: "#FB7185", marginTop: 4 }}>{metadataError}</div>
+        )}
       </details>
       <label
         style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, cursor: "pointer" }}
@@ -297,7 +368,7 @@ function TaskForm({
         <button
           type="button"
           onClick={() => onSave(form)}
-          disabled={isPending || !form.title.trim()}
+          disabled={isPending || !canSave}
           style={primaryBtnStyle}
         >
           {isPending ? <Loader2 size={14} className="animate-spin" /> : "Save"}
