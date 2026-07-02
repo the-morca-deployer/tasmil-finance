@@ -1,12 +1,1 @@
-{
-  "type": "object",
-  "properties": {
-    "rankFrom": { "type": "number" },
-    "rankTo": { "type": "number" },
-    "usdc": { "type": "string" },
-    "points": { "type": "number" },
-    "badge": { "type": "string" }
-  },
-  "required": ["rankFrom", "rankTo"],
-  "x-readme-ref-name": "RankRewardItemDto"
-}
+{"type":"object","properties":{"rankFrom":{"type":"number"},"rankTo":{"type":"number"},"usdc":{"type":"string"},"points":{"type":"number"},"badge":{"type":"string"}},"required":["rankFrom","rankTo"],"x-readme-ref-name":"RankRewardItemDto"}
