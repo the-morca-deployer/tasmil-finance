@@ -92,7 +92,7 @@ export default function AnalyticsPage() {
         isLoading={wallets.isLoading}
         onExport={() =>
           exportCsv(
-            `/api/admin/analytics/wallets?from=${range.from}&to=${range.to}&sort=${walletSort}&order=${walletOrder}&format=csv`,
+            `/api/admin/analytics/wallets?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}&sort=${encodeURIComponent(walletSort)}&order=${encodeURIComponent(walletOrder)}${walletSearch ? `&search=${encodeURIComponent(walletSearch)}` : ""}&format=csv`,
             "wallets.csv"
           )
         }
@@ -107,7 +107,7 @@ export default function AnalyticsPage() {
         isLoading={transactions.isLoading}
         onExport={() =>
           exportCsv(
-            `/api/admin/analytics/transactions?from=${range.from}&to=${range.to}&format=csv`,
+            `/api/admin/analytics/transactions?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}&format=csv`,
             "transactions.csv"
           )
         }
