@@ -20,7 +20,7 @@ describe("UserGrowthChart", () => {
   it("renders the title and empty state", () => {
     render(<UserGrowthChart data={[]} isLoading={false} />);
 
-    expect(screen.getByText("User growth — last 90 days")).toBeInTheDocument();
+    expect(screen.getByText("App wallet growth — last 90 days")).toBeInTheDocument();
     expect(screen.getByText("No user data yet")).toBeInTheDocument();
   });
 

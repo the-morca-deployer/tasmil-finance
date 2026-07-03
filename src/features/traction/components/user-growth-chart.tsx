@@ -28,10 +28,10 @@ export function UserGrowthChart({
       <CardContent className="p-6">
         <div className="mb-4">
           <Typography variant="h3" className="font-semibold text-base">
-            User growth — last 90 days
+            App wallet growth — last 90 days
           </Typography>
           <Typography variant="p" className="text-muted-foreground text-xs">
-            Cumulative registered users and daily signups
+            Cumulative app wallets and daily new connections
           </Typography>
         </div>
         {isLoading ? (
@@ -70,7 +70,7 @@ export function UserGrowthChart({
               <Area
                 type="monotone"
                 dataKey="cumulativeUsers"
-                name="Total users"
+                name="App wallets"
                 stroke="#22c55e"
                 strokeWidth={2}
                 fill="url(#tractionUsersGrad)"
@@ -79,7 +79,7 @@ export function UserGrowthChart({
               <Line
                 type="monotone"
                 dataKey="newUsers"
-                name="New users"
+                name="New wallets"
                 stroke="#3b82f6"
                 strokeWidth={2}
                 dot={false}

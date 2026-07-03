@@ -24,8 +24,8 @@ export function KpiCards({
 }) {
   if (isLoading || !summary) {
     return (
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {["tvl", "users", "tx", "apy"].map((key) => (
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+        {["tvl", "app", "quest", "tx", "apy"].map((key) => (
           <Card key={key} className="border-border bg-card">
             <CardContent className="p-4">
               <Skeleton className="h-14 w-full" data-testid="kpi-skeleton" />
@@ -37,13 +37,22 @@ export function KpiCards({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
       <KpiCard
         label="Total Value Locked"
         value={fmtUsdCompact(summary.totalTvlUsd)}
         sub="Across all active vaults"
       />
-      <KpiCard label="Total Users" value={fmtInt(summary.totalUsers)} sub="Registered wallets" />
+      <KpiCard
+        label="App Wallets"
+        value={fmtInt(summary.appWallets ?? 0)}
+        sub="Connected to tasmil-finance"
+      />
+      <KpiCard
+        label="Quest Wallets"
+        value={fmtInt(summary.questWallets ?? 0)}
+        sub="Connected to quest app"
+      />
       <KpiCard
         label="Transactions"
         value={fmtInt(summary.totalTransactions)}
