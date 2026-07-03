@@ -81,6 +81,7 @@ const PROXY_TARGETS = {
   backend: {
     baseUrl: getServerBackendBaseUrl,
     prefixes: [
+      "/api/public",
       "/api/account",
       "/api/admin",
       "/api/admin-auth",
