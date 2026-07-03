@@ -75,5 +75,7 @@ describe("TractionDashboard", () => {
     expect(screen.getByText("Data temporarily unavailable")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     expect(refetch).toHaveBeenCalled();
+    // Quest volume is an independent endpoint — it must still render when traction fails.
+    expect(screen.getByText("Quest volume — recent transactions")).toBeInTheDocument();
   });
 });
