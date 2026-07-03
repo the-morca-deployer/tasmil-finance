@@ -6,6 +6,17 @@ jest.mock("../hooks/use-traction", () => ({
   useTraction: jest.fn(),
 }));
 
+jest.mock("../hooks/use-quest-volume", () => ({
+  useQuestVolume: () => ({
+    data: { pages: [{ items: [], nextCursor: null }] },
+    isLoading: false,
+    isError: false,
+    hasNextPage: false,
+    isFetchingNextPage: false,
+    fetchNextPage: jest.fn(),
+  }),
+}));
+
 const payload = {
   summary: {
     totalTvlUsd: 125_040,
@@ -34,6 +45,7 @@ describe("TractionDashboard", () => {
     expect(screen.getByText("Volume & TVL — last 90 days")).toBeInTheDocument();
     expect(screen.getByText("User growth — last 90 days")).toBeInTheDocument();
     expect(screen.getByText(/Live data — updated/)).toBeInTheDocument();
+    expect(screen.getByText("Quest volume — recent transactions")).toBeInTheDocument();
   });
 
   it("shows skeletons while loading", () => {
