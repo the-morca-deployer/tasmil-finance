@@ -21,6 +21,8 @@ const payload = {
   summary: {
     totalTvlUsd: 125_040,
     totalUsers: 342,
+    appWallets: 183,
+    questWallets: 151,
     avgApyPercent: 8.45,
     totalTransactions: 1580,
   },
@@ -43,7 +45,7 @@ describe("TractionDashboard", () => {
     expect(screen.getByText("Tasmil Traction")).toBeInTheDocument();
     expect(screen.getByText("$125.0k")).toBeInTheDocument();
     expect(screen.getByText("Volume & TVL — last 90 days")).toBeInTheDocument();
-    expect(screen.getByText("User growth — last 90 days")).toBeInTheDocument();
+    expect(screen.getByText("App wallet growth — last 90 days")).toBeInTheDocument();
     expect(screen.getByText(/Live data — updated/)).toBeInTheDocument();
     expect(screen.getByText("Quest volume — recent transactions")).toBeInTheDocument();
   });
@@ -58,7 +60,7 @@ describe("TractionDashboard", () => {
 
     render(<TractionDashboard />);
 
-    expect(screen.getAllByTestId("kpi-skeleton")).toHaveLength(4);
+    expect(screen.getAllByTestId("kpi-skeleton")).toHaveLength(5);
   });
 
   it("shows the error state and retries on click", () => {
