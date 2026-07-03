@@ -11,7 +11,7 @@ export function useQuestVolume(limit = 25) {
     queryFn: async ({ pageParam, signal }) => {
       const res = await publicControllerGetQuestVolume(
         { limit, ...(pageParam ? { cursor: pageParam } : {}) },
-        { signal },
+        { signal }
       );
       // Backend wraps the DTO in a { success, data } envelope (see use-traction.ts).
       return (res as unknown as { data: QuestVolumeResponseDto }).data;
