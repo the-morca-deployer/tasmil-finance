@@ -5,7 +5,7 @@
 <h1 align="center">Tasmil Finance</h1>
 
 <p align="center">AI-powered DeFi portfolio management on Stellar/Soroban</p>
-
+ 
 <p align="center">
   <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-111827?style=for-the-badge" />
   <img alt="React" src="https://img.shields.io/badge/React-19-61dafb?style=for-the-badge" />
