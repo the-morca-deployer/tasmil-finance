@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useCallback, useMemo, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { AccountSetupCard } from "@/features/chat/actions/components/stellar/account-setup-card";
 import { ClarifyCard } from "@/features/chat/components/flow/clarify-card";
 import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
@@ -166,7 +167,7 @@ function FlowClarifyCardWithStream({
       }
       try {
         await stream.submit({
-          messages: [{ type: "human" as const, content: JSON.stringify(payload) }],
+          messages: [{ id: uuidv4(), type: "human" as const, content: JSON.stringify(payload) }],
           ...(walletAddress && { wallet_address: walletAddress }),
         });
       } catch (err) {

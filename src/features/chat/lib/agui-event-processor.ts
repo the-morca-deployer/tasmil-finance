@@ -6,9 +6,14 @@ const RETRY_DELAYS_MS = [1000, 2000, 4000];
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 // Convert LangGraph message format (type: "human") to AG-UI wire format (role: "user").
+// AG-UI's RunAgentInput requires an id on every message and rejects the entire
+// request with 400 when one is missing. Most callers pass one; the clarify
+// submit did not, so every slot-filling turn failed on the wire -- and because
+// the processor swallows the error, the card just froze with no message. Fill
+// the gap here so no caller can reintroduce it.
 function toAguiMessage(msg: any): any {
   if (!msg || typeof msg !== "object") return msg;
-  if (msg.role) return msg; // already AG-UI format
+  if (msg.role) return msg.id ? msg : { ...msg, id: uuidv4() }; // already AG-UI format
   const role =
     msg.type === "human"
       ? "user"
@@ -19,7 +24,7 @@ function toAguiMessage(msg: any): any {
           : msg.type === "tool"
             ? "tool"
             : "user";
-  const result: Record<string, unknown> = { ...msg, role };
+  const result: Record<string, unknown> = { ...msg, id: msg.id ?? uuidv4(), role };
   delete result.type;
   return result;
 }
