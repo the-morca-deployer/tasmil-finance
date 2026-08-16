@@ -24,6 +24,7 @@ export function BlendBackstopBalanceCard({
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-blend-backstop-balance"
         mode="chat"
         title="Backstop Balance"
         icon={Wallet}
@@ -77,7 +78,7 @@ export function BlendBackstopBalanceCard({
   // Playground mode - rich card
   if (data.hasPosition === false && !shares) {
     return (
-      <ProtocolCard mode="playground">
+      <ProtocolCard data-testid="card-blend-backstop-balance" mode="playground">
         <CardHeader icon={<Wallet className="h-3.5 w-3.5" />} title="Backstop Balance" />
         <EmptyState icon={Wallet} text="No backstop position in this pool" />
       </ProtocolCard>
@@ -85,7 +86,7 @@ export function BlendBackstopBalanceCard({
   }
 
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-blend-backstop-balance" mode="playground">
       <CardHeader icon={<Wallet className="h-3.5 w-3.5" />} title="Backstop Balance" />
       <div className="space-y-3 p-4 text-xs">
         {/* Pool */}

@@ -117,6 +117,36 @@ describe("AquaPoolsCard", () => {
     expect(screen.getByText(second)).toBeInTheDocument();
   });
 
+  it("renders each token's full SAC contract in the expanded detail body", () => {
+    const xlmSac = "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA";
+    const usdcSac = "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75";
+    render(<AquaPoolsCard pools={[makePool()]} mode="playground" />);
+    // Pool 0 is auto-expanded in playground mode, so PoolDetail is mounted.
+    expect(screen.getByText(xlmSac)).toBeInTheDocument();
+    expect(screen.getByText(usdcSac)).toBeInTheDocument();
+  });
+
+  it("keeps token addresses out of the collapsed header region", () => {
+    // Pool 1 is collapsed, so its PoolDetail is not mounted: only the pool
+    // address belongs in the always-visible header, token SACs do not.
+    const secondPool = "CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK";
+    const secondTokenSac = "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV";
+    render(
+      <AquaPoolsCard
+        pools={[
+          makePool(),
+          makePool({
+            address: secondPool,
+            tokens: [{ address: secondTokenSac, symbol: "EURC" }],
+          }),
+        ]}
+        mode="playground"
+      />
+    );
+    expect(screen.getByText(secondPool)).toBeInTheDocument();
+    expect(screen.queryByText(secondTokenSac)).not.toBeInTheDocument();
+  });
+
   it("renders no address element when the pool has no address", () => {
     render(
       <AquaPoolsCard

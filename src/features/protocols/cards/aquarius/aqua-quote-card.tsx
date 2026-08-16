@@ -20,6 +20,7 @@ export function AquaQuoteCard({ quote, mode = "playground" }: AquaQuoteCardCompo
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-aqua-quote"
         mode="chat"
         title="Aquarius Swap Quote"
         icon={ArrowRightLeft}
@@ -56,7 +57,7 @@ export function AquaQuoteCard({ quote, mode = "playground" }: AquaQuoteCardCompo
   // Playground mode
   if (noRoute) {
     return (
-      <ProtocolCard mode="playground">
+      <ProtocolCard data-testid="card-aqua-quote" mode="playground">
         <div className="border-border border-b px-4 py-3">
           <p className="font-medium text-foreground text-sm">Swap Quote</p>
         </div>
@@ -69,7 +70,7 @@ export function AquaQuoteCard({ quote, mode = "playground" }: AquaQuoteCardCompo
   }
 
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-aqua-quote" mode="playground">
       <div className="border-border border-b px-4 py-3">
         <p className="font-medium text-foreground text-sm">Swap Quote</p>
       </div>

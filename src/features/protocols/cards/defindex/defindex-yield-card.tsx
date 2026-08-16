@@ -33,7 +33,12 @@ interface Props {
 export function DefindexYieldCard({ opportunities, mode = "playground" }: Props) {
   if (!opportunities.length) {
     return (
-      <ProtocolCard mode={mode} title="Yield Opportunities" icon={TrendingUp}>
+      <ProtocolCard
+        data-testid="card-defindex-yield"
+        mode={mode}
+        title="Yield Opportunities"
+        icon={TrendingUp}
+      >
         <EmptyState icon={Layers} text="No yield opportunities found" />
       </ProtocolCard>
     );
@@ -41,6 +46,7 @@ export function DefindexYieldCard({ opportunities, mode = "playground" }: Props)
 
   return (
     <ProtocolCard
+      data-testid="card-defindex-yield"
       mode={mode}
       title={mode === "chat" ? "DeFindex Vaults" : undefined}
       icon={mode === "chat" ? TrendingUp : undefined}

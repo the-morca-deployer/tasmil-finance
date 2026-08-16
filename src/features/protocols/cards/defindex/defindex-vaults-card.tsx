@@ -27,7 +27,12 @@ export function DefindexVaultsCard({ vaults, mode = "playground" }: DefindexVaul
 
   if (!vaults.length) {
     return (
-      <ProtocolCard mode={mode} title="DeFindex Vaults" icon={Vault}>
+      <ProtocolCard
+        data-testid="card-defindex-vaults"
+        mode={mode}
+        title="DeFindex Vaults"
+        icon={Vault}
+      >
         <EmptyState icon={Layers} text="No vaults found" />
       </ProtocolCard>
     );
@@ -35,6 +40,7 @@ export function DefindexVaultsCard({ vaults, mode = "playground" }: DefindexVaul
 
   return (
     <ProtocolCard
+      data-testid="card-defindex-vaults"
       mode={mode}
       title={mode === "chat" ? "DeFindex Vaults" : undefined}
       icon={mode === "chat" ? Vault : undefined}

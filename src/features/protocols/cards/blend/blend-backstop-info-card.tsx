@@ -21,6 +21,7 @@ export function BlendBackstopInfoCard({
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-blend-backstop-info"
         mode="chat"
         title="Backstop Info"
         subtitle="blend"
@@ -80,7 +81,7 @@ export function BlendBackstopInfoCard({
         : "text-blue-400";
 
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-blend-backstop-info" mode="playground">
       <CardHeader
         icon={<Shield className="h-3.5 w-3.5" />}
         title="Backstop Info"

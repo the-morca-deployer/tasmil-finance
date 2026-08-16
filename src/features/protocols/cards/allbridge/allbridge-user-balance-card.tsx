@@ -19,6 +19,7 @@ export function AllbridgeUserBalanceCard({ data, mode = "playground" }: Props) {
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-allbridge-user-balance"
         mode="chat"
         title={`${data.symbol} LP Position (${data.chain})`}
         icon={Wallet}
@@ -41,7 +42,7 @@ export function AllbridgeUserBalanceCard({ data, mode = "playground" }: Props) {
   }
 
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-allbridge-user-balance" mode="playground">
       <div className="border-border border-b px-4 py-3">
         <p className="font-medium text-foreground text-sm">
           {data.symbol} LP Position - <span className="capitalize">{data.chain}</span>

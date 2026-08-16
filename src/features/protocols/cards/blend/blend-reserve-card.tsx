@@ -20,6 +20,7 @@ export function BlendReserveCard({ reserve, mode = "playground" }: BlendReserveC
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-blend-reserve"
         mode="chat"
         title={`Reserve: ${sym}`}
         icon={Database}
@@ -90,7 +91,7 @@ export function BlendReserveCard({ reserve, mode = "playground" }: BlendReserveC
 
   // Playground mode - rich card
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-blend-reserve" mode="playground">
       <div className="flex items-center gap-3 border-border border-b px-4 py-3">
         <TokenImage src={null} alt={sym} className="h-7 w-7 rounded-full" />
         <div>

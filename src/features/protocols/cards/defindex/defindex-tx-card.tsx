@@ -71,7 +71,10 @@ export function DefindexTxCard({
     txResult !== null && !txResult.success && txResult.message === "Transaction cancelled";
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-border bg-card">
+    <div
+      data-testid="card-defindex-tx"
+      className="relative overflow-hidden rounded-xl border border-border bg-card"
+    >
       {/* Header */}
       <div className="px-5 pt-5 pb-2">
         <p className="font-semibold text-foreground text-lg">Confirm {cfg.label}</p>

@@ -23,6 +23,7 @@ export function AllbridgePoolsCard({ pools, mode = "playground" }: Props) {
   if (!pools.length) {
     return (
       <ProtocolCard
+        data-testid="card-allbridge-pools"
         mode={mode}
         title="Allbridge Pools"
         icon={Layers}
@@ -37,6 +38,7 @@ export function AllbridgePoolsCard({ pools, mode = "playground" }: Props) {
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-allbridge-pools"
         mode="chat"
         title="Allbridge LP Pools"
         icon={Layers}
@@ -72,7 +74,7 @@ export function AllbridgePoolsCard({ pools, mode = "playground" }: Props) {
   }
 
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-allbridge-pools" mode="playground">
       <div className="flex items-center justify-between border-border border-b px-4 py-3">
         <p className="font-medium text-foreground text-sm">Allbridge LP Pools</p>
         <span className="text-[10px] text-muted-foreground">{pools.length} pools</span>

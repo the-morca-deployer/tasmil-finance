@@ -19,6 +19,7 @@ export function SoroswapPoolDetailCard({ pool, mode = "playground" }: Props) {
   if (mode === "chat") {
     return (
       <ProtocolCard
+        data-testid="card-soroswap-pool-detail"
         mode="chat"
         title={label}
         icon={ArrowRightLeft}
@@ -26,6 +27,14 @@ export function SoroswapPoolDetailCard({ pool, mode = "playground" }: Props) {
         iconBg="bg-violet-500/10"
       >
         <div className="space-y-1.5">
+          {pool.address && (
+            <div className="space-y-0.5">
+              <span className="text-muted-foreground text-sm">Address</span>
+              <span className="block break-all font-mono text-[10px] text-foreground">
+                {pool.address}
+              </span>
+            </div>
+          )}
           {pool.tvl != null && <DetailRow label="TVL" value={`$${fmt(pool.tvl)}`} />}
           {pool.volume24h != null && (
             <DetailRow label="Volume 24H" value={`$${fmt(pool.volume24h)}`} />
@@ -49,7 +58,7 @@ export function SoroswapPoolDetailCard({ pool, mode = "playground" }: Props) {
   }
 
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-soroswap-pool-detail" mode="playground">
       <div className="flex items-center gap-3 border-border border-b px-4 py-3">
         <div className="-space-x-1.5 flex">
           <TokenImage
@@ -63,11 +72,16 @@ export function SoroswapPoolDetailCard({ pool, mode = "playground" }: Props) {
             className="h-6 w-6 rounded-full ring-2 ring-card"
           />
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="font-medium text-foreground text-sm">{label}</p>
           <p className="text-[10px] text-muted-foreground capitalize">
             {pool.protocol ?? "Soroswap"}
           </p>
+          {pool.address && (
+            <p className="break-all font-mono text-[10px] text-muted-foreground/50">
+              {pool.address}
+            </p>
+          )}
         </div>
       </div>
       <div className="space-y-3 p-4">

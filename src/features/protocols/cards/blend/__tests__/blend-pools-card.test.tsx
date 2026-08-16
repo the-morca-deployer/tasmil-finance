@@ -72,4 +72,56 @@ describe("BlendPoolsCard", () => {
     render(<BlendPoolsCard pools={[makePool()]} mode="chat" />);
     expect(screen.getByText("Blend Pools")).toBeInTheDocument();
   });
+
+  it("renders the full pool contract address, untruncated", () => {
+    const address = "CAJJZSGMMM3PD7N33TAPHGBUGTB43OC73HVIK2L2G6BNGGGYOSSYBXBD";
+    render(<BlendPoolsCard pools={[makePool({ address })]} mode="playground" />);
+    const node = screen.getByText(address);
+    expect(node).toBeInTheDocument();
+    expect(node.textContent).toHaveLength(56);
+  });
+
+  it("renders addresses for every pool, including collapsed ones", () => {
+    // Only pool 0 auto-expands in playground mode, so this proves the address
+    // lives in the always-rendered header region, not inside ReserveList.
+    const first = "CAJJZSGMMM3PD7N33TAPHGBUGTB43OC73HVIK2L2G6BNGGGYOSSYBXBD";
+    const second = "CBP7NO6F7FRDHSOFQBT2L2UWYIZ2PU76JKVRYAQTG3KZSQLYAOKIF2WB";
+    render(
+      <BlendPoolsCard
+        pools={[makePool({ address: first }), makePool({ address: second })]}
+        mode="playground"
+      />
+    );
+    expect(screen.getByText(first)).toBeInTheDocument();
+    expect(screen.getByText(second)).toBeInTheDocument();
+  });
+
+  it("renders each reserve's full asset contract in the expanded detail body", () => {
+    const usdc = "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75";
+    const xlm = "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA";
+    render(<BlendPoolsCard pools={[makePool()]} mode="playground" />);
+    expect(screen.getByText(usdc)).toBeInTheDocument();
+    expect(screen.getByText(xlm)).toBeInTheDocument();
+  });
+
+  it("keeps reserve asset addresses out of the collapsed header region", () => {
+    const second = "CBP7NO6F7FRDHSOFQBT2L2UWYIZ2PU76JKVRYAQTG3KZSQLYAOKIF2WB";
+    const secondAsset = "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV";
+    render(
+      <BlendPoolsCard
+        pools={[
+          makePool(),
+          makePool({
+            address: second,
+            reserves: [
+              { assetAddress: secondAsset, symbol: "EURC", supplyApy: 0.01, borrowApy: 0.02 },
+            ],
+          }),
+        ]}
+        mode="playground"
+      />
+    );
+    expect(screen.getByText(second)).toBeInTheDocument();
+    expect(screen.queryByText(secondAsset)).not.toBeInTheDocument();
+  });
 });

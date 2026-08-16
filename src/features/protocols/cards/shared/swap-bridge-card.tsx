@@ -74,6 +74,7 @@ export function SwapBridgeCard({
   if (mode === "chat") {
     return (
       <ProtocolCard
+        data-testid="card-swap-bridge"
         mode="chat"
         title={`${opCfg.label} via ${protocolLabel}`}
         icon={opCfg.icon}

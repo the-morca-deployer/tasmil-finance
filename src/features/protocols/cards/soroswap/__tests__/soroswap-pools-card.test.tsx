@@ -60,4 +60,70 @@ describe("SoroswapPoolsCard", () => {
     render(<SoroswapPoolsCard pools={[makePool()]} mode="chat" />);
     expect(screen.getByText("Soroswap Pools")).toBeInTheDocument();
   });
+
+  it("renders the full pool contract address, untruncated", () => {
+    const address = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2OOTHU2F";
+    render(<SoroswapPoolsCard pools={[makePool({ address })]} mode="playground" />);
+    const node = screen.getByText(address);
+    expect(node).toBeInTheDocument();
+    expect(node.textContent).toHaveLength(56);
+  });
+
+  it("renders addresses for every pool, including collapsed ones", () => {
+    // Only pool 0 auto-expands in playground mode, so this proves the address
+    // lives in the always-rendered header region, not inside PoolDetail.
+    const first = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2OOTHU2F";
+    const second = "CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK";
+    render(
+      <SoroswapPoolsCard
+        pools={[makePool({ address: first }), makePool({ address: second })]}
+        mode="playground"
+      />
+    );
+    expect(screen.getByText(first)).toBeInTheDocument();
+    expect(screen.getByText(second)).toBeInTheDocument();
+  });
+
+  it("renders no address element when the pool has no address", () => {
+    // `address` is optional on soroswapPoolCardPropsSchema, unlike blend/aqua,
+    // so the header must guard on it rather than rendering an empty span.
+    render(
+      <SoroswapPoolsCard
+        pools={[
+          makePool({ address: undefined, tokenAAddress: undefined, tokenBAddress: undefined }),
+        ]}
+        mode="playground"
+      />
+    );
+    expect(screen.getByText("XLM / USDC")).toBeInTheDocument();
+    expect(screen.queryByText(/^C[A-Z0-9]{55}$/)).not.toBeInTheDocument();
+  });
+
+  it("renders both token SAC contracts in the expanded detail body", () => {
+    const xlmSac = "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA";
+    const usdcSac = "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75";
+    render(<SoroswapPoolsCard pools={[makePool()]} mode="playground" />);
+    expect(screen.getByText(xlmSac)).toBeInTheDocument();
+    expect(screen.getByText(usdcSac)).toBeInTheDocument();
+  });
+
+  it("keeps token addresses out of the collapsed header region", () => {
+    const second = "CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK";
+    const secondTokenSac = "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV";
+    render(
+      <SoroswapPoolsCard
+        pools={[
+          makePool(),
+          makePool({
+            address: second,
+            tokenB: "EURC",
+            tokenBAddress: secondTokenSac,
+          }),
+        ]}
+        mode="playground"
+      />
+    );
+    expect(screen.getByText(second)).toBeInTheDocument();
+    expect(screen.queryByText(secondTokenSac)).not.toBeInTheDocument();
+  });
 });

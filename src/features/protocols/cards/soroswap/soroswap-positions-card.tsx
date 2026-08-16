@@ -18,6 +18,7 @@ export function SoroswapPositionsCard({ data, mode = "playground" }: Props) {
   if (!data.hasPosition || !positions.length) {
     return (
       <ProtocolCard
+        data-testid="card-soroswap-positions"
         mode={mode}
         title="LP Positions"
         icon={Wallet}
@@ -32,6 +33,7 @@ export function SoroswapPositionsCard({ data, mode = "playground" }: Props) {
   if (mode === "chat") {
     return (
       <ProtocolCard
+        data-testid="card-soroswap-positions"
         mode="chat"
         title="Soroswap LP Positions"
         icon={Wallet}
@@ -75,7 +77,7 @@ export function SoroswapPositionsCard({ data, mode = "playground" }: Props) {
   }
 
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-soroswap-positions" mode="playground">
       <CardHeader
         icon={<Wallet className="h-3.5 w-3.5" />}
         title="Soroswap LP Positions"

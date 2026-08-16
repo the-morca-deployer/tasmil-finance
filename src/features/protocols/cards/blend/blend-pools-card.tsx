@@ -106,20 +106,26 @@ function ReserveList({ reserves }: { reserves: PoolCardProps["reserves"] }) {
         <span>Borrow APY</span>
       </div>
       {reserves.map((r, j) => (
-        <div
-          key={r.assetAddress || j}
-          className="grid grid-cols-[120px_1fr_1fr] items-center gap-2 py-1.5 pl-5"
-        >
-          <div className="flex items-center gap-1.5">
-            <TokenImage src={null} alt={r.symbol} className="h-5 w-5 shrink-0 rounded-full" />
-            <span className="font-medium text-foreground text-xs">{r.symbol}</span>
+        <div key={r.assetAddress || j} className="py-1.5 pl-5">
+          <div className="grid grid-cols-[120px_1fr_1fr] items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <TokenImage src={null} alt={r.symbol} className="h-5 w-5 shrink-0 rounded-full" />
+              <span className="font-medium text-foreground text-xs">{r.symbol}</span>
+            </div>
+            <span className="text-[11px] text-muted-foreground">
+              <Apy value={r.supplyApy} />
+            </span>
+            <span className="text-[11px] text-muted-foreground">
+              <Apy value={r.borrowApy} />
+            </span>
           </div>
-          <span className="text-[11px] text-muted-foreground">
-            <Apy value={r.supplyApy} />
-          </span>
-          <span className="text-[11px] text-muted-foreground">
-            <Apy value={r.borrowApy} />
-          </span>
+          {/* Reserve asset contract. Drill-down only - the row header already
+              carries the pool address and must stay scannable. */}
+          {r.assetAddress && (
+            <span className="block break-all pl-[26px] font-mono text-[10px] text-muted-foreground/50">
+              {r.assetAddress}
+            </span>
+          )}
         </div>
       ))}
     </div>

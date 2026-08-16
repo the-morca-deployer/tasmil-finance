@@ -123,6 +123,7 @@ export function SoroswapTxCard({ tx, mode = "playground", stream, toolCallId, re
   if (mode === "chat") {
     return (
       <ProtocolCard
+        data-testid="card-soroswap-tx"
         mode="chat"
         title={cfg.title}
         icon={cfg.icon}

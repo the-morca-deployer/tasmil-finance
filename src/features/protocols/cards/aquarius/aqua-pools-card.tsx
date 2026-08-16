@@ -124,11 +124,20 @@ function PoolDetail({ pool }: { pool: AquaPoolCardProps }) {
       {tokens.length > 0 && (
         <div className="space-y-1">
           {tokens.map((t, j) => (
-            <div key={t.address || j} className="flex items-center gap-2.5 py-1 pl-5">
+            <div key={t.address || j} className="flex items-start gap-2.5 py-1 pl-5">
               <TokenImage src={null} alt={t.symbol ?? "?"} className="h-5 w-5 rounded-full" />
-              <span className="font-medium text-foreground text-xs">
-                {t.symbol ?? t.address.slice(0, 8)}
-              </span>
+              <div className="min-w-0">
+                <span className="block font-medium text-foreground text-xs">
+                  {t.symbol ?? t.address.slice(0, 8)}
+                </span>
+                {/* Token SAC contract. Lives in the drill-down, not the row
+                    header - the header already carries the pool address. */}
+                {t.address && (
+                  <span className="block break-all font-mono text-[10px] text-muted-foreground/50">
+                    {t.address}
+                  </span>
+                )}
+              </div>
             </div>
           ))}
         </div>
