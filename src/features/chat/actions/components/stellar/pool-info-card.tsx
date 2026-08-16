@@ -69,6 +69,12 @@ function PoolInfoCardComponent({ args, result, toolCallId, status, type }: PoolI
             </div>
           ))}
         </ScrollableList>
+      ) : typeof data === "string" && data.trim() ? (
+        // The supervisor sometimes relays a sub-agent's prose summary as the
+        // tool result instead of the tool's own JSON. That is not "no data" --
+        // claiming it is tells the user the lookup failed when it succeeded --
+        // so show what actually came back.
+        <div className="whitespace-pre-wrap text-muted-foreground text-sm">{data}</div>
       ) : (
         <div className="text-muted-foreground text-sm">No pool data available.</div>
       )}
