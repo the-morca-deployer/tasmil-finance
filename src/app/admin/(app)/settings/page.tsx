@@ -30,14 +30,14 @@ export default function AdminSettingsPage() {
               waitlistMode ? "font-medium text-sm text-foreground" : "text-muted-foreground text-sm"
             }
           >
-            {isLoading ? "…" : waitlistMode ? "On" : "Off"}
+            {isLoading ? "..." : waitlistMode ? "On" : "Off"}
           </span>
           <Button
             variant={waitlistMode ? "outline" : "gradient"}
             disabled={isLoading || update.isPending}
             onClick={() => update.mutate(!waitlistMode)}
           >
-            {update.isPending ? "Saving…" : waitlistMode ? "Turn off" : "Turn on"}
+            {update.isPending ? "Saving..." : waitlistMode ? "Turn off" : "Turn on"}
           </Button>
         </div>
       </div>

@@ -15,7 +15,7 @@ export function QuestVolumeList() {
   return (
     <section className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-1">
-        <h2 className="font-semibold text-lg">Quest volume — recent transactions</h2>
+        <h2 className="font-semibold text-lg">Quest volume - recent transactions</h2>
         <span className="text-muted-foreground text-xs">
           On-chain activity counted toward quests
         </span>
@@ -77,7 +77,7 @@ export function QuestVolumeList() {
                 onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
               >
-                {isFetchingNextPage ? "Loading…" : "Load more"}
+                {isFetchingNextPage ? "Loading..." : "Load more"}
               </Button>
             </div>
           )}

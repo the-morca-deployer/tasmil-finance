@@ -15,7 +15,7 @@ async function registerAddress(address: string) {
 
 /**
  * Registers the wallet address for backend portfolio tracking.
- * Called once per session — the backend cron handles all subsequent snapshots.
+ * Called once per session - the backend cron handles all subsequent snapshots.
  */
 export function useSnapshotSubmitter(address: string | null | undefined) {
   const registeredRef = useRef<string | null>(null);

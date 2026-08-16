@@ -38,7 +38,7 @@ export function TopupWaitPage({ topupId }: TopupWaitPageProps) {
         data-testid="topup-wait-loading"
         className="mx-auto flex w-full max-w-2xl flex-col items-center justify-center px-6 py-10 text-muted-foreground text-sm"
       >
-        Loading topup…
+        Loading topup...
       </main>
     );
   }

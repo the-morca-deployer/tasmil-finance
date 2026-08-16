@@ -75,7 +75,7 @@ test.describe("Welcome onboarding modal", () => {
     // Before the user does anything, store has not flipped hasCompletedWelcome.
     expect(persistedAfterClose?.hasCompletedWelcome).not.toBe(true);
 
-    // Reload — modal must reappear because nothing terminal happened.
+    // Reload - modal must reappear because nothing terminal happened.
     await page.reload();
     await expect(page.getByRole("dialog")).toBeVisible({ timeout: 8000 });
   });
@@ -90,7 +90,7 @@ test.describe("Welcome onboarding modal", () => {
     const modal = page.getByRole("dialog");
     await expect(modal).toBeVisible({ timeout: 8000 });
 
-    // Slide 1 shows "Welcome to Tasmil". Use exact match — the sr-only
+    // Slide 1 shows "Welcome to Tasmil". Use exact match - the sr-only
     // DialogTitle "Welcome to Tasmil Finance" is also a heading.
     await expect(
       page.getByRole("heading", { name: "Welcome to Tasmil", exact: true })

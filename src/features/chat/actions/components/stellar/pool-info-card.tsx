@@ -154,7 +154,7 @@ function BackstopInfoView({ backstop }: { backstop: any }) {
       {backstop.poolAddress && (
         <DetailRow
           label="Pool"
-          value={<span className="font-mono text-xs">{backstop.poolAddress.slice(0, 12)}…</span>}
+          value={<span className="font-mono text-xs">{backstop.poolAddress.slice(0, 12)}...</span>}
         />
       )}
       {backstop.totalApr != null && (
@@ -218,11 +218,11 @@ function SinglePoolView({ pool }: { pool: any; protocol?: string; compact?: bool
         <div className="mt-2 grid grid-cols-2 gap-2">
           <div className="rounded bg-muted/30 p-2 text-xs">
             <div className="text-muted-foreground">{pool.tokenA.symbol ?? "Token A"}</div>
-            <div className="font-medium">{pool.tokenA.amount ?? "—"}</div>
+            <div className="font-medium">{pool.tokenA.amount ?? "-"}</div>
           </div>
           <div className="rounded bg-muted/30 p-2 text-xs">
             <div className="text-muted-foreground">{pool.tokenB.symbol ?? "Token B"}</div>
-            <div className="font-medium">{pool.tokenB.amount ?? "—"}</div>
+            <div className="font-medium">{pool.tokenB.amount ?? "-"}</div>
           </div>
         </div>
       )}

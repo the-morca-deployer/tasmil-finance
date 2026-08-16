@@ -357,7 +357,7 @@ export const QuestItem: React.FC<QuestItemProps> = ({
         }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "";
-        // User rejected the wallet prompt — reset quietly without a toast.
+        // User rejected the wallet prompt - reset quietly without a toast.
         if (
           msg.toLowerCase().includes("user rejected") ||
           msg.toLowerCase().includes("user cancelled")
@@ -579,7 +579,7 @@ export const QuestItem: React.FC<QuestItemProps> = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   // sign_message: the "Sign and Verify" label already describes
-                  // the action — trigger the wallet sign flow directly.
+                  // the action - trigger the wallet sign flow directly.
                   if (step.checkId === "sign_message") {
                     void handleVerify();
                     return;
@@ -640,7 +640,7 @@ export const QuestItem: React.FC<QuestItemProps> = ({
 
                 if (isVerified && !isClaimed) {
                   // Daily tasks never populate taskStatus.pointsEarned (their
-                  // status check only reports COMPLETED/PENDING) — fall back
+                  // status check only reports COMPLETED/PENDING) - fall back
                   // to the step's configured reward.
                   const pointsEarned = taskStatus?.pointsEarned || step.points || 0;
                   return (
@@ -1033,7 +1033,7 @@ const CampaignDetail: React.FC = () => {
   });
 
   // This query fires as soon as `id` is known, which can be before the wallet
-  // finishes authenticating (cookie not set yet) — that first response caches
+  // finishes authenticating (cookie not set yet) - that first response caches
   // `participation: null` for up to `$`'s 5min staleTime. Refetch on the
   // false→true auth transition so we pick up the real participation status
   // instead of showing "Join Campaign" for a campaign already joined.
@@ -1782,13 +1782,13 @@ const CampaignDetail: React.FC = () => {
                   {isDaily ? (
                     // Daily campaigns credit points per task (each task awards its
                     // own points and resets daily), so there is no separate
-                    // campaign-level reward to claim — a "Claim Reward" button here
+                    // campaign-level reward to claim - a "Claim Reward" button here
                     // would award nothing and mislead users.
                     <div className="rounded-quest-sm border border-quest-line bg-quest-surface-2 px-[14px] py-3 flex items-start gap-[10px]">
                       <Gift size={16} className="text-quest-accent mt-[2px] flex-none" />
                       <p className="text-[13px] text-quest-muted leading-[1.5]">
                         Points are credited automatically as you complete each task. Tasks reset
-                        daily — come back tomorrow to earn again.
+                        daily - come back tomorrow to earn again.
                       </p>
                     </div>
                   ) : (

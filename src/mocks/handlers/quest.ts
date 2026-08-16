@@ -33,7 +33,7 @@ const D = 150;
 // The interceptor unwraps { success, data } → data, so we return the envelope form.
 
 export const questHandlers = [
-  // ── Campaigns ──
+  // -- Campaigns --
   http.get("/api/api/campaigns", async ({ request }) => {
     await delay(D);
     const url = new URL(request.url, "http://localhost");
@@ -75,7 +75,7 @@ export const questHandlers = [
     return HttpResponse.json({ success: true, data: { claimed: true, points: 150 } });
   }),
 
-  // ── Tasks ──
+  // -- Tasks --
   http.get("/api/api/tasks/:taskId/status", async ({ params }) => {
     await delay(D);
     return HttpResponse.json(buildTaskStatus(params.taskId as string));
@@ -101,7 +101,7 @@ export const questHandlers = [
     return HttpResponse.json(MUTATION_SUCCESS);
   }),
 
-  // ── Users ──
+  // -- Users --
   http.get("/api/api/users/me", async () => {
     await delay(D);
     return HttpResponse.json(MOCK_USER_ME);
@@ -142,7 +142,7 @@ export const questHandlers = [
     return HttpResponse.json(MOCK_DAILY_LOGIN_RESULT);
   }),
 
-  // ── Analytics / Leaderboard ──
+  // -- Analytics / Leaderboard --
   http.get("/api/api/analytics/global-leaderboard", async () => {
     await delay(D);
     return HttpResponse.json(MOCK_LEADERBOARD);
@@ -153,7 +153,7 @@ export const questHandlers = [
     return HttpResponse.json(MOCK_STREAK_LEADERBOARD);
   }),
 
-  // ── Seasons ──
+  // -- Seasons --
   http.get("/api/api/seasons/current", async () => {
     await delay(D);
     return HttpResponse.json(MOCK_CURRENT_SEASON);
@@ -169,7 +169,7 @@ export const questHandlers = [
     return HttpResponse.json(MUTATION_SUCCESS);
   }),
 
-  // ── Referral ──
+  // -- Referral --
   http.get("/api/api/referral/my-referral", async () => {
     await delay(D);
     return HttpResponse.json(MOCK_REFERRAL);
@@ -180,7 +180,7 @@ export const questHandlers = [
     return HttpResponse.json(MOCK_LEADERBOARD);
   }),
 
-  // ── Social Accounts ──
+  // -- Social Accounts --
   http.get("/api/api/users/me/social-accounts", async () => {
     await delay(D);
     return HttpResponse.json(MOCK_SOCIAL_ACCOUNTS);
@@ -196,7 +196,7 @@ export const questHandlers = [
     return HttpResponse.json(MUTATION_SUCCESS);
   }),
 
-  // ── Auth ──
+  // -- Auth --
   http.get("/api/api/auth/wallet-nonce", async () => {
     await delay(200);
     return HttpResponse.json({ nonce: "mock-nonce-abc123" });
@@ -239,7 +239,7 @@ export const questHandlers = [
     });
   }),
 
-  // ── Notifications ──
+  // -- Notifications --
   http.get("/api/api/notifications", async () => {
     await delay(D);
     return HttpResponse.json({ data: [] });

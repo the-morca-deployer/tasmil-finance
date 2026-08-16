@@ -17,7 +17,7 @@ export function ActivateModal({ onActivate, isPending }: ActivateModalProps) {
           <p className="font-medium text-foreground">Sign to register a new session key.</p>
           <p className="text-muted-foreground">
             This allows the bot to rebalance on your behalf. Your funds remain in the keeper wallet
-            — the session key only grants scoped permissions.
+            - the session key only grants scoped permissions.
           </p>
         </div>
       </div>

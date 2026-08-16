@@ -5,7 +5,7 @@ import {
   readPendingReferralCode,
 } from "../referral-link";
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
+// --- helpers ------------------------------------------------------------------
 // Isolate buildShareUrl tests from whatever NEXT_PUBLIC_APP_URL nextJest loads
 // from .env.local, so they deterministically exercise window.location.origin.
 let savedAppUrl: string | undefined;
@@ -22,7 +22,7 @@ afterEach(() => {
 });
 
 describe("referral-link", () => {
-  // ── buildShareUrl ──────────────────────────────────────────────────────────
+  // -- buildShareUrl ----------------------------------------------------------
 
   it("buildShareUrl uses window.location.origin as the base when NEXT_PUBLIC_APP_URL is unset", () => {
     // jsdom sets window.location.origin = "http://localhost"
@@ -37,7 +37,7 @@ describe("referral-link", () => {
     delete process.env.NEXT_PUBLIC_APP_URL;
   });
 
-  // ── readPendingReferralCode ────────────────────────────────────────────────
+  // -- readPendingReferralCode ------------------------------------------------
 
   it("readPendingReferralCode falls back to localStorage", () => {
     localStorage.clear();
@@ -66,7 +66,7 @@ describe("referral-link", () => {
     });
   });
 
-  // ── clearPendingReferralCode ───────────────────────────────────────────────
+  // -- clearPendingReferralCode -----------------------------------------------
 
   it("clearPendingReferralCode removes the pending code from localStorage", () => {
     localStorage.setItem("tasmil.referral.pendingCode", "CLEAR-ME");
@@ -74,7 +74,7 @@ describe("referral-link", () => {
     expect(localStorage.getItem("tasmil.referral.pendingCode")).toBeNull();
   });
 
-  // ── buildVerifyPayload ────────────────────────────────────────────────────
+  // -- buildVerifyPayload ----------------------------------------------------
 
   it("buildVerifyPayload includes referredByCode when present", () => {
     const payload = buildVerifyPayload("pub-key", "sig", "CODE-A");

@@ -84,7 +84,7 @@ export function AssistantMessage({
   hideAvatar?: boolean;
   isNewMessageLoading?: boolean;
   cachedUI?: any[];
-  /** Merged/cached messages from chat-client — prevents flash when stream restarts */
+  /** Merged/cached messages from chat-client - prevents flash when stream restarts */
   allMessages?: Message[];
 }) {
   const content = message?.content ?? [];
@@ -117,13 +117,13 @@ export function AssistantMessage({
       : tagReasoning;
   // Only show reasoning for the FIRST AI message in the current turn.
   // Subsequent model calls (parse_intent → clarify → resolve) have their
-  // own reasoning but it's internal — user only needs the initial "thinking".
+  // own reasoning but it's internal - user only needs the initial "thinking".
   const thread = useStreamContext();
   const isFirstAiInTurn = (() => {
     if (!message) return true;
     const msgIdx = thread.messages.findIndex((m) => m.id === message.id);
     if (msgIdx <= 0) return true;
-    // Walk backwards — if we hit a human message before another AI, we're first
+    // Walk backwards - if we hit a human message before another AI, we're first
     for (let i = msgIdx - 1; i >= 0; i--) {
       const m = thread.messages[i];
       if (!m) continue;
@@ -172,8 +172,8 @@ export function AssistantMessage({
   // Whether this message has tool calls that produce UI
   const hasToolCalls = !!(allToolCalls && allToolCalls.length > 0);
 
-  // Intermediate text-only messages (supervisor saying "Let me check…" before tool calls)
-  // are hidden — they create a confusing thinking/content loop for the user.
+  // Intermediate text-only messages (supervisor saying "Let me check..." before tool calls)
+  // are hidden - they create a confusing thinking/content loop for the user.
   if (isIntermediateAiMessage && !hasToolCalls && contentString.length > 0) {
     return null;
   }

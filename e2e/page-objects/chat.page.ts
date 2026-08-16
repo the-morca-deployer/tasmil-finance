@@ -40,7 +40,7 @@ export class ChatPage {
 
   constructor(page: Page) {
     this.page = page;
-    // The chat input — try multiple selectors to match the app's actual markup
+    // The chat input - try multiple selectors to match the app's actual markup
     this.messageInput = page
       .locator(
         'textarea, [contenteditable="true"], input[placeholder*="message" i], [role="textbox"]'
@@ -99,7 +99,7 @@ export class ChatPage {
     }
 
     // Phase 2: Wait for stop button to disappear (AI done streaming)
-    // Only check the stop button — NOT spinners, because tool calls
+    // Only check the stop button - NOT spinners, because tool calls
     // can leave stuck spinners (e.g. duplicate flow_compose_plan)
     await this.page.waitForFunction(
       () => {
@@ -119,7 +119,7 @@ export class ChatPage {
         timeout: 15_000,
       });
     } catch {
-      /* no compiling indicator — OK */
+      /* no compiling indicator - OK */
     }
 
     // Scroll to bottom
@@ -318,7 +318,7 @@ export class ChatPage {
 
       if (hasMessages) break;
 
-      // Page likely reset by HMR — wait for recompile to finish
+      // Page likely reset by HMR - wait for recompile to finish
       console.warn(
         `[screenshotFullPage] Conversation not visible (attempt ${attempt + 1}/3), waiting for HMR...`
       );
@@ -388,7 +388,7 @@ export class ChatPage {
       await this.page.setViewportSize(originalSize);
     }
 
-    // Restore styles via page reload (cleanest way — next navigation resets anyway)
+    // Restore styles via page reload (cleanest way - next navigation resets anyway)
     // Skip reload if this is the last action (test ends after screenshot)
   }
 

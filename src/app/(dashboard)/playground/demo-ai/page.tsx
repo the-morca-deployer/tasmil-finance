@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { ToolStatusDispatcher } from "@/shared/components/tool-status-dispatcher";
 import { Button } from "@/shared/ui/button";
 
-// ─── Mock stream so BlendTxCard's useStreamContext() doesn't throw ──
+// --- Mock stream so BlendTxCard's useStreamContext() doesn't throw --
 const MOCK_STREAM = {
   messages: [],
   values: {},
@@ -24,7 +24,7 @@ const MOCK_STREAM = {
   getMessagesMetadata: () => undefined,
 } as unknown as StreamContextType;
 
-// ─── Flow step definitions ──────────────────────────────────────
+// --- Flow step definitions --------------------------------------
 
 type FlowStep =
   | { type: "user"; text: string }
@@ -58,7 +58,7 @@ type FlowStep =
  * Turn 2: User selects pool → Supervisor → Blend Agent → deposit → plan → execute
  */
 const FLOW_STEPS: FlowStep[] = [
-  // ─── Turn 1: User asks to deposit ───────────────────
+  // --- Turn 1: User asks to deposit -------------------
   //
   // What happens behind the scenes (user does NOT see this):
   //   supervisor → parse_user_intent → call_research_agent
@@ -80,7 +80,7 @@ const FLOW_STEPS: FlowStep[] = [
       "Let me delegate to the research agent to discover current yield pools, then present options to the user.",
   },
 
-  // Supervisor delegates to Research Agent — ONE card, status = "complete"
+  // Supervisor delegates to Research Agent - ONE card, status = "complete"
   // (streamSubgraphs: false → internal tool calls are invisible to user)
   {
     type: "agent_call",
@@ -97,7 +97,7 @@ const FLOW_STEPS: FlowStep[] = [
       "I found several yield opportunities for your 100 USDC. Here are the best options ranked by risk-adjusted return:",
   },
 
-  // flow_clarify tool renders ClarifyCard — user picks a pool
+  // flow_clarify tool renders ClarifyCard - user picks a pool
   {
     type: "clarify",
     questions: [
@@ -143,7 +143,7 @@ const FLOW_STEPS: FlowStep[] = [
 
   { type: "divider" },
 
-  // ─── Turn 2: User selected Blend → supervisor routes to blend agent ───
+  // --- Turn 2: User selected Blend → supervisor routes to blend agent ---
   //
   // Behind the scenes: supervisor → call_blend_agent
   //   blend_agent → blend_get_pool_info, blend_deposit (builds XDR)
@@ -157,14 +157,14 @@ const FLOW_STEPS: FlowStep[] = [
     type: "reasoning",
     duration: 3,
     content:
-      "User chose **Blend Fixed Pool** at 9.3% APY — a safe single-sided lending position.\n\n" +
+      "User chose **Blend Fixed Pool** at 9.3% APY - a safe single-sided lending position.\n\n" +
       "I'll delegate to the Blend agent to:\n" +
       "1. Verify pool status and current rates\n" +
       "2. Build and simulate the deposit transaction\n" +
       "3. Present the plan for user approval",
   },
 
-  // Supervisor delegates to Blend Agent — ONE card, already complete
+  // Supervisor delegates to Blend Agent - ONE card, already complete
   {
     type: "agent_call",
     agent: "blend",
@@ -172,7 +172,7 @@ const FLOW_STEPS: FlowStep[] = [
     status: "complete",
   },
 
-  // BlendTxCard — HITL interrupt: user must sign or cancel
+  // BlendTxCard - HITL interrupt: user must sign or cancel
   {
     type: "blend_tx",
     tx: {
@@ -202,7 +202,7 @@ const FLOW_STEPS: FlowStep[] = [
 
   { type: "divider" },
 
-  // ─── Turn 3: After user signs → tx submitted & confirmed ─────────
+  // --- Turn 3: After user signs → tx submitted & confirmed ---------
   {
     type: "execution",
     step: 1,
@@ -222,7 +222,7 @@ const FLOW_STEPS: FlowStep[] = [
   },
 ];
 
-// ─── Step renderer ──────────────────────────────────────────────
+// --- Step renderer ----------------------------------------------
 
 function FlowStepRenderer({
   step,
@@ -340,7 +340,7 @@ function FlowStepRenderer({
   }
 }
 
-// ─── AI message wrapper (groups non-user steps under an avatar) ─
+// --- AI message wrapper (groups non-user steps under an avatar) -
 
 function AiMessageGroup({
   children,
@@ -363,7 +363,7 @@ function AiMessageGroup({
   );
 }
 
-// ─── Interactive flow simulation ────────────────────────────────
+// --- Interactive flow simulation --------------------------------
 
 function FlowSimulation() {
   const [visibleCount, setVisibleCount] = useState(0);
@@ -537,7 +537,7 @@ function FlowSimulation() {
   );
 }
 
-// ─── Static showcase: all components side-by-side ───────────────
+// --- Static showcase: all components side-by-side ---------------
 
 function ComponentShowcase() {
   const [section, setSection] = useState<string | null>(null);
@@ -677,7 +677,7 @@ function ComponentShowcase() {
       {section === "clarify" && (
         <div className="space-y-3 rounded-lg border border-border p-4">
           <p className="text-muted-foreground text-xs">
-            Single question — agent generates options dynamically:
+            Single question - agent generates options dynamically:
           </p>
           <ClarifyCard
             questions={[
@@ -732,7 +732,7 @@ function ComponentShowcase() {
       {section === "operation" && (
         <div className="space-y-3 rounded-lg border border-border p-4">
           <p className="text-muted-foreground text-xs">
-            BlendTxCard — the actual protocol confirm card used in chat and playground:
+            BlendTxCard - the actual protocol confirm card used in chat and playground:
           </p>
           <div className="max-w-[400px]">
             <StreamContext.Provider value={MOCK_STREAM}>
@@ -778,12 +778,12 @@ function ComponentShowcase() {
         </div>
       )}
 
-      {/* Plan Preview and Execution sections removed — not used in current flow */}
+      {/* Plan Preview and Execution sections removed - not used in current flow */}
     </div>
   );
 }
 
-// ─── Main page ──────────────────────────────────────────────────
+// --- Main page --------------------------------------------------
 
 export default function AIDemoPage() {
   return (
@@ -791,12 +791,12 @@ export default function AIDemoPage() {
       <div className="space-y-2">
         <h1 className="font-bold text-3xl">AI Chat Flow Demo</h1>
         <p className="text-muted-foreground">
-          Interactive simulation of the supervisor agent flow — shows what users see when
+          Interactive simulation of the supervisor agent flow - shows what users see when
           interacting with the DeFi AI assistant.
         </p>
       </div>
 
-      {/* ─── Full Flow Simulation ──────────────────────────── */}
+      {/* --- Full Flow Simulation ---------------------------- */}
       <section className="space-y-4">
         <div className="space-y-1">
           <h2 className="font-semibold text-2xl">Supervisor Flow Simulation</h2>
@@ -809,19 +809,19 @@ export default function AIDemoPage() {
         <FlowSimulation />
       </section>
 
-      {/* ─── Component Reference ──────────────────────────── */}
+      {/* --- Component Reference ---------------------------- */}
       <section className="space-y-4">
         <div className="space-y-1">
           <h2 className="font-semibold text-2xl">Component Reference</h2>
           <p className="text-muted-foreground text-sm">
-            Each component used in the supervisor flow — click to inspect individually
+            Each component used in the supervisor flow - click to inspect individually
           </p>
         </div>
 
         <ComponentShowcase />
       </section>
 
-      {/* ─── Architecture diagram ────────────────────────── */}
+      {/* --- Architecture diagram -------------------------- */}
       <section className="space-y-4">
         <div className="space-y-1">
           <h2 className="font-semibold text-2xl">Flow Architecture</h2>

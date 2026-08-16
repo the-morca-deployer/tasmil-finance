@@ -16,7 +16,7 @@ import {
   aquaYieldCardPropsSchema,
 } from "../schemas/aquarius.schema";
 
-// ─── Pool normalization ────────────────────────────────────────
+// --- Pool normalization ----------------------------------------
 
 /**
  * Parse Stellar classic asset format to clean symbol.
@@ -160,7 +160,7 @@ export function normalizeAquaPoolsFromSdk(raw: Record<string, unknown>): AquaPoo
     .filter((p): p is AquaPoolCardProps => p !== null);
 }
 
-// ─── Quote normalization ───────────────────────────────────────
+// --- Quote normalization ---------------------------------------
 
 export function normalizeAquaQuoteFromSdk(raw: Record<string, unknown>): AquaQuoteCardProps | null {
   const q = (raw.quote ?? raw) as Record<string, unknown>;
@@ -182,7 +182,7 @@ export function normalizeAquaQuoteFromSdk(raw: Record<string, unknown>): AquaQuo
   return result.data;
 }
 
-// ─── Positions normalization ───────────────────────────────────
+// --- Positions normalization -----------------------------------
 
 export function normalizeAquaPositionsFromSdk(
   raw: Record<string, unknown>
@@ -215,7 +215,7 @@ export function normalizeAquaPositionsFromSdk(
   return result.data;
 }
 
-// ─── Yield normalization ───────────────────────────────────────
+// --- Yield normalization ---------------------------------------
 
 export function normalizeAquaYieldFromSdk(raw: Record<string, unknown>): AquaYieldCardProps[] {
   const opportunities = (raw.opportunities ?? raw.yields ?? []) as Record<string, unknown>[];
@@ -246,7 +246,7 @@ export function normalizeAquaYieldFromSdk(raw: Record<string, unknown>): AquaYie
     .filter((o): o is AquaYieldCardProps => o !== null);
 }
 
-// ─── Transaction normalization ─────────────────────────────────
+// --- Transaction normalization ---------------------------------
 
 export function normalizeAquaTxFromSdk(
   raw: Record<string, unknown>,

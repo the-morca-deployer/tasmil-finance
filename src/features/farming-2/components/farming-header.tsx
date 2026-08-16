@@ -52,7 +52,7 @@ export function FarmingHeader({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      {/* Icon — same size as AddressAvatar (size-20) */}
+      {/* Icon - same size as AddressAvatar (size-20) */}
       <div
         className={cn("flex size-20 shrink-0 items-center justify-center rounded-full", bgColor)}
       >
@@ -60,12 +60,12 @@ export function FarmingHeader({
       </div>
 
       <div className="flex flex-col gap-1">
-        {/* Line 1 — clean single-color text like portfolio address line */}
+        {/* Line 1 - clean single-color text like portfolio address line */}
         <span className="flex items-center gap-1.5 text-base font-medium text-muted-foreground transition-colors">
           {currentApy > 0 ? `APY ${formatApyPercent(currentApy)}` : "Yield Farming"}
         </span>
 
-        {/* Line 2 + 3: value + P&L — copy-paste from WalletHeader */}
+        {/* Line 2 + 3: value + P&L - copy-paste from WalletHeader */}
         {isLoading ? (
           <div className="flex flex-col gap-2">
             <Skeleton className="h-10 w-40 rounded-lg" />

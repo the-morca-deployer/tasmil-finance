@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useAdminAuthStore } from "@/store/use-admin-auth";
 import { adminFetch } from "../lib/admin-fetch";
 
-// ── Backend response shapes ────────────────────────────────────────────────
+// -- Backend response shapes ------------------------------------------------
 
 interface BackendConfig {
   id: number;
@@ -53,7 +53,7 @@ interface BackendLogsResponse {
   pages: number;
 }
 
-// ── Public types (used by UI) ──────────────────────────────────────────────
+// -- Public types (used by UI) ----------------------------------------------
 
 export interface SponsorConfig {
   id: number;
@@ -97,7 +97,7 @@ export interface UpdateSponsorConfigDto {
   telegramChatId?: string;
 }
 
-// ── Hooks ──────────────────────────────────────────────────────────────────
+// -- Hooks ------------------------------------------------------------------
 
 export function useSponsorConfig() {
   const token = useAdminAuthStore((s) => s.token);
@@ -201,7 +201,7 @@ export function useTestTelegramAlert() {
   return useMutation<{ sent: boolean }, Error>({
     mutationFn: () =>
       adminFetch<{ sent: boolean }>("/api/admin/sponsor/test-alert", { method: "POST" }),
-    onSuccess: () => toast.success("Test alert sent — check your Telegram"),
+    onSuccess: () => toast.success("Test alert sent - check your Telegram"),
     onError: (err) => toast.error(`Alert failed: ${err.message}`),
   });
 }

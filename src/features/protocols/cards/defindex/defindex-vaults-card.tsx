@@ -111,11 +111,11 @@ function VaultMeta({ vault }: { vault: DefindexVaultCardProps }) {
   return (
     <div className="space-y-2 px-4 pb-3 pl-9">
       <div className="grid grid-cols-3 gap-3">
-        <MetricMini label="Asset" value={vault.asset ?? "—"} />
-        <MetricMini label="TVL" value={tvl != null ? `$${fmt(tvl)}` : "—"} />
+        <MetricMini label="Asset" value={vault.asset ?? "-"} />
+        <MetricMini label="TVL" value={tvl != null ? `$${fmt(tvl)}` : "-"} />
         <MetricMini
           label="APY"
-          value={apy != null ? `${apy.toFixed(2)}%` : "—"}
+          value={apy != null ? `${apy.toFixed(2)}%` : "-"}
           valueClass={apy != null && apy > 0 ? "text-emerald-400" : undefined}
         />
       </div>

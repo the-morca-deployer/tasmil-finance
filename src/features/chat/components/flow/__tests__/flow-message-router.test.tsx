@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -7,7 +7,7 @@ import React from "react";
 import type { AssistantFlowMessage } from "@/features/chat/types/flow-messages";
 import { FlowMessageRouter } from "../flow-message-router";
 
-// ─── Fixtures ────────────────────────────────────────────────────
+// --- Fixtures ----------------------------------------------------
 
 const clarifyMessage: AssistantFlowMessage = {
   kind: "clarify",
@@ -104,17 +104,17 @@ const errorNoRetryMessage: AssistantFlowMessage = {
   retry_possible: false,
 };
 
-// ─── Tests ───────────────────────────────────────────────────────
+// --- Tests -------------------------------------------------------
 
 describe("FlowMessageRouter", () => {
-  it("renders OptionCard for clarify message — question text appears", () => {
+  it("renders OptionCard for clarify message - question text appears", () => {
     render(<FlowMessageRouter message={clarifyMessage} />);
     expect(screen.getByText("Which pool do you want to deposit into?")).toBeInTheDocument();
     expect(screen.getByText("Blend USDC Pool")).toBeInTheDocument();
     expect(screen.getByText("Soroswap XLM/USDC")).toBeInTheDocument();
   });
 
-  it("renders PlanPreviewCard for plan_preview message — APY appears", () => {
+  it("renders PlanPreviewCard for plan_preview message - APY appears", () => {
     render(
       <FlowMessageRouter message={planPreviewMessage} onConfirm={jest.fn()} onCancel={jest.fn()} />
     );
@@ -123,7 +123,7 @@ describe("FlowMessageRouter", () => {
     expect(screen.getByText("Plan Preview")).toBeInTheDocument();
   });
 
-  it("renders ExecutionCard for execution_update message — step text appears", () => {
+  it("renders ExecutionCard for execution_update message - step text appears", () => {
     render(<FlowMessageRouter message={executionUpdateMessage} />);
     expect(screen.getByText(/Submitting step 1 of 2/)).toBeInTheDocument();
   });

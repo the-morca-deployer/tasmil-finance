@@ -18,7 +18,7 @@ import {
 } from "./aquarius-from-sdk";
 import { unwrapMcpResult } from "./from-mcp";
 
-// ─── Pool ──────────────────────────────────────────────────────
+// --- Pool ------------------------------------------------------
 
 export function normalizeAquaPoolFromMcp(result: unknown): AquaPoolCardProps | null {
   const { data, error } = unwrapMcpResult(result);
@@ -32,7 +32,7 @@ export function normalizeAquaPoolsFromMcp(result: unknown): AquaPoolCardProps[] 
   return normalizeAquaPoolsFromSdk(data);
 }
 
-// ─── Quote ─────────────────────────────────────────────────────
+// --- Quote -----------------------------------------------------
 
 export function normalizeAquaQuoteFromMcp(result: unknown): AquaQuoteCardProps | null {
   const { data, error } = unwrapMcpResult(result);
@@ -40,7 +40,7 @@ export function normalizeAquaQuoteFromMcp(result: unknown): AquaQuoteCardProps |
   return normalizeAquaQuoteFromSdk(data);
 }
 
-// ─── Positions ─────────────────────────────────────────────────
+// --- Positions -------------------------------------------------
 
 export function normalizeAquaPositionsFromMcp(result: unknown): AquaPositionsCardProps | null {
   const { data, error } = unwrapMcpResult(result);
@@ -48,7 +48,7 @@ export function normalizeAquaPositionsFromMcp(result: unknown): AquaPositionsCar
   return normalizeAquaPositionsFromSdk(data);
 }
 
-// ─── Transaction ───────────────────────────────────────────────
+// --- Transaction -----------------------------------------------
 
 export function normalizeAquaTxFromMcp(
   result: unknown,

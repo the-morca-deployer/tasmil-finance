@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Fix chat render order so "Thinking..." always appears before response text — intermediate supervisor messages are hidden while a sub-agent is loading, revealing only after the turn completes.
+**Goal:** Fix chat render order so "Thinking..." always appears before response text - intermediate supervisor messages are hidden while a sub-agent is loading, revealing only after the turn completes.
 
 **Architecture:** Single change in `chat-client.tsx`'s render loop. After computing the `filtered` message array, identify the current turn boundary (last human message index). When `effectiveIsLoading` is true, return `null` for all AI messages in the current turn except the last one. The last message naturally shows "Thinking..." (no content) then streams text when tokens arrive. All messages reveal normally once `effectiveIsLoading` is false.
 
@@ -15,7 +15,7 @@
 **Files:**
 - Modify: `tasmil-finance/src/features/chat/components/chat-client.tsx:647-690`
 
-This is a visual behavior change — no unit tests exist for this component. Verification is manual (dev server).
+This is a visual behavior change - no unit tests exist for this component. Verification is manual (dev server).
 
 - [ ] **Step 1: Read the current render loop to confirm line numbers**
 
@@ -55,7 +55,7 @@ Replace with:
 
               return filtered.map((message, index, arr) => {
                 // Hide intermediate AI messages in the current turn while loading.
-                // The last message is never suppressed — it shows Thinking... or streams text.
+                // The last message is never suppressed - it shows Thinking... or streams text.
                 if (
                   collapsingTurn &&
                   index >= currentTurnStart &&
@@ -82,7 +82,7 @@ cd tasmil-finance && pnpm check:fix 2>&1 | grep "chat-client"
 
 Expected: no errors in chat-client.tsx.
 
-- [ ] **Step 5: Manual verification — start dev server**
+- [ ] **Step 5: Manual verification - start dev server**
 
 ```bash
 cd tasmil-finance && pnpm dev

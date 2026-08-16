@@ -1,10 +1,10 @@
-# Quest Plan 1 — Backend dev-login + full seed (Implementation Plan)
+# Quest Plan 1 - Backend dev-login + full seed (Implementation Plan)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add a guarded `POST /auth/dev-login` to the quest backend that mints a real JWT for a wallet without a signature, and expand the Prisma seed into a full dataset, so authenticated quest screens load real data under dev-bypass and Playwright.
 
-**Architecture:** The quest backend (`tasmil-quest-folder/backend`, NestJS) runs its quest data layer on **Prisma/PostgreSQL** (services call `this.prisma.questCampaign...`). dev-login mirrors the existing `walletLogin` minus signature verification, gated by `NODE_ENV !== 'production'` **and** `QUEST_DEV_LOGIN=true`. The seed is expanded in `prisma/seed.ts` (data only — schema is migrated centrally from the `backend` repo; **no new migrations here**). Tests: dev-login is unit-tested with mocked deps (matching the existing `auth.service.spec.ts` style); the seed is verified by a standalone `prisma/verify-seed.ts` assertion script run against a disposable PostgreSQL test DB.
+**Architecture:** The quest backend (`tasmil-quest-folder/backend`, NestJS) runs its quest data layer on **Prisma/PostgreSQL** (services call `this.prisma.questCampaign...`). dev-login mirrors the existing `walletLogin` minus signature verification, gated by `NODE_ENV !== 'production'` **and** `QUEST_DEV_LOGIN=true`. The seed is expanded in `prisma/seed.ts` (data only - schema is migrated centrally from the `backend` repo; **no new migrations here**). Tests: dev-login is unit-tested with mocked deps (matching the existing `auth.service.spec.ts` style); the seed is verified by a standalone `prisma/verify-seed.ts` assertion script run against a disposable PostgreSQL test DB.
 
 **Tech Stack:** NestJS 11, Prisma 7 (`generated/prisma/client`), `@stellar/stellar-sdk`, Jest (`pnpm test`), ts-node.
 
@@ -27,15 +27,15 @@
 
 ## File Structure
 
-- `src/modules/auth/auth.service.ts` — add `devLogin(walletAddress, res)` method (mirrors `walletLogin` minus nonce/signature).
-- `src/modules/auth/auth.controller.ts` — add `@Public() @Post('dev-login')` route with the env guard.
-- `src/modules/auth/dto/dev-login.dto.ts` — **create** `DevLoginDto { walletAddress: string }`.
-- `src/modules/auth/auth.service.spec.ts` — add `devLogin` unit tests.
-- `src/modules/auth/auth.controller.spec.ts` — **create** controller guard tests.
-- `prisma/verify-seed.ts` — **create** standalone seed-invariant assertion script (the failing "test").
-- `prisma/seed.ts` — expand from the 3-layer `QuestReferralConfig` seed to the full dataset.
-- `package.json` — add `"verify:seed": "ts-node prisma/verify-seed.ts"`.
-- `.env.example` — add `QUEST_DEV_LOGIN=false`.
+- `src/modules/auth/auth.service.ts` - add `devLogin(walletAddress, res)` method (mirrors `walletLogin` minus nonce/signature).
+- `src/modules/auth/auth.controller.ts` - add `@Public() @Post('dev-login')` route with the env guard.
+- `src/modules/auth/dto/dev-login.dto.ts` - **create** `DevLoginDto { walletAddress: string }`.
+- `src/modules/auth/auth.service.spec.ts` - add `devLogin` unit tests.
+- `src/modules/auth/auth.controller.spec.ts` - **create** controller guard tests.
+- `prisma/verify-seed.ts` - **create** standalone seed-invariant assertion script (the failing "test").
+- `prisma/seed.ts` - expand from the 3-layer `QuestReferralConfig` seed to the full dataset.
+- `package.json` - add `"verify:seed": "ts-node prisma/verify-seed.ts"`.
+- `.env.example` - add `QUEST_DEV_LOGIN=false`.
 
 ---
 
@@ -51,7 +51,7 @@
 
 - [ ] **Step 1: Write the failing test**
 
-Append to `src/modules/auth/auth.service.spec.ts` (after the existing `describe('AuthService walletLogin', ...)` block, reusing the same mock objects defined at module scope — declare a new `describe` that constructs its own `AuthService` with the same mocks):
+Append to `src/modules/auth/auth.service.spec.ts` (after the existing `describe('AuthService walletLogin', ...)` block, reusing the same mock objects defined at module scope - declare a new `describe` that constructs its own `AuthService` with the same mocks):
 
 ```typescript
 describe('AuthService devLogin', () => {
@@ -95,14 +95,14 @@ describe('AuthService devLogin', () => {
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test -- auth.service.spec.ts`
-Expected: FAIL — `authService.devLogin is not a function`.
+Expected: FAIL - `authService.devLogin is not a function`.
 
 - [ ] **Step 3: Write minimal implementation**
 
 In `src/modules/auth/auth.service.ts`, add this method to the `AuthService` class (place it right after `usernameLogin`):
 
 ```typescript
-  // ─── Dev login (guarded at the controller) ────────────────────────────────
+  // --- Dev login (guarded at the controller) --------------------------------
   async devLogin(walletAddress: string, res: Response): Promise<LoginResponse> {
     const publicKey = this.validatePublicKey(walletAddress);
     const user = await this.usersService.ensureWalletUser(publicKey);
@@ -193,7 +193,7 @@ describe('AuthController dev-login guard', () => {
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test -- auth.controller.spec.ts`
-Expected: FAIL — `controller.devLogin is not a function`.
+Expected: FAIL - `controller.devLogin is not a function`.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -219,7 +219,7 @@ import { DevLoginDto } from './dto/dev-login.dto';
 ```
 
 ```typescript
-  // POST /api/auth/dev-login — local/dev only, mints a JWT without a signature.
+  // POST /api/auth/dev-login - local/dev only, mints a JWT without a signature.
   @Public()
   @Post('dev-login')
   async devLogin(
@@ -295,7 +295,7 @@ async function main() {
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter } as any);
   try {
-    // Task 3 — users & profiles
+    // Task 3 - users & profiles
     const primary = await prisma.user.findUnique({
       where: { stellarPubkey: PRIMARY_PUBKEY },
       include: { questProfile: true },
@@ -333,7 +333,7 @@ Run:
 DATABASE_URL="$TEST_DB_URL" pnpm prisma:seed        # current seed: only QuestReferralConfig
 DATABASE_URL="$TEST_DB_URL" pnpm verify:seed
 ```
-Expected: FAIL — `primary dev user must exist` (AssertionError, exit 1).
+Expected: FAIL - `primary dev user must exist` (AssertionError, exit 1).
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -474,7 +474,7 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 In `prisma/verify-seed.ts`, before `console.log('verify-seed: OK')`, add:
 
 ```typescript
-    // Task 4 — campaigns & tasks
+    // Task 4 - campaigns & tasks
     const campaignCount = await prisma.questCampaign.count();
     assert(campaignCount >= 6, `expected >= 6 campaigns, got ${campaignCount}`);
     const taskTypes = await prisma.questTask.findMany({ distinct: ['type'], select: { type: true } });
@@ -493,7 +493,7 @@ Run:
 ```bash
 DATABASE_URL="$TEST_DB_URL" pnpm prisma:seed && DATABASE_URL="$TEST_DB_URL" pnpm verify:seed
 ```
-Expected: FAIL — `expected >= 6 campaigns, got 0`.
+Expected: FAIL - `expected >= 6 campaigns, got 0`.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -623,7 +623,7 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 In `prisma/verify-seed.ts`, before the final `console.log`, add:
 
 ```typescript
-    // Task 5 — season & leaderboard
+    // Task 5 - season & leaderboard
     const season = await prisma.questSeason.findFirst({ where: { status: 'ACTIVE' } });
     assert(season, 'an ACTIVE season must exist');
     const rewards = await prisma.questSeasonRankReward.count({ where: { seasonId: season!.id } });
@@ -640,7 +640,7 @@ Run:
 ```bash
 DATABASE_URL="$TEST_DB_URL" pnpm prisma:seed && DATABASE_URL="$TEST_DB_URL" pnpm verify:seed
 ```
-Expected: FAIL — `an ACTIVE season must exist`.
+Expected: FAIL - `an ACTIVE season must exist`.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -738,7 +738,7 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 In `prisma/verify-seed.ts`, before the final `console.log`, add:
 
 ```typescript
-    // Task 6 — referrals, socials, notifications
+    // Task 6 - referrals, socials, notifications
     const refEvents = await prisma.questReferralEvent.count({ where: { referrer: { stellarPubkey: PRIMARY_PUBKEY } } });
     assert(refEvents >= 2, `expected >= 2 referral events, got ${refEvents}`);
     const commissions = await prisma.questReferralCommission.count({ where: { earner: { stellarPubkey: PRIMARY_PUBKEY } } });
@@ -755,7 +755,7 @@ Run:
 ```bash
 DATABASE_URL="$TEST_DB_URL" pnpm prisma:seed && DATABASE_URL="$TEST_DB_URL" pnpm verify:seed
 ```
-Expected: FAIL — `expected >= 2 referral events, got 0`.
+Expected: FAIL - `expected >= 2 referral events, got 0`.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -842,16 +842,16 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 ## Self-Review
 
 **Spec coverage (Plan 1 portion):**
-- C2 dev-login (guarded, mints real JWT) → Tasks 1–2. ✓
-- C1 seed (full: users, campaigns+tasks+all task types, season+leaderboard+rewards, participations/claims, referrals, socials, notifications) → Tasks 3–6. ✓
+- C2 dev-login (guarded, mints real JWT) → Tasks 1-2. ✓
+- C1 seed (full: users, campaigns+tasks+all task types, season+leaderboard+rewards, participations/claims, referrals, socials, notifications) → Tasks 3-6. ✓
 - "no new migrations in quest-backend" constraint → schema applied from `backend` migrate deploy in the test-DB setup; seed is data-only. ✓
 - Seed-invariant test on a disposable Postgres → `verify-seed.ts` + `TEST_DB_URL` flow. ✓
 - TDD test-first ordering → every task: RED (verify/unit fails) → GREEN. ✓
 
-**Out of Plan 1 (handled in Plans 2–3):** the frontend dev-bypass calling `dev-login`; UI port; cross-surface badges; gap-check; Playwright. The seed's sponsor metadata (`metadata.sponsor`) and ranked results exist here so Plan 3's badge/leaderboard screens have data.
+**Out of Plan 1 (handled in Plans 2-3):** the frontend dev-bypass calling `dev-login`; UI port; cross-surface badges; gap-check; Playwright. The seed's sponsor metadata (`metadata.sponsor`) and ranked results exist here so Plan 3's badge/leaderboard screens have data.
 
-**Placeholder scan:** none — every step has concrete code and exact commands.
+**Placeholder scan:** none - every step has concrete code and exact commands.
 
-**Type consistency:** `SEED_USERS`/`SeedUser`, `seedUsers` returns `Record<string,string>` (username→id) consumed identically in Tasks 4–6; `deterministicPubkey`, `tierForPoints`, campaign id convention `seed-<protocol>`, task id `<campaignId>-task-<i>` used consistently. Prisma composite-unique where-keys (`userId_taskId`, `seasonId_userId`, `userId_campaignId`, `referrerId_refereeId`, `userId_provider`) match the schema `@@unique` definitions.
+**Type consistency:** `SEED_USERS`/`SeedUser`, `seedUsers` returns `Record<string,string>` (username→id) consumed identically in Tasks 4-6; `deterministicPubkey`, `tierForPoints`, campaign id convention `seed-<protocol>`, task id `<campaignId>-task-<i>` used consistently. Prisma composite-unique where-keys (`userId_taskId`, `seasonId_userId`, `userId_campaignId`, `referrerId_refereeId`, `userId_provider`) match the schema `@@unique` definitions.
 
 **Known follow-up:** if `ensureWalletUser` internally rejects the primary `DEV_WALLET` via `validatePublicKey`, dev-login Task 1's first test will surface it; the wallet constant is the app-wide `DEV_WALLET` and is expected valid.

@@ -13,9 +13,9 @@ export function StatRing({ value, label, display, size = 140 }: StatRingProps) {
   const C = 2 * Math.PI * r;
   const arcLen = (Math.max(0, Math.min(100, value)) / 100) * C;
   return (
-    // stat-ring: was undefined in quest.css — inline size via style
+    // stat-ring: was undefined in quest.css - inline size via style
     <div className="relative inline-grid place-items-center" style={{ width: size, height: size }}>
-      {/* stat-ring-svg: was undefined in quest.css — full-size absolute svg */}
+      {/* stat-ring-svg: was undefined in quest.css - full-size absolute svg */}
       <svg viewBox={`0 0 ${size} ${size}`} className="absolute inset-0 block" aria-hidden="true">
         <circle
           cx={size / 2}

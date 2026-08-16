@@ -72,21 +72,21 @@ export function SoroswapPoolDetailCard({ pool, mode = "playground" }: Props) {
       </div>
       <div className="space-y-3 p-4">
         <div className="grid grid-cols-3 gap-2">
-          <MetricBox label="TVL" value={pool.tvl != null ? `$${fmt(pool.tvl)}` : "—"} />
+          <MetricBox label="TVL" value={pool.tvl != null ? `$${fmt(pool.tvl)}` : "-"} />
           <MetricBox
             label="Volume 24H"
-            value={pool.volume24h != null ? `$${fmt(pool.volume24h)}` : "—"}
+            value={pool.volume24h != null ? `$${fmt(pool.volume24h)}` : "-"}
           />
-          <MetricBox label="Fee" value={pool.fee ?? "—"} />
+          <MetricBox label="Fee" value={pool.fee ?? "-"} />
         </div>
         <div className="grid grid-cols-2 gap-y-1.5 text-xs">
           <Row
             label={`Reserve ${pool.tokenA}`}
-            value={pool.reserveA != null ? fmt(Number(pool.reserveA) / 1e7) : "—"}
+            value={pool.reserveA != null ? fmt(Number(pool.reserveA) / 1e7) : "-"}
           />
           <Row
             label={`Reserve ${pool.tokenB}`}
-            value={pool.reserveB != null ? fmt(Number(pool.reserveB) / 1e7) : "—"}
+            value={pool.reserveB != null ? fmt(Number(pool.reserveB) / 1e7) : "-"}
           />
         </div>
       </div>

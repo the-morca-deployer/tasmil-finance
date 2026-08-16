@@ -128,11 +128,11 @@ function PoolDetail({ pool }: { pool: SoroswapPoolCardProps }) {
         </span>
         <span className="text-muted-foreground">
           <span className="text-muted-foreground/50">Fee </span>
-          <span className="text-foreground tabular-nums">{pool.fee ?? "—"}</span>
+          <span className="text-foreground tabular-nums">{pool.fee ?? "-"}</span>
         </span>
         <span className="text-muted-foreground">
           <span className="text-muted-foreground/50">Src </span>
-          <span className="text-foreground capitalize">{pool.protocol ?? "—"}</span>
+          <span className="text-foreground capitalize">{pool.protocol ?? "-"}</span>
         </span>
       </div>
     </div>

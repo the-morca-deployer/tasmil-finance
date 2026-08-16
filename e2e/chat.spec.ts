@@ -337,7 +337,7 @@ test.describe("Chat (/chat)", () => {
     expect(hasAlert).toBeFalsy();
   });
 
-  // T26 — Regression for two bugs that surface as "Chat request was
+  // T26 - Regression for two bugs that surface as "Chat request was
   // missing a usable wallet identity":
   //   1. ai/api/api/agui.py _require_auth had a broken import → 500
   //   2. Frontend lacked /api/auth/me rehydrate → 403 SESSION_INVALID

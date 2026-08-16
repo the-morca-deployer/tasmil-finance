@@ -22,7 +22,7 @@ export function TierRewardReveal({
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       {/* `quest-scope` re-exposes quest CSS vars here since Radix portals this
-          outside the page's `.quest-scope` wrapper — but that class also carries
+          outside the page's `.quest-scope` wrapper - but that class also carries
           page-wrapper layout rules (`min-height: 100vh`, `width: 100%`) that would
           otherwise stretch this dialog card to the full viewport height. */}
       <DialogContent className="quest-scope min-h-0 w-auto max-w-[400px] text-center">
@@ -43,7 +43,7 @@ export function TierRewardReveal({
             disabled={claiming}
             className="mt-2 inline-flex items-center justify-center rounded-quest-pill [background:var(--grad)] px-6 py-2 text-[14px] font-bold text-quest-accent-ink disabled:opacity-60"
           >
-            {claiming ? "Claiming…" : "Claim reward"}
+            {claiming ? "Claiming..." : "Claim reward"}
           </button>
         </div>
       </DialogContent>

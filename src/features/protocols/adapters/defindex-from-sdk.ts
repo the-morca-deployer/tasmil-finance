@@ -16,7 +16,7 @@ import {
   defindexVaultHistorySchema,
 } from "../schemas/defindex.schema";
 
-// ─── Vaults list normalization ───────────────────────────────────
+// --- Vaults list normalization -----------------------------------
 
 export function normalizeVaultsFromSdk(raw: Record<string, unknown>): DefindexVaultCardProps[] {
   const pools = (raw.pools ?? []) as Record<string, unknown>[];
@@ -32,7 +32,7 @@ export function normalizeVaultsFromSdk(raw: Record<string, unknown>): DefindexVa
     .filter((p): p is DefindexVaultCardProps => p !== null);
 }
 
-// ─── Vault detail normalization ──────────────────────────────────
+// --- Vault detail normalization ----------------------------------
 
 export function normalizeVaultDetailFromSdk(
   raw: Record<string, unknown>
@@ -46,7 +46,7 @@ export function normalizeVaultDetailFromSdk(
   return result.data;
 }
 
-// ─── User balance normalization ──────────────────────────────────
+// --- User balance normalization ----------------------------------
 
 export function normalizeVaultBalanceFromSdk(
   raw: Record<string, unknown>
@@ -60,7 +60,7 @@ export function normalizeVaultBalanceFromSdk(
   return result.data;
 }
 
-// ─── Vault history normalization ─────────────────────────────────
+// --- Vault history normalization ---------------------------------
 
 export function normalizeVaultHistoryFromSdk(
   raw: Record<string, unknown>
@@ -74,7 +74,7 @@ export function normalizeVaultHistoryFromSdk(
   return result.data;
 }
 
-// ─── Account performance normalization ───────────────────────────
+// --- Account performance normalization ---------------------------
 
 export function normalizeAccountPerformanceFromSdk(
   raw: Record<string, unknown>

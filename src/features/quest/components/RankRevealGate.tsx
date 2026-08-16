@@ -8,7 +8,7 @@ import { useQuestAuthStore } from "../store/use-quest-auth";
 import { RankReveal } from "./RankReveal";
 
 /**
- * Shows the {@link RankReveal} overlay exactly once per ENDED season — when the
+ * Shows the {@link RankReveal} overlay exactly once per ENDED season - when the
  * current user's season result has `revealed === false`. On claim it fires the
  * idempotent reveal-ack mutation and hides the overlay for the rest of the session.
  */

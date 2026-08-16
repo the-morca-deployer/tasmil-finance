@@ -7,11 +7,11 @@ function trimTrailingSlash(url: string): string {
   return url.replace(/\/$/, "");
 }
 
-// ── Base URLs ────────────────────────────────────────────────────────────────
+// -- Base URLs ----------------------------------------------------------------
 // Contract by context:
 //   public  → NEXT_PUBLIC_* absolute URL (SSR metadata / absolute links).
 //   browser → the current window origin, so browser calls hit same-origin paths
-//             (/api/*, /agui, …) and are forwarded by the next.config rewrites.
+//             (/api/*, /agui, ...) and are forwarded by the next.config rewrites.
 //   server  → the internal service URL the Next server uses to reach the service
 //             (AI_INTERNAL_URL / BACKEND_INTERNAL_URL), with a localhost dev fallback.
 
@@ -58,10 +58,10 @@ export function getBrowserBackendBaseUrl(
   return url ? trimTrailingSlash(url) : "";
 }
 
-// ── Proxy rewrites (single source of truth) ──────────────────────────────────
+// -- Proxy rewrites (single source of truth) ----------------------------------
 // next.config rewrites() forwards these same-origin paths to the upstream
 // service. To expose a NEW pass-through path, add ONE entry to `prefixes`
-// (matches `<path>/:path*`) or `exact` below — no need to edit next.config or
+// (matches `<path>/:path*`) or `exact` below - no need to edit next.config or
 // hand-write the rewrite shape, and the test stays green automatically.
 
 type ProxyTarget = {

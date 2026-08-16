@@ -6,7 +6,7 @@ import React from "react";
 import { WaitlistPhaseBoard } from "@/features/waitlist/components/waitlist-phase-board";
 import { BeamsBg, Ico, LINKS } from "./shared";
 
-/* landing.jsx — Hero, ReferralLoop, WhyJoin */
+/* landing.jsx - Hero, ReferralLoop, WhyJoin */
 
 const PROTOCOLS = [
   { id: "blend", name: "Blend", kind: "Lending markets", url: "https://www.blend.capital", i: 0 },
@@ -142,7 +142,7 @@ function ReferralLoop() {
           Share your <span className="accent">invite link</span>
         </>
       ),
-      sub: "Pass it to people who'd actually use Tasmil — only real signups count.",
+      sub: "Pass it to people who'd actually use Tasmil - only real signups count.",
     },
     {
       ico: (
@@ -201,7 +201,7 @@ function ReferralLoop() {
       rank: "02",
       name: "Cohort 2",
       wave: "Wave 2",
-      gate: "30–49 refs",
+      gate: "30-49 refs",
       access: "Months before launch",
       pts: "2,100",
     },
@@ -209,7 +209,7 @@ function ReferralLoop() {
       rank: "03",
       name: "Cohort 3",
       wave: "Wave 3",
-      gate: "10–29 refs",
+      gate: "10-29 refs",
       access: "Weeks before launch",
       pts: "800",
     },
@@ -217,12 +217,12 @@ function ReferralLoop() {
       rank: "04",
       name: "Cohort 4",
       wave: "Wave 4 · Early",
-      gate: "1–9 refs",
+      gate: "1-9 refs",
       access: "Priority queue",
       pts: "150",
     },
     {
-      rank: "—",
+      rank: "-",
       name: "Unranked",
       wave: "Wave 4",
       gate: "0 refs",
@@ -246,7 +246,7 @@ function ReferralLoop() {
     <section className="section" id="how">
       <div className="wrap">
         <div className="section-head">
-          <span className="kicker">02 — How it works</span>
+          <span className="kicker">02 - How it works</span>
           <h2 className="section-title">Invite to climb</h2>
           <p className="section-desc">
             It&apos;s one simple loop: invite people, earn Ref Points, and rise into earlier
@@ -293,7 +293,7 @@ function ReferralLoop() {
 
         <div className="cohorts-cap">
           <span className="cap-l">
-            Your cohort is set by one thing — your <b>accepted referrals</b>. Climb higher for
+            Your cohort is set by one thing - your <b>accepted referrals</b>. Climb higher for
             earlier access and lower fees.
           </span>
         </div>
@@ -360,7 +360,7 @@ function ReferralLoop() {
         <div className="wl-rules">
           <span className="wl-rules-k">Queue rank</span>
           <p>
-            Ranking follows your accepted-referral count — ties break to whoever joined first. You
+            Ranking follows your accepted-referral count - ties break to whoever joined first. You
             can&apos;t use your own code, tweets must be original posts containing your code within
             24h (no replies or retweets), and inviters must have progressed past the waitlist.
           </p>
@@ -388,14 +388,14 @@ function WhyJoin() {
       n: "03",
       ico: Ico.shield,
       h: "Non-custodial by design",
-      p: "Keeper wallets and session keys keep funds in your control — pick a risk preset and withdraw anytime.",
+      p: "Keeper wallets and session keys keep funds in your control - pick a risk preset and withdraw anytime.",
     },
   ];
   return (
     <section className="section" id="why">
       <div className="wrap">
         <div className="section-head">
-          <span className="kicker">03 — Why claim a seat</span>
+          <span className="kicker">03 - Why claim a seat</span>
           <h2 className="section-title">Reasons to be early</h2>
         </div>
         <div className="why-grid">

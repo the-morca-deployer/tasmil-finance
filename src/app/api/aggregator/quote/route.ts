@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     const isCrossChain = fromChain !== toChain;
 
     if (isCrossChain) {
-      // ── Cross-chain bridge ──────────────────────────────────
+      // -- Cross-chain bridge ----------------------------------
       const result = await sdk.bridge.getAllQuotes({
         fromChain: fromChain as any,
         toChain: toChain as any,
@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // ── Same-chain swap ──────────────────────────────────────
-    // Pass symbols — each adapter resolves to its own required format internally
+    // -- Same-chain swap --------------------------------------
+    // Pass symbols - each adapter resolves to its own required format internally
     const result = await sdk.swap.getAllQuotes({
       tokenIn,
       tokenOut,

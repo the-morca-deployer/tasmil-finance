@@ -28,7 +28,7 @@ async function call<T>(path: string, opts: CallOptions = {}): Promise<T> {
     throw new Error(`${opts.method ?? "GET"} ${path} -> ${res.status}`);
   }
   // Backend ships `{success, data}` envelope from controllers AND a global
-  // response interceptor re-wraps it — yielding `{success, data:{success,data:T}}`.
+  // response interceptor re-wraps it - yielding `{success, data:{success,data:T}}`.
   // Unwrap both layers when present so callers see just `T`.
   const json = (await res.json()) as {
     success?: boolean;

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// ─── Shared primitives ──────────────────────────────────────────
+// --- Shared primitives ------------------------------------------
 
 export const addressSchema = z.string().min(1);
 

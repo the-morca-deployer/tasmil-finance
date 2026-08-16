@@ -6,7 +6,7 @@ export const DEV_WALLET = "GDQI7LOGDRQRM5OXEIEY7TDHUYEHGQ7RX3KOJU3FNUP6HBDHUGWA3
 export const DEV_TOKEN = "dev-bypass-token";
 
 // Set by disconnectAll() so an explicit Disconnect actually sticks under
-// dev-bypass — otherwise dev-bypass would force-reconnect on the next page
+// dev-bypass - otherwise dev-bypass would force-reconnect on the next page
 // load. Cleared on an explicit connect.
 export const DEV_DISCONNECTED_KEY = "tasmil.dev-disconnected";
 

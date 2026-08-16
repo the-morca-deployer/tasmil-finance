@@ -20,7 +20,7 @@ export interface SignatureProofResult {
  *
  * @param taskId     Quest task ID (used in the endpoint path).
  * @param publicKey  User's Stellar public key (sent to both endpoints).
- * @param signFn     The wallet sign primitive – must return the signed string.
+ * @param signFn     The wallet sign primitive - must return the signed string.
  */
 export async function submitSignatureProof(
   taskId: string,

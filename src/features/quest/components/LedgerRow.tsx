@@ -19,7 +19,7 @@ function relativeTime(iso: string): string {
 
 export function LedgerRow({ occurredAt, source, delta }: LedgerRowProps) {
   return (
-    // ledger-row: not in quest.css — flex row with border-b
+    // ledger-row: not in quest.css - flex row with border-b
     <div className="flex items-center justify-between gap-3 py-[10px] border-b border-[#27272a] text-[13px] text-[#a1a1aa]">
       {/* ledger-time: timestamp label */}
       <div className="font-mono text-[11px] text-[#71717a] whitespace-nowrap">

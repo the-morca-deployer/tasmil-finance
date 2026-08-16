@@ -37,7 +37,7 @@ export function DefindexTxCard({
 
   // Context from API enrichment
   const ctx = tx.context;
-  const assetSymbol = ctx?.asset ?? tx.asset ?? "—";
+  const assetSymbol = ctx?.asset ?? tx.asset ?? "-";
   const vaultDisplayName = ctx?.vaultName
     ? cleanVaultName(ctx.vaultName)
     : tx.vaultName
@@ -89,7 +89,7 @@ export function DefindexTxCard({
           </span>
         </div>
 
-        {/* Fee — only show if non-zero */}
+        {/* Fee - only show if non-zero */}
         {hasFee && (
           <div className="flex justify-between border-border/30 border-b py-2.5">
             <span className="text-muted-foreground text-sm">Maximum transaction fee</span>

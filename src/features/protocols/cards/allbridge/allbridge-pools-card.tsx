@@ -63,7 +63,7 @@ export function AllbridgePoolsCard({ pools, mode = "playground" }: Props) {
     );
   }
 
-  // Playground — group by chain
+  // Playground - group by chain
   const byChain = new Map<string, AllbridgePoolCardProps[]>();
   for (const p of pools) {
     const arr = byChain.get(p.chain) ?? [];

@@ -94,7 +94,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       partialize: (state) => ({
-        // SECURITY: accessToken is NOT persisted — it lives only in memory.
+        // SECURITY: accessToken is NOT persisted - it lives only in memory.
         // The backend sets it in an httpOnly cookie; JS reads it from this store.
         // Persisting it would expose the JWT in localStorage (XSS risk).
         isAuthenticated: state.isAuthenticated,

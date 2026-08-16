@@ -25,7 +25,7 @@ export function AuthBootstrap() {
 
     const { accessToken, setAuthState, logout } = useAuthStore.getState();
 
-    // Already have a token in memory — nothing to rehydrate.
+    // Already have a token in memory - nothing to rehydrate.
     if (accessToken) return;
 
     const url = "/api/auth/me";
@@ -59,7 +59,7 @@ export function AuthBootstrap() {
           }
           return;
         }
-        if (!res.ok) return; // transient error — leave state alone
+        if (!res.ok) return; // transient error - leave state alone
         const body = (await res.json()) as {
           success?: boolean;
           data?: {
@@ -86,7 +86,7 @@ export function AuthBootstrap() {
         });
       })
       .catch(() => {
-        // Network error — leave state alone. The user's next protected call
+        // Network error - leave state alone. The user's next protected call
         // will surface its own error via the existing 401 handler.
       });
   }, []);

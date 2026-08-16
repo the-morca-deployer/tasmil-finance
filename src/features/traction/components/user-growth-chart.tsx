@@ -28,7 +28,7 @@ export function UserGrowthChart({
       <CardContent className="p-6">
         <div className="mb-4">
           <Typography variant="h3" className="font-semibold text-base">
-            App wallet growth — last 90 days
+            App wallet growth - last 90 days
           </Typography>
           <Typography variant="p" className="text-muted-foreground text-xs">
             Cumulative app wallets and daily new connections
@@ -36,7 +36,7 @@ export function UserGrowthChart({
         </div>
         {isLoading ? (
           <div className="flex h-52 items-center justify-center text-muted-foreground text-xs">
-            Loading…
+            Loading...
           </div>
         ) : points.length === 0 ? (
           <div className="flex h-52 items-center justify-center text-muted-foreground text-xs">

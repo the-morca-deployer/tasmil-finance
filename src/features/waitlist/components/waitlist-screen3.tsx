@@ -136,7 +136,7 @@ export function WaitlistScreen3({ submittedEmail }: WaitlistScreen3Props) {
           <div className="stat-box">
             <div className="lbl">Queue rank</div>
             <div className="val">
-              {status?.queueRank != null ? `#${status.queueRank.toLocaleString()}` : "—"}
+              {status?.queueRank != null ? `#${status.queueRank.toLocaleString()}` : "-"}
             </div>
             <div className="sub">
               {status?.totalEntries != null
@@ -226,7 +226,7 @@ export function WaitlistScreen3({ submittedEmail }: WaitlistScreen3Props) {
               fontStyle: "italic",
             }}
           >
-            Syncing referral link…
+            Syncing referral link...
           </div>
         )}
 

@@ -34,7 +34,7 @@ export function SponsorIndicator() {
     >
       <Link
         href="/rewards/gas-sponsorship"
-        aria-label={`Gas sponsorship active — ${remaining} of ${maxTx} transactions remaining`}
+        aria-label={`Gas sponsorship active - ${remaining} of ${maxTx} transactions remaining`}
         className="inline-flex items-center justify-center transition-transform hover:scale-105"
         style={{
           width: 36,
@@ -69,7 +69,7 @@ export function SponsorIndicator() {
         </span>
       </Link>
 
-      {/* Tooltip — outer span adds a transparent top "bridge" (paddingTop) so the
+      {/* Tooltip - outer span adds a transparent top "bridge" (paddingTop) so the
           pointer can reach the CTA without crossing a dead gap. */}
       <span
         style={{

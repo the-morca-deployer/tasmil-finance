@@ -19,7 +19,7 @@ function formatUsd(value: number): string {
 }
 
 function formatPrice(value: number): string {
-  if (value === 0) return "—";
+  if (value === 0) return "-";
   if (value >= 1) return formatUsd(value);
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -203,7 +203,7 @@ export function TokenList({ tokens, totalUsd, isLoading }: TokenListProps) {
 
                 {/* Value */}
                 <span className="text-right text-base font-medium text-foreground">
-                  {token.valueUsd > 0 ? formatUsd(token.valueUsd) : "—"}
+                  {token.valueUsd > 0 ? formatUsd(token.valueUsd) : "-"}
                 </span>
 
                 {/* Explorer link indicator */}

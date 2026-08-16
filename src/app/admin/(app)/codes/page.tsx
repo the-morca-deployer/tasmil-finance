@@ -47,7 +47,7 @@ export default function AdminCodesPage() {
 
   return (
     <div className="flex h-full gap-6 p-8">
-      {/* Left panel — generate */}
+      {/* Left panel - generate */}
       <div className="w-72 flex-shrink-0 space-y-6">
         <div>
           <Typography variant="h2" className="font-bold text-xl">
@@ -61,7 +61,7 @@ export default function AdminCodesPage() {
         <div className="space-y-3">
           <div>
             <label htmlFor="quantity" className="mb-1.5 block font-medium text-sm">
-              Quantity (1–100)
+              Quantity (1-100)
             </label>
             <Input
               id="quantity"
@@ -117,7 +117,7 @@ export default function AdminCodesPage() {
         )}
       </div>
 
-      {/* Right panel — table */}
+      {/* Right panel - table */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="mb-4 flex items-center gap-3">
           <Typography variant="h2" className="font-bold text-xl">

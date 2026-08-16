@@ -12,14 +12,14 @@ interface PaginationBarProps {
 export function PaginationBar({ page, totalPages, onPageChange }: PaginationBarProps) {
   if (totalPages <= 1) return null;
 
-  const pages: (number | "…")[] = [];
+  const pages: (number | "...")[] = [];
   const add = (n: number) => {
     if (!pages.includes(n) && n >= 1 && n <= totalPages) pages.push(n);
   };
   add(1);
-  if (page - 1 > 2) pages.push("…");
+  if (page - 1 > 2) pages.push("...");
   for (let p = page - 1; p <= page + 1; p++) add(p);
-  if (page + 1 < totalPages - 1) pages.push("…");
+  if (page + 1 < totalPages - 1) pages.push("...");
   add(totalPages);
 
   return (
@@ -34,9 +34,9 @@ export function PaginationBar({ page, totalPages, onPageChange }: PaginationBarP
         <ChevronLeft className="h-4 w-4" />
       </Button>
       {pages.map((p, idx) =>
-        p === "…" ? (
+        p === "..." ? (
           <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">
-            …
+            ...
           </span>
         ) : (
           <Button

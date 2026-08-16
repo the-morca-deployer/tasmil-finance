@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Allbridge Playground — /playground/allbridge
+ * Allbridge Playground - /playground/allbridge
  *
  * Full-featured playground covering all Allbridge capabilities:
  * - Bridge: 3 queries (supported chains, routes, quote) + 1 operation (bridge transfer)
@@ -35,7 +35,7 @@ import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
 
-// ── Mock stream ─────────────────────────────────────────────────
+// -- Mock stream -------------------------------------------------
 const MOCK_STREAM = {
   messages: [],
   values: {},
@@ -52,7 +52,7 @@ const MCP_URL = process.env["NEXT_PUBLIC_MCP_STELLAR_URL"] ?? "http://localhost:
 const MCP_QUERY_URL = `${MCP_URL}/allbridge/query`;
 const MCP_OP_URL = `${MCP_URL}/allbridge/op`;
 
-// ── Styles ──────────────────────────────────────────────────────
+// -- Styles ------------------------------------------------------
 const inputCls =
   "w-full rounded-lg bg-secondary border border-border px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20";
 const labelCls = "block text-muted-foreground text-[11px] mb-0.5 font-medium";
@@ -60,7 +60,7 @@ const panelCls = "rounded-xl border border-border bg-card/80 p-4 space-y-3 flex 
 const selectCls =
   "w-full rounded-lg bg-secondary border border-border px-3 py-1.5 text-sm text-foreground focus:outline-none focus:border-primary/50 cursor-pointer";
 
-// ── Types ───────────────────────────────────────────────────────
+// -- Types -------------------------------------------------------
 interface Field {
   key: string;
   label: string;
@@ -69,7 +69,7 @@ interface Field {
   options?: { value: string; label: string }[];
 }
 
-// ── Supported chains ────────────────────────────────────────────
+// -- Supported chains --------------------------------------------
 const CHAINS = [
   { value: "stellar", label: "Stellar" },
   { value: "ethereum", label: "Ethereum" },
@@ -83,7 +83,7 @@ const CHAINS = [
   { value: "tron", label: "Tron" },
 ];
 
-// ── QueryPanel ──────────────────────────────────────────────────
+// -- QueryPanel --------------------------------------------------
 interface QueryPanelProps {
   title: string;
   endpoint: string;
@@ -92,7 +92,7 @@ interface QueryPanelProps {
   autoFetch?: boolean;
   renderResult?: (data: any) => React.ReactNode;
   badge?: string;
-  /** Base URL — defaults to SDK route, set to MCP_QUERY_URL for on-chain queries */
+  /** Base URL - defaults to SDK route, set to MCP_QUERY_URL for on-chain queries */
   baseUrl?: string;
 }
 
@@ -134,7 +134,7 @@ function QueryPanel({
         e instanceof Error
           ? e.message
           : baseUrl !== SDK_QUERY_URL
-            ? "Network error — is mcp-stellar running?"
+            ? "Network error - is mcp-stellar running?"
             : "Network error"
       );
     } finally {
@@ -228,7 +228,7 @@ function QueryPanel({
   );
 }
 
-// ── OpPanel ─────────────────────────────────────────────────────
+// -- OpPanel -----------------------------------------------------
 interface OpPanelProps {
   title: string;
   endpoint: string;
@@ -280,7 +280,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
       if (!d.success) setError(d.error ?? "Build failed");
       else setResult(d);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Network error — is mcp-stellar running?");
+      setError(e instanceof Error ? e.message : "Network error - is mcp-stellar running?");
     } finally {
       setLoading(false);
     }
@@ -368,7 +368,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
   );
 }
 
-// ── Supported Chains Table ──────────────────────────────────────
+// -- Supported Chains Table --------------------------------------
 function SupportedChainsTable({ data }: { data: any }) {
   const chains = normalizeAllbridgeSupportedChainsFromSdk(data);
   if (!chains.length) return <p className="text-xs text-muted-foreground">No chain data.</p>;
@@ -401,7 +401,7 @@ function SupportedChainsTable({ data }: { data: any }) {
   );
 }
 
-// ── Main Playground ─────────────────────────────────────────────
+// -- Main Playground ---------------------------------------------
 export default function AllbridgePlaygroundPage() {
   const { address: walletAddress } = useWallet();
   const [tab, setTab] = useState<"queries" | "operations">("queries");
@@ -426,7 +426,7 @@ export default function AllbridgePlaygroundPage() {
   return (
     <StreamContext.Provider value={MOCK_STREAM}>
       <div className="min-h-screen bg-background text-foreground p-6 space-y-6">
-        {/* ── Header ── */}
+        {/* -- Header -- */}
         <div className="space-y-3">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
@@ -454,7 +454,7 @@ export default function AllbridgePlaygroundPage() {
           </div>
         </div>
 
-        {/* ── Tabs ── */}
+        {/* -- Tabs -- */}
         <div className="flex gap-1 bg-card rounded-lg p-1 w-fit border border-border">
           {tabs.map((t) => (
             <Button
@@ -472,12 +472,12 @@ export default function AllbridgePlaygroundPage() {
           ))}
         </div>
 
-        {/* ═══════════════════════════════════════════════════════
-            QUERY TAB — 8 panels
-        ═══════════════════════════════════════════════════════ */}
+        {/* -------------------------------------------------------
+            QUERY TAB - 8 panels
+        ------------------------------------------------------- */}
         {tab === "queries" && (
           <div className="space-y-6">
-            {/* ── Bridge Queries ── */}
+            {/* -- Bridge Queries -- */}
             <div>
               <Typography
                 variant="small"
@@ -486,7 +486,7 @@ export default function AllbridgePlaygroundPage() {
                 Bridge Queries
               </Typography>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {/* Q1. Supported Chains (MCP — calls Allbridge API) */}
+                {/* Q1. Supported Chains (MCP - calls Allbridge API) */}
                 <QueryPanel
                   title="Supported Chains"
                   endpoint="supported-chains"
@@ -556,7 +556,7 @@ export default function AllbridgePlaygroundPage() {
               </div>
             </div>
 
-            {/* ── LP Pool Queries ── */}
+            {/* -- LP Pool Queries -- */}
             <div>
               <Typography
                 variant="small"
@@ -717,12 +717,12 @@ export default function AllbridgePlaygroundPage() {
           </div>
         )}
 
-        {/* ═══════════════════════════════════════════════════════
-            OPERATIONS TAB — 4 panels
-        ═══════════════════════════════════════════════════════ */}
+        {/* -------------------------------------------------------
+            OPERATIONS TAB - 4 panels
+        ------------------------------------------------------- */}
         {tab === "operations" && (
           <div className="space-y-6">
-            {/* ── Bridge Transfer ── */}
+            {/* -- Bridge Transfer -- */}
             <div>
               <Typography
                 variant="small"
@@ -760,7 +760,7 @@ export default function AllbridgePlaygroundPage() {
               </div>
             </div>
 
-            {/* ── LP Operations ── */}
+            {/* -- LP Operations -- */}
             <div>
               <Typography
                 variant="small"
@@ -824,11 +824,11 @@ export default function AllbridgePlaygroundPage() {
           </div>
         )}
 
-        {/* ── Footer ── */}
+        {/* -- Footer -- */}
         <div className="border-t border-border pt-4 text-center">
           <Typography variant="small" className="text-muted-foreground/40 text-xs">
             Allbridge Playground · 8 queries + 4 operations · SDK-backed pool listing · MCP-backed
-            on-chain queries & operations · LP pools are mainnet only · Operations build XDR only —
+            on-chain queries & operations · LP pools are mainnet only · Operations build XDR only -
             wallet signing required
           </Typography>
         </div>

@@ -30,7 +30,7 @@ export function AdminTopupsPage() {
         data-testid="admin-topups-loading"
         className="mx-auto w-full max-w-5xl px-6 py-10 text-muted-foreground text-sm"
       >
-        Loading pending fiat topups…
+        Loading pending fiat topups...
       </main>
     );
   }
@@ -74,7 +74,7 @@ export function AdminTopupsPage() {
                 className="border-b last:border-0"
               >
                 <td className="py-2 font-mono">{t.id.slice(-8)}</td>
-                <td className="font-mono">{t.user.stellarPubkey.slice(0, 8)}…</td>
+                <td className="font-mono">{t.user.stellarPubkey.slice(0, 8)}...</td>
                 <td>{t.package.id}</td>
                 <td>${t.pricingSnapshotUsd}</td>
                 <td className="font-mono">{t.reference}</td>

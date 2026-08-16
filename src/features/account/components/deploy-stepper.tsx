@@ -41,7 +41,7 @@ interface DeployStepperProps {
   subStep: DeploySubStep;
   deployCompleted: boolean;
   setupCompleted: boolean;
-  /** Sub-step text below bar (e.g. "Sign transaction 2 of 2 — Configure Session Key"). Pass undefined to hide. */
+  /** Sub-step text below bar (e.g. "Sign transaction 2 of 2 - Configure Session Key"). Pass undefined to hide. */
   statusText?: string;
 }
 

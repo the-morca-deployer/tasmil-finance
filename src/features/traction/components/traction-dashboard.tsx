@@ -40,12 +40,12 @@ export function TractionDashboard() {
           <Image src="/tasmil-logo.png" alt="Tasmil Finance" width={32} height={32} />
           <div>
             <h1 className="font-bold text-2xl">Tasmil Traction</h1>
-            <p className="text-muted-foreground text-xs">Live growth metrics — Stellar mainnet</p>
+            <p className="text-muted-foreground text-xs">Live growth metrics - Stellar mainnet</p>
           </div>
         </div>
         {data?.updatedAt && (
           <span className="rounded bg-green-500/10 px-2 py-1 font-semibold text-[11px] text-green-400">
-            Live data — updated {new Date(data.updatedAt).toUTCString()}
+            Live data - updated {new Date(data.updatedAt).toUTCString()}
           </span>
         )}
       </header>

@@ -21,7 +21,7 @@ import {
   normalizeTxFromSdk,
 } from "./from-sdk";
 
-// ─── MCP result unwrapping ──────────────────────────────────────
+// --- MCP result unwrapping --------------------------------------
 
 /**
  * Unwrap MCP tool result from various formats:
@@ -69,7 +69,7 @@ export function unwrapMcpResult<T = Record<string, unknown>>(
   return { data: (obj?.data ?? obj) as T, error: null };
 }
 
-// ─── MCP APY conversion ────────────────────────────────────────
+// --- MCP APY conversion ----------------------------------------
 // MCP returns APY as percentages (0.16 = 0.16%) but SDK normalizers
 // + pct() display expect raw decimals (0.001 = 0.10%).
 // Convert: if all APY values in a reserve are < 50, they're already
@@ -94,7 +94,7 @@ function convertMcpApyToDecimal(reserve: Record<string, unknown>): Record<string
 }
 
 function convertMcpPoolReserves(data: Record<string, unknown>): Record<string, unknown> {
-  // IMPORTANT: return a new object — never mutate `data` because React may
+  // IMPORTANT: return a new object - never mutate `data` because React may
   // re-render and call this function again on the same reference, causing
   // double-division of APY values (2.78 → 0.0278 → 0.000278).
   let out = { ...data };
@@ -132,7 +132,7 @@ function convertMcpPoolReserves(data: Record<string, unknown>): Record<string, u
   return out;
 }
 
-// ─── Pool ──────────────────────────────────────────────────────
+// --- Pool ------------------------------------------------------
 
 export function normalizePoolFromMcp(result: unknown): PoolCardProps | null {
   const { data, error } = unwrapMcpResult(result);
@@ -146,7 +146,7 @@ export function normalizePoolsFromMcp(result: unknown): PoolCardProps[] {
   return normalizePoolsFromSdk(convertMcpPoolReserves(data));
 }
 
-// ─── Reserve ───────────────────────────────────────────────────
+// --- Reserve ---------------------------------------------------
 
 export function normalizeReserveFromMcp(result: unknown): ReserveCardProps | null {
   const { data, error } = unwrapMcpResult(result);
@@ -160,7 +160,7 @@ export function normalizeReserveFromMcp(result: unknown): ReserveCardProps | nul
   return normalizeReserveFromSdk(converted);
 }
 
-// ─── Positions ──────────��───────────────────────────────────────
+// --- Positions ----------��---------------------------------------
 
 export function normalizePositionsFromMcp(result: unknown): PositionsCardProps | null {
   const { data, error } = unwrapMcpResult(result);
@@ -168,7 +168,7 @@ export function normalizePositionsFromMcp(result: unknown): PositionsCardProps |
   return normalizePositionsFromSdk(data);
 }
 
-// ─── Transaction ───────────���────────────────────────────────────
+// --- Transaction -----------���------------------------------------
 
 export function normalizeTxFromMcp(
   result: unknown,
@@ -182,7 +182,7 @@ export function normalizeTxFromMcp(
   return normalizeTxFromSdk(merged);
 }
 
-// ─── Backstop ───────────��───────────────────────────────���───────
+// --- Backstop -----------��-------------------------------���-------
 
 export function normalizeBackstopFromMcp(result: unknown): BackstopCardProps | null {
   const { data, error } = unwrapMcpResult(result);
@@ -190,7 +190,7 @@ export function normalizeBackstopFromMcp(result: unknown): BackstopCardProps | n
   return normalizeBackstopFromSdk(data);
 }
 
-// ─── Backstop Balance ──────────────────────────────────────────
+// --- Backstop Balance ------------------------------------------
 
 export function normalizeBackstopBalanceFromMcp(result: unknown): BackstopBalanceCardProps | null {
   const { data, error } = unwrapMcpResult(result);

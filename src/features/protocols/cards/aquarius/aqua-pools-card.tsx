@@ -128,7 +128,7 @@ function PoolDetail({ pool }: { pool: AquaPoolCardProps }) {
           ))}
         </div>
       )}
-      {/* Metrics row — matches Aquarius website: TVL | Volume 24H | Rewards | Total APR */}
+      {/* Metrics row - matches Aquarius website: TVL | Volume 24H | Rewards | Total APR */}
       <div className="grid grid-cols-4 gap-1 pl-5 text-[11px]">
         <span className="text-muted-foreground">
           <span className="text-muted-foreground/50">TVL </span>

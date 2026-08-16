@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Desktop chrome — top nav (now default)", () => {
+test.describe("Desktop chrome - top nav (now default)", () => {
   test("top nav visible by default", async ({ page }) => {
     await page.goto("/farming");
     await expect(page.locator('[data-testid="top-nav-bar"]')).toBeVisible({

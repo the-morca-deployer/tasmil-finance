@@ -1,7 +1,7 @@
-# Admin Panel — Complete Design Spec
+# Admin Panel - Complete Design Spec
 **Date:** 2026-06-17  
 **Scope:** Waitlist flow completion + Quest Campaign/Task management + Analytics  
-**Approach:** Phased — Sprint 1 (Waitlist + Email Campaigns), Sprint 2 (Quest Management + Analytics)
+**Approach:** Phased - Sprint 1 (Waitlist + Email Campaigns), Sprint 2 (Quest Management + Analytics)
 
 ---
 
@@ -12,15 +12,15 @@
 ```
 Dashboard
 Waitlist                    ← existing, enhanced
-─────────────────────────
+-------------------------
 Email Campaigns             ← existing /admin/campaigns, renamed
 Quest Management            ← new section header
-  └ Campaigns               ← new /admin/quest-campaigns
-  └ (Tasks live inside campaign detail, no top-level route)
-─────────────────────────
+  + Campaigns               ← new /admin/quest-campaigns
+  + (Tasks live inside campaign detail, no top-level route)
+-------------------------
 Quest Wallets               ← existing /admin/quests, renamed
 Analytics                   ← new /admin/analytics
-─────────────────────────
+-------------------------
 Access Codes                ← existing /admin/codes
 Topups                      ← existing /admin/topups
 ```
@@ -34,9 +34,9 @@ Topups                      ← existing /admin/topups
 | `/admin/analytics` | Unified analytics page |
 
 ### Unchanged routes
-- `/admin/waitlist` — same URL, enhanced UI
-- `/admin/campaigns` — same URL, renamed "Email Campaigns"
-- `/admin/quests` — same URL, renamed "Quest Wallets"
+- `/admin/waitlist` - same URL, enhanced UI
+- `/admin/campaigns` - same URL, renamed "Email Campaigns"
+- `/admin/quests` - same URL, renamed "Quest Wallets"
 
 ---
 
@@ -45,7 +45,7 @@ Topups                      ← existing /admin/topups
 ### 2a. Send Access Email (per row)
 - Each row gets a "Send Access" action button
 - Only shown when: entry has email AND status is `PENDING` or `CONFIRMED`
-- On click: calls `POST /admin/access-codes/individual` (create code) → `POST /admin/access-codes/send-email` (send email) — both endpoints already exist in backend
+- On click: calls `POST /admin/access-codes/individual` (create code) → `POST /admin/access-codes/send-email` (send email) - both endpoints already exist in backend
 - On success: update row status to `ACCESS_SENT` optimistically
 
 ### 2b. Bulk Select + Send Access
@@ -64,7 +64,7 @@ Topups                      ← existing /admin/topups
 ### 2c. Assign Code Manually
 - Row action "Assign Code" opens modal:
   ```
-  Select Code:   [dropdown — list ACTIVE access codes]
+  Select Code:   [dropdown - list ACTIVE access codes]
                  OR [Generate New Code]  
   [Assign & Send Email]  [Assign Only]
   ```
@@ -75,7 +75,7 @@ Topups                      ← existing /admin/topups
 - Clicking a row expands an inline panel (or side drawer) beneath the row:
   ```
   Email History for 0xABC...
-  ─────────────────────────────────────────────────
+  -------------------------------------------------
   Type                    | Status  | Sent At            | Action
   WAITLIST_CONFIRMATION   | SENT    | 2026-06-10 14:32   |
   ACCESS_RELEASE          | FAILED  | 2026-06-12 09:11   | [Retry]
@@ -105,7 +105,7 @@ Send to:  ◉ All CONFIRMED entries
           ○ Filter by status  [PENDING | CONFIRMED | ACCESS_SENT]
           ○ Paste emails manually  [textarea]
 ```
-- Backend `sendCampaign` already accepts `targetEmails?: string[]` — frontend wires the UI
+- Backend `sendCampaign` already accepts `targetEmails?: string[]` - frontend wires the UI
 
 ### 3c. Campaign detail drawer
 - Click any row in history table → side drawer opens:
@@ -155,33 +155,33 @@ New files under `src/app/api/quest-admin/`:
 ```
 Auth: `Authorization: Bearer ${process.env.QUEST_ADMIN_TOKEN}` forwarded to quest backend.
 
-### 4c. `/admin/quest-campaigns` — List page
+### 4c. `/admin/quest-campaigns` - List page
 ```
 Quest Campaigns                              [+ New Campaign ▼]
-                                              └ Main System
-                                              └ Quest System
+                                              + Main System
+                                              + Quest System
 
 [Filter: All | Main | Quest]  [Search by name]
 
 Name          | Backend | Status  | Tasks | Participants | Period
-─────────────────────────────────────────────────────────────────
-Blend Week 1  | MAIN    | Active  |  5    |  234         | Jun–Jul
+-----------------------------------------------------------------
+Blend Week 1  | MAIN    | Active  |  5    |  234         | Jun-Jul
 Soroswap Q2   | QUEST   | Active  |  3    |  891         | Jun
 ```
 
-### 4d. `/admin/quest-campaigns/[id]` — Detail + Task CRUD
+### 4d. `/admin/quest-campaigns/[id]` - Detail + Task CRUD
 Two-panel layout:
 
-**Left panel — Campaign info (editable form):**
+**Left panel - Campaign info (editable form):**
 - Title, Description, Protocol, Category (select)
 - Logo URL, Start Date, End Date
 - Max Participants, isActive toggle
 - `[Save Changes]` `[Delete Campaign]`
 
-**Right panel — Tasks:**
+**Right panel - Tasks:**
 ```
 Tasks                                    [+ Add Task]
-─────────────────────────────────────────────────────
+-----------------------------------------------------
 1. Connect Wallet    100pts  ACTIVE  [Edit] [↑↓] [Delete]
 2. Deposit $10       200pts  ACTIVE  [Edit] [↑↓] [Delete]
 ```
@@ -189,7 +189,7 @@ Inline task form on Add/Edit:
 ```
 Title *, Description, Type [ONCHAIN|SOCIAL|REFERRAL|OTHER]
 Point Reward *, Order, isActive toggle
-Metadata: [JSON editor — collapsible]
+Metadata: [JSON editor - collapsible]
 [Save]  [Cancel]
 ```
 
@@ -197,21 +197,21 @@ Metadata: [JSON editor — collapsible]
 
 ## 5. Analytics (Sprint 2)
 
-### 5a. `/admin/analytics` — Standalone page
+### 5a. `/admin/analytics` - Standalone page
 
-**Row 1 — KPI cards:**
+**Row 1 - KPI cards:**
 ```
 Total Wallets | Active Campaigns | Total Participants | Tasks Completed | Total Volume (USD)
 ```
 
-**Row 2 — Charts:**
-- Line chart: "Wallets Over Time" — toggle 7d / 30d / 90d
-- Bar chart: "Campaign Participation" — top 10 campaigns by participant count
+**Row 2 - Charts:**
+- Line chart: "Wallets Over Time" - toggle 7d / 30d / 90d
+- Bar chart: "Campaign Participation" - top 10 campaigns by participant count
 
-**Row 3 — Tables (side by side):**
+**Row 3 - Tables (side by side):**
 ```
 Task Completion Rates                    Top Wallets by Volume
-─────────────────────────               ──────────────────────
+-------------------------               ----------------------
 Task | Campaign | Completed | Rate       Wallet | Protocol | Vol
 ```
 
@@ -256,13 +256,13 @@ Task | Campaign | Completed | Rate       Wallet | Protocol | Vol
 
 ## 7. Sprint Plan
 
-### Sprint 1 — Waitlist + Email Campaigns
+### Sprint 1 - Waitlist + Email Campaigns
 1. Backend: `POST /admin/waitlist/bulk-send-access`
 2. Backend: `GET /admin/waitlist/entries/:id/dispatches`
-3. Frontend: enhance `/admin/waitlist` — per-row Send Access, bulk toolbar, Assign Code modal, dispatch history, status cards
-4. Frontend: enhance `/admin/campaigns` — rename, target filter, campaign detail drawer
+3. Frontend: enhance `/admin/waitlist` - per-row Send Access, bulk toolbar, Assign Code modal, dispatch history, status cards
+4. Frontend: enhance `/admin/campaigns` - rename, target filter, campaign detail drawer
 
-### Sprint 2 — Quest Management + Analytics
+### Sprint 2 - Quest Management + Analytics
 1. Backend: 10 new quest CRUD endpoints on main backend
 2. Frontend: Next.js proxy routes `/api/quest-admin/*`
 3. Frontend: `/admin/quest-campaigns` list page

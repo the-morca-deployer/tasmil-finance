@@ -4,10 +4,10 @@
  * with chat formatters (chat/actions/lib/formatting.ts).
  */
 
-// ─── Known token symbols ────────────────────────────────────────
+// --- Known token symbols ----------------------------------------
 
 export const KNOWN_SYMBOLS: Record<string, string> = {
-  // ── Mainnet ──────────────────────────────────────────────────
+  // -- Mainnet --------------------------------------------------
   CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA: "XLM",
   CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC: "XLM",
   CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75: "USDC",
@@ -26,7 +26,7 @@ export const KNOWN_SYMBOLS: Record<string, string> = {
   CCCRWH6Q3FNP3I2I57BDLM5AFAT7O6OF6GKQOC6SSJNDAVRZ57SPHGU2: "PYUSD",
   CBZ7M5B3Y4WWBZ5XK5UZCAFOEZ23KSSZXYECYX3IXM6E2JOLQC52DK32: "PHO",
   CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM: "BLNDUSDCLP",
-  // ── Testnet ──────────────────────────────────────────────────
+  // -- Testnet --------------------------------------------------
   CAQCFVLOBK5GIULPNZRGATJJMIZL5BSP7X5YJVMGCPTUEPFM4AVSRCJU: "USDC",
   CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA: "USDC",
   CAZRY5GSFBFXD7H6GAFBA5YGYQTDXU4QKWKMYFWBAZFUCURN3WKX6LF5: "USDC",
@@ -45,7 +45,7 @@ export function resolveSymbol(contract: string): string {
   );
 }
 
-// ─── Number formatting ──────────────────────────────────────────
+// --- Number formatting ------------------------------------------
 
 /** Format a number with K/M/B/T abbreviations. Handles null/NaN gracefully. */
 export function fmt(v: unknown, d = 2): string {

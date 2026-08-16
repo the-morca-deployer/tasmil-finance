@@ -46,7 +46,7 @@ export const BRIDGE_NETWORKS: [AppKitNetwork, ...AppKitNetwork[]] = [
   isTestnet ? solanaTestnet : solana,
 ];
 
-// ── WagmiAdapter: ssr:true makes it safe to instantiate on the server ─────────
+// -- WagmiAdapter: ssr:true makes it safe to instantiate on the server ---------
 export const wagmiAdapter = new WagmiAdapter({
   networks: EVM_NETWORKS,
   projectId,
@@ -55,7 +55,7 @@ export const wagmiAdapter = new WagmiAdapter({
 
 export const wagmiConfig = wagmiAdapter.wagmiConfig as Config;
 
-// ── SolanaAdapter + AppKit: browser-only (Solana web3.js uses randombytes) ────
+// -- SolanaAdapter + AppKit: browser-only (Solana web3.js uses randombytes) ----
 if (typeof window !== "undefined") {
   const solanaAdapter = new SolanaAdapter();
 

@@ -36,7 +36,7 @@ import { FarmingAllocation } from "./farming-allocation";
 import { FarmingHeader } from "./farming-header";
 import { FarmingPools } from "./farming-pools";
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// --- Helpers ----------------------------------------------------------------
 
 async function signXdr(xdr: string, publicKey: string): Promise<string> {
   const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
@@ -56,7 +56,7 @@ function formatUsd(value: number): string {
   }).format(value);
 }
 
-// ─── Tabs ───────────────────────────────────────────────────────────────────
+// --- Tabs -------------------------------------------------------------------
 
 type TabValue = "overview" | "pools" | "strategy" | "activity";
 const VALID_TABS: TabValue[] = ["overview", "pools", "strategy", "activity"];
@@ -68,7 +68,7 @@ const TABS: { value: TabValue; label: string }[] = [
   { value: "activity", label: "Activity" },
 ];
 
-// ─── Connect prompt ─────────────────────────────────────────────────────────
+// --- Connect prompt ---------------------------------------------------------
 
 function ConnectPrompt() {
   return (
@@ -89,7 +89,7 @@ function ConnectPrompt() {
   );
 }
 
-// ─── Main content ───────────────────────────────────────────────────────────
+// --- Main content -----------------------------------------------------------
 
 function FarmingContent() {
   const router = useRouter();
@@ -149,7 +149,7 @@ function FarmingContent() {
 
   // Keep selectedPreset in sync with the account's active preset so the
   // Strategy tab visually highlights the current selection on first render.
-  // Only runs when the backend preset changes — doesn't override in-flight
+  // Only runs when the backend preset changes - doesn't override in-flight
   // user selections on the tab.
   useEffect(() => {
     const normalized = position?.preset?.toLowerCase();
@@ -283,7 +283,7 @@ function FarmingContent() {
     position?.profitPercent,
   ]);
 
-  // ─── Action handlers ──────────────────────────────────────────────────────
+  // --- Action handlers ------------------------------------------------------
 
   const openAccountModal = (tab: "fund" | "strategy" | "withdraw" | "security" | "activate") => {
     setActionError(null);
@@ -415,7 +415,7 @@ function FarmingContent() {
     }
   };
 
-  // ─── Guards ───────────────────────────────────────────────────────────────
+  // --- Guards ---------------------------------------------------------------
 
   if (!publicKey) return <ConnectPrompt />;
 
@@ -429,12 +429,12 @@ function FarmingContent() {
 
   // Keep onboarding rendered until the full 2-of-2 signup finishes. Status
   // DEPLOYING means TX 1 (keeper-wallet deploy) confirmed but TX 2
-  // (configure_session_key) has not — if we swap to the Dashboard too
+  // (configure_session_key) has not - if we swap to the Dashboard too
   // early the user loses the TX 2 prompt and lands on a vault that cannot
   // actually sign anything.
   if (!position || position.status === "DEPLOYING") return <OnboardingPage />;
 
-  // ─── Derived ──────────────────────────────────────────────────────────────
+  // --- Derived --------------------------------------------------------------
 
   const registryPools = registryPoolsData ?? [];
   const accountStatus = position?.status ?? "ACTIVE";
@@ -452,13 +452,13 @@ function FarmingContent() {
     parsedWithdrawAmount > 0 &&
     parsedWithdrawAmount <= availableUsd;
 
-  // ─── Render ───────────────────────────────────────────────────────────────
+  // --- Render ---------------------------------------------------------------
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <div className="flex-1 overflow-auto">
         <div className="flex flex-col gap-6 px-4 py-6 sm:px-6 md:px-8">
-          {/* Header — like WalletHeader: icon + big value + P&L */}
+          {/* Header - like WalletHeader: icon + big value + P&L */}
           <FarmingHeader
             totalValueUsd={position.totalValueUsd}
             allTimePnlUsd={cashflowSummary.allTimePnlUsd}
@@ -468,7 +468,7 @@ function FarmingContent() {
             isLoading={false}
           />
 
-          {/* Stale session-key banner — prompts user to re-sign after the
+          {/* Stale session-key banner - prompts user to re-sign after the
               operator deploys a new strategy post-signup. */}
           {position?.sessionKeyStale && (
             <motion.div
@@ -482,7 +482,7 @@ function FarmingContent() {
                 <p className="font-medium text-foreground">New yield strategies available</p>
                 <p className="text-muted-foreground">
                   Your session key was registered before we launched some pools. Refresh it to let
-                  the bot access the latest opportunities. Your funds stay in your keeper wallet —
+                  the bot access the latest opportunities. Your funds stay in your keeper wallet -
                   this just updates the bot's scope.
                 </p>
               </div>
@@ -492,7 +492,7 @@ function FarmingContent() {
             </motion.div>
           )}
 
-          {/* Action buttons — visible right under header */}
+          {/* Action buttons - visible right under header */}
           <motion.div
             data-onborda="farming-actions"
             className="flex items-center gap-3"
@@ -540,7 +540,7 @@ function FarmingContent() {
             )}
           </motion.div>
 
-          {/* Tab bar — like portfolio tab bar */}
+          {/* Tab bar - like portfolio tab bar */}
           <motion.div
             data-onborda="farming-tabs"
             className="flex items-center gap-4 border-b border-border pb-0"
@@ -582,7 +582,7 @@ function FarmingContent() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.25 }}
               >
-                {/* Paused (REVOKED) strip — neutral styling, always reversible */}
+                {/* Paused (REVOKED) strip - neutral styling, always reversible */}
                 {isRevoked && (
                   <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/10 px-4 py-3">
                     <Info className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -618,7 +618,7 @@ function FarmingContent() {
                   />
                 </div>
 
-                {/* Pools table below — like Assets table in portfolio */}
+                {/* Pools table below - like Assets table in portfolio */}
                 <FarmingPools pools={registryPools} isLoading={registryPoolsLoading} />
               </motion.div>
             )}
@@ -654,12 +654,12 @@ function FarmingContent() {
                           ? position.preset.charAt(0) + position.preset.slice(1).toLowerCase()
                           : "Balanced"}
                       </span>
-                      . The same preset applies to both USDC and XLM deposits — each portion is
+                      . The same preset applies to both USDC and XLM deposits - each portion is
                       allocated through its asset-specific pools.
                     </p>
                   </div>
 
-                  {/* Asset preview toggle — lets user see how the preset
+                  {/* Asset preview toggle - lets user see how the preset
                       distributes for USDC vs XLM deposits. Active asset
                       (account.baseAsset) is marked. */}
                   <div className="flex flex-wrap items-center gap-2">
@@ -795,7 +795,7 @@ function FarmingContent() {
         </div>
       </div>
 
-      {/* ─── Modals ──────────────────────────────────────────────────────────── */}
+      {/* --- Modals ------------------------------------------------------------ */}
 
       <Dialog
         open={accountModalOpen}
@@ -831,7 +831,7 @@ function FarmingContent() {
                     ? "Withdraw from available positions."
                     : accountModalTab === "activate"
                       ? "Re-register a session key so the agent can resume automation."
-                      : "Pause bot automation — reversible any time."}
+                      : "Pause bot automation - reversible any time."}
             </DialogDescription>
           </DialogHeader>
 
@@ -953,7 +953,7 @@ function FarmingContent() {
                   <p className="font-medium text-foreground">Refresh Session Key</p>
                   <p className="text-muted-foreground">
                     Re-sign the session-key policy if the bot reports "not authorized" after a
-                    strategy upgrade. Safe to run anytime — it replaces the current policy with one
+                    strategy upgrade. Safe to run anytime - it replaces the current policy with one
                     scoped to the latest deployed strategies.
                   </p>
                 </div>
@@ -1006,7 +1006,7 @@ function FarmingContent() {
                   <p className="font-medium text-foreground">Sign to register a new session key.</p>
                   <p className="text-muted-foreground">
                     This allows the bot to rebalance on your behalf. Your funds remain in the keeper
-                    wallet — the session key only grants scoped permissions.
+                    wallet - the session key only grants scoped permissions.
                   </p>
                 </div>
               </div>
@@ -1031,7 +1031,7 @@ function FarmingContent() {
   );
 }
 
-// ─── Export ──────────────────────────────────────────────────────────────────
+// --- Export ------------------------------------------------------------------
 
 export function FarmingPage() {
   return (

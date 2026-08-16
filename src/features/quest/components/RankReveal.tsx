@@ -24,7 +24,7 @@ function tierFor(rank: number, badge?: string): Tier {
   return "aqua";
 }
 
-// ── Confetti ──
+// -- Confetti --
 const PALETTES: Record<Tier, string[]> = {
   gold: ["#FBC54A", "#FFE9A6", "#ffffff", "#67E8F9"],
   silver: ["#C9D4E0", "#ffffff", "#9FB0C2", "#67E8F9"],
@@ -64,7 +64,7 @@ function fireConfetti(container: HTMLElement, tier: Tier) {
   }
 }
 
-// ── Crown fly-in ──
+// -- Crown fly-in --
 function flyCrown(img: HTMLImageElement) {
   const fromX = (Math.random() > 0.5 ? 1 : -1) * (120 + Math.random() * 40);
   img.style.opacity = "0";
@@ -92,7 +92,7 @@ function flyCrown(img: HTMLImageElement) {
   };
 }
 
-// ── Count 100 → target ──
+// -- Count 100 → target --
 function animateCount(el: HTMLElement, target: number, done: () => void) {
   const start = 100;
   const dur = 1600;
@@ -110,7 +110,7 @@ function animateCount(el: HTMLElement, target: number, done: () => void) {
   requestAnimationFrame(step);
 }
 
-// ── Component ──
+// -- Component --
 export interface RankRevealProps {
   rank: number;
   usdcReward: string;
@@ -218,7 +218,7 @@ export function RankReveal({
       }}
     >
       {/* .rank-card: relative; width:min(540px,100%); border-radius:28px; padding:38px 40px 36px;
-           background: radial-gradient+linear-gradient; border:1px solid var(--line); box-shadow:…; text-align:center;
+           background: radial-gradient+linear-gradient; border:1px solid var(--line); box-shadow:...; text-align:center;
            opacity:0; transform:scale(.93) translateY(10px); transition:opacity .5s,transform .5s ease-out
            .rank-card.in: opacity:1; transform:none
            NOTE: opacity/transform/transition kept in quest.css only (inline styles override .in class) */}
@@ -249,8 +249,8 @@ export function RankReveal({
           }}
         >
           {/* .reveal-glow: absolute; top:42px; width:180px; height:120px; border-radius:50%;
-               background:radial-gradient(…accent-glow…); opacity:.32; filter:blur(8px); pointer-events:none
-               t-* variants override background — kept via quest.css */}
+               background:radial-gradient(...accent-glow...); opacity:.32; filter:blur(8px); pointer-events:none
+               t-* variants override background - kept via quest.css */}
           <div className="reveal-glow" />
 
           {/* .crown-slot: absolute; top:8px; left:50%; transform:translateX(-50%); width:74px; height:60px;
@@ -261,16 +261,16 @@ export function RankReveal({
           {/* .reveal-crown: absolute; top:-6px; left:50%; transform:translateX(-50%); z-index:6; width:72px
                t-silver/bronze/aqua: width:60px; top:2px */}
           <div className="reveal-crown">
-            {/* img.bob animation: reveal-crownbob 3s infinite — kept via quest.css @keyframes */}
+            {/* img.bob animation: reveal-crownbob 3s infinite - kept via quest.css @keyframes */}
             <img ref={crownRef} src={CROWN[tier]} alt="" />
           </div>
 
           {/* .plinth: relative; margin-top:64px; flex col; align-items:center */}
           <div className="plinth">
             {/* .plinth-num: font-weight:800; letter-spacing:-0.04em; line-height:1; font-size:84px;
-                 -webkit-background-clip:text; color:transparent; filter:drop-shadow(…)
-                 t-* variants set background-image — kept via quest.css
-                 .pop animation: numpop .5s — kept via quest.css @keyframes */}
+                 -webkit-background-clip:text; color:transparent; filter:drop-shadow(...)
+                 t-* variants set background-image - kept via quest.css
+                 .pop animation: numpop .5s - kept via quest.css @keyframes */}
             <span className="plinth-num" ref={plinthRef}>
               #{rank}
             </span>

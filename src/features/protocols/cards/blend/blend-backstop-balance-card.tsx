@@ -74,7 +74,7 @@ export function BlendBackstopBalanceCard({
     );
   }
 
-  // Playground mode — rich card
+  // Playground mode - rich card
   if (data.hasPosition === false && !shares) {
     return (
       <ProtocolCard mode="playground">

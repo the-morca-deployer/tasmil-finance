@@ -3,7 +3,7 @@ import { type Page } from "@playwright/test";
 /**
  * Synthesize an unsigned JWT whose `exp` claim is in the future. The
  * AdminAuthGuard (src/features/admin-auth/components/admin-auth-guard.tsx)
- * only inspects `exp` client-side — signature is not verified there — so
+ * only inspects `exp` client-side - signature is not verified there - so
  * this is sufficient to satisfy the guard. The backend `/api/admin/**`
  * endpoints are mocked via page.route() in the spec so the JWT never
  * reaches a real verifier.

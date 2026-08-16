@@ -341,7 +341,7 @@ export function BlendTxCard({
           </a>
         ) : txError ? (
           <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-center text-destructive text-xs">
-            Failed · {txError.length > 80 ? `${txError.slice(0, 80)}…` : txError}
+            Failed · {txError.length > 80 ? `${txError.slice(0, 80)}...` : txError}
           </div>
         ) : cancelled ? (
           <div className="rounded-lg border border-border bg-muted px-3 py-2 text-center text-muted-foreground text-xs">
@@ -404,7 +404,7 @@ export function BlendTxCard({
   );
 }
 
-// ─── Cancel Warning Popup ────────────────────────────────────────
+// --- Cancel Warning Popup ----------------------------------------
 
 function CancelWarningPopup({
   visible,

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { apySchema, statusSchema } from "./common.schema";
 
-// ─── Reserve (per-asset metrics) ────────────────────────────────
+// --- Reserve (per-asset metrics) --------------------------------
 
 export const reserveCardPropsSchema = z.object({
   assetAddress: z.string(),
@@ -21,7 +21,7 @@ export const reserveCardPropsSchema = z.object({
 });
 export type ReserveCardProps = z.infer<typeof reserveCardPropsSchema>;
 
-// ─── Pool ───────────────────────────────────────────────────────
+// --- Pool -------------------------------------------------------
 
 export const poolCardPropsSchema = z.object({
   address: z.string(),
@@ -32,7 +32,7 @@ export const poolCardPropsSchema = z.object({
 });
 export type PoolCardProps = z.infer<typeof poolCardPropsSchema>;
 
-// ─── Position (user's holdings in a pool) ───────────────────────
+// --- Position (user's holdings in a pool) -----------------------
 
 export const positionItemSchema = z.object({
   asset: z.string(),
@@ -83,7 +83,7 @@ export const positionsCardPropsSchema = z.object({
 });
 export type PositionsCardProps = z.infer<typeof positionsCardPropsSchema>;
 
-// ─── Transaction ────────────────────────────────────────────────
+// --- Transaction ------------------------------------------------
 
 /** Enriched context returned by MCP operation endpoints alongside XDR. */
 export const operationContextSchema = z
@@ -121,7 +121,7 @@ export const txCardPropsSchema = z.object({
 });
 export type TxCardProps = z.infer<typeof txCardPropsSchema>;
 
-// ─── Backstop ───────────────────────────────────────────────────
+// --- Backstop ---------------------------------------------------
 
 export const backstopCardPropsSchema = z.object({
   poolAddress: z.string().optional(),
@@ -136,7 +136,7 @@ export const backstopCardPropsSchema = z.object({
 });
 export type BackstopCardProps = z.infer<typeof backstopCardPropsSchema>;
 
-// ─── Backstop Balance (user's position) ────────────────────────
+// --- Backstop Balance (user's position) ------------------------
 
 export const backstopBalanceQueuedSchema = z.object({
   amount: z.union([z.string(), z.number()]),

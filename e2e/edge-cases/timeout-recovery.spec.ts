@@ -1,6 +1,6 @@
 import { expect, test } from "../fixtures/chat.fixture";
 
-test.describe("Edge Cases — Timeout & Recovery", () => {
+test.describe("Edge Cases - Timeout & Recovery", () => {
   test.describe.configure({ mode: "serial" });
 
   test("long-running query still returns response within timeout", async ({ chatPage }) => {

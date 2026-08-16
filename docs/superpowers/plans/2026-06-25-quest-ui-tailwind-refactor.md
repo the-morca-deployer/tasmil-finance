@@ -1,4 +1,4 @@
-# Quest UI — Tailwind + shared/ui Refactor Implementation Plan
+# Quest UI - Tailwind + shared/ui Refactor Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -49,7 +49,7 @@ This mapping is the single source of truth for rewriting `className`s. Token uti
 | `border-radius:var(--r-pill)` | `rounded-quest-pill` |
 | `border-radius:var(--r-sm)` | `rounded-quest-sm` |
 | `background:var(--grad)` (text) | `bg-quest-grad bg-clip-text text-transparent` (keep existing `.grad-text` helper if simpler) |
-| `transition…var(--ease)` | `transition-* duration-* ease-quest` (or keep helper class) |
+| `transition...var(--ease)` | `transition-* duration-* ease-quest` (or keep helper class) |
 
 **Decision rule for each selector:**
 - **Layout/spacing/color/border/radius** → inline Tailwind utilities.
@@ -68,7 +68,7 @@ This mapping is the single source of truth for rewriting `className`s. Token uti
 ## Task 1: Register quest design tokens
 
 **Files:**
-- Modify: `src/app/globals.css` (the existing `@theme { … }` block — append quest tokens beside the `--color-sponsor-*` ones)
+- Modify: `src/app/globals.css` (the existing `@theme { ... }` block - append quest tokens beside the `--color-sponsor-*` ones)
 - Test: `e2e/quest/quest-tokens.spec.ts` (create)
 
 **Interfaces:**
@@ -98,11 +98,11 @@ test("quest token utility resolves to the arctic-cyan accent", async ({ page }) 
 - [ ] **Step 2: Run it to verify it fails**
 
 Run: `pnpm exec playwright test e2e/quest/quest-tokens.spec.ts`
-Expected: FAIL — `text-quest-accent` does not exist yet, color is not `rgb(103, 232, 249)`.
+Expected: FAIL - `text-quest-accent` does not exist yet, color is not `rgb(103, 232, 249)`.
 
 - [ ] **Step 3: Add the tokens to the existing `@theme` block**
 
-Append inside the existing `@theme { … }` in `src/app/globals.css`:
+Append inside the existing `@theme { ... }` in `src/app/globals.css`:
 
 ```css
   /* Quest palette (matches tmp/quest-tasmil/tasmil-quest.css) */
@@ -183,7 +183,7 @@ git commit -m "feat(quest): register quest- design tokens in tailwind theme"
 - Modify: `src/features/quest/index.ts` (export it)
 
 **Interfaces:**
-- Produces: `export function Progress({ value, className }: { value: number; className?: string })` — renders a track (`bg-quest-line`) + fill (`bg-quest-grad`) where width = `clamp(0, value, 100)%`. Consumed by Task 4 (campaign detail) and Task 8 (profile).
+- Produces: `export function Progress({ value, className }: { value: number; className?: string })` - renders a track (`bg-quest-line`) + fill (`bg-quest-grad`) where width = `clamp(0, value, 100)%`. Consumed by Task 4 (campaign detail) and Task 8 (profile).
 
 - [ ] **Step 1: Write the failing test**
 
@@ -192,7 +192,7 @@ git commit -m "feat(quest): register quest- design tokens in tailwind theme"
 import { render } from "@testing-library/react";
 import { Progress } from "@/features/quest/components/ui/progress";
 
-test("Progress clamps the fill width to 0–100%", () => {
+test("Progress clamps the fill width to 0-100%", () => {
   const { getByTestId, rerender } = render(<Progress value={150} />);
   expect(getByTestId("quest-progress-fill")).toHaveStyle({ width: "100%" });
   rerender(<Progress value={-20} />);
@@ -205,7 +205,7 @@ test("Progress clamps the fill width to 0–100%", () => {
 - [ ] **Step 2: Run it to verify it fails**
 
 Run: `pnpm test -- progress.test.tsx`
-Expected: FAIL — module `progress` not found.
+Expected: FAIL - module `progress` not found.
 
 - [ ] **Step 3: Implement the component**
 
@@ -265,7 +265,7 @@ git commit -m "feat(quest): add Progress primitive replacing .prog-bar css"
 - Create: `scripts/quest-visual/pages.json` (route ↔ mockup mapping + viewports)
 
 **Interfaces:**
-- Produces: `node scripts/quest-visual/compare.mjs <pageKey>` → writes `scripts/quest-visual/out/<pageKey>.<viewport>.mockup.png`, `…app.png`, `…diff.png` and prints a mismatched-pixel count. Consumed by every page task (4–8) as the diff gate.
+- Produces: `node scripts/quest-visual/compare.mjs <pageKey>` → writes `scripts/quest-visual/out/<pageKey>.<viewport>.mockup.png`, `...app.png`, `...diff.png` and prints a mismatched-pixel count. Consumed by every page task (4-8) as the diff gate.
 
 - [ ] **Step 1: Create the page map**
 
@@ -367,7 +367,7 @@ pnpm dev &
 # wait for :3000, then:
 node scripts/quest-visual/compare.mjs explore
 ```
-Expected: prints mismatch counts and writes PNGs to `scripts/quest-visual/out/`. This baseline number is the "before" — the page is already supposed to match the mockup, so record it; later tasks must not make it worse.
+Expected: prints mismatch counts and writes PNGs to `scripts/quest-visual/out/`. This baseline number is the "before" - the page is already supposed to match the mockup, so record it; later tasks must not make it worse.
 
 - [ ] **Step 6: Commit**
 
@@ -378,12 +378,12 @@ git commit -m "chore(quest): add mockup screenshot-compare harness"
 
 ---
 
-## Page tasks 4–8 — shared structure
+## Page tasks 4-8 - shared structure
 
 Each page task below uses this **convert→verify loop**. The acceptance gate is identical; only the file list and per-page notes differ.
 
 **Loop (repeat until the gate passes):**
-1. Capture baseline before touching code: `node scripts/quest-visual/compare.mjs <key>` — record the number.
+1. Capture baseline before touching code: `node scripts/quest-visual/compare.mjs <key>` - record the number.
 2. For each component in the task's file list, run the **per-component conversion micro-cycle** from the Conversion Reference.
 3. Re-run `node scripts/quest-visual/compare.mjs <key>`; open the `*.diff.png` files; fix utility deltas until the mismatch % is **≤ the recorded baseline** at every listed viewport.
 4. Delete every now-unused `.quest-*` selector this page owned from `src/features/quest/quest.css`.
@@ -402,28 +402,28 @@ Each page task below uses this **convert→verify loop**. The acceptance gate is
 
 **Files:**
 - Modify: `src/features/quest/components/Explore.tsx`
-- Modify: `src/features/quest/components/CampaignCard.tsx` (shared by Tasks 4 & 5 — convert here first)
-- Modify: `src/features/quest/components/Rise.tsx` (entrance wrapper — convert its inline styles/classes)
-- Remove from `quest.css`: `.x-hero`, `.x-hero-img`, `.x-hero-grad`, `.x-hero-inner`, `.eyebrow`, `.grad-text`(keep if reused widely — see note), `.x-stats`, `.x-stat`, `.why`, `.why-card`, `.sec-head`, and the campaign-card selectors `.camp-grid`, `.camp-card`, `.cc-cover`, `.cc-badge-pts`, `.cc-badge-status`, `.cc-body`, `.cc-title`, `.cc-desc`, `.cc-foot`, `.brand-mark`, `.ph-tag`, `.av-stack`, `.badge-ongoing`, `.badge-closed`.
+- Modify: `src/features/quest/components/CampaignCard.tsx` (shared by Tasks 4 & 5 - convert here first)
+- Modify: `src/features/quest/components/Rise.tsx` (entrance wrapper - convert its inline styles/classes)
+- Remove from `quest.css`: `.x-hero`, `.x-hero-img`, `.x-hero-grad`, `.x-hero-inner`, `.eyebrow`, `.grad-text`(keep if reused widely - see note), `.x-stats`, `.x-stat`, `.why`, `.why-card`, `.sec-head`, and the campaign-card selectors `.camp-grid`, `.camp-card`, `.cc-cover`, `.cc-badge-pts`, `.cc-badge-status`, `.cc-body`, `.cc-title`, `.cc-desc`, `.cc-foot`, `.brand-mark`, `.ph-tag`, `.av-stack`, `.badge-ongoing`, `.badge-closed`.
 - Test: `src/features/quest/components/__tests__/*Explore*.test.tsx`, `*Campaign*Card*.test.tsx` (existing)
 
 **Key:** `explore`. Mockup: `Tasmil Explore.html`.
 
 **Interfaces:**
 - Consumes: tokens (Task 1).
-- Produces: a converted `CampaignCard` (same props `CampaignCardData`) reused by Task 5. Keep the export signature `export function CampaignCard(props: { data: CampaignCardData })` exactly as it is today — do not change props.
+- Produces: a converted `CampaignCard` (same props `CampaignCardData`) reused by Task 5. Keep the export signature `export function CampaignCard(props: { data: CampaignCardData })` exactly as it is today - do not change props.
 
 **Notes:**
-- `.grad-text` is used on many pages. **Keep it as a one-line survivor** in `quest.css` (`background:var(--quest-grad);-webkit-background-clip:text;color:transparent`) rather than repeating the 3 utilities everywhere — document it as an allowed survivor.
-- `CampaignCard` builds avatar gradients via `qAvatar`/`qHash` (inline `style`) — leave that JS untouched; only convert its `className`s.
+- `.grad-text` is used on many pages. **Keep it as a one-line survivor** in `quest.css` (`background:var(--quest-grad);-webkit-background-clip:text;color:transparent`) rather than repeating the 3 utilities everywhere - document it as an allowed survivor.
+- `CampaignCard` builds avatar gradients via `qAvatar`/`qHash` (inline `style`) - leave that JS untouched; only convert its `className`s.
 
-- [ ] **Step 1: Baseline** — `node scripts/quest-visual/compare.mjs explore`; record mismatch %.
-- [ ] **Step 2: Convert `CampaignCard.tsx`** per the micro-cycle (it is the densest unit; do it first since Task 5 depends on it). Map `.cc-cover`→`relative aspect-[16/9] overflow-hidden rounded-quest-card …`, `.cc-title`→`text-quest-text font-bold …`, `.cc-desc`→`text-quest-muted line-clamp-2 …`, status pills → quest `Badge` component with `className` for ongoing (`bg-quest-green-soft border-quest-green-line`) / closed (`bg-quest-faint`).
-- [ ] **Step 3: Convert `Rise.tsx`** — entrance animation wrapper; keep its keyframe/`rise` class as a survivor (animation), convert only static classes.
-- [ ] **Step 4: Convert `Explore.tsx`** — hero, stats strip, why-cards, featured grid → utilities.
-- [ ] **Step 5: Re-diff** — `node scripts/quest-visual/compare.mjs explore`; fix until ≤ baseline at `1280x1600` and `390x1800`.
+- [ ] **Step 1: Baseline** - `node scripts/quest-visual/compare.mjs explore`; record mismatch %.
+- [ ] **Step 2: Convert `CampaignCard.tsx`** per the micro-cycle (it is the densest unit; do it first since Task 5 depends on it). Map `.cc-cover`→`relative aspect-[16/9] overflow-hidden rounded-quest-card ...`, `.cc-title`→`text-quest-text font-bold ...`, `.cc-desc`→`text-quest-muted line-clamp-2 ...`, status pills → quest `Badge` component with `className` for ongoing (`bg-quest-green-soft border-quest-green-line`) / closed (`bg-quest-faint`).
+- [ ] **Step 3: Convert `Rise.tsx`** - entrance animation wrapper; keep its keyframe/`rise` class as a survivor (animation), convert only static classes.
+- [ ] **Step 4: Convert `Explore.tsx`** - hero, stats strip, why-cards, featured grid → utilities.
+- [ ] **Step 5: Re-diff** - `node scripts/quest-visual/compare.mjs explore`; fix until ≤ baseline at `1280x1600` and `390x1800`.
 - [ ] **Step 6: Remove dead selectors** listed above from `quest.css`; `grep -n "x-hero\|cc-cover\|why-card" src/features/quest/quest.css` returns nothing (except documented survivors).
-- [ ] **Step 7: Verify** — `pnpm test -- Explore CampaignCard` ; `pnpm lint` ; `pnpm type-check`. All pass.
+- [ ] **Step 7: Verify** - `pnpm test -- Explore CampaignCard` ; `pnpm lint` ; `pnpm type-check`. All pass.
 - [ ] **Step 8: Commit**
 
 ```bash
@@ -447,14 +447,14 @@ git commit -m "refactor(quest): convert Explore + CampaignCard to tailwind utili
 
 **Key:** `campaigns`. Mockup: `Tasmil Campaigns.html`.
 
-**Notes:** the Ongoing/Closed/All segmented control maps to quest-local `Tabs` (`components/ui/tabs.tsx`); search field maps to quest-local `Input` (`components/ui/input.tsx`). Keep filtering logic untouched — only swap the markup.
+**Notes:** the Ongoing/Closed/All segmented control maps to quest-local `Tabs` (`components/ui/tabs.tsx`); search field maps to quest-local `Input` (`components/ui/input.tsx`). Keep filtering logic untouched - only swap the markup.
 
-- [ ] **Step 1: Baseline** — `compare.mjs campaigns`; record %.
-- [ ] **Step 2: Convert `Campaigns.tsx`** — page head, search (`Input`), segmented filter (`Tabs`), grid (`grid gap-* md:grid-cols-3` per breakpoints 980/640 → `max-[980px]:grid-cols-2 max-[640px]:grid-cols-1`).
+- [ ] **Step 1: Baseline** - `compare.mjs campaigns`; record %.
+- [ ] **Step 2: Convert `Campaigns.tsx`** - page head, search (`Input`), segmented filter (`Tabs`), grid (`grid gap-* md:grid-cols-3` per breakpoints 980/640 → `max-[980px]:grid-cols-2 max-[640px]:grid-cols-1`).
 - [ ] **Step 3: Convert `pagination-bar.tsx`** to utilities + quest `Button`.
 - [ ] **Step 4: Re-diff** `compare.mjs campaigns`; fix to ≤ baseline at both viewports.
 - [ ] **Step 5: Remove dead selectors**; grep clean.
-- [ ] **Step 6: Verify** — `pnpm test -- Campaigns pagination`; `pnpm lint`; `pnpm type-check`.
+- [ ] **Step 6: Verify** - `pnpm test -- Campaigns pagination`; `pnpm lint`; `pnpm type-check`.
 - [ ] **Step 7: Commit**
 
 ```bash
@@ -474,19 +474,19 @@ git commit -m "refactor(quest): convert Campaigns list to tailwind utilities"
 - Remove from `quest.css`: `.detail-grid`, `.d-badges`, `.prog-block`, `.prog-bar`, `.prog-fill`, `.quests`, `.q-item` (+ expanded state), `.side-card`, `.s-cover`, `.d-side-card`, `.mfy-card`, `.back`.
 - Test: existing `*CampaignDetail*` / `*QuestStep*` tests.
 
-**Key:** `campaign` (route `/quest/campaign/blend-lending` per `pages.json`; ensure that id exists in mock data — it does, `id:"blend-lending"`).
+**Key:** `campaign` (route `/quest/campaign/blend-lending` per `pages.json`; ensure that id exists in mock data - it does, `id:"blend-lending"`).
 
 **Notes:**
-- `.q-item` expandable maps to quest-local pattern using `Collapsible` from `shared/ui` (or the existing expand logic — keep whichever the component already uses; only convert classes).
+- `.q-item` expandable maps to quest-local pattern using `Collapsible` from `shared/ui` (or the existing expand logic - keep whichever the component already uses; only convert classes).
 - Two-column `.detail-grid` is `grid grid-cols-[8fr_4fr] gap-* max-[920px]:grid-cols-1` (mockup stacks at 920px).
-- Progress fill is animated — `Progress` already animates width; pass the campaign completion value.
+- Progress fill is animated - `Progress` already animates width; pass the campaign completion value.
 
-- [ ] **Step 1: Baseline** — `compare.mjs campaign`; record %.
-- [ ] **Step 2: Convert `QuestStep.tsx`** (the repeated `.q-item`) — icon, pts badge (`Badge`), description, expand affordance.
-- [ ] **Step 3: Convert `CampaignDetail.tsx`** — back link, badges, progress (swap `.prog-bar` markup for `<Progress value={…} />`), quest list, sidebar card, "more for you".
+- [ ] **Step 1: Baseline** - `compare.mjs campaign`; record %.
+- [ ] **Step 2: Convert `QuestStep.tsx`** (the repeated `.q-item`) - icon, pts badge (`Badge`), description, expand affordance.
+- [ ] **Step 3: Convert `CampaignDetail.tsx`** - back link, badges, progress (swap `.prog-bar` markup for `<Progress value={...} />`), quest list, sidebar card, "more for you".
 - [ ] **Step 4: Re-diff** `compare.mjs campaign`; fix to ≤ baseline at `1280x1600` and `390x2000`.
 - [ ] **Step 5: Remove dead selectors**; grep clean.
-- [ ] **Step 6: Verify** — `pnpm test -- CampaignDetail QuestStep`; `pnpm lint`; `pnpm type-check`.
+- [ ] **Step 6: Verify** - `pnpm test -- CampaignDetail QuestStep`; `pnpm lint`; `pnpm type-check`.
 - [ ] **Step 7: Commit**
 
 ```bash
@@ -510,15 +510,15 @@ git commit -m "refactor(quest): convert Campaign detail to tailwind + Progress"
 
 **Key:** `leaderboard`. Mockup: `Tasmil Leaderboard.html`.
 
-**Notes:** the points/streak metric toggle is `useState` driven — keep it, render the toggle as `Tabs`. `CountUp` (`@/shared/ui/count-up`) stays. Podium has 3 tier-specific gradients; convert layout to utilities but the gold/silver/bronze gradient + glow stay as small survivor classes (`.pod1`,`.pod2`,`.pod3` reduced to just their gradient/glow declarations).
+**Notes:** the points/streak metric toggle is `useState` driven - keep it, render the toggle as `Tabs`. `CountUp` (`@/shared/ui/count-up`) stays. Podium has 3 tier-specific gradients; convert layout to utilities but the gold/silver/bronze gradient + glow stay as small survivor classes (`.pod1`,`.pod2`,`.pod3` reduced to just their gradient/glow declarations).
 
-- [ ] **Step 1: Baseline** — `compare.mjs leaderboard`; record %.
-- [ ] **Step 2: Convert `LeaderboardRow.tsx`** (repeated row) — rank, avatar, name, points, tier badge.
-- [ ] **Step 3: Convert `Podium.tsx`** — layout to utilities; reduce `.pod1/2/3` to gradient/glow survivors only.
-- [ ] **Step 4: Convert `Leaderboard.tsx`, `WalletRankInfo.tsx`, `RankMove.tsx`** — page head, banner, metric `Tabs`, rows container.
+- [ ] **Step 1: Baseline** - `compare.mjs leaderboard`; record %.
+- [ ] **Step 2: Convert `LeaderboardRow.tsx`** (repeated row) - rank, avatar, name, points, tier badge.
+- [ ] **Step 3: Convert `Podium.tsx`** - layout to utilities; reduce `.pod1/2/3` to gradient/glow survivors only.
+- [ ] **Step 4: Convert `Leaderboard.tsx`, `WalletRankInfo.tsx`, `RankMove.tsx`** - page head, banner, metric `Tabs`, rows container.
 - [ ] **Step 5: Re-diff** `compare.mjs leaderboard`; fix to ≤ baseline at both viewports.
 - [ ] **Step 6: Remove dead selectors** (keep documented survivors); grep clean except survivors.
-- [ ] **Step 7: Verify** — `pnpm test -- Leaderboard Podium`; `pnpm lint`; `pnpm type-check`.
+- [ ] **Step 7: Verify** - `pnpm test -- Leaderboard Podium`; `pnpm lint`; `pnpm type-check`.
 - [ ] **Step 8: Commit**
 
 ```bash
@@ -548,17 +548,17 @@ git commit -m "refactor(quest): convert Leaderboard + Podium to tailwind utiliti
 
 **Notes:**
 - Sidebar tabs → quest-local `Tabs`; sub-tabs (Pending/Claimable/Claimed) → nested `Tabs`.
-- Responsive collapses: `.shell` 2-col → 1-col at 860px (`max-[860px]:grid-cols-1`), `.ov-grid` at 1080px, nav `.stat-pill` hidden at 560px — translate each media query to the matching `max-[…px]:` variant.
+- Responsive collapses: `.shell` 2-col → 1-col at 860px (`max-[860px]:grid-cols-1`), `.ov-grid` at 1080px, nav `.stat-pill` hidden at 560px - translate each media query to the matching `max-[...px]:` variant.
 - The diff page is tall; screenshot at `1280x1800` and `390x2200` per `pages.json`. If a tab's content isn't visible in one shot, add temporary `?tab=referrals` style deep-links or click the tab in a throwaway check; the gate only needs the default Overview tab to match, plus a manual eyeball of the other three tabs (note this in the commit).
 
-- [ ] **Step 1: Baseline** — `compare.mjs profile`; record %.
-- [ ] **Step 2: Convert `Profile.tsx`** Overview tab — user card, hero2, mini stats, tier ladder, quick referral.
+- [ ] **Step 1: Baseline** - `compare.mjs profile`; record %.
+- [ ] **Step 2: Convert `Profile.tsx`** Overview tab - user card, hero2, mini stats, tier ladder, quick referral.
 - [ ] **Step 3: Convert My Quests tab** (quest-card grid) and sub-tabs.
-- [ ] **Step 4: Convert `Referrals.tsx`** — hero, code box, rate breakdown, list table, tree.
+- [ ] **Step 4: Convert `Referrals.tsx`** - hero, code box, rate breakdown, list table, tree.
 - [ ] **Step 5: Convert `SocialConnectButtons.tsx`, `StatRing.tsx`, `LedgerRow.tsx`.**
 - [ ] **Step 6: Re-diff** `compare.mjs profile` (Overview); manually eyeball the other 3 tabs against the mockup; fix to ≤ baseline.
 - [ ] **Step 7: Remove dead selectors** (keep shimmer survivor); grep clean.
-- [ ] **Step 8: Verify** — `pnpm test -- Profile Referrals Social`; `pnpm lint`; `pnpm type-check`.
+- [ ] **Step 8: Verify** - `pnpm test -- Profile Referrals Social`; `pnpm lint`; `pnpm type-check`.
 - [ ] **Step 9: Commit**
 
 ```bash
@@ -578,11 +578,11 @@ git commit -m "refactor(quest): convert Profile (all tabs) to tailwind utilities
 - Create: `src/features/quest/components/QuestBeams.tsx`
 - Modify: `src/app/(quest)/layout.tsx` (mount `<QuestBeams />` behind content, lazy)
 - Modify: `src/features/quest/index.ts` (export)
-- Reference source: `tmp/quest-tasmil/tasmil-beams.js` (248 lines — port the scene/material/animation body verbatim into the effect)
+- Reference source: `tmp/quest-tasmil/tasmil-beams.js` (248 lines - port the scene/material/animation body verbatim into the effect)
 - Test: `src/features/quest/components/__tests__/quest-beams.test.tsx`
 
 **Interfaces:**
-- Produces: `export function QuestBeams()` — a fixed, `pointer-events-none`, `-z-10` full-viewport `<canvas id="beams-canvas">` running the beams animation; renders nothing (returns the canvas only) and **no-ops under `prefers-reduced-motion: reduce`**. Mounted once in the quest layout.
+- Produces: `export function QuestBeams()` - a fixed, `pointer-events-none`, `-z-10` full-viewport `<canvas id="beams-canvas">` running the beams animation; renders nothing (returns the canvas only) and **no-ops under `prefers-reduced-motion: reduce`**. Mounted once in the quest layout.
 
 **Config constants (verbatim from `tasmil-beams.js`):** `BEAM_WIDTH=2`, `BEAM_HEIGHT=30`, `BEAM_NUMBER=14`, `LIGHT_COLOR="#67e8f9"`, `SPEED=2`, `NOISE_INTENSITY=2.25`, `SCALE=0.15`, `ROTATION_DEG=55`.
 
@@ -607,7 +607,7 @@ test("QuestBeams renders the canvas and no-ops under reduced motion", () => {
 - [ ] **Step 2: Run it to verify it fails**
 
 Run: `pnpm test -- quest-beams.test.tsx`
-Expected: FAIL — module not found.
+Expected: FAIL - module not found.
 
 - [ ] **Step 3: Implement the component (React wrapper around the ported scene)**
 
@@ -686,7 +686,7 @@ Add the barrel export in `src/features/quest/index.ts`:
 export { QuestBeams } from "./components/QuestBeams";
 ```
 
-- [ ] **Step 6: Visually verify** — `pnpm dev`, open `/quest/explore`, confirm the animated cyan beams render behind content and that toggling OS "reduce motion" disables them. `pnpm lint && pnpm type-check`.
+- [ ] **Step 6: Visually verify** - `pnpm dev`, open `/quest/explore`, confirm the animated cyan beams render behind content and that toggling OS "reduce motion" disables them. `pnpm lint && pnpm type-check`.
 
 - [ ] **Step 7: Commit**
 
@@ -705,17 +705,17 @@ git commit -m "feat(quest): add THREE.js beams background effect"
 - Modify: `src/features/quest/components/RankReveal.tsx`
 - Modify: `src/features/quest/components/RankRevealGate.tsx`
 - Modify: `src/features/quest/components/TFLoader.tsx`
-- Modify: `src/features/quest/components/Navbar.tsx` (QuestNav) and `Footer.tsx` (QuestFooter) — shared chrome
-- Remove from `quest.css`: `.nav`, `.nav-brand`, `.nav-links`, `.nav-item`, `.stat-pill`, `.wallet-chip`, `.footer`, `.foot-grid`, `.foot-brand`, `.fa-aurora`, `.rank-reveal-backdrop`, `.rank-card`, `.reveal-*`, `.claim-btn`, `.checklist`, `.ci`, `.tf-loader-mark`. **Keep all `@keyframes` (`crownbob`, `numpop`, `rgbsplit`, `pop`, `fade`, `ctapulse`, `shimmer`) and any class that is purely an animation binding — these are documented survivors.**
+- Modify: `src/features/quest/components/Navbar.tsx` (QuestNav) and `Footer.tsx` (QuestFooter) - shared chrome
+- Remove from `quest.css`: `.nav`, `.nav-brand`, `.nav-links`, `.nav-item`, `.stat-pill`, `.wallet-chip`, `.footer`, `.foot-grid`, `.foot-brand`, `.fa-aurora`, `.rank-reveal-backdrop`, `.rank-card`, `.reveal-*`, `.claim-btn`, `.checklist`, `.ci`, `.tf-loader-mark`. **Keep all `@keyframes` (`crownbob`, `numpop`, `rgbsplit`, `pop`, `fade`, `ctapulse`, `shimmer`) and any class that is purely an animation binding - these are documented survivors.**
 - Test: existing `*RankReveal*` / `*TFLoader*` / nav tests.
 
 **Notes:** These components are functionally complete; this task only swaps their static `className`s to utilities while leaving keyframe-bound animation classes in `quest.css`. The Rank Reveal modal should sit on the quest-local `Dialog` (`components/ui/dialog.tsx`) if it doesn't already.
 
 - [ ] **Step 1: Convert `Navbar.tsx` + `Footer.tsx`** (shared chrome, affects every page diff). Re-run `compare.mjs explore` to confirm nav/footer still match.
-- [ ] **Step 2: Convert `TFLoader.tsx`** — keep `@keyframes rgbsplit` + the `.tf-loader-mark` animation binding; convert layout/size classes. Manually trigger the loader route to confirm the RGB-split still plays.
-- [ ] **Step 3: Convert `RankReveal.tsx` + `RankRevealGate.tsx`** — keep confetti/crown/plinth keyframe bindings; convert backdrop/card/checklist layout. Trigger via the dock/test hook to confirm the reveal sequence still plays.
-- [ ] **Step 4: Remove dead selectors** (keep all keyframes + animation-binding survivors); grep `quest.css` — only tokens, survivors, and keyframes remain.
-- [ ] **Step 5: Verify** — `pnpm test -- RankReveal TFLoader Navbar`; `pnpm lint`; `pnpm type-check`.
+- [ ] **Step 2: Convert `TFLoader.tsx`** - keep `@keyframes rgbsplit` + the `.tf-loader-mark` animation binding; convert layout/size classes. Manually trigger the loader route to confirm the RGB-split still plays.
+- [ ] **Step 3: Convert `RankReveal.tsx` + `RankRevealGate.tsx`** - keep confetti/crown/plinth keyframe bindings; convert backdrop/card/checklist layout. Trigger via the dock/test hook to confirm the reveal sequence still plays.
+- [ ] **Step 4: Remove dead selectors** (keep all keyframes + animation-binding survivors); grep `quest.css` - only tokens, survivors, and keyframes remain.
+- [ ] **Step 5: Verify** - `pnpm test -- RankReveal TFLoader Navbar`; `pnpm lint`; `pnpm type-check`.
 - [ ] **Step 6: Commit**
 
 ```bash
@@ -738,7 +738,7 @@ git commit -m "refactor(quest): convert nav/footer/reveal/loader to tailwind uti
 - [ ] **Step 1: Audit what remains in `quest.css`**
 
 Run: `grep -nE '^\.|@keyframes|:root|\.quest-scope' src/features/quest/quest.css`
-Expected: only (a) the `.quest-scope` gradient vars, (b) documented survivor classes (`.grad-text`, podium gradients, `.shimmer`, animation bindings), and (c) `@keyframes`. If any layout/color/spacing selector remains, it belongs to a page already done — convert and remove it now.
+Expected: only (a) the `.quest-scope` gradient vars, (b) documented survivor classes (`.grad-text`, podium gradients, `.shimmer`, animation bindings), and (c) `@keyframes`. If any layout/color/spacing selector remains, it belongs to a page already done - convert and remove it now.
 
 - [ ] **Step 2: Confirm the file shrank substantially**
 
@@ -770,7 +770,7 @@ git commit -m "refactor(quest): final quest.css trim + verification"
 ## Self-Review notes (coverage map)
 
 - Spec "design tokens / Tailwind v4 @theme with quest- prefix" → Task 1.
-- Spec "reuse shared/ui, no new dep; add 1–2 primitives if missing (Progress)" → Task 2 (+ reuse throughout 4–8, 10).
+- Spec "reuse shared/ui, no new dep; add 1-2 primitives if missing (Progress)" → Task 2 (+ reuse throughout 4-8, 10).
 - Spec "5 pages Explore/Campaigns/Campaign detail/Leaderboard/Profile in order" → Tasks 4, 5, 6, 7, 8.
 - Spec "port all effects: beams, rank reveal, TF loader" → Task 9 (beams = the only missing one) + Task 10 (reveal/loader CSS conversion; both already functionally exist).
 - Spec "mock data, render without backend" → mock fixtures already exist (`src/features/quest/lib`, `data/mock.ts`, `@/mocks/data/quest`); `pages.json` targets a mock id (`blend-lending`). If a route hits the real API in dev, enable the existing MSW mock provider before the loop (noted in Task 3 smoke test).

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
-test.describe("Journey — New User (10 tests)", () => {
+test.describe("Journey - New User (10 tests)", () => {
   test.skip(process.env.NODE_ENV === "production", "disabled on production");
 
   // J1: Full new user journey
@@ -89,7 +89,7 @@ test.describe("Journey — New User (10 tests)", () => {
     await expect(page).toHaveURL(/\/farming/);
   });
 
-  // J5: Reversed order — credits before farming
+  // J5: Reversed order - credits before farming
   test("Journey variant: credits before farming", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);

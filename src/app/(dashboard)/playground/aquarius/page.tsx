@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Aquarius AMM Playground — /playground/aquarius
+ * Aquarius AMM Playground - /playground/aquarius
  *
  * Full-featured playground covering all 23 Aquarius agent capabilities:
  * 6 Operations + 17 Queries.
@@ -36,7 +36,7 @@ import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
 
-// ── Mock stream ─────────────────────────────────────────────────
+// -- Mock stream -------------------------------------------------
 const MOCK_STREAM = {
   messages: [],
   values: {},
@@ -51,7 +51,7 @@ const MOCK_STREAM = {
 const SDK_QUERY_URL = "/api/aquarius";
 const SDK_OP_URL = "/api/aquarius/op";
 
-// ── Styles ──────────────────────────────────────────────────────
+// -- Styles ------------------------------------------------------
 const inputCls =
   "w-full rounded-lg bg-secondary border border-border px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20";
 const labelCls = "block text-muted-foreground text-[11px] mb-0.5 font-medium";
@@ -59,7 +59,7 @@ const panelCls = "rounded-xl border border-border bg-card/80 p-4 space-y-3 flex 
 const selectCls =
   "w-full rounded-lg bg-secondary border border-border px-3 py-1.5 text-sm text-foreground focus:outline-none focus:border-primary/50 cursor-pointer";
 
-// ── Types ───────────────────────────────────────────────────────
+// -- Types -------------------------------------------------------
 interface KnownPool {
   label: string;
   address: string;
@@ -73,7 +73,7 @@ interface Field {
   options?: { value: string; label: string }[];
 }
 
-// ── QueryPanel ──────────────────────────────────────────────────
+// -- QueryPanel --------------------------------------------------
 interface QueryPanelProps {
   title: string;
   endpoint: string;
@@ -207,7 +207,7 @@ function QueryPanel({
   );
 }
 
-// ── OpPanel ─────────────────────────────────────────────────────
+// -- OpPanel -----------------------------------------------------
 interface OpPanelProps {
   title: string;
   endpoint: string;
@@ -253,7 +253,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
       if (!d.success) setError(d.error ?? "Simulation failed");
       else setResult(d);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Network error — is mcp-stellar running?");
+      setError(e instanceof Error ? e.message : "Network error - is mcp-stellar running?");
     } finally {
       setLoading(false);
     }
@@ -317,11 +317,11 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
             mode="playground"
           />
 
-          {/* NEW unified swap/bridge execute card — protocol-agnostic */}
+          {/* NEW unified swap/bridge execute card - protocol-agnostic */}
           {operation === "swap" ? (
             <div className="border-t border-border/50 pt-4 mt-4">
               <p className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-3">
-                NEW — Unified Swap/Bridge Execute Card (Aquarius)
+                NEW - Unified Swap/Bridge Execute Card (Aquarius)
               </p>
               <SwapExecuteCard
                 tx={{
@@ -352,7 +352,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
   );
 }
 
-// ── Pool selector ───────────────────────────────────────────────
+// -- Pool selector -----------------------------------------------
 function PoolSelector({
   pools,
   selected,
@@ -375,7 +375,7 @@ function PoolSelector({
         >
           {pools.map((p) => (
             <option key={p.address} value={p.address}>
-              {p.label} — {p.address.slice(0, 8)}...
+              {p.label} - {p.address.slice(0, 8)}...
             </option>
           ))}
         </select>
@@ -388,7 +388,7 @@ function PoolSelector({
   );
 }
 
-// ── PoolsFilterPanel ────────────────────────────────────────────
+// -- PoolsFilterPanel --------------------------------------------
 // Custom panel with pool type filter + server-side pagination.
 function PoolsFilterPanel() {
   const [poolTypeFilter, setPoolTypeFilter] = useState<
@@ -516,7 +516,7 @@ function PoolsFilterPanel() {
   );
 }
 
-// ── Yield table ─────────────────────────────────────────────────
+// -- Yield table -------------------------------------------------
 function YieldTable({ data }: { data: any }) {
   const yields = normalizeAquaYieldFromSdk(data);
   if (!yields.length)
@@ -542,19 +542,19 @@ function YieldTable({ data }: { data: any }) {
             >
               <td className="py-1.5 text-foreground font-medium">{y.assets.join(" / ")}</td>
               <td className="py-1.5 text-muted-foreground capitalize">
-                {y.poolType?.replace(/_/g, " ") ?? "—"}
+                {y.poolType?.replace(/_/g, " ") ?? "-"}
               </td>
               <td className="py-1.5 text-right tabular-nums">
-                {y.apy.base != null ? `${Number(y.apy.base).toFixed(2)}%` : "—"}
+                {y.apy.base != null ? `${Number(y.apy.base).toFixed(2)}%` : "-"}
               </td>
               <td className="py-1.5 text-right tabular-nums text-emerald-400">
-                {y.apy.reward != null ? `${Number(y.apy.reward).toFixed(2)}%` : "—"}
+                {y.apy.reward != null ? `${Number(y.apy.reward).toFixed(2)}%` : "-"}
               </td>
               <td className="py-1.5 text-right tabular-nums font-semibold">
-                {y.apy.total != null ? `${Number(y.apy.total).toFixed(2)}%` : "—"}
+                {y.apy.total != null ? `${Number(y.apy.total).toFixed(2)}%` : "-"}
               </td>
               <td className="py-1.5 text-right tabular-nums text-muted-foreground">
-                {y.tvl != null ? `$${Number(y.tvl).toLocaleString()}` : "—"}
+                {y.tvl != null ? `$${Number(y.tvl).toLocaleString()}` : "-"}
               </td>
             </tr>
           ))}
@@ -564,7 +564,7 @@ function YieldTable({ data }: { data: any }) {
   );
 }
 
-// ── Price Range presets ──────────────────────────────────────────
+// -- Price Range presets ------------------------------------------
 const RANGE_PRESETS = [
   { label: "Tight", range: [-0.3, 0.3], desc: "-0.3% \u2014 +0.3%" },
   { label: "Medium", range: [-20, 20], desc: "-20% \u2014 +20%" },
@@ -574,7 +574,7 @@ const RANGE_PRESETS = [
   { label: "Full Range", range: [-100, 100], desc: "All ticks" },
 ] as const;
 
-// ── DepositPanel (auto-paired amounts + price range for concentrated) ──
+// -- DepositPanel (auto-paired amounts + price range for concentrated) --
 function DepositPanel({
   poolAddress,
   walletAddress: userAddr,
@@ -760,7 +760,7 @@ function DepositPanel({
         </div>
       )}
 
-      {/* Price Range — only for concentrated pools */}
+      {/* Price Range - only for concentrated pools */}
       {isConcentrated && (
         <div className="space-y-2 pt-1">
           <div className="flex items-center justify-between">
@@ -892,7 +892,7 @@ function DepositPanel({
   );
 }
 
-// ── WithdrawPanel (supports constant_product/stable + concentrated) ──
+// -- WithdrawPanel (supports constant_product/stable + concentrated) --
 function WithdrawPanel({
   poolAddress,
   walletAddress: userAddr,
@@ -1246,7 +1246,7 @@ function WithdrawPanel({
   );
 }
 
-// ── Token symbol → contract mapping ─────────────────────────────
+// -- Token symbol → contract mapping -----------------------------
 const TOKEN_CONTRACTS: Record<string, string> = {
   XLM: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
   USDC: "CAZRY5GSFBFXD7H6GAFBA5YGYQTDXU4QKWKMYFWBAZFUCURN3WKX6LF5",
@@ -1256,7 +1256,7 @@ const TOKEN_CONTRACTS: Record<string, string> = {
   ICE: "CCQZWA6GDCNLEMNUYTCMYGIXLX3ECAXW7RICSUZWWXM5AMDWAANC4SZK",
 };
 
-// ── TrustlinePrecheck ───────────────────────────────────────────
+// -- TrustlinePrecheck -------------------------------------------
 // Shows warning + add buttons for missing trustlines before Build TX
 export function TrustlinePrecheck({
   walletAddress,
@@ -1322,12 +1322,12 @@ export function TrustlinePrecheck({
   );
 }
 
-// ── Default pools ───────────────────────────────────────────────
+// -- Default pools -----------------------------------------------
 const DEFAULT_LP_POOL = "CD3LFMMLBQ6RBJUD3Z2LFDFE6544WDRMWHEZYPI5YDVESYRSO2TT32BX"; // XLM/USDC constant_product
 // Reserved for concentrated pool support:
 // const DEFAULT_CL_POOL = "CAD5TBS4NKO35YDYZN3ULQFXDXVL7BPK4Q2RUG7N4DVPYNNOEAUAQJ6F"; // USDC/XLM concentrated
 
-// ── Main playground ─────────────────────────────────────────────
+// -- Main playground ---------------------------------------------
 export default function AquariusPlaygroundPage() {
   const { address: walletAddress } = useWallet();
   const [tab, setTab] = useState<"queries" | "operations">("queries");
@@ -1388,7 +1388,7 @@ export default function AquariusPlaygroundPage() {
   return (
     <StreamContext.Provider value={MOCK_STREAM}>
       <div className="min-h-screen bg-background text-foreground p-6 space-y-6">
-        {/* ── Header ── */}
+        {/* -- Header -- */}
         <div className="space-y-3">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
@@ -1418,7 +1418,7 @@ export default function AquariusPlaygroundPage() {
           )}
         </div>
 
-        {/* ── Tabs ── */}
+        {/* -- Tabs -- */}
         <div className="flex gap-1 bg-card rounded-lg p-1 w-fit border border-border">
           {tabs.map((t) => (
             <Button
@@ -1436,12 +1436,12 @@ export default function AquariusPlaygroundPage() {
           ))}
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════
-            QUERY TAB — 17 panels
-        ═══════════════════════════════════════════════════════════ */}
+        {/* -----------------------------------------------------------
+            QUERY TAB - 17 panels
+        ----------------------------------------------------------- */}
         {tab === "queries" && (
           <div className="space-y-6">
-            {/* ── Pool Queries ── */}
+            {/* -- Pool Queries -- */}
             <div>
               <Typography
                 variant="small"
@@ -1560,7 +1560,7 @@ export default function AquariusPlaygroundPage() {
                             ? (Number(reserves[i]) / 1e7).toLocaleString(undefined, {
                                 maximumFractionDigits: 2,
                               })
-                            : "—";
+                            : "-";
                           return (
                             <div key={addrs[i] || i} className="flex items-center justify-between">
                               <span className="text-foreground font-medium">{symbol}</span>
@@ -1605,7 +1605,7 @@ export default function AquariusPlaygroundPage() {
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Total TXs</span>
                           <span className="text-foreground tabular-nums">
-                            {pool.tx_count ?? "—"}
+                            {pool.tx_count ?? "-"}
                           </span>
                         </div>
                         <p className="text-[10px] text-muted-foreground/50 pt-1">
@@ -1618,7 +1618,7 @@ export default function AquariusPlaygroundPage() {
               </div>
             </div>
 
-            {/* ── Swap & Preview Queries ── */}
+            {/* -- Swap & Preview Queries -- */}
             <div>
               <Typography
                 variant="small"
@@ -1676,13 +1676,13 @@ export default function AquariusPlaygroundPage() {
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Fee APY</span>
                           <span className="text-emerald-400 tabular-nums">
-                            {pool.feeApy != null ? `${Number(pool.feeApy).toFixed(2)}%` : "—"}
+                            {pool.feeApy != null ? `${Number(pool.feeApy).toFixed(2)}%` : "-"}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Reward APY</span>
                           <span className="text-emerald-400 tabular-nums">
-                            {pool.rewardApy != null ? `${Number(pool.rewardApy).toFixed(2)}%` : "—"}
+                            {pool.rewardApy != null ? `${Number(pool.rewardApy).toFixed(2)}%` : "-"}
                           </span>
                         </div>
                         <p className="text-[10px] text-muted-foreground/50 pt-1">
@@ -1710,7 +1710,7 @@ export default function AquariusPlaygroundPage() {
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Pool</span>
                           <span className="text-foreground">
-                            {pool.tokens?.map((t: any) => t.symbol).join(" / ") ?? "—"}
+                            {pool.tokens?.map((t: any) => t.symbol).join(" / ") ?? "-"}
                           </span>
                         </div>
                         <div className="flex justify-between">
@@ -1729,7 +1729,7 @@ export default function AquariusPlaygroundPage() {
               </div>
             </div>
 
-            {/* ── Position & Reward Queries ── */}
+            {/* -- Position & Reward Queries -- */}
             <div>
               <Typography
                 variant="small"
@@ -1811,7 +1811,7 @@ export default function AquariusPlaygroundPage() {
               </div>
             </div>
 
-            {/* ── Protocol-Level & Governance Queries ── */}
+            {/* -- Protocol-Level & Governance Queries -- */}
             <div>
               <Typography
                 variant="small"
@@ -1970,7 +1970,7 @@ export default function AquariusPlaygroundPage() {
               </div>
             </div>
 
-            {/* ── Yield (full table) ── */}
+            {/* -- Yield (full table) -- */}
             <div>
               <Typography
                 variant="small"
@@ -1989,9 +1989,9 @@ export default function AquariusPlaygroundPage() {
           </div>
         )}
 
-        {/* ═══════════════════════════════════════════════════════════
-            OPERATIONS TAB — 6 panels
-        ═══════════════════════════════════════════════════════════ */}
+        {/* -----------------------------------------------------------
+            OPERATIONS TAB - 6 panels
+        ----------------------------------------------------------- */}
         {tab === "operations" && (
           <div className="space-y-4">
             {/* Swap */}
@@ -2033,7 +2033,7 @@ export default function AquariusPlaygroundPage() {
               </div>
             </div>
 
-            {/* Liquidity — pool picker + deposit/withdraw */}
+            {/* Liquidity - pool picker + deposit/withdraw */}
             <div>
               <Typography
                 variant="small"
@@ -2053,7 +2053,7 @@ export default function AquariusPlaygroundPage() {
                   >
                     {pools.map((p) => (
                       <option key={p.address} value={p.address}>
-                        {p.label} — {p.address.slice(0, 8)}...
+                        {p.label} - {p.address.slice(0, 8)}...
                       </option>
                     ))}
                   </select>
@@ -2138,11 +2138,11 @@ export default function AquariusPlaygroundPage() {
           </div>
         )}
 
-        {/* ── Footer ── */}
+        {/* -- Footer -- */}
         <div className="border-t border-border pt-4 text-center">
           <Typography variant="small" className="text-muted-foreground/40 text-xs">
             Aquarius AMM Playground · 6 operations + 17 queries · SDK-backed queries · MCP-backed
-            operations · Operations build XDR only — wallet signing required to submit on-chain
+            operations · Operations build XDR only - wallet signing required to submit on-chain
           </Typography>
         </div>
       </div>

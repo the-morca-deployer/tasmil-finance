@@ -19,7 +19,7 @@ export function StepDone() {
       <p className="text-muted-foreground text-sm leading-relaxed">
         Your smart account is ready. Tasmil will start rebalancing your deposit shortly.
       </p>
-      <p className="text-xs text-muted-foreground/70">Redirecting to your dashboard…</p>
+      <p className="text-xs text-muted-foreground/70">Redirecting to your dashboard...</p>
     </div>
   );
 }

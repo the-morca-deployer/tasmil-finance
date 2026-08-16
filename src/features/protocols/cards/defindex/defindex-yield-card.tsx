@@ -73,7 +73,7 @@ export function DefindexYieldCard({ opportunities, mode = "playground" }: Props)
           const rawName = opp.name ?? opp.poolName ?? "Vault";
           const displayName = cleanVaultName(rawName);
           const symbol = opp.symbol || "";
-          const asset = opp.assets[0] ?? "—";
+          const asset = opp.assets[0] ?? "-";
 
           return (
             <div
@@ -91,7 +91,7 @@ export function DefindexYieldCard({ opportunities, mode = "playground" }: Props)
               {/* TVL */}
               <div className="w-24 text-right">
                 <p className="font-medium text-foreground text-xs tabular-nums">
-                  {tvlNum != null ? `${fmt(tvlNum)} ${asset}` : "—"}
+                  {tvlNum != null ? `${fmt(tvlNum)} ${asset}` : "-"}
                 </p>
                 <p className="text-[10px] text-muted-foreground/60">{asset}</p>
               </div>
@@ -110,7 +110,7 @@ export function DefindexYieldCard({ opportunities, mode = "playground" }: Props)
                     apyNum != null && apyNum > 0 ? "text-emerald-400" : "text-muted-foreground"
                   )}
                 >
-                  {apyNum != null ? `${apyNum.toFixed(2)}%` : "—"}
+                  {apyNum != null ? `${apyNum.toFixed(2)}%` : "-"}
                 </span>
               </div>
             </div>

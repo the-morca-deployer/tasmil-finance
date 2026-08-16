@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -19,7 +19,7 @@ import type {
   Suggestion,
 } from "@/features/chat/types/flow-messages";
 
-// ─── Shared Factories ──────────────────────────────────────────────
+// --- Shared Factories ----------------------------------------------
 
 function makeSuggestion(overrides: Partial<Suggestion> = {}): Suggestion {
   return {
@@ -66,7 +66,7 @@ function makeSimReport(overrides: Partial<SimulationReport> = {}): SimulationRep
   };
 }
 
-// ─── Test 1: Full clarify → select → plan_preview → confirm flow ─
+// --- Test 1: Full clarify → select → plan_preview → confirm flow -
 
 describe("E2E: Full clarify → select → plan_preview → confirm flow", () => {
   const clarifyMessage: AssistantFlowMessage = {
@@ -152,7 +152,7 @@ describe("E2E: Full clarify → select → plan_preview → confirm flow", () =>
   });
 });
 
-// ─── Test 2: Multi-step plan rendering ─────────────────────────────
+// --- Test 2: Multi-step plan rendering -----------------------------
 
 describe("E2E: Multi-step plan rendering", () => {
   const multiStepPlan = makePlan({
@@ -220,7 +220,7 @@ describe("E2E: Multi-step plan rendering", () => {
   });
 });
 
-// ─── Test 3: Execution status flow ─────────────────────────────────
+// --- Test 3: Execution status flow ---------------------------------
 
 describe("E2E: Execution status flow", () => {
   it("submitting step 1 of 2 shows submitting text", () => {
@@ -296,7 +296,7 @@ describe("E2E: Execution status flow", () => {
   });
 });
 
-// ─── Test 4: Error recovery ────────────────────────────────────────
+// --- Test 4: Error recovery ----------------------------------------
 
 describe("E2E: Error recovery", () => {
   it("renders error message text and error code via FlowMessageRouter", () => {
@@ -357,7 +357,7 @@ describe("E2E: Error recovery", () => {
   });
 });
 
-// ─── Test 5: Zod schema validation of all message types ────────────
+// --- Test 5: Zod schema validation of all message types ------------
 
 describe("E2E: Zod schema validation of all message types", () => {
   it("validates a well-formed clarify message", () => {
@@ -526,7 +526,7 @@ describe("E2E: Zod schema validation of all message types", () => {
   });
 });
 
-// ─── Test 6: Suggested prompts ─────────────────────────────────────
+// --- Test 6: Suggested prompts -------------------------------------
 
 describe("E2E: Suggested prompts", () => {
   it("renders first-time prompts when hasPositions is false", () => {

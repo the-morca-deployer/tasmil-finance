@@ -122,7 +122,7 @@ export function PositionValueCard({
           </ResponsiveContainer>
         ) : (
           <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-            History building…
+            History building...
           </div>
         )}
       </div>

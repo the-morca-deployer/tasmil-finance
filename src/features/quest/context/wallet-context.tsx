@@ -27,7 +27,7 @@ import { useQuestWalletStore } from "@/features/quest/store/use-quest-wallet";
 import { useAuthControllerLogout, useUsersControllerGetMe } from "@/gen-quest/hooks";
 import { connectWallet, disconnectAll } from "@/shared/lib/wallet-session";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// --- Types -------------------------------------------------------------------
 
 interface WalletContextType {
   isConnected: boolean;
@@ -47,7 +47,7 @@ interface WalletContextType {
   signMessage: (message: string) => Promise<string>;
 }
 
-// ─── Context ─────────────────────────────────────────────────────────────────
+// --- Context -----------------------------------------------------------------
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
@@ -89,8 +89,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   // Hydrate the quest auth store from the shared `tasmil_auth` cookie (set by
-  // signing in on /chat or /quest — same backend). `/api/auth/me` returns
-  // `{ user: { id, walletAddress, … } }`; quest-specific fields are filled in
+  // signing in on /chat or /quest - same backend). `/api/auth/me` returns
+  // `{ user: { id, walletAddress, ... } }`; quest-specific fields are filled in
   // afterwards by the /users/me sync effect below. Returns true on a live session.
   const loadSessionUser = useCallback(async (): Promise<boolean> => {
     try {
@@ -138,13 +138,13 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setSessionChecked(true);
         // Clear the initial `isLoading: true` boot state. `setUser` already does
         // this when a session is found; this covers the logged-out path so the
-        // Connect button doesn't stay stuck on "Connecting…".
+        // Connect button doesn't stay stuck on "Connecting...".
         setLoading(false);
       }
     })();
   }, [loadSessionUser, setLoading]);
 
-  // ─── Init StellarWalletsKit (browser-only) ───────────────────────────────
+  // --- Init StellarWalletsKit (browser-only) -------------------------------
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -194,7 +194,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               setWalletState({ connected: true, account: addr });
             }
           } catch {
-            // Kit fires state updates before a wallet is selected — ignore
+            // Kit fires state updates before a wallet is selected - ignore
           }
         });
 
@@ -222,7 +222,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setWalletState]);
 
-  // ─── Sync user data from API ─────────────────────────────────────────────
+  // --- Sync user data from API ---------------------------------------------
 
   const queryEnabled = isAuthenticated && !!user;
   const userMeOptions = useMemo(
@@ -243,7 +243,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const { data: userDataFromApi } = useUsersControllerGetMe(userMeOptions);
 
   // Ref-based guard: only apply updateUser when the API data fingerprint
-  // actually changed — not just because TanStack Query returned a new JS ref.
+  // actually changed - not just because TanStack Query returned a new JS ref.
   const lastSyncedFingerprintRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -278,7 +278,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const { updateUser, user: currentUser } = useQuestAuthStore.getState();
     // Note: the session is first seeded from /auth/me (id + walletAddress only),
     // so also sync when the richer profile fields (username/tier/streak/etc.)
-    // differ — otherwise a matching id + totalPoints would skip the update and
+    // differ - otherwise a matching id + totalPoints would skip the update and
     // the username would stay blank.
     if (
       !currentUser ||
@@ -303,7 +303,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [userDataFromApi, isAuthenticated]);
 
-  // ─── Logout mutation ─────────────────────────────────────────────────────
+  // --- Logout mutation -----------------------------------------------------
 
   const logoutMutation = useAuthControllerLogout({
     ...withAuth,
@@ -312,7 +312,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     },
   });
 
-  // ─── Core auth flow ───────────────────────────────────────────────────────
+  // --- Core auth flow -------------------------------------------------------
 
   const authenticateWithWallet = useCallback(
     async (publicKey: string) => {
@@ -335,7 +335,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         };
         const message = cbody?.message ?? cbody?.data?.message ?? "";
 
-        // 2. Network check (Freighter only — gracefully skip others)
+        // 2. Network check (Freighter only - gracefully skip others)
         try {
           const networkInfo = await freighterApi.getNetwork();
           if (
@@ -349,11 +349,11 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 ? "Stellar Mainnet"
                 : "Stellar Testnet";
             toast.error(`Wrong network in wallet. Please switch to ${target}.`);
-            // Keep authAttemptedRef set — don't clear it or the effect will loop
+            // Keep authAttemptedRef set - don't clear it or the effect will loop
             return;
           }
         } catch {
-          // non-Freighter wallet — skip
+          // non-Freighter wallet - skip
         }
 
         // 3. Sign
@@ -376,7 +376,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               ((signResult as Record<string, unknown>).signature as string | undefined) ??
               String(signResult));
 
-        // 4. Verify with backend (cookie-based auth — no tokens returned). The
+        // 4. Verify with backend (cookie-based auth - no tokens returned). The
         // backend DTO expects `publicKey`. The verify route sets the
         // `tasmil_auth` cookie; hydrate the full user from /auth/me afterwards.
         setSigning(false);
@@ -396,7 +396,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               window.history.replaceState({}, "", url.toString());
             }
           } catch {
-            // ignore – e.g. invalid href in SSR/test environments
+            // ignore - e.g. invalid href in SSR/test environments
           }
         }
         await loadSessionUser();
@@ -413,7 +413,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const msg = error instanceof Error ? error.message : "";
 
         if (msg.includes("User rejected") || msg.includes("user rejected")) {
-          // User cancelled signing — allow them to retry
+          // User cancelled signing - allow them to retry
           authAttemptedRef.current = null;
         }
 
@@ -433,7 +433,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     [isAuthenticated, user, loadSessionUser, setLoading]
   );
 
-  // ─── Auto-auth when address becomes known ────────────────────────────────
+  // --- Auto-auth when address becomes known --------------------------------
 
   const authenticateWithWalletRef = useRef(authenticateWithWallet);
   useEffect(() => {
@@ -467,7 +467,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     isAuthenticating,
   ]);
 
-  // ─── Connect ─────────────────────────────────────────────────────────────
+  // --- Connect -------------------------------------------------------------
 
   const connect = useCallback(async () => {
     skipAutoAuthRef.current = false;
@@ -488,7 +488,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [authenticateWithWallet]);
 
-  // ─── Disconnect ──────────────────────────────────────────────────────────
+  // --- Disconnect ----------------------------------------------------------
 
   const disconnect = useCallback(async () => {
     skipAutoAuthRef.current = true;
@@ -505,7 +505,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     await disconnectAll();
   }, [logoutMutation]);
 
-  // ─── signMessage ─────────────────────────────────────────────────────────
+  // --- signMessage ---------------------------------------------------------
 
   const signMessage = useCallback(
     async (message: string): Promise<string> => {
@@ -514,7 +514,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       try {
         StellarWalletsKit.setWallet(address);
       } catch {
-        /* ignore – some wallets don't need explicit selection */
+        /* ignore - some wallets don't need explicit selection */
       }
       const signResult = await StellarWalletsKit.signMessage(message, {
         address,
@@ -529,7 +529,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     [address]
   );
 
-  // ─── Derived ─────────────────────────────────────────────────────────────
+  // --- Derived -------------------------------------------------------------
 
   const displayAddress = useMemo(() => {
     if (!address) return null;
@@ -539,7 +539,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const points = user?.totalPoints ?? 0;
 
   // Memoize the context value so consumers (useWallet) don't re-render on
-  // every WalletProvider render — only when a consumed field actually changes.
+  // every WalletProvider render - only when a consumed field actually changes.
   const ctx = useMemo<WalletContextType>(
     () => ({
       isConnected,

@@ -4,7 +4,7 @@ import { freshWallet, loginAsWallet } from "./helpers/auth";
 test.describe("Error Handling (10 tests)", () => {
   test.skip(process.env.NODE_ENV === "production", "disabled on production");
 
-  test("Dashboard: network error on position fetch — graceful degradation", async ({ page }) => {
+  test("Dashboard: network error on position fetch - graceful degradation", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.route("**/api/account/position", (route) => route.fulfill({ status: 503 }));
@@ -17,7 +17,7 @@ test.describe("Error Handling (10 tests)", () => {
     expect(hasRaw503).toBeFalsy();
   });
 
-  test("Farming: network error on pools — error state", async ({ page }) => {
+  test("Farming: network error on pools - error state", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.route("**/api/pools", (route) => route.fulfill({ status: 503 }));
@@ -27,7 +27,7 @@ test.describe("Error Handling (10 tests)", () => {
     expect(content.length).toBeGreaterThan(100);
   });
 
-  test("Portfolio: network error — graceful degradation", async ({ page }) => {
+  test("Portfolio: network error - graceful degradation", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.route("**/api/portfolio**", (route) => route.fulfill({ status: 503 }));
@@ -37,18 +37,18 @@ test.describe("Error Handling (10 tests)", () => {
     expect(content.length).toBeGreaterThan(100);
   });
 
-  test("Chat: AG-UI endpoint 503 — error shown", async ({ page }) => {
+  test("Chat: AG-UI endpoint 503 - error shown", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.route("**/agui/**", (route) => route.fulfill({ status: 503 }));
     await page.goto("/chat/new");
     await page.waitForTimeout(3000);
     const content = await page.content();
-    // Page should not crash — error state shown
+    // Page should not crash - error state shown
     expect(content.length).toBeGreaterThan(100);
   });
 
-  test("Leaderboard: network error — error state", async ({ page }) => {
+  test("Leaderboard: network error - error state", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.route("**/api/leaderboard**", (route) => route.fulfill({ status: 503 }));
@@ -58,7 +58,7 @@ test.describe("Error Handling (10 tests)", () => {
     expect(content.length).toBeGreaterThan(100);
   });
 
-  test("Credits: network error on packages — empty or error state", async ({ page }) => {
+  test("Credits: network error on packages - empty or error state", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.route("**/api/credits/packages**", (route) => route.fulfill({ status: 503 }));
@@ -68,7 +68,7 @@ test.describe("Error Handling (10 tests)", () => {
     expect(content.length).toBeGreaterThan(100);
   });
 
-  test("Strategies: network error — page still loads", async ({ page }) => {
+  test("Strategies: network error - page still loads", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.route("**/api/strategies**", (route) => route.fulfill({ status: 503 }));
@@ -77,7 +77,7 @@ test.describe("Error Handling (10 tests)", () => {
     await expect(page).toHaveURL(/\/strategies/);
   });
 
-  test("Dashboard: timeout on slow API — loading state shown", async ({ page }) => {
+  test("Dashboard: timeout on slow API - loading state shown", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.route("**/api/account/position", (route) => {
@@ -85,12 +85,12 @@ test.describe("Error Handling (10 tests)", () => {
     });
     await page.goto("/dashboard");
     await page.waitForTimeout(2000);
-    // Page should show loading or timeout message — not blank
+    // Page should show loading or timeout message - not blank
     const content = await page.content();
     expect(content.length).toBeGreaterThan(100);
   });
 
-  test("Multiple API errors in sequence — no memory leak", async ({ page }) => {
+  test("Multiple API errors in sequence - no memory leak", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     const routes = ["**/api/account/position", "**/api/pools", "**/api/portfolio"];

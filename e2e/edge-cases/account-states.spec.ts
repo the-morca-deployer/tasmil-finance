@@ -1,6 +1,6 @@
 import { expect, test } from "../fixtures/chat.fixture";
 
-test.describe("Edge Cases — Account States (Funded Wallet)", () => {
+test.describe("Edge Cases - Account States (Funded Wallet)", () => {
   test.describe.configure({ mode: "serial" });
 
   /**
@@ -73,7 +73,7 @@ test.describe("Edge Cases — Account States (Funded Wallet)", () => {
   });
 });
 
-test.describe("Edge Cases — Account States (Empty Wallet)", () => {
+test.describe("Edge Cases - Account States (Empty Wallet)", () => {
   test.describe.configure({ mode: "serial" });
 
   /**

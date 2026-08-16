@@ -21,7 +21,7 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Typography } from "@/shared/ui/typography";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 
 function fmtUsd(n: number): string {
   if (n === 0) return "0";
@@ -30,7 +30,7 @@ function fmtUsd(n: number): string {
   return (n / 1000).toFixed(1) + "k";
 }
 
-// ── Primitives ────────────────────────────────────────────────────────────────
+// -- Primitives ----------------------------------------------------------------
 
 function SectionHeader({ title, sub }: { title: string; sub?: string }) {
   return (
@@ -107,7 +107,7 @@ function MiniStat({
   );
 }
 
-// ── WAITLIST SECTION ──────────────────────────────────────────────────────────
+// -- WAITLIST SECTION ----------------------------------------------------------
 
 function WaitlistKpis({
   walletStats,
@@ -187,7 +187,7 @@ function GrowthChart({ data }: { data: Array<{ date: string; count: number }> })
             Signups Over Time
           </Typography>
           <Typography variant="p" className="text-muted-foreground text-xs">
-            Daily wallet registrations — last 30 days
+            Daily wallet registrations - last 30 days
           </Typography>
         </div>
         <ResponsiveContainer width="100%" height={160}>
@@ -616,7 +616,7 @@ function CampaignsSection({
   );
 }
 
-// ── QUEST SECTION ─────────────────────────────────────────────────────────────
+// -- QUEST SECTION -------------------------------------------------------------
 
 function QuestKpis({ data }: { data: QuestStats }) {
   return (
@@ -750,7 +750,7 @@ function TopDepositors({ topDepositors }: { topDepositors: QuestStats["topDeposi
                   {i + 1}
                 </span>
                 <span className="flex-1 font-mono text-[11px] text-muted-foreground">
-                  {d.walletAddress.slice(0, 6)}…{d.walletAddress.slice(-4)}
+                  {d.walletAddress.slice(0, 6)}...{d.walletAddress.slice(-4)}
                 </span>
                 <span className="font-semibold text-indigo-400 text-xs">
                   ${d.totalUsd.toFixed(2)}
@@ -764,7 +764,7 @@ function TopDepositors({ topDepositors }: { topDepositors: QuestStats["topDeposi
   );
 }
 
-// ── Error / Loading ───────────────────────────────────────────────────────────
+// -- Error / Loading -----------------------------------------------------------
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
@@ -779,7 +779,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// -- Page ----------------------------------------------------------------------
 
 export default function AdminDashboardPage() {
   const { data: stats, isLoading, isFetching, isError, refetch } = useAdminDashboard();
@@ -803,11 +803,11 @@ export default function AdminDashboardPage() {
           Overview
         </Typography>
         <Typography variant="p" className="mt-1 text-muted-foreground">
-          Platform metrics — waitlist, email delivery, quest performance
+          Platform metrics - waitlist, email delivery, quest performance
         </Typography>
       </div>
 
-      {/* ── WAITLIST ── */}
+      {/* -- WAITLIST -- */}
       <section className="space-y-4">
         <SectionHeader title="Waitlist" sub="Registrations, email conversion, referrals" />
         <WaitlistKpis walletStats={stats.walletStats} emailDispatches={stats.emailDispatches} />
@@ -829,7 +829,7 @@ export default function AdminDashboardPage() {
         </div>
       </section>
 
-      {/* ── QUEST PERFORMANCE ── */}
+      {/* -- QUEST PERFORMANCE -- */}
       {questStats && (
         <section className="space-y-4">
           <SectionHeader

@@ -88,7 +88,7 @@ export function BlendReserveCard({ reserve, mode = "playground" }: BlendReserveC
     );
   }
 
-  // Playground mode — rich card
+  // Playground mode - rich card
   return (
     <ProtocolCard mode="playground">
       <div className="flex items-center gap-3 border-border border-b px-4 py-3">

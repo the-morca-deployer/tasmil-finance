@@ -1,8 +1,8 @@
 /**
  * Tests for use-agui-stream lifecycle fixes:
- * 1. AbortController ref — aborts previous stream on new submit
- * 2. useEffect cleanup — aborts on unmount, clears flush timers
- * 3. isLoading guard — prevents concurrent streams
+ * 1. AbortController ref - aborts previous stream on new submit
+ * 2. useEffect cleanup - aborts on unmount, clears flush timers
+ * 3. isLoading guard - prevents concurrent streams
  */
 
 import { act, renderHook } from "@testing-library/react";
@@ -43,7 +43,7 @@ describe("useAguiStream lifecycle", () => {
     });
   });
 
-  describe("AbortController — aborts previous stream on new submit", () => {
+  describe("AbortController - aborts previous stream on new submit", () => {
     it("should pass an AbortController to HttpAgent.runAgent", async () => {
       const { result } = renderHook(() => useAguiStream(baseConfig));
 
@@ -69,7 +69,7 @@ describe("useAguiStream lifecycle", () => {
       const firstAbortController = mockRunAgent.mock.calls[0][0].abortController as AbortController;
       expect(firstAbortController.signal.aborted).toBe(false);
 
-      // Second submit — should abort the previous controller
+      // Second submit - should abort the previous controller
       await act(async () => {
         await result.current.submit({ messages: [] });
       });
@@ -79,7 +79,7 @@ describe("useAguiStream lifecycle", () => {
     });
   });
 
-  describe("useEffect cleanup — aborts on unmount", () => {
+  describe("useEffect cleanup - aborts on unmount", () => {
     it("should abort active stream on unmount", async () => {
       const { result, unmount } = renderHook(() => useAguiStream(baseConfig));
 
@@ -102,7 +102,7 @@ describe("useAguiStream lifecycle", () => {
     });
   });
 
-  describe("isLoading guard — prevents concurrent streams", () => {
+  describe("isLoading guard - prevents concurrent streams", () => {
     it("should not start a new stream while isLoading is true", async () => {
       // Make runAgent hang (never resolve, never call onRunFinalized) to keep isLoading true
       let resolveAgent: () => void;
@@ -123,7 +123,7 @@ describe("useAguiStream lifecycle", () => {
       // isLoading should be true now
       expect(result.current.isLoading).toBe(true);
 
-      // Try second submit — should be blocked
+      // Try second submit - should be blocked
       await act(async () => {
         await result.current.submit({ messages: [] });
       });

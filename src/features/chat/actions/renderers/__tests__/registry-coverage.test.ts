@@ -1,6 +1,6 @@
 // Mock all components/hooks that import the Stellar SDK (which uses native
 // Node crypto not available in jsdom). The registry test only checks that tool
-// names are registered with the correct kind — it never renders anything.
+// names are registered with the correct kind - it never renders anything.
 
 // Mock stellar components (they import use-tx-signing → stellar-network-check → Stellar SDK)
 jest.mock("@/features/chat/actions/components/stellar/execute-card", () => ({
@@ -127,16 +127,16 @@ describe("toolRendererRegistry coverage", () => {
   it("registers swap_build_transaction (operation)", () => {
     expect(toolRendererRegistry.get("swap_build_transaction")?.kind).toBe("operation");
   });
-  it("registers blend_deposit (shared-op) — was broken before", () => {
+  it("registers blend_deposit (shared-op) - was broken before", () => {
     expect(toolRendererRegistry.get("blend_deposit")?.kind).toBe("shared-op");
   });
-  it("registers blend_get_pool_info (shared) — was broken before", () => {
+  it("registers blend_get_pool_info (shared) - was broken before", () => {
     expect(toolRendererRegistry.get("blend_get_pool_info")?.kind).toBe("shared");
   });
-  it("registers aquarius_list_pools (shared) — was broken before", () => {
+  it("registers aquarius_list_pools (shared) - was broken before", () => {
     expect(toolRendererRegistry.get("aquarius_list_pools")?.kind).toBe("shared");
   });
-  it("registers aquarius_add_liquidity (shared-op) — was broken before", () => {
+  it("registers aquarius_add_liquidity (shared-op) - was broken before", () => {
     expect(toolRendererRegistry.get("aquarius_add_liquidity")?.kind).toBe("shared-op");
   });
   it("registers execute (shared-op)", () => {

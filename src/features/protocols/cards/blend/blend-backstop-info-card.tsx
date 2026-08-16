@@ -69,7 +69,7 @@ export function BlendBackstopInfoCard({
     );
   }
 
-  // Playground mode — rich card
+  // Playground mode - rich card
   const totalApr = Number(backstop.totalApr);
   const aprColor = !Number.isFinite(totalApr)
     ? "text-muted-foreground"

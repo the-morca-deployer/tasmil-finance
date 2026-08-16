@@ -1,4 +1,4 @@
-# Strategy Navigation & Mega Menu — Implementation Plan
+# Strategy Navigation & Mega Menu - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -267,7 +267,7 @@ export function StrategyNav() {
         </a>
       </div>
 
-      {/* Right — wallet area placeholder */}
+      {/* Right - wallet area placeholder */}
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-2.5 rounded-[100px] border border-[rgba(255,255,255,0.14)] bg-[#0D111A] py-1.5 pl-3.5 pr-1.5">
           <span className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-full bg-gradient-to-r from-white via-[#67E8F9] to-[#0EA5E9] text-[9px] font-bold text-[#04141A]">
@@ -1052,14 +1052,14 @@ Expected:
 - [ ] **Step 3: Verify megamenu hover behavior in browser**
 
 1. Navigate to `http://localhost:3000/strategies`
-2. Hover over "Strategies ▼" — megamenu appears with 4 labeled items
-3. Move mouse away — megamenu disappears
+2. Hover over "Strategies ▼" - megamenu appears with 4 labeled items
+3. Move mouse away - megamenu disappears
 4. Click "Leaderboard" → navigates to `/strategies/leaderboard`
 5. Verify active state shows on all `/strategies/*` pages (accent underline under Strategies item)
 
 - [ ] **Step 4: Verify StrategyNav replaces dashboard TopNavBar**
 
-Check that `/strategies`, `/strategies/leaderboard`, `/strategies/dashboard`, and `/strategies/create` all show StrategyNav (dark glass topbar with "Strategies ▼" megamenu trigger) — NOT the dashboard TopNavBar.
+Check that `/strategies`, `/strategies/leaderboard`, `/strategies/dashboard`, and `/strategies/create` all show StrategyNav (dark glass topbar with "Strategies ▼" megamenu trigger) - NOT the dashboard TopNavBar.
 
 - [ ] **Step 5: Commit final verification**
 

@@ -36,7 +36,7 @@ test.describe("Farming UI (Task 8)", () => {
 
     await page.waitForTimeout(2000);
 
-    // Page renders farming content — either pool cards or empty state
+    // Page renders farming content - either pool cards or empty state
     // APY label appears on pool cards
     const apyLabel = page.getByText("APY").first();
     const apyVisible = await apyLabel.isVisible({ timeout: 3000 }).catch(() => false);
@@ -76,7 +76,7 @@ test.describe("Farming UI (Task 8)", () => {
 
     await page.waitForTimeout(2000);
 
-    // Page renders activity content — date headers or empty state
+    // Page renders activity content - date headers or empty state
     const activityHeading = page.getByText("Activity").first();
     await expect(activityHeading).toBeVisible();
   });
@@ -354,7 +354,7 @@ test.describe("Farming UI (Task 8)", () => {
     await expect(page.getByRole("heading", { name: /^Pools$/, level: 2 }).first()).toBeVisible();
   });
 
-  test("Mobile viewport — header value visible without horizontal scroll", async ({ page }) => {
+  test("Mobile viewport - header value visible without horizontal scroll", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
@@ -411,20 +411,20 @@ test.describe("Farming UI (Task 8)", () => {
     }
   });
 
-  test("Manage tab — clicking a pool row opens PoolDetailDrawer", async ({ page }) => {
+  test("Manage tab - clicking a pool row opens PoolDetailDrawer", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.goto("/farming?tab=manage");
     await page.waitForLoadState("networkidle");
     const row = page.locator('[data-pools-row="true"]').first();
     const visible = await row.isVisible({ timeout: 5000 }).catch(() => false);
-    if (!visible) return; // empty pools state — skip
+    if (!visible) return; // empty pools state - skip
     await row.click();
     const deposit = page.getByRole("button", { name: /deposit|reactivate/i });
     await expect(deposit.first()).toBeVisible({ timeout: 3000 });
   });
 
-  test("Manage tab — asset toggle shows pool counts", async ({ page }) => {
+  test("Manage tab - asset toggle shows pool counts", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await page.goto("/farming?tab=manage");
@@ -435,7 +435,7 @@ test.describe("Farming UI (Task 8)", () => {
     await expect(xlmChip).toBeVisible();
   });
 
-  test("Manage tab — sticky Apply bar appears when preset selection differs from current", async ({
+  test("Manage tab - sticky Apply bar appears when preset selection differs from current", async ({
     page,
   }) => {
     const wallet = freshWallet();

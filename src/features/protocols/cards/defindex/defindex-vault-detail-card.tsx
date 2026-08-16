@@ -33,8 +33,8 @@ export function DefindexVaultDetailCard({ vault, mode = "playground" }: Props) {
       {/* Metrics row */}
       <div className="px-4 py-3">
         <div className="grid grid-cols-3 gap-2">
-          <MetricBox label="APY" value={vault.apy != null ? `${vault.apy.toFixed(2)}%` : "—"} />
-          <MetricBox label="Symbol" value={vault.symbol ?? "—"} />
+          <MetricBox label="APY" value={vault.apy != null ? `${vault.apy.toFixed(2)}%` : "-"} />
+          <MetricBox label="Symbol" value={vault.symbol ?? "-"} />
           <MetricBox label="Total Fee" value={`${(totalFee / 100).toFixed(2)}%`} />
         </div>
       </div>

@@ -86,7 +86,7 @@ interface TierRewardItem {
   claimable: boolean;
 }
 
-// Tab slugs — must match the ?tab= URL param values
+// Tab slugs - must match the ?tab= URL param values
 const TAB_SLUGS = ["overview", "my-quest", "referrals", "social"] as const;
 type TabSlug = (typeof TAB_SLUGS)[number];
 
@@ -590,12 +590,12 @@ function OverviewTab() {
       }>(refData) ?? {},
     [refData]
   );
-  const refCode = referral.referralCode ?? user?.referralCode ?? "—";
+  const refCode = referral.referralCode ?? user?.referralCode ?? "-";
   const refEarned = referral.totalEarned ?? 0;
   const refInvited = referral.totalInvited ?? 0;
   const refRate = (layer: number) => {
     const bps = (referral.rates ?? []).find((r) => r.layer === layer)?.rateBps;
-    return bps != null ? `${Math.round(bps / 100)}%` : "—";
+    return bps != null ? `${Math.round(bps / 100)}%` : "-";
   };
 
   const ledger = useMemo(() => {
@@ -863,7 +863,7 @@ function OverviewTab() {
               size="sm"
               block
               onClick={() => {
-                navigator.clipboard?.writeText(refCode === "—" ? "" : refCode);
+                navigator.clipboard?.writeText(refCode === "-" ? "" : refCode);
                 toast.success("Copied!");
               }}
             >
@@ -874,7 +874,7 @@ function OverviewTab() {
               size="sm"
               block
               onClick={() => {
-                if (!refCode || refCode === "—") return;
+                if (!refCode || refCode === "-") return;
                 navigator.clipboard?.writeText(buildShareUrl(refCode));
                 toast.success("Link copied!");
               }}
@@ -1037,7 +1037,7 @@ function MyQuestsTab() {
       {/* ph1 */}
       <h1 className="text-[30px] font-extrabold tracking-[-0.035em] mb-[22px]">My Quests</h1>
 
-      {/* subtabs — with pill count badge */}
+      {/* subtabs - with pill count badge */}
       <div className="flex gap-[2px] border-b border-[#27272a] mb-[22px]">
         {subtabs.map((s) => (
           <button
@@ -1295,11 +1295,11 @@ function ReferralsTab() {
   const totalReferrals = (refDataObj as { totalInvited?: number })?.totalInvited ?? refs.length;
   const activeReferrals = refs.filter((r) => (r.status ?? "active") === "active").length;
   const referralCode =
-    (refDataObj as { referralCode?: string })?.referralCode ?? user?.referralCode ?? "—";
+    (refDataObj as { referralCode?: string })?.referralCode ?? user?.referralCode ?? "-";
   const l1Rate = rates.find((r) => r.layer === 1)?.rateBps ?? 0;
 
   const onShareLink = () => {
-    if (!referralCode || referralCode === "—") return;
+    if (!referralCode || referralCode === "-") return;
     navigator.clipboard?.writeText(buildShareUrl(referralCode));
     toast.success("Link copied!");
   };
@@ -1473,7 +1473,7 @@ function ReferralsTab() {
                 variant="primary"
                 size="sm"
                 onClick={() => {
-                  if (!referralCode || referralCode === "—") return;
+                  if (!referralCode || referralCode === "-") return;
                   navigator.clipboard?.writeText(referralCode);
                   toast.success("Copied!");
                 }}
@@ -1678,9 +1678,9 @@ function ReferralsTab() {
               ))}
             </div>
           )
-        ) : /* referral tree — real nested hierarchy */
+        ) : /* referral tree - real nested hierarchy */
         treeLoading ? (
-          <div className="text-center py-12 text-[13px] text-[#a1a1aa]">Loading tree…</div>
+          <div className="text-center py-12 text-[13px] text-[#a1a1aa]">Loading tree...</div>
         ) : treeNodes.length === 0 ? (
           <div className="text-center py-12 text-[13px] text-[#a1a1aa]">
             Referral tree will appear once you have active referrals.

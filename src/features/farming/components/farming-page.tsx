@@ -38,7 +38,7 @@ function GetStartedEmptyState({ resuming, onStart }: { resuming: boolean; onStar
       </h2>
       <p className="mb-6 max-w-md text-muted-foreground text-sm">
         {resuming
-          ? "Your previous setup didn't finish. Pick up where you left off — your selections are saved."
+          ? "Your previous setup didn't finish. Pick up where you left off - your selections are saved."
           : "Choose the asset and strategy your agent will use. Two wallet signatures, ~30 seconds."}
       </p>
       <Button
@@ -98,7 +98,7 @@ function FarmingContent() {
 
   // Defensive auto-register for portfolio snapshot history. Existing accounts
   // that predate the backend auto-register need this to start accumulating
-  // chart data. Backend is idempotent — returns {registered:false} if already
+  // chart data. Backend is idempotent - returns {registered:false} if already
   // tracked. Fire-and-forget; failures don't block the dashboard.
   useEffect(() => {
     const addr = position?.keeperWalletAddress;
@@ -110,7 +110,7 @@ function FarmingContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address: addr }),
     }).catch(() => {
-      // ignore — idempotent on backend
+      // ignore - idempotent on backend
     });
   }, [position?.keeperWalletAddress]);
 
@@ -262,7 +262,7 @@ function FarmingContent() {
   const lifetimeEarningsPct = position.profitPercent ?? 0;
   const netApr = position.currentApy ?? 0;
   const firstPosition = positionsList[0];
-  const currentMarketName = firstPosition?.poolName ?? "—";
+  const currentMarketName = firstPosition?.poolName ?? "-";
   const currentPositionApr = firstPosition?.apy ?? 0;
   const activatedAt = position.createdAt ?? new Date().toISOString();
 

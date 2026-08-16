@@ -5,14 +5,14 @@ import { deriveSecretKey, resolvePublicKey } from "./test-wallet";
 const NETWORK_PASSPHRASE = "Public Global Stellar Network ; September 2015";
 
 /**
- * JWT cache — authenticate once per wallet, reuse across tests.
+ * JWT cache - authenticate once per wallet, reuse across tests.
  */
-// Global JWT cache — shared via globalThis so the fixture can re-inject after tunnel redirects
+// Global JWT cache - shared via globalThis so the fixture can re-inject after tunnel redirects
 const jwtCache = new Map<string, { accessToken: string; user: any }>();
 (globalThis as any).__tasmilJwtCache = jwtCache;
 
 /**
- * Programmatic wallet authentication — no Freighter extension needed.
+ * Programmatic wallet authentication - no Freighter extension needed.
  * Caches JWT per public key so only the first test pays the auth cost.
  */
 export async function authenticateWallet(page: Page, wallet: WalletConfig): Promise<void> {
@@ -57,7 +57,7 @@ export async function authenticateWallet(page: Page, wallet: WalletConfig): Prom
     /* no warning */
   }
 
-  // Wait for SPA to be ready (don't use "load" — tunnels are slow)
+  // Wait for SPA to be ready (don't use "load" - tunnels are slow)
   await page.waitForLoadState("networkidle", { timeout: 30_000 }).catch(() => {});
 
   // Step 1: Get challenge (retry up to 3 times for transient 502/503 from proxy)

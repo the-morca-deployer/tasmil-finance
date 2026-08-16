@@ -100,25 +100,25 @@ export function SoroswapPositionsCard({ data, mode = "playground" }: Props) {
               <div>
                 <p className="text-muted-foreground/60">{pos.tokenA}</p>
                 <p className="text-foreground tabular-nums">
-                  {pos.amountA != null ? fmt(Number(pos.amountA) / 1e7) : "—"}
+                  {pos.amountA != null ? fmt(Number(pos.amountA) / 1e7) : "-"}
                 </p>
               </div>
               <div>
                 <p className="text-muted-foreground/60">{pos.tokenB}</p>
                 <p className="text-foreground tabular-nums">
-                  {pos.amountB != null ? fmt(Number(pos.amountB) / 1e7) : "—"}
+                  {pos.amountB != null ? fmt(Number(pos.amountB) / 1e7) : "-"}
                 </p>
               </div>
               <div>
                 <p className="text-muted-foreground/60">LP Tokens</p>
                 <p className="text-foreground tabular-nums">
-                  {pos.liquidityTokens != null ? fmt(Number(pos.liquidityTokens) / 1e7) : "—"}
+                  {pos.liquidityTokens != null ? fmt(Number(pos.liquidityTokens) / 1e7) : "-"}
                 </p>
               </div>
               <div>
                 <p className="text-muted-foreground/60">Value</p>
                 <p className="text-foreground tabular-nums">
-                  {pos.valueUsd != null ? `$${fmt(pos.valueUsd)}` : "—"}
+                  {pos.valueUsd != null ? `$${fmt(pos.valueUsd)}` : "-"}
                 </p>
               </div>
             </div>

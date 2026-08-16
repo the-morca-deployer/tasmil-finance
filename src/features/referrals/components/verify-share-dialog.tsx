@@ -58,15 +58,15 @@ function mapBackendError(err: unknown): string {
     (err instanceof Error ? err.message : "");
 
   if (status === 503)
-    return "Verification temporarily unavailable — please retry in a few minutes.";
+    return "Verification temporarily unavailable - please retry in a few minutes.";
   if (status === 400) return "Invalid tweet URL.";
   if (typeof raw !== "string") return "Failed to verify tweet.";
   if (raw.includes("X_NOT_LINKED")) return "Link your X account first.";
   if (raw.includes("TWEET_NOT_ELIGIBLE")) {
-    if (raw.includes("replies")) return "Only original tweets — replies are not allowed.";
-    if (raw.includes("quotes")) return "Only original tweets — quote-tweets are not allowed.";
-    if (raw.includes("retweets")) return "Only original tweets — retweets are not allowed.";
-    return "Tweet is not eligible — must be an original tweet.";
+    if (raw.includes("replies")) return "Only original tweets - replies are not allowed.";
+    if (raw.includes("quotes")) return "Only original tweets - quote-tweets are not allowed.";
+    if (raw.includes("retweets")) return "Only original tweets - retweets are not allowed.";
+    return "Tweet is not eligible - must be an original tweet.";
   }
   if (raw.includes("TWEET_AUTHOR_MISMATCH"))
     return "This tweet is from a different X account than the one you linked.";
@@ -171,7 +171,7 @@ export function VerifyShareDialog({ open, onOpenChange }: VerifyShareDialogProps
               onClick={handleVerify}
               disabled={isBusy || !tweetUrl.trim()}
             >
-              {isBusy ? "Verifying…" : "Verify tweet"}
+              {isBusy ? "Verifying..." : "Verify tweet"}
             </Button>
           </div>
         )}

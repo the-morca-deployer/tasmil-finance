@@ -9,7 +9,7 @@ import { TokenImage } from "@/shared/components/token-image";
 import { PROTOCOL_ICONS as CDN_PROTOCOL_ICONS } from "@/shared/constants/asset-manifest";
 import { CompactPositionRow } from "./compact-position-row";
 
-// ─── Protocol icon mapping ──────────────────────────────────────────────────
+// --- Protocol icon mapping --------------------------------------------------
 
 const PROTOCOL_ICONS: Record<string, string> = {
   "tasmil-vault": CDN_PROTOCOL_ICONS.tasmil!,
@@ -38,7 +38,7 @@ function formatUsd(value: number): string {
   }).format(value);
 }
 
-// ─── Protocol section ───────────────────────────────────────────────────────
+// --- Protocol section -------------------------------------------------------
 
 interface ProtocolCollapsibleSectionProps {
   protocol: string;

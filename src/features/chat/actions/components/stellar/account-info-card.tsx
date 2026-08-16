@@ -132,7 +132,7 @@ function resolveAssetName(token: any): string {
   );
 }
 
-// ─── Account Info View ────────────────────────────────────────────
+// --- Account Info View --------------------------------------------
 
 function AccountInfoView({ data }: { data: any }) {
   const account = data.account ?? data;
@@ -179,7 +179,7 @@ function AccountInfoView({ data }: { data: any }) {
   );
 }
 
-// ─── Balance View ─────────────────────────────────────────────────
+// --- Balance View -------------------------------------------------
 
 function BalanceView({ data }: { data: any }) {
   const token = data.token ?? data;
@@ -202,7 +202,7 @@ function BalanceView({ data }: { data: any }) {
   );
 }
 
-// ─── Assets View ──────────────────────────────────────────────────
+// --- Assets View --------------------------------------------------
 
 function AssetsView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const account = data.account ?? data;
@@ -239,7 +239,7 @@ function AssetsView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   );
 }
 
-// ─── History View ─────────────────────────────────────────────────
+// --- History View -------------------------------------------------
 
 function HistoryView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const ops = data.operations ?? [];
@@ -267,7 +267,7 @@ function HistoryView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   );
 }
 
-// ─── Locked View ──────────────────────────────────────────────────
+// --- Locked View --------------------------------------------------
 
 function LockedView({ data }: { data: any }) {
   const locked = data.locked ?? {};
@@ -292,7 +292,7 @@ function LockedView({ data }: { data: any }) {
   );
 }
 
-// ─── Claimable View ───────────────────────────────────────────────
+// --- Claimable View -----------------------------------------------
 
 function ClaimableView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const balances = data.claimableBalances ?? [];
@@ -315,7 +315,7 @@ function ClaimableView({ data, toolCallId }: { data: any; toolCallId?: string })
   );
 }
 
-// ─── Offers View ──────────────────────────────────────────────────
+// --- Offers View --------------------------------------------------
 
 function OffersView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const offers = data.offers ?? [];
@@ -345,7 +345,7 @@ function OffersView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   );
 }
 
-// ─── Trades View ──────────────────────────────────────────────────
+// --- Trades View --------------------------------------------------
 
 function TradesView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const trades = data.trades ?? [];
@@ -380,7 +380,7 @@ function TradesView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   );
 }
 
-// ─── Price View ───────────────────────────────────────────────────
+// --- Price View ---------------------------------------------------
 
 function PriceView({ data }: { data: any }) {
   return (
@@ -398,7 +398,7 @@ function PriceView({ data }: { data: any }) {
   );
 }
 
-// ─── Positions View ───────────────────────────────────────────────
+// --- Positions View -----------------------------------------------
 
 function PositionsView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const positions = data.positions ?? [];
@@ -425,7 +425,7 @@ function PositionsView({ data, toolCallId }: { data: any; toolCallId?: string })
   );
 }
 
-// ─── Signers View ─────────────────────────────────────────────────
+// --- Signers View -------------------------------------------------
 
 function SignersView({ data }: { data: any }) {
   const signers = data.signers ?? [];
@@ -459,7 +459,7 @@ function SignersView({ data }: { data: any }) {
   );
 }
 
-// ─── Network View ─────────────────────────────────────────────────
+// --- Network View -------------------------------------------------
 
 function NetworkView({ data }: { data: any }) {
   return (
@@ -471,7 +471,7 @@ function NetworkView({ data }: { data: any }) {
   );
 }
 
-// ─── Blend Position View ──────────────────────────────────────────
+// --- Blend Position View ------------------------------------------
 
 function BlendPositionView({ data, args }: { data: any; args?: Record<string, any> }) {
   const poolAddress = args?.poolAddress ?? data?.poolAddress;
@@ -592,7 +592,7 @@ function BlendPositionView({ data, args }: { data: any; args?: Record<string, an
   );
 }
 
-// ─── Backstop Balance View ────────────────────────────────────────
+// --- Backstop Balance View ----------------------------------------
 
 function BlendBackstopBalanceView({ data }: { data: any }) {
   const shares =
@@ -627,7 +627,7 @@ function BlendBackstopBalanceView({ data }: { data: any }) {
   );
 }
 
-// ─── Generic View ─────────────────────────────────────────────────
+// --- Generic View -------------------------------------------------
 
 function GenericView({ data }: { data: any }) {
   if (data?.success !== undefined) {

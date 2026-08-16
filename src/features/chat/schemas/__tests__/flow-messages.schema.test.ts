@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -10,7 +10,7 @@ import {
   suggestionSchema,
 } from "../flow-messages.schema";
 
-// ─── Fixtures ──────────────────────────────────────────────────
+// --- Fixtures --------------------------------------------------
 
 const validSuggestion = {
   label: "USDC Lending · Blend · 14.2% APY",
@@ -48,7 +48,7 @@ const validSimReport = {
   simulated_at_ledger: 123456,
 };
 
-// ─── Discriminated Union Tests ─────────────────────────────────
+// --- Discriminated Union Tests ---------------------------------
 
 describe("assistantFlowMessageSchema", () => {
   it("discriminates 'text' kind", () => {
@@ -136,7 +136,7 @@ describe("assistantFlowMessageSchema", () => {
   });
 });
 
-// ─── Suggestion Schema Tests ───────────────────────────────────
+// --- Suggestion Schema Tests -----------------------------------
 
 describe("suggestionSchema", () => {
   it("accepts suggestion with all fields", () => {
@@ -159,7 +159,7 @@ describe("suggestionSchema", () => {
   });
 });
 
-// ─── Plan Schema Tests ─────────────────────────────────────────
+// --- Plan Schema Tests -----------------------------------------
 
 describe("planSchema", () => {
   it("accepts valid multi-step plan", () => {
@@ -187,7 +187,7 @@ describe("planSchema", () => {
   });
 });
 
-// ─── SimulationReport Schema Tests ─────────────────────────────
+// --- SimulationReport Schema Tests -----------------------------
 
 describe("simulationReportSchema", () => {
   it("accepts valid simulation with success status", () => {
@@ -238,7 +238,7 @@ describe("simulationReportSchema", () => {
   });
 });
 
-// ─── Clarify via discriminated union ───────────────────────────
+// --- Clarify via discriminated union ---------------------------
 
 describe("clarify message validation", () => {
   it("rejects clarify with empty question", () => {

@@ -1,6 +1,6 @@
 import { expect, test } from "../fixtures/chat.fixture";
 
-test.describe("Info Queries — Non-execution Requests", () => {
+test.describe("Info Queries - Non-execution Requests", () => {
   test.describe.configure({ mode: "serial" });
 
   test("account balance query shows AccountInfoCard", async ({ chatPage }) => {

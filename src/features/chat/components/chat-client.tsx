@@ -232,7 +232,7 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
     }
   }, [stream.isLoading]);
 
-  // Debug: detect message loss on reload — log raw vs rendered counts
+  // Debug: detect message loss on reload - log raw vs rendered counts
   useEffect(() => {
     const raw = stream.messages || [];
     const humanCount = raw.filter((m: any) => m.type === "human").length;
@@ -304,7 +304,7 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
   // Show suggestions when: new chat OR agent finished responding
   // Use isAiResponseComplete as a faster indicator that AI is done
   const showSuggestions = isNewChat || (!effectiveIsLoading && messages.length > 0);
-  // Welcome reward disabled locally — kept the condition for traceability.
+  // Welcome reward disabled locally - kept the condition for traceability.
   const showWelcomeRewardDialog =
     false &&
     isNewChat &&
@@ -500,7 +500,7 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
     )
       return;
 
-    // Auto-cancel any pending TX cards — user moved on without signing.
+    // Auto-cancel any pending TX cards - user moved on without signing.
     // Only writes to sessionStorage (local UI state), no backend message.
     cancelPendingTxCards(messages as any);
 
@@ -526,7 +526,7 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
       {
         // Only send the new human message. The AG-UI hook sends only new
         // messages; the backend loads history from the checkpoint.
-        // Do NOT include ensureToolCallsHaveResponses placeholders — they
+        // Do NOT include ensureToolCallsHaveResponses placeholders - they
         // pollute backend state with do-not-render messages.
         messages: [newHumanMessage],
         ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
@@ -647,7 +647,7 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
 
     stream.submit(
       {
-        // Only send the new human message — same rationale as handleSubmit.
+        // Only send the new human message - same rationale as handleSubmit.
         messages: [newHumanMessage],
         ...(effectiveWalletAddress && { wallet_address: effectiveWalletAddress }),
         charge_usage: true,
@@ -734,13 +734,13 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
                 lastPoolEarnings={lastPoolEarnings}
                 onReinvest={() => handleSendSuggestion("Reinvest my rewards")}
                 onSnooze={() => {
-                  /* snooze handled in profile state — no-op for now */
+                  /* snooze handled in profile state - no-op for now */
                 }}
               />
             )}
           </AnimatePresence>
 
-          {/* Hidden per request — re-enable when the greeting chips should return.
+          {/* Hidden per request - re-enable when the greeting chips should return.
           {showGreeting && (
             <div className="pointer-events-auto mt-6 px-4">
               <SuggestedPrompts
@@ -831,7 +831,7 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
               // Show Thinking whenever the last message is human and no AI
               // response has streamed in yet. On a brand-new chat the URL
               // navigates /chat/new → /chat/<id> and the component remounts,
-              // wiping isSubmitting before stream.isLoading flips true — so
+              // wiping isSubmitting before stream.isLoading flips true - so
               // gating only on effectiveIsLoading misses the first turn.
               const lastMsg = messages[messages.length - 1];
               const lastMsgIsHuman = lastMsg?.type === "human";
@@ -859,7 +859,7 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
                 }
 
                 // Also suppress if any AI message in the current turn already has
-                // visible text content — showing AssistantMessageLoading alongside
+                // visible text content - showing AssistantMessageLoading alongside
                 // streaming supervisor text creates the exact regression we're fixing.
                 const hasStreamingContent = messages.slice(lastHumanIdx + 1).some((m) => {
                   if (m.type !== "ai" && (m.type as string) !== "assistant") return false;
@@ -989,7 +989,7 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
               {/* Bottom toolbar */}
               <div className="flex items-center justify-between px-3 pb-3">
                 <div className="flex items-center gap-1">
-                  {/* Attach button — hidden for now
+                  {/* Attach button - hidden for now
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <label
@@ -1016,7 +1016,7 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
                     10 credits/chat
                   </span>
 
-                  {/* Temporarily hidden — tools toggle button
+                  {/* Temporarily hidden - tools toggle button
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button
@@ -1074,7 +1074,7 @@ export function ChatClient({ agentId, chatId: _chatId, phaseProfile }: ChatClien
         </div>
       </div>
 
-      {/* Welcome reward dialog — rendered as a proper modal overlay */}
+      {/* Welcome reward dialog - rendered as a proper modal overlay */}
       {welcomeRewardStatus && (
         <WelcomeRewardDialog
           open={showWelcomeRewardDialog}

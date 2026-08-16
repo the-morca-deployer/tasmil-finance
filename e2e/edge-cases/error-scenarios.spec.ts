@@ -1,12 +1,12 @@
 import { expect, test } from "../fixtures/chat.fixture";
 
-test.describe("Edge Cases — Error Scenarios (Empty Wallet)", () => {
+test.describe("Edge Cases - Error Scenarios (Empty Wallet)", () => {
   test.describe.configure({ mode: "serial" });
 
   /**
    * These tests use `chatPageEmpty` which connects with:
    * GC5D3EMZTDLRAOBMQN3ITUWLXMB7V2A6QKZ6GLJHWDDAE2BB6S6ICGLV
-   * (zero balance — no USDC, no XLM, no trustlines)
+   * (zero balance - no USDC, no XLM, no trustlines)
    */
 
   test("insufficient balance: supply with no funds", async ({ chatPageEmpty }) => {
@@ -91,7 +91,7 @@ test.describe("Edge Cases — Error Scenarios (Empty Wallet)", () => {
   });
 });
 
-test.describe("Edge Cases — Error Scenarios (Funded Wallet)", () => {
+test.describe("Edge Cases - Error Scenarios (Funded Wallet)", () => {
   test.describe.configure({ mode: "serial" });
 
   /**

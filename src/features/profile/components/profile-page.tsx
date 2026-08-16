@@ -85,7 +85,7 @@ function ProfileContent({ packages }: ProfileContentProps) {
   const walletUsd = walletData?.totalUsd ?? 0;
   const totalUsd = walletUsd + positionsTotalUsd;
 
-  // Submit periodic portfolio snapshots — backend fetches values via SDK
+  // Submit periodic portfolio snapshots - backend fetches values via SDK
   useSnapshotSubmitter(account);
 
   if (!account) {
@@ -212,7 +212,7 @@ function ProfileContent({ packages }: ProfileContentProps) {
                       Top up credits
                     </h2>
                     <p className="text-muted-foreground text-sm">
-                      Choose a package below. Pay with crypto or bank transfer — credits never
+                      Choose a package below. Pay with crypto or bank transfer - credits never
                       expire.
                     </p>
                   </div>

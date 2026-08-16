@@ -8,10 +8,10 @@ import {
 import backendAxios, { $b, $bLive } from "@/lib/kubb-backend";
 import type { ActivityItem, PositionData, PresetCardData } from "../types";
 
-// ─── Query hooks (generated + config preset + select to unwrap NestJS envelope) ───
+// --- Query hooks (generated + config preset + select to unwrap NestJS envelope) ---
 
 export function usePresets(baseAsset?: string) {
-  // Backend supports ?baseAsset=USDC|XLM — different pool universes per
+  // Backend supports ?baseAsset=USDC|XLM - different pool universes per
   // deposit asset. Keep the query key distinct so switching the toggle
   // invalidates the cache cleanly.
   const normalized = (baseAsset ?? "USDC").toUpperCase();
@@ -54,7 +54,7 @@ export function useActivity(publicKey: string | undefined) {
   );
 }
 
-// ─── Mutation hooks (backendAxios directly — mutations have no `select`) ─────────
+// --- Mutation hooks (backendAxios directly - mutations have no `select`) ---------
 
 export interface DeployAccountResponse {
   /** Unsigned XDR for the user to sign. Absent when `alreadyDeployed` is true. */
@@ -233,7 +233,7 @@ export function useWithdraw() {
       }
     },
     // Withdraw outcome (success OR failure from a stale cache hit) means our
-    // cached position/balance is suspect — invalidate so the dashboard
+    // cached position/balance is suspect - invalidate so the dashboard
     // refetches actual on-chain state on next render.
     onSettled: () => {
       queryClient.invalidateQueries({

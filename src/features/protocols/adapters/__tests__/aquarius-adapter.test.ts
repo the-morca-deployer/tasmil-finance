@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -28,7 +28,7 @@ describe("Aquarius MCP Adapter", () => {
 
     it("extracts TVL from liquidity_usd (stroops -> USD)", () => {
       const pools = normalizeAquaPoolsFromMcp(AQUARIUS_RESOLVE_POOL);
-      // 28500000000000 / 1e7 = 2850000 — but actually 2850
+      // 28500000000000 / 1e7 = 2850000 - but actually 2850
       expect(pools[0]!.tvl).toBeGreaterThan(0);
       expect(pools[0]!.tvl).not.toBeNull();
     });
@@ -52,7 +52,7 @@ describe("Aquarius MCP Adapter", () => {
       expect(pool.tokens![1]!.symbol).toBe("USDC");
     });
 
-    it("handles broken format — token address should not be 'undefined'", () => {
+    it("handles broken format - token address should not be 'undefined'", () => {
       const pools = normalizeAquaPoolsFromMcp(AQUARIUS_RESOLVE_POOL_BROKEN);
       const pool = pools[0]!;
       if (pool.tokens) {

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
-test.describe("Dashboard — /dashboard", () => {
+test.describe("Dashboard - /dashboard", () => {
   test.skip(process.env.NODE_ENV === "production", "test-login is disabled on production");
 
   // 1
@@ -21,7 +21,7 @@ test.describe("Dashboard — /dashboard", () => {
     if (await connectBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
       await connectBtn.click();
     }
-    // URL stays on /dashboard — no crash
+    // URL stays on /dashboard - no crash
     await expect(page).toHaveURL(/\/dashboard/);
   });
 
@@ -152,7 +152,7 @@ test.describe("Dashboard — /dashboard", () => {
     await loginAsWallet(page, wallet);
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
-    // CreditsPill shows "Credits N" — case-insensitive
+    // CreditsPill shows "Credits N" - case-insensitive
     const hasCredits = await page
       .getByText(/credits?\s*\d/i)
       .first()
@@ -202,19 +202,19 @@ test.describe("Dashboard — /dashboard", () => {
     await loginAsWallet(page, wallet);
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
-    // Alert role used for global error overlays — should not be visible
+    // Alert role used for global error overlays - should not be visible
     await expect(page.getByRole("alert").first()).not.toBeVisible();
   });
 
   // 16
-  test("Network error on position fetch — graceful degradation", async ({ page }) => {
+  test("Network error on position fetch - graceful degradation", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     // Intercept before navigation
     await page.route("**/api/account/position", (route) => route.fulfill({ status: 503 }));
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
-    // Should degrade gracefully — no raw 503 text exposed to user
+    // Should degrade gracefully - no raw 503 text exposed to user
     const has503 = await page
       .getByText("503")
       .first()
@@ -241,7 +241,7 @@ test.describe("Dashboard — /dashboard", () => {
     await page.waitForLoadState("networkidle");
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
-    // Re-acquire marker — page should have reloaded fresh data
+    // Re-acquire marker - page should have reloaded fresh data
     const marker2 = await page
       .getByText(/\d{4,}/)
       .first()
@@ -253,7 +253,7 @@ test.describe("Dashboard — /dashboard", () => {
   });
 
   // 18
-  test("Responsive — mobile viewport", async ({ page }) => {
+  test("Responsive - mobile viewport", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
@@ -264,7 +264,7 @@ test.describe("Dashboard — /dashboard", () => {
   });
 
   // 19
-  test("Responsive — tablet viewport", async ({ page }) => {
+  test("Responsive - tablet viewport", async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 });
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
@@ -274,7 +274,7 @@ test.describe("Dashboard — /dashboard", () => {
   });
 
   // 20
-  test("Multiple accounts — second wallet", async ({ page }) => {
+  test("Multiple accounts - second wallet", async ({ page }) => {
     const wallet1 = freshWallet();
     const wallet2 = freshWallet();
     await loginAsWallet(page, wallet1);

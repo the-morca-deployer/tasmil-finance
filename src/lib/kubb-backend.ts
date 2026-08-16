@@ -21,7 +21,7 @@ export const getBackendBaseUrl = () => {
 // Bumped from 30s → 90s. Withdraw/deposit endpoints chain multiple Soroban
 // RPC simulations (read shares, build strategy withdraw, read keeper
 // balances, build keeper transfer, simulate each) and routinely take
-// 20–40s on mainnet, especially under RPC 429 backoff.
+// 20-40s on mainnet, especially under RPC 429 backoff.
 const backendAxios = axios.create({
   baseURL: getBackendBaseUrl(),
   withCredentials: true,
@@ -44,7 +44,7 @@ backendAxios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle 401 globally — dispatch a typed event with token freshness so the
+// Handle 401 globally - dispatch a typed event with token freshness so the
 // auth handler can decide whether to force-sign or surface a reconnect prompt.
 backendAxios.interceptors.response.use(
   (response) => response,

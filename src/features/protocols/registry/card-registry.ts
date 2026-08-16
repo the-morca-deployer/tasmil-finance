@@ -1,5 +1,5 @@
 /**
- * Card registry — single source of truth mapping tool names / panel IDs
+ * Card registry - single source of truth mapping tool names / panel IDs
  * to shared card components and their data adapters.
  *
  * Used by both:
@@ -75,7 +75,7 @@ import {
   normalizeSoroswapPositionsFromSdk,
 } from "../adapters/soroswap-from-sdk";
 
-// ─── Registry entry types ───────────────────────────────────────
+// --- Registry entry types ---------------------------------------
 
 export interface InfoCardEntry {
   toolName: string;
@@ -94,7 +94,7 @@ export interface OperationCardEntry {
   fromMcp: (result: unknown, args?: Record<string, unknown>) => unknown;
 }
 
-// ─── Lazy imports to avoid circular dependencies ────────────────
+// --- Lazy imports to avoid circular dependencies ----------------
 // Components are loaded lazily so this file can be imported from any context.
 
 let _BlendPoolsCard: ComponentType<any> | null = null;
@@ -156,7 +156,7 @@ function getBlendBackstopBalanceCard() {
   return _BlendBackstopBalanceCard!;
 }
 
-// ─── Aquarius lazy imports ─────────────────────────────────────
+// --- Aquarius lazy imports -------------------------------------
 
 let _AquaPoolsCard: ComponentType<any> | null = null;
 let _AquaPoolDetailCard: ComponentType<any> | null = null;
@@ -199,7 +199,7 @@ function getAquaTxCard() {
   return _AquaTxCard!;
 }
 
-// ─── Info card registry ──────────────────────────���──────────────
+// --- Info card registry --------------------------���--------------
 
 export const BLEND_INFO_CARDS: InfoCardEntry[] = [
   {
@@ -271,7 +271,7 @@ export const BLEND_INFO_CARDS: InfoCardEntry[] = [
   },
 ];
 
-// ─── Operation card registry ────────────────────────────────────
+// --- Operation card registry ------------------------------------
 
 export const BLEND_OPERATION_CARDS: OperationCardEntry[] = [
   {
@@ -372,7 +372,7 @@ export const BLEND_OPERATION_CARDS: OperationCardEntry[] = [
   },
 ];
 
-// ─── Aquarius info card registry ────────────────────────────────
+// --- Aquarius info card registry --------------------------------
 
 export const AQUARIUS_INFO_CARDS: InfoCardEntry[] = [
   {
@@ -410,7 +410,7 @@ export const AQUARIUS_INFO_CARDS: InfoCardEntry[] = [
   },
 ];
 
-// ─── Aquarius operation card registry ───────────────────────────
+// --- Aquarius operation card registry ---------------------------
 
 export const AQUARIUS_OPERATION_CARDS: OperationCardEntry[] = [
   {
@@ -455,7 +455,7 @@ export const AQUARIUS_OPERATION_CARDS: OperationCardEntry[] = [
   },
 ];
 
-// ─── Soroswap lazy imports ─────────────────────────────────────
+// --- Soroswap lazy imports -------------------------------------
 
 let _SoroswapPoolsCard: ComponentType<any> | null = null;
 let _SoroswapPoolDetailCard: ComponentType<any> | null = null;
@@ -485,7 +485,7 @@ function getSoroswapTxCard() {
   return _SoroswapTxCard!;
 }
 
-// ─── Soroswap info card registry ────────────────────────────────
+// --- Soroswap info card registry --------------------------------
 
 export const SOROSWAP_INFO_CARDS: InfoCardEntry[] = [
   {
@@ -523,7 +523,7 @@ export const SOROSWAP_INFO_CARDS: InfoCardEntry[] = [
   },
 ];
 
-// ─── Soroswap operation card registry ───────────────────────────
+// --- Soroswap operation card registry ---------------------------
 
 export const SOROSWAP_OPERATION_CARDS: OperationCardEntry[] = [
   {
@@ -552,7 +552,7 @@ export const SOROSWAP_OPERATION_CARDS: OperationCardEntry[] = [
   },
 ];
 
-// ─── Allbridge lazy imports ───────────────────────────────────
+// --- Allbridge lazy imports -----------------------------------
 
 let _AllbridgePoolsCard: ComponentType<any> | null = null;
 let _AllbridgePoolInfoCard: ComponentType<any> | null = null;
@@ -594,7 +594,7 @@ function getAllbridgeTxCard() {
   return _AllbridgeTxCard!;
 }
 
-// ─── Allbridge info card registry ─────────────────────────────
+// --- Allbridge info card registry -----------------------------
 
 export const ALLBRIDGE_INFO_CARDS: InfoCardEntry[] = [
   {
@@ -654,7 +654,7 @@ export const ALLBRIDGE_INFO_CARDS: InfoCardEntry[] = [
   },
 ];
 
-// ─── Allbridge operation card registry ────────────────────────
+// --- Allbridge operation card registry ------------------------
 
 export const ALLBRIDGE_OPERATION_CARDS: OperationCardEntry[] = [
   {
@@ -691,7 +691,7 @@ export const ALLBRIDGE_OPERATION_CARDS: OperationCardEntry[] = [
   },
 ];
 
-// ─── DeFindex lazy imports ──────────────────────────────────────
+// --- DeFindex lazy imports --------------------------------------
 
 let _DefindexVaultsCard: ComponentType<any> | null = null;
 let _DefindexVaultDetailCard: ComponentType<any> | null = null;
@@ -726,7 +726,7 @@ function getDefindexYieldCard() {
   return _DefindexYieldCard!;
 }
 
-// ─── DeFindex info card registry ────────────────────────────────
+// --- DeFindex info card registry --------------------------------
 
 export const DEFINDEX_INFO_CARDS: InfoCardEntry[] = [
   {
@@ -779,7 +779,7 @@ export const DEFINDEX_INFO_CARDS: InfoCardEntry[] = [
   },
 ];
 
-// ─── DeFindex operation card registry ───────────────────────────
+// --- DeFindex operation card registry ---------------------------
 
 export const DEFINDEX_OPERATION_CARDS: OperationCardEntry[] = [
   {
@@ -808,7 +808,7 @@ export const DEFINDEX_OPERATION_CARDS: OperationCardEntry[] = [
   },
 ];
 
-// ─── Combined registries ────────────────────────────────────────
+// --- Combined registries ----------------------------------------
 
 const ALL_INFO_CARDS = [
   ...BLEND_INFO_CARDS,
@@ -825,7 +825,7 @@ const ALL_OPERATION_CARDS = [
   ...DEFINDEX_OPERATION_CARDS,
 ];
 
-// ─── Lookup helpers ─────────────────────────────────────────────
+// --- Lookup helpers ---------------------------------------------
 
 export function findInfoCard(toolName: string): InfoCardEntry | undefined {
   return ALL_INFO_CARDS.find((e) => e.toolName === toolName);

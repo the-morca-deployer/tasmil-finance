@@ -164,7 +164,7 @@ function formatRelativeTime(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-// ─── Sidebar variant (compact, like HistorySidebar) ─────────────────────────
+// --- Sidebar variant (compact, like HistorySidebar) -------------------------
 
 interface FarmingActivitySidebarProps {
   activities: ActivityItem[] | undefined;
@@ -258,7 +258,7 @@ export function FarmingActivitySidebar({
   );
 }
 
-// ─── Full-page variant (for Activity tab) ───────────────────────────────────
+// --- Full-page variant (for Activity tab) -----------------------------------
 
 interface FarmingActivityProps {
   activities: ActivityItem[] | undefined;

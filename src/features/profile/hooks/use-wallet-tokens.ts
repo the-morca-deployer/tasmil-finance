@@ -17,7 +17,7 @@ export interface WalletTokensResult {
   totalUsd: number;
 }
 
-// CoinGecko IDs for price lookup — testnet tokens use mainnet prices
+// CoinGecko IDs for price lookup - testnet tokens use mainnet prices
 const COINGECKO_IDS: Record<string, string> = {
   XLM: "stellar",
   USDC: "usd-coin",
@@ -39,7 +39,7 @@ const COINGECKO_IDS: Record<string, string> = {
 // In-memory price cache to avoid CoinGecko rate limits (30 req/min on free tier)
 let _priceCache: Record<string, number> = {};
 let _priceCacheTime = 0;
-const PRICE_CACHE_TTL = 60_000; // 60s — prices update at most once per minute
+const PRICE_CACHE_TTL = 60_000; // 60s - prices update at most once per minute
 
 /** Returns the latest cached prices (for use by other hooks like defi-positions). */
 export function getCachedPrices(): Record<string, number> {
@@ -74,11 +74,11 @@ async function fetchPrices(
           }
         }
       } else if (res.status === 429) {
-        // Rate limited — return cached prices
+        // Rate limited - return cached prices
         if (Object.keys(_priceCache).length > 0) return { ..._priceCache };
       }
     } catch {
-      // CoinGecko unavailable — return cached prices
+      // CoinGecko unavailable - return cached prices
       if (Object.keys(_priceCache).length > 0) return { ..._priceCache };
     }
   }

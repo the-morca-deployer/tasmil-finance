@@ -3,9 +3,9 @@
  * Each fixture matches the [{type:"text", text: JSON.stringify(...)}] MCP result format.
  */
 
-// ─── Aquarius ─────────────────────────────────────────────────
+// --- Aquarius -------------------------------------------------
 
-/** Aquarius resolve_pool — enriched format with token objects and TVL fields */
+/** Aquarius resolve_pool - enriched format with token objects and TVL fields */
 export const AQUARIUS_RESOLVE_POOL = [
   {
     type: "text",
@@ -46,7 +46,7 @@ export const AQUARIUS_RESOLVE_POOL = [
   },
 ];
 
-/** Aquarius resolve_pool — BROKEN old format: tokens as plain string addresses, no TVL */
+/** Aquarius resolve_pool - BROKEN old format: tokens as plain string addresses, no TVL */
 export const AQUARIUS_RESOLVE_POOL_BROKEN = [
   {
     type: "text",
@@ -71,9 +71,9 @@ export const AQUARIUS_RESOLVE_POOL_BROKEN = [
   },
 ];
 
-// ─── Soroswap ─────────────────────────────────────────────────
+// --- Soroswap -------------------------------------------------
 
-/** Soroswap resolve_pool — CURRENT BUG: tokenA/tokenB as objects instead of strings */
+/** Soroswap resolve_pool - CURRENT BUG: tokenA/tokenB as objects instead of strings */
 export const SOROSWAP_RESOLVE_POOL_OBJECT_TOKENS = [
   {
     type: "text",
@@ -102,7 +102,7 @@ export const SOROSWAP_RESOLVE_POOL_OBJECT_TOKENS = [
   },
 ];
 
-/** Soroswap resolve_pool — CORRECT format: tokenA/tokenB as plain strings */
+/** Soroswap resolve_pool - CORRECT format: tokenA/tokenB as plain strings */
 export const SOROSWAP_RESOLVE_POOL = [
   {
     type: "text",
@@ -127,9 +127,9 @@ export const SOROSWAP_RESOLVE_POOL = [
   },
 ];
 
-// ─── Blend ────────────────────────────────────────────────────
+// --- Blend ----------------------------------------------------
 
-/** Blend resolve_pool — standard format with reserves array */
+/** Blend resolve_pool - standard format with reserves array */
 export const BLEND_RESOLVE_POOL = [
   {
     type: "text",
@@ -180,9 +180,9 @@ export const BLEND_RESOLVE_POOL = [
   },
 ];
 
-// ─── V2 Fixtures: NEW MCP format (card-ready, matches Zod schemas) ──
+// --- V2 Fixtures: NEW MCP format (card-ready, matches Zod schemas) --
 
-/** Aquarius V2 — matches AquaPoolCardProps schema directly */
+/** Aquarius V2 - matches AquaPoolCardProps schema directly */
 export const AQUARIUS_RESOLVE_POOL_V2 = [
   {
     type: "text",
@@ -211,7 +211,7 @@ export const AQUARIUS_RESOLVE_POOL_V2 = [
   },
 ];
 
-/** Soroswap V2 — actual resolveSoroswap() output format */
+/** Soroswap V2 - actual resolveSoroswap() output format */
 export const SOROSWAP_RESOLVE_POOL_V2 = [
   {
     type: "text",
@@ -237,7 +237,7 @@ export const SOROSWAP_RESOLVE_POOL_V2 = [
   },
 ];
 
-/** Blend V2 — actual resolveBlend() output format */
+/** Blend V2 - actual resolveBlend() output format */
 export const BLEND_RESOLVE_POOL_V2 = [
   {
     type: "text",
@@ -288,9 +288,9 @@ export const BLEND_RESOLVE_POOL_V2 = [
   },
 ];
 
-// ─── DeFindex ────────────────────────────────────────────────
+// --- DeFindex ------------------------------------------------
 
-/** DeFindex vault_list_vaults — list of vaults */
+/** DeFindex vault_list_vaults - list of vaults */
 export const DEFINDEX_VAULT_LIST = [
   {
     type: "text",
@@ -313,7 +313,7 @@ export const DEFINDEX_VAULT_LIST = [
   },
 ];
 
-// ─── SwapBridge ──────────────────────────────────────────────
+// --- SwapBridge ----------------------------------------------
 
 /** Swap operation result from any protocol */
 export const SWAP_EXECUTE_RESULT = [
@@ -335,9 +335,9 @@ export const SWAP_EXECUTE_RESULT = [
   },
 ];
 
-// ─── Error / edge cases ───────────────────────────────────────
+// --- Error / edge cases ---------------------------------------
 
-/** MCP error response — no pools found */
+/** MCP error response - no pools found */
 export const EMPTY_MCP_RESULT = [
   {
     type: "text",
@@ -345,5 +345,5 @@ export const EMPTY_MCP_RESULT = [
   },
 ];
 
-/** Malformed MCP result — invalid JSON in text field */
+/** Malformed MCP result - invalid JSON in text field */
 export const MALFORMED_MCP_RESULT = [{ type: "text", text: "not valid json{{{" }];

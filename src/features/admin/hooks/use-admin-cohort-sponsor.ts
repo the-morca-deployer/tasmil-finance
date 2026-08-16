@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { adminFetch } from "../lib/admin-fetch";
 
-// ── Backend response shapes (mirrors AdminSponsorshipController) ───────────
+// -- Backend response shapes (mirrors AdminSponsorshipController) -----------
 
 export interface CohortConfig {
   id: number;
@@ -65,7 +65,7 @@ interface PatchConfigBody {
   enabled?: boolean;
 }
 
-// ── Hooks ──────────────────────────────────────────────────────────────────
+// -- Hooks ------------------------------------------------------------------
 
 export function useCohortConfig() {
   return useQuery({

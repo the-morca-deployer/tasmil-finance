@@ -123,7 +123,7 @@ export class AguiEventProcessor {
 
           // Backend often delivers several SSE events in a single TCP chunk.
           // Without yielding, the for-loop runs back-to-back in one microtask
-          // and the browser never paints between events — the user sees the
+          // and the browser never paints between events - the user sees the
           // whole response appear at once at the end of the chunk and never
           // sees the "Thinking..." state because TEXT_MESSAGE_START is
           // immediately followed by the first TEXT_MESSAGE_CONTENT delta.
@@ -153,7 +153,7 @@ export class AguiEventProcessor {
 
       case "TEXT_MESSAGE_CONTENT":
         // Zustand uses useSyncExternalStore so subscribers re-render
-        // synchronously per set — no flushSync needed. The rAF yield in the
+        // synchronously per set - no flushSync needed. The rAF yield in the
         // reader loop is what actually lets the browser paint between deltas.
         store.applyEvent({
           type: "TEXT_MESSAGE_CONTENT",
@@ -241,7 +241,7 @@ export class AguiEventProcessor {
           // toolName against any still-empty running slot (FIFO).
           if (!targetId && typeof msg.name === "string") {
             const candidate = Object.values(state.toolCallSlots).find(
-              // Also match slots with empty string — TOOL_CALL_END fires before MESSAGES_SNAPSHOT
+              // Also match slots with empty string - TOOL_CALL_END fires before MESSAGES_SNAPSHOT
               // and sets result to "" as a spinner-stop signal; the real content arrives here.
               (slot) => slot.toolName === msg.name && (slot.result === null || slot.result === "")
             );
@@ -284,7 +284,7 @@ export class AguiEventProcessor {
         // Expose run identifiers on `window` so the overnight loop Sweeper can
         // capture them and later look up the LangSmith trace by thread_id.
         // Loop expects `__TASMIL_THREAD_ID__` (langgraph thread id) and
-        // `__LANGSMITH_RUN_ID__` (AG-UI run id — Sweeper queries LangSmith by
+        // `__LANGSMITH_RUN_ID__` (AG-UI run id - Sweeper queries LangSmith by
         // thread_id metadata since AG-UI runId is not the same as LangSmith
         // run id, but exposing it allows manual cross-referencing).
         if (typeof window !== "undefined") {

@@ -27,7 +27,7 @@ const rows: Item[] = [
     protocol: "soroswap",
     operationKind: "swap",
     amountUsd: 1234.5,
-    walletMasked: "GABCD…4F7Q",
+    walletMasked: "GABCD...4F7Q",
     createdAt: "2026-07-02T12:00:00.000Z",
   },
 ];
@@ -48,7 +48,7 @@ describe("QuestVolumeList", () => {
     render(<QuestVolumeList />);
 
     expect(screen.getByText("soroswap")).toBeInTheDocument();
-    expect(screen.getByText("GABCD…4F7Q")).toBeInTheDocument();
+    expect(screen.getByText("GABCD...4F7Q")).toBeInTheDocument();
     expect(screen.getByText("$1,235")).toBeInTheDocument();
   });
 

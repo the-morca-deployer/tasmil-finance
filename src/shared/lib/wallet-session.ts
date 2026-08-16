@@ -17,7 +17,7 @@ import { useWalletStore } from "@/store/use-wallet";
 /**
  * Open the wallet selector and record the connection in the global store.
  * Returns the connected address (or null if none was picked). Does NOT
- * authenticate — each surface authenticates its own backend afterwards.
+ * authenticate - each surface authenticates its own backend afterwards.
  */
 export async function connectWallet(): Promise<string | null> {
   const { StellarWalletsKit } = await getKitSdk();
@@ -48,7 +48,7 @@ export async function disconnectAll(): Promise<void> {
     // ignore kit disconnect errors
   }
 
-  // Main backend session (httpOnly cookie) — best-effort.
+  // Main backend session (httpOnly cookie) - best-effort.
   void fetch(`${getBrowserBackendBaseUrl()}/api/auth/logout`, {
     method: "POST",
     credentials: "include",
@@ -61,7 +61,7 @@ export async function disconnectAll(): Promise<void> {
     const { useQuestAuthStore } = await import("@/features/quest/store/use-quest-auth");
     useQuestAuthStore.getState().logout();
   } catch {
-    // quest store unavailable — ignore
+    // quest store unavailable - ignore
   }
 
   // Shared wallet connection (single source of truth).

@@ -11,7 +11,7 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import type { PositionItem, ProtocolPositionGroup } from "../hooks/use-defi-positions";
 import { ProtocolRewardsCard } from "./protocol-rewards-card";
 
-// ─── Protocol icon mapping ───────────────────────────────────────────────────
+// --- Protocol icon mapping ---------------------------------------------------
 
 const PROTOCOL_ICONS: Record<string, string> = {
   "tasmil-vault": CDN_PROTOCOL_ICONS.tasmil!,
@@ -45,7 +45,7 @@ const PROTOCOL_NAMES: Record<string, string> = {
   phoenix: "Phoenix",
 };
 
-// ─── Type badge ──────────────────────────────────────────────────────────────
+// --- Type badge --------------------------------------------------------------
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   vault: { label: "Vault", color: "text-violet-400", bg: "bg-violet-400/10" },
@@ -74,7 +74,7 @@ function TypeBadge({ type }: { type: PositionItem["type"] }) {
   );
 }
 
-// ─── Token pair icon (two overlapping circles for LP) ────────────────────────
+// --- Token pair icon (two overlapping circles for LP) ------------------------
 
 function TokenPairIcon({
   token0,
@@ -102,7 +102,7 @@ function TokenPairIcon({
   );
 }
 
-// ─── Position row content (handles single token + LP pair) ──────────────────
+// --- Position row content (handles single token + LP pair) ------------------
 
 function PositionAssetCell({ pos }: { pos: PositionItem }) {
   const pair = pos.pair;
@@ -162,7 +162,7 @@ function PositionAmountCell({ pos }: { pos: PositionItem }) {
   return <span className="text-base text-foreground">{pos.extra ?? pos.asset}</span>;
 }
 
-// ─── Formatters ──────────────────────────────────────────────────────────────
+// --- Formatters --------------------------------------------------------------
 
 function formatUsd(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -186,7 +186,7 @@ function PositionRewardsCell({
 }) {
   const rewards = pos.rewards ?? groupRewards;
   if (!rewards || rewards.amount <= 0)
-    return <span className="text-sm text-muted-foreground">—</span>;
+    return <span className="text-sm text-muted-foreground">-</span>;
 
   return (
     <div className="flex flex-col">
@@ -208,7 +208,7 @@ function extractPoolName(displayName: string): string {
   return parts.length > 1 ? parts.slice(1).join(" · ") : displayName;
 }
 
-// ─── Pie chart colors ────────────────────────────────────────────────────────
+// --- Pie chart colors --------------------------------------------------------
 
 const PIE_COLORS = [
   "#8b5cf6", // violet
@@ -221,11 +221,11 @@ const PIE_COLORS = [
   "#6366f1", // indigo
 ];
 
-// ─── Grid layout ─────────────────────────────────────────────────────────────
+// --- Grid layout -------------------------------------------------------------
 
 const POS_GRID = "grid grid-cols-[2fr_80px_80px_1fr_1.2fr_1fr] items-center gap-x-3";
 
-// ─── Group by protocol ───────────────────────────────────────────────────────
+// --- Group by protocol -------------------------------------------------------
 
 interface ProtocolCard {
   protocol: string;
@@ -256,7 +256,7 @@ function groupByProtocol(groups: ProtocolPositionGroup[]): ProtocolCard[] {
   }));
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
+// --- Component ---------------------------------------------------------------
 
 interface ProtocolPositionsProps {
   groups: ProtocolPositionGroup[];
@@ -468,7 +468,7 @@ export function ProtocolPositions({
         <ProtocolRewardsCard groups={groups} />
       </div>
 
-      {/* Protocol cards — one card per protocol, pools as sub-sections */}
+      {/* Protocol cards - one card per protocol, pools as sub-sections */}
       {cards.map((card, cardIdx) => {
         const isCollapsed = collapsed.has(card.protocol);
         const iconSrc = getProtocolIcon(card.protocol);
@@ -521,7 +521,7 @@ export function ProtocolPositions({
                   </span>
                 )}
                 <span className="text-base font-medium text-foreground">
-                  {card.totalValueUsd > 0 ? formatUsd(card.totalValueUsd) : "—"}
+                  {card.totalValueUsd > 0 ? formatUsd(card.totalValueUsd) : "-"}
                 </span>
               </div>
               <ChevronDown
@@ -534,7 +534,7 @@ export function ProtocolPositions({
 
             {/* Expanded content */}
             <AnimatePresence initial={false}>
-              {/* Flat layout — no tree (e.g. Aquarius) */}
+              {/* Flat layout - no tree (e.g. Aquarius) */}
               {!isCollapsed &&
                 !useTree &&
                 card.pools.map((pool) => (
@@ -581,19 +581,19 @@ export function ProtocolPositions({
                           <TypeBadge type={pos.type} />
                         </div>
                         <span className="text-sm font-medium text-emerald-400">
-                          {pos.apy != null ? `${pos.apy.toFixed(2)}%` : "—"}
+                          {pos.apy != null ? `${pos.apy.toFixed(2)}%` : "-"}
                         </span>
                         <PositionRewardsCell pos={pos} groupRewards={pool.rewards} />
                         <PositionAmountCell pos={pos} />
                         <span className="text-right text-base font-medium text-foreground">
-                          {pos.valueUsd > 0 ? formatUsd(pos.valueUsd) : "—"}
+                          {pos.valueUsd > 0 ? formatUsd(pos.valueUsd) : "-"}
                         </span>
                       </div>
                     ))}
                   </motion.div>
                 ))}
 
-              {/* Tree layout — pools with distinct names (e.g. Blend) */}
+              {/* Tree layout - pools with distinct names (e.g. Blend) */}
               {!isCollapsed && useTree && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
@@ -616,7 +616,7 @@ export function ProtocolPositions({
                         {/* Horizontal branch */}
                         <div className="absolute left-0 top-5 h-0.5 w-4 bg-border" />
 
-                        {/* Pool content — indented past the tree branch */}
+                        {/* Pool content - indented past the tree branch */}
                         <div className="pl-6">
                           {/* Pool header */}
                           <div className="flex items-center gap-3 py-2.5">
@@ -675,12 +675,12 @@ export function ProtocolPositions({
                                   <TypeBadge type={pos.type} />
                                 </div>
                                 <span className="text-sm font-medium text-emerald-400">
-                                  {pos.apy != null ? `${pos.apy.toFixed(2)}%` : "—"}
+                                  {pos.apy != null ? `${pos.apy.toFixed(2)}%` : "-"}
                                 </span>
                                 <PositionRewardsCell pos={pos} groupRewards={pool.rewards} />
                                 <PositionAmountCell pos={pos} />
                                 <span className="text-right text-base font-medium text-foreground">
-                                  {pos.valueUsd > 0 ? formatUsd(pos.valueUsd) : "—"}
+                                  {pos.valueUsd > 0 ? formatUsd(pos.valueUsd) : "-"}
                                 </span>
                               </div>
                             ))}

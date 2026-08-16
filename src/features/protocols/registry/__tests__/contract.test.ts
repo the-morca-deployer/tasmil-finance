@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -6,7 +6,7 @@
  * Contract tests: verify NEW MCP output passes Zod schemas DIRECTLY
  * without any adapter normalization.
  *
- * These are the guardrails — if MCP output format drifts from what
+ * These are the guardrails - if MCP output format drifts from what
  * the card schemas expect, these tests fail before it reaches production.
  */
 
@@ -143,7 +143,7 @@ describe("MCP → Zod Schema Contract (no adapter)", () => {
       expect(pools).toHaveLength(1);
 
       // MCP uses `asset` for reserve address, adapter maps to `assetAddress`.
-      // Direct schema parse won't pass (field name difference) — that's expected.
+      // Direct schema parse won't pass (field name difference) - that's expected.
       // Verifying structure instead.
       const pool = pools[0] as any;
       expect(pool.name).toBe("Fixed Pool");

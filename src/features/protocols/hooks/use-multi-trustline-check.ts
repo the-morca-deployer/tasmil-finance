@@ -200,7 +200,7 @@ async function checkAllTrustlines(
   const missingTokens: TokenToCheck[] = [];
   for (const token of tokens) {
     const assetInfo = KNOWN_CLASSIC[token.contract] ?? (await resolveAsset(token.contract));
-    if (!assetInfo) continue; // can't resolve — don't block
+    if (!assetInfo) continue; // can't resolve - don't block
 
     const hasTl = balances.some(
       (b) =>

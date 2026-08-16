@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * Task 8 — TDD tests for referral action buttons in Profile.tsx
+ * Task 8 - TDD tests for referral action buttons in Profile.tsx
  *
  * Covers:
  *  1. ReferralsTab "Share Link" calls clipboard with the canonical /r/ URL.
  *  2. ReferralsTab "Copy Code" does NOT touch the clipboard at all when the
- *     code resolves to the "—" placeholder (guard branch exercised).
+ *     code resolves to the "-" placeholder (guard branch exercised).
  *  3. "Set custom code" normalises input to uppercase/charset, calls the
  *     set-referral-code client with the normalised code, and invalidates the
  *     referral query on success.
@@ -178,14 +178,14 @@ describe("Profile referral actions", () => {
   });
 
   it("Copy Code does not touch the clipboard when the code is the placeholder", async () => {
-    // No code from the referral query AND no code in the auth store → resolves to "—"
+    // No code from the referral query AND no code in the auth store → resolves to "-"
     mockGetMyReferral.mockReturnValue({ data: {} });
     authStore.__setAuthState({ user: { referralCode: undefined }, updateUser: jest.fn() });
 
     render(<Profile />);
 
-    // Sanity: the placeholder is actually rendered (proves referralCode === "—")
-    expect(await screen.findByText("—")).toBeInTheDocument();
+    // Sanity: the placeholder is actually rendered (proves referralCode === "-")
+    expect(await screen.findByText("-")).toBeInTheDocument();
 
     const copyBtn = await screen.findByRole("button", { name: /copy code/i });
     fireEvent.click(copyBtn);

@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -34,7 +34,7 @@ export async function POST(
   const sdk = getDefindexClient();
   const vaultAddress = String(body.vaultAddress ?? "");
 
-  // Always fetch context (even if TX build fails — error message still shows vault info)
+  // Always fetch context (even if TX build fails - error message still shows vault info)
   const contextPromise = fetchVaultContext(sdk, vaultAddress);
 
   try {
@@ -73,7 +73,7 @@ export async function POST(
   }
 }
 
-/** Fetch vault detail for enriching the TX card. Never throws — returns partial on failure. */
+/** Fetch vault detail for enriching the TX card. Never throws - returns partial on failure. */
 async function fetchVaultContext(sdk: ReturnType<typeof getDefindexClient>, vaultAddress: string) {
   try {
     const detail = await sdk.defindex.getVaultDetail(vaultAddress);
