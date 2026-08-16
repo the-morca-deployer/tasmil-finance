@@ -87,6 +87,11 @@ export function AquaPoolsCard({ pools, mode = "playground" }: AquaPoolsCardProps
               </span>
               <Tag type={poolTypeTag(pool.poolType)} />
             </button>
+            {pool.address && (
+              <span className="block break-all px-4 pb-2 pl-9 font-mono text-[10px] text-muted-foreground/50">
+                {pool.address}
+              </span>
+            )}
             {mode === "playground" ? (
               <AnimatePresence>
                 {isOpen && (

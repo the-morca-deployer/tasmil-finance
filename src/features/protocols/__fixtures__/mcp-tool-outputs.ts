@@ -36,9 +36,13 @@ export const AQUARIUS_RESOLVE_POOL = [
           totalVolume: 1710736044750252,
           liquidity_usd: 28500000000000,
           volume_usd: 1500000000000,
-          apy: 0.0016,
-          rewards_apy: 0.05,
-          total_apy: 0.0516,
+          // resolve_pool converts APY to percent before returning it, and emits
+          // camelCase. The old decimal/snake_case values here were what the raw
+          // Aquarius API sends, not what MCP does -- which is why these tests
+          // never noticed the adapter converting a second time.
+          feeApy: 0.16,
+          rewardApy: 5,
+          totalApy: 5.16,
         },
       ],
       count: 1,

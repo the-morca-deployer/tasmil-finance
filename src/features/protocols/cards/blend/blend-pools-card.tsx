@@ -69,6 +69,11 @@ export function BlendPoolsCard({ pools, mode = "playground" }: BlendPoolsCardPro
               </span>
               <Tag type={pool.status} />
             </button>
+            {pool.address && (
+              <span className="block break-all px-4 pb-2 pl-9 font-mono text-[10px] text-muted-foreground/50">
+                {pool.address}
+              </span>
+            )}
             {mode === "playground" ? (
               <AnimatePresence>
                 {isOpen && pool.reserves.length > 0 && (

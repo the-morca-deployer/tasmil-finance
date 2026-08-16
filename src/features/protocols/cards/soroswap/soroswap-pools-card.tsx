@@ -35,6 +35,7 @@ export function SoroswapPoolsCard({ pools, mode = "playground" }: SoroswapPoolsC
 
   return (
     <ProtocolCard
+      data-testid="card-soroswap-pools"
       mode={mode}
       title={mode === "chat" ? "Soroswap Pools" : undefined}
       icon={mode === "chat" ? ArrowRightLeft : undefined}
@@ -69,6 +70,11 @@ export function SoroswapPoolsCard({ pools, mode = "playground" }: SoroswapPoolsC
               </span>
               {pool.protocol && <Tag type={pool.protocol} />}
             </button>
+            {pool.address && (
+              <span className="block break-all px-4 pb-2 pl-9 font-mono text-[10px] text-muted-foreground/50">
+                {pool.address}
+              </span>
+            )}
             {mode === "playground" ? (
               <AnimatePresence>
                 {isOpen && (

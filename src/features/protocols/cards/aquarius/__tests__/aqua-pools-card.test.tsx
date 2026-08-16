@@ -42,8 +42,10 @@ describe("AquaPoolsCard", () => {
 
   it("renders TVL when provided", () => {
     render(<AquaPoolsCard pools={[makePool({ tvl: 2850 })]} mode="playground" />);
-    // fmt(2850) produces a formatted number. The detail section shows "$2.85K" or similar
-    expect(screen.getByText(/2/)).toBeInTheDocument();
+    // fmt(2850) produces a formatted number: the detail section shows "$2.85K".
+    // Asserted exactly rather than via /2/, which also matched digits inside the
+    // pool contract address now rendered in the row header.
+    expect(screen.getByText("$2.85K")).toBeInTheDocument();
   });
 
   it("renders pool count badge in playground mode", () => {
@@ -90,5 +92,39 @@ describe("AquaPoolsCard", () => {
   it("renders title in chat mode", () => {
     render(<AquaPoolsCard pools={[makePool()]} mode="chat" />);
     expect(screen.getByText("Aquarius Pools")).toBeInTheDocument();
+  });
+
+  it("renders the full pool contract address, untruncated", () => {
+    const address = "CA6PUJLBYKZKUEKLZJMKBZLEKP2OTHANDEOWSFF44FTSYLKQPIICCJBE";
+    render(<AquaPoolsCard pools={[makePool({ address })]} mode="playground" />);
+    const node = screen.getByText(address);
+    expect(node).toBeInTheDocument();
+    expect(node.textContent).toHaveLength(56);
+  });
+
+  it("renders addresses for every pool, including collapsed ones", () => {
+    // Only pool index 0 is auto-expanded in playground mode, so this proves the
+    // address lives in the always-rendered header region, not inside PoolDetail.
+    const first = "CA6PUJLBYKZKUEKLZJMKBZLEKP2OTHANDEOWSFF44FTSYLKQPIICCJBE";
+    const second = "CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK";
+    render(
+      <AquaPoolsCard
+        pools={[makePool({ address: first }), makePool({ address: second })]}
+        mode="playground"
+      />
+    );
+    expect(screen.getByText(first)).toBeInTheDocument();
+    expect(screen.getByText(second)).toBeInTheDocument();
+  });
+
+  it("renders no address element when the pool has no address", () => {
+    render(
+      <AquaPoolsCard
+        pools={[makePool({ address: "", tokens: undefined, tokensStr: ["XLM", "USDC"] })]}
+        mode="playground"
+      />
+    );
+    expect(screen.getByText("XLM / USDC")).toBeInTheDocument();
+    expect(screen.queryByText(/^C[A-Z0-9]{55}$/)).not.toBeInTheDocument();
   });
 });

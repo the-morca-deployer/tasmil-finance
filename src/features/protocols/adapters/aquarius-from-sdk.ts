@@ -91,24 +91,38 @@ function num(pool: Record<string, unknown>, ...keys: string[]): number | null {
   return null;
 }
 
-export function normalizeAquaPoolFromSdk(raw: Record<string, unknown>): AquaPoolCardProps | null {
+/**
+ * Unit an upstream expresses APY in.
+ *
+ * The two sources disagree and there is no way to tell them apart by magnitude:
+ * a bare 0.5 means 0.5% from mcp-stellar and 50% from the Aquarius API. The old
+ * code guessed with `v < 1 ? v * 100 : v` at both layers, so mcp-stellar's
+ * already-converted 0.13 was multiplied again and the card advertised 13.00%
+ * for a pool paying 0.13%. Callers state the unit instead of guessing.
+ */
+export type ApyUnit = "decimal" | "percent";
+
+export function normalizeAquaPoolFromSdk(
+  raw: Record<string, unknown>,
+  apyUnit: ApyUnit = "decimal"
+): AquaPoolCardProps | null {
   const pool = (raw.pool ?? raw) as Record<string, unknown>;
 
-  // APY: /pools/ API has apy (fee), rewards_apy, total_apy as decimals (0.0016 = 0.16%)
-  //      Multiply by 100 to get percentage for display
+  // APY: the Aquarius /pools/ API sends decimals (0.0016 = 0.16%). mcp-stellar's
+  // resolve_pool has already converted to percent, so its payload must pass
+  // through untouched -- see ApyUnit.
   const rawFeeApy = num(pool, "apy", "fee_apy", "feeApy");
   const rawRewardsApy = num(pool, "rewards_apy", "reward_apy", "rewardApy");
   const rawTotalApy = num(pool, "total_apy", "totalApy");
 
-  // Detect if values are in decimal (< 1) or already percentage (> 1)
-  const feeApy = rawFeeApy != null ? (rawFeeApy < 1 ? rawFeeApy * 100 : rawFeeApy) : null;
-  const rewardApy =
-    rawRewardsApy != null ? (rawRewardsApy < 1 ? rawRewardsApy * 100 : rawRewardsApy) : null;
+  const toPercent = (v: number | null): number | null =>
+    v == null ? null : apyUnit === "decimal" ? v * 100 : v;
+
+  const feeApy = toPercent(rawFeeApy);
+  const rewardApy = toPercent(rawRewardsApy);
   const totalApy =
     rawTotalApy != null
-      ? rawTotalApy < 1
-        ? rawTotalApy * 100
-        : rawTotalApy
+      ? toPercent(rawTotalApy)
       : feeApy != null || rewardApy != null
         ? (feeApy ?? 0) + (rewardApy ?? 0)
         : null;
@@ -153,10 +167,13 @@ export function normalizeAquaPoolFromSdk(raw: Record<string, unknown>): AquaPool
   return result.data;
 }
 
-export function normalizeAquaPoolsFromSdk(raw: Record<string, unknown>): AquaPoolCardProps[] {
+export function normalizeAquaPoolsFromSdk(
+  raw: Record<string, unknown>,
+  apyUnit: ApyUnit = "decimal"
+): AquaPoolCardProps[] {
   const pools = (raw.pools ?? []) as Record<string, unknown>[];
   return pools
-    .map((p) => normalizeAquaPoolFromSdk(p))
+    .map((p) => normalizeAquaPoolFromSdk(p, apyUnit))
     .filter((p): p is AquaPoolCardProps => p !== null);
 }
 

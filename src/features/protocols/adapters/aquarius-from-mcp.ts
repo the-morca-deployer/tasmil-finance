@@ -20,16 +20,20 @@ import { unwrapMcpResult } from "./from-mcp";
 
 // --- Pool ------------------------------------------------------
 
+// mcp-stellar's resolve_pool converts APY to percent before returning it
+// (see formatAquaPool in mcp-stellar/src/tools/unified/resolve.ts). Saying so
+// explicitly stops the SDK normaliser converting a second time, which is what
+// turned a 0.13% reward into a 13.00% one on the pool card.
 export function normalizeAquaPoolFromMcp(result: unknown): AquaPoolCardProps | null {
   const { data, error } = unwrapMcpResult(result);
   if (error || !data) return null;
-  return normalizeAquaPoolFromSdk(data);
+  return normalizeAquaPoolFromSdk(data, "percent");
 }
 
 export function normalizeAquaPoolsFromMcp(result: unknown): AquaPoolCardProps[] {
   const { data, error } = unwrapMcpResult(result);
   if (error || !data) return [];
-  return normalizeAquaPoolsFromSdk(data);
+  return normalizeAquaPoolsFromSdk(data, "percent");
 }
 
 // --- Quote -----------------------------------------------------
