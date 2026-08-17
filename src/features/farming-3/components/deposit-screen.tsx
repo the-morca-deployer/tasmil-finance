@@ -15,7 +15,14 @@ import { useId } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/ui/button";
 import type { ConsolePool, DepositToken, RiskPreset } from "../types";
-import { formatApy, formatUsd } from "../utils/format";
+import {
+  DEPOSIT_ROUNDING_COST,
+  economicAmountAt,
+  formatEarnBackTime,
+  hoursToEarnBackDepositCost,
+  isDepositUneconomic,
+} from "../utils/deposit-cost";
+import { formatAmount, formatApy, formatUsd } from "../utils/format";
 import { Eyebrow, Hairline, Num, Panel, StepIndicator } from "./console-ui";
 import { bestApyFraction } from "./market-table";
 
@@ -56,6 +63,15 @@ export function DepositScreen({
   // Both inputs must be real. A missing rate is not zero yield; a missing
   // amount is not a zero deposit.
   const projectedYearly = amount !== null && apy !== null ? amount * apy : null;
+
+  // Depositing costs a fixed amount (Blend's share-rounding) that does not
+  // shrink with the deposit, so at small sizes it outweighs early yield. The
+  // test is derived from the entered amount and the live rate, never a
+  // hardcoded minimum - see utils/deposit-cost.ts. It informs; it never blocks.
+  const earnBackHours = hoursToEarnBackDepositCost(amount, apy);
+  const costDominates = isDepositUneconomic(amount, apy);
+  const earnBackText = formatEarnBackTime(earnBackHours);
+  const comfortableAmount = economicAmountAt(apy);
 
   return (
     <div className="flex flex-col" data-testid="farming3-deposit">
@@ -138,6 +154,26 @@ export function DepositScreen({
               </span>
             </div>
           </div>
+
+          {costDominates && earnBackText && (
+            <p
+              data-testid="farming3-small-deposit-note"
+              className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/[0.06] p-3 text-[12px] text-amber-200/90 leading-relaxed"
+            >
+              At {formatAmount(amount)} {token}, the fixed ~{DEPOSIT_ROUNDING_COST} {token} the
+              protocol keeps when rounding your deposit takes {earnBackText} of yield to earn back
+              at {formatApy(apy)}
+              {comfortableAmount !== null && (
+                <>
+                  {" "}
+                  - from about {formatAmount(comfortableAmount)} {token} it is back inside a few
+                  hours
+                </>
+              )}
+              . The deposit still works at this size; it just spends its first stretch paying for
+              itself.
+            </p>
+          )}
 
           <p className="mt-4 text-[11.5px] text-muted-foreground/80 leading-relaxed">
             An arithmetic projection of today&apos;s published rate, not a forecast and not a
