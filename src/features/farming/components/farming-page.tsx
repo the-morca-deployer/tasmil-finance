@@ -349,17 +349,32 @@ function FarmingContent() {
     v: s.totalValueUsd,
   }));
 
+  // Include "reward" alongside "protocol": harvest rows are categorised
+  // "reward", so the event that actually realises yield never reached this
+  // card. The old `a.type === "rebalance"` clause matched nothing either — the
+  // API returns the enum upper-cased ("REBALANCE") — so that half of the
+  // filter was dead and only appeared to work via the category check.
   const agentEvents: AgentHistoryEvent[] = activitiesList
-    .filter((a) => a.category === "protocol" || a.type === "rebalance")
-    .map((a) => ({
-      id: a.id,
-      title: a.detail ?? ACTIVITY_LABEL[a.type] ?? a.type,
-      detail:
+    .filter(
+      (a) =>
+        a.category === "protocol" ||
+        a.category === "reward" ||
+        a.type?.toUpperCase() === "REBALANCE"
+    )
+    .map((a) => {
+      // title and detail both fell back to `a.detail`, so every row without an
+      // amount printed the same sentence twice and never named its type.
+      const amount =
         a.amount !== undefined
           ? `${a.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${a.token ?? ""}`.trim()
-          : (a.detail ?? ""),
-      occurredAt: a.createdAt,
-    }));
+          : null;
+      return {
+        id: a.id,
+        title: ACTIVITY_LABEL[a.type] ?? a.type,
+        detail: amount ?? a.detail ?? "",
+        occurredAt: a.createdAt,
+      };
+    });
 
   return (
     <>
