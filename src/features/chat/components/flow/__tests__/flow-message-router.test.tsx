@@ -1,4 +1,4 @@
-// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -7,22 +7,30 @@ import React from "react";
 import type { AssistantFlowMessage } from "@/features/chat/types/flow-messages";
 import { FlowMessageRouter } from "../flow-message-router";
 
-// --- Fixtures ----------------------------------------------------
+// ─── Fixtures ────────────────────────────────────────────────────
 
+// The clarify message model is now `{ kind: "clarify", questions: ClarifyQuestion[] }`
+// (rendered by ClarifyCard), not the old `{ question, suggestions }` + OptionCard shape.
 const clarifyMessage: AssistantFlowMessage = {
   kind: "clarify",
-  question: "Which pool do you want to deposit into?",
-  suggestions: [
+  questions: [
     {
-      label: "Blend USDC Pool",
-      value: { protocol: "blend", asset: "USDC" },
-      tags: ["recommended"],
-      description: "8.2% APY, low risk",
-    },
-    {
-      label: "Soroswap XLM/USDC",
-      value: { protocol: "soroswap", pair: "XLM/USDC" },
-      tags: ["il_risk"],
+      field_name: "pool",
+      question: "Which pool do you want to deposit into?",
+      input_type: "select",
+      suggestions: [
+        {
+          label: "Blend USDC Pool",
+          value: { protocol: "blend", asset: "USDC" },
+          tags: ["recommended"],
+          description: "8.2% APY, low risk",
+        },
+        {
+          label: "Soroswap XLM/USDC",
+          value: { protocol: "soroswap", pair: "XLM/USDC" },
+          tags: ["il_risk"],
+        },
+      ],
     },
   ],
 };
@@ -104,17 +112,17 @@ const errorNoRetryMessage: AssistantFlowMessage = {
   retry_possible: false,
 };
 
-// --- Tests -------------------------------------------------------
+// ─── Tests ───────────────────────────────────────────────────────
 
 describe("FlowMessageRouter", () => {
-  it("renders OptionCard for clarify message - question text appears", () => {
+  it("renders OptionCard for clarify message — question text appears", () => {
     render(<FlowMessageRouter message={clarifyMessage} />);
     expect(screen.getByText("Which pool do you want to deposit into?")).toBeInTheDocument();
     expect(screen.getByText("Blend USDC Pool")).toBeInTheDocument();
     expect(screen.getByText("Soroswap XLM/USDC")).toBeInTheDocument();
   });
 
-  it("renders PlanPreviewCard for plan_preview message - APY appears", () => {
+  it("renders PlanPreviewCard for plan_preview message — APY appears", () => {
     render(
       <FlowMessageRouter message={planPreviewMessage} onConfirm={jest.fn()} onCancel={jest.fn()} />
     );
@@ -123,7 +131,7 @@ describe("FlowMessageRouter", () => {
     expect(screen.getByText("Plan Preview")).toBeInTheDocument();
   });
 
-  it("renders ExecutionCard for execution_update message - step text appears", () => {
+  it("renders ExecutionCard for execution_update message — step text appears", () => {
     render(<FlowMessageRouter message={executionUpdateMessage} />);
     expect(screen.getByText(/Submitting step 1 of 2/)).toBeInTheDocument();
   });
@@ -170,15 +178,17 @@ describe("FlowMessageRouter", () => {
     expect(screen.getByText("tx_def456")).toBeInTheDocument();
   });
 
-  it("onOptionSelect callback fires when an option is clicked", () => {
-    const onOptionSelect = jest.fn();
-    render(<FlowMessageRouter message={clarifyMessage} onOptionSelect={onOptionSelect} />);
+  it("fires onSubmit with the selected answer after choosing an option and confirming", () => {
+    const onSubmit = jest.fn();
+    render(<FlowMessageRouter message={clarifyMessage} onSubmit={onSubmit} />);
 
+    // Single select question: click a row to set the answer, then Continue submits.
     fireEvent.click(screen.getByText("Soroswap XLM/USDC"));
-    expect(onOptionSelect).toHaveBeenCalledTimes(1);
-    expect(onOptionSelect).toHaveBeenCalledWith({
-      protocol: "soroswap",
-      pair: "XLM/USDC",
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith({
+      pool: { protocol: "soroswap", pair: "XLM/USDC" },
     });
   });
 

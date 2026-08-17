@@ -1,6 +1,6 @@
 // Mock all components/hooks that import the Stellar SDK (which uses native
 // Node crypto not available in jsdom). The registry test only checks that tool
-// names are registered with the correct kind - it never renders anything.
+// names are registered with the correct kind — it never renders anything.
 
 // Mock stellar components (they import use-tx-signing → stellar-network-check → Stellar SDK)
 jest.mock("@/features/chat/actions/components/stellar/execute-card", () => ({
@@ -55,6 +55,15 @@ jest.mock("@/features/protocols/cards/soroswap", () => ({
   SoroswapPositionsCard: () => null,
   SoroswapTxCard: () => null,
 }));
+// defindex-tx-card -> use-tx-signing -> stellar-network-check -> Stellar SDK,
+// which needs TextEncoder (absent in jsdom). Same reason as the mocks above.
+jest.mock("@/features/protocols/cards/defindex", () => ({
+  DefindexBalanceCard: () => null,
+  DefindexTxCard: () => null,
+  DefindexVaultDetailCard: () => null,
+  DefindexVaultsCard: () => null,
+  DefindexYieldCard: () => null,
+}));
 // Mock hooks/components imported by flow-renderers that pull in Stellar SDK
 jest.mock("@/features/chat/hooks/use-flow-signing", () => ({
   useFlowSigning: () => ({
@@ -85,11 +94,9 @@ jest.mock("@/store/use-wallet", () => ({
 jest.mock("@/features/chat/lib/parse-flow-result", () => ({
   parseFlowResult: () => null,
 }));
-// Keep legacy mock in case any remaining code still imports it
-jest.mock("@/features/chat/hooks/use-defi-tool-renderers", () => ({
-  FLOW_TOOL_RENDERERS: [],
-  EXECUTE_DISPATCHER: { toolName: "execute", render: () => null },
-}));
+// (Removed a stale jest.mock of "@/features/chat/hooks/use-defi-tool-renderers":
+// that module was deleted, and mocking a non-existent module makes jest abort
+// the whole suite with "Could not locate module". Nothing imports it anymore.)
 // Mock Stellar SDK-dependent adapters
 jest.mock("@/features/protocols/adapters/from-mcp", () => ({
   normalizePoolFromMcp: () => null,
@@ -127,16 +134,16 @@ describe("toolRendererRegistry coverage", () => {
   it("registers swap_build_transaction (operation)", () => {
     expect(toolRendererRegistry.get("swap_build_transaction")?.kind).toBe("operation");
   });
-  it("registers blend_deposit (shared-op) - was broken before", () => {
+  it("registers blend_deposit (shared-op) — was broken before", () => {
     expect(toolRendererRegistry.get("blend_deposit")?.kind).toBe("shared-op");
   });
-  it("registers blend_get_pool_info (shared) - was broken before", () => {
+  it("registers blend_get_pool_info (shared) — was broken before", () => {
     expect(toolRendererRegistry.get("blend_get_pool_info")?.kind).toBe("shared");
   });
-  it("registers aquarius_list_pools (shared) - was broken before", () => {
+  it("registers aquarius_list_pools (shared) — was broken before", () => {
     expect(toolRendererRegistry.get("aquarius_list_pools")?.kind).toBe("shared");
   });
-  it("registers aquarius_add_liquidity (shared-op) - was broken before", () => {
+  it("registers aquarius_add_liquidity (shared-op) — was broken before", () => {
     expect(toolRendererRegistry.get("aquarius_add_liquidity")?.kind).toBe("shared-op");
   });
   it("registers execute (shared-op)", () => {
