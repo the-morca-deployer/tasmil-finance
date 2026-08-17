@@ -12,8 +12,9 @@
 
 import { Loader2, Wallet } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import { isNotFoundError } from "@/lib/query-error";
 import { Button } from "@/shared/ui/button";
-import { useWalletStore } from "@/store/use-wallet";
+import { useWalletHydrated, useWalletStore } from "@/store/use-wallet";
 import {
   useConsoleActivity,
   useConsolePools,
@@ -136,6 +137,7 @@ function JourneyStage({
 
 export function FarmingConsole() {
   const { account } = useWalletStore();
+  const walletHydrated = useWalletHydrated();
   const publicKey = account ?? undefined;
 
   const [token, setToken] = useState<DepositToken>("USDC");
@@ -183,6 +185,21 @@ export function FarmingConsole() {
     />
   ) : null;
 
+  // "Not read back yet" is not "not connected". React renders the persisted
+  // store's server snapshot during hydration, so a connected wallet reads as
+  // null for one pass - long enough to flash the connect prompt at someone
+  // who is already connected.
+  if (!walletHydrated) {
+    return (
+      <ConsoleShell>
+        <div className="flex items-center justify-center gap-3 py-24 text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span className="text-[13px]">Reading your wallet…</span>
+        </div>
+      </ConsoleShell>
+    );
+  }
+
   if (!publicKey) {
     return (
       <ConsoleShell>
@@ -193,13 +210,44 @@ export function FarmingConsole() {
 
   // First read of the account. Rendering "no account yet" before the query
   // settles would push an existing user through onboarding they already did.
-  if (positionQuery.isLoading) {
+  // `isPending`, not `isLoading`: an enabled query that has not begun
+  // fetching yet reports `isLoading === false` with no data, and that empty
+  // hand would route straight to stage "strategy" - onboarding, again.
+  if (positionQuery.isPending) {
     return (
       <ConsoleShell actions={actions}>
         <div className="flex items-center justify-center gap-3 py-24 text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
           <span className="text-[13px]">Reading your account from the chain…</span>
         </div>
+      </ConsoleShell>
+    );
+  }
+
+  // Same rule one step further: a read that failed for any reason other than
+  // "no such account" (404, which is how the backend says a wallet has no
+  // managed account) tells us nothing about whether one exists, so it must
+  // not start the flow at step one.
+  if (positionQuery.isError && !position && !isNotFoundError(positionQuery.error)) {
+    return (
+      <ConsoleShell actions={actions}>
+        <Panel className="mx-auto mt-16 flex max-w-lg flex-col items-center py-14 text-center">
+          <h2 className="font-semibold text-[20px] text-foreground">
+            Couldn&apos;t read your account
+          </h2>
+          <p className="mt-2 max-w-sm text-[13px] text-muted-foreground leading-relaxed">
+            Your funds and your keeper wallet are untouched - this is the read that failed, not the
+            account.
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-5"
+            onClick={() => positionQuery.refetch()}
+          >
+            Try again
+          </Button>
+        </Panel>
       </ConsoleShell>
     );
   }

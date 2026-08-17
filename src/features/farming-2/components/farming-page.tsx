@@ -19,6 +19,7 @@ import {
   useWithdraw,
 } from "@/features/account/hooks/use-account-api";
 import type { RiskPreset } from "@/features/account/types";
+import { isNotFoundError } from "@/lib/query-error";
 import { cn } from "@/lib/utils";
 import { activeNetwork } from "@/shared/config/stellar";
 import { Button } from "@/shared/ui/button";
@@ -29,7 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog";
-import { useWalletStore } from "@/store/use-wallet";
+import { useWalletHydrated, useWalletStore } from "@/store/use-wallet";
 import { usePools } from "../hooks/use-farming-api";
 import { FarmingActivity, FarmingActivitySidebar } from "./farming-activity";
 import { FarmingAllocation } from "./farming-allocation";
@@ -96,6 +97,7 @@ function FarmingContent() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { account } = useWalletStore();
+  const walletHydrated = useWalletHydrated();
   const publicKey = account ?? undefined;
 
   // Tab state
@@ -133,9 +135,17 @@ function FarmingContent() {
   // Data hooks
   const {
     data: position,
-    isLoading: positionLoading,
+    // `isPending` rather than `isLoading`: an enabled query that has not
+    // started fetching is still "unknown", and must not fall through to the
+    // onboarding view - see the guard below.
+    isPending: positionPending,
+    isError: positionFailed,
+    error: positionError,
     refetch: refetchPosition,
   } = usePosition(publicKey);
+  // A wallet with no managed account gets a 404 here; anything else that
+  // fails leaves the question open. Only the first belongs in onboarding.
+  const positionUnreadable = positionFailed && !isNotFoundError(positionError);
   const { data: registryPoolsData, isLoading: registryPoolsLoading } = usePools();
   const {
     data: activities,
@@ -417,12 +427,41 @@ function FarmingContent() {
 
   // --- Guards ---------------------------------------------------------------
 
-  if (!publicKey) return <ConnectPrompt />;
-
-  if (registryPoolsLoading || positionLoading) {
+  // Until the persisted wallet has been read back, "no account" is unknown,
+  // not false - showing the connect prompt here flashes "you're logged out"
+  // at a connected user on every load.
+  if (!walletHydrated) {
     return (
       <div className="flex items-center justify-center py-24">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!publicKey) return <ConnectPrompt />;
+
+  if (registryPoolsLoading || positionPending) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // A read that failed is not an account that doesn't exist. /farming had the
+  // same confusion and it walked existing users back into onboarding; keep
+  // the two apart here too.
+  if (positionUnreadable) {
+    return (
+      <div className="mx-auto flex max-w-lg flex-col items-center gap-4 py-24 text-center">
+        <h2 className="text-xl font-semibold text-foreground">Couldn&apos;t read your account</h2>
+        <p className="max-w-md text-muted-foreground text-sm">
+          Your funds and your keeper wallet are untouched - this is the read that failed. Try again
+          in a moment.
+        </p>
+        <Button variant="outline" onClick={() => refetchPosition()}>
+          Retry
+        </Button>
       </div>
     );
   }

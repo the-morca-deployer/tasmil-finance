@@ -5,8 +5,9 @@ import { Loader2, Wallet } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useActivity, usePosition } from "@/features/account/hooks/use-account-api";
+import { isNotFoundError } from "@/lib/query-error";
 import { Button } from "@/shared/ui/button";
-import { useWalletStore } from "@/store/use-wallet";
+import { useWalletHydrated, useWalletStore } from "@/store/use-wallet";
 import { useFarmingActions } from "../hooks/use-farming-actions";
 import { usePools } from "../hooks/use-farming-api";
 import { usePositionHistory } from "../hooks/use-position-history";
@@ -59,6 +60,7 @@ function FarmingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { account } = useWalletStore();
+  const walletHydrated = useWalletHydrated();
   const publicKey = account ?? undefined;
 
   const tabParam = searchParams.get("tab");
@@ -77,21 +79,46 @@ function FarmingContent() {
 
   const {
     data: position,
-    isLoading: positionLoading,
+    isPending: positionPending,
+    isSuccess: positionLoaded,
+    isError: positionFailed,
+    error: positionError,
     refetch: refetchPosition,
   } = usePosition(publicKey);
 
+  // `GET /api/account/position/:publicKey` answers 404 for a wallet with no
+  // managed account, so "no account" arrives as an error like any other. Only
+  // that one status means it; the rest mean the read failed.
+  const noManagedAccount =
+    (positionFailed && isNotFoundError(positionError)) || (positionLoaded && !position);
+  const positionUnreadable = positionFailed && !isNotFoundError(positionError);
+
   // Redirect any user without an active managed account to /farming/setup.
   // Disconnected users land on Step 1 (Connect). Connected-but-no-account
-  // users land on Step 2 once the position fetch settles.
+  // users land on Step 2 - but ONLY once we have actually read both facts.
+  //
+  // Two things read as "no account" before they are known, and both used to
+  // bounce a perfectly valid account into onboarding:
+  //
+  //  1. `account` from the persisted wallet store is the SERVER snapshot
+  //     (null) for React's hydration render, so a connected wallet looks
+  //     disconnected for exactly one pass. The store itself is already
+  //     rehydrated by the time effects run, so ask it directly instead of
+  //     trusting that first render.
+  //  2. `usePosition` has no data while it is pending, and no data when the
+  //     read fails for reasons that say nothing about whether an account
+  //     exists (503, timeout, expired token). Neither is grounds to send
+  //     someone back through onboarding.
   useEffect(() => {
-    if (!publicKey) {
+    if (!walletHydrated) return;
+    // `?? getState()` covers the hydration-render snapshot described above.
+    const connectedAccount = publicKey ?? useWalletStore.getState().account ?? undefined;
+    if (!connectedAccount) {
       router.replace("/farming/setup");
       return;
     }
-    if (positionLoading) return;
-    if (!position) router.replace("/farming/setup");
-  }, [publicKey, position, positionLoading, router]);
+    if (noManagedAccount) router.replace("/farming/setup");
+  }, [walletHydrated, publicKey, noManagedAccount, router]);
 
   const { isLoading: registryPoolsLoading } = usePools();
 
@@ -238,10 +265,32 @@ function FarmingContent() {
     );
   }
 
-  if (registryPoolsLoading || positionLoading) {
+  // `isPending` rather than `isLoading`: a query that is enabled but has not
+  // started fetching yet is still "we don't know", and must show the loader
+  // instead of falling through to the empty state.
+  if (registryPoolsLoading || positionPending) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // A failed read is not an empty account (a 404 is - that path falls through
+  // to the empty state below and the effect routes it to setup). Say so, and
+  // offer the retry: rendering the "set up your farming account" CTA here
+  // would tell a user with a live keeper wallet that they have none.
+  if (positionUnreadable) {
+    return (
+      <div className="mx-auto flex max-w-lg flex-col items-center py-24 text-center">
+        <h2 className="mb-2 font-bold text-2xl text-foreground">Couldn&apos;t read your account</h2>
+        <p className="mb-6 max-w-md text-muted-foreground text-sm">
+          Your funds and your keeper wallet are untouched - this is the read that failed, not the
+          account. Try again in a moment.
+        </p>
+        <Button variant="outline" size="lg" className="h-11 px-8" onClick={() => refetchPosition()}>
+          Retry
+        </Button>
       </div>
     );
   }
