@@ -200,7 +200,11 @@ export function FarmingPools({
                       </span>
                     )}
                   </div>
-                  <span className="text-muted-foreground text-xs capitalize">{pool.protocol}</span>
+                  {/* Wire value is upper-case ("BLEND"); lower it first so
+                      `capitalize` renders "Blend" rather than "BLEND". */}
+                  <span className="text-muted-foreground text-xs capitalize">
+                    {pool.protocol.toLowerCase()}
+                  </span>
                 </div>
               </div>
 

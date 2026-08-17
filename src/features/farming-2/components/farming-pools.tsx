@@ -151,7 +151,11 @@ export function FarmingPools({ pools, isLoading }: FarmingPoolsProps) {
                     {pool.assetSymbol}
                     {pool.pairedAssetSymbol ? `/${pool.pairedAssetSymbol}` : ""}
                   </span>
-                  <span className="text-xs capitalize text-muted-foreground">{pool.protocol}</span>
+                  {/* Wire value is upper-case ("BLEND"); lower it so
+                      `capitalize` renders "Blend". */}
+                  <span className="text-xs capitalize text-muted-foreground">
+                    {pool.protocol.toLowerCase()}
+                  </span>
                 </div>
               </div>
 

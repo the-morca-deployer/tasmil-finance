@@ -6,7 +6,10 @@ export interface RebalanceStatus {
 
 export interface DiscoveredPool {
   id: string;
-  protocol: "blend" | "soroswap" | "phoenix" | "aquarius" | "sdex";
+  /** UPPER-CASE on the wire ("BLEND"), mirroring `enum Protocol` in the
+   *  backend's Prisma schema. Same field, same correction as
+   *  `features/farming/types.ts`. */
+  protocol: "BLEND" | "SOROSWAP" | "AQUARIUS" | "SDEX";
   poolType: "lending" | "backstop" | "lp";
   poolAddress: string;
   strategyContractAddress?: string;

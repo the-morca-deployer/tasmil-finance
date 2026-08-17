@@ -6,7 +6,7 @@ import { ProtocolPoolsExpand } from "./protocol-pools-expand";
 const pools: DiscoveredPool[] = [
   {
     id: "blend-usdc",
-    protocol: "blend",
+    protocol: "BLEND",
     poolType: "lending",
     poolAddress: "C...",
     strategyContractAddress: "C...",
@@ -20,7 +20,7 @@ const pools: DiscoveredPool[] = [
   },
   {
     id: "blend-xlm",
-    protocol: "blend",
+    protocol: "BLEND",
     poolType: "lending",
     poolAddress: "C...",
     strategyContractAddress: "C...",
