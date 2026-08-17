@@ -10,7 +10,7 @@ const mocks = {
   updatePresetMutate: jest.fn(),
 };
 
-jest.mock("@/features/account/hooks/use-account-api", () => ({
+jest.mock("@/shared/hooks/use-account-mutations", () => ({
   useFundAccount: () => ({ mutateAsync: mocks.fundMutate, isPending: false }),
   useWithdraw: () => ({ mutateAsync: mocks.withdrawMutate, isPending: false }),
   useRevoke: () => ({ mutateAsync: mocks.revokeMutate, isPending: false }),

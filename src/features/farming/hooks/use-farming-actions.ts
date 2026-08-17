@@ -1,4 +1,6 @@
 import { useCallback, useState } from "react";
+import type { RiskPreset } from "@/features/account/types";
+import { activeNetwork } from "@/shared/config/stellar";
 import {
   useFundAccount,
   useReactivate,
@@ -6,9 +8,7 @@ import {
   useSubmitTx,
   useUpdatePreset,
   useWithdraw,
-} from "@/features/account/hooks/use-account-api";
-import type { RiskPreset } from "@/features/account/types";
-import { activeNetwork } from "@/shared/config/stellar";
+} from "@/shared/hooks/use-account-mutations";
 
 async function signXdr(xdr: string, publicKey: string): Promise<string> {
   const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");

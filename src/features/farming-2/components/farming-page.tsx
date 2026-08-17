@@ -7,21 +7,19 @@ import { Suspense, useCallback, useEffect, useId, useMemo, useState } from "reac
 import { FundForm } from "@/features/account/components/fund-form";
 import { OnboardingPage } from "@/features/account/components/onboarding-page";
 import { PresetCard } from "@/features/account/components/preset-card";
+import { useActivity, usePosition, usePresets } from "@/features/account/hooks/use-account-api";
+import type { RiskPreset } from "@/features/account/types";
+import { isNotFoundError } from "@/lib/query-error";
+import { cn } from "@/lib/utils";
+import { activeNetwork } from "@/shared/config/stellar";
 import {
-  useActivity,
   useFundAccount,
-  usePosition,
-  usePresets,
   useReactivate,
   useRevoke,
   useSubmitTx,
   useUpdatePreset,
   useWithdraw,
-} from "@/features/account/hooks/use-account-api";
-import type { RiskPreset } from "@/features/account/types";
-import { isNotFoundError } from "@/lib/query-error";
-import { cn } from "@/lib/utils";
-import { activeNetwork } from "@/shared/config/stellar";
+} from "@/shared/hooks/use-account-mutations";
 import { Button } from "@/shared/ui/button";
 import {
   Dialog,

@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { activeNetwork } from "@/shared/config/stellar";
-import type { DeploySubStep, RiskPreset } from "../types";
 import {
   useDeployAccount,
-  usePosition,
   useSetupAccount,
   useSubmitTx,
   useUpdatePreset,
-} from "./use-account-api";
+} from "@/shared/hooks/use-account-mutations";
+import type { DeploySubStep, RiskPreset } from "../types";
+import { usePosition } from "./use-account-api";
 
 const DEFAULT_PRESET: RiskPreset = "Balanced";
 

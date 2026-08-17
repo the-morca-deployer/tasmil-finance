@@ -11,6 +11,13 @@
 
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { activeNetwork } from "@/shared/config/stellar";
+import {
+  useDeployAccount,
+  useFundAccount,
+  useSetupAccount,
+  useSubmitTx,
+  useUpdatePreset,
+} from "@/shared/hooks/use-account-mutations";
 import type {
   ConsoleActivityItem,
   ConsolePosition,
@@ -30,13 +37,6 @@ import {
   journeyReducer,
   txHashesFromActivity,
 } from "../utils/journey";
-import {
-  useDeployAccount,
-  useFundAccount,
-  useSetupAccount,
-  useSubmitTx,
-  useUpdatePreset,
-} from "./use-console-api";
 
 async function signXdr(xdr: string, publicKey: string): Promise<string> {
   const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit/sdk");
