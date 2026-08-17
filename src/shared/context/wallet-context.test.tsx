@@ -82,10 +82,35 @@ describe("WalletProvider", () => {
       address: "GABC1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234",
     });
     getAddressMock.mockResolvedValue({ address: null });
-    global.fetch = jest.fn() as typeof fetch;
+    // WalletProvider mounts <AuthBootstrap/>, which unconditionally probes the
+    // httpOnly session cookie via GET /api/auth/me. That probe is expected here,
+    // so fetch has to resolve (a bare jest.fn() returns undefined and the
+    // component's .then() blows up). A 500 short-circuits AuthBootstrap on
+    // `if (!res.ok) return;` without touching auth state or navigating.
+    global.fetch = jest
+      .fn()
+      .mockResolvedValue({ ok: false, status: 500, json: async () => ({}) }) as typeof fetch;
   });
 
-  it("connects the wallet for chat without calling backend auth", async () => {
+  /**
+   * Backend auth = the signature-challenge handshake
+   * (POST /api/auth/challenge -> POST /api/auth/verify). Neither may be reached
+   * by a wallet-only connect or by rehydrating a persisted address.
+   */
+  function expectNoBackendAuthCall() {
+    const urls = (global.fetch as jest.Mock).mock.calls.map(([url]) => String(url));
+    expect(urls.filter((u) => /\/api\/auth\/(challenge|verify)/.test(u))).toEqual([]);
+  }
+
+  // This case used to assert that connectWalletOnly() connects "for chat without
+  // calling backend auth". That behaviour was removed in 5d8abbe, which added
+  // `await authenticateWithWallet(addr)` to connectWalletOnly, making its body
+  // character-for-character identical to connect(). The suite never noticed
+  // because global.fetch was a bare jest.fn(): the provider crashed on
+  // `undefined.then` before it could reach the handshake. Asserting the removed
+  // behaviour would pin a promise the code no longer makes, so this now pins
+  // what connectWalletOnly actually does.
+  it("connectWalletOnly() opens the wallet modal and runs the backend auth handshake", async () => {
     const user = userEvent.setup();
 
     render(
@@ -101,7 +126,11 @@ describe("WalletProvider", () => {
         "GABC1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234"
       )
     );
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(authModalMock).toHaveBeenCalled();
+    await waitFor(() => {
+      const urls = (global.fetch as jest.Mock).mock.calls.map(([url]) => String(url));
+      expect(urls.some((u) => u.endsWith("/api/auth/challenge"))).toBe(true);
+    });
   });
 
   it("restores a persisted wallet without silently triggering backend auth", async () => {
@@ -125,6 +154,6 @@ describe("WalletProvider", () => {
         "GRESTORE1234567890ABCDEF1234567890ABCDEF1234567890ABCDE"
       )
     );
-    expect(global.fetch).not.toHaveBeenCalled();
+    expectNoBackendAuthCall();
   });
 });

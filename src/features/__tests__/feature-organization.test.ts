@@ -14,34 +14,47 @@ import { join } from "node:path";
 
 describe("Feature Module Organization Property Tests", () => {
   const FEATURES_DIR = join(__dirname, "..");
+  // Declared registry of top-level feature modules. This is deliberately an
+  // explicit allowlist, not a filesystem read: its only job is to make adding
+  // (or silently forking) a feature directory a conscious act that shows up in
+  // a diff. Adding a directory under src/features without adding it here is a
+  // failure by design.
   const EXPECTED_FEATURES = [
-    "access",
     "account",
     "admin",
     "admin-auth",
     "admin-topups",
     "admin-whitelist",
-    "agents",
     "aggregator",
     "chat",
     "credits",
     "dev-playground",
     "farming",
+    "farming-2",
+    "farming-3",
     "landing",
     "onboarding",
     "portfolio",
     "profile",
     "protocols",
+    "quest",
     "referrals",
+    "sponsorship",
     "strategies",
     "topup",
+    "traction",
     "waitlist",
     "welcome-reward",
-    "whitelist",
   ];
 
-  // Hooks-only feature modules that don't expose UI components directly.
-  const HOOKS_ONLY_FEATURES = ["admin-whitelist"];
+  /** Every .ts/.tsx source file under `dir`, recursively. */
+  function sourceFiles(dir: string): string[] {
+    return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) return sourceFiles(full);
+      return /\.tsx?$/.test(entry.name) ? [full] : [];
+    });
+  }
 
   /**
    * Property 1: Feature module organization
@@ -57,17 +70,19 @@ describe("Feature Module Organization Property Tests", () => {
         expect(existsSync(featurePath)).toBe(true);
         expect(statSync(featurePath).isDirectory()).toBe(true);
 
-        // At minimum each feature should expose UI components (unless it's hooks-only).
-        const componentsPath = join(featurePath, "components");
-        if (!HOOKS_ONLY_FEATURES.includes(featureName)) {
-          expect(existsSync(componentsPath)).toBe(true);
-          expect(statSync(componentsPath).isDirectory()).toBe(true);
-        } else if (existsSync(componentsPath)) {
-          expect(statSync(componentsPath).isDirectory()).toBe(true);
-        }
+        // Every feature must actually ship code. NOTE: a `components/` subdir is
+        // NOT a universal convention here and this test deliberately does not
+        // require one - `credits` keeps its UI as flat *.tsx files, `protocols`
+        // organises by sub-domain (cards/adapters/registry/...), `admin-whitelist`
+        // is hooks-only and `dev-playground` is config-only. Requiring
+        // `components/` would only be satisfiable via an exception list, which
+        // documents nothing. What is genuinely invariant is that a feature
+        // directory is not an empty or non-TypeScript shell.
+        const files = sourceFiles(featurePath).filter((f) => !/\.test\.tsx?$/.test(f));
+        expect(files.length).toBeGreaterThan(0);
 
-        // If hooks/api folders exist, they must be directories.
-        ["hooks", "api"].forEach((subdir) => {
+        // If components/hooks/api folders exist, they must be directories.
+        ["components", "hooks", "api"].forEach((subdir) => {
           const subdirPath = join(featurePath, subdir);
           if (existsSync(subdirPath)) {
             expect(statSync(subdirPath).isDirectory()).toBe(true);
