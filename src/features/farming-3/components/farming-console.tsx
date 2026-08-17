@@ -16,9 +16,12 @@ import { isNotFoundError } from "@/lib/query-error";
 import { Button } from "@/shared/ui/button";
 import { useWalletHydrated, useWalletStore } from "@/store/use-wallet";
 import {
+  riskPresetFromServer,
   useConsoleActivity,
+  useConsoleHistory,
   useConsolePools,
   useConsolePosition,
+  useConsolePresetCandidates,
   useConsoleRebalanceStatus,
 } from "../hooks/use-console-api";
 import { useSigningJourney } from "../hooks/use-signing-journey";
@@ -29,6 +32,7 @@ import { Panel } from "./console-ui";
 import { DashboardScreen } from "./dashboard-screen";
 import { DepositScreen } from "./deposit-screen";
 import { JourneyPanel } from "./journey-panel";
+import type { HistoryWindow } from "./performance-chart";
 import { StrategyScreen } from "./strategy-screen";
 
 /** The flow's own steps, ahead of the dashboard. Kept as a list so the step
@@ -143,6 +147,7 @@ export function FarmingConsole() {
   const [token, setToken] = useState<DepositToken>("USDC");
   const [preset, setPreset] = useState<RiskPreset>("Balanced");
   const [amountText, setAmountText] = useState("");
+  const [historyDays, setHistoryDays] = useState<HistoryWindow>(30);
   /** Where the user has navigated to. `null` means "wherever the server says". */
   const [stageOverride, setStageOverride] = useState<ConsoleStage | null>(null);
 
@@ -150,8 +155,20 @@ export function FarmingConsole() {
   const poolsQuery = useConsolePools();
   const rebalanceQuery = useConsoleRebalanceStatus();
   const activityQuery = useConsoleActivity(publicKey);
+  /** One query per preset, so each choice can show its own consequence. */
+  const presetCandidates = useConsolePresetCandidates(token);
 
   const position = positionQuery.data;
+
+  // The preset the ACCOUNT carries, which is not necessarily the one selected in
+  // the local flow state. `undefined` when the server said something we do not
+  // recognise, and then the dashboard shows the whole registry rather than
+  // claiming a filtered view belongs to a preset.
+  const accountPreset = riskPresetFromServer(position?.preset);
+  const accountCandidatesQuery = useConsolePools(position?.baseAsset, accountPreset);
+
+  // Snapshots are recorded against the keeper contract, not the user's wallet.
+  const historyQuery = useConsoleHistory(position?.keeperWalletAddress, historyDays);
   const parsedAmount = Number.parseFloat(amountText);
   const amount = Number.isFinite(parsedAmount) && parsedAmount > 0 ? parsedAmount : null;
 
@@ -256,9 +273,7 @@ export function FarmingConsole() {
     <ConsoleShell actions={actions} progress={progress}>
       {stage === "strategy" && (
         <StrategyScreen
-          pools={poolsQuery.data}
-          poolsLoading={poolsQuery.isLoading}
-          poolsError={poolsQuery.error}
+          candidates={presetCandidates}
           token={token}
           onTokenChange={setToken}
           preset={preset}
@@ -271,8 +286,8 @@ export function FarmingConsole() {
 
       {stage === "deposit" && (
         <DepositScreen
-          pools={poolsQuery.data}
-          poolsLoading={poolsQuery.isLoading}
+          pools={presetCandidates[preset].pools}
+          poolsLoading={presetCandidates[preset].isLoading}
           token={token}
           preset={preset}
           amountText={amountText}
@@ -301,9 +316,18 @@ export function FarmingConsole() {
           pools={poolsQuery.data}
           poolsLoading={poolsQuery.isLoading}
           poolsError={poolsQuery.error}
+          accountPreset={accountPreset}
+          presetPools={accountCandidatesQuery.data}
+          presetPoolsLoading={accountCandidatesQuery.isLoading}
+          presetPoolsError={accountCandidatesQuery.error}
           activity={activityQuery.data}
           activityLoading={activityQuery.isLoading}
           activityError={activityQuery.error}
+          history={historyQuery.data}
+          historyLoading={historyQuery.isLoading}
+          historyError={historyQuery.error}
+          historyDays={historyDays}
+          onHistoryDaysChange={setHistoryDays}
           // `null` where the status query has not answered: "unknown" is a
           // third state and must not render as "not ready".
           botReady={rebalanceQuery.data ? rebalanceQuery.data.ready : null}

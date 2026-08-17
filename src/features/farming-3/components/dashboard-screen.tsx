@@ -15,7 +15,14 @@
 import { AlertTriangle, PauseCircle, ShieldCheck } from "lucide-react";
 import { activeNetwork } from "@/shared/config/stellar";
 import { Button } from "@/shared/ui/button";
-import type { ConsoleActivityItem, ConsolePool, ConsolePosition, JourneyStepView } from "../types";
+import type {
+  ConsoleActivityItem,
+  ConsolePool,
+  ConsolePosition,
+  ConsoleSnapshot,
+  JourneyStepView,
+  RiskPreset,
+} from "../types";
 import {
   formatApy,
   formatPercentPoints,
@@ -29,6 +36,7 @@ import { AllocationPanel } from "./allocation-panel";
 import { Eyebrow, Hairline, Num, Panel, Pill, SectionRule, Stat, StatStrip } from "./console-ui";
 import { JourneyStepRow } from "./journey-panel";
 import { MarketTable } from "./market-table";
+import { type HistoryWindow, PerformanceChart } from "./performance-chart";
 
 /** Money in the keeper wallet not yet deployed. `null` when the balance read is
  *  stale or the position is missing — an unreadable idle balance is not zero. */
@@ -139,6 +147,53 @@ function DashboardHero({
   );
 }
 
+/**
+ * The market list at the foot of the dashboard.
+ *
+ * What the account's own preset can draw on: the engine picks its top few from
+ * this set and weights them, and membership is the server's call, so this is a
+ * claim about REACH, never about holdings.
+ *
+ * The filtered view is shown only when the server reported a preset we
+ * recognise. Otherwise the whole registry is shown, unlabelled — better than
+ * attributing a filtered list to a preset the account may not carry.
+ */
+function PresetMarkets({
+  accountPreset,
+  presetPools,
+  presetPoolsLoading,
+  presetPoolsError,
+  pools,
+  poolsLoading,
+  poolsError,
+}: {
+  accountPreset?: RiskPreset;
+  presetPools: ConsolePool[] | undefined;
+  presetPoolsLoading: boolean;
+  presetPoolsError?: unknown;
+  pools: ConsolePool[] | undefined;
+  poolsLoading: boolean;
+  poolsError?: unknown;
+}) {
+  if (!accountPreset) {
+    return <MarketTable pools={pools} isLoading={poolsLoading} error={poolsError} />;
+  }
+  return (
+    <MarketTable
+      pools={presetPools}
+      isLoading={presetPoolsLoading}
+      error={presetPoolsError}
+      title={`What ${accountPreset} can pick from`}
+      note={
+        presetPools && pools
+          ? `${presetPools.length} of ${pools.length} live markets clear this preset`
+          : "Server-side filter for this account's preset"
+      }
+      emptyNote={`No market currently clears the ${accountPreset} preset. Funds stay in your keeper wallet until one does.`}
+    />
+  );
+}
+
 export interface DashboardScreenProps {
   position: ConsolePosition | null | undefined;
   positionLoading: boolean;
@@ -146,9 +201,22 @@ export interface DashboardScreenProps {
   pools: ConsolePool[] | undefined;
   poolsLoading: boolean;
   poolsError?: unknown;
+  /** The preset the ACCOUNT carries, per the server. `undefined` when the server
+   *  reported something unrecognised — then no preset claim is made. */
+  accountPreset?: RiskPreset;
+  /** The set `accountPreset` is allowed to draw on, filtered server-side. */
+  presetPools: ConsolePool[] | undefined;
+  presetPoolsLoading: boolean;
+  presetPoolsError?: unknown;
   activity: ConsoleActivityItem[] | undefined;
   activityLoading: boolean;
   activityError?: unknown;
+  /** `null` when the history response was not a series — distinct from `[]`. */
+  history: ConsoleSnapshot[] | null | undefined;
+  historyLoading: boolean;
+  historyError?: unknown;
+  historyDays: HistoryWindow;
+  onHistoryDaysChange: (days: HistoryWindow) => void;
   botReady: boolean | null;
   botHalted: boolean | null;
   botHaltReason: string | null;
@@ -164,9 +232,18 @@ export function DashboardScreen({
   pools,
   poolsLoading,
   poolsError,
+  accountPreset,
+  presetPools,
+  presetPoolsLoading,
+  presetPoolsError,
   activity,
   activityLoading,
   activityError,
+  history,
+  historyLoading,
+  historyError,
+  historyDays,
+  onHistoryDaysChange,
   botReady,
   botHalted,
   botHaltReason,
@@ -250,6 +327,16 @@ export function DashboardScreen({
         />
       </StatStrip>
 
+      {/* ── the position over time ─────────────────────────────────────── */}
+      <PerformanceChart
+        snapshots={history}
+        isLoading={historyLoading}
+        error={historyError}
+        days={historyDays}
+        onDaysChange={onHistoryDaysChange}
+        keeperAddress={position?.keeperWalletAddress}
+      />
+
       {/* ── allocation + activity ──────────────────────────────────────── */}
       <div className="grid items-start gap-6 lg:grid-cols-[1.2fr_1fr]">
         <AllocationPanel
@@ -295,7 +382,15 @@ export function DashboardScreen({
         </Panel>
       )}
 
-      <MarketTable pools={pools} isLoading={poolsLoading} error={poolsError} />
+      <PresetMarkets
+        accountPreset={accountPreset}
+        presetPools={presetPools}
+        presetPoolsLoading={presetPoolsLoading}
+        presetPoolsError={presetPoolsError}
+        pools={pools}
+        poolsLoading={poolsLoading}
+        poolsError={poolsError}
+      />
     </div>
   );
 }

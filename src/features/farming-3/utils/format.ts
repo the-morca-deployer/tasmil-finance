@@ -116,6 +116,28 @@ export function formatTimestamp(iso: string | null | undefined): string {
   });
 }
 
+/**
+ * An epoch-ms instant as a chart axis label: `"Aug 17"`.
+ *
+ * Same rule as `formatTimestamp`: a time we do not have is `NO_DATA`, never
+ * "today".
+ */
+export function formatDayLabel(epochMs: number | null | undefined): string {
+  if (!isMeasured(epochMs)) return NO_DATA;
+  return new Date(epochMs).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+/** An epoch-ms instant with the time of day, for chart tooltips. */
+export function formatInstant(epochMs: number | null | undefined): string {
+  if (!isMeasured(epochMs)) return NO_DATA;
+  return new Date(epochMs).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 /** Title-cases a backend SCREAMING_CASE token for display: `"BALANCED"` →
  *  `"Balanced"`, `"blend"` → `"Blend"`. Absent stays absent. */
 export function titleCase(value: string | null | undefined): string {

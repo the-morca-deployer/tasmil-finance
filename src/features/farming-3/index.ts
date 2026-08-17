@@ -28,12 +28,21 @@ export { DashboardScreen } from "./components/dashboard-screen";
 export { DepositScreen } from "./components/deposit-screen";
 export { FarmingConsole } from "./components/farming-console";
 export { JourneyPanel, JourneyStepRow } from "./components/journey-panel";
-export { bestApyFraction, MarketTable } from "./components/market-table";
+export { MarketTable, maxApyFraction } from "./components/market-table";
+export {
+  HISTORY_WINDOWS,
+  type HistoryWindow,
+  PerformanceChart,
+} from "./components/performance-chart";
 export { StrategyScreen } from "./components/strategy-screen";
 export {
+  type PresetCandidates,
+  riskPresetFromServer,
   useConsoleActivity,
+  useConsoleHistory,
   useConsolePools,
   useConsolePosition,
+  useConsolePresetCandidates,
   useConsoleRebalanceStatus,
 } from "./hooks/use-console-api";
 export { useSigningJourney } from "./hooks/use-signing-journey";
@@ -44,6 +53,7 @@ export type {
   ConsolePosition,
   ConsolePositionLeg,
   ConsoleRebalanceStatus,
+  ConsoleSnapshot,
   ConsoleStage,
   DepositToken,
   JourneyEvent,
@@ -58,6 +68,8 @@ export type {
 export {
   formatAmount,
   formatApy,
+  formatDayLabel,
+  formatInstant,
   formatPercentPoints,
   formatSignedUsd,
   formatTimestamp,
@@ -79,3 +91,14 @@ export {
   journeyReducer,
   txHashesFromActivity,
 } from "./utils/journey";
+export {
+  buildSeriesGeometry,
+  nearestIndex,
+  type SeriesChange,
+  type SeriesGeometry,
+  type SeriesPoint,
+  type SeriesStatus,
+  seriesChange,
+  seriesStatus,
+  toSeriesPoints,
+} from "./utils/series";

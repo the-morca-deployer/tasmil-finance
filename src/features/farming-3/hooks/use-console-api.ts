@@ -1,31 +1,24 @@
 "use client";
 
 /**
- * The console's ONLY data-access module.
+ * The console's ONLY read-data module.
  *
- * No new API client is created here and no new endpoint is called. Everything
- * below is one of two things:
+ * No new API client is created here and no new endpoint is called: every hook
+ * below wraps a Kubb-generated hook from `@/gen-backend/hooks` (shared, not a
+ * feature) with the same `select` unwrap and cadence the rest of the app uses.
+ * They are re-declared here rather than imported from `@/features/farming` so
+ * `farming-3` keeps the feature isolation the design doc asks for.
  *
- *  - a query wrapper over the Kubb-generated hooks in `@/gen-backend/hooks`
- *    (shared, not a feature) with the same `select` unwrap and cadence the rest
- *    of the app uses. This is the `usePools` / `usePosition` /
- *    `useRebalanceStatus` / `useActivity` layer, re-declared here rather than
- *    imported from `@/features/farming` so `farming-3` keeps the feature
- *    isolation the design doc asks for.
- *
- *  - a re-export of the account feature's existing mutation hooks. Those wrap
- *    `backendAxios` and there is no shared equivalent; re-implementing them
- *    would mean writing a second API client, which the brief forbids outright.
- *    This is the single place `farming-3` reaches into another feature, and it
- *    is the same dependency `farming` and `farming-2` already carry.
- *
- * Every component in `farming-3` imports from here and nowhere else.
+ * Writes live in `@/shared/hooks/use-account-mutations` — shared code, imported
+ * directly by `use-signing-journey`. This file used to re-export them out of
+ * `@/features/account`, which was a cross-feature import in all but name.
  */
 
 import {
   useAccountControllerGetActivity,
   useAccountControllerGetPosition,
   usePoolsControllerGetPools,
+  usePortfolioControllerGetHistory,
   useRebalanceControllerGetStatus,
 } from "@/gen-backend/hooks";
 import { $b, $bLive } from "@/lib/kubb-backend";
@@ -34,21 +27,30 @@ import type {
   ConsolePool,
   ConsolePosition,
   ConsoleRebalanceStatus,
+  ConsoleSnapshot,
+  RiskPreset,
 } from "../types";
 
-export {
-  useDeployAccount,
-  useFundAccount,
-  useSetupAccount,
-  useSubmitTx,
-  useUpdatePreset,
-  useWithdraw,
-} from "@/features/account/hooks/use-account-api";
+/** The console spells presets `"Balanced"`; the API takes `"BALANCED"`. */
+const PRESET_PARAM: Record<RiskPreset, "SAFE" | "BALANCED" | "AGGRESSIVE"> = {
+  Safe: "SAFE",
+  Balanced: "BALANCED",
+  Aggressive: "AGGRESSIVE",
+};
 
-/** `GET /api/pools`. `currentApy` on every row is a decimal fraction. */
-export function useConsolePools(baseAsset?: string) {
+/**
+ * `GET /api/pools`. `currentApy` on every row is a decimal fraction.
+ *
+ * Passing `riskPreset` (with `baseAsset`) switches the backend from "every pool
+ * with a deployed strategy" to "the pools this preset is allowed to touch" —
+ * the server's own `getFilteredPools`, i.e. the risk/TVL/asset gate the
+ * allocation engine applies before it weights anything. That is what makes the
+ * preset choice legible without inventing a per-pool control the API cannot
+ * honour.
+ */
+export function useConsolePools(baseAsset?: string, riskPreset?: RiskPreset) {
   return usePoolsControllerGetPools(
-    { baseAsset },
+    { baseAsset, riskPreset: riskPreset ? PRESET_PARAM[riskPreset] : undefined },
     {
       query: {
         ...$b.query,
@@ -60,6 +62,65 @@ export function useConsolePools(baseAsset?: string) {
       },
     }
   );
+}
+
+/**
+ * The server's stored preset (`"BALANCED"`) as the console's spelling.
+ *
+ * `undefined` for anything unrecognised — including an absent value. Defaulting
+ * an unknown preset to `"Balanced"` would put a label on the screen that the
+ * account does not carry.
+ */
+export function riskPresetFromServer(value: string | null | undefined): RiskPreset | undefined {
+  switch (value?.toUpperCase()) {
+    case "SAFE":
+      return "Safe";
+    case "BALANCED":
+      return "Balanced";
+    case "AGGRESSIVE":
+      return "Aggressive";
+    default:
+      return undefined;
+  }
+}
+
+/** What one preset would be allowed to allocate into, per the server. */
+export interface PresetCandidates {
+  pools: ConsolePool[] | undefined;
+  isLoading: boolean;
+  error: unknown;
+}
+
+/**
+ * The candidate set for every preset at once, so the three choices can be
+ * compared with the server's own answer rather than a rule restated in the UI.
+ *
+ * Three fixed queries — the hook order never varies — against one 60-second
+ * cache. This is what makes the preset control honest: the backend has no
+ * endpoint that accepts a hand-picked venue list, so instead of offering a
+ * per-pool control the agent would ignore, each preset shows the set it can
+ * actually draw from.
+ *
+ * Note what this is NOT: the final allocation. The server filter here is
+ * risk-ceiling + TVL floor + asset compatibility + "a strategy is deployed".
+ * The engine then scores that set and keeps only its top `maxPools`. The UI must
+ * say "can pick from", never "will hold".
+ */
+export function useConsolePresetCandidates(
+  baseAsset: string
+): Record<RiskPreset, PresetCandidates> {
+  const safe = useConsolePools(baseAsset, "Safe");
+  const balanced = useConsolePools(baseAsset, "Balanced");
+  const aggressive = useConsolePools(baseAsset, "Aggressive");
+  return {
+    Safe: { pools: safe.data, isLoading: safe.isLoading, error: safe.error },
+    Balanced: { pools: balanced.data, isLoading: balanced.isLoading, error: balanced.error },
+    Aggressive: {
+      pools: aggressive.data,
+      isLoading: aggressive.isLoading,
+      error: aggressive.error,
+    },
+  };
 }
 
 /**
@@ -91,6 +152,38 @@ export function useConsoleRebalanceStatus() {
         (res as { data?: ConsoleRebalanceStatus }).data ?? null,
     },
   });
+}
+
+/**
+ * `GET /api/portfolio/history/:address?days=N` — the value series behind the
+ * performance chart. Keyed by the KEEPER contract address (`C…`), which is where
+ * the snapshot job records; passing the user's `G…` wallet returns an empty
+ * series, which is a real answer and not an error.
+ *
+ * `select` returns `null`, not `[]`, when the envelope is not a series. An
+ * unreadable history and a genuinely empty one are different claims and the
+ * chart renders them differently. Errors are left to propagate — the previous
+ * implementation in `features/farming` swallowed every non-2xx into `[]`, which
+ * made "the request failed" look like "you have no history".
+ */
+export function useConsoleHistory(keeperAddress: string | undefined, days = 30) {
+  return usePortfolioControllerGetHistory(
+    keeperAddress as string,
+    { days },
+    {
+      query: {
+        ...$b.query,
+        enabled: !!keeperAddress,
+        refetchInterval: 300_000,
+        retry: 1,
+        select: (res: unknown): ConsoleSnapshot[] | null => {
+          const body = (res as { data?: unknown }).data;
+          if (Array.isArray(body)) return body as ConsoleSnapshot[];
+          return Array.isArray(res) ? (res as ConsoleSnapshot[]) : null;
+        },
+      },
+    }
+  );
 }
 
 /** `GET /api/account/activity/:publicKey`. Also the source the journey reads

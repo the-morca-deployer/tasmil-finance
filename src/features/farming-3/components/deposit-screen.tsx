@@ -24,11 +24,13 @@ import {
 } from "../utils/deposit-cost";
 import { formatAmount, formatApy, formatUsd } from "../utils/format";
 import { Eyebrow, Hairline, Num, Panel, StepIndicator } from "./console-ui";
-import { bestApyFraction } from "./market-table";
+import { maxApyFraction } from "./market-table";
 
 const QUICK_AMOUNTS = [10, 50, 100, 500];
 
 export interface DepositScreenProps {
+  /** The candidate set for the chosen preset — server-filtered, so the rate the
+   *  projection uses is one the agent could actually reach under that preset. */
   pools: ConsolePool[] | undefined;
   poolsLoading: boolean;
   token: DepositToken;
@@ -58,7 +60,7 @@ export function DepositScreen({
   const inputId = useId();
   const parsed = Number.parseFloat(amountText);
   const amount = Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-  const apy = bestApyFraction(pools, token);
+  const apy = maxApyFraction(pools);
 
   // Both inputs must be real. A missing rate is not zero yield; a missing
   // amount is not a zero deposit.

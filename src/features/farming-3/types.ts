@@ -68,7 +68,24 @@ export interface ConsolePool {
   tvlUsd: number;
   riskScore: number;
   enabled: boolean;
+  blacklisted?: boolean;
   lastUpdated: string;
+  /**
+   * Server-computed: `lastUpdated` is older than the 40-minute freshness budget
+   * (2x the 20-minute pool-discovery cron). True means the APY and TVL on this
+   * row were measured, but a while ago — a cron outage serves arbitrarily old
+   * numbers with no other signal. Optional because an older backend build omits
+   * the field entirely, and "the server did not say" must not read as "fresh".
+   */
+  stale?: boolean;
+}
+
+/** One point of `GET /api/portfolio/history/:address` → `data`. */
+export interface ConsoleSnapshot {
+  timestamp: string;
+  totalValueUsd: number;
+  walletUsd: number;
+  defiUsd: number;
 }
 
 /** `GET /api/rebalance/status` → `data`. */
