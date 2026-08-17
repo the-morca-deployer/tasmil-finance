@@ -1,459 +1,234 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+import { Keypair } from "@stellar/stellar-sdk";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
-test.describe("Farming UI (Task 8)", () => {
+/**
+ * `/farming` as it exists today.
+ *
+ * The tabs this file used to drive - Overview / Pools / Strategy / Activity,
+ * and later Performance / Manage with its pool rows - were deleted on purpose
+ * in f6ba8027 ("replace tabs+modals body with FarmingDashboard ... Tabs/
+ * manage-tab UI removed"). Those tests were rewritten or dropped rather than
+ * repaired: a test that asserts a screen the product no longer has is not a
+ * failing test, it is a stale one, and keeping it green would have meant
+ * putting the screen back.
+ *
+ * What the route is now:
+ *   - no managed account  → client redirect to the /farming/setup wizard
+ *   - a managed account   → FarmingDashboard: PositionValueCard (balance,
+ *                           deposited, lifetime earnings, chart) +
+ *                           AgentHistoryCard, with AprSummaryCard alongside
+ *   - `?tab=activity`     → the Activity Timeline drawer over the dashboard
+ *   - "Add funds"         → the fund dialog
+ */
+
+/** Shaped exactly like `GET /api/account/position/:publicKey` on mainnet. */
+const ACTIVE_POSITION = {
+  success: true,
+  data: {
+    totalValueUsd: 12.34,
+    totalDepositedUsd: 10,
+    totalWithdrawnUsd: 0,
+    netDepositsUsd: 10,
+    profitUsd: 2.34,
+    profitPercent: 23.4,
+    currentApy: 0.067031,
+    preset: "BALANCED",
+    status: "ACTIVE",
+    baseAsset: "USDC",
+    activeAssets: ["USDC"],
+    positions: [
+      {
+        poolName: "USDC",
+        poolType: "lending",
+        protocol: "BLEND",
+        allocationPercent: 100,
+        valueUsd: 12.34,
+        apy: 0.067031,
+      },
+    ],
+    gasReserveUsd: 0,
+    balanceStale: false,
+    sessionKeyStale: false,
+    createdAt: "2026-08-16T21:36:07.767Z",
+    keeperWalletAddress: "CDALQPJ4IPYKEM52ZB7QKCUAOIOFNVQ2V4AXPNWERJS565WTSSZPQSL4",
+  },
+};
+
+/**
+ * Two things `loginAsWallet` does not cover on this route:
+ *
+ *  - `__TASMIL_E2E_WALLET__`. WalletContext's auto-restore effect only trusts
+ *    that global; the `__TASMIL_E2E_BYPASS_KIT__` flag the shared helper sets
+ *    is no longer read there, so without this the effect asks the real
+ *    StellarWalletsKit, fails headless, and calls `reset()` - leaving the page
+ *    genuinely disconnected. Same global the loop's farming runner injects.
+ *  - the "You're in the Top 100" gas-sponsorship modal, which enrols on first
+ *    visit and then covers the page for every brand-new wallet. Suppressed
+ *    with the same session key the app's own `useSponsorshipVisit` writes.
+ */
+async function primeWallet(page: Page, wallet: string): Promise<void> {
+  await page.addInitScript((walletAddress: string) => {
+    (window as unknown as { __TASMIL_E2E_WALLET__?: unknown }).__TASMIL_E2E_WALLET__ = {
+      connected: true,
+      publicKey: walletAddress,
+    };
+    for (const route of ["chat", "dashboard", "farming"]) {
+      sessionStorage.setItem(`tasmil:sponsorship:visited:${route}:${walletAddress}`, "1");
+    }
+  }, wallet);
+}
+
+/**
+ * Serve a position for whatever wallet the test logged in as. Fresh wallets
+ * have no account on the backend, and the dashboard is only reachable with
+ * one; `delayMs` lets a test hold the response open to prove the page waits
+ * for it instead of guessing.
+ */
+async function mockPosition(page: Page, delayMs = 0): Promise<void> {
+  await page.route("**/api/account/position/**", async (route) => {
+    if (delayMs > 0) await new Promise((resolve) => setTimeout(resolve, delayMs));
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(ACTIVE_POSITION),
+    });
+  });
+}
+
+test.describe("Farming route", () => {
   test.skip(process.env.NODE_ENV === "production", "test-login is disabled on production");
 
-  test("Tab bar renders four tabs with icons", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-
-    // Wait for page to load
-    await page.waitForTimeout(2000);
-
-    // Either tabs are visible (wallet connected) or ConnectPrompt shows
-    // Tabs: Overview, Pools, Strategy, Activity
-    const tabs = page.getByText(/Overview|Pools|Strategy|Activity/i);
-    const tabCount = await tabs.count();
-    expect(tabCount).toBeGreaterThan(0);
-
-    // Verify all 4 tab labels appear somewhere on the page
-    await expect(page.getByText("Overview").first()).toBeVisible();
-    await expect(page.getByText("Pools").first()).toBeVisible();
-    await expect(page.getByText("Strategy").first()).toBeVisible();
-    await expect(page.getByText("Activity").first()).toBeVisible();
+  // The dev server compiles /farming on first hit and one test deliberately
+  // stalls its position read; 30s is not enough headroom for either.
+  test.beforeEach(({}, testInfo) => {
+    testInfo.setTimeout(90_000);
   });
 
-  test("Pools tab shows card grid with APY values", async ({ page }) => {
-    const wallet = freshWallet();
+  test("a wallet with no managed account lands on the setup wizard", async ({ page }) => {
+    // A real Stellar key, not `freshWallet()`'s padded placeholder: the
+    // backend rejects a malformed address with 400, and 400 is "the read
+    // failed", not "no account". Only a well-formed unknown key gets the 404
+    // that means there is genuinely nothing to show.
+    const wallet = Keypair.random().publicKey();
     await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-
-    // Click Pools tab
-    const poolsTab = page.getByText("Pools").first();
-    await poolsTab.click();
-
-    await page.waitForTimeout(2000);
-
-    // Page renders farming content - either pool cards or empty state
-    // APY label appears on pool cards
-    const apyLabel = page.getByText("APY").first();
-    const apyVisible = await apyLabel.isVisible({ timeout: 3000 }).catch(() => false);
-
-    if (apyVisible) {
-      // Protocol badges visible: blend/soroswap/aquarius
-      const content = await page.content();
-      const hasProtocol =
-        content.includes("blend") || content.includes("soroswap") || content.includes("aquarius");
-      expect(hasProtocol).toBeTruthy();
-    }
+    await primeWallet(page, wallet);
+    await page.goto("/farming", { waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(/\/farming\/setup/, { timeout: 15_000 });
   });
 
-  test("Overview tab shows allocation section", async ({ page }) => {
+  test("a wallet with an account renders the dashboard instead of onboarding", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.goto("/farming");
+    await primeWallet(page, wallet);
+    await mockPosition(page);
+    await page.goto("/farming", { waitUntil: "domcontentloaded" });
 
-    // Click Overview tab (default active)
-    const overviewTab = page.getByText("Overview").first();
-    await overviewTab.click();
-
-    await page.waitForTimeout(2000);
-
-    // Overview shows "Your Portfolio" header
-    await expect(page.getByText("Your Portfolio").first()).toBeVisible();
+    await expect(page.getByText("Total balance", { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(page).toHaveURL(/\/farming(\?|$)/);
+    // The setup CTA belongs to the empty state; it must not be on a dashboard.
+    await expect(page.getByTestId("setup-cta")).toHaveCount(0);
   });
 
-  test("Activity tab shows date-grouped events with expandable rows", async ({ page }) => {
+  test("dashboard figures come from the position payload", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.goto("/farming");
+    await primeWallet(page, wallet);
+    await mockPosition(page);
+    await page.goto("/farming", { waitUntil: "domcontentloaded" });
 
-    // Click Activity tab
-    const activityTab = page.getByText("Activity").first();
-    await activityTab.click();
-
-    await page.waitForTimeout(2000);
-
-    // Page renders activity content - date headers or empty state
-    const activityHeading = page.getByText("Activity").first();
-    await expect(activityHeading).toBeVisible();
+    await expect(page.getByText("12.34 USDC")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText("Total deposited")).toBeVisible();
+    // Deposits appear twice - PositionValueCard and AprSummaryCard both read
+    // `totalDepositedUsd` - so assert the value is on screen, not that it is
+    // on screen exactly once.
+    await expect(page.getByText("10.00 USDC").first()).toBeVisible();
+    await expect(page.getByText("2.34 USDC (23.40%)")).toBeVisible();
   });
 
-  test("APY values are non-zero", async ({ page }) => {
+  /**
+   * Regression guard for the redirect race: the guard effect used to fire
+   * `router.replace("/farming/setup")` while the position read was still in
+   * flight, so a live account was bounced through onboarding and only walked
+   * back once the response landed. Holding the response open for three
+   * seconds reproduces exactly that window.
+   */
+  test("a slow position read never bounces a real account into onboarding", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const poolsTab = page.getByText("Pools").first();
-    await poolsTab.click();
-    await page.waitForTimeout(1500);
-    const content = await page.content();
-    const apyNums = content.match(/\d+\.?\d*%/g) || [];
-    const nonZero = apyNums.filter((m) => parseFloat(m) > 0);
-    expect(nonZero.length).toBeGreaterThan(0);
+    await primeWallet(page, wallet);
+    await mockPosition(page, 3000);
+
+    const visited: string[] = [];
+    page.on("framenavigated", (frame) => {
+      if (frame === page.mainFrame()) visited.push(frame.url());
+    });
+
+    await page.goto("/farming", { waitUntil: "domcontentloaded" });
+    await expect(page.getByText("Total balance", { exact: true })).toBeVisible({ timeout: 20_000 });
+    expect(visited.filter((url) => url.includes("/farming/setup"))).toHaveLength(0);
   });
 
-  test("Pool card shows protocol name", async ({ page }) => {
+  test("a failed position read says so instead of offering setup", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const poolsTab = page.getByText("Pools").first();
-    await poolsTab.click();
-    await page.waitForTimeout(1500);
-    const protocols = /Blend|Soroswap|Aquarius|Phoenix|SDEX/i;
-    const content = await page.content();
-    expect(protocols.test(content)).toBeTruthy();
+    await primeWallet(page, wallet);
+    await page.route("**/api/account/position/**", (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ success: false, statusCode: 503, message: "upstream down" }),
+      })
+    );
+
+    await page.goto("/farming", { waitUntil: "domcontentloaded" });
+    await expect(page.getByText(/couldn't read your account/i)).toBeVisible({ timeout: 20_000 });
+    await expect(page).toHaveURL(/\/farming(\?|$)/);
   });
 
-  test("Pool card shows asset pair", async ({ page }) => {
+  test("Add funds opens the deposit dialog", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const poolsTab = page.getByText("Pools").first();
-    await poolsTab.click();
-    await page.waitForTimeout(1500);
-    const content = await page.content();
-    expect(/USDC|XLM|XLM\/USDC|USDC\/XLM/i.test(content)).toBeTruthy();
+    await primeWallet(page, wallet);
+    await mockPosition(page);
+    await page.goto("/farming", { waitUntil: "domcontentloaded" });
+
+    await page.getByRole("button", { name: /add funds/i }).click({ timeout: 15_000 });
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(/deposit more/i)).toBeVisible();
   });
 
-  test("Pool card shows TVL", async ({ page }) => {
+  test("?tab=activity opens the activity drawer with its category filters", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const poolsTab = page.getByText("Pools").first();
-    await poolsTab.click();
-    await page.waitForTimeout(1500);
-    const tvl = page.getByText(/tvl|total value|locked/i).first();
-    const hasTvl = await tvl.isVisible({ timeout: 3000 }).catch(() => false);
-    expect(hasTvl).toBeTruthy();
-  });
+    await primeWallet(page, wallet);
+    await mockPosition(page);
+    await page.goto("/farming?tab=activity", { waitUntil: "domcontentloaded" });
 
-  test("Pool card clickable", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const poolsTab = page.getByText("Pools").first();
-    await poolsTab.click();
-    await page.waitForTimeout(1500);
-    const card = page.locator("[class*=card]").first();
-    await expect(card).toBeVisible();
-    await card.click();
-    await expect(page).toHaveURL(/\/farming/);
-  });
-
-  test("Overview shows preset badges", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const content = await page.content();
-    const hasPreset = /safe|balanced|aggressive/i.test(content);
-    expect(hasPreset).toBeTruthy();
-  });
-
-  test("Strategy tab shows selector", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const strategyTab = page.getByText("Strategy").first();
-    const hasStrategyTab = await strategyTab.isVisible().catch(() => false);
-    if (hasStrategyTab) {
-      await strategyTab.click();
-      await page.waitForTimeout(1000);
-      const selector = page.locator("select, [role=combobox]").first();
-      const hasSelector = await selector.isVisible({ timeout: 3000 }).catch(() => false);
-      expect(hasSelector !== null).toBeTruthy();
-    }
-  });
-
-  test("Activity tab expandable rows", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const activityTab = page.getByText("Activity").first();
-    await activityTab.click();
-    await page.waitForTimeout(1500);
-    const row = page.locator("[class*=row], [class*=event]").first();
-    const hasRow = await row.isVisible({ timeout: 3000 }).catch(() => false);
-    if (hasRow) {
-      await row.click();
-      await page.waitForTimeout(500);
-      const detail = page.locator("[class*=detail], [class*=expanded]").first();
-      const hasDetail = await detail.isVisible({ timeout: 2000 }).catch(() => false);
-      expect(hasDetail !== null).toBeTruthy();
-    }
-  });
-
-  test("Empty activity shows empty state", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const activityTab = page.getByText("Activity").first();
-    await activityTab.click();
-    await page.waitForTimeout(1500);
-    const empty = page.getByText(/no activity|no events|no transactions/i).first();
-    const hasEmpty = await empty.isVisible({ timeout: 3000 }).catch(() => false);
-    expect(hasEmpty !== null).toBeTruthy();
-  });
-
-  test("Deposit flow modal opens", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const depositBtn = page.getByRole("button", { name: /deposit/i }).first();
-    const hasDeposit = await depositBtn.isVisible({ timeout: 3000 }).catch(() => false);
-    if (hasDeposit) {
-      await depositBtn.click();
-      await page.waitForTimeout(1000);
-      const modal = page.getByRole("dialog");
-      const isOpen = await modal.isVisible({ timeout: 3000 }).catch(() => false);
-      expect(isOpen !== null).toBeTruthy();
-    }
-  });
-
-  test("Withdraw flow modal opens", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const withdrawBtn = page.getByRole("button", { name: /withdraw/i }).first();
-    const hasWithdraw = await withdrawBtn.isVisible({ timeout: 3000 }).catch(() => false);
-    if (hasWithdraw) {
-      await withdrawBtn.click();
-      await page.waitForTimeout(1000);
-      const modal = page.getByRole("dialog");
-      const isOpen = await modal.isVisible({ timeout: 3000 }).catch(() => false);
-      expect(isOpen !== null).toBeTruthy();
-    }
-  });
-
-  test("Network error shows error alert", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.route("**/api/pools", (route) => route.fulfill({ status: 503 }));
-    await page.goto("/farming");
-    await page.waitForTimeout(3000);
-    const alert = page.getByRole("alert");
-    const hasAlert = await alert.isVisible().catch(() => false);
-    expect(hasAlert !== null).toBeTruthy();
-  });
-
-  test("No error overlay on success", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const alert = page.getByRole("alert");
-    const hasAlert = await alert.isVisible().catch(() => false);
-    expect(hasAlert).toBeFalsy();
-  });
-
-  test("Pools tab sorting", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const poolsTab = page.getByText("Pools").first();
-    await poolsTab.click();
-    await page.waitForTimeout(1500);
-    const sortBtn = page.getByText(/sort|apy|tvl/i).first();
-    const hasSort = await sortBtn.isVisible({ timeout: 2000 }).catch(() => false);
-    if (hasSort) {
-      await sortBtn.click();
-      await page.waitForTimeout(500);
-      await expect(page).toHaveURL(/\/farming/);
-    }
-  });
-
-  test("Page load within 5s", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    const start = Date.now();
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const elapsed = Date.now() - start;
-    expect(elapsed).toBeLessThan(5000);
-  });
-
-  test("Tab state persists on refresh", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForLoadState("networkidle");
-    const poolsTab = page.getByText("Pools").first();
-    await poolsTab.click();
-    await page.waitForTimeout(1000);
-    await page.reload();
-    await page.waitForLoadState("networkidle");
-    await expect(page).toHaveURL(/\/farming/);
-  });
-
-  test("farming header total value renders (CountUp animation)", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    const valueEl = page.locator('[data-testid="farming-header"]').getByText(/\$\d/);
-    await expect(valueEl).toBeVisible({ timeout: 10_000 });
-  });
-
-  test("activity tab has Protocol/Reward sub-tabs", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    const activityTab = page.getByRole("tab", { name: /activity/i });
-    if (await activityTab.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await activityTab.click();
-    }
-
+    await expect(page.getByText(/activity timeline/i).first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByRole("tab", { name: /^All$/ })).toBeVisible();
-    await expect(page.getByRole("tab", { name: /Protocol/ })).toBeVisible();
-    await expect(page.getByRole("tab", { name: /Reward/ })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /^Protocol$/ })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /^Reward$/ })).toBeVisible();
   });
 
-  test("activity reward filter shows reward-only rows or empty state", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    const activityTab = page.getByRole("tab", { name: /activity/i });
-    if (await activityTab.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await activityTab.click();
-    }
-    await page.getByRole("tab", { name: /Reward/ }).click();
-    const plusRow = page.locator("text=/^\\+/").first();
-    const emptyState = page.getByText(/No rewards yet/i);
-    const rewardVisible = await plusRow.isVisible({ timeout: 2000 }).catch(() => false);
-    const emptyVisible = await emptyState.isVisible({ timeout: 2000 }).catch(() => false);
-    expect(rewardVisible || emptyVisible).toBe(true);
-  });
+  // NOTE: the old "No error overlay on success" test asserted that no
+  // `role="alert"` element was visible. It is not a usable signal here - the
+  // sonner toaster mounts a permanently visible empty `role="alert"` region on
+  // every page - so it was dropped rather than rewritten into something that
+  // passes without meaning anything. The happy-path render is covered above.
 
-  test("Overview tab does not render Pools section heading", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForTimeout(2000);
-    // Pools h2 lives inside the Pools tab; Overview should not show it.
-    const poolsHeading = page.getByRole("heading", { name: /^Pools$/, level: 2 });
-    await expect(poolsHeading).toHaveCount(0);
-  });
-
-  test("Pools tab still renders Pools heading", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming?tab=pools");
-    await page.waitForTimeout(2000);
-    await expect(page.getByRole("heading", { name: /^Pools$/, level: 2 }).first()).toBeVisible();
-  });
-
-  test("Mobile viewport - header value visible without horizontal scroll", async ({ page }) => {
+  test("mobile viewport - dashboard fits without horizontal scroll", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForTimeout(2000);
+    await primeWallet(page, wallet);
+    await mockPosition(page);
+    await page.goto("/farming", { waitUntil: "domcontentloaded" });
+
+    await expect(page.getByText("Total balance", { exact: true })).toBeVisible({ timeout: 15_000 });
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1);
-  });
-
-  test("Stat row renders 3 cards", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForTimeout(2000);
-    await expect(page.getByText("Total Value")).toBeVisible();
-    await expect(page.getByText("All-Time P&L")).toBeVisible();
-    await expect(page.getByText("Current APY")).toBeVisible();
-  });
-
-  test("Two tabs Performance / Manage are present", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForTimeout(2000);
-    await expect(page.getByRole("tab", { name: /^Performance$/ })).toBeVisible();
-    await expect(page.getByRole("tab", { name: /^Manage$/ })).toBeVisible();
-    await expect(page.getByRole("tab", { name: /^Overview$/ })).toHaveCount(0);
-    await expect(page.getByRole("tab", { name: /^Pools$/ })).toHaveCount(0);
-    await expect(page.getByRole("tab", { name: /^Strategy$/ })).toHaveCount(0);
-    await expect(page.getByRole("tab", { name: /^Activity$/ })).toHaveCount(0);
-  });
-
-  test("?tab=pools redirects to Manage", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming?tab=pools");
-    await page.waitForTimeout(2000);
-    const manage = page.getByRole("tab", { name: /^Manage$/ });
-    await expect(manage).toHaveAttribute("aria-selected", "true");
-  });
-
-  test("'See all' opens activity drawer", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming");
-    await page.waitForTimeout(2000);
-    const seeAll = page.getByRole("button", { name: /see all/i });
-    if (await seeAll.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await seeAll.click();
-      await expect(page.getByText(/activity timeline/i).first()).toBeVisible();
-      await page.keyboard.press("Escape");
-      await expect(page.getByText(/activity timeline/i)).toHaveCount(0);
-    }
-  });
-
-  test("Manage tab - clicking a pool row opens PoolDetailDrawer", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming?tab=manage");
-    await page.waitForLoadState("networkidle");
-    const row = page.locator('[data-pools-row="true"]').first();
-    const visible = await row.isVisible({ timeout: 5000 }).catch(() => false);
-    if (!visible) return; // empty pools state - skip
-    await row.click();
-    const deposit = page.getByRole("button", { name: /deposit|reactivate/i });
-    await expect(deposit.first()).toBeVisible({ timeout: 3000 });
-  });
-
-  test("Manage tab - asset toggle shows pool counts", async ({ page }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming?tab=manage");
-    await page.waitForLoadState("networkidle");
-    const usdcChip = page.getByRole("button", { name: /^USDC \(\d+ pool/ });
-    const xlmChip = page.getByRole("button", { name: /^XLM \(\d+ pool/ });
-    await expect(usdcChip).toBeVisible();
-    await expect(xlmChip).toBeVisible();
-  });
-
-  test("Manage tab - sticky Apply bar appears when preset selection differs from current", async ({
-    page,
-  }) => {
-    const wallet = freshWallet();
-    await loginAsWallet(page, wallet);
-    await page.goto("/farming?tab=manage");
-    await page.waitForLoadState("networkidle");
-    const initialApply = await page
-      .getByRole("button", { name: /apply strategy/i })
-      .isVisible({ timeout: 1500 })
-      .catch(() => false);
-    expect(initialApply).toBe(false);
-
-    const aggressive = page.getByText(/aggressive/i).first();
-    const aggressiveVisible = await aggressive.isVisible({ timeout: 2000 }).catch(() => false);
-    if (!aggressiveVisible) return;
-    await aggressive.click();
-
-    const apply = page.getByRole("button", { name: /apply strategy/i });
-    await expect(apply).toBeVisible({ timeout: 2000 });
   });
 });
