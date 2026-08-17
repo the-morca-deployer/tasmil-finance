@@ -13,6 +13,7 @@ import { usePositionHistory } from "../hooks/use-position-history";
 import type { DiscoveredPool } from "../types";
 import { ActivityDrawer } from "./activity-drawer";
 import type { AgentHistoryEvent } from "./dashboard/agent-history-card";
+import { ACTIVITY_LABEL } from "./farming-activity";
 import { FarmingDashboard } from "./farming-dashboard";
 import { FarmingModals, type FarmingModalTab } from "./farming-modals";
 import { PoolDetailDrawer } from "./pool-detail-drawer";
@@ -256,15 +257,43 @@ function FarmingContent() {
 
   const isRevoked = position.status === "REVOKED";
 
-  const totalBalanceUsd = position.totalValueUsd ?? 0;
-  const totalDepositedUsd = position.totalDepositedUsd ?? 0;
-  const lifetimeEarningsUsd = position.profitUsd ?? 0;
-  const lifetimeEarningsPct = position.profitPercent ?? 0;
-  const netApr = position.currentApy ?? 0;
-  const firstPosition = positionsList[0];
-  const currentMarketName = firstPosition?.poolName ?? "-";
-  const currentPositionApr = firstPosition?.apy ?? 0;
-  const activatedAt = position.createdAt ?? new Date().toISOString();
+  // The backend contract guarantees these fields, but treat that as a
+  // promise, not a fact: if a partial/malformed response ever slips through,
+  // fall back to the loader instead of rendering a confident-looking
+  // $0.00 / 0.00% dashboard that's indistinguishable from a real zero.
+  const hasCompletePositionData =
+    typeof position.totalValueUsd === "number" &&
+    typeof position.totalDepositedUsd === "number" &&
+    typeof position.profitUsd === "number" &&
+    typeof position.profitPercent === "number" &&
+    typeof position.currentApy === "number";
+
+  if (!hasCompletePositionData) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const totalBalanceUsd = position.totalValueUsd;
+  const totalDepositedUsd = position.totalDepositedUsd;
+  const lifetimeEarningsUsd = position.profitUsd;
+  const lifetimeEarningsPct = position.profitPercent;
+  // Value-weighted average APY across all open positions - not "net" of
+  // fees/rewards, see AprSummaryCard.
+  const blendedApy = position.currentApy;
+  // Positions aren't guaranteed to come back ordered by size, so pick the
+  // one holding the most value rather than an arbitrary array position.
+  const topPosition = positionsList.length
+    ? positionsList.reduce((largest, p) => (p.valueUsd > largest.valueUsd ? p : largest))
+    : undefined;
+  const currentMarketName = topPosition?.poolName ?? "-";
+  const currentPositionApr = topPosition?.apy ?? 0;
+  // Never fabricate a fallback timestamp - an empty string renders "-" via
+  // AprSummaryCard's fmtDate rather than lying that the account activated
+  // "now".
+  const activatedAt = position.createdAt ?? "";
 
   const chartSeries = (positionHistory ?? []).map((s) => ({
     t: new Date(s.timestamp).getTime(),
@@ -275,10 +304,10 @@ function FarmingContent() {
     .filter((a) => a.category === "protocol" || a.type === "rebalance")
     .map((a) => ({
       id: a.id,
-      title: a.detail ?? "Position reallocated to higher-yield lending market",
+      title: a.detail ?? ACTIVITY_LABEL[a.type] ?? a.type,
       detail:
         a.amount !== undefined
-          ? `${a.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${a.token ?? ""} reallocated`
+          ? `${a.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${a.token ?? ""}`.trim()
           : (a.detail ?? ""),
       occurredAt: a.createdAt,
     }));
@@ -292,7 +321,7 @@ function FarmingContent() {
         lifetimeEarningsPct={lifetimeEarningsPct}
         chartSeries={chartSeries}
         agentEvents={agentEvents}
-        netApr={netApr}
+        blendedApy={blendedApy}
         currentPositionApr={currentPositionApr}
         currentMarketName={currentMarketName}
         activatedAt={activatedAt}

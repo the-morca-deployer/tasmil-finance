@@ -137,7 +137,7 @@ function getActivityLabel(activity: ActivityItem): string {
   return ACTIVITY_LABEL[activity.type] ?? activity.type;
 }
 
-const ACTIVITY_LABEL: Record<string, string> = {
+export const ACTIVITY_LABEL: Record<string, string> = {
   DEPLOY: "Account Created",
   FUND: "Deposit",
   DEPOSIT: "Deposit",
