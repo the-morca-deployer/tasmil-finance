@@ -10,7 +10,10 @@ export const defindexVaultCardSchema = z.object({
   totalSupply: z.string().nullable().optional(),
   tvl: z.union([z.string(), z.number()]).nullable().optional(),
   apy: z.number().nullable().optional(),
-  status: z.enum(["ok", "unavailable"]).catch("unavailable"),
+  // Optional, not defaulted: MCP's resolve_pool sends no status field, and
+  // coercing that absence to "unavailable" put a red herring badge on live
+  // vaults. Absent status now renders no badge at all.
+  status: z.enum(["ok", "unavailable"]).catch("unavailable").optional(),
 });
 export type DefindexVaultCardProps = z.infer<typeof defindexVaultCardSchema>;
 

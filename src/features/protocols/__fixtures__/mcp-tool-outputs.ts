@@ -292,7 +292,171 @@ export const BLEND_RESOLVE_POOL_V2 = [
   },
 ];
 
+/**
+ * Blend resolve_pool as mainnet actually returns it: the pool list is preceded
+ * by protocol-wide contract IDs that no card used to render. Captured from the
+ * live MCP server on :3009.
+ */
+export const BLEND_RESOLVE_POOL_WITH_REGISTRY = [
+  {
+    type: "text",
+    text: JSON.stringify({
+      success: true,
+      protocol: "blend",
+      network: "mainnet",
+      backstopAddress: "CAQQR5SWBXKIGZKPBZDH3KM5GQ5GUTPKB7JAFCINLZBC5WXPJKRG3IM7",
+      blndToken: "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY",
+      blndAssetCode: "BLND",
+      blndAssetIssuer: "GDJEHTBE6ZHUXSWFI642DCGLUOECLHPF3KSXHPXTSTJ7E3JF6MQ5EZYY",
+      cometLpToken: "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+      pools: [
+        {
+          address: "CC4HHXPKR3FIXUQEC53MAK2IVWD6APAEBBXP5XCIW5FISN6PQOAC6UXG",
+          name: "Solv",
+          status: "active",
+          canSupply: true,
+          canBorrow: true,
+          reserves: [
+            {
+              asset: "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+              symbol: "USDC",
+              totalSupply: "500000",
+              totalBorrow: "120000",
+              supplyApy: 9.3,
+              borrowApy: 12.5,
+            },
+          ],
+        },
+      ],
+      count: 1,
+    }),
+  },
+];
+
+// --- Phoenix -------------------------------------------------
+
+/**
+ * Phoenix resolve_pool with no token filter. Note `feeBps` arrives as a
+ * string, and every pool carries a `stakeAddress` distinct from its
+ * `poolAddress`. Captured from the live MCP server on :3009.
+ */
+export const PHOENIX_RESOLVE_POOL = [
+  {
+    type: "text",
+    text: JSON.stringify({
+      success: true,
+      protocol: "phoenix",
+      pools: [
+        {
+          poolAddress: "CBHCRSVX3ZZ7EGTSYMKPEFGZNWRVCSESQR3UABET4MIW52N4EVU6BIZX",
+          name: "XLM/USDC",
+          stakeAddress: "CAF3UJ45ZQJP6USFUIMVMGOUETUTXEC35R2247VJYIVQBGKTKBZKNBJ3",
+          feeBps: "50",
+        },
+        {
+          poolAddress: "CBCZGGNOEUZG4CAAE7TGTQQHETZMKUT4OIPFHHPKEUX46U4KXBBZ3GLH",
+          name: "XLM/PHO",
+          stakeAddress: "CBRGNWGAC25CPLMOAMR7WBPOF5QTFA5RYXQH4DEJ4K65G2QFLTLMW7RO",
+          feeBps: "50",
+        },
+      ],
+      count: 2,
+    }),
+  },
+];
+
+/** Phoenix resolve_pool for a single token pair - no `pools` array at all. */
+export const PHOENIX_RESOLVE_POOL_PAIR = [
+  {
+    type: "text",
+    text: JSON.stringify({
+      success: true,
+      protocol: "phoenix",
+      poolAddress: "CBHCRSVX3ZZ7EGTSYMKPEFGZNWRVCSESQR3UABET4MIW52N4EVU6BIZX",
+      stakeAddress: "CAF3UJ45ZQJP6USFUIMVMGOUETUTXEC35R2247VJYIVQBGKTKBZKNBJ3",
+      tokenA: {
+        address: "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+        symbol: "XLM",
+        amount: "1000000000",
+      },
+      tokenB: {
+        address: "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+        symbol: "USDC",
+        amount: "250000000",
+      },
+      lpShareAddress: "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+    }),
+  },
+];
+
+// --- Templar -------------------------------------------------
+
+/**
+ * Templar resolve_pool. Keyed `markets`, and the identifiers are NEAR market
+ * ids rather than Stellar contracts. Captured from the live MCP server.
+ */
+export const TEMPLAR_RESOLVE_POOL = [
+  {
+    type: "text",
+    text: JSON.stringify({
+      success: true,
+      protocol: "templar",
+      markets: [
+        {
+          marketId: "ixlm-ixlmusdc.v1.tmplr.near",
+          name: "XLM/USDC",
+          collateral: { symbol: "XLM", tokenId: "nep245:v2_1.omni.hot.tg:1100_111bzQBB5v7" },
+          borrow: { symbol: "USDC", tokenId: "nep245:v2_1.omni.hot.tg:1100_111bzQBB65G" },
+          chain: "stellar",
+          ltv: "70%",
+          apr: "3.67%",
+          supply: "59138",
+          available: "34144",
+          type: "lending",
+        },
+      ],
+      count: 1,
+    }),
+  },
+];
+
 // --- DeFindex ------------------------------------------------
+
+/**
+ * DeFindex resolve_pool. Keyed `vaults` (not `pools`) with `vaultAddress`
+ * (not `address`) and the asset nested under `assets[]`. Captured from the
+ * live MCP server on :3009.
+ */
+export const DEFINDEX_RESOLVE_POOL = [
+  {
+    type: "text",
+    text: JSON.stringify({
+      success: true,
+      protocol: "defindex",
+      network: "mainnet",
+      vaults: [
+        {
+          vaultAddress: "CBNKCU3HGFKHFOF7JTGXQCNKE3G3DXS5RDBQUKQMIIECYKXPIOUGB2S3",
+          name: "DeFindex-Vault-BeansUsdcVault",
+          symbol: "BNSUSDC",
+          totalSupply: "5038017734651",
+          apy: 6.74,
+          assets: [
+            {
+              address: "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+              symbol: "USDC",
+              totalRaw: "5038018433002",
+              totalDisplay: "503801.8433002",
+            },
+          ],
+          explorerUrl:
+            "https://stellar.expert/explorer/public/contract/CBNKCU3HGFKHFOF7JTGXQCNKE3G3DXS5RDBQUKQMIIECYKXPIOUGB2S3",
+        },
+      ],
+      count: 1,
+    }),
+  },
+];
 
 /** DeFindex vault_list_vaults - list of vaults */
 export const DEFINDEX_VAULT_LIST = [

@@ -32,6 +32,24 @@ export const poolCardPropsSchema = z.object({
 });
 export type PoolCardProps = z.infer<typeof poolCardPropsSchema>;
 
+// --- Registry-level contracts (resolve_pool top-level fields) ---
+
+/**
+ * `resolve_pool { protocol: "blend" }` returns protocol-wide contract IDs
+ * alongside the pool list. They are not per-pool, so they have no home in
+ * `poolCardPropsSchema` and used to be dropped on the floor - which made the
+ * model quoting a real backstop address look like a fabrication.
+ */
+export const blendRegistryPropsSchema = z.object({
+  network: z.string().optional(),
+  backstopAddress: z.string().nullable().optional(),
+  blndToken: z.string().nullable().optional(),
+  blndAssetCode: z.string().nullable().optional(),
+  blndAssetIssuer: z.string().nullable().optional(),
+  cometLpToken: z.string().nullable().optional(),
+});
+export type BlendRegistryProps = z.infer<typeof blendRegistryPropsSchema>;
+
 // --- Position (user's holdings in a pool) -----------------------
 
 export const positionItemSchema = z.object({

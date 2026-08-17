@@ -70,7 +70,7 @@ export function DefindexVaultsCard({ vaults, mode = "playground" }: DefindexVaul
               <span className="flex-1 truncate text-left font-medium text-[13px] text-foreground">
                 {cleanVaultName(vault.name) || trunc(vault.address)}
               </span>
-              <StatusBadge status={vault.status} />
+              {vault.status && <StatusBadge status={vault.status} />}
             </button>
             {mode === "playground" ? (
               <AnimatePresence>
@@ -130,7 +130,9 @@ function VaultMeta({ vault }: { vault: DefindexVaultCardProps }) {
           Total Supply: {fmt(supply)} dfTokens
         </div>
       )}
-      <span className="block truncate font-mono text-[10px] text-muted-foreground/50">
+      {/* Full contract, not ellipsised - matches the other pool cards so the
+          address a user copies is the address the tool returned. */}
+      <span className="block break-all font-mono text-[10px] text-muted-foreground/50">
         {vault.address}
       </span>
     </div>

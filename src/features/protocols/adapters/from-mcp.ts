@@ -6,11 +6,13 @@
 import type {
   BackstopBalanceCardProps,
   BackstopCardProps,
+  BlendRegistryProps,
   PoolCardProps,
   PositionsCardProps,
   ReserveCardProps,
   TxCardProps,
 } from "../schemas/blend.schema";
+import { blendRegistryPropsSchema } from "../schemas/blend.schema";
 import {
   normalizeBackstopBalanceFromSdk,
   normalizeBackstopFromSdk,
@@ -144,6 +146,27 @@ export function normalizePoolsFromMcp(result: unknown): PoolCardProps[] {
   const { data, error } = unwrapMcpResult(result);
   if (error || !data) return [];
   return normalizePoolsFromSdk(convertMcpPoolReserves(data));
+}
+
+// --- Blend registry contracts ----------------------------------
+
+/**
+ * Pull the protocol-wide contract IDs off a `resolve_pool` blend result.
+ * Returns null when none are present so callers can skip the section rather
+ * than render an empty block.
+ */
+export function normalizeBlendRegistryFromMcp(result: unknown): BlendRegistryProps | null {
+  const { data, error } = unwrapMcpResult(result);
+  if (error || !data) return null;
+
+  const parsed = blendRegistryPropsSchema.safeParse(data);
+  if (!parsed.success) return null;
+
+  const { backstopAddress, blndToken, cometLpToken, blndAssetIssuer } = parsed.data;
+  const hasAny = [backstopAddress, blndToken, cometLpToken, blndAssetIssuer].some(
+    (v) => typeof v === "string" && v.length > 0
+  );
+  return hasAny ? parsed.data : null;
 }
 
 // --- Reserve ---------------------------------------------------
