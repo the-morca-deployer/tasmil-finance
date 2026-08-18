@@ -34,7 +34,9 @@ export function AgentHistoryCard({ events, pageSize = 6 }: Props) {
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
-      <div className="flex items-center justify-between gap-3">
+      {/* Wraps for the same reason as PositionValueCard: at 390px the pager
+          cluster broke onto three lines and collided with the heading. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-semibold text-foreground">Agent Execution History</h3>
         {events.length > pageSize && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
