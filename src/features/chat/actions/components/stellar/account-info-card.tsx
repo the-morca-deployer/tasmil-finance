@@ -89,6 +89,34 @@ function QueryContent({
 }) {
   if (!data) return <EmptyState icon={Wallet} text="No data available" />;
 
+  // A wallet with no on-chain account yet is the ordinary state of a new
+  // address, not a failure -- Stellar creates the account on the first deposit
+  // of at least 1 XLM. It used to surface as a red "Failed: Get Account", so
+  // the product looked broken to a first-time user at the exact moment it was
+  // behaving correctly.
+  if (data.activated === false) {
+    return (
+      <div className="space-y-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+        <div className="flex items-center gap-2 font-medium text-amber-600 text-sm dark:text-amber-500">
+          <Wallet className="h-4 w-4" />
+          Wallet not activated yet
+        </div>
+        <p className="text-muted-foreground text-xs leading-relaxed">
+          {data.message ??
+            "This wallet has no on-chain account yet. Stellar creates one on the first deposit."}
+        </p>
+        {data.nextStep && (
+          <p className="text-foreground text-xs">{data.nextStep}</p>
+        )}
+        {data.address && (
+          <p className="break-all font-mono text-[10px] text-muted-foreground/60">
+            {data.address}
+          </p>
+        )}
+      </div>
+    );
+  }
+
   switch (query) {
     case "info":
     case "account_info":
