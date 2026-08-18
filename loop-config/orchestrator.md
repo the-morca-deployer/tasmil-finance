@@ -10,7 +10,7 @@ Spec: `docs/superpowers/specs/2026-06-19-overnight-loop-spec-A-sweeper.md`
    - curated: parse `tasmil-finance/loop-config/scenarios/chat.yaml`
    - e2e replay: parse `tasmil-finance/loop-config/scenarios/e2e-replay.yaml`
    - queue = curated ++ replay
-4. allowlist = `["CBOIQ3UUIPJRIUFEX6DI3FZ2LOELW74YJO3OC4KNEZD3YJNLDCKG33TQ"]` (Spec A §11 — hardcoded for A2; A3 may load from contract)
+4. allowlist = `["CBOIQ3UUIPJRIUFEX6DI3FZ2LOELW74YJO3OC4KNEZD3YJNLDCKG33TQ"]` (Spec A §11 - hardcoded for A2; A3 may load from contract)
 
 # Main loop
 

@@ -34,11 +34,11 @@ interface Entry {
 function StatusCards() {
   const { data } = useAdminDashboard();
   const cards = [
-    { label: "Total", value: data?.waitlist?.allTime ?? "—" },
-    { label: "Access Sent", value: data?.emailDispatches?.accessSent ?? "—" },
-    { label: "Email Confirmed", value: data?.emailDispatches?.confirmationSent ?? "—" },
-    { label: "Wallets", value: data?.walletStats?.totalWalletEntries ?? "—" },
-    { label: "Referrals", value: data?.walletStats?.totalSuccessfulReferrals ?? "—" },
+    { label: "Total", value: data?.waitlist?.allTime ?? "-" },
+    { label: "Access Sent", value: data?.emailDispatches?.accessSent ?? "-" },
+    { label: "Email Confirmed", value: data?.emailDispatches?.confirmationSent ?? "-" },
+    { label: "Wallets", value: data?.walletStats?.totalWalletEntries ?? "-" },
+    { label: "Referrals", value: data?.walletStats?.totalSuccessfulReferrals ?? "-" },
   ];
   return (
     <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -126,9 +126,9 @@ function DispatchHistory({ entryId, email }: { entryId: string; email: string | 
                     {d.status}
                   </td>
                   <td style={{ padding: "4px 8px", color: "rgba(245,248,252,0.5)" }}>
-                    {d.sentAt ? new Date(d.sentAt).toLocaleString() : "—"}
+                    {d.sentAt ? new Date(d.sentAt).toLocaleString() : "-"}
                   </td>
-                  <td style={{ padding: "4px 8px", color: "#FB7185" }}>{d.errorMessage ?? "—"}</td>
+                  <td style={{ padding: "4px 8px", color: "#FB7185" }}>{d.errorMessage ?? "-"}</td>
                 </tr>
               ))}
             </tbody>
@@ -309,7 +309,7 @@ export default function WaitlistPage() {
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <input
-          placeholder="Search wallet or email…"
+          placeholder="Search wallet or email..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           style={{
@@ -375,10 +375,10 @@ export default function WaitlistPage() {
                   </td>
                   <td style={{ padding: "10px", fontFamily: "monospace" }}>
                     {e.walletAddress
-                      ? `${e.walletAddress.slice(0, 6)}…${e.walletAddress.slice(-4)}`
-                      : "—"}
+                      ? `${e.walletAddress.slice(0, 6)}...${e.walletAddress.slice(-4)}`
+                      : "-"}
                   </td>
-                  <td style={{ padding: "10px" }}>{e.email ?? "—"}</td>
+                  <td style={{ padding: "10px" }}>{e.email ?? "-"}</td>
                   <td style={{ padding: "10px" }}>
                     <StatusPill status={e.status} />
                   </td>

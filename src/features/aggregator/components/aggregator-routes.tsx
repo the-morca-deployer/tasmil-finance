@@ -10,7 +10,7 @@ import { PROTOCOL_ICONS as CDN_PROTOCOL_ICONS } from "@/shared/constants/asset-m
 import BorderGlow from "@/shared/ui/border-glow";
 import { ChainBadge } from "./chain-badge";
 
-// ─── Protocol branding ──────────────────────────────────────────
+// --- Protocol branding ------------------------------------------
 
 const PROTOCOL_META: Record<string, { label: string; icon: string; color: string }> = {
   soroswap: { label: "Soroswap", icon: CDN_PROTOCOL_ICONS.soroswap!, color: "#7B61FF" },
@@ -52,7 +52,7 @@ function formatRate(rate: number): string {
   return rate.toLocaleString(undefined, { maximumFractionDigits: 6 });
 }
 
-// ─── Route Card ─────────────────────────────────────────────────
+// --- Route Card -------------------------------------------------
 
 function RouteCard({
   quote,
@@ -182,7 +182,7 @@ function RouteCard({
   );
 }
 
-// ─── Slippage Settings ──────────────────────────────────────────
+// --- Slippage Settings ------------------------------------------
 
 export function SlippageSettings({
   slippageBps,
@@ -289,7 +289,7 @@ export function SlippageSettings({
   );
 }
 
-// ─── Route Panel ────────────────────────────────────────────────
+// --- Route Panel ------------------------------------------------
 
 export function AggregatorRoutePanel({
   quotes,

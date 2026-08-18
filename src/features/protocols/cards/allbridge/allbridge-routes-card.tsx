@@ -16,6 +16,7 @@ export function AllbridgeRoutesCard({ routes, mode = "playground" }: Props) {
   if (!routes.length) {
     return (
       <ProtocolCard
+        data-testid="card-allbridge-routes"
         mode={mode}
         title="Bridge Routes"
         icon={Route}
@@ -30,6 +31,7 @@ export function AllbridgeRoutesCard({ routes, mode = "playground" }: Props) {
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-allbridge-routes"
         mode="chat"
         title="Bridge Routes"
         icon={Route}
@@ -58,7 +60,7 @@ export function AllbridgeRoutesCard({ routes, mode = "playground" }: Props) {
   }
 
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-allbridge-routes" mode="playground">
       <div className="flex items-center justify-between border-border border-b px-4 py-3">
         <p className="font-medium text-foreground text-sm">Bridge Routes</p>
         <span className="text-[10px] text-muted-foreground">{routes.length} routes</span>

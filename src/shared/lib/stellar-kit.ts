@@ -1,6 +1,6 @@
 // Singleton cache for stellar-wallets-kit modules.
 // Lives in its own module so cached references survive HMR updates to
-// wallet-context.tsx in Turbopack dev mode — the dynamic import factory
+// wallet-context.tsx in Turbopack dev mode - the dynamic import factory
 // stays valid as long as this file isn't touched.
 
 type KitSdk = typeof import("@creit.tech/stellar-wallets-kit/sdk");

@@ -33,7 +33,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
   const queryClient = useQueryClient();
 
   // `$` routes through questApiClient, whose interceptor already unwraps the
-  // `{ success, data }` envelope — so `me.data` IS the profile (no extra `.data`).
+  // `{ success, data }` envelope - so `me.data` IS the profile (no extra `.data`).
   const me = useUsersControllerGetMe($);
   const profile = (me.data as QuestProfile | undefined) ?? null;
   const points = profile?.totalPoints ?? 0;
@@ -72,7 +72,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
 
   return (
     <div className="flex h-full w-full flex-col bg-sidebar">
-      {/* Header — brand + network badge (the parent renders the X close button) */}
+      {/* Header - brand + network badge (the parent renders the X close button) */}
       <div className="flex-shrink-0 border-border border-b p-4">
         <BrandLogo
           href="/chat/new"
@@ -93,7 +93,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-4">
-        {/* Profile — flat (only the stat tiles are bordered) */}
+        {/* Profile - flat (only the stat tiles are bordered) */}
         {isConnected && address && (
           <div className="flex flex-col gap-3 border-border border-b pb-4">
             <div className="flex items-center gap-2.5">
@@ -201,7 +201,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
           })}
         </nav>
 
-        {/* Disconnected — show only the connect CTA below the nav links */}
+        {/* Disconnected - show only the connect CTA below the nav links */}
         {!isConnected && (
           <div className="mt-1">
             <ConnectWalletButton />
@@ -209,7 +209,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
         )}
       </div>
 
-      {/* Disconnect footer — pinned bottom, only when connected */}
+      {/* Disconnect footer - pinned bottom, only when connected */}
       {isConnected && (
         <div className="flex-shrink-0 border-border border-t p-3">
           <button

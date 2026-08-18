@@ -79,7 +79,9 @@ export function PoolDetailDrawer({
             </div>
             <div className="flex flex-col text-left">
               <SheetTitle>
-                {pairLabel} · <span className="capitalize">{pool.protocol}</span>
+                {/* `protocol` is upper-case on the wire ("BLEND"); CSS
+                    `capitalize` alone would leave it shouting. */}
+                {pairLabel} · <span className="capitalize">{pool.protocol.toLowerCase()}</span>
               </SheetTitle>
               <SheetDescription className="text-xs uppercase tracking-wider">
                 {pool.poolType} · Risk: {riskLabel(pool.riskScore)}

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { Starfield } from "./starfield";
 
-// Confetti burst — mirrors ref HTML `fireBurst`. Fires ~480ms after mount
+// Confetti burst - mirrors ref HTML `fireBurst`. Fires ~480ms after mount
 // (when the medallion spin lands), launching 26 pieces from above the medal.
 function fireConfetti(host: HTMLElement, originTopPx: number) {
   const cols = ["#67E8F9", "#0EA5E9", "#ffffff", "#A9F2FB"];

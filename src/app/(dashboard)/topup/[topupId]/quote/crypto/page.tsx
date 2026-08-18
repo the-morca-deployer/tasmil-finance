@@ -60,7 +60,7 @@ export default function CryptoQuotePage({ params }: PageProps) {
       ) : (
         <>
           <div className="h-2 w-2 animate-pulse rounded-full bg-primary" aria-hidden />
-          <p>Creating crypto quote…</p>
+          <p>Creating crypto quote...</p>
         </>
       )}
     </div>

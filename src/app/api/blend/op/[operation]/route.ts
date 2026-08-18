@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -24,7 +24,7 @@ type OpName = (typeof VALID_OPERATIONS)[number];
  * POST /api/blend/op/[operation]
  *
  * Builds transaction XDR via SDK + enriches with reserve APY & user position.
- * Returns everything the card needs in a single response — no extra API calls.
+ * Returns everything the card needs in a single response - no extra API calls.
  *
  * Body: { pool, asset, amount, from, enable?, lpAmount?, minLpOut?, minBlndOut?, minUsdcOut? }
  */
@@ -74,7 +74,7 @@ export async function POST(
   }
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------
 
 async function buildTx(
   sdk: ReturnType<typeof getBlendClient>,

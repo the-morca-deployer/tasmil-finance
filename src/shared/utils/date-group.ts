@@ -1,4 +1,4 @@
-// @ts-nocheck — surfaced by Biome auto-fix; pre-existing type drift unrelated to this PR.
+// @ts-nocheck - surfaced by Biome auto-fix; pre-existing type drift unrelated to this PR.
 
 export interface DatedItem {
   createdAt: Date | string | number;
@@ -65,7 +65,7 @@ export function formatRowDate(d: Date): string {
 
 /**
  * Group consecutive items by month-year, preserving order. Sections start a new
- * group when the month or year changes from the previous item — the same pattern
+ * group when the month or year changes from the previous item - the same pattern
  * Freighter uses in its history view.
  */
 export function groupByMonth<T extends DatedItem>(items: T[]): DateGroup<T>[] {

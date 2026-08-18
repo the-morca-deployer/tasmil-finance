@@ -77,7 +77,7 @@ function AccountSetupCardComponent({ result, status }: AccountSetupCardProps) {
   const totalValue = data?.total_value_usd ?? data?.totalValueUsd;
   const currentApy = data?.current_apy ?? data?.currentApy;
 
-  // No account — show setup steps
+  // No account - show setup steps
   if (!hasAccount && !isLoading) {
     return (
       <ProtocolCard
@@ -133,7 +133,7 @@ function AccountSetupCardComponent({ result, status }: AccountSetupCardProps) {
     );
   }
 
-  // Has account — show current status with metrics
+  // Has account - show current status with metrics
   return (
     <ProtocolCard
       data-testid="card-account-setup"

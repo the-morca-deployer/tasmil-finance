@@ -15,7 +15,7 @@ async function aiHealthy(): Promise<boolean> {
 export const test = baseChatTest.extend({
   page: async ({ page }, use, testInfo) => {
     const healthy = await aiHealthy();
-    testInfo.skip(!healthy, `AI agent unavailable at ${AI_HEALTH_URL} — skipping real-AI suite`);
+    testInfo.skip(!healthy, `AI agent unavailable at ${AI_HEALTH_URL} - skipping real-AI suite`);
     await use(page);
   },
 });

@@ -193,7 +193,7 @@ export function Referrals() {
       </div>
 
       {isLoading ? (
-        <p className="text-muted-foreground text-sm">Loading referrals…</p>
+        <p className="text-muted-foreground text-sm">Loading referrals...</p>
       ) : rows.length === 0 ? (
         <p className="text-muted-foreground text-sm">
           No referrals yet. Share your code to start earning commission.

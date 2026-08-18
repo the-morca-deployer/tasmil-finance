@@ -18,7 +18,7 @@ const PROTOS = [
   { name: "DeFindex", src: "/protocols/defindex.svg", href: "#" },
 ];
 
-// ───────────────────────── icons ─────────────────────────
+// ------------------------- icons -------------------------
 
 const I = {
   arr: (
@@ -157,7 +157,7 @@ const I = {
   ),
 };
 
-// ───────────────────────── style tokens (mirror ref :root) ─────────────────────────
+// ------------------------- style tokens (mirror ref :root) -------------------------
 
 const T = {
   font: "'Hanken Grotesk', system-ui, -apple-system, sans-serif",
@@ -187,7 +187,7 @@ const cardStyle: React.CSSProperties = {
   borderRadius: 24,
 };
 
-// ───────────────────────── main component ─────────────────────────
+// ------------------------- main component -------------------------
 
 export function GasSponsorshipDetailClient() {
   const { data, isLoading } = useSponsorshipMe(true);
@@ -228,7 +228,7 @@ export function GasSponsorshipDetailClient() {
       />
       <Starfield />
 
-      {/* ───── sticky breadcrumb sub-header (logo + nav comes from MultiSidebarLayout) ───── */}
+      {/* ----- sticky breadcrumb sub-header (logo + nav comes from MultiSidebarLayout) ----- */}
       <header
         className="sticky top-0"
         style={{
@@ -301,7 +301,7 @@ export function GasSponsorshipDetailClient() {
                     boxShadow: `0 0 8px ${T.accentGlow}`,
                   }}
                 />
-                {walletAddress.slice(0, 4)}…{walletAddress.slice(-4)}
+                {walletAddress.slice(0, 4)}...{walletAddress.slice(-4)}
               </span>
             )}
             <Link
@@ -323,7 +323,7 @@ export function GasSponsorshipDetailClient() {
         </div>
       </header>
 
-      {/* ───── page shell ───── */}
+      {/* ----- page shell ----- */}
       <div
         className="relative mx-auto"
         style={{ zIndex: 2, maxWidth: T.maxw, padding: "0 24px 120px" }}
@@ -658,7 +658,7 @@ export function GasSponsorshipDetailClient() {
                   </div>
                 ))
               )}
-              {/* Fallback rows — TX attempts that didn't get sponsored */}
+              {/* Fallback rows - TX attempts that didn't get sponsored */}
               {data?.recentFallbacks?.map((f, i) => (
                 <div
                   key={`${f.txHash ?? "no-hash"}-${i}`}
@@ -691,7 +691,7 @@ export function GasSponsorshipDetailClient() {
                         letterSpacing: "-0.01em",
                       }}
                     >
-                      Not sponsored — {fallbackLabel(f.reason)}
+                      Not sponsored - {fallbackLabel(f.reason)}
                     </span>
                     <span
                       className="flex items-center"
@@ -910,7 +910,7 @@ export function GasSponsorshipDetailClient() {
   );
 }
 
-// ───────────────────────── helpers ─────────────────────────
+// ------------------------- helpers -------------------------
 
 function deriveState(data: SponsorshipMe | undefined, isLoading: boolean): SponsorshipDetailState {
   if (isLoading) return "loading";
@@ -955,7 +955,7 @@ function heroSub(state: SponsorshipDetailState, cohortSize: number): string {
   return `You're one of the first ${cohortSize} wallets on Tasmil. Your gas fees are on us, so you can deposit, rebalance, and harvest without holding XLM.`;
 }
 
-// ───────────────────────── leaf components ─────────────────────────
+// ------------------------- leaf components -------------------------
 
 function SecTitle({ children }: { children: React.ReactNode }) {
   return (

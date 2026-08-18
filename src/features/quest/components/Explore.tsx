@@ -41,7 +41,7 @@ export default function Explore() {
   const { data, isLoading } = useCampaignsControllerFindAll({}, $);
   const { data: fomoData } = useFomoControllerGetActive($);
   const fomo = unwrapEnvelope<FomoActive>(fomoData);
-  // Public platform stats — `/quest/analytics/system` is admin-only (403 for
+  // Public platform stats - `/quest/analytics/system` is admin-only (403 for
   // regular users), so use the public `/quest/stats` endpoint instead.
   const { data: statsRaw } = useQuery({
     queryKey: ["quest", "platform-stats"],
@@ -62,7 +62,7 @@ export default function Explore() {
       {fomo ? (
         <div className="mb-4 flex items-center justify-between rounded-quest-card border border-quest-amber bg-quest-amber/10 px-5 py-3">
           <span className="text-[14px] font-semibold text-quest-amber">
-            Leaderboard battle is live — see where you rank!
+            Leaderboard battle is live - see where you rank!
           </span>
           <Link
             href="/quest/leaderboard"

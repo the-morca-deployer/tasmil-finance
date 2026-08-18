@@ -27,7 +27,12 @@ export function DefindexVaultsCard({ vaults, mode = "playground" }: DefindexVaul
 
   if (!vaults.length) {
     return (
-      <ProtocolCard mode={mode} title="DeFindex Vaults" icon={Vault}>
+      <ProtocolCard
+        data-testid="card-defindex-vaults"
+        mode={mode}
+        title="DeFindex Vaults"
+        icon={Vault}
+      >
         <EmptyState icon={Layers} text="No vaults found" />
       </ProtocolCard>
     );
@@ -35,6 +40,7 @@ export function DefindexVaultsCard({ vaults, mode = "playground" }: DefindexVaul
 
   return (
     <ProtocolCard
+      data-testid="card-defindex-vaults"
       mode={mode}
       title={mode === "chat" ? "DeFindex Vaults" : undefined}
       icon={mode === "chat" ? Vault : undefined}
@@ -64,7 +70,7 @@ export function DefindexVaultsCard({ vaults, mode = "playground" }: DefindexVaul
               <span className="flex-1 truncate text-left font-medium text-[13px] text-foreground">
                 {cleanVaultName(vault.name) || trunc(vault.address)}
               </span>
-              <StatusBadge status={vault.status} />
+              {vault.status && <StatusBadge status={vault.status} />}
             </button>
             {mode === "playground" ? (
               <AnimatePresence>
@@ -111,11 +117,11 @@ function VaultMeta({ vault }: { vault: DefindexVaultCardProps }) {
   return (
     <div className="space-y-2 px-4 pb-3 pl-9">
       <div className="grid grid-cols-3 gap-3">
-        <MetricMini label="Asset" value={vault.asset ?? "—"} />
-        <MetricMini label="TVL" value={tvl != null ? `$${fmt(tvl)}` : "—"} />
+        <MetricMini label="Asset" value={vault.asset ?? "-"} />
+        <MetricMini label="TVL" value={tvl != null ? `$${fmt(tvl)}` : "-"} />
         <MetricMini
           label="APY"
-          value={apy != null ? `${apy.toFixed(2)}%` : "—"}
+          value={apy != null ? `${apy.toFixed(2)}%` : "-"}
           valueClass={apy != null && apy > 0 ? "text-emerald-400" : undefined}
         />
       </div>
@@ -124,7 +130,9 @@ function VaultMeta({ vault }: { vault: DefindexVaultCardProps }) {
           Total Supply: {fmt(supply)} dfTokens
         </div>
       )}
-      <span className="block truncate font-mono text-[10px] text-muted-foreground/50">
+      {/* Full contract, not ellipsised - matches the other pool cards so the
+          address a user copies is the address the tool returned. */}
+      <span className="block break-all font-mono text-[10px] text-muted-foreground/50">
         {vault.address}
       </span>
     </div>

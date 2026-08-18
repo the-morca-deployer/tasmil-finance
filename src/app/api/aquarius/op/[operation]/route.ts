@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -34,7 +34,7 @@ const OP_NAME_MAP: Record<OpName, string> = {
 /**
  * POST /api/aquarius/op/[operation]
  *
- * All operations via Aquarius SDK — Soroban contract calls (no MCP).
+ * All operations via Aquarius SDK - Soroban contract calls (no MCP).
  */
 export async function POST(
   req: NextRequest,
@@ -74,7 +74,7 @@ export async function POST(
     const sdk = getSdk();
 
     switch (operation) {
-      // ─── Swap via Aquarius SDK (find-path + router.swap_chained) ───
+      // --- Swap via Aquarius SDK (find-path + router.swap_chained) ---
       case "swap": {
         const result = await sdk.aquarius.buildSwap({
           tokenIn: body.tokenIn ?? "",
@@ -102,7 +102,7 @@ export async function POST(
         });
       }
 
-      // ─── Deposit (add liquidity) via pool.deposit() ───
+      // --- Deposit (add liquidity) via pool.deposit() ---
       case "add-liquidity": {
         const rawAmounts = body.amounts
           ? body.amounts.split(",")
@@ -124,7 +124,7 @@ export async function POST(
         });
       }
 
-      // ─── Withdraw (remove liquidity) via pool.withdraw() ───
+      // --- Withdraw (remove liquidity) via pool.withdraw() ---
       case "withdraw-liquidity": {
         const result = await sdk.aquarius.buildWithdraw({
           poolAddress: body.poolAddress ?? body.pool ?? "",
@@ -142,7 +142,7 @@ export async function POST(
         });
       }
 
-      // ─── Claim LP rewards via pool.claim() ───
+      // --- Claim LP rewards via pool.claim() ---
       case "claim-rewards": {
         const result = await sdk.aquarius.buildClaim({
           poolAddress: body.poolAddress ?? body.pool ?? "",
@@ -158,7 +158,7 @@ export async function POST(
         });
       }
 
-      // ─── Lock AQUA (returns info, no XDR) ───
+      // --- Lock AQUA (returns info, no XDR) ---
       case "lock-aqua": {
         const amount = Number(body.amount);
         const days = Number(body.lockPeriodDays ?? 365);
@@ -182,7 +182,7 @@ export async function POST(
         });
       }
 
-      // ─── Governance ops (placeholder) ───
+      // --- Governance ops (placeholder) ---
       case "delegate-ice":
       case "vote":
         return NextResponse.json(

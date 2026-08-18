@@ -12,7 +12,7 @@ import {
   MOCK_SNAPSHOT_RESPONSE,
 } from "../data/pools";
 
-const SIMULATED_DELAY = 300; // ms — feels responsive but still shows loading states
+const SIMULATED_DELAY = 300; // ms - feels responsive but still shows loading states
 
 export const backendHandlers = [
   // ------- Account -------

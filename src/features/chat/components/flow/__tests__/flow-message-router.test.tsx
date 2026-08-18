@@ -9,20 +9,28 @@ import { FlowMessageRouter } from "../flow-message-router";
 
 // ─── Fixtures ────────────────────────────────────────────────────
 
+// The clarify message model is now `{ kind: "clarify", questions: ClarifyQuestion[] }`
+// (rendered by ClarifyCard), not the old `{ question, suggestions }` + OptionCard shape.
 const clarifyMessage: AssistantFlowMessage = {
   kind: "clarify",
-  question: "Which pool do you want to deposit into?",
-  suggestions: [
+  questions: [
     {
-      label: "Blend USDC Pool",
-      value: { protocol: "blend", asset: "USDC" },
-      tags: ["recommended"],
-      description: "8.2% APY, low risk",
-    },
-    {
-      label: "Soroswap XLM/USDC",
-      value: { protocol: "soroswap", pair: "XLM/USDC" },
-      tags: ["il_risk"],
+      field_name: "pool",
+      question: "Which pool do you want to deposit into?",
+      input_type: "select",
+      suggestions: [
+        {
+          label: "Blend USDC Pool",
+          value: { protocol: "blend", asset: "USDC" },
+          tags: ["recommended"],
+          description: "8.2% APY, low risk",
+        },
+        {
+          label: "Soroswap XLM/USDC",
+          value: { protocol: "soroswap", pair: "XLM/USDC" },
+          tags: ["il_risk"],
+        },
+      ],
     },
   ],
 };
@@ -170,15 +178,17 @@ describe("FlowMessageRouter", () => {
     expect(screen.getByText("tx_def456")).toBeInTheDocument();
   });
 
-  it("onOptionSelect callback fires when an option is clicked", () => {
-    const onOptionSelect = jest.fn();
-    render(<FlowMessageRouter message={clarifyMessage} onOptionSelect={onOptionSelect} />);
+  it("fires onSubmit with the selected answer after choosing an option and confirming", () => {
+    const onSubmit = jest.fn();
+    render(<FlowMessageRouter message={clarifyMessage} onSubmit={onSubmit} />);
 
+    // Single select question: click a row to set the answer, then Continue submits.
     fireEvent.click(screen.getByText("Soroswap XLM/USDC"));
-    expect(onOptionSelect).toHaveBeenCalledTimes(1);
-    expect(onOptionSelect).toHaveBeenCalledWith({
-      protocol: "soroswap",
-      pair: "XLM/USDC",
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith({
+      pool: { protocol: "soroswap", pair: "XLM/USDC" },
     });
   });
 

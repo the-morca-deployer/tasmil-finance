@@ -5,9 +5,9 @@ import { EMPTY_WALLET, FUNDED_WALLET, injectMockWallet } from "./test-wallet";
 
 /**
  * Setup flow:
- * 1. addInitScript — mock Freighter API
- * 2. authenticateWallet — gets JWT, injects localStorage
- * 3. goto /chat/new — app loads, but shows "Connect Wallet"
+ * 1. addInitScript - mock Freighter API
+ * 2. authenticateWallet - gets JWT, injects localStorage
+ * 3. goto /chat/new - app loads, but shows "Connect Wallet"
  * 4. Click "Connect Wallet" button → triggers StellarWalletsKit modal
  * 5. The mock Freighter resolves the connection → wallet connected → textarea appears
  *
@@ -36,7 +36,7 @@ async function setupWallet(page: import("@playwright/test").Page, wallet: typeof
   // The E2E fast-path in wallet-context.tsx detects __TASMIL_E2E_WALLET__
   // and sets isConnected=true via useEffect. Wait for the textarea to appear
   // (the fast-path fires within the first render cycle).
-  // Do NOT click "Connect Wallet" — that opens the real StellarWalletsKit modal
+  // Do NOT click "Connect Wallet" - that opens the real StellarWalletsKit modal
   // which hangs without a browser extension.
 }
 

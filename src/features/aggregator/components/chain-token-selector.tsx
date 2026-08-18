@@ -25,7 +25,7 @@ const C = {
   dimText: "var(--ring)",
 } as const;
 
-// ─── Legacy RoutePicker (for existing bridge tab) ───────────────
+// --- Legacy RoutePicker (for existing bridge tab) ---------------
 
 interface RouteOption {
   chainId: string;
@@ -277,7 +277,7 @@ export function RoutePicker({
   );
 }
 
-// ─── Aggregator Token Picker (dynamic token list with logos) ────
+// --- Aggregator Token Picker (dynamic token list with logos) ----
 
 interface AggregatorTokenPickerProps {
   selectedToken: TokenInfo | null;

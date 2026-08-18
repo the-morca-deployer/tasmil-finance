@@ -17,7 +17,7 @@ import { fmtAmount, fmtGas, trunc } from "@/features/protocols/lib/formatting";
 import { TokenImage } from "@/shared/components/token-image";
 import { getExplorerUrl } from "@/shared/config/stellar";
 
-// ─── Props ──────────────────────────────────────────────────────
+// --- Props ------------------------------------------------------
 
 export interface GenericExecuteCardProps {
   operation: string;
@@ -36,7 +36,7 @@ export interface GenericExecuteCardProps {
 
 interface GenericExecuteCardComponentProps {
   tx?: GenericExecuteCardProps;
-  /** Legacy props — still supported for use-defi-tool-renderers direct usage */
+  /** Legacy props - still supported for use-defi-tool-renderers direct usage */
   operation?: string;
   args?: Record<string, any>;
   result?: unknown;
@@ -45,7 +45,7 @@ interface GenericExecuteCardComponentProps {
   respond?: (result: Record<string, unknown>) => void;
 }
 
-// ─── Operation config ───────────────────────────────────────────
+// --- Operation config -------------------------------------------
 
 interface OpConfig {
   label: string;
@@ -234,7 +234,7 @@ const DEFAULT_OP_CONFIG: OpConfig = {
   iconBg: "bg-primary/10",
 };
 
-// ─── Normalize result (MCP response) ────────────────────────────
+// --- Normalize result (MCP response) ----------------------------
 
 function normalizeResult(result: unknown): Record<string, unknown> | null {
   if (!result) return null;
@@ -289,7 +289,7 @@ function extractTx(result: unknown, args?: Record<string, any>): GenericExecuteC
   };
 }
 
-// ─── Component ──────────────────────────────────────────────────
+// --- Component --------------------------------------------------
 
 export function StellarExecuteCard({
   tx,

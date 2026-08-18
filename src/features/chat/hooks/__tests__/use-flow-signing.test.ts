@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -59,7 +59,7 @@ jest.mock("@/shared/config/stellar", () => ({
   },
 }));
 
-// Stub sponsorship barrel — these tests exercise the Soroban-only path
+// Stub sponsorship barrel - these tests exercise the Soroban-only path
 // (no metas passed to signFlow), so the sponsor helper is never invoked.
 // useSponsorshipMe is still called on every render → return undefined data.
 jest.mock("@/features/sponsorship", () => ({
@@ -67,7 +67,7 @@ jest.mock("@/features/sponsorship", () => ({
   submitWithSponsorFlow: jest.fn(),
 }));
 
-// sonner mock — use inline jest.fn() to avoid hoisting issues
+// sonner mock - use inline jest.fn() to avoid hoisting issues
 jest.mock("sonner", () => ({
   toast: {
     info: jest.fn(),

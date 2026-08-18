@@ -1,4 +1,4 @@
-# Strategy Navigation & Mega Menu — Design Spec
+# Strategy Navigation & Mega Menu - Design Spec
 
 **Date:** 2026-06-24
 **Repo:** Tasmil-Finance/tasmil-finance
@@ -9,7 +9,7 @@
 ## Goal
 
 Add a "Strategies" dropdown megamenu to the navbar, and create a
-dedicated layout for all strategy pages — same pattern as the Quest
+dedicated layout for all strategy pages - same pattern as the Quest
 section (`(quest)/layout.tsx` with its own `QuestNav`).
 
 ## Design References
@@ -52,7 +52,7 @@ All strategy pages under `/strategies/*`:
 
 ### Route Group
 
-Create `src/app/(strategy)/` — a Next.js route group wrapping all
+Create `src/app/(strategy)/` - a Next.js route group wrapping all
 strategy pages. Its `layout.tsx` renders `StrategyNav` + page content
 + `StrategyFooter`, exactly like `(quest)/layout.tsx` does for quest.
 
@@ -77,20 +77,20 @@ all strategy pages.
 
 ```
 StrategyLayout
-├── WalletProvider + AutoReconnect
-├── StrategyNav (new, dedicated header)
-│   ├── Brand: Tasmil mark + name → /strategies
-│   ├── Nav links with megamenu trigger
-│   │   ├── Strategies ▼        ← group wrapper
-│   │   │   └── MegaMenu        ← dropdown on hover
-│   │   ├── Chat
-│   │   ├── Missions
-│   │   ├── Farming
-│   │   ├── Aggregator
-│   │   └── Portfolio
-│   └── Right side: wallet chip, badges
-├── <main> {children} </main>
-└── StrategyFooter (new)
++-- WalletProvider + AutoReconnect
++-- StrategyNav (new, dedicated header)
+|   +-- Brand: Tasmil mark + name → /strategies
+|   +-- Nav links with megamenu trigger
+|   |   +-- Strategies ▼        ← group wrapper
+|   |   |   +-- MegaMenu        ← dropdown on hover
+|   |   +-- Chat
+|   |   +-- Missions
+|   |   +-- Farming
+|   |   +-- Aggregator
+|   |   +-- Portfolio
+|   +-- Right side: wallet chip, badges
++-- <main> {children} </main>
++-- StrategyFooter (new)
 ```
 
 ---
@@ -111,18 +111,18 @@ when on `/strategies/*` paths. Visually matches the HTML design files.
 - `padding: 0 clamp(20px, 5vw, 72px)`
 - Flexbox, space-between
 
-**Left — Brand:**
+**Left - Brand:**
 - Tasmil mark (26x26, gradient bg, "T" letter)
 - "Tasmil Finance" text, 17px, weight 700
 
-**Center — Nav links:**
+**Center - Nav links:**
 - Pill-style buttons: `font-size: 14.5px; font-weight: 500; padding: 8px 18px; border-radius: var(--r-pill)`
 - Default: `color: var(--muted)`
 - Hover: `color: var(--text); background: rgba(255,255,255,0.05)`
 - Active: `color: var(--text)` + `::after` underline (2px, accent color, 60% width, glow)
 - "Strategies" item includes chevron-down SVG, wrapped in `relative group`
 
-**Right — Wallet area:**
+**Right - Wallet area:**
 - Wallet chip: avatar + address (mono font, 13px)
 - Same design as HTML `.wallet-chip`
 
@@ -137,7 +137,7 @@ Hover-based dropdown panel. Opens on hover of "Strategies ▼" item.
 - Default: `opacity-0 invisible`
 - Entrance: `translate-y-2 group-hover:translate-y-0 transition-all duration-200`
 - Panel: `absolute left-0 top-full mt-2`
-- No click required — pure CSS hover
+- No click required - pure CSS hover
 - Closes on mouse leave
 
 **Menu items (4 links):**
@@ -175,9 +175,9 @@ In `src/shared/layout/top-nav-bar.tsx`:
   sidebar-data)
 
 The megamenu appears in TWO places:
-1. **TopNavBar** (dashboard layout) — so users can navigate INTO
+1. **TopNavBar** (dashboard layout) - so users can navigate INTO
    strategies from any dashboard page
-2. **StrategyNav** (strategy layout) — for internal navigation while
+2. **StrategyNav** (strategy layout) - for internal navigation while
    on strategy pages
 
 Both use the same `MegaMenu` component.

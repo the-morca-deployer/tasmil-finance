@@ -7,7 +7,7 @@ import { useCredits } from "./use-credits";
 export function CreditsPill() {
   const { data, isLoading } = useCredits();
   const credits = data?.credits ?? 0;
-  const display = isLoading ? "—" : new Intl.NumberFormat("en-US").format(credits);
+  const display = isLoading ? "-" : new Intl.NumberFormat("en-US").format(credits);
 
   return (
     <Link

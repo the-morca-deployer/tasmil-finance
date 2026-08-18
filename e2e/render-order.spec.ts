@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 /**
  * Render order test for chat turn collapse.
  *
- * Regression: supervisor text and "Thinking..." were visible simultaneously —
+ * Regression: supervisor text and "Thinking..." were visible simultaneously -
  * user saw text → Thinking... (wrong order).
  *
  * Fix: intermediate AI messages in a turn are hidden while loading; only
@@ -112,9 +112,9 @@ test("Render order: Thinking... and AI text never appear simultaneously", async 
     console.log(`  [${e.type}] +${e.elapsed}ms${c}`);
   }
 
-  // If AI never showed Thinking..., the AI didn't use sub-agents — inconclusive, not a failure
+  // If AI never showed Thinking..., the AI didn't use sub-agents - inconclusive, not a failure
   if (thinkingAt === null) {
-    console.log("\n⚠️  Thinking... never appeared — AI responded without sub-agents (inconclusive)");
+    console.log("\n⚠️  Thinking... never appeared - AI responded without sub-agents (inconclusive)");
     test.skip();
     return;
   }

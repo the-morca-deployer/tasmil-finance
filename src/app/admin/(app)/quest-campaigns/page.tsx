@@ -154,7 +154,7 @@ export default function QuestCampaignsPage() {
       </div>
 
       <input
-        placeholder="Search campaigns…"
+        placeholder="Search campaigns..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         style={{ ...inputStyle, maxWidth: 320 }}
@@ -207,7 +207,7 @@ export default function QuestCampaignsPage() {
                     {c.category}
                   </span>
                 </td>
-                <td style={{ padding: "10px" }}>{c._count?.tasks ?? "—"}</td>
+                <td style={{ padding: "10px" }}>{c._count?.tasks ?? "-"}</td>
                 <td style={{ padding: "10px" }}>
                   <span
                     style={{
@@ -219,8 +219,8 @@ export default function QuestCampaignsPage() {
                   </span>
                 </td>
                 <td style={{ padding: "10px", fontSize: 12, color: "rgba(245,248,252,0.5)" }}>
-                  {c.startAt ? new Date(c.startAt).toLocaleDateString() : "—"}
-                  {c.endAt ? ` – ${new Date(c.endAt).toLocaleDateString()}` : ""}
+                  {c.startAt ? new Date(c.startAt).toLocaleDateString() : "-"}
+                  {c.endAt ? ` - ${new Date(c.endAt).toLocaleDateString()}` : ""}
                 </td>
               </tr>
             ))}

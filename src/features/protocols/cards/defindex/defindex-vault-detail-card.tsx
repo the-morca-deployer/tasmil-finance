@@ -18,6 +18,7 @@ export function DefindexVaultDetailCard({ vault, mode = "playground" }: Props) {
 
   return (
     <ProtocolCard
+      data-testid="card-defindex-vault-detail"
       mode={mode}
       title={mode === "chat" ? vault.name : undefined}
       icon={mode === "chat" ? Vault : undefined}
@@ -30,11 +31,19 @@ export function DefindexVaultDetailCard({ vault, mode = "playground" }: Props) {
         />
       )}
 
+      {/* Vault contract. The drill-down view is where the on-chain identity
+          belongs, and it was previously not shown anywhere at all. */}
+      {vault.address && (
+        <p className="break-all px-4 pt-2 font-mono text-[10px] text-muted-foreground/50">
+          {vault.address}
+        </p>
+      )}
+
       {/* Metrics row */}
       <div className="px-4 py-3">
         <div className="grid grid-cols-3 gap-2">
-          <MetricBox label="APY" value={vault.apy != null ? `${vault.apy.toFixed(2)}%` : "—"} />
-          <MetricBox label="Symbol" value={vault.symbol ?? "—"} />
+          <MetricBox label="APY" value={vault.apy != null ? `${vault.apy.toFixed(2)}%` : "-"} />
+          <MetricBox label="Symbol" value={vault.symbol ?? "-"} />
           <MetricBox label="Total Fee" value={`${(totalFee / 100).toFixed(2)}%`} />
         </div>
       </div>
@@ -45,26 +54,32 @@ export function DefindexVaultDetailCard({ vault, mode = "playground" }: Props) {
           <SectionLabel icon={<Coins className="h-3 w-3" />} title="Assets & Strategies" />
           {vault.assets.map((asset) => (
             <div key={asset.address} className="space-y-1.5 rounded-lg bg-secondary/50 p-2.5">
-              <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
                 <span className="font-medium text-foreground text-xs">{asset.symbol}</span>
-                <span className="font-mono text-[10px] text-muted-foreground/50">
-                  {trunc(asset.address)}
-                </span>
+                {asset.address && (
+                  <span className="block break-all font-mono text-[10px] text-muted-foreground/50">
+                    {asset.address}
+                  </span>
+                )}
               </div>
               {asset.strategies.map((s) => (
-                <div key={s.address} className="flex items-center gap-2 pl-2">
+                <div key={s.address} className="flex items-start gap-2 pl-2">
                   <div
                     className={cn(
-                      "h-1.5 w-1.5 rounded-full",
+                      "mt-1 h-1.5 w-1.5 shrink-0 rounded-full",
                       s.paused ? "bg-amber-400" : "bg-emerald-400"
                     )}
                   />
-                  <span className="flex-1 truncate text-[11px] text-muted-foreground">
-                    {s.name}
-                  </span>
-                  <span className="font-mono text-[10px] text-muted-foreground/50">
-                    {trunc(s.address)}
-                  </span>
+                  <div className="min-w-0 flex-1 space-y-0.5">
+                    <span className="block truncate text-[11px] text-muted-foreground">
+                      {s.name}
+                    </span>
+                    {s.address && (
+                      <span className="block break-all font-mono text-[10px] text-muted-foreground/50">
+                        {s.address}
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -84,11 +99,11 @@ export function DefindexVaultDetailCard({ vault, mode = "playground" }: Props) {
 
             return (
               <div key={fund.asset} className="space-y-1.5 rounded-lg bg-secondary/50 p-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] text-muted-foreground/50">
-                    {trunc(fund.asset)}
+                <div className="flex items-start justify-between gap-2">
+                  <span className="min-w-0 break-all font-mono text-[10px] text-muted-foreground/50">
+                    {fund.asset}
                   </span>
-                  <span className="font-medium text-foreground text-xs tabular-nums">
+                  <span className="shrink-0 font-medium text-foreground text-xs tabular-nums">
                     {fmt(total)}
                   </span>
                 </div>
@@ -111,20 +126,17 @@ export function DefindexVaultDetailCard({ vault, mode = "playground" }: Props) {
                 {fund.strategy_allocations.length > 0 && (
                   <div className="space-y-0.5 pt-1">
                     {fund.strategy_allocations.map((sa) => (
-                      <div
-                        key={sa.strategy_address}
-                        className="flex items-center gap-2 text-[10px]"
-                      >
+                      <div key={sa.strategy_address} className="flex items-start gap-2 text-[10px]">
                         <div
                           className={cn(
-                            "h-1.5 w-1.5 rounded-full",
+                            "mt-1 h-1.5 w-1.5 shrink-0 rounded-full",
                             sa.paused ? "bg-amber-400" : "bg-emerald-400"
                           )}
                         />
-                        <span className="flex-1 truncate font-mono text-muted-foreground/60">
-                          {trunc(sa.strategy_address)}
+                        <span className="min-w-0 flex-1 break-all font-mono text-muted-foreground/60">
+                          {sa.strategy_address}
                         </span>
-                        <span className="text-muted-foreground tabular-nums">
+                        <span className="shrink-0 text-muted-foreground tabular-nums">
                           {fmt(Number(sa.amount) / 1e7)}
                         </span>
                       </div>

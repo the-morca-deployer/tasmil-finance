@@ -1,7 +1,7 @@
 import type { CardType } from "../page-objects/chat.page";
 
 // =============================================================================
-// Types — precise test expectations for each protocol action
+// Types - precise test expectations for each protocol action
 // =============================================================================
 
 export interface ToolCallExpectation {
@@ -40,7 +40,7 @@ export interface SigningCardExpectation {
 }
 
 export interface BehaviorExpectation {
-  /** The AI flow sequence — what tools are called in order. */
+  /** The AI flow sequence - what tools are called in order. */
   toolCallChain: ToolCallExpectation[];
   /** Whether the AI should call flow_clarify (ambiguous request). */
   shouldClarify: boolean;
@@ -67,7 +67,7 @@ export interface ProtocolTestCase {
   acceptableCards?: CardType[];
   /** Signing card expectations (for execute flows). */
   signingCard?: SigningCardExpectation;
-  /** Expected AI behavior — tool call chain, flow sequence. */
+  /** Expected AI behavior - tool call chain, flow sequence. */
   behavior: BehaviorExpectation;
   /** Key text fragments that should be visible somewhere in the response. */
   assertions: {
@@ -677,7 +677,7 @@ export const PHOENIX_TESTS: ProtocolSuite = {
     },
     assertions: { amountVisible: "2", assetVisible: "XLM" },
   },
-  // Phoenix LP/staking tests removed — only swap matters
+  // Phoenix LP/staking tests removed - only swap matters
 };
 
 // =============================================================================
@@ -691,10 +691,10 @@ export const PHOENIX_TESTS: ProtocolSuite = {
 export const AQUARIUS_TESTS: ProtocolSuite = {
   add_liquidity: {
     prompt: "Add 2 XLM to Aquarius XLM/USDC pool",
-    // Aquarius XLM/USDC is a constant product pool — requires BOTH XLM and USDC.
+    // Aquarius XLM/USDC is a constant product pool - requires BOTH XLM and USDC.
     // If the wallet has 0 USDC (our test wallet), the AI will check balance,
     // find insufficient USDC, and suggest swapping XLM for USDC first.
-    // This is CORRECT behavior — the AI should not build a TX that will fail.
+    // This is CORRECT behavior - the AI should not build a TX that will fail.
     expectedCard: "card-account-info",
     acceptableCards: ["card-stellar-execute", "card-clarify", "card-aqua-tx"],
     behavior: {
@@ -892,7 +892,7 @@ export const ALLBRIDGE_TESTS: ProtocolSuite = {
 export const DEFINDEX_TESTS: ProtocolSuite = {
   deposit: {
     prompt: "Deposit 2 XLM into DeFindex vault",
-    // DeFindex vaults are all USDC/EURC — no XLM vaults exist.
+    // DeFindex vaults are all USDC/EURC - no XLM vaults exist.
     // The AI will discover vaults, find none for XLM, then show
     // an EarnDiscoveryCard listing available USDC/EURC vaults
     // and suggest alternatives (swap XLM→USDC first, or Aquarius LP).
@@ -953,7 +953,7 @@ export const DEFINDEX_TESTS: ProtocolSuite = {
 // For status: get_account_strategy → AccountStrategyCard
 //
 // These tools are in supervisor_agent's tool permissions (tool_permissions.py).
-// They are NOT routed through flow_compose_plan — they call MCP tools directly.
+// They are NOT routed through flow_compose_plan - they call MCP tools directly.
 // =============================================================================
 export const TASMIL_TESTS: ProtocolSuite = {
   check_presets: {
@@ -998,9 +998,9 @@ export const TASMIL_TESTS: ProtocolSuite = {
 // INFO / QUERY FLOWS
 //
 // Info queries DON'T produce signing cards. They produce:
-// - AccountInfoCard (get_account) — balance, positions
+// - AccountInfoCard (get_account) - balance, positions
 // - Text response (call_info_agent / call_research_agent)
-// - EarnDiscoveryCard (discover) — yield pool listings
+// - EarnDiscoveryCard (discover) - yield pool listings
 //
 // The supervisor either:
 // 1. Calls get_account directly (for balance queries)
@@ -1041,14 +1041,14 @@ export const INFO_TESTS: ProtocolSuite = {
 };
 
 // =============================================================================
-// CLARIFY FLOWS — ambiguous prompts that require user input
+// CLARIFY FLOWS - ambiguous prompts that require user input
 //
 // When the user doesn't specify protocol/pool/amount, the AI should:
 // 1. parse_user_intent → routing_hint: "needs_clarify"
 // 2. get_account (balance check)
 // 3. discover (pool data for suggestions)
 // 4. flow_clarify → ClarifyCard with pool options + amount input
-// 5. STOP — wait for user selection
+// 5. STOP - wait for user selection
 //
 // ClarifyCard shows:
 // - Pool suggestions (sorted by APY, tagged "recommended")
@@ -1100,9 +1100,9 @@ export const CLARIFY_FLOW_TESTS: ProtocolSuite = {
 // TEMPLAR (Cross-Chain Lending via NEAR)
 //
 // Templar uses NEAR protocol for cross-chain lending. Operations:
-//   swap_execute — swap via Templar's NEAR-based DEX
-//   supply — deposit collateral into Templar lending market
-//   borrow — borrow against deposited collateral
+//   swap_execute - swap via Templar's NEAR-based DEX
+//   supply - deposit collateral into Templar lending market
+//   borrow - borrow against deposited collateral
 //
 // Flow: parse_user_intent → get_account → flow_compose_plan
 //   → execute(action=swap/supply/borrow, protocol=templar, marketId=...)
@@ -1140,10 +1140,10 @@ export const TEMPLAR_TESTS: ProtocolSuite = {
   },
 };
 
-// Phoenix LP/staking tests removed per user request — only swap matters
+// Phoenix LP/staking tests removed per user request - only swap matters
 
 // =============================================================================
-// ALLBRIDGE LP (Liquidity Provider tools — separate from bridge)
+// ALLBRIDGE LP (Liquidity Provider tools - separate from bridge)
 //
 // Allbridge allows LPs to deposit into bridge liquidity pools.
 // Operations: pool_deposit, pool_withdraw, pool_claim_rewards
@@ -1251,14 +1251,14 @@ export const ALLBRIDGE_LP_TESTS: ProtocolSuite = {
 };
 
 // =============================================================================
-// UNIFIED TOOL TESTS — direct tool testing via AI prompts
+// UNIFIED TOOL TESTS - direct tool testing via AI prompts
 //
 // These test the 5 unified tools (discover, execute, get_account,
 // get_pool_details, resolve_pool) through natural language prompts.
 // The AI routes to the correct tool based on intent.
 // =============================================================================
 export const UNIFIED_TOOL_TESTS: ProtocolSuite = {
-  // ─── discover: swap ─────────────────────────────────────────────
+  // --- discover: swap ---------------------------------------------
   discover_swap: {
     prompt: "Compare XLM to USDC swap rates across all DEXs",
     expectedCard: "card-earn-discovery",
@@ -1273,7 +1273,7 @@ export const UNIFIED_TOOL_TESTS: ProtocolSuite = {
     },
     assertions: { textContains: ["XLM", "USDC"] },
   },
-  // ─── discover: earn ─────────────────────────────────────────────
+  // --- discover: earn ---------------------------------------------
   discover_earn: {
     prompt: "Find the best yield opportunities for USDC on Stellar",
     expectedCard: "card-earn-discovery",
@@ -1288,7 +1288,7 @@ export const UNIFIED_TOOL_TESTS: ProtocolSuite = {
     },
     assertions: { textContains: ["USDC"] },
   },
-  // ─── discover: lending ──────────────────────────────────────────
+  // --- discover: lending ------------------------------------------
   discover_lending: {
     prompt: "Show me all lending markets with their supply APY",
     expectedCard: "card-earn-discovery",
@@ -1303,7 +1303,7 @@ export const UNIFIED_TOOL_TESTS: ProtocolSuite = {
     },
     assertions: { textContains: ["APY"] },
   },
-  // ─── discover: bridge ───────────────────────────────────────────
+  // --- discover: bridge -------------------------------------------
   discover_bridge: {
     prompt: "Show me available bridge routes from Ethereum to Stellar",
     expectedCard: "card-bridge-discovery",
@@ -1318,7 +1318,7 @@ export const UNIFIED_TOOL_TESTS: ProtocolSuite = {
     },
     assertions: { textContains: ["bridge"] },
   },
-  // ─── get_account: info ──────────────────────────────────────────
+  // --- get_account: info ------------------------------------------
   get_account_info: {
     prompt: "Show my full account details including signers and thresholds",
     expectedCard: "card-account-info",
@@ -1333,7 +1333,7 @@ export const UNIFIED_TOOL_TESTS: ProtocolSuite = {
     },
     assertions: { textContains: ["XLM"] },
   },
-  // ─── get_account: positions ─────────────────────────────────────
+  // --- get_account: positions -------------------------------------
   get_account_positions: {
     prompt: "Show all my DeFi positions across Stellar protocols",
     expectedCard: "card-account-info",
@@ -1348,7 +1348,7 @@ export const UNIFIED_TOOL_TESTS: ProtocolSuite = {
     },
     assertions: {},
   },
-  // ─── get_account: history ───────────────────────────────────────
+  // --- get_account: history ---------------------------------------
   get_account_history: {
     prompt: "Show my recent transaction history",
     expectedCard: "card-account-info",
@@ -1363,7 +1363,7 @@ export const UNIFIED_TOOL_TESTS: ProtocolSuite = {
     },
     assertions: {},
   },
-  // ─── get_pool_details: Blend ────────────────────────────────────
+  // --- get_pool_details: Blend ------------------------------------
   pool_details_blend: {
     prompt: "Show me detailed info about the Blend Fixed Pool USDC reserve",
     expectedCard: "card-account-info",
@@ -1378,7 +1378,7 @@ export const UNIFIED_TOOL_TESTS: ProtocolSuite = {
     },
     assertions: { textContains: ["USDC"] },
   },
-  // ─── get_pool_details: Phoenix ──────────────────────────────────
+  // --- get_pool_details: Phoenix ----------------------------------
   pool_details_phoenix: {
     prompt: "Show me the Phoenix XLM/USDC pool details with reserves",
     expectedCard: "card-account-info",
@@ -1395,7 +1395,7 @@ export const UNIFIED_TOOL_TESTS: ProtocolSuite = {
     },
     assertions: { textContains: ["XLM", "USDC"] },
   },
-  // ─── resolve_pool: various protocols ────────────────────────────
+  // --- resolve_pool: various protocols ----------------------------
   resolve_blend: {
     prompt: "What Blend pools are available and what are their reserve details?",
     expectedCard: "card-account-info",
@@ -1461,7 +1461,7 @@ export const ALL_PROTOCOL_TESTS = {
 } as const;
 
 // =============================================================================
-// SMOKE TEST SUBSET — 10 quick tests (one per protocol), used for CI gate
+// SMOKE TEST SUBSET - 10 quick tests (one per protocol), used for CI gate
 // =============================================================================
 export const SMOKE_TESTS: Record<string, ProtocolTestCase> = {
   "Blend: supply XLM": BLEND_TESTS.supply,
@@ -1478,7 +1478,7 @@ export const SMOKE_TESTS: Record<string, ProtocolTestCase> = {
 };
 
 // =============================================================================
-// FULL PROTOCOL TESTS — all 50+ tests for comprehensive coverage
+// FULL PROTOCOL TESTS - all 50+ tests for comprehensive coverage
 // Flatten ALL_PROTOCOL_TESTS into a single Record for full-suite runner
 // =============================================================================
 export const FULL_PROTOCOL_TESTS: Record<string, ProtocolTestCase> = (() => {

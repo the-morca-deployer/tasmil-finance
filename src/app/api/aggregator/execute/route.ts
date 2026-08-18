@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     let xdr: string;
 
     switch (protocol) {
-      // ── Aquarius: direct Soroban contract call ──
+      // -- Aquarius: direct Soroban contract call --
       case "aquarius": {
         const result = await sdk.aquarius.buildSwap({
           tokenIn,
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
         break;
       }
 
-      // ── SDEX: Horizon path payment ──
+      // -- SDEX: Horizon path payment --
       case "sdex": {
         // Get quote first to find the path and destMin
         const quote = await sdk.sdex.getAdapterQuote({
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
         break;
       }
 
-      // ── Soroswap: via Soroswap API ──
+      // -- Soroswap: via Soroswap API --
       case "soroswap": {
         const assetIn = await toContract(tokenIn);
         const assetOut = await toContract(tokenOut);
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
         break;
       }
 
-      // ── Phoenix: direct Soroban contract call ──
+      // -- Phoenix: direct Soroban contract call --
       case "phoenix": {
         const result = await sdk.phoenix.buildSwap({
           tokenIn,
@@ -109,7 +109,7 @@ export async function POST(req: Request) {
         break;
       }
 
-      // ── Allbridge: must be handled client-side ──
+      // -- Allbridge: must be handled client-side --
       case "allbridge":
         return NextResponse.json({
           success: false,

@@ -100,7 +100,7 @@ function LayerRow({ row }: { row: ReferralConfigRow }) {
       </label>
 
       <button type="submit" disabled={update.isPending} style={primaryBtnStyle}>
-        {update.isPending ? "Saving…" : `Save Layer ${row.layer}`}
+        {update.isPending ? "Saving..." : `Save Layer ${row.layer}`}
       </button>
     </form>
   );
@@ -118,7 +118,7 @@ export default function ReferralConfigPage() {
         to future claims only.
       </p>
 
-      {isLoading && <p style={{ fontSize: 13, opacity: 0.6 }}>Loading commission rates…</p>}
+      {isLoading && <p style={{ fontSize: 13, opacity: 0.6 }}>Loading commission rates...</p>}
       {error && <p style={{ fontSize: 13, color: "#f87171" }}>Failed to load: {error.message}</p>}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

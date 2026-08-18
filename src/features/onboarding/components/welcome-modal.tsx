@@ -101,7 +101,7 @@ export function WelcomeModal() {
         {/*
           shadcn's CarouselContent / CarouselItem default to `-ml-4` / `pl-4`
           for inter-slide gaps in multi-item carousels. We render one slide
-          at a time, full-width, so override both to ml-0/pl-0 — otherwise
+          at a time, full-width, so override both to ml-0/pl-0 - otherwise
           each slide's content drifts 16px further left than the last.
         */}
         <CarouselContent className="ml-0">

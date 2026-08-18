@@ -65,7 +65,7 @@ function AguiStreamSession({
         walletAddress: effectiveWallet,
       });
       client.threads.update(id, { metadata: { title } }).catch(() => {
-        // Silently ignore — title is cosmetic, metadata update may fail on new threads
+        // Silently ignore - title is cosmetic, metadata update may fail on new threads
       });
     },
     [apiUrl, accessToken, effectiveWallet]
@@ -143,7 +143,7 @@ function AguiStreamSession({
       return;
     }
 
-    // Skip restore for just-created threads — title already set by handleSubmit
+    // Skip restore for just-created threads - title already set by handleSubmit
     if (justCreatedRef.current.has(threadId)) {
       justCreatedRef.current.delete(threadId);
       return;

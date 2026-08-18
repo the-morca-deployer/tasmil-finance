@@ -8,7 +8,7 @@ import { unwrapEnvelope } from "@/features/quest/lib/season-types";
 import { useFomoControllerGetActive } from "@/gen-quest";
 
 export default function FomoBanner() {
-  // Fomo is a public endpoint — strip auth client and disable retry to avoid
+  // Fomo is a public endpoint - strip auth client and disable retry to avoid
   // 401 cascades that amplify re-render loops.
   const fomoOpts = useMemo(() => ({ query: { ...$.query, retry: 0, enabled: true } }), []);
   const { data } = useFomoControllerGetActive(fomoOpts);

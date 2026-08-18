@@ -120,19 +120,19 @@ export function useAllbridgeExecute() {
         gasFeePaymentMethod: FeePaymentMethod.WITH_NATIVE_CURRENCY,
       });
 
-      // ── Solana: rawTx is a VersionedTransaction ──
+      // -- Solana: rawTx is a VersionedTransaction --
       if (fromChain === "solana") {
         if (!params.signSolana) throw new Error("Solana wallet not connected");
         return params.signSolana(rawTx);
       }
 
-      // ── Stellar: rawTx is a string (XDR) ──
+      // -- Stellar: rawTx is a string (XDR) --
       if (fromChain === "stellar") {
         if (!params.signStellar) throw new Error("Stellar wallet not connected");
         return params.signStellar(rawTx as unknown as string);
       }
 
-      // ── EVM: rawTx is { from?, to?, data?, value? } ──
+      // -- EVM: rawTx is { from?, to?, data?, value? } --
       if (!params.signEvm) throw new Error("EVM wallet not connected");
       const evmTx = rawTx as { to?: string; data?: string; value?: string };
       return params.signEvm({

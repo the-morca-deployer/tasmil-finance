@@ -11,10 +11,10 @@
 ## Global Constraints
 - Branch from `origin/deploy/staging`; this work continues on `feat/merge-landing-quest` (or a new `feat/quest-native` cut from staging). PR into `deploy/staging`, never `deploy/prod`.
 - Biome: 2-space, width 100, double quotes, `import type`, no `any`, no `console.log`. Format ONLY touched files (`pnpm exec biome check --write <paths>`); never repo-wide `check:fix`. Stage explicit paths, never `git add -A`.
-- Features never import other features; cross-cutting code in `src/shared/`. `gen-quest` is generated — add to biome lint-disable override like other `gen-*`.
-- English-only copy. `pnpm type-check` + `pnpm build` are the hard gates (Vercel runs build). Husky is disabled locally; there is no PR lint/test CI — build is authoritative.
+- Features never import other features; cross-cutting code in `src/shared/`. `gen-quest` is generated - add to biome lint-disable override like other `gen-*`.
+- English-only copy. `pnpm type-check` + `pnpm build` are the hard gates (Vercel runs build). Husky is disabled locally; there is no PR lint/test CI - build is authoritative.
 - SOURCE quest repo (read-only): `/Users/nathan/Documents/morcalab/tasmil/tasmil-quest-folder/frontend`. TARGET: `/Users/nathan/Documents/morcalab/tasmil/tasmil-finance`.
-- Already on staging — do NOT duplicate: quest leaderboard (`features/quest` + `(dashboard)/quest`), admin quest (`admin/(app)/quest-campaigns`, `quests`, `quest-stats`).
+- Already on staging - do NOT duplicate: quest leaderboard (`features/quest` + `(dashboard)/quest`), admin quest (`admin/(app)/quest-campaigns`, `quests`, `quest-stats`).
 
 ## External dependencies (flag, don't block)
 - **Social OAuth** (`/api/auth/discord|telegram|x` + callbacks) needs server secrets: `DISCORD_CLIENT_ID/SECRET`, `X_CLIENT_ID/SECRET`, `TELEGRAM_BOT_TOKEN`, `NEXT_PUBLIC_TELEGRAM_BOT_USERNAME`. Port the routes; they compile without secrets but won't function until env is set and OAuth redirect URIs are updated. Document in PR.
@@ -47,8 +47,8 @@
 ### Task 2: quest infra (context/stores/data/types) reconciled
 **Deliverable:** quest support modules under `features/quest`, wallet/auth reconciled to shared.
 - [ ] Copy quest `utils/campaign-mapper.ts`, `data/mock.ts`, `types/index.ts`, `constants/index.ts` into `src/features/quest/{lib,data}/` (+ `types.ts`). Rewrite `@/` imports.
-- [ ] Do NOT port quest's `context/WalletContext.tsx` or `store/use-wallet.ts` verbatim. Instead, repoint quest components to the app's `@/shared/context/wallet-context` (`useWallet` exposes `address`, `connect`, `disconnect` — superset of quest's). Where quest reads `@/store/use-auth`, reconcile to the app's existing `@/store/use-auth`.
-- [ ] `pnpm type-check` passes (quest components not yet imported by routes — forward errors OK). Commit.
+- [ ] Do NOT port quest's `context/WalletContext.tsx` or `store/use-wallet.ts` verbatim. Instead, repoint quest components to the app's `@/shared/context/wallet-context` (`useWallet` exposes `address`, `connect`, `disconnect` - superset of quest's). Where quest reads `@/store/use-auth`, reconcile to the app's existing `@/store/use-auth`.
+- [ ] `pnpm type-check` passes (quest components not yet imported by routes - forward errors OK). Commit.
 
 ### Task 3: reskin + port quest read components
 **Deliverable:** Explore/Campaigns/CampaignDetail/Profile under `features/quest`, using `@/shared/ui/*`.
@@ -59,7 +59,7 @@
 
 ### Task 4: mount native quest routes + relink sidebar
 **Deliverable:** `/quest`, `/quest/campaigns`, `/quest/campaign/[id]`, `/quest/profile` render; sidebar points to `/quest`.
-- [ ] Create `src/app/(quest)/layout.tsx` (quest chrome: reskinned Navbar/Footer + providers already in root). Create the route pages rendering the ported components. Keep existing `(dashboard)/quest` leaderboard reachable (e.g. `/quest/leaderboard` or keep current) — do not break it.
+- [ ] Create `src/app/(quest)/layout.tsx` (quest chrome: reskinned Navbar/Footer + providers already in root). Create the route pages rendering the ported components. Keep existing `(dashboard)/quest` leaderboard reachable (e.g. `/quest/leaderboard` or keep current) - do not break it.
 - [ ] Update `src/shared/layout/sidebar-data.ts`: "Tasmil Quest" url `https://quest.tasmil-finance.xyz` → `/quest`.
 - [ ] `pnpm build` exits 0; routes appear in the build list. Add `e2e/quest.smoke.spec.ts` (quest routes render or auth-redirect, like the landing smoke). Commit.
 

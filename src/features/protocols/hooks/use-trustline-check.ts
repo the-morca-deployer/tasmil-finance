@@ -20,7 +20,7 @@ interface TrustlineCheckResult {
   recheck: () => void;
 }
 
-/** Native XLM SAC addresses — these don't need trustlines */
+/** Native XLM SAC addresses - these don't need trustlines */
 const NATIVE_XLM_ADDRESSES = new Set([
   "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC", // mainnet
   "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA", // soroswap variant
@@ -97,7 +97,7 @@ async function resolveClassicAsset(
  *  - Returns `true` if the wallet holds a matching `(asset_code, asset_issuer)` balance
  *  - Returns `true` if `resolveClassicAsset` cannot resolve the contract (don't block)
  *  - Returns `false` if the wallet does NOT hold the asset
- *  - **Throws** on Horizon network failure — callers decide whether to treat as "has" or "missing"
+ *  - **Throws** on Horizon network failure - callers decide whether to treat as "has" or "missing"
  */
 export async function checkTrustlineExists(
   walletAddress: string,
@@ -113,7 +113,7 @@ export async function checkTrustlineExists(
   const account = await horizon.loadAccount(walletAddress);
 
   const assetInfo = await resolveClassicAsset(assetContract);
-  if (!assetInfo) return true; // can't resolve — don't block
+  if (!assetInfo) return true; // can't resolve - don't block
 
   return account.balances.some(
     (b: { asset_type: string; asset_code?: string; asset_issuer?: string }) => {
@@ -127,7 +127,7 @@ export async function checkTrustlineExists(
  * Build, sign, and submit a `ChangeTrust` transaction adding the asset behind `assetContract`
  * to `walletAddress`. Returns `true` on success, `false` on rejection or failure (with toast).
  *
- * Never throws — toasts the error and returns false.
+ * Never throws - toasts the error and returns false.
  */
 export async function addTrustline(
   walletAddress: string,

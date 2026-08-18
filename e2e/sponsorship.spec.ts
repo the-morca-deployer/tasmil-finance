@@ -2,7 +2,7 @@ import { expect, type Page, test } from "@playwright/test";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
 /**
- * F10 — Gas-sponsorship UX E2E.
+ * F10 - Gas-sponsorship UX E2E.
  *
  * Mocks the three backend endpoints (/api/sponsorship/visit, /me,
  * /modal-seen) via page.route() so we can drive cohort-state transitions
@@ -166,7 +166,7 @@ test.describe("Gas sponsorship UX", () => {
     await page.waitForLoadState("networkidle");
 
     // Detail page should at minimum surface the rank or remaining-TX count.
-    // Loose assertion — exact UI copy may evolve, just check page rendered.
+    // Loose assertion - exact UI copy may evolve, just check page rendered.
     await expect(page.locator("body")).toContainText(/rank|cohort|sponsor/i, { timeout: 10_000 });
   });
 });

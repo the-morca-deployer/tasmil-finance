@@ -1,4 +1,4 @@
-# Quest-volume transaction list on `/traction` — Implementation Plan
+# Quest-volume transaction list on `/traction` - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -6,20 +6,20 @@
 
 **Architecture:** New public paginated backend endpoint `GET /public/quest-volume` on the existing `PublicController`/`TractionService` returns keyset-paginated events with the wallet masked server-side. The Kubb-generated client is regenerated, then a `QuestVolumeList` React component (TanStack `useInfiniteQuery`) renders the rows in the existing traction dashboard.
 
-**Tech Stack:** Backend — NestJS, Prisma (`$queryRaw`), Redis, Jest. Frontend — Next.js 16, React, TanStack Query, Kubb-generated client, Biome, Jest + Testing Library.
+**Tech Stack:** Backend - NestJS, Prisma (`$queryRaw`), Redis, Jest. Frontend - Next.js 16, React, TanStack Query, Kubb-generated client, Biome, Jest + Testing Library.
 
 ## Global Constraints
 
 - **Two repos.** Backend tasks run in `/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/backend`. Frontend tasks run in `/Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/tasmil-finance`.
-- **Branch:** work on `feat/quest-volume-traction-list` in each repo. **NEVER commit or push to `deploy/prod`.** Do not push at all unless the user asks — commit locally only.
+- **Branch:** work on `feat/quest-volume-traction-list` in each repo. **NEVER commit or push to `deploy/prod`.** Do not push at all unless the user asks - commit locally only.
 - **Backend envelope:** controllers return the DTO; a global interceptor wraps responses as `{ success, data }`. The frontend unwraps `.data`.
 - **Frontend Biome rules:** 2-space indent, double quotes, line width 100, `import type` for type-only imports, no `any`, no `console.log`. Path alias `@/*` → `src/*`. Import from feature-internal relative paths; features never import other features.
-- **Never hand-edit `src/gen-backend/`** — it is Kubb-generated.
+- **Never hand-edit `src/gen-backend/`** - it is Kubb-generated.
 - **Privacy:** the full Stellar pubkey and `tx_hash` must never appear in the public payload. Wallet is masked server-side.
 
 ---
 
-## Phase A — Backend (`backend` repo)
+## Phase A - Backend (`backend` repo)
 
 ### Task A0: Create the backend feature branch
 
@@ -33,7 +33,7 @@ git branch --show-current   # expect: feat/quest-volume-traction-list
 
 ---
 
-### Task A1: Pure helpers — wallet mask + cursor codec
+### Task A1: Pure helpers - wallet mask + cursor codec
 
 **Files:**
 - Create: `backend/src/modules/public/quest-volume.util.ts`
@@ -54,14 +54,14 @@ import { decodeCursor, encodeCursor, maskPubkey } from './quest-volume.util';
 
 describe('quest-volume util', () => {
   describe('maskPubkey', () => {
-    it('masks a full pubkey to first-5…last-4', () => {
+    it('masks a full pubkey to first-5...last-4', () => {
       expect(maskPubkey('GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQR4F7Q')).toBe(
-        'GABCD…4F7Q',
+        'GABCD...4F7Q',
       );
     });
 
     it('returns an em dash for a null pubkey', () => {
-      expect(maskPubkey(null)).toBe('—');
+      expect(maskPubkey(null)).toBe('-');
     });
 
     it('returns short strings unchanged', () => {
@@ -89,7 +89,7 @@ describe('quest-volume util', () => {
 cd /Users/admin/Documents/MorcaLabs/tasmil/tasmil-org/backend
 pnpm test -- quest-volume.util
 ```
-Expected: FAIL — cannot find module `./quest-volume.util`.
+Expected: FAIL - cannot find module `./quest-volume.util`.
 
 - [ ] **Step 3: Write the implementation**
 
@@ -101,11 +101,11 @@ Create `backend/src/modules/public/quest-volume.util.ts`:
  * service so masking and cursor encoding can be unit-tested without Prisma.
  */
 
-/** First-5…last-4 mask so the full Stellar pubkey never leaves the server. */
+/** First-5...last-4 mask so the full Stellar pubkey never leaves the server. */
 export function maskPubkey(pubkey: string | null): string {
-  if (!pubkey) return '—';
+  if (!pubkey) return '-';
   if (pubkey.length <= 9) return pubkey;
-  return `${pubkey.slice(0, 5)}…${pubkey.slice(-4)}`;
+  return `${pubkey.slice(0, 5)}...${pubkey.slice(-4)}`;
 }
 
 /** Opaque keyset cursor over (createdAt, id). base64url of a compact JSON. */
@@ -160,7 +160,7 @@ git commit -m "feat(public): quest-volume mask + cursor helpers"
   - `QuestVolumeResponseDto = { items: QuestVolumeItemDto[]; nextCursor: string | null }`
   - `TractionService.getQuestVolume(params: { limit?: number; cursor?: string }): Promise<QuestVolumeResponseDto>`
 
-- [ ] **Step 1: Create the DTO file** (no test of its own — exercised via the service)
+- [ ] **Step 1: Create the DTO file** (no test of its own - exercised via the service)
 
 Create `backend/src/modules/public/dto/quest-volume-response.dto.ts`:
 
@@ -180,7 +180,7 @@ export class QuestVolumeItemDto {
   @ApiProperty({ description: 'Volume for this tx (USD)', example: 1234.56 })
   amountUsd!: number;
 
-  @ApiProperty({ description: 'Masked wallet — never the full pubkey', example: 'GABCD…4F7Q' })
+  @ApiProperty({ description: 'Masked wallet - never the full pubkey', example: 'GABCD...4F7Q' })
   walletMasked!: string;
 
   @ApiProperty({ description: 'ISO timestamp', example: '2026-07-02T12:00:00.000Z' })
@@ -239,7 +239,7 @@ describe('TractionService.getQuestVolume', () => {
   it('masks the wallet and never leaks the full pubkey', async () => {
     const result = await service.getQuestVolume({ limit: 25 });
 
-    expect(result.items[0].walletMasked).toBe('GABCD…4F7Q');
+    expect(result.items[0].walletMasked).toBe('GABCD...4F7Q');
     expect(JSON.stringify(result)).not.toContain(FULL_PUBKEY);
   });
 
@@ -315,7 +315,7 @@ describe('TractionService.getQuestVolume', () => {
 ```bash
 pnpm test -- traction.service.quest-volume
 ```
-Expected: FAIL — `service.getQuestVolume is not a function`.
+Expected: FAIL - `service.getQuestVolume is not a function`.
 
 - [ ] **Step 4: Implement `getQuestVolume`**
 
@@ -489,7 +489,7 @@ Then add this describe block before the closing `});` of the top-level describe:
 ```bash
 pnpm test -- public.controller
 ```
-Expected: FAIL — `controller.getQuestVolume is not a function`.
+Expected: FAIL - `controller.getQuestVolume is not a function`.
 
 - [ ] **Step 3: Implement the route**
 
@@ -508,7 +508,7 @@ Add this method inside the `PublicController` class (after `getTraction`):
 ```ts
   @Get('quest-volume')
   @ApiOperation({ summary: 'List individual quest-volume transactions (paginated, newest first)' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Page size (1–100, default 25)' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Page size (1-100, default 25)' })
   @ApiQuery({ name: 'cursor', required: false, type: String, description: 'Opaque keyset cursor' })
   @ApiResponse({ status: 200, description: 'Quest-volume page', type: QuestVolumeResponseDto })
   @ApiResponse({ status: 503, description: 'Metrics temporarily unavailable' })
@@ -553,7 +553,7 @@ Expected: `{"success":true,"data":{"items":[...],"nextCursor":...}}`. Confirm no
 
 ---
 
-## Phase B — Frontend (`tasmil-finance` repo)
+## Phase B - Frontend (`tasmil-finance` repo)
 
 > The feature branch `feat/quest-volume-traction-list` already exists in `tasmil-finance` (created during design). Confirm with `git branch --show-current`.
 
@@ -625,7 +625,7 @@ describe("fmtDate", () => {
 ```bash
 pnpm test -- format.test
 ```
-Expected: FAIL — `fmtUsd`/`fmtDate` are not exported.
+Expected: FAIL - `fmtUsd`/`fmtDate` are not exported.
 
 - [ ] **Step 3: Add the helpers**
 
@@ -669,9 +669,9 @@ git commit -m "feat(traction): row formatters for quest-volume list"
 
 **Interfaces:**
 - Consumes: generated `publicControllerGetQuestVolume` + `QuestVolumeResponseDto` (Task B1).
-- Produces: `useQuestVolume(limit?: number)` — TanStack `useInfiniteQuery` result whose `data.pages[n]` is `QuestVolumeResponseDto`.
+- Produces: `useQuestVolume(limit?: number)` - TanStack `useInfiniteQuery` result whose `data.pages[n]` is `QuestVolumeResponseDto`.
 
-- [ ] **Step 1: Create the hook** (no unit test — covered via the component test in Task B4, matching the untested `use-traction.ts` pattern)
+- [ ] **Step 1: Create the hook** (no unit test - covered via the component test in Task B4, matching the untested `use-traction.ts` pattern)
 
 Create `src/features/traction/hooks/use-quest-volume.ts`:
 
@@ -760,7 +760,7 @@ const rows: Item[] = [
     protocol: "soroswap",
     operationKind: "swap",
     amountUsd: 1234.5,
-    walletMasked: "GABCD…4F7Q",
+    walletMasked: "GABCD...4F7Q",
     createdAt: "2026-07-02T12:00:00.000Z",
   },
 ];
@@ -781,7 +781,7 @@ describe("QuestVolumeList", () => {
     render(<QuestVolumeList />);
 
     expect(screen.getByText("soroswap")).toBeInTheDocument();
-    expect(screen.getByText("GABCD…4F7Q")).toBeInTheDocument();
+    expect(screen.getByText("GABCD...4F7Q")).toBeInTheDocument();
     expect(screen.getByText("$1,235")).toBeInTheDocument();
   });
 
@@ -820,7 +820,7 @@ describe("QuestVolumeList", () => {
 ```bash
 pnpm test -- quest-volume-list
 ```
-Expected: FAIL — cannot find `../components/quest-volume-list`.
+Expected: FAIL - cannot find `../components/quest-volume-list`.
 
 - [ ] **Step 3: Implement the component**
 
@@ -851,7 +851,7 @@ export function QuestVolumeList() {
   return (
     <section className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-1">
-        <h2 className="font-semibold text-lg">Quest volume — recent transactions</h2>
+        <h2 className="font-semibold text-lg">Quest volume - recent transactions</h2>
         <span className="text-muted-foreground text-xs">
           On-chain activity counted toward quests
         </span>
@@ -913,7 +913,7 @@ export function QuestVolumeList() {
                 onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
               >
-                {isFetchingNextPage ? "Loading…" : "Load more"}
+                {isFetchingNextPage ? "Loading..." : "Load more"}
               </Button>
             </div>
           )}
@@ -970,7 +970,7 @@ jest.mock("../hooks/use-quest-volume", () => ({
 Then in the first test ("renders header, KPIs, charts, and the updated badge on success"), add this assertion at the end:
 
 ```tsx
-    expect(screen.getByText("Quest volume — recent transactions")).toBeInTheDocument();
+    expect(screen.getByText("Quest volume - recent transactions")).toBeInTheDocument();
 ```
 
 - [ ] **Step 2: Run it to verify it fails**
@@ -978,7 +978,7 @@ Then in the first test ("renders header, KPIs, charts, and the updated badge on 
 ```bash
 pnpm test -- traction-dashboard
 ```
-Expected: FAIL — "Quest volume — recent transactions" not found.
+Expected: FAIL - "Quest volume - recent transactions" not found.
 
 - [ ] **Step 3: Mount the component**
 
@@ -1011,7 +1011,7 @@ pnpm type-check
 pnpm test
 pnpm check:fix
 ```
-Expected: type-check clean, all tests pass, Biome makes no further changes (or only formats — re-stage if so).
+Expected: type-check clean, all tests pass, Biome makes no further changes (or only formats - re-stage if so).
 
 - [ ] **Step 6: Commit**
 
@@ -1023,13 +1023,13 @@ git commit -m "feat(traction): mount QuestVolumeList on /traction"
 
 - [ ] **Step 7: Visual verification**
 
-Run the frontend (`pnpm dev`, backend also up on :6756) and open `http://localhost:3000/traction`. Confirm the "Quest volume — recent transactions" table renders below the charts, wallets show masked (`G…`), "Load more" appends a page, and the empty state reads cleanly when there is no data.
+Run the frontend (`pnpm dev`, backend also up on :6756) and open `http://localhost:3000/traction`. Confirm the "Quest volume - recent transactions" table renders below the charts, wallets show masked (`G...`), "Load more" appends a page, and the empty state reads cleanly when there is no data.
 
 ---
 
 ## Self-Review (completed during planning)
 
 - **Spec coverage:** data source `reward_volume_events` ✓ (A2); columns protocol/operation/amount/wallet/date ✓ (B4); masked wallet server-side ✓ (A1/A2); no tx-hash/explorer link ✓ (A2 test asserts omission); paginated endpoint (option A) ✓ (A2/A3); Redis first-page cache ✓ (A2); empty/loading/error states ✓ (B4); tests both repos ✓.
-- **Placeholder scan:** none — every code step has full code.
+- **Placeholder scan:** none - every code step has full code.
 - **Type consistency:** `QuestVolumeResponseDto`/`QuestVolumeItemDto` names and the `{ items, nextCursor }` shape are identical across A2, A3, B3, B4; `getQuestVolume({ limit, cursor })` matches between service (A2) and controller (A3); hook returns pages of `{ items, nextCursor }` consumed by the component (B4).
 - **Known post-generation check:** the exact generated client symbol/param-type names (Task B1 Step 2) must be confirmed; Task B3 aligns imports if they differ.

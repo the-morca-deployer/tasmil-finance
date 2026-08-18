@@ -66,7 +66,7 @@ describe("PositionValueCard", () => {
     expect(onDeactivate).toHaveBeenCalled();
   });
 
-  it("renders 'History building…' placeholder when chartSeries is empty", () => {
+  it("renders 'History building...' placeholder when chartSeries is empty", () => {
     render(
       <PositionValueCard
         totalBalanceUsd={0}

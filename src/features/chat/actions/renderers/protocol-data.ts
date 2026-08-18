@@ -9,7 +9,16 @@ import { StrategyPresetCard } from "@/features/chat/actions/components/stellar/s
 import { SwapQuoteCard } from "@/features/chat/actions/components/stellar/swap-quote-card";
 import type { RendererEntry } from "@/features/chat/lib/tool-renderer-registry";
 
-export const TASMIL_INFO_TOOLS = new Set(["get_strategy_presets", "get_account_strategy"]);
+// tool-call-renderer gates every `kind: "info"` card on membership here, so a
+// registry entry alone renders nothing. Pool lookups go through resolve_pool /
+// get_pool_details, which were absent, leaving the chat with a bare status line
+// and an empty "Pool Info / unknown / No pool data available" card.
+export const TASMIL_INFO_TOOLS = new Set([
+  "get_strategy_presets",
+  "get_account_strategy",
+  "resolve_pool",
+  "get_pool_details",
+]);
 
 export const SUPERVISOR_AGENTS = [
   "info",
@@ -27,6 +36,19 @@ export const SUPERVISOR_AGENTS = [
 ];
 
 export const INFO_ENTRIES: { toolName: string; entry: RendererEntry & { kind: "info" } }[] = [
+  // The unified MCP tools. The per-protocol names further down (swap_get_pool,
+  // blend_get_pool_info, ...) are what the agents used to call; pool questions
+  // now go through resolve_pool and get_pool_details, which had no entry here,
+  // so the chat fell back to an empty "Pool Info / unknown / No pool data
+  // available" card for every protocol even though the tool returned full data.
+  {
+    toolName: "resolve_pool",
+    entry: { kind: "info", component: PoolInfoCard, label: "pool_info" },
+  },
+  {
+    toolName: "get_pool_details",
+    entry: { kind: "info", component: PoolInfoCard, label: "pool_info" },
+  },
   {
     toolName: "get_account",
     entry: { kind: "info", component: AccountInfoCard, label: "account_info" },

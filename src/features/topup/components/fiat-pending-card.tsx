@@ -48,7 +48,7 @@ export function FiatPendingCard({ snapshot }: FiatPendingCardProps) {
           </dd>
         </dl>
         <p className="text-muted-foreground text-sm">
-          We'll email you when the funds arrive (typically 1–3 business days).
+          We'll email you when the funds arrive (typically 1-3 business days).
         </p>
       </CardContent>
     </Card>

@@ -28,7 +28,7 @@ export const welcomeSlides: WelcomeSlideData[] = [
     icon: MessageSquare,
     title: "Chat With Your Agent",
     description:
-      "Natural-language DeFi: ask the agent to swap, bridge, or rebalance — it executes and explains.",
+      "Natural-language DeFi: ask the agent to swap, bridge, or rebalance - it executes and explains.",
     imageSrc: "/onboarding/chat.png",
     imageAlt: "Chat interface preview",
   },

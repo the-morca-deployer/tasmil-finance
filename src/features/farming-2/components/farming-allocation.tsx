@@ -82,7 +82,7 @@ export function FarmingAllocation({
     );
   }
 
-  // No positions — show chart-like empty state (matching Performance card shape)
+  // No positions - show chart-like empty state (matching Performance card shape)
   if (positions.length === 0) {
     return (
       <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:p-6">
@@ -104,7 +104,7 @@ export function FarmingAllocation({
     );
   }
 
-  // Has positions — donut chart + legend
+  // Has positions - donut chart + legend
   return (
     <motion.div
       className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:p-6"

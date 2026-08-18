@@ -80,7 +80,7 @@ export default function AdminQuestWalletsPage() {
       </div>
 
       <input
-        placeholder="Search by wallet address…"
+        placeholder="Search by wallet address..."
         value={searchInput}
         onChange={(e) => setSearchInput(e.target.value)}
         style={{
@@ -126,7 +126,7 @@ export default function AdminQuestWalletsPage() {
                 <td style={{ padding: "10px", fontFamily: "monospace" }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     {e.walletAddress.length > 12
-                      ? `${e.walletAddress.slice(0, 6)}…${e.walletAddress.slice(-6)}`
+                      ? `${e.walletAddress.slice(0, 6)}...${e.walletAddress.slice(-6)}`
                       : e.walletAddress}
                     <button
                       type="button"
@@ -145,7 +145,7 @@ export default function AdminQuestWalletsPage() {
                   </span>
                 </td>
                 <td style={{ padding: "10px", color: "rgba(245,248,252,0.6)", fontSize: 12 }}>
-                  {e.username ?? "—"}
+                  {e.username ?? "-"}
                 </td>
                 <td style={{ padding: "10px" }}>
                   {e.tier ? (
@@ -162,7 +162,7 @@ export default function AdminQuestWalletsPage() {
                       {e.tier}
                     </span>
                   ) : (
-                    <span style={{ color: "rgba(245,248,252,0.3)" }}>—</span>
+                    <span style={{ color: "rgba(245,248,252,0.3)" }}>-</span>
                   )}
                 </td>
                 <td style={{ padding: "10px", textAlign: "right", fontWeight: 600 }}>

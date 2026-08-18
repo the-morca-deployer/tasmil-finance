@@ -1,10 +1,10 @@
 /**
- * Mock API route — intercepts /api/api/* when NEXT_PUBLIC_MOCK_API=true.
+ * Mock API route - intercepts /api/api/* when NEXT_PUBLIC_MOCK_API=true.
  * Returns mock data for quest backend endpoints.
  */
 import { NextResponse } from "next/server";
 
-// Static imports — only bundled when this file is loaded (client-side we're not using it)
+// Static imports - only bundled when this file is loaded (client-side we're not using it)
 const MOCK_ENABLED = process.env.NEXT_PUBLIC_MOCK_API === "true";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ path: string[] }> }) {
@@ -25,7 +25,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ path: st
   return handleMock(path.join("/"), req, "PUT");
 }
 
-// ── Mock data handler ──
+// -- Mock data handler --
 
 function handleMock(fullPath: string, req: Request, method = "GET") {
   const url = new URL(req.url);
@@ -115,7 +115,7 @@ function json(data: unknown) {
   return NextResponse.json(data);
 }
 
-// ── Mock data ──
+// -- Mock data --
 
 const daysFromNow = (d: number) => new Date(Date.now() + d * 86400000).toISOString();
 

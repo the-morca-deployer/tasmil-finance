@@ -279,7 +279,7 @@ export default function AdminCampaignsPage() {
         <NewCampaignForm />
       </div>
 
-      {/* Right panel — history table */}
+      {/* Right panel - history table */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <Typography variant="h2" className="mb-4 font-bold text-xl">
           Campaign History

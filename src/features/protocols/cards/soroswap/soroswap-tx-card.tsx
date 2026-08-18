@@ -106,7 +106,7 @@ export function SoroswapTxCard({ tx, mode = "playground", stream, toolCallId, re
     },
   });
 
-  // ─── Trustline precheck for output asset ────────────────────
+  // --- Trustline precheck for output asset --------------------
   const outputAsset = getOutputAsset(tx);
   const {
     needsTrustline,
@@ -123,6 +123,7 @@ export function SoroswapTxCard({ tx, mode = "playground", stream, toolCallId, re
   if (mode === "chat") {
     return (
       <ProtocolCard
+        data-testid="card-soroswap-tx"
         mode="chat"
         title={cfg.title}
         icon={cfg.icon}
@@ -268,7 +269,7 @@ export function SoroswapTxCard({ tx, mode = "playground", stream, toolCallId, re
           </a>
         ) : txError ? (
           <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-center text-destructive text-xs">
-            Failed · {txError.length > 80 ? `${txError.slice(0, 80)}…` : txError}
+            Failed · {txError.length > 80 ? `${txError.slice(0, 80)}...` : txError}
           </div>
         ) : trustlineBlocking ? (
           <div className="space-y-2">

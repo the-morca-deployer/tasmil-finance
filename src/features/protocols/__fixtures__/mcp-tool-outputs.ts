@@ -3,9 +3,9 @@
  * Each fixture matches the [{type:"text", text: JSON.stringify(...)}] MCP result format.
  */
 
-// ─── Aquarius ─────────────────────────────────────────────────
+// --- Aquarius -------------------------------------------------
 
-/** Aquarius resolve_pool — enriched format with token objects and TVL fields */
+/** Aquarius resolve_pool - enriched format with token objects and TVL fields */
 export const AQUARIUS_RESOLVE_POOL = [
   {
     type: "text",
@@ -36,9 +36,13 @@ export const AQUARIUS_RESOLVE_POOL = [
           totalVolume: 1710736044750252,
           liquidity_usd: 28500000000000,
           volume_usd: 1500000000000,
-          apy: 0.0016,
-          rewards_apy: 0.05,
-          total_apy: 0.0516,
+          // resolve_pool converts APY to percent before returning it, and emits
+          // camelCase. The old decimal/snake_case values here were what the raw
+          // Aquarius API sends, not what MCP does -- which is why these tests
+          // never noticed the adapter converting a second time.
+          feeApy: 0.16,
+          rewardApy: 5,
+          totalApy: 5.16,
         },
       ],
       count: 1,
@@ -46,7 +50,7 @@ export const AQUARIUS_RESOLVE_POOL = [
   },
 ];
 
-/** Aquarius resolve_pool — BROKEN old format: tokens as plain string addresses, no TVL */
+/** Aquarius resolve_pool - BROKEN old format: tokens as plain string addresses, no TVL */
 export const AQUARIUS_RESOLVE_POOL_BROKEN = [
   {
     type: "text",
@@ -71,9 +75,9 @@ export const AQUARIUS_RESOLVE_POOL_BROKEN = [
   },
 ];
 
-// ─── Soroswap ─────────────────────────────────────────────────
+// --- Soroswap -------------------------------------------------
 
-/** Soroswap resolve_pool — CURRENT BUG: tokenA/tokenB as objects instead of strings */
+/** Soroswap resolve_pool - CURRENT BUG: tokenA/tokenB as objects instead of strings */
 export const SOROSWAP_RESOLVE_POOL_OBJECT_TOKENS = [
   {
     type: "text",
@@ -102,7 +106,7 @@ export const SOROSWAP_RESOLVE_POOL_OBJECT_TOKENS = [
   },
 ];
 
-/** Soroswap resolve_pool — CORRECT format: tokenA/tokenB as plain strings */
+/** Soroswap resolve_pool - CORRECT format: tokenA/tokenB as plain strings */
 export const SOROSWAP_RESOLVE_POOL = [
   {
     type: "text",
@@ -127,9 +131,9 @@ export const SOROSWAP_RESOLVE_POOL = [
   },
 ];
 
-// ─── Blend ────────────────────────────────────────────────────
+// --- Blend ----------------------------------------------------
 
-/** Blend resolve_pool — standard format with reserves array */
+/** Blend resolve_pool - standard format with reserves array */
 export const BLEND_RESOLVE_POOL = [
   {
     type: "text",
@@ -180,9 +184,9 @@ export const BLEND_RESOLVE_POOL = [
   },
 ];
 
-// ─── V2 Fixtures: NEW MCP format (card-ready, matches Zod schemas) ──
+// --- V2 Fixtures: NEW MCP format (card-ready, matches Zod schemas) --
 
-/** Aquarius V2 — matches AquaPoolCardProps schema directly */
+/** Aquarius V2 - matches AquaPoolCardProps schema directly */
 export const AQUARIUS_RESOLVE_POOL_V2 = [
   {
     type: "text",
@@ -211,7 +215,7 @@ export const AQUARIUS_RESOLVE_POOL_V2 = [
   },
 ];
 
-/** Soroswap V2 — actual resolveSoroswap() output format */
+/** Soroswap V2 - actual resolveSoroswap() output format */
 export const SOROSWAP_RESOLVE_POOL_V2 = [
   {
     type: "text",
@@ -237,7 +241,7 @@ export const SOROSWAP_RESOLVE_POOL_V2 = [
   },
 ];
 
-/** Blend V2 — actual resolveBlend() output format */
+/** Blend V2 - actual resolveBlend() output format */
 export const BLEND_RESOLVE_POOL_V2 = [
   {
     type: "text",
@@ -288,9 +292,173 @@ export const BLEND_RESOLVE_POOL_V2 = [
   },
 ];
 
-// ─── DeFindex ────────────────────────────────────────────────
+/**
+ * Blend resolve_pool as mainnet actually returns it: the pool list is preceded
+ * by protocol-wide contract IDs that no card used to render. Captured from the
+ * live MCP server on :3009.
+ */
+export const BLEND_RESOLVE_POOL_WITH_REGISTRY = [
+  {
+    type: "text",
+    text: JSON.stringify({
+      success: true,
+      protocol: "blend",
+      network: "mainnet",
+      backstopAddress: "CAQQR5SWBXKIGZKPBZDH3KM5GQ5GUTPKB7JAFCINLZBC5WXPJKRG3IM7",
+      blndToken: "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY",
+      blndAssetCode: "BLND",
+      blndAssetIssuer: "GDJEHTBE6ZHUXSWFI642DCGLUOECLHPF3KSXHPXTSTJ7E3JF6MQ5EZYY",
+      cometLpToken: "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+      pools: [
+        {
+          address: "CC4HHXPKR3FIXUQEC53MAK2IVWD6APAEBBXP5XCIW5FISN6PQOAC6UXG",
+          name: "Solv",
+          status: "active",
+          canSupply: true,
+          canBorrow: true,
+          reserves: [
+            {
+              asset: "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+              symbol: "USDC",
+              totalSupply: "500000",
+              totalBorrow: "120000",
+              supplyApy: 9.3,
+              borrowApy: 12.5,
+            },
+          ],
+        },
+      ],
+      count: 1,
+    }),
+  },
+];
 
-/** DeFindex vault_list_vaults — list of vaults */
+// --- Phoenix -------------------------------------------------
+
+/**
+ * Phoenix resolve_pool with no token filter. Note `feeBps` arrives as a
+ * string, and every pool carries a `stakeAddress` distinct from its
+ * `poolAddress`. Captured from the live MCP server on :3009.
+ */
+export const PHOENIX_RESOLVE_POOL = [
+  {
+    type: "text",
+    text: JSON.stringify({
+      success: true,
+      protocol: "phoenix",
+      pools: [
+        {
+          poolAddress: "CBHCRSVX3ZZ7EGTSYMKPEFGZNWRVCSESQR3UABET4MIW52N4EVU6BIZX",
+          name: "XLM/USDC",
+          stakeAddress: "CAF3UJ45ZQJP6USFUIMVMGOUETUTXEC35R2247VJYIVQBGKTKBZKNBJ3",
+          feeBps: "50",
+        },
+        {
+          poolAddress: "CBCZGGNOEUZG4CAAE7TGTQQHETZMKUT4OIPFHHPKEUX46U4KXBBZ3GLH",
+          name: "XLM/PHO",
+          stakeAddress: "CBRGNWGAC25CPLMOAMR7WBPOF5QTFA5RYXQH4DEJ4K65G2QFLTLMW7RO",
+          feeBps: "50",
+        },
+      ],
+      count: 2,
+    }),
+  },
+];
+
+/** Phoenix resolve_pool for a single token pair - no `pools` array at all. */
+export const PHOENIX_RESOLVE_POOL_PAIR = [
+  {
+    type: "text",
+    text: JSON.stringify({
+      success: true,
+      protocol: "phoenix",
+      poolAddress: "CBHCRSVX3ZZ7EGTSYMKPEFGZNWRVCSESQR3UABET4MIW52N4EVU6BIZX",
+      stakeAddress: "CAF3UJ45ZQJP6USFUIMVMGOUETUTXEC35R2247VJYIVQBGKTKBZKNBJ3",
+      tokenA: {
+        address: "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+        symbol: "XLM",
+        amount: "1000000000",
+      },
+      tokenB: {
+        address: "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+        symbol: "USDC",
+        amount: "250000000",
+      },
+      lpShareAddress: "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+    }),
+  },
+];
+
+// --- Templar -------------------------------------------------
+
+/**
+ * Templar resolve_pool. Keyed `markets`, and the identifiers are NEAR market
+ * ids rather than Stellar contracts. Captured from the live MCP server.
+ */
+export const TEMPLAR_RESOLVE_POOL = [
+  {
+    type: "text",
+    text: JSON.stringify({
+      success: true,
+      protocol: "templar",
+      markets: [
+        {
+          marketId: "ixlm-ixlmusdc.v1.tmplr.near",
+          name: "XLM/USDC",
+          collateral: { symbol: "XLM", tokenId: "nep245:v2_1.omni.hot.tg:1100_111bzQBB5v7" },
+          borrow: { symbol: "USDC", tokenId: "nep245:v2_1.omni.hot.tg:1100_111bzQBB65G" },
+          chain: "stellar",
+          ltv: "70%",
+          apr: "3.67%",
+          supply: "59138",
+          available: "34144",
+          type: "lending",
+        },
+      ],
+      count: 1,
+    }),
+  },
+];
+
+// --- DeFindex ------------------------------------------------
+
+/**
+ * DeFindex resolve_pool. Keyed `vaults` (not `pools`) with `vaultAddress`
+ * (not `address`) and the asset nested under `assets[]`. Captured from the
+ * live MCP server on :3009.
+ */
+export const DEFINDEX_RESOLVE_POOL = [
+  {
+    type: "text",
+    text: JSON.stringify({
+      success: true,
+      protocol: "defindex",
+      network: "mainnet",
+      vaults: [
+        {
+          vaultAddress: "CBNKCU3HGFKHFOF7JTGXQCNKE3G3DXS5RDBQUKQMIIECYKXPIOUGB2S3",
+          name: "DeFindex-Vault-BeansUsdcVault",
+          symbol: "BNSUSDC",
+          totalSupply: "5038017734651",
+          apy: 6.74,
+          assets: [
+            {
+              address: "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+              symbol: "USDC",
+              totalRaw: "5038018433002",
+              totalDisplay: "503801.8433002",
+            },
+          ],
+          explorerUrl:
+            "https://stellar.expert/explorer/public/contract/CBNKCU3HGFKHFOF7JTGXQCNKE3G3DXS5RDBQUKQMIIECYKXPIOUGB2S3",
+        },
+      ],
+      count: 1,
+    }),
+  },
+];
+
+/** DeFindex vault_list_vaults - list of vaults */
 export const DEFINDEX_VAULT_LIST = [
   {
     type: "text",
@@ -313,7 +481,7 @@ export const DEFINDEX_VAULT_LIST = [
   },
 ];
 
-// ─── SwapBridge ──────────────────────────────────────────────
+// --- SwapBridge ----------------------------------------------
 
 /** Swap operation result from any protocol */
 export const SWAP_EXECUTE_RESULT = [
@@ -335,9 +503,9 @@ export const SWAP_EXECUTE_RESULT = [
   },
 ];
 
-// ─── Error / edge cases ───────────────────────────────────────
+// --- Error / edge cases ---------------------------------------
 
-/** MCP error response — no pools found */
+/** MCP error response - no pools found */
 export const EMPTY_MCP_RESULT = [
   {
     type: "text",
@@ -345,5 +513,5 @@ export const EMPTY_MCP_RESULT = [
   },
 ];
 
-/** Malformed MCP result — invalid JSON in text field */
+/** Malformed MCP result - invalid JSON in text field */
 export const MALFORMED_MCP_RESULT = [{ type: "text", text: "not valid json{{{" }];

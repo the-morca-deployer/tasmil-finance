@@ -44,10 +44,10 @@ describe("TractionDashboard", () => {
 
     expect(screen.getByText("Tasmil Traction")).toBeInTheDocument();
     expect(screen.getByText("$125.0k")).toBeInTheDocument();
-    expect(screen.getByText("Volume & TVL — last 90 days")).toBeInTheDocument();
-    expect(screen.getByText("App wallet growth — last 90 days")).toBeInTheDocument();
-    expect(screen.getByText(/Live data — updated/)).toBeInTheDocument();
-    expect(screen.getByText("Quest volume — recent transactions")).toBeInTheDocument();
+    expect(screen.getByText("Volume & TVL - last 90 days")).toBeInTheDocument();
+    expect(screen.getByText("App wallet growth - last 90 days")).toBeInTheDocument();
+    expect(screen.getByText(/Live data - updated/)).toBeInTheDocument();
+    expect(screen.getByText("Quest volume - recent transactions")).toBeInTheDocument();
   });
 
   it("shows skeletons while loading", () => {
@@ -77,7 +77,7 @@ describe("TractionDashboard", () => {
     expect(screen.getByText("Data temporarily unavailable")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     expect(refetch).toHaveBeenCalled();
-    // Quest volume is an independent endpoint — it must still render when traction fails.
-    expect(screen.getByText("Quest volume — recent transactions")).toBeInTheDocument();
+    // Quest volume is an independent endpoint - it must still render when traction fails.
+    expect(screen.getByText("Quest volume - recent transactions")).toBeInTheDocument();
   });
 });

@@ -2,7 +2,7 @@
 //
 // ON  (NEXT_PUBLIC_WAITLIST_MODE=true):  /waitlist + /access live, access code
 //     required, the proxy gate sends unauthenticated users back to "/".
-// OFF (anything else): no /waitlist, no /access, no access code — app routes are
+// OFF (anything else): no /waitlist, no /access, no access code - app routes are
 //     open and the wallet is connected in-app.
 //
 // Read both server-side (proxy) and client-side (auth-bootstrap, landing CTAs).
@@ -41,13 +41,13 @@ const matches = (pathname: string, route: string) =>
 export interface GateInput {
   pathname: string;
   hasAuthCookie: boolean;
-  /** Dev-bypass active (NEXT_PUBLIC_DEV_BYPASS_AUTH) — skips the auth gate. */
+  /** Dev-bypass active (NEXT_PUBLIC_DEV_BYPASS_AUTH) - skips the auth gate. */
   devBypass: boolean;
 }
 
 /**
  * Route-gate decision based on waitlist mode + auth. Returns a redirect target
- * path, or null to let the request through. Pure — the proxy adapter turns the
+ * path, or null to let the request through. Pure - the proxy adapter turns the
  * result into a NextResponse.
  */
 export function gateDecision({ pathname, hasAuthCookie, devBypass }: GateInput): string | null {
@@ -62,7 +62,7 @@ export function gateDecision({ pathname, hasAuthCookie, devBypass }: GateInput):
   }
 
   if (!isWaitlistMode()) {
-    // OFF: the waitlist funnel doesn't exist — send those routes to the app;
+    // OFF: the waitlist funnel doesn't exist - send those routes to the app;
     // everything else is open (wallet connects in-app).
     if (matches(pathname, "/waitlist") || matches(pathname, "/access")) {
       return APP_ENTRY;

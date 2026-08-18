@@ -95,7 +95,7 @@ export default function VisitTrackingPage() {
             )}
           </div>
           <div className="text-center space-y-1">
-            <p className="font-semibold">Recording your visit…</p>
+            <p className="font-semibold">Recording your visit...</p>
             <p className="text-sm text-muted">
               Visit will be recorded automatically in {countdown}s.
             </p>

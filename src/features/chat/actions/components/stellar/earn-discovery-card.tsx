@@ -130,6 +130,14 @@ function EarnDiscoveryCardComponent({ type, result, toolCallId, status }: EarnDi
                 {/* Pool name */}
                 <div className="truncate font-medium text-sm">{opp.name}</div>
 
+                {/* Contract address - rendered in full so it can be read and
+                    copied; truncating it makes the on-chain identity useless. */}
+                {opp.poolAddress && (
+                  <div className="break-all font-mono text-[10px] text-muted-foreground/60">
+                    {opp.poolAddress}
+                  </div>
+                )}
+
                 {/* Asset tokens with images */}
                 <div className="flex items-center gap-1.5">
                   {opp.assets.map((a) => (

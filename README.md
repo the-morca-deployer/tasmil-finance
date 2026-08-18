@@ -18,7 +18,7 @@
 
 ## Overview
 
-The Tasmil Finance web application at [tasmil-finance.xyz](https://tasmil-finance.xyz) — a full-stack DeFi interface combining a yield vault dashboard, AI-powered chat, and automated portfolio management on Stellar. Users connect a Stellar wallet, choose a risk preset, fund a non-custodial keeper-wallet vault, and the platform manages the rest.
+The Tasmil Finance web application at [tasmil-finance.xyz](https://tasmil-finance.xyz) - a full-stack DeFi interface combining a yield vault dashboard, AI-powered chat, and automated portfolio management on Stellar. Users connect a Stellar wallet, choose a risk preset, fund a non-custodial keeper-wallet vault, and the platform manages the rest.
 
 ---
 
@@ -26,55 +26,55 @@ The Tasmil Finance web application at [tasmil-finance.xyz](https://tasmil-financ
 
 ```
 src/
-├── app/                      # Next.js App Router
-│   ├── (dashboard)/          # Authenticated app routes
-│   ├── (landing-page)/       # Public marketing pages
-│   ├── (public)/             # Unauthenticated pages (login, register)
-│   ├── admin/                # Admin panel routes
-│   ├── agui/                 # AG-UI streaming proxy routes
-│   ├── api/                  # Next.js API routes
-│   └── r/                    # Referral redirect routes
-│
-├── features/                 # Domain modules — each owns its UI, hooks, state
-│   ├── account/              # Vault dashboard, settings, session-key management
-│   ├── onboarding/           # Multi-step vault creation wizard
-│   ├── portfolio/            # Portfolio overview, history, performance charts
-│   ├── strategies/           # Strategy browser — live pool yields and analytics
-│   ├── chat/                 # AI chat interface + AG-UI stream integration
-│   ├── farming/              # Yield farming flows
-│   ├── aggregator/           # Cross-protocol aggregation views
-│   ├── protocols/            # Per-protocol detail pages
-│   ├── referrals/            # Referral program UI
-│   ├── quest/                # Quest / rewards system
-│   ├── welcome-reward/       # Welcome reward flow
-│   ├── credits/              # Credits and usage
-│   ├── topup/                # Fund vault flows
-│   ├── whitelist/            # Whitelist access gating
-│   ├── profile/              # User profile management
-│   ├── landing/              # Landing page sections
-│   └── admin*/               # Admin: whitelist, top-ups, auth
-│
-├── shared/                   # Reusable primitives across features
-│   ├── ui/                   # Base components (Button, Input, Modal, …)
-│   ├── components/           # Composed components (WalletButton, NetworkBadge, …)
-│   ├── hooks/                # Shared React hooks
-│   ├── layout/               # Page layout wrappers
-│   ├── context/              # Wallet context
-│   ├── config/               # App-wide config
-│   └── utils/                # Pure utility functions
-│
-├── providers/                # Global React providers
-│   ├── app-provider.tsx      # Root: QueryClient, Theme, Tooltip
-│   ├── wallet-provider.tsx   # Stellar Wallets Kit
-│   ├── agui-stream-provider.tsx
-│   └── thread-provider.tsx
-│
-├── store/                    # Zustand stores (persisted to localStorage)
-│   ├── auth.store.ts
-│   └── wallet.store.ts
-│
-├── gen-backend/              # Auto-generated: Backend API client (Kubb)
-└── gen-ai/                   # Auto-generated: AI agents client (Kubb)
++-- app/                      # Next.js App Router
+|   +-- (dashboard)/          # Authenticated app routes
+|   +-- (landing-page)/       # Public marketing pages
+|   +-- (public)/             # Unauthenticated pages (login, register)
+|   +-- admin/                # Admin panel routes
+|   +-- agui/                 # AG-UI streaming proxy routes
+|   +-- api/                  # Next.js API routes
+|   +-- r/                    # Referral redirect routes
+|
++-- features/                 # Domain modules - each owns its UI, hooks, state
+|   +-- account/              # Vault dashboard, settings, session-key management
+|   +-- onboarding/           # Multi-step vault creation wizard
+|   +-- portfolio/            # Portfolio overview, history, performance charts
+|   +-- strategies/           # Strategy browser - live pool yields and analytics
+|   +-- chat/                 # AI chat interface + AG-UI stream integration
+|   +-- farming/              # Yield farming flows
+|   +-- aggregator/           # Cross-protocol aggregation views
+|   +-- protocols/            # Per-protocol detail pages
+|   +-- referrals/            # Referral program UI
+|   +-- quest/                # Quest / rewards system
+|   +-- welcome-reward/       # Welcome reward flow
+|   +-- credits/              # Credits and usage
+|   +-- topup/                # Fund vault flows
+|   +-- whitelist/            # Whitelist access gating
+|   +-- profile/              # User profile management
+|   +-- landing/              # Landing page sections
+|   +-- admin*/               # Admin: whitelist, top-ups, auth
+|
++-- shared/                   # Reusable primitives across features
+|   +-- ui/                   # Base components (Button, Input, Modal, ...)
+|   +-- components/           # Composed components (WalletButton, NetworkBadge, ...)
+|   +-- hooks/                # Shared React hooks
+|   +-- layout/               # Page layout wrappers
+|   +-- context/              # Wallet context
+|   +-- config/               # App-wide config
+|   +-- utils/                # Pure utility functions
+|
++-- providers/                # Global React providers
+|   +-- app-provider.tsx      # Root: QueryClient, Theme, Tooltip
+|   +-- wallet-provider.tsx   # Stellar Wallets Kit
+|   +-- agui-stream-provider.tsx
+|   +-- thread-provider.tsx
+|
++-- store/                    # Zustand stores (persisted to localStorage)
+|   +-- auth.store.ts
+|   +-- wallet.store.ts
+|
++-- gen-backend/              # Auto-generated: Backend API client (Kubb)
++-- gen-ai/                   # Auto-generated: AI agents client (Kubb)
 ```
 
 ### Key Data Flows
@@ -105,7 +105,7 @@ Cron: pool discovery → weight calc → drift check (>5%)
 | Feature | Description |
 |---------|-------------|
 | **Vault Dashboard** | Real-time balance, APY, allocation breakdown per protocol and asset |
-| **AI Chat** | 13 specialized agents — yields, swaps, research in natural language |
+| **AI Chat** | 13 specialized agents - yields, swaps, research in natural language |
 | **Onboarding Wizard** | Connect wallet → choose risk preset → fund vault |
 | **Strategy Browser** | Live yield pool explorer: Blend, Soroswap, Aquarius |
 | **Multi-Asset Vaults** | Deploy USDC and XLM with independent allocations |
@@ -113,7 +113,7 @@ Cron: pool discovery → weight calc → drift check (>5%)
 | **Referral Program** | On-chain tracking and reward distribution |
 | **Quest System** | User engagement rewards |
 | **Admin Panel** | Whitelist management, top-ups, user oversight |
-| **Session Keys** | Non-custodial — no signing prompts after setup |
+| **Session Keys** | Non-custodial - no signing prompts after setup |
 
 ---
 
@@ -195,13 +195,13 @@ See `.env.example` for the full list.
 
 ## Product Screens
 
-**Vault Dashboard** — Portfolio value, strategy allocations with APY, rebalance status, quick actions: deposit, withdraw, configure preset.
+**Vault Dashboard** - Portfolio value, strategy allocations with APY, rebalance status, quick actions: deposit, withdraw, configure preset.
 
-**Onboarding Wizard** — (1) Connect wallet (2) Choose base asset + risk preset (3) Sign two Soroban TXs: deploy keeper-wallet, fund vault.
+**Onboarding Wizard** - (1) Connect wallet (2) Choose base asset + risk preset (3) Sign two Soroban TXs: deploy keeper-wallet, fund vault.
 
-**AI Chat** — Natural-language DeFi: yield queries, portfolio analysis, swap execution, protocol research.
+**AI Chat** - Natural-language DeFi: yield queries, portfolio analysis, swap execution, protocol research.
 
-**Strategy Browser** — Live pool table: protocol, asset, APY, TVL, risk score, vault allocation.
+**Strategy Browser** - Live pool table: protocol, asset, APY, TVL, risk score, vault allocation.
 
 ---
 
@@ -209,10 +209,10 @@ See `.env.example` for the full list.
 
 ### Code Conventions
 
-- 2-space indent, line width 100 — enforced by Biome
+- 2-space indent, line width 100 - enforced by Biome
 - Double quotes, `import type` for type-only imports
 - No `any`, no `console.log` (use `console.warn` / `console.error`)
-- Features never import from other features — use `shared/` or props
+- Features never import from other features - use `shared/` or props
 - Import from feature root (`@/features/chat`), not deep paths
 - Default to Server Components; `"use client"` only when needed
 
@@ -228,7 +228,7 @@ See `.env.example` for the full list.
 
 1. `src/features/<name>/` with `index.ts` barrel
 2. All state, hooks, components scoped inside
-3. `@/shared/` imports only — no cross-feature imports
+3. `@/shared/` imports only - no cross-feature imports
 4. Routes under `src/app/(dashboard)/`
 
 ### Regenerating the API Client
@@ -257,7 +257,7 @@ Husky hooks: `lint-staged` on commit · `type-check + test:ci` on push.
 1. Fork, branch from `main`
 2. `pnpm lint` and `pnpm type-check` must pass
 3. Write tests for changed behaviour
-4. PR with clear description — open an issue first for big changes
+4. PR with clear description - open an issue first for big changes
 
 ---
 

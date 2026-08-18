@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -195,7 +195,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               setWalletState({ connected: true, account: addr });
             }
           } catch {
-            // Kit may fire state updates before a wallet is selected — ignore
+            // Kit may fire state updates before a wallet is selected - ignore
           }
         });
 
@@ -219,7 +219,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const walletState = useWalletStore.getState();
     if (!walletState.connected || !walletState.account) return;
 
-    // E2E test bypass — dev/test only
+    // E2E test bypass - dev/test only
     const e2eWallet =
       process.env.NODE_ENV !== "production" ? (window as any).__TASMIL_E2E_WALLET__ : null;
     if (e2eWallet?.connected && e2eWallet?.publicKey && !isDevBypassDisconnected()) {
@@ -268,7 +268,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 `Wrong wallet network. Switch Freighter to ${APP_NETWORK_NAME} to continue.`
               );
             } else if (!mismatch && prevMismatchRef.current) {
-              toast.success(`Wallet is on ${APP_NETWORK_NAME} — you can continue.`);
+              toast.success(`Wallet is on ${APP_NETWORK_NAME} - you can continue.`);
             }
             prevMismatchRef.current = mismatch;
           }
@@ -346,7 +346,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         // Step 3: Sign with wallet
         if (!isForced) {
-          toast.info("Sign to verify your wallet. This is free — no XLM is charged.", {
+          toast.info("Sign to verify your wallet. This is free - no XLM is charged.", {
             duration: 4000,
           });
         }
@@ -645,7 +645,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Listen for 401s and react based on whether the JWT is actually expired.
   // - Fresh JWT + 401: server-side problem. Clear auth, show reconnect toast.
-  //   DO NOT force a signature — that causes surprise sign prompts on every page nav.
+  //   DO NOT force a signature - that causes surprise sign prompts on every page nav.
   // - Expired JWT + 401: legitimate re-auth. Sign silently, throttled to 1/30s.
   useEffect(() => {
     const handler = (e: Event) => {
@@ -722,7 +722,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // The bug this fixes: redirect-or-popup-based wallets (Albedo, web flows)
   // can complete the address-pick step (walletStore is `connected: true`)
   // but the subsequent sign popup inside connect()'s authenticateWithWallet
-  // gets dropped — typically because the multi-await chain between the user
+  // gets dropped - typically because the multi-await chain between the user
   // gesture and the sign popup loses the gesture context. The user ends up
   // with a connected wallet but no JWT, gets 401s on protected calls, and
   // only recovers via the 401-driven re-auth handler. With the intent flag

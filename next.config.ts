@@ -4,7 +4,7 @@ import { getProxyRewrites } from "./src/lib/runtime-urls";
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@blend-capital/blend-sdk", "@stellar/stellar-sdk"],
   reactStrictMode: false,
-  // Disable built-in compression — SSE (text/event-stream) responses get
+  // Disable built-in compression - SSE (text/event-stream) responses get
   // gzip'd which forces the browser to buffer the entire response before
   // decompressing, killing real-time streaming.  In production, nginx/CDN
   // handles compression and knows to skip SSE.
@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // SSE streaming routes — prevent dev tunnels/proxies from buffering
+        // SSE streaming routes - prevent dev tunnels/proxies from buffering
         source: "/agui/:path*",
         headers: [
           { key: "Cache-Control", value: "no-cache, no-transform" },
@@ -41,7 +41,7 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [
           { key: "Cache-Control", value: "no-transform" },
-          // Replaces X-Frame-Options: DENY — allows quest frontend to embed pages
+          // Replaces X-Frame-Options: DENY - allows quest frontend to embed pages
           // for visit task tracking. Set QUEST_FRONTEND_URL in .env for production.
           {
             key: "Content-Security-Policy",
@@ -100,7 +100,7 @@ const nextConfig: NextConfig = {
         accounts: require.resolve("./src/lib/stubs/accounts.ts"),
       };
     }
-    // Exclude E2E test output from file watcher — Playwright writes screenshots
+    // Exclude E2E test output from file watcher - Playwright writes screenshots
     // and videos to e2e/test-results/ which triggers HMR recompiles mid-test.
     config.watchOptions = {
       ...config.watchOptions,
@@ -121,7 +121,7 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 
-// ─── Env validation ──────────────────────────────────────────────
+// --- Env validation ----------------------------------------------
 const REQUIRED_PUBLIC = [
   "NEXT_PUBLIC_API_URL",
   "NEXT_PUBLIC_APP_URL",

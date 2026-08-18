@@ -102,7 +102,7 @@ export function StrategyDetailPage({ strategyId, className }: StrategyDetailPage
             </div>
             <p className="text-sm text-zinc-500">
               {strategy.strategy_metadata.creator.name} {strategy.strategy_metadata.creator.handle}{" "}
-              • Created on {strategy.strategy_metadata.creator.created_at}
+              - Created on {strategy.strategy_metadata.creator.created_at}
             </p>
           </div>
           <Button

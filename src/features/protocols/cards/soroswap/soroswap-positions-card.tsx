@@ -18,6 +18,7 @@ export function SoroswapPositionsCard({ data, mode = "playground" }: Props) {
   if (!data.hasPosition || !positions.length) {
     return (
       <ProtocolCard
+        data-testid="card-soroswap-positions"
         mode={mode}
         title="LP Positions"
         icon={Wallet}
@@ -32,6 +33,7 @@ export function SoroswapPositionsCard({ data, mode = "playground" }: Props) {
   if (mode === "chat") {
     return (
       <ProtocolCard
+        data-testid="card-soroswap-positions"
         mode="chat"
         title="Soroswap LP Positions"
         icon={Wallet}
@@ -75,7 +77,7 @@ export function SoroswapPositionsCard({ data, mode = "playground" }: Props) {
   }
 
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-soroswap-positions" mode="playground">
       <CardHeader
         icon={<Wallet className="h-3.5 w-3.5" />}
         title="Soroswap LP Positions"
@@ -100,25 +102,25 @@ export function SoroswapPositionsCard({ data, mode = "playground" }: Props) {
               <div>
                 <p className="text-muted-foreground/60">{pos.tokenA}</p>
                 <p className="text-foreground tabular-nums">
-                  {pos.amountA != null ? fmt(Number(pos.amountA) / 1e7) : "—"}
+                  {pos.amountA != null ? fmt(Number(pos.amountA) / 1e7) : "-"}
                 </p>
               </div>
               <div>
                 <p className="text-muted-foreground/60">{pos.tokenB}</p>
                 <p className="text-foreground tabular-nums">
-                  {pos.amountB != null ? fmt(Number(pos.amountB) / 1e7) : "—"}
+                  {pos.amountB != null ? fmt(Number(pos.amountB) / 1e7) : "-"}
                 </p>
               </div>
               <div>
                 <p className="text-muted-foreground/60">LP Tokens</p>
                 <p className="text-foreground tabular-nums">
-                  {pos.liquidityTokens != null ? fmt(Number(pos.liquidityTokens) / 1e7) : "—"}
+                  {pos.liquidityTokens != null ? fmt(Number(pos.liquidityTokens) / 1e7) : "-"}
                 </p>
               </div>
               <div>
                 <p className="text-muted-foreground/60">Value</p>
                 <p className="text-foreground tabular-nums">
-                  {pos.valueUsd != null ? `$${fmt(pos.valueUsd)}` : "—"}
+                  {pos.valueUsd != null ? `$${fmt(pos.valueUsd)}` : "-"}
                 </p>
               </div>
             </div>

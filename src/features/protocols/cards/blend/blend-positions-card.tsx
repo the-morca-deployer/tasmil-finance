@@ -37,7 +37,12 @@ export function BlendPositionsCard({
 
   if (!data.hasPosition && !supplied.length && !borrowed.length) {
     return (
-      <ProtocolCard mode={mode} title="Position" icon={mode === "chat" ? Shield : undefined}>
+      <ProtocolCard
+        data-testid="card-blend-positions"
+        mode={mode}
+        title="Position"
+        icon={mode === "chat" ? Shield : undefined}
+      >
         <EmptyState icon={Wallet} text="No open positions" />
       </ProtocolCard>
     );
@@ -56,6 +61,7 @@ export function BlendPositionsCard({
 
   return (
     <ProtocolCard
+      data-testid="card-blend-positions"
       mode={mode}
       title={isChat ? "Position" : undefined}
       icon={isChat ? Shield : undefined}

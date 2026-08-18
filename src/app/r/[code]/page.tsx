@@ -21,7 +21,7 @@ export default function ReferralLandingPage({ params }: PageProps) {
       try {
         localStorage.setItem("tasmil.referral.pendingCode", code);
       } catch {
-        /* storage disabled — non-fatal */
+        /* storage disabled - non-fatal */
       }
       router.replace(`/quest?ref=${encodeURIComponent(code)}`);
     })();
@@ -32,7 +32,7 @@ export default function ReferralLandingPage({ params }: PageProps) {
       data-testid="referral-landing"
       className="flex min-h-screen items-center justify-center text-muted-foreground text-sm"
     >
-      Redirecting…
+      Redirecting...
     </main>
   );
 }

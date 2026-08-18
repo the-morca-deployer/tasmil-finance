@@ -94,7 +94,7 @@ export function FarmingPools({ pools, isLoading }: FarmingPoolsProps) {
       <h2 className="text-xl font-semibold text-foreground">Pools</h2>
 
       <div className="overflow-hidden rounded-xl border border-border bg-card">
-        {/* Summary header — like TokenList's "Wallet · $3,556.77 10 assets" */}
+        {/* Summary header - like TokenList's "Wallet · $3,556.77 10 assets" */}
         <div className="flex items-center gap-3 px-6 py-4">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
             <TrendingUp className="h-4 w-4 text-primary" />
@@ -151,7 +151,11 @@ export function FarmingPools({ pools, isLoading }: FarmingPoolsProps) {
                     {pool.assetSymbol}
                     {pool.pairedAssetSymbol ? `/${pool.pairedAssetSymbol}` : ""}
                   </span>
-                  <span className="text-xs capitalize text-muted-foreground">{pool.protocol}</span>
+                  {/* Wire value is upper-case ("BLEND"); lower it so
+                      `capitalize` renders "Blend". */}
+                  <span className="text-xs capitalize text-muted-foreground">
+                    {pool.protocol.toLowerCase()}
+                  </span>
                 </div>
               </div>
 

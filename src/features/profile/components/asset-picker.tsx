@@ -51,7 +51,7 @@ export function AssetPicker({ value, onChange, excludeKeys, disabled }: AssetPic
               <span className="truncate font-medium text-foreground">{value.code}</span>
             </span>
           ) : (
-            <span className="text-muted-foreground">Select asset…</span>
+            <span className="text-muted-foreground">Select asset...</span>
           )}
           <ChevronDown className="h-4 w-4 shrink-0 opacity-60" />
         </button>
@@ -59,7 +59,7 @@ export function AssetPicker({ value, onChange, excludeKeys, disabled }: AssetPic
 
       <PopoverContent className="p-0">
         <Command>
-          <CommandInput placeholder="Search asset…" />
+          <CommandInput placeholder="Search asset..." />
           <CommandList>
             {isLoading && (
               <div className="flex flex-col gap-1 p-2">

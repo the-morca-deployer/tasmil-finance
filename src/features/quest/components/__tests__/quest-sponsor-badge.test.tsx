@@ -26,6 +26,12 @@ jest.mock("@/gen-quest/hooks", () => ({
   useUsersControllerDailyLogin: () => ({ mutate: jest.fn(), isPending: false }),
   useUsersControllerGetMyCampaigns: () => mockMyCampaigns(),
   usersControllerGetMeQueryKey: () => ["users", "me"],
+  // Navbar also calls useReferralControllerGetMyReferral (added after this mock
+  // was written). It reads `const { data: refRaw } = ...`, so undefined is safe.
+  useReferralControllerGetMyReferral: () => ({ data: undefined }),
+  // When authenticated, Navbar renders <WalletRankInfo/>, which calls these two.
+  useUsersControllerGetMe: () => ({ data: undefined }),
+  useSeasonsControllerMyResult: () => ({ data: undefined }),
 }));
 
 describe("Quest header sponsor badge", () => {

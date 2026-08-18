@@ -1,4 +1,4 @@
-// @ts-nocheck — surfaced by Biome auto-fix; pre-existing type drift unrelated to this PR.
+// @ts-nocheck - surfaced by Biome auto-fix; pre-existing type drift unrelated to this PR.
 
 "use client";
 
@@ -18,9 +18,9 @@ export interface PositionItem {
   extra?: string;
   /** Claimable rewards for this position */
   rewards?: { amount: number; token: string; daily?: number };
-  /** On-chain pool/contract address — required for per-position claim TXs. */
+  /** On-chain pool/contract address - required for per-position claim TXs. */
   poolAddress?: string;
-  /** LP pair info — if set, the UI shows two overlapping token icons */
+  /** LP pair info - if set, the UI shows two overlapping token icons */
   pair?: {
     token0: string;
     token1: string;
@@ -50,7 +50,7 @@ export interface ProtocolPositionGroup {
   };
 }
 
-// ─── Tasmil vault positions (from backend) ────────────────────────────────────
+// --- Tasmil vault positions (from backend) ------------------------------------
 
 /** Vault P&L data from the backend (managed accounts only). */
 export interface VaultPnL {
@@ -115,7 +115,7 @@ function useTasmilGroup(publicKey: string | null | undefined) {
   return { group, vaultPnl, isLoading };
 }
 
-// ─── Parse amount from "extra" field (e.g. "502.0011 XLM" → 502.0011) ────────
+// --- Parse amount from "extra" field (e.g. "502.0011 XLM" → 502.0011) --------
 
 function parseAmount(extra?: string): number {
   if (!extra) return 0;
@@ -124,7 +124,7 @@ function parseAmount(extra?: string): number {
   return parseFloat(match[0].replace(/,/g, "")) || 0;
 }
 
-// ─── Enrich positions with USD values from token prices ──────────────────────
+// --- Enrich positions with USD values from token prices ----------------------
 
 function enrichWithPrices(
   groups: ProtocolPositionGroup[],
@@ -161,7 +161,7 @@ function enrichWithPrices(
   });
 }
 
-// ─── Combined hook ────────────────────────────────────────────────────────────
+// --- Combined hook ------------------------------------------------------------
 
 export function useDefiPositions(address: string | null | undefined) {
   const { group: tasmilGroup, vaultPnl, isLoading: tasmilLoading } = useTasmilGroup(address);

@@ -82,7 +82,7 @@ export interface SorobanTokenMeta {
 
 export type TokenMetaLookup = (contractId: string) => SorobanTokenMeta | undefined;
 
-// ─── Row presentation (consumed by transaction-row.tsx) ───────────────
+// --- Row presentation (consumed by transaction-row.tsx) ---------------
 
 export type AvatarGlyph = "user" | "wallet" | "plus" | "arrow-up" | "x-circle";
 

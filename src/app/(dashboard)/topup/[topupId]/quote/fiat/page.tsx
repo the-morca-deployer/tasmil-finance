@@ -60,7 +60,7 @@ export default function FiatQuotePage({ params }: PageProps) {
       ) : (
         <>
           <div className="h-2 w-2 animate-pulse rounded-full bg-primary" aria-hidden />
-          <p>Creating fiat quote…</p>
+          <p>Creating fiat quote...</p>
         </>
       )}
     </div>

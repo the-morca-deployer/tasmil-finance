@@ -109,7 +109,7 @@ export default function Features() {
                 like a person.
               </h3>
               <p className="fp">
-                Describe the outcome in plain words. Agents plan the route — you approve before
+                Describe the outcome in plain words. Agents plan the route - you approve before
                 anything signs.
               </p>
               <div className="flist">
@@ -193,7 +193,7 @@ export default function Features() {
                     <div className="sf-top">
                       <span className="sf-label">You pay</span>
                       <span className="sf-acct">
-                        GDQI7L…3I6R
+                        GDQI7L...3I6R
                         <svg viewBox="0 0 12 12" fill="none">
                           <path
                             d="M3 4.5 6 7.5 9 4.5"
@@ -437,7 +437,7 @@ export default function Features() {
                 one screen.
               </h3>
               <p className="fp">
-                Every position and balance across your wallet on one screen — no tabs, no block
+                Every position and balance across your wallet on one screen - no tabs, no block
                 explorers.
               </p>
               <div className="flist">

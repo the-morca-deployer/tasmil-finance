@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { apySchema } from "./common.schema";
 
-// ─── Pool ──────────────────────────────────────────────────────
+// --- Pool ------------------------------------------------------
 
 export const soroswapPoolCardPropsSchema = z.object({
   address: z.string().optional(),
@@ -20,7 +20,7 @@ export const soroswapPoolCardPropsSchema = z.object({
 });
 export type SoroswapPoolCardProps = z.infer<typeof soroswapPoolCardPropsSchema>;
 
-// ─── Quote ─────────────────────────────────────────────────────
+// --- Quote -----------------------------------------------------
 
 export const soroswapQuoteCardPropsSchema = z.object({
   amountIn: z.string(),
@@ -34,7 +34,7 @@ export const soroswapQuoteCardPropsSchema = z.object({
 });
 export type SoroswapQuoteCardProps = z.infer<typeof soroswapQuoteCardPropsSchema>;
 
-// ─── LP Position ───────────────────────────────────────────────
+// --- LP Position -----------------------------------------------
 
 export const soroswapPositionItemSchema = z.object({
   poolAddress: z.string(),
@@ -55,7 +55,7 @@ export const soroswapPositionsCardPropsSchema = z.object({
 });
 export type SoroswapPositionsCardProps = z.infer<typeof soroswapPositionsCardPropsSchema>;
 
-// ─── Yield ─────────────────────────────────────────────────────
+// --- Yield -----------------------------------------------------
 
 export const soroswapYieldCardPropsSchema = z.object({
   protocol: z.string().optional(),
@@ -75,7 +75,7 @@ export const soroswapYieldCardPropsSchema = z.object({
 });
 export type SoroswapYieldCardProps = z.infer<typeof soroswapYieldCardPropsSchema>;
 
-// ─── Price ─────────────────────────────────────────────────────
+// --- Price -----------------------------------------------------
 
 export const soroswapPriceCardPropsSchema = z.object({
   asset: z.string(),
@@ -85,7 +85,7 @@ export const soroswapPriceCardPropsSchema = z.object({
 });
 export type SoroswapPriceCardProps = z.infer<typeof soroswapPriceCardPropsSchema>;
 
-// ─── Transaction ───────────────────────────────────────────────
+// --- Transaction -----------------------------------------------
 
 export const soroswapTxCardPropsSchema = z.object({
   operation: z.string(),

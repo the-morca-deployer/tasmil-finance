@@ -82,7 +82,7 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
         return;
       }
 
-      // isLoading guard — prevents concurrent streams
+      // isLoading guard - prevents concurrent streams
       if (isLoadingRef.current) return;
 
       isLoadingRef.current = true;
@@ -153,7 +153,7 @@ export function useAguiStream(config: AguiStreamConfig): StreamContextType {
   } as unknown as StreamContextType;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// -- Helpers ------------------------------------------------------------------
 
 function _toStreamMessages(
   messages: ChatAgentMessage[],
@@ -258,7 +258,7 @@ function _populateFromHistory(rawMessages: any[]): void {
           delta: JSON.stringify(tc.args ?? {}),
         });
         // On history replay there's no separate TOOL_CALL_END event, so mark
-        // the slot complete immediately — otherwise reloaded conversations
+        // the slot complete immediately - otherwise reloaded conversations
         // show every past tool call stuck on a spinner.
         store.applyEvent({
           type: "TOOL_CALL_RESULT",

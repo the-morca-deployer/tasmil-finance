@@ -33,7 +33,7 @@ export interface ProtocolConfig {
   panels: PanelConfig[];
 }
 
-// ─── Panel definitions ──────────────────────────────────────────
+// --- Panel definitions ------------------------------------------
 
 const POOLS_PANEL: PanelConfig = {
   id: "pools",
@@ -116,7 +116,7 @@ const ORDERBOOK_PANEL: PanelConfig = {
   ],
 };
 
-// ─── Protocol configs ───────────────────────────────────────────
+// --- Protocol configs -------------------------------------------
 
 export const PROTOCOL_CONFIGS: ProtocolConfig[] = [
   {

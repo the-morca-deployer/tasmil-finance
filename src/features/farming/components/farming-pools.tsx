@@ -41,7 +41,7 @@ interface FarmingPoolsProps {
   isLoading: boolean;
   assetFilter?: "USDC" | "XLM";
   /**
-   * FRAGILE: keys built as `${protocol.toLowerCase()}:${assetSymbol}${pair}` — the
+   * FRAGILE: keys built as `${protocol.toLowerCase()}:${assetSymbol}${pair}` - the
    * SAME shape backend uses for Position.poolName + protocol. Match relies on this
    * derivation parity. Backend follow-up: add poolAddress to PositionResponse for
    * type-safe match.
@@ -114,7 +114,7 @@ export function FarmingPools({
       <h2 className="font-semibold text-foreground text-xl">Pools</h2>
 
       <div className="overflow-hidden rounded-xl border border-border bg-card">
-        {/* Summary header — like TokenList's "Wallet · $3,556.77 10 assets" */}
+        {/* Summary header - like TokenList's "Wallet · $3,556.77 10 assets" */}
         <div className="flex items-center gap-3 px-6 py-4">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
             <TrendingUp className="h-4 w-4 text-primary" />
@@ -200,7 +200,11 @@ export function FarmingPools({
                       </span>
                     )}
                   </div>
-                  <span className="text-muted-foreground text-xs capitalize">{pool.protocol}</span>
+                  {/* Wire value is upper-case ("BLEND"); lower it first so
+                      `capitalize` renders "Blend" rather than "BLEND". */}
+                  <span className="text-muted-foreground text-xs capitalize">
+                    {pool.protocol.toLowerCase()}
+                  </span>
                 </div>
               </div>
 
@@ -235,7 +239,7 @@ export function FarmingPools({
                 </span>
               </div>
 
-              {/* Chevron — affordance for click */}
+              {/* Chevron - affordance for click */}
               <div className="flex justify-end">
                 {onSelectPool && <ChevronRight className="h-4 w-4 text-muted-foreground/50" />}
               </div>

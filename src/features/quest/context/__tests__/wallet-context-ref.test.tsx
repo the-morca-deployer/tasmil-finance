@@ -13,7 +13,7 @@
 
 import { buildVerifyPayload, readPendingReferralCode } from "@/features/quest/lib/referral-link";
 
-describe("wallet-context — verify payload includes referredByCode", () => {
+describe("wallet-context - verify payload includes referredByCode", () => {
   beforeEach(() => {
     localStorage.clear();
   });

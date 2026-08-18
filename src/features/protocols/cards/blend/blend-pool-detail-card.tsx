@@ -2,7 +2,7 @@
 
 import { Database } from "lucide-react";
 import { TokenImage } from "@/shared/components/token-image";
-import { fmt, pct, trunc } from "../../lib/formatting";
+import { fmt, pct } from "../../lib/formatting";
 import type { PoolCardProps } from "../../schemas/blend.schema";
 import type { CardMode } from "../../schemas/common.schema";
 import { Bar, Stat, Tag } from "../base/indicators";
@@ -18,6 +18,7 @@ export function BlendPoolDetailCard({ pool, mode = "playground" }: BlendPoolDeta
 
   return (
     <ProtocolCard
+      data-testid="card-blend-pool-detail"
       mode={mode}
       title={isChat ? pool.name : undefined}
       icon={isChat ? Database : undefined}
@@ -26,9 +27,13 @@ export function BlendPoolDetailCard({ pool, mode = "playground" }: BlendPoolDeta
         <div className="flex items-center justify-between border-border border-b px-4 py-2.5">
           <div className="flex items-center gap-2">
             <Database className="h-4 w-4 text-muted-foreground" />
-            <div>
+            <div className="min-w-0">
               <p className="font-medium text-[13px] text-foreground">{pool.name}</p>
-              <p className="font-mono text-[10px] text-muted-foreground">{trunc(pool.address)}</p>
+              {pool.address && (
+                <p className="break-all font-mono text-[10px] text-muted-foreground">
+                  {pool.address}
+                </p>
+              )}
             </div>
           </div>
           <Tag type={pool.status} />
@@ -36,10 +41,12 @@ export function BlendPoolDetailCard({ pool, mode = "playground" }: BlendPoolDeta
       )}
       {isChat && (
         <div className="mb-2 space-y-1.5">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Address</span>
-            <span className="font-mono text-xs">{trunc(pool.address)}</span>
-          </div>
+          {pool.address && (
+            <div className="space-y-0.5 text-sm">
+              <span className="text-muted-foreground">Address</span>
+              <span className="block break-all font-mono text-[10px]">{pool.address}</span>
+            </div>
+          )}
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Status</span>
             <Tag type={pool.status} />

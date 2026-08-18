@@ -54,7 +54,7 @@ function validateAddress(address: string, chainType: ChainType): boolean {
   }
 }
 
-// ─── Address Picker Component ───────────────────────────────────
+// --- Address Picker Component -----------------------------------
 
 interface AddressPickerProps {
   direction: "source" | "dest";
@@ -190,7 +190,7 @@ export function AddressPicker({
         </DialogHeader>
 
         <div className="space-y-4 px-6 pb-4">
-          {/* ── Manual Address Input ── */}
+          {/* -- Manual Address Input -- */}
           <div>
             <p className="mb-2 font-medium text-xs" style={{ color: "var(--muted-foreground)" }}>
               Enter {getChainLabel(chainType)} address
@@ -257,7 +257,7 @@ export function AddressPicker({
             )}
           </div>
 
-          {/* ── Connected Wallets ── */}
+          {/* -- Connected Wallets -- */}
           <div>
             <div className="mb-2 flex items-center justify-between">
               <p

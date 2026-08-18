@@ -9,7 +9,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { checkTrustlineExists, useTrustlineCheck } from "./use-trustline-check";
 
-// ─── Mocks ─────────────────────────────────────────────────────────────
+// --- Mocks -------------------------------------------------------------
 
 const loadAccountMock = jest.fn();
 
@@ -41,7 +41,7 @@ beforeEach(() => {
   loadAccountMock.mockReset();
 });
 
-// ─── Helper contract ────────────────────────────────────────────────────
+// --- Helper contract ----------------------------------------------------
 
 describe("checkTrustlineExists (helper contract)", () => {
   it("returns true for native XLM without contacting Horizon", async () => {
@@ -105,7 +105,7 @@ describe("checkTrustlineExists (helper contract)", () => {
   });
 });
 
-// ─── Hook contract ──────────────────────────────────────────────────────
+// --- Hook contract ------------------------------------------------------
 
 describe("useTrustlineCheck (hook contract)", () => {
   it("catches helper throw and reports hasTrustline=true (preserves UX on Horizon failure)", async () => {

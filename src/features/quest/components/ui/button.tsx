@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Quest Button component — replaces `.btn` CSS classes from globals.css
+ * Quest Button component - replaces `.btn` CSS classes from globals.css
  * (.btn, .btn-primary, .btn-ghost, .btn-accent, .btn-green, .btn-sm, .btn-lg, .btn-block, .btn-pulse)
  *
  * Base: inline-flex items-center justify-center gap-[9px] px-[26px] py-[14px]
@@ -101,7 +101,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 /**
- * Helper that returns the button class string — use this for non-button elements like <a> or <Link>:
+ * Helper that returns the button class string - use this for non-button elements like <a> or <Link>:
  *   <Link href="..." className={buttonClasses({ variant: "primary", size: "lg" })}>
  */
 export function buttonClasses(

@@ -6,14 +6,14 @@ import { BridgeDiscoveryCard } from "@/features/chat/actions/components/stellar/
 import { EarnDiscoveryCard } from "@/features/chat/actions/components/stellar/earn-discovery-card";
 import { StrategyPresetCard } from "@/features/chat/actions/components/stellar/strategy-preset-card";
 
-// ─── Mock Data ───────────────────────────────────────────────────
+// --- Mock Data ---------------------------------------------------
 
 const MOCK_EARN_OPPORTUNITIES = {
   opportunities: [
     {
       protocol: "blend",
       type: "lending",
-      name: "Fixed Pool — USDC",
+      name: "Fixed Pool - USDC",
       apy: 9.41,
       tvl: "91050000",
       assets: ["USDC"],
@@ -61,7 +61,7 @@ const MOCK_EARN_NAN_APY = {
     {
       protocol: "blend",
       type: "lending",
-      name: "Etherfuse Pool — XLM",
+      name: "Etherfuse Pool - XLM",
       apy: null,
       tvl: "36000",
       assets: ["XLM"],
@@ -193,7 +193,7 @@ const MOCK_ACCOUNT_STATUS_ACTIVE = {
   position_count: 4,
 };
 
-// ─── Section Component ───────────────────────────────────────────
+// --- Section Component -------------------------------------------
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -215,7 +215,7 @@ function CardWrapper({ label, children }: { label: string; children: React.React
   );
 }
 
-// ─── Page ────────────────────────────────────────────────────────
+// --- Page --------------------------------------------------------
 
 export default function ChatCardsPlaygroundPage() {
   return (
@@ -228,7 +228,7 @@ export default function ChatCardsPlaygroundPage() {
         </p>
       </div>
 
-      {/* ─── EarnDiscoveryCard ─────────────────────────── */}
+      {/* --- EarnDiscoveryCard --------------------------- */}
       <Section title="EarnDiscoveryCard">
         <CardWrapper label="Happy path (3 results)">
           <EarnDiscoveryCard result={MOCK_EARN_OPPORTUNITIES} status="completed" />
@@ -241,7 +241,7 @@ export default function ChatCardsPlaygroundPage() {
         </CardWrapper>
       </Section>
 
-      {/* ─── AccountInfoCard ──────────────────────────── */}
+      {/* --- AccountInfoCard ---------------------------- */}
       <Section title="AccountInfoCard">
         <CardWrapper label="Account info (balances)">
           <AccountInfoCard type="account_info" result={MOCK_ACCOUNT_INFO} status="completed" />
@@ -257,7 +257,7 @@ export default function ChatCardsPlaygroundPage() {
         </CardWrapper>
       </Section>
 
-      {/* ─── BridgeDiscoveryCard ──────────────────────── */}
+      {/* --- BridgeDiscoveryCard ------------------------ */}
       <Section title="BridgeDiscoveryCard">
         <CardWrapper label="With quotes (ETH → Stellar)">
           <BridgeDiscoveryCard
@@ -275,7 +275,7 @@ export default function ChatCardsPlaygroundPage() {
         </CardWrapper>
       </Section>
 
-      {/* ─── StrategyPresetCard ───────────────────────── */}
+      {/* --- StrategyPresetCard ------------------------- */}
       <Section title="StrategyPresetCard">
         <CardWrapper label="3 presets">
           <StrategyPresetCard result={MOCK_STRATEGY_PRESETS} status="completed" />
@@ -285,7 +285,7 @@ export default function ChatCardsPlaygroundPage() {
         </CardWrapper>
       </Section>
 
-      {/* ─── AccountSetupCard ─────────────────────────── */}
+      {/* --- AccountSetupCard --------------------------- */}
       <Section title="AccountSetupCard">
         <CardWrapper label="No account (deploy)">
           <AccountSetupCard result={MOCK_ACCOUNT_STATUS_DEPLOY} />

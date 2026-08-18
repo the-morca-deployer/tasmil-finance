@@ -37,15 +37,44 @@ jest.mock("@/shared/context/wallet-context", () => ({
   }),
 }));
 
-// Mock React Query
+// Mock React Query.
+// The default return value must be a VALID react-query result object, not the
+// bare `undefined` a plain `jest.fn()` yields. `undefined` crashes any component
+// doing `const { data } = useQuery(...)` and any Kubb-generated hook doing
+// `query.queryKey = queryKey` on the useQuery result - i.e. it fails for a
+// reason that has nothing to do with the behaviour under test. `data: undefined`
+// still models "no data yet", so suites that want specific data keep overriding
+// via `(useQuery as jest.Mock).mockReturnValue(...)`.
+// NOTE: jest.config sets `clearMocks` (mockClear) and `restoreMocks`
+// (spies only), neither of which strips a `jest.fn(impl)` implementation, so
+// these defaults survive between tests.
 jest.mock("@tanstack/react-query", () => ({
   ...jest.requireActual("@tanstack/react-query"),
-  useQuery: jest.fn(),
-  useMutation: jest.fn(),
+  useQuery: jest.fn(() => ({
+    data: undefined,
+    isLoading: false,
+    isPending: false,
+    isFetching: false,
+    isError: false,
+    isSuccess: false,
+    error: null,
+    refetch: jest.fn(),
+  })),
+  useMutation: jest.fn(() => ({
+    mutate: jest.fn(),
+    mutateAsync: jest.fn(),
+    isPending: false,
+    isError: false,
+    isSuccess: false,
+    error: null,
+    data: undefined,
+    reset: jest.fn(),
+  })),
   useQueryClient: () => ({
     invalidateQueries: jest.fn(),
     setQueryData: jest.fn(),
     getQueryData: jest.fn(),
+    refetchQueries: jest.fn(),
   }),
 }));
 

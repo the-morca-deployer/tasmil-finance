@@ -432,7 +432,7 @@ function ConfigCard() {
           </div>
           <div>
             <div style={label}>Slots Used</div>
-            <div style={value}>{cfg.currentSlots ?? "—"}</div>
+            <div style={value}>{cfg.currentSlots ?? "-"}</div>
           </div>
           <div>
             <div style={label}>Max TX / User / Day</div>
@@ -445,13 +445,13 @@ function ConfigCard() {
           <div>
             <div style={label}>Warning Threshold</div>
             <div style={value}>
-              {(cfg as unknown as { xlmAlertThreshold?: number }).xlmAlertThreshold ?? "—"} XLM
+              {(cfg as unknown as { xlmAlertThreshold?: number }).xlmAlertThreshold ?? "-"} XLM
             </div>
           </div>
           <div>
             <div style={label}>Critical Threshold</div>
             <div style={value}>
-              {(cfg as unknown as { xlmCriticalThreshold?: number }).xlmCriticalThreshold ?? "—"}{" "}
+              {(cfg as unknown as { xlmCriticalThreshold?: number }).xlmCriticalThreshold ?? "-"}{" "}
               XLM
             </div>
           </div>
@@ -511,7 +511,7 @@ function LogsTable() {
   const totalPages = data ? Math.ceil(data.total / LIMIT) : 1;
 
   function trunc(s: string, n: number) {
-    return s.length > n ? `${s.slice(0, n)}…` : s;
+    return s.length > n ? `${s.slice(0, n)}...` : s;
   }
 
   return (
@@ -639,7 +639,7 @@ function LogsTable() {
 }
 
 // ===========================================================================
-// Cohort sponsor (v2) — new gas-sponsorship module
+// Cohort sponsor (v2) - new gas-sponsorship module
 // ===========================================================================
 
 function stroopsToXlm(stroops: string | bigint | number): string {
@@ -685,7 +685,7 @@ function CohortConfigCard() {
   return (
     <div style={card} data-testid="cohort-config-card">
       <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>
-        Cohort sponsor (v2) — config
+        Cohort sponsor (v2) - config
       </h2>
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
@@ -750,7 +750,7 @@ function CohortConfigCard() {
               opacity: mutation.isPending ? 0.6 : 1,
             }}
           >
-            {mutation.isPending ? "Saving…" : "Save"}
+            {mutation.isPending ? "Saving..." : "Save"}
           </button>
           <span style={{ fontSize: 11, color: "rgba(245,248,252,0.4)" }}>
             v{data.version} · updated {new Date(data.updatedAt).toLocaleString()}
@@ -794,13 +794,13 @@ function CohortMembersTable() {
               <tr key={m.userId} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                 <td style={{ padding: "6px 8px", fontWeight: 600 }}>#{m.rank}</td>
                 <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
-                  {m.userId.slice(0, 12)}…
+                  {m.userId.slice(0, 12)}...
                 </td>
                 <td style={{ padding: "6px 8px" }}>
                   {new Date(m.assignedAt).toLocaleDateString()}
                 </td>
                 <td style={{ padding: "6px 8px" }}>
-                  {m.modalSeenAt ? "✓" : <span style={{ opacity: 0.4 }}>—</span>}
+                  {m.modalSeenAt ? "✓" : <span style={{ opacity: 0.4 }}>-</span>}
                 </td>
                 <td style={{ padding: "6px 8px" }}>{m.txCount}</td>
                 <td style={{ padding: "6px 8px" }}>{stroopsToXlm(m.xlmSponsoredStroops)}</td>
@@ -845,10 +845,10 @@ function CohortFallbackLogTable() {
                 <td style={{ padding: "6px 8px" }}>{new Date(r.createdAt).toLocaleString()}</td>
                 <td style={{ padding: "6px 8px" }}>{r.reason}</td>
                 <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
-                  {r.userId ? `${r.userId.slice(0, 12)}…` : "—"}
+                  {r.userId ? `${r.userId.slice(0, 12)}...` : "-"}
                 </td>
                 <td style={{ padding: "6px 8px", fontFamily: "monospace" }}>
-                  {r.txHash ? `${r.txHash.slice(0, 10)}…` : "—"}
+                  {r.txHash ? `${r.txHash.slice(0, 10)}...` : "-"}
                 </td>
               </tr>
             ))}

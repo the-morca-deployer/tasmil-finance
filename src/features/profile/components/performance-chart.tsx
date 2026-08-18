@@ -1,4 +1,4 @@
-// @ts-nocheck — surfaced by Biome auto-fix; pre-existing type drift unrelated to this PR.
+// @ts-nocheck - surfaced by Biome auto-fix; pre-existing type drift unrelated to this PR.
 
 "use client";
 
@@ -11,7 +11,7 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import type { HistoryPoint } from "../hooks/use-portfolio-history";
 import { usePortfolioHistory } from "../hooks/use-portfolio-history";
 
-// ─── Formatters ──────────────────────────────────────────────────────────────
+// --- Formatters --------------------------------------------------------------
 
 function formatUsd(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -42,7 +42,7 @@ function formatDateForRange(ts: number, days: number): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-// ─── Custom Tooltip ──────────────────────────────────────────────────────────
+// --- Custom Tooltip ----------------------------------------------------------
 
 function ChartTooltip({
   active,
@@ -72,7 +72,7 @@ function ChartTooltip({
   );
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
+// --- Component ---------------------------------------------------------------
 
 interface PerformanceChartProps {
   address: string | null | undefined;
@@ -106,7 +106,7 @@ export function PerformanceChart({
     return pts;
   }, [history, totalUsd, walletUsd, defiUsd]);
 
-  // Change indicator — hide when change is negligible (rounds to $0.00)
+  // Change indicator - hide when change is negligible (rounds to $0.00)
   const change = useMemo(() => {
     if (chartData.length < 2) return null;
     const first = chartData[0]?.totalValueUsd;

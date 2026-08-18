@@ -102,14 +102,14 @@ export function QuestNav() {
 
   const { connect, disconnect, isAuthenticating } = useWallet();
   // `$` routes through questApiClient, whose interceptor already unwraps the
-  // `{ success, data }` envelope — so `data` IS the profile (no extra `.data`).
+  // `{ success, data }` envelope - so `data` IS the profile (no extra `.data`).
   const me = ((data as MeFields | undefined) ?? {}) as MeFields;
   const points = me.totalPoints ?? 0;
   const streak = me.loginStreak ?? 0;
   const address = me.walletAddress ?? user?.walletAddress ?? "";
   const rankStyle = RANK_STYLES[rankFromPoints(points).rank];
 
-  // Native XLM balance — same fetch/queryKey pattern as the strategy WalletMenu.
+  // Native XLM balance - same fetch/queryKey pattern as the strategy WalletMenu.
   const { data: balance, isLoading: balanceLoading } = useQuery({
     queryKey: ["native-balance", address],
     queryFn: () => fetchNativeBalance(address),
@@ -119,7 +119,7 @@ export function QuestNav() {
   const balanceLabel =
     balance != null
       ? `${Number(balance).toLocaleString(undefined, { maximumFractionDigits: 4 })} XLM`
-      : "—";
+      : "-";
 
   const [copied, setCopied] = useState(false);
   const copyAddress = () => {
@@ -196,7 +196,7 @@ export function QuestNav() {
         className="justify-self-start"
       />
 
-      {/* Nav links — .nav-links + .nav-item + .nav-item.active */}
+      {/* Nav links - .nav-links + .nav-item + .nav-item.active */}
       <div className="flex gap-0.5 justify-self-center max-[680px]:hidden">
         {LINKS.map((l) => (
           <Link
@@ -223,7 +223,7 @@ export function QuestNav() {
         ))}
       </div>
 
-      {/* Right side — .nav-right */}
+      {/* Right side - .nav-right */}
       <div className="flex items-center gap-3 justify-self-end">
         {/* PTS + streak chips only make sense once the wallet is connected/authenticated */}
         {isAuthenticated && (
@@ -240,7 +240,7 @@ export function QuestNav() {
               {fmt(points)}
             </span>
 
-            {/* .stat-pill.streak — same color; text shows whether check-in is due */}
+            {/* .stat-pill.streak - same color; text shows whether check-in is due */}
             <button
               type="button"
               className={cn(
@@ -255,12 +255,12 @@ export function QuestNav() {
               title={hasCheckedIn ? "Checked in today" : "Click to check in (+points)"}
             >
               <Flame style={{ width: 19, height: 19 }} />
-              {dailyLogin.isPending ? "…" : hasCheckedIn ? `${fmt(streak)}` : "Check in"}
+              {dailyLogin.isPending ? "..." : hasCheckedIn ? `${fmt(streak)}` : "Check in"}
             </button>
           </>
         )}
 
-        {/* Wallet chip — avatar-only on mobile, full chip at lg; opens a click/tap
+        {/* Wallet chip - avatar-only on mobile, full chip at lg; opens a click/tap
             dropdown so it works on touch (mirrors the strategy WalletMenu). Gated on
             both `address` and `isAuthenticated`: `address` falls back to the
             `getMe` query's cached data, which lingers after disconnect since a
@@ -292,7 +292,7 @@ export function QuestNav() {
               <div className="px-2 py-2">
                 <p className="text-[11px] text-quest-muted uppercase tracking-[0.08em]">Balance</p>
                 <p className="mt-0.5 font-mono font-semibold text-[16px]">
-                  {balanceLoading ? "Loading…" : balanceLabel}
+                  {balanceLoading ? "Loading..." : balanceLabel}
                 </p>
                 <div className="mt-2 flex items-center gap-2.5 text-[13px]">
                   <img
@@ -349,7 +349,7 @@ export function QuestNav() {
           </DropdownMenu>
         )}
 
-        {/* Connect Wallet — matches main navbar gradient button */}
+        {/* Connect Wallet - matches main navbar gradient button */}
         {!(address && isAuthenticated) && (
           <Button
             size="sm"
@@ -363,7 +363,7 @@ export function QuestNav() {
           </Button>
         )}
 
-        {/* Hamburger — circular bordered Menu trigger (mirrors strategy); only
+        {/* Hamburger - circular bordered Menu trigger (mirrors strategy); only
             shown below 680px, where the nav links are hidden. The drawer carries
             its own X / backdrop to close. */}
         <button
@@ -380,7 +380,7 @@ export function QuestNav() {
         </button>
       </div>
 
-      {/* Mobile drawer — portaled to <body> so the full-height fixed panel
+      {/* Mobile drawer - portaled to <body> so the full-height fixed panel
           escapes the nav's `backdrop-filter` containing block. Rendered only
           while open. */}
       {mounted &&
@@ -417,7 +417,7 @@ export function QuestNav() {
               </div>
 
               <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
-                {/* Profile — flat (only the stat tiles are bordered) */}
+                {/* Profile - flat (only the stat tiles are bordered) */}
                 {address && isAuthenticated && (
                   <div className="flex flex-col gap-3 border-quest-line-2 border-b pb-4">
                     <div className="flex items-center gap-2.5">
@@ -516,7 +516,7 @@ export function QuestNav() {
                 </div>
               </div>
 
-              {/* Disconnect footer — pinned bottom, only when connected */}
+              {/* Disconnect footer - pinned bottom, only when connected */}
               {address && isAuthenticated && (
                 <div className="border-quest-line-2 border-t p-3">
                   <button

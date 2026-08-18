@@ -5,7 +5,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CardMode } from "../../schemas/common.schema";
 
-// ─── Protocol Card Shell ────────────────────────────────────────
+// --- Protocol Card Shell ----------------------------------------
 
 interface ProtocolCardProps {
   children: React.ReactNode;
@@ -100,7 +100,7 @@ export function ProtocolCard({
   );
 }
 
-// ─── Empty state ────────────────────────────────────────────────
+// --- Empty state ------------------------------------------------
 
 export function EmptyState({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
   return (

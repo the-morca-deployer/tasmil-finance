@@ -1,5 +1,5 @@
 /**
- * Blend Protocol — Full Evaluation Mode
+ * Blend Protocol - Full Evaluation Mode
  *
  * This test uses the EvaluationReporter to produce a combined report with:
  * - Playwright screenshots of each card
@@ -15,7 +15,7 @@ import { BLEND_TESTS } from "../helpers/test-prompts";
 
 const reporter = getEvaluationReporter();
 
-test.describe("Blend Protocol — Evaluated", () => {
+test.describe("Blend Protocol - Evaluated", () => {
   test.describe.configure({ mode: "serial" });
 
   for (const [action, config] of Object.entries(BLEND_TESTS)) {
@@ -38,7 +38,7 @@ test.describe("Blend Protocol — Evaluated", () => {
         cardType = result.type;
         cardLocator = result.locator;
       } catch {
-        // No card rendered — will be flagged as failure
+        // No card rendered - will be flagged as failure
       }
 
       // 4. Run evaluation (screenshot + LangSmith + assertions)
@@ -65,7 +65,7 @@ test.describe("Blend Protocol — Evaluated", () => {
           .filter((d) => d.status === "fail")
           .map((d) => `${d.name}: ${d.detail}`)
           .join("\n");
-        // Soft fail — log but don't abort the suite
+        // Soft fail - log but don't abort the suite
         console.warn(`\n⚠️  EVAL FAIL [blend.${action}]:\n${failedDims}\n`);
       }
 

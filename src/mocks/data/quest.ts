@@ -5,7 +5,7 @@
  */
 
 // ============================================================
-// Campaigns — returned as { success: true, data: { items, meta } }
+// Campaigns - returned as { success: true, data: { items, meta } }
 // ============================================================
 
 // Helper to generate ISO dates relative to now
@@ -13,7 +13,7 @@ const daysFromNow = (d: number) => new Date(Date.now() + d * 86400000).toISOStri
 
 const RAW_CAMPAIGNS = [
   {
-    // Ongoing — started in past, ends in future
+    // Ongoing - started in past, ends in future
     id: "tasmil-launch",
     title: "Mission Bring TASMIL Home",
     description: "Support the Tasmil ecosystem by participating in our grand launch event.",
@@ -90,7 +90,7 @@ const RAW_CAMPAIGNS = [
     tasks: [],
   },
   {
-    // Closed — ended in the past
+    // Closed - ended in the past
     id: "nft-madness",
     title: "NFT Madness: Collect & Win",
     description: "Mint, trade, and collect exclusive NFTs to climb the leaderboard.",
@@ -138,7 +138,7 @@ const RAW_CAMPAIGNS = [
     tasks: [],
   },
   {
-    // Upcoming — starts in the future
+    // Upcoming - starts in the future
     id: "upcoming-stellar",
     title: "Stellar Evolution: Next Frontier",
     description:
@@ -219,7 +219,7 @@ export function getNotJoinedEnvelope() {
 }
 
 // ============================================================
-// Users — returned as { data: {...} }
+// Users - returned as { data: {...} }
 // ============================================================
 
 export const MOCK_USER_ME = {
@@ -356,7 +356,7 @@ export const MOCK_MY_CAMPAIGNS_CLAIMED = {
 };
 
 // ============================================================
-// Leaderboard — returned as { data: [...] }
+// Leaderboard - returned as { data: [...] }
 // ============================================================
 
 export const MOCK_LEADERBOARD = {
@@ -446,7 +446,7 @@ export const MOCK_STREAK_LEADERBOARD = {
 };
 
 // ============================================================
-// Seasons — { data: {...} }
+// Seasons - { data: {...} }
 // ============================================================
 
 export const MOCK_CURRENT_SEASON = {
@@ -479,7 +479,7 @@ export const MOCK_MY_SEASON_RESULT = {
 };
 
 // ============================================================
-// Referrals — { data: {...} }
+// Referrals - { data: {...} }
 // ============================================================
 
 export const MOCK_REFERRAL = {
@@ -649,7 +649,7 @@ export const MOCK_REFERRAL_TREE = {
 };
 
 // ============================================================
-// Social Accounts — { data: [...] }
+// Social Accounts - { data: [...] }
 // ============================================================
 
 export const MOCK_SOCIAL_ACCOUNTS = {

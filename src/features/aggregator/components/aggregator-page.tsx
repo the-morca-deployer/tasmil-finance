@@ -239,7 +239,7 @@ export function AggregatorPage() {
   const chainTypeIn = resolveChainType(agg.chainIn);
   const chainTypeOut = resolveChainType(agg.chainOut);
 
-  // Source address — from store selection or auto from connected wallet
+  // Source address - from store selection or auto from connected wallet
   const isSourceStellar = agg.chainIn === "stellar";
   const isSourceEvm = EVM_CHAINS.has(agg.chainIn);
   const isSourceSolana = agg.chainIn === "solana";
@@ -282,7 +282,7 @@ export function AggregatorPage() {
   const aggHasAmount = !!agg.amount && Number.parseFloat(agg.amount) > 0;
   const showRoutePanel = aggHasBothTokens && aggHasAmount;
 
-  // ─── Wallet balances & prices ───────────────────────────────────────────
+  // --- Wallet balances & prices -------------------------------------------
   const { data: walletData } = useWalletTokens(stellarAddress);
   const walletTokens = walletData?.tokens ?? [];
 
@@ -321,7 +321,7 @@ export function AggregatorPage() {
           ) ?? null)
         : null;
 
-  // Prices — use wallet price map (works even if user doesn't hold the token,
+  // Prices - use wallet price map (works even if user doesn't hold the token,
   // as long as another token with that symbol exists in the wallet)
   const tokenInPrice = agg.tokenIn ? (priceMap[agg.tokenIn.symbol.toUpperCase()] ?? 0) : 0;
   const tokenOutPrice = agg.tokenOut ? (priceMap[agg.tokenOut.symbol.toUpperCase()] ?? 0) : 0;
@@ -349,7 +349,7 @@ export function AggregatorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agg.chainOut]);
 
-  // Selected route quote — either user-selected or best
+  // Selected route quote - either user-selected or best
   const selectedQuote =
     agg.quotes.find((q) => (q.protocol || q.provider) === selectedProtocol && q.status === "ok") ||
     agg.bestQuote;
@@ -425,7 +425,7 @@ export function AggregatorPage() {
     window.history.replaceState(null, "", url);
   }, [agg.tokenIn, agg.tokenOut, agg.chainIn, agg.chainOut, agg.amount]);
 
-  // Tokens available for pickers — use filtered if available, else all
+  // Tokens available for pickers - use filtered if available, else all
   const tokensForOut = agg.filteredTokensOut.length > 0 ? agg.filteredTokensOut : agg.tokens;
   const chainsForOut =
     agg.filteredChainsOut.length > 0 ? agg.filteredChainsOut : agg.chains.map((c) => c.id);
@@ -437,7 +437,7 @@ export function AggregatorPage() {
     <div className="relative flex flex-col items-center justify-center min-h-full w-full overflow-y-auto px-4 pt-8 pb-8 xl:justify-start xl:pt-16">
       <BackgroundRippleEffect rows={10} cols={22} cellSize={72} />
 
-      {/* Hero — stacks above card normally. At ~1520px+ (enough room for
+      {/* Hero - stacks above card normally. At ~1520px+ (enough room for
           card group + route panel), slides to absolute left rail to avoid overlap. */}
       <div className="pointer-events-none z-20 mb-10 max-w-md space-y-3 text-center">
         <Typography
@@ -449,7 +449,7 @@ export function AggregatorPage() {
           DeFi Aggregator
         </Typography>
         <Typography variant="p" className="text-muted-foreground text-sm md:text-base">
-          Compare rates across multiple DEXs and bridge assets to any supported chain — all in one
+          Compare rates across multiple DEXs and bridge assets to any supported chain - all in one
           place
         </Typography>
       </div>
@@ -502,7 +502,7 @@ export function AggregatorPage() {
               <div className="flex flex-col px-4 pb-4">
                 {/* Input/Output */}
                 <div className="flex flex-col relative gap-2 leading-4">
-                  {/* ── TOKEN IN ── */}
+                  {/* -- TOKEN IN -- */}
                   <div className="rounded-2xl p-4 pb-[15px]" style={{ background: C.sectionBg }}>
                     <div className="grid grid-cols-9 gap-2 items-center h-7">
                       <label
@@ -593,7 +593,7 @@ export function AggregatorPage() {
                     </div>
                   </div>
 
-                  {/* ── SWAP ── */}
+                  {/* -- SWAP -- */}
                   <div className="flex justify-center -my-2 relative z-10">
                     <button
                       type="button"
@@ -615,7 +615,7 @@ export function AggregatorPage() {
                     </button>
                   </div>
 
-                  {/* ── TOKEN OUT ── */}
+                  {/* -- TOKEN OUT -- */}
                   <div className="rounded-2xl p-4 pb-[15px]" style={{ background: C.sectionBg }}>
                     <div className="grid grid-cols-9 gap-2 items-center h-7">
                       <label
@@ -711,7 +711,7 @@ export function AggregatorPage() {
                   </div>
                 </div>
 
-                {/* ── Best quote summary (above CTA, like reference image) ── */}
+                {/* -- Best quote summary (above CTA, like reference image) -- */}
                 {selectedQuote?.status === "ok" && !agg.isLoadingQuotes && (
                   <div
                     className="rounded-2xl px-3.5 py-3 text-sm mt-3"
@@ -745,7 +745,7 @@ export function AggregatorPage() {
                   </div>
                 )}
 
-                {/* ── Trustline Warning (shows all missing with individual buttons) ── */}
+                {/* -- Trustline Warning (shows all missing with individual buttons) -- */}
                 {agg.needsTrustline && agg.missingTrustlines.length > 0 && (
                   <div
                     className="rounded-2xl p-4 mt-3 space-y-3"
@@ -819,7 +819,7 @@ export function AggregatorPage() {
                   </div>
                 )}
 
-                {/* ── CTA ── */}
+                {/* -- CTA -- */}
                 <div className="flex flex-col gap-2 mt-3">
                   {needsWallet ? (
                     <button
@@ -932,15 +932,15 @@ export function AggregatorPage() {
                 </div>
               </div>
             ) : (
-              /* ── EXCHANGE TAB (Deposit from CEX) ── */
+              /* -- EXCHANGE TAB (Deposit from CEX) -- */
               <ExchangeTab stellarAddress={stellarAddress} />
             )}
           </BorderGlow>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════ */}
+        {/* ---------------------------------------------------------- */}
         {/* Right side: Route Panel (expands when both tokens + amount) */}
-        {/* ══════════════════════════════════════════════════════════ */}
+        {/* ---------------------------------------------------------- */}
         <AnimatePresence>
           {activeTab === "bridge" && showRoutePanel && (
             <motion.div
@@ -978,7 +978,7 @@ export function AggregatorPage() {
   );
 }
 
-/* ── Wallet Hub: shows all connected wallets, connect new, disconnect ── */
+/* -- Wallet Hub: shows all connected wallets, connect new, disconnect -- */
 function WalletHub({
   stellarAddress,
   evmAddress,
@@ -1189,7 +1189,7 @@ function WalletHub({
   );
 }
 
-/* ── Exchange Tab: Deposit USDC/XLM from CEX ── */
+/* -- Exchange Tab: Deposit USDC/XLM from CEX -- */
 
 const EXCHANGES = [
   { id: "binance", name: "Binance", logo: "/chains/bsc.png" },

@@ -16,7 +16,7 @@ export async function startMockServiceWorker() {
         url: "/mockServiceWorker.js",
       },
     });
-    console.warn("[msw] Mock service worker started — API calls will be intercepted");
+    console.warn("[msw] Mock service worker started - API calls will be intercepted");
   } catch (e) {
     console.error("[msw] Failed to start mock service worker:", e);
   }

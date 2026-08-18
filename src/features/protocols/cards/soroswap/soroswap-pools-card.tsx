@@ -35,6 +35,7 @@ export function SoroswapPoolsCard({ pools, mode = "playground" }: SoroswapPoolsC
 
   return (
     <ProtocolCard
+      data-testid="card-soroswap-pools"
       mode={mode}
       title={mode === "chat" ? "Soroswap Pools" : undefined}
       icon={mode === "chat" ? ArrowRightLeft : undefined}
@@ -69,6 +70,11 @@ export function SoroswapPoolsCard({ pools, mode = "playground" }: SoroswapPoolsC
               </span>
               {pool.protocol && <Tag type={pool.protocol} />}
             </button>
+            {pool.address && (
+              <span className="block break-all px-4 pb-2 pl-9 font-mono text-[10px] text-muted-foreground/50">
+                {pool.address}
+              </span>
+            )}
             {mode === "playground" ? (
               <AnimatePresence>
                 {isOpen && (
@@ -97,15 +103,24 @@ function PoolDetail({ pool }: { pool: SoroswapPoolCardProps }) {
     <div className="space-y-1.5 px-4 pb-2">
       <div className="space-y-1">
         {[
-          { sym: pool.tokenA, reserve: pool.reserveA },
-          { sym: pool.tokenB, reserve: pool.reserveB },
+          { sym: pool.tokenA, reserve: pool.reserveA, address: pool.tokenAAddress },
+          { sym: pool.tokenB, reserve: pool.reserveB, address: pool.tokenBAddress },
         ].map((t) => (
-          <div key={t.sym} className="flex items-center gap-2.5 py-1 pl-5">
-            <TokenImage src={null} alt={t.sym} className="h-5 w-5 rounded-full" />
-            <span className="w-14 font-medium text-foreground text-xs">{t.sym}</span>
-            {t.reserve != null && (
-              <span className="text-[11px] text-muted-foreground tabular-nums">
-                {fmt(Number(t.reserve) / 1e7)}
+          <div key={t.sym} className="py-1 pl-5">
+            <div className="flex items-center gap-2.5">
+              <TokenImage src={null} alt={t.sym} className="h-5 w-5 rounded-full" />
+              <span className="w-14 font-medium text-foreground text-xs">{t.sym}</span>
+              {t.reserve != null && (
+                <span className="text-[11px] text-muted-foreground tabular-nums">
+                  {fmt(Number(t.reserve) / 1e7)}
+                </span>
+              )}
+            </div>
+            {/* Token SAC contract. Drill-down only - the row header already
+                carries the pool address and must stay scannable. */}
+            {t.address && (
+              <span className="block break-all pl-[30px] font-mono text-[10px] text-muted-foreground/50">
+                {t.address}
               </span>
             )}
           </div>
@@ -128,11 +143,11 @@ function PoolDetail({ pool }: { pool: SoroswapPoolCardProps }) {
         </span>
         <span className="text-muted-foreground">
           <span className="text-muted-foreground/50">Fee </span>
-          <span className="text-foreground tabular-nums">{pool.fee ?? "—"}</span>
+          <span className="text-foreground tabular-nums">{pool.fee ?? "-"}</span>
         </span>
         <span className="text-muted-foreground">
           <span className="text-muted-foreground/50">Src </span>
-          <span className="text-foreground capitalize">{pool.protocol ?? "—"}</span>
+          <span className="text-foreground capitalize">{pool.protocol ?? "-"}</span>
         </span>
       </div>
     </div>

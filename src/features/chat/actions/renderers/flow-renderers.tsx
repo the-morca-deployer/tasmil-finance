@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useCallback, useMemo, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { AccountSetupCard } from "@/features/chat/actions/components/stellar/account-setup-card";
 import { ClarifyCard } from "@/features/chat/components/flow/clarify-card";
 import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
@@ -18,7 +19,7 @@ import { executeDispatchRender } from "./execute-dispatcher";
 // Fallback used only when the AI step has no protocol/action at all.
 const DEFAULT_TX_META: SponsorTxMeta = { action: "DEPOSIT", protocol: "TASMIL_VAULT" };
 
-// AI agent emits lowercase protocols ("blend", "soroswap", …) matching the
+// AI agent emits lowercase protocols ("blend", "soroswap", ...) matching the
 // MCP execute-tool param. Sponsor backend stores uppercase enum values, so
 // we normalize here. Unknown / "stellar" (trustline) falls back to vault.
 const PROTOCOL_MAP: Record<string, SponsorTxMeta["protocol"]> = {
@@ -32,7 +33,7 @@ const PROTOCOL_MAP: Record<string, SponsorTxMeta["protocol"]> = {
 
 // AI emits many fine-grained actions (deposit / supply_collateral / swap /
 // stake / add_liquidity / withdraw / unstake / remove_liquidity /
-// add_trustline / …). Collapse onto the 4 sponsor enum buckets.
+// add_trustline / ...). Collapse onto the 4 sponsor enum buckets.
 function normalizeAction(raw: string | undefined): SponsorTxMeta["action"] {
   if (!raw) return DEFAULT_TX_META.action;
   const lower = raw.toLowerCase();
@@ -80,7 +81,7 @@ function simplifyErrorMessage(raw: string): string {
     if (codeMatch) return `Transaction simulation failed (contract error #${codeMatch[1]}).`;
     return "Transaction simulation failed.";
   }
-  return raw.length > 200 ? `${raw.slice(0, 150)}…` : raw;
+  return raw.length > 200 ? `${raw.slice(0, 150)}...` : raw;
 }
 
 type ClarifyQuestion = {
@@ -166,7 +167,7 @@ function FlowClarifyCardWithStream({
       }
       try {
         await stream.submit({
-          messages: [{ type: "human" as const, content: JSON.stringify(payload) }],
+          messages: [{ id: uuidv4(), type: "human" as const, content: JSON.stringify(payload) }],
           ...(walletAddress && { wallet_address: walletAddress }),
         });
       } catch (err) {

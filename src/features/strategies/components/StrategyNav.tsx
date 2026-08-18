@@ -96,7 +96,7 @@ export function StrategyNav() {
         })}
       </div>
 
-      {/* Right — wallet area placeholder */}
+      {/* Right - wallet area placeholder */}
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center gap-2.5 rounded-[100px] border border-[rgba(255,255,255,0.14)] bg-[#0D111A] py-1.5 pl-3.5 pr-1.5">
           <span className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-full bg-gradient-to-r from-white via-[#67E8F9] to-[#0EA5E9] text-[9px] font-bold text-[#04141A]">

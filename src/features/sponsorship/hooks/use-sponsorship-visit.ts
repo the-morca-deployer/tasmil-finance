@@ -6,7 +6,7 @@ import { sponsorshipApi } from "../api";
 
 export function useSponsorshipVisit(route: "dashboard" | "chat" | "farming", authReady: boolean) {
   const qc = useQueryClient();
-  // Key the visit-debounce by walletAddress too — switching wallets in the
+  // Key the visit-debounce by walletAddress too - switching wallets in the
   // same tab must fire a fresh /visit for the new wallet; the previous
   // wallet's key would otherwise short-circuit enrollment for the new user.
   const walletAddress = useAuthStore((s) => s.user?.walletAddress);

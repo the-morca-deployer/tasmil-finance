@@ -28,7 +28,7 @@ export function VolumeTvlChart({
       <CardContent className="p-6">
         <div className="mb-4">
           <Typography variant="h3" className="font-semibold text-base">
-            Volume &amp; TVL — last 90 days
+            Volume &amp; TVL - last 90 days
           </Typography>
           <Typography variant="p" className="text-muted-foreground text-xs">
             Daily deposit/withdraw volume and cumulative net-deposit TVL
@@ -36,7 +36,7 @@ export function VolumeTvlChart({
         </div>
         {isLoading ? (
           <div className="flex h-52 items-center justify-center text-muted-foreground text-xs">
-            Loading…
+            Loading...
           </div>
         ) : points.length === 0 ? (
           <div className="flex h-52 items-center justify-center text-muted-foreground text-xs">

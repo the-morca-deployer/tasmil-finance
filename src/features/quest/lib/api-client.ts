@@ -1,5 +1,5 @@
 // Quest API calls go through Next.js proxy to main backend (same origin, no CORS).
-// Auth is handled via httpOnly cookie (tasmil_auth) — no token management needed.
+// Auth is handled via httpOnly cookie (tasmil_auth) - no token management needed.
 import axios, { type AxiosInstance } from "axios";
 
 // No baseURL: the auto-generated quest client URLs already include the full
@@ -22,7 +22,7 @@ questApiClient.interceptors.response.use(
   (error) => Promise.reject(error)
 );
 
-// Kubb client wrapper — required by auto-generated hooks via kubb-config.ts
+// Kubb client wrapper - required by auto-generated hooks via kubb-config.ts
 type KubbClient = AxiosInstance & {
   getConfig: () => Partial<Record<string, unknown>>;
   setConfig: (config: Partial<Record<string, unknown>>) => Partial<Record<string, unknown>>;

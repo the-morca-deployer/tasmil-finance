@@ -63,7 +63,7 @@ export function FarmingStatusBanners({
       key: "session-key-stale",
       icon: <Shield className="mt-0.5 h-4 w-4 shrink-0 text-yellow-500" />,
       title: "New yield strategies available",
-      body: "Your session key was registered before we launched some pools. Refresh it to let the bot access the latest opportunities. Your funds stay in your keeper wallet — this just updates the bot's scope.",
+      body: "Your session key was registered before we launched some pools. Refresh it to let the bot access the latest opportunities. Your funds stay in your keeper wallet - this just updates the bot's scope.",
       action: { label: "Refresh", onClick: onRefresh, variant: "outline" },
       tone: "warning",
     });
