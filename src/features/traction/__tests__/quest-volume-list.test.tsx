@@ -14,6 +14,7 @@ type Item = {
   operationKind: string;
   amountUsd: number;
   walletMasked: string;
+  walletAddress: string;
   createdAt: string;
 };
 
@@ -28,6 +29,7 @@ const rows: Item[] = [
     operationKind: "swap",
     amountUsd: 1234.5,
     walletMasked: "GABCD...4F7Q",
+    walletAddress: "GABCD1234567890EFGH1234567890IJKL1234567890MNOP1234567890QR4F7Q",
     createdAt: "2026-07-02T12:00:00.000Z",
   },
 ];
@@ -50,6 +52,18 @@ describe("QuestVolumeList", () => {
     expect(screen.getByText("soroswap")).toBeInTheDocument();
     expect(screen.getByText("GABCD...4F7Q")).toBeInTheDocument();
     expect(screen.getByText("$1,235")).toBeInTheDocument();
+  });
+
+  it("links the wallet cell to the stellar.expert explorer", () => {
+    mockUse.mockReturnValue({ ...base, data: withPage(rows) });
+    render(<QuestVolumeList />);
+
+    const link = screen.getByRole("link", { name: "GABCD...4F7Q" });
+    expect(link).toHaveAttribute(
+      "href",
+      `https://stellar.expert/explorer/public/account/${rows[0]?.walletAddress}`
+    );
+    expect(link).toHaveAttribute("target", "_blank");
   });
 
   it("shows skeletons while loading", () => {

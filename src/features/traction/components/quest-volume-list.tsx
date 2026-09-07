@@ -60,7 +60,20 @@ export function QuestVolumeList() {
                     <TableCell className="text-right tabular-nums">
                       {fmtUsd(tx.amountUsd)}
                     </TableCell>
-                    <TableCell className="font-mono text-xs">{tx.walletMasked}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {tx.walletAddress ? (
+                        <a
+                          href={`https://stellar.expert/explorer/public/account/${tx.walletAddress}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline decoration-dotted underline-offset-2 hover:text-foreground"
+                        >
+                          {tx.walletMasked}
+                        </a>
+                      ) : (
+                        tx.walletMasked
+                      )}
+                    </TableCell>
                     <TableCell className="text-right text-muted-foreground text-xs">
                       {fmtDate(tx.createdAt)}
                     </TableCell>
