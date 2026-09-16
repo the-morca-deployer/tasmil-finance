@@ -1,0 +1,1 @@
+{"type":"object","properties":{"segment":{"type":"string","enum":["NORMAL","KOL","INFLUENCER"]}},"required":["segment"],"x-readme-ref-name":"SetSegmentDto"}

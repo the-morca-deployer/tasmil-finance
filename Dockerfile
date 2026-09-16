@@ -1,83 +1,61 @@
-# syntax=docker/dockerfile:1
-# Build stage
-FROM node:22-alpine AS builder
+# syntax=docker/dockerfile:1.7
+
+ARG NODE_IMAGE=node:22-alpine@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32
+
+FROM ${NODE_IMAGE} AS dependencies
 WORKDIR /app
 
-RUN apk add --no-cache python3 make g++ git
-
 RUN --mount=type=cache,target=/root/.npm \
-    npm install -g pnpm
+    npm install -g pnpm@10.33.2
 
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
-COPY apps/frontend ./apps/frontend
-COPY packages ./packages
+COPY .npmrc package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN --mount=type=secret,id=npm_token,required=true \
+    --mount=type=cache,target=/root/.local/share/pnpm/store \
+    trap 'rm -f /tmp/sow2-npmrc' EXIT; \
+    umask 077; \
+    printf '%s\n' \
+      '@tasmil-finance:registry=https://npm.pkg.github.com' \
+      "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/npm_token)" \
+      > /tmp/sow2-npmrc; \
+    NPM_CONFIG_USERCONFIG=/tmp/sow2-npmrc pnpm install --frozen-lockfile --ignore-scripts
 
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --ignore-scripts
+FROM dependencies AS builder
+COPY . .
 
-WORKDIR /app/apps/frontend
-
-# Build workspace packages first (needed as dependencies)
-RUN pnpm --filter @tasmil/adapter-sdk run build
-
+ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_AI_URL
-ARG NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_MCP_STELLAR_URL
 ARG NEXT_PUBLIC_STELLAR_NETWORK
 ARG AI_INTERNAL_URL
 ARG BACKEND_INTERNAL_URL
-ENV NEXT_PUBLIC_AI_URL=$NEXT_PUBLIC_AI_URL
-ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
-ENV NEXT_PUBLIC_STELLAR_NETWORK=$NEXT_PUBLIC_STELLAR_NETWORK
-ENV AI_INTERNAL_URL=$AI_INTERNAL_URL
-ENV BACKEND_INTERNAL_URL=$BACKEND_INTERNAL_URL
-# Allow Next.js compiler to use up to 4 GB RAM
-ENV NODE_OPTIONS=--max-old-space-size=4096
+ARG QUEST_BACKEND_INTERNAL_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
+    NEXT_PUBLIC_AI_URL=${NEXT_PUBLIC_AI_URL} \
+    NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
+    NEXT_PUBLIC_MCP_STELLAR_URL=${NEXT_PUBLIC_MCP_STELLAR_URL} \
+    NEXT_PUBLIC_STELLAR_NETWORK=${NEXT_PUBLIC_STELLAR_NETWORK} \
+    AI_INTERNAL_URL=${AI_INTERNAL_URL} \
+    BACKEND_INTERNAL_URL=${BACKEND_INTERNAL_URL} \
+    QUEST_BACKEND_INTERNAL_URL=${QUEST_BACKEND_INTERNAL_URL} \
+    NODE_OPTIONS=--max-old-space-size=4096
 
-RUN --mount=type=cache,target=/app/apps/frontend/.next/cache \
-    pnpm run build
+RUN --mount=type=cache,target=/app/.next/cache pnpm build
 
-# Runtime stage
-FROM node:22-alpine
+FROM ${NODE_IMAGE} AS runtime
 WORKDIR /app
 
-# ARG must be declared in THIS stage too — docker-compose passes --build-arg to all stages
-ARG NEXT_PUBLIC_AI_URL
-ARG NEXT_PUBLIC_BACKEND_URL
-ARG NEXT_PUBLIC_STELLAR_NETWORK
-ARG AI_INTERNAL_URL
-ARG BACKEND_INTERNAL_URL
+ENV NODE_ENV=production \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
 
-# Create non-root user early so COPY --chown can reference it
-RUN addgroup --system --gid 1001 app && adduser --system --uid 1001 --ingroup app app
+RUN addgroup --system --gid 1001 app \
+ && adduser --system --uid 1001 --ingroup app app
 
-RUN --mount=type=cache,target=/root/.npm \
-    npm install -g pnpm
+COPY --from=builder --chown=app:app /app/public ./public
+COPY --from=builder --chown=app:app /app/.next/standalone ./
+COPY --from=builder --chown=app:app /app/.next/static ./.next/static
 
-COPY --chown=app:app pnpm-workspace.yaml package.json pnpm-lock.yaml ./
-COPY --chown=app:app apps/frontend ./apps/frontend
-COPY --chown=app:app packages ./packages
-
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --ignore-scripts
-
-WORKDIR /app/apps/frontend
-
-COPY --from=builder --chown=app:app /app/apps/frontend/.next ./.next
-COPY --from=builder --chown=app:app /app/apps/frontend/public ./public
-
-EXPOSE 3000
-
-ENV NEXT_PUBLIC_AI_URL=$NEXT_PUBLIC_AI_URL
-ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
-ENV NEXT_PUBLIC_STELLAR_NETWORK=$NEXT_PUBLIC_STELLAR_NETWORK
-ENV AI_INTERNAL_URL=$AI_INTERNAL_URL
-ENV BACKEND_INTERNAL_URL=$BACKEND_INTERNAL_URL
-ENV NODE_ENV=production
-ENV PORT=3000
-
-# pnpm exec writes temp shim scripts to the working directory; the app user
-# needs write access to /app (node_modules installed as root by pnpm).
-RUN chown -R app:app /app
 USER app
-
-CMD ["pnpm", "exec", "next", "start"]
+EXPOSE 3000
+CMD ["node", "server.js"]

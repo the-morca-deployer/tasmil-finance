@@ -29,6 +29,16 @@ export type TractionResponseDto = {
     */
     txByType: TractionTxTypeCountDto[];
     /**
+     * @description Public Stellar RPC/Horizon evidence and raw base-unit metrics
+     * @type object
+    */
+    publicLedger: object;
+    /**
+     * @description Visible comparison between internal cache totals and public ledger
+     * @type object
+    */
+    reconciliation: object;
+    /**
      * @description ISO timestamp of when the payload was computed
      * @type string
     */

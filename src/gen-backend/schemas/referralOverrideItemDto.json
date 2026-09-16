@@ -1,0 +1,1 @@
+{"type":"object","properties":{"layer":{"type":"number","minimum":1,"maximum":3},"rateBps":{"type":"number","minimum":0,"maximum":10000},"isActive":{"type":"boolean"}},"required":["layer","rateBps"],"x-readme-ref-name":"ReferralOverrideItemDto"}

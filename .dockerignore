@@ -1,0 +1,13 @@
+.git
+.github
+.next
+.pnpm-store
+coverage
+e2e/test-results
+node_modules
+playwright-report
+test-results
+*.log
+.env
+.env.*
+!.env.example

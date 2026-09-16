@@ -102,6 +102,20 @@ describe("runtime URL helpers", () => {
     });
   });
 
+  it.each(["policy", "fees", "vdl", "public"])(
+    "forwards the SOW2 %s API through the same-origin backend proxy",
+    async (prefix) => {
+      process.env.BACKEND_INTERNAL_URL = "http://backend:6756/";
+
+      const { getBackendProxyRewrites } = await import("./runtime-urls");
+
+      expect(getBackendProxyRewrites()).toContainEqual({
+        source: `/api/${prefix}/:path*`,
+        destination: `http://backend:6756/api/${prefix}/:path*`,
+      });
+    }
+  );
+
   it("getProxyRewrites combines backend + AI rewrites", async () => {
     process.env.AI_INTERNAL_URL = "http://ai:8001/";
     process.env.BACKEND_INTERNAL_URL = "http://backend:6756/";
