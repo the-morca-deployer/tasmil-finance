@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { getProxyRewrites } from "./src/lib/runtime-urls";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   serverExternalPackages: ["@blend-capital/blend-sdk", "@stellar/stellar-sdk"],
   reactStrictMode: false,
   // Disable built-in compression — SSE (text/event-stream) responses get
