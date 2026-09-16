@@ -148,6 +148,18 @@ const ruleSchema = z.object({
     flow: z.string().min(1),
   }),
   perTx: z.object({ limit: unsignedIntegerStringSchema, denom: z.string().min(1) }),
+  conversionEvidence: z
+    .object({
+      usdValueE7: unsignedIntegerStringSchema,
+      rateRaw: unsignedIntegerStringSchema,
+      rateDecimals: z.number().int().min(0).max(38),
+      tokenDecimals: z.number().int().min(0).max(38),
+      setAtLedger: ledgerSchema,
+      ratePublishedAtMs: unsignedIntegerStringSchema,
+    })
+    .nullable()
+    .optional()
+    .default(null),
 });
 
 const rulebookSessionSchema = z.object({

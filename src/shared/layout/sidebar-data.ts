@@ -105,6 +105,11 @@ const _sidebarData: SidebarData = {
           url: "/farming",
           icon: Tractor,
         },
+        {
+          title: "Rulebook",
+          url: "/rulebook",
+          icon: Shield,
+        },
       ],
     },
     {
