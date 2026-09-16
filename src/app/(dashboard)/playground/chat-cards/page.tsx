@@ -5,6 +5,8 @@ import { AccountSetupCard } from "@/features/chat/actions/components/stellar/acc
 import { BridgeDiscoveryCard } from "@/features/chat/actions/components/stellar/bridge-discovery-card";
 import { EarnDiscoveryCard } from "@/features/chat/actions/components/stellar/earn-discovery-card";
 import { StrategyPresetCard } from "@/features/chat/actions/components/stellar/strategy-preset-card";
+import { PolicyDeclineCard } from "@/features/chat/components/flow/policy-decline-card";
+import type { PolicyDecisionMessage } from "@/features/chat/types/flow-messages";
 
 // ─── Mock Data ───────────────────────────────────────────────────
 
@@ -193,6 +195,50 @@ const MOCK_ACCOUNT_STATUS_ACTIVE = {
   position_count: 4,
 };
 
+const MOCK_POLICY_DECLINE: PolicyDecisionMessage = {
+  kind: "policy_decision",
+  policyDecision: {
+    decision: "DECLINE",
+    status: "DECLINED",
+    rule: "NET_EDGE",
+    arithmetic: {
+      kind: "NET_EDGE",
+      unit: "USD_MICRO",
+      notionalUsdMicros: "250000000",
+      deltaApyBps: "1800",
+      horizonDays: "14",
+      gasFeeUsdMicros: "42100",
+      slippageUsdMicros: "625000",
+      priceImpactUsdMicros: "187500",
+      lockupCostUsdMicros: "0",
+      execFeeUsdMicros: "250000",
+      expectedGrossGainUsdMicros: "1726027",
+      costTotalUsdMicros: "1104600",
+      uncertaintyHaircutUsdMicros: "690411",
+      netEdgeUsdMicros: "-68984",
+    },
+    observations: [
+      {
+        sourceId: "reflector",
+        sourceKind: "REFLECTOR",
+        status: "FRESH",
+        network: "mainnet",
+        upstreamId: "stellar:mainnet:reflector",
+        rawValue: "18029999768543",
+        decimals: 14,
+        publishedAtMs: "1789343400000",
+        observedAtMs: "1789344000000",
+        ledger: "59000000",
+      },
+    ],
+    plainLanguage: "Costs and uncertainty exceed gross gain.",
+    decisionId: "decision-net-edge",
+    txHash: null,
+  },
+  message: "Declined using backend arithmetic.",
+  actions: [{ kind: "view_replay", decisionId: "decision-net-edge" }],
+};
+
 // ─── Section Component ───────────────────────────────────────────
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -229,6 +275,12 @@ export default function ChatCardsPlaygroundPage() {
       </div>
 
       {/* ─── EarnDiscoveryCard ─────────────────────────── */}
+      <Section title="PolicyDeclineCard">
+        <CardWrapper label="Net-Edge decline (no signing path)">
+          <PolicyDeclineCard message={MOCK_POLICY_DECLINE} />
+        </CardWrapper>
+      </Section>
+
       <Section title="EarnDiscoveryCard">
         <CardWrapper label="Happy path (3 results)">
           <EarnDiscoveryCard result={MOCK_EARN_OPPORTUNITIES} status="completed" />
