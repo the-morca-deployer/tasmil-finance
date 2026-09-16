@@ -36,3 +36,10 @@ test("tracked source contains no credential-shaped values", () => {
   const exposed = exposedFiles();
   assert.deepEqual(exposed, [], `credential-shaped values found in: ${exposed.join(", ")}`);
 });
+
+test("Docker build keeps private npm credentials in a temporary user config", () => {
+  const dockerfile = readFileSync("Dockerfile", "utf8");
+  assert.match(dockerfile, /NPM_CONFIG_USERCONFIG=\/tmp\/sow2-npmrc pnpm install/);
+  assert.match(dockerfile, /trap 'rm -f \/tmp\/sow2-npmrc' EXIT/);
+  assert.doesNotMatch(dockerfile, /NODE_AUTH_TOKEN=.*pnpm install/);
+});

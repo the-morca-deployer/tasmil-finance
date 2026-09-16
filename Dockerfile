@@ -11,7 +11,13 @@ RUN --mount=type=cache,target=/root/.npm \
 COPY .npmrc package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=secret,id=npm_token,required=true \
     --mount=type=cache,target=/root/.local/share/pnpm/store \
-    NODE_AUTH_TOKEN="$(cat /run/secrets/npm_token)" pnpm install --frozen-lockfile --ignore-scripts
+    trap 'rm -f /tmp/sow2-npmrc' EXIT; \
+    umask 077; \
+    printf '%s\n' \
+      '@tasmil-finance:registry=https://npm.pkg.github.com' \
+      "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/npm_token)" \
+      > /tmp/sow2-npmrc; \
+    NPM_CONFIG_USERCONFIG=/tmp/sow2-npmrc pnpm install --frozen-lockfile --ignore-scripts
 
 FROM dependencies AS builder
 COPY . .
