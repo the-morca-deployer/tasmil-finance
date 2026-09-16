@@ -31,7 +31,7 @@ export function UserGrowthChart({
             User growth — last 90 days
           </Typography>
           <Typography variant="p" className="text-muted-foreground text-xs">
-            Cumulative registered users and daily signups
+            Application-index registrations; public-ledger wallet count is shown above
           </Typography>
         </div>
         {isLoading ? (

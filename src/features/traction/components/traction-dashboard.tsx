@@ -5,6 +5,7 @@ import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
 import { useTraction } from "../hooks/use-traction";
 import { KpiCards } from "./kpi-cards";
+import { LedgerProvenance } from "./ledger-provenance";
 import { UserGrowthChart } from "./user-growth-chart";
 import { VolumeTvlChart } from "./volume-tvl-chart";
 
@@ -44,7 +45,19 @@ export function TractionDashboard() {
         )}
       </header>
 
-      <KpiCards summary={data?.summary} isLoading={isLoading} />
+      {data && <LedgerProvenance data={data} />}
+      <section className="space-y-3" aria-labelledby="internal-analytics-heading">
+        <div>
+          <h2 id="internal-analytics-heading" className="font-semibold text-base">
+            Internal analytics, reconciled above
+          </h2>
+          <p className="text-muted-foreground text-xs">
+            USD estimates and registered-user analytics come from the application index, not
+            directly from Stellar.
+          </p>
+        </div>
+        <KpiCards summary={data?.summary} isLoading={isLoading} />
+      </section>
       <VolumeTvlChart data={data?.volumeTvl} isLoading={isLoading} />
       <UserGrowthChart data={data?.userGrowth} isLoading={isLoading} />
 
