@@ -6,10 +6,12 @@ import { AccountSetupCard } from "@/features/chat/actions/components/stellar/acc
 import { ClarifyCard } from "@/features/chat/components/flow/clarify-card";
 import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
 import { PlanPreviewCard } from "@/features/chat/components/flow/plan-preview-card";
+import { PolicyDeclineCard } from "@/features/chat/components/flow/policy-decline-card";
 import { useFlowSigning } from "@/features/chat/hooks/use-flow-signing";
 import { useStreamContext } from "@/features/chat/hooks/use-stream";
 import { parseFlowResult } from "@/features/chat/lib/parse-flow-result";
 import type { SharedRenderProps } from "@/features/chat/lib/tool-renderer-registry";
+import { policyDecisionMessageSchema } from "@/features/chat/schemas/flow-messages.schema";
 import type { TxStatus } from "@/features/chat/types/flow-messages";
 import type { SponsorTxMeta } from "@/features/sponsorship";
 import { useWalletStore } from "@/store/use-wallet";
@@ -252,6 +254,8 @@ function renderComposePlan(props: SharedRenderProps): React.ReactElement {
         Composing plan...
       </div>
     );
+  const policyMessage = policyDecisionMessageSchema.safeParse(data);
+  if (policyMessage.success) return <PolicyDeclineCard message={policyMessage.data} />;
   if (data.kind === "error")
     return (
       <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-destructive text-sm">
@@ -383,6 +387,8 @@ export const FLOW_RENDERER_ENTRIES: {
     render: (props) => {
       const data = parseFlowResult(props.result);
       if (!data) return <div className="text-muted-foreground text-xs">No transaction data</div>;
+      const policyMessage = policyDecisionMessageSchema.safeParse(data);
+      if (policyMessage.success) return <PolicyDeclineCard message={policyMessage.data} />;
       if (data.kind === "error")
         return (
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-destructive text-sm">

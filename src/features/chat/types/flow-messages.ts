@@ -1,3 +1,6 @@
+import type { z } from "zod";
+import type { policyDecisionMessageSchema } from "../schemas/flow-messages.schema";
+
 // ─── Flow Message Types ────────────────────────────────────────
 // PRD §5.2: Typed server→client messages for the option-select flow.
 // The agent generates these dynamically based on missing fields.
@@ -95,6 +98,7 @@ export interface FlowPosition {
 // ─── AssistantMessage (discriminated union by kind) ─────────────
 
 export type TxStatus = "submitting" | "confirmed" | "failed";
+export type PolicyDecisionMessage = z.infer<typeof policyDecisionMessageSchema>;
 
 export type AssistantFlowMessage =
   | { kind: "text"; text: string }
@@ -112,6 +116,7 @@ export type AssistantFlowMessage =
       status: TxStatus;
     }
   | { kind: "position_update"; positions: FlowPosition[] }
+  | PolicyDecisionMessage
   | {
       kind: "error";
       code: string;
