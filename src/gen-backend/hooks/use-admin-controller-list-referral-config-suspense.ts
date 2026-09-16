@@ -9,7 +9,7 @@ import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryRe
 import { adminControllerListReferralConfig } from "@/gen-backend/client/admin-controller-list-referral-config";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
-export const adminControllerListReferralConfigSuspenseQueryKey = () => [{ url: '/api/quest/admin/referral/config' }] as const
+export const adminControllerListReferralConfigSuspenseQueryKey = () => [{ url: '/api/admin/quest-referral/config' }] as const
 
 export type AdminControllerListReferralConfigSuspenseQueryKey = ReturnType<typeof adminControllerListReferralConfigSuspenseQueryKey>
 
@@ -27,7 +27,8 @@ export function adminControllerListReferralConfigSuspenseQueryOptions(config: Pa
 }
 
 /**
- * {@link /api/quest/admin/referral/config}
+ * @summary List the referral commission matrix (all layer x segment rows)
+ * {@link /api/admin/quest-referral/config}
  */
 export function useAdminControllerListReferralConfigSuspense<TData = AdminControllerListReferralConfigQueryResponse, TQueryKey extends QueryKey = AdminControllerListReferralConfigSuspenseQueryKey>(options: 
 {

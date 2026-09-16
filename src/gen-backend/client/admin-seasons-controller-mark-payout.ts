@@ -8,12 +8,12 @@ import type { AdminSeasonsControllerMarkPayoutMutationRequest, AdminSeasonsContr
 import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
 
 function getAdminSeasonsControllerMarkPayoutUrl(id: AdminSeasonsControllerMarkPayoutPathParams["id"]) {
-  const res = { method: 'PATCH', url: `/api/quest/admin/seasons/results/${id}/payout` as const }
+  const res = { method: 'PATCH', url: `/api/admin/quest-seasons/results/${id}/payout` as const }
   return res
 }
 
 /**
- * {@link /api/quest/admin/seasons/results/:id/payout}
+ * {@link /api/admin/quest-seasons/results/:id/payout}
  */
 export async function adminSeasonsControllerMarkPayout(id: AdminSeasonsControllerMarkPayoutPathParams["id"], data: AdminSeasonsControllerMarkPayoutMutationRequest, config: Partial<RequestConfig<AdminSeasonsControllerMarkPayoutMutationRequest>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config

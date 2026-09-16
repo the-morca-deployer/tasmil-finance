@@ -7,19 +7,20 @@ import fetch from "@/lib/kubb-backend-client";
 import type { AdminControllerUpdateReferralConfigMutationRequest, AdminControllerUpdateReferralConfigMutationResponse, AdminControllerUpdateReferralConfigPathParams } from "@/gen-backend/types/admin-controller-update-referral-config";
 import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
 
-function getAdminControllerUpdateReferralConfigUrl(layer: AdminControllerUpdateReferralConfigPathParams["layer"]) {
-  const res = { method: 'PATCH', url: `/api/quest/admin/referral/config/${layer}` as const }
+function getAdminControllerUpdateReferralConfigUrl(layer: AdminControllerUpdateReferralConfigPathParams["layer"], segment: AdminControllerUpdateReferralConfigPathParams["segment"]) {
+  const res = { method: 'PATCH', url: `/api/admin/quest-referral/config/${layer}/${segment}` as const }
   return res
 }
 
 /**
- * {@link /api/quest/admin/referral/config/:layer}
+ * @summary Upsert the commission rate for a (layer, segment) cell
+ * {@link /api/admin/quest-referral/config/:layer/:segment}
  */
-export async function adminControllerUpdateReferralConfig(layer: AdminControllerUpdateReferralConfigPathParams["layer"], data: AdminControllerUpdateReferralConfigMutationRequest, config: Partial<RequestConfig<AdminControllerUpdateReferralConfigMutationRequest>> & { client?: Client } = {}) {
+export async function adminControllerUpdateReferralConfig(layer: AdminControllerUpdateReferralConfigPathParams["layer"], segment: AdminControllerUpdateReferralConfigPathParams["segment"], data: AdminControllerUpdateReferralConfigMutationRequest, config: Partial<RequestConfig<AdminControllerUpdateReferralConfigMutationRequest>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
 
-  const res = await request<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, AdminControllerUpdateReferralConfigMutationRequest>({ method : "PATCH", url : getAdminControllerUpdateReferralConfigUrl(layer).url.toString(), data : requestData, ... requestConfig })
+  const res = await request<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, AdminControllerUpdateReferralConfigMutationRequest>({ method : "PATCH", url : getAdminControllerUpdateReferralConfigUrl(layer, segment).url.toString(), data : requestData, ... requestConfig })
   return res.data
 }

@@ -9,28 +9,29 @@ import type { UseMutationOptions, UseMutationResult, QueryClient } from "@tansta
 import { adminControllerUpdateReferralConfig } from "@/gen-backend/client/admin-controller-update-referral-config";
 import { mutationOptions, useMutation } from "@tanstack/react-query";
 
-export const adminControllerUpdateReferralConfigMutationKey = () => [{ url: '/api/quest/admin/referral/config/:layer' }] as const
+export const adminControllerUpdateReferralConfigMutationKey = () => [{ url: '/api/admin/quest-referral/config/:layer/:segment' }] as const
 
 export type AdminControllerUpdateReferralConfigMutationKey = ReturnType<typeof adminControllerUpdateReferralConfigMutationKey>
 
 export function adminControllerUpdateReferralConfigMutationOptions<TContext = unknown>(config: Partial<RequestConfig<AdminControllerUpdateReferralConfigMutationRequest>> & { client?: Client } = {}) {
 
         const mutationKey = adminControllerUpdateReferralConfigMutationKey()
-        return mutationOptions<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, {layer: AdminControllerUpdateReferralConfigPathParams["layer"], data: AdminControllerUpdateReferralConfigMutationRequest}, TContext>({
+        return mutationOptions<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, {layer: AdminControllerUpdateReferralConfigPathParams["layer"], segment: AdminControllerUpdateReferralConfigPathParams["segment"], data: AdminControllerUpdateReferralConfigMutationRequest}, TContext>({
           mutationKey,
-          mutationFn: async({ layer, data }) => {
-            return adminControllerUpdateReferralConfig(layer, data, config)
+          mutationFn: async({ layer, segment, data }) => {
+            return adminControllerUpdateReferralConfig(layer, segment, data, config)
           },
         })
 
 }
 
 /**
- * {@link /api/quest/admin/referral/config/:layer}
+ * @summary Upsert the commission rate for a (layer, segment) cell
+ * {@link /api/admin/quest-referral/config/:layer/:segment}
  */
 export function useAdminControllerUpdateReferralConfig<TContext>(options: 
 {
-  mutation?: UseMutationOptions<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, {layer: AdminControllerUpdateReferralConfigPathParams["layer"], data: AdminControllerUpdateReferralConfigMutationRequest}, TContext> & { client?: QueryClient },
+  mutation?: UseMutationOptions<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, {layer: AdminControllerUpdateReferralConfigPathParams["layer"], segment: AdminControllerUpdateReferralConfigPathParams["segment"], data: AdminControllerUpdateReferralConfigMutationRequest}, TContext> & { client?: QueryClient },
   client?: Partial<RequestConfig<AdminControllerUpdateReferralConfigMutationRequest>> & { client?: Client },
 }
  = {}) {
@@ -39,13 +40,13 @@ export function useAdminControllerUpdateReferralConfig<TContext>(options:
           const { client: queryClient, ...mutationOptions } = mutation;
           const mutationKey = mutationOptions.mutationKey ?? adminControllerUpdateReferralConfigMutationKey()
 
-          const baseOptions = adminControllerUpdateReferralConfigMutationOptions(config) as UseMutationOptions<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, {layer: AdminControllerUpdateReferralConfigPathParams["layer"], data: AdminControllerUpdateReferralConfigMutationRequest}, TContext>
+          const baseOptions = adminControllerUpdateReferralConfigMutationOptions(config) as UseMutationOptions<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, {layer: AdminControllerUpdateReferralConfigPathParams["layer"], segment: AdminControllerUpdateReferralConfigPathParams["segment"], data: AdminControllerUpdateReferralConfigMutationRequest}, TContext>
           
 
-          return useMutation<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, {layer: AdminControllerUpdateReferralConfigPathParams["layer"], data: AdminControllerUpdateReferralConfigMutationRequest}, TContext>({
+          return useMutation<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, {layer: AdminControllerUpdateReferralConfigPathParams["layer"], segment: AdminControllerUpdateReferralConfigPathParams["segment"], data: AdminControllerUpdateReferralConfigMutationRequest}, TContext>({
             ...baseOptions,
             mutationKey,
             ...mutationOptions,
-          }, queryClient) as UseMutationResult<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, {layer: AdminControllerUpdateReferralConfigPathParams["layer"], data: AdminControllerUpdateReferralConfigMutationRequest}, TContext>
+          }, queryClient) as UseMutationResult<AdminControllerUpdateReferralConfigMutationResponse, ResponseErrorConfig<Error>, {layer: AdminControllerUpdateReferralConfigPathParams["layer"], segment: AdminControllerUpdateReferralConfigPathParams["segment"], data: AdminControllerUpdateReferralConfigMutationRequest}, TContext>
       
 }

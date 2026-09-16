@@ -8,12 +8,12 @@ import type { AdminSeasonsControllerEndMutationResponse, AdminSeasonsControllerE
 import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
 
 function getAdminSeasonsControllerEndUrl(id: AdminSeasonsControllerEndPathParams["id"]) {
-  const res = { method: 'POST', url: `/api/quest/admin/seasons/${id}/end` as const }
+  const res = { method: 'POST', url: `/api/admin/quest-seasons/${id}/end` as const }
   return res
 }
 
 /**
- * {@link /api/quest/admin/seasons/:id/end}
+ * {@link /api/admin/quest-seasons/:id/end}
  */
 export async function adminSeasonsControllerEnd(id: AdminSeasonsControllerEndPathParams["id"], config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config

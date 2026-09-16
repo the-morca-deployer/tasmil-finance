@@ -6,8 +6,8 @@
 
 export type MarkPayoutDto = {
     /**
-     * @description On-chain transaction hash of the manual USDC payout
-     * @type string
+     * @description On-chain transaction hash of the manual USDC payout. Omit for a points-only reward band (usdc = 0) — there is no transfer to reference.
+     * @type string | undefined
     */
-    paidTxHash: string;
+    paidTxHash?: string;
 };

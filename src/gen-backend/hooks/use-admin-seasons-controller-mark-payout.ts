@@ -9,7 +9,7 @@ import type { UseMutationOptions, UseMutationResult, QueryClient } from "@tansta
 import { adminSeasonsControllerMarkPayout } from "@/gen-backend/client/admin-seasons-controller-mark-payout";
 import { mutationOptions, useMutation } from "@tanstack/react-query";
 
-export const adminSeasonsControllerMarkPayoutMutationKey = () => [{ url: '/api/quest/admin/seasons/results/:id/payout' }] as const
+export const adminSeasonsControllerMarkPayoutMutationKey = () => [{ url: '/api/admin/quest-seasons/results/:id/payout' }] as const
 
 export type AdminSeasonsControllerMarkPayoutMutationKey = ReturnType<typeof adminSeasonsControllerMarkPayoutMutationKey>
 
@@ -26,7 +26,7 @@ export function adminSeasonsControllerMarkPayoutMutationOptions<TContext = unkno
 }
 
 /**
- * {@link /api/quest/admin/seasons/results/:id/payout}
+ * {@link /api/admin/quest-seasons/results/:id/payout}
  */
 export function useAdminSeasonsControllerMarkPayout<TContext>(options: 
 {

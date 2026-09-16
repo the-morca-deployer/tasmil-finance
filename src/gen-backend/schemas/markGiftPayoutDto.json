@@ -1,0 +1,1 @@
+{"type":"object","properties":{"paidTxHash":{"type":"string","description":"On-chain transaction hash of the manual USDC payout. Omit for a points-only recipient."}},"x-readme-ref-name":"MarkGiftPayoutDto"}

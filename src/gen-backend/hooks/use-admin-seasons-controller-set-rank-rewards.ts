@@ -9,7 +9,7 @@ import type { UseMutationOptions, UseMutationResult, QueryClient } from "@tansta
 import { adminSeasonsControllerSetRankRewards } from "@/gen-backend/client/admin-seasons-controller-set-rank-rewards";
 import { mutationOptions, useMutation } from "@tanstack/react-query";
 
-export const adminSeasonsControllerSetRankRewardsMutationKey = () => [{ url: '/api/quest/admin/seasons/:id/rank-rewards' }] as const
+export const adminSeasonsControllerSetRankRewardsMutationKey = () => [{ url: '/api/admin/quest-seasons/:id/rank-rewards' }] as const
 
 export type AdminSeasonsControllerSetRankRewardsMutationKey = ReturnType<typeof adminSeasonsControllerSetRankRewardsMutationKey>
 
@@ -26,7 +26,7 @@ export function adminSeasonsControllerSetRankRewardsMutationOptions<TContext = u
 }
 
 /**
- * {@link /api/quest/admin/seasons/:id/rank-rewards}
+ * {@link /api/admin/quest-seasons/:id/rank-rewards}
  */
 export function useAdminSeasonsControllerSetRankRewards<TContext>(options: 
 {

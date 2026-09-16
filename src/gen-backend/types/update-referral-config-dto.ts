@@ -13,7 +13,7 @@ export type UpdateReferralConfigDto = {
     */
     rateBps: number;
     /**
-     * @description Whether this layer is active
+     * @description Whether this (layer, segment) rate is active
      * @type boolean | undefined
     */
     isActive?: boolean;

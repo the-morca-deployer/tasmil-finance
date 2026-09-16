@@ -1,0 +1,1 @@
+{"type":"object","properties":{"items":{"type":"array","items":{"type":"object","properties":{"recipientId":{"type":"string"},"paidTxHash":{"type":"string"}},"required":["recipientId"],"x-readme-ref-name":"BatchGiftPayoutItemDto"}}},"required":["items"],"x-readme-ref-name":"BatchGiftPayoutDto"}

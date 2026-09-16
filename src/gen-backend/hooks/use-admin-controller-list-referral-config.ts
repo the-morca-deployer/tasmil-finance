@@ -9,7 +9,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import { adminControllerListReferralConfig } from "@/gen-backend/client/admin-controller-list-referral-config";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
-export const adminControllerListReferralConfigQueryKey = () => [{ url: '/api/quest/admin/referral/config' }] as const
+export const adminControllerListReferralConfigQueryKey = () => [{ url: '/api/admin/quest-referral/config' }] as const
 
 export type AdminControllerListReferralConfigQueryKey = ReturnType<typeof adminControllerListReferralConfigQueryKey>
 
@@ -27,7 +27,8 @@ export function adminControllerListReferralConfigQueryOptions(config: Partial<Re
 }
 
 /**
- * {@link /api/quest/admin/referral/config}
+ * @summary List the referral commission matrix (all layer x segment rows)
+ * {@link /api/admin/quest-referral/config}
  */
 export function useAdminControllerListReferralConfig<TData = AdminControllerListReferralConfigQueryResponse, TQueryData = AdminControllerListReferralConfigQueryResponse, TQueryKey extends QueryKey = AdminControllerListReferralConfigQueryKey>(options: 
 {

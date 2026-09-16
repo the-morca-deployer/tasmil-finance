@@ -8,12 +8,13 @@ import type { AdminControllerListReferralConfigQueryResponse } from "@/gen-backe
 import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
 
 function getAdminControllerListReferralConfigUrl() {
-  const res = { method: 'GET', url: `/api/quest/admin/referral/config` as const }
+  const res = { method: 'GET', url: `/api/admin/quest-referral/config` as const }
   return res
 }
 
 /**
- * {@link /api/quest/admin/referral/config}
+ * @summary List the referral commission matrix (all layer x segment rows)
+ * {@link /api/admin/quest-referral/config}
  */
 export async function adminControllerListReferralConfig(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config

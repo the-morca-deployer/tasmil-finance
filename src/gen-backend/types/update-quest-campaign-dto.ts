@@ -41,4 +41,30 @@ export type UpdateQuestCampaignDto = {
      * @type boolean | undefined
     */
     isActive?: boolean;
+    /**
+     * @type boolean | undefined
+    */
+    isDaily?: boolean;
+    /**
+     * @type boolean | undefined
+    */
+    isFeatured?: boolean;
+    /**
+     * @minLength 1
+     * @type number | undefined
+    */
+    rewardPoints?: number;
+    /**
+     * @minLength 1
+     * @type number | undefined
+    */
+    minTasksToComplete?: number;
+    /**
+     * @type string | undefined
+    */
+    descriptionDetail?: string;
+    /**
+     * @type string | undefined
+    */
+    coverUrl?: string;
 };

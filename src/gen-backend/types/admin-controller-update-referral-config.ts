@@ -10,6 +10,10 @@ export type AdminControllerUpdateReferralConfigPathParams = {
      * @type number
     */
     layer: number;
+    /**
+     * @type string
+    */
+    segment: string;
 };
 
 export type AdminControllerUpdateReferralConfig200 = any;

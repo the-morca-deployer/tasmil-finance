@@ -8,12 +8,12 @@ import type { AdminSeasonsControllerSetRankRewardsMutationRequest, AdminSeasonsC
 import type { Client, RequestConfig, ResponseErrorConfig } from "@/lib/kubb-backend-client";
 
 function getAdminSeasonsControllerSetRankRewardsUrl(id: AdminSeasonsControllerSetRankRewardsPathParams["id"]) {
-  const res = { method: 'PUT', url: `/api/quest/admin/seasons/${id}/rank-rewards` as const }
+  const res = { method: 'PUT', url: `/api/admin/quest-seasons/${id}/rank-rewards` as const }
   return res
 }
 
 /**
- * {@link /api/quest/admin/seasons/:id/rank-rewards}
+ * {@link /api/admin/quest-seasons/:id/rank-rewards}
  */
 export async function adminSeasonsControllerSetRankRewards(id: AdminSeasonsControllerSetRankRewardsPathParams["id"], data: AdminSeasonsControllerSetRankRewardsMutationRequest, config: Partial<RequestConfig<AdminSeasonsControllerSetRankRewardsMutationRequest>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
