@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * DeFindex Playground — /playground/defindex
+ * DeFindex Playground - /playground/defindex
  *
  * Full-featured playground for DeFindex vault operations.
  * Queries tab: list vaults, vault detail, user balance, yield, history, performance
@@ -32,7 +32,7 @@ import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
 
-// ── Mock stream so DefindexTxCard's useStreamContext() doesn't throw ─────────
+// -- Mock stream so DefindexTxCard's useStreamContext() doesn't throw ---------
 const MOCK_STREAM = {
   messages: [],
   values: {},
@@ -47,13 +47,13 @@ const MOCK_STREAM = {
 const PROTOCOL_URL = "/api/protocols/defindex";
 const DEFINDEX_URL = "/api/defindex";
 
-// ── Styles ───────────────────────────────────────────────────────────────────
+// -- Styles -------------------------------------------------------------------
 const inputCls =
   "w-full rounded-lg bg-secondary border border-border px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20";
 const labelCls = "block text-muted-foreground text-[11px] mb-0.5 font-medium";
 const panelCls = "rounded-xl border border-border bg-card/80 p-4 space-y-3 flex flex-col";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// -- Types --------------------------------------------------------------------
 interface Field {
   key: string;
   label: string;
@@ -67,7 +67,7 @@ interface KnownVault {
   asset?: string;
 }
 
-// ── QueryPanel ───────────────────────────────────────────────────────────────
+// -- QueryPanel ---------------------------------------------------------------
 interface QueryPanelProps {
   title: string;
   url: string;
@@ -184,7 +184,7 @@ function QueryPanel({
   );
 }
 
-// ── OpPanel ──────────────────────────────────────────────────────────────────
+// -- OpPanel ------------------------------------------------------------------
 interface OpPanelProps {
   title: string;
   endpoint: string;
@@ -321,7 +321,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
   );
 }
 
-// ── Vault selector ───────────────────────────────────────────────────────────
+// -- Vault selector -----------------------------------------------------------
 function VaultSelector({
   vaults,
   selected,
@@ -344,7 +344,7 @@ function VaultSelector({
         >
           {vaults.map((v) => (
             <option key={v.address} value={v.address}>
-              {v.name || "Vault"} — {v.address.slice(0, 8)}...
+              {v.name || "Vault"} - {v.address.slice(0, 8)}...
             </option>
           ))}
         </select>
@@ -357,7 +357,7 @@ function VaultSelector({
   );
 }
 
-// ── VaultDetailPanel ─────────────────────────────────────────────────────────
+// -- VaultDetailPanel ---------------------------------------------------------
 // Tries enriched API first; falls back to basic pool info on failure.
 function VaultDetailPanel({ address }: { address: string }) {
   const [result, setResult] = useState<any>(null);
@@ -458,7 +458,7 @@ function VaultDetailPanel({ address }: { address: string }) {
   );
 }
 
-// ── Main playground ──────────────────────────────────────────────────────────
+// -- Main playground ----------------------------------------------------------
 export default function DefindexPlaygroundPage() {
   const { address: walletAddress } = useWallet();
   const [tab, setTab] = useState<"queries" | "operations">("queries");
@@ -509,7 +509,7 @@ export default function DefindexPlaygroundPage() {
                   DeFindex Playground
                 </Typography>
                 <Typography variant="p" className="text-muted-foreground text-sm mt-1">
-                  Direct SDK — vault operations via{" "}
+                  Direct SDK - vault operations via{" "}
                   <span className="font-mono text-emerald-400 text-xs">/api/defindex/...</span>
                 </Typography>
               </div>
@@ -551,9 +551,9 @@ export default function DefindexPlaygroundPage() {
           ))}
         </div>
 
-        {/* ═══════════════════════════════════════
+        {/* ---------------------------------------
             QUERIES TAB
-        ═══════════════════════════════════════ */}
+        --------------------------------------- */}
         {tab === "queries" && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {/* 1. List Vaults */}
@@ -567,7 +567,7 @@ export default function DefindexPlaygroundPage() {
               )}
             />
 
-            {/* 2. Vault Detail (enriched — falls back to basic info) */}
+            {/* 2. Vault Detail (enriched - falls back to basic info) */}
             <VaultDetailPanel address={vault} />
 
             {/* 3. User Balance */}
@@ -628,9 +628,9 @@ export default function DefindexPlaygroundPage() {
           </div>
         )}
 
-        {/* ═══════════════════════════════════════
+        {/* ---------------------------------------
             OPERATIONS TAB
-        ═══════════════════════════════════════ */}
+        --------------------------------------- */}
         {tab === "operations" && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {/* 1. Deposit */}
@@ -678,7 +678,7 @@ export default function DefindexPlaygroundPage() {
         {/* Footer */}
         <div className="border-t border-border pt-4 text-center">
           <Typography variant="small" className="text-muted-foreground/40 text-xs">
-            DeFindex Playground · SDK-backed · Operations build XDR only — wallet signing required
+            DeFindex Playground · SDK-backed · Operations build XDR only - wallet signing required
             to submit on-chain
           </Typography>
         </div>

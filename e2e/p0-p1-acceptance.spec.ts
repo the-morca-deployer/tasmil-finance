@@ -7,7 +7,7 @@
  *
  * Discipline:
  * - Every test calls loginAsWallet(page, freshWallet()) BEFORE goto.
- * - No silent skips — strict expect().toBeVisible({ timeout }).
+ * - No silent skips - strict expect().toBeVisible({ timeout }).
  * - localStorage cleared via addInitScript when test depends on
  *   per-device state.
  * - Run: pnpm test:e2e -- p0-p1-acceptance.spec.ts
@@ -19,7 +19,7 @@ import { freshWallet, loginAsWallet } from "./helpers/auth";
 import { applyCreditDelta, seedActivity, seedManagedAccount } from "./helpers/backend";
 import { clearOnboardingState, clearWatchlistState } from "./helpers/state";
 
-test.describe("T1 — Onboarding guide (P0)", () => {
+test.describe("T1 - Onboarding guide (P0)", () => {
   test("modal opens on first wallet connect", async ({ page, context }) => {
     await context.clearCookies();
     const wallet = freshWallet();
@@ -59,7 +59,7 @@ test.describe("T1 — Onboarding guide (P0)", () => {
     const modal = page.getByRole("dialog");
     await expect(modal).toBeVisible({ timeout: 8000 });
 
-    // Slide 1 has a videoUrl placeholder — caption text is the locator
+    // Slide 1 has a videoUrl placeholder - caption text is the locator
     await expect(page.getByText(/Watch intro/i)).toBeVisible();
   });
 
@@ -114,7 +114,7 @@ test.describe("T1 — Onboarding guide (P0)", () => {
   });
 });
 
-test.describe("T2 — Farming UI (P0)", () => {
+test.describe("T2 - Farming UI (P0)", () => {
   test("gradient hero card visible at /farming with CountUp-rendered USD value", async ({
     page,
     context,
@@ -154,7 +154,7 @@ test.describe("T2 — Farming UI (P0)", () => {
     await loginAsWallet(page, wallet);
     await seedManagedAccount(wallet);
 
-    // Capture early state — race CountUp's animation
+    // Capture early state - race CountUp's animation
     await page.goto("/farming");
 
     // Dismiss modal if it auto-opened
@@ -167,7 +167,7 @@ test.describe("T2 — Farming UI (P0)", () => {
     const hero = page.locator('[data-testid="farming-header"]');
     await expect(hero).toBeVisible({ timeout: 10_000 });
 
-    // For a fresh wallet with no positions the value will be $0.00 — that's a valid
+    // For a fresh wallet with no positions the value will be $0.00 - that's a valid
     // "rendered" state. We assert the $ sign appears (CountUp's prefix), which proves
     // the component rendered, regardless of the final number.
     await expect(hero.getByText(/\$/)).toBeVisible();
@@ -224,14 +224,14 @@ test.describe("T2 — Farming UI (P0)", () => {
 
     const plusRow = page.locator("text=/^\\+\\d/").first();
     const empty = page.getByText(/No rewards yet/i);
-    // Strict — exactly one of these must be visible. No silent skip.
+    // Strict - exactly one of these must be visible. No silent skip.
     const plusVisible = await plusRow.isVisible({ timeout: 3000 }).catch(() => false);
     const emptyVisible = await empty.isVisible({ timeout: 3000 }).catch(() => false);
     expect(plusVisible || emptyVisible).toBe(true);
   });
 });
 
-test.describe("T3 — Credit mechanic (P1)", () => {
+test.describe("T3 - Credit mechanic (P1)", () => {
   const BACKEND = process.env.PLAYWRIGHT_BACKEND_URL ?? "http://localhost:6756";
 
   async function fetchCreditMe(
@@ -291,7 +291,7 @@ test.describe("T3 — Credit mechanic (P1)", () => {
       userId: session.userId,
       reason: "CHAT_DEBIT",
       deltaCredits: -10,
-      idempotencyKey, // same key — must not double-debit
+      idempotencyKey, // same key - must not double-debit
     });
 
     const after = (await fetchCreditMe(session.jwt)).balance;
@@ -334,7 +334,7 @@ test.describe("T3 — Credit mechanic (P1)", () => {
   });
 });
 
-test.describe("T4 — Protocol/Reward split (P1)", () => {
+test.describe("T4 - Protocol/Reward split (P1)", () => {
   test("/portfolio?tab=history shows Wallet / Protocol / Reward sub-tabs", async ({
     page,
     context,
@@ -428,7 +428,7 @@ test.describe("T4 — Protocol/Reward split (P1)", () => {
     await seedActivity(wallet, [
       { type: "HARVEST", amount: 5, token: "BLND" },
       { type: "BACKSTOP_EXIT", amount: 12, token: "BLND" },
-      { type: "DEPOSIT", amount: 100, token: "USDC" }, // protocol — must be hidden
+      { type: "DEPOSIT", amount: 100, token: "USDC" }, // protocol - must be hidden
     ]);
     await page.goto("/portfolio?tab=history");
 
@@ -479,7 +479,7 @@ test.describe("T4 — Protocol/Reward split (P1)", () => {
   });
 });
 
-test.describe("T5 — History display Freighter-style (P1)", () => {
+test.describe("T5 - History display Freighter-style (P1)", () => {
   test("click row → expanded details panel visible (Tx Hash + ISO timestamp)", async ({
     page,
     context,
@@ -501,7 +501,7 @@ test.describe("T5 — History display Freighter-style (P1)", () => {
     await expect(walletTab).toBeVisible({ timeout: 10_000 });
 
     const statusDots = page.locator('[data-testid="status-dot"]');
-    // For a fresh wallet there may be zero ops — skip-friendly assertion:
+    // For a fresh wallet there may be zero ops - skip-friendly assertion:
     const dotCount = await statusDots.count();
     if (dotCount === 0) {
       // No history → assert the empty state is visible instead.
@@ -574,7 +574,7 @@ test.describe("T5 — History display Freighter-style (P1)", () => {
   });
 });
 
-test.describe("T6 — Asset selector (P1)", () => {
+test.describe("T6 - Asset selector (P1)", () => {
   async function bypassOnboarding(page: import("@playwright/test").Page) {
     const dialog = page.getByRole("dialog");
     if (await dialog.isVisible({ timeout: 2000 }).catch(() => false)) {
@@ -667,7 +667,7 @@ test.describe("T6 — Asset selector (P1)", () => {
       .click();
     await expect(page.getByRole("button", { name: /Open BLND in aggregator/i })).toBeVisible();
 
-    // Reload — chip persists
+    // Reload - chip persists
     await page.reload();
     await bypassOnboarding(page);
     // Wait for the Assets section to finish loading (Watch Asset button only
@@ -683,7 +683,7 @@ test.describe("T6 — Asset selector (P1)", () => {
     await page.getByRole("button", { name: /Remove BLND/i }).click();
     await expect(page.getByRole("button", { name: /Open BLND in aggregator/i })).not.toBeVisible();
 
-    // Reload again — chip is still gone
+    // Reload again - chip is still gone
     await page.reload();
     await bypassOnboarding(page);
     await expect(page.getByRole("button", { name: /Watch Asset/i })).toBeVisible({

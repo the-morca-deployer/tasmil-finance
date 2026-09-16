@@ -10,7 +10,7 @@ import { useTrustlineableTokens } from "../use-trustlineable-tokens";
 const mockTokens = [
   { symbol: "USDC", chains: ["stellar", "ethereum"], issuer: "GUSDC" },
   { symbol: "BLND", chains: ["stellar"], issuer: "GBLND" },
-  { symbol: "XLM", chains: ["stellar"] }, // no issuer — must be filtered out
+  { symbol: "XLM", chains: ["stellar"] }, // no issuer - must be filtered out
   { symbol: "ETH", chains: ["ethereum"], issuer: "irrelevant" }, // not on stellar
 ];
 

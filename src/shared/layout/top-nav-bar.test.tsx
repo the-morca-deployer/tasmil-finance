@@ -49,12 +49,17 @@ describe("TopNavBar", () => {
     pathnameMock.mockReturnValue("/farming");
   });
 
-  it("renders the brand name with shimmer animation classes", () => {
+  it("renders the brand from sidebarData and links it home", () => {
     render(<TopNavBar sidebarData={fakeData} />);
-    const brand = screen.getByText("Tasmil Finance");
+    // Brand rendering moved into <BrandLogo/>; its gradient is now an inline
+    // style rather than tailwind shimmer classes, so assert the behaviour that
+    // actually matters: the brand text and logo come from sidebarData.header and
+    // the whole lockup is a link back into the app.
+    const brand = screen.getByText(fakeData.header.brand_name);
     expect(brand).toBeInTheDocument();
-    expect(brand.className).toMatch(/animate-shimmer-text/);
-    expect(brand.className).toMatch(/bg-clip-text/);
+    const link = brand.closest("a");
+    expect(link).toHaveAttribute("href", "/chat/new");
+    expect(link?.querySelector("img")).toBeInTheDocument();
   });
 
   it("renders nav links from sidebarData", () => {

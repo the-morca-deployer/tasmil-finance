@@ -77,4 +77,3 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "sow2-image-${GITHUB_SHA}" -m "${IMAGE}@${IMAGE_DIGEST}"
           git push origin "sow2-image-${GITHUB_SHA}"
-

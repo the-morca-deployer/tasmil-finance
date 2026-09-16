@@ -105,7 +105,7 @@ export function decodeOperation(
 ): DecodedOp {
   const successful = op.transaction_successful !== false;
 
-  // ── Classic transfers ───────────────────────────────────────────────
+  // -- Classic transfers -----------------------------------------------
   if (op.type === "payment") {
     const outgoing = op.from === address;
     const kind: OpKind = outgoing ? "send" : "receive";
@@ -255,7 +255,7 @@ function resolveCode(
 }
 
 // Horizon already emits `asset_balance_changes[*].amount` in decimal form
-// (e.g. "0.1000000"), not raw stroops — so we just canonicalize via BigNumber,
+// (e.g. "0.1000000"), not raw stroops - so we just canonicalize via BigNumber,
 // never scaleByDecimals.
 function abcToDelta(
   change: NonNullable<RawHorizonOp["asset_balance_changes"]>[number],

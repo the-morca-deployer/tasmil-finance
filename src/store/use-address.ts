@@ -61,7 +61,7 @@ export const useAddressStore = create<AddressStore>()(
 
       syncConnectedWallet: (chainType, address, label) => {
         if (!address) {
-          // Wallet disconnected — remove connected entries of this chain type
+          // Wallet disconnected - remove connected entries of this chain type
           set((s) => ({
             addresses: s.addresses.filter(
               (a) => !(a.chainType === chainType && a.source === "connected")

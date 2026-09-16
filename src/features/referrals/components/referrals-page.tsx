@@ -18,7 +18,7 @@ function buildShareUrl(code: string): string {
 }
 
 function buildTweetIntent(code: string): string {
-  const text = `I'm using @TasmilFinance — try it: ${buildShareUrl(code)}`;
+  const text = `I'm using @TasmilFinance - try it: ${buildShareUrl(code)}`;
   return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
 }
 
@@ -66,7 +66,7 @@ export function ReferralsBody() {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [verifyShareDialogOpen, setVerifyShareDialogOpen] = useState(false);
 
-  // ─── UNAUTHED — Center-aligned hero, no giant box ──────────
+  // --- UNAUTHED - Center-aligned hero, no giant box ----------
   if (!isAuthed) {
     return (
       <div
@@ -78,7 +78,7 @@ export function ReferralsBody() {
           <Wallet className="h-5 w-5 text-[#59C3FF]" strokeWidth={1.75} />
         </div>
 
-        {/* Heading — solid blue accent, no gradient */}
+        {/* Heading - solid blue accent, no gradient */}
         <div className="flex flex-col gap-2">
           <h1 className="font-semibold text-3xl text-white leading-[1.15] tracking-tight md:text-4xl">
             Activate &amp; Share Your <span className="text-[#59C3FF]">Referral Power</span>
@@ -89,7 +89,7 @@ export function ReferralsBody() {
           </p>
         </div>
 
-        {/* Connect Wallet — outline (blue border, blue text) */}
+        {/* Connect Wallet - outline (blue border, blue text) */}
         <button
           type="button"
           onClick={connect}
@@ -100,7 +100,7 @@ export function ReferralsBody() {
           Connect Wallet
         </button>
 
-        {/* Benefit pill — thin border, spark icon */}
+        {/* Benefit pill - thin border, spark icon */}
         <div className="inline-flex items-center gap-1.5 rounded-md border border-[#333333] bg-[#171717] px-2.5 py-1">
           <Sparkles className="h-3 w-3 text-[#59C3FF]" />
           <span className="font-medium text-[#A3A3A3] text-xs">
@@ -111,7 +111,7 @@ export function ReferralsBody() {
     );
   }
 
-  // ─── LOADING / ERROR ─────────────────────────────────────────
+  // --- LOADING / ERROR -----------------------------------------
   if (snapshot.isLoading || !snapshot.data) {
     return (
       <div
@@ -122,7 +122,7 @@ export function ReferralsBody() {
           aria-hidden
           className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-muted-foreground/40 border-t-primary"
         />
-        Loading referrals…
+        Loading referrals...
       </div>
     );
   }
@@ -168,7 +168,7 @@ export function ReferralsBody() {
 
       {/* Two-column grid: code (left) + stats (right) */}
       <div className="grid grid-cols-1 gap-x-12 gap-y-10 md:grid-cols-[3fr_2fr]">
-        {/* SECTION — REFERRAL CODE */}
+        {/* SECTION - REFERRAL CODE */}
         <section data-testid="referrals-code-card" className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">
             <SectionLabel>Your referral code</SectionLabel>
@@ -252,7 +252,7 @@ export function ReferralsBody() {
           ) : (
             <div data-testid="referrals-empty" className="flex flex-col gap-4">
               <p className="text-muted-foreground text-sm leading-relaxed">
-                No referral code yet — complete waitlist signup to receive one.
+                No referral code yet - complete waitlist signup to receive one.
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button asChild size="sm">
@@ -275,7 +275,7 @@ export function ReferralsBody() {
           )}
         </section>
 
-        {/* SECTION — STATS (no inner box-in-box) */}
+        {/* SECTION - STATS (no inner box-in-box) */}
         <section data-testid="referrals-stats-card" className="flex flex-col gap-6">
           <SectionLabel>Stats</SectionLabel>
           <div className="grid grid-cols-2 gap-x-6 gap-y-1">
@@ -314,7 +314,7 @@ export function ReferralsBody() {
         </section>
       </div>
 
-      {/* SECTION — RECENT ACTIVITY (data-table style, no outer box) */}
+      {/* SECTION - RECENT ACTIVITY (data-table style, no outer box) */}
       <section data-testid="referrals-events-card" className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           <SectionLabel>Recent activity</SectionLabel>
@@ -354,7 +354,7 @@ export function ReferralsBody() {
                   <span className="text-muted-foreground text-xs">
                     {relativeTime(event.occurredAt)}
                   </span>
-                  <span className="truncate text-muted-foreground">—</span>
+                  <span className="truncate text-muted-foreground">-</span>
                   <span className="flex items-center gap-2 truncate font-medium text-foreground">
                     <KindIcon kind={event.kind} />
                     {formatKind(event.kind)}

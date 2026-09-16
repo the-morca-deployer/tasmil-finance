@@ -8,7 +8,7 @@ import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { BeamsBg, Ico, KeyAnim, PopperAnim, Stepper, WalletAnim } from "./shared";
 
-/* ── Segmented 12-character code input (3 × 4 boxes) ── */
+/* -- Segmented 12-character code input (3 × 4 boxes) -- */
 function CodeInput({ value, onChange, hasError }) {
   const inputRef = useRef(null);
   const [focused, setFocused] = useState(false);
@@ -98,7 +98,7 @@ function CodeInput({ value, onChange, hasError }) {
                   lineHeight: 1,
                 }}
               >
-                –
+                -
               </span>
             )}
             <div style={{ display: "flex", gap: 4 }}>
@@ -148,7 +148,7 @@ async function checkAlreadyRedeemed(walletAddress: string): Promise<boolean> {
   return false;
 }
 
-/* ── Access flow ── */
+/* -- Access flow -- */
 function AccessFlow() {
   const { isConnected, address, connect, displayAddress, isAuthenticating, disconnect } =
     useWallet();
@@ -281,7 +281,7 @@ function AccessFlow() {
               {isAuthenticating ? (
                 <>
                   <span className="spinner" />
-                  Connecting…
+                  Connecting...
                 </>
               ) : (
                 "Connect Stellar Wallet"
@@ -318,7 +318,7 @@ function AccessFlow() {
                 {submitting ? (
                   <>
                     <span className="spinner" />
-                    Verifying…
+                    Verifying...
                   </>
                 ) : (
                   <>
@@ -345,14 +345,14 @@ function AccessFlow() {
           <div className="screen" key="d">
             <PopperAnim />
             <h3 className="screen-h">Access granted</h3>
-            <p className="screen-p">Welcome to Tasmil — your seat is secured.</p>
+            <p className="screen-p">Welcome to Tasmil - your seat is secured.</p>
 
             <div className="seat-pass">
               <div className="sp-glow" />
               <div className="sp-left">
                 <span className="sp-label">Your seat</span>
                 <span className="sp-num">
-                  {result?.seatNumber != null ? `#${result.seatNumber}` : "—"}
+                  {result?.seatNumber != null ? `#${result.seatNumber}` : "-"}
                 </span>
                 <span className="sp-cohort">Early cohort</span>
               </div>

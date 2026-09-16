@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-// ─── Playground-style micro components ──────────────────────────
+// --- Playground-style micro components --------------------------
 
 /** APY display - value is decimal from SDK (e.g. 1.7922 = 179.22%). */
 export function Apy({ value }: { value: unknown }) {
@@ -92,7 +92,7 @@ export function CardHeader({
   );
 }
 
-// ─── Chat-style indicators ──────────────────────────────────────
+// --- Chat-style indicators --------------------------------------
 
 /** APY display with color coding (chat style). */
 export function APYDisplay({ value }: { value: number | string | undefined | null }) {

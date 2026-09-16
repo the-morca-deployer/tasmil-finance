@@ -1,5 +1,5 @@
 /**
- * Axios-level mock interceptors — intercept requests in-process.
+ * Axios-level mock interceptors - intercept requests in-process.
  * No service worker needed.
  *
  * gen-quest client URLs use /api/quest/... and /api/auth/...
@@ -54,7 +54,7 @@ function respond(config: { url?: string; params?: Record<string, unknown> }, dat
 }
 
 export function applyMockAdapter() {
-  // ── Quest API interceptor ──
+  // -- Quest API interceptor --
   questApiClient.interceptors.request.use((config) => {
     const { url } = config;
 
@@ -65,7 +65,7 @@ export function applyMockAdapter() {
       return config;
     };
 
-    // ── Campaigns ──
+    // -- Campaigns --
     if (url === `${QB}/campaigns`) {
       const p = config.params || {};
       if ((p as Record<string, unknown>).active === "true")
@@ -86,7 +86,7 @@ export function applyMockAdapter() {
     if (url?.match(/^\/api\/quest\/campaigns\/[^/]+\/claim$/))
       return mock({ success: true, data: { claimed: true, points: 150 } });
 
-    // ── Tasks ──
+    // -- Tasks --
     const taskStatus = url?.match(/^\/api\/quest\/tasks\/([^/]+)\/status$/);
     if (taskStatus) return mock(buildTaskStatus(taskStatus[1]!));
 
@@ -101,7 +101,7 @@ export function applyMockAdapter() {
     if (url?.match(/^\/api\/quest\/tasks\/[^/]+\/submit-proof$/)) return mock(MUTATION_SUCCESS);
     if (url === `${QB}/tasks/complete-by-action`) return mock(MUTATION_SUCCESS);
 
-    // ── Users ──
+    // -- Users --
     if (url === `${QB}/users/me` && config.method !== "patch") return mock(MOCK_USER_ME);
     if (url === `${QB}/users/me` && config.method === "patch") return mock(MUTATION_SUCCESS);
 
@@ -119,29 +119,29 @@ export function applyMockAdapter() {
     if (url?.match(/^\/api\/quest\/users\/[^/]+\/points-history$/))
       return mock(MOCK_POINTS_HISTORY);
 
-    // ── Social Accounts ──
+    // -- Social Accounts --
     if (url === `${QB}/social-accounts` && config.method !== "delete")
       return mock(MOCK_SOCIAL_ACCOUNTS);
     if (url?.match(/^\/api\/quest\/social-accounts\/[^/]+\/link$/)) return mock(MUTATION_SUCCESS);
     if (url?.match(/^\/api\/quest\/social-accounts\/[^/]+$/) && config.method === "delete")
       return mock(MUTATION_SUCCESS);
 
-    // ── Leaderboard ──
+    // -- Leaderboard --
     if (url === `${QB}/leaderboard/global`) return mock(MOCK_LEADERBOARD);
     if (url === `${QB}/leaderboard/streak`) return mock(MOCK_STREAK_LEADERBOARD);
 
-    // ── Seasons ──
+    // -- Seasons --
     if (url === `${QB}/seasons/current`) return mock(MOCK_CURRENT_SEASON);
     if (url === `${QB}/seasons/me`) return mock(MOCK_MY_SEASON_RESULT);
     if (url === `${QB}/seasons/me/reveal-ack`) return mock(MUTATION_SUCCESS);
     if (url === `${QB}/seasons/current/leaderboard`) return mock(MOCK_LEADERBOARD);
 
-    // ── Referrals ──
+    // -- Referrals --
     if (url === `${QB}/referral/me`) return mock(MOCK_REFERRAL);
     if (url === `${QB}/referral/leaderboard`) return mock(MOCK_LEADERBOARD);
     if (url === `${QB}/referral/tree`) return mock(MOCK_REFERRAL_TREE);
 
-    // ── Auth ──
+    // -- Auth --
     if (url === `${AB}/challenge`) return mock({ nonce: "mock-nonce" });
     if (url === `${AB}/verify`) {
       return mock({
@@ -162,12 +162,12 @@ export function applyMockAdapter() {
       });
     if (url === `${AB}/logout`) return mock(MUTATION_SUCCESS);
 
-    // ── Notifications ──
+    // -- Notifications --
     if (url === `${QB}/notifications`)
       return mock({ success: true, data: { items: [], meta: { total: 0, page: 1, limit: 20 } } });
 
     return config; // pass through unmatched URLs
   });
 
-  console.warn("[mock] Axios interceptor installed — quest API mocked (paths: /api/quest/...)");
+  console.warn("[mock] Axios interceptor installed - quest API mocked (paths: /api/quest/...)");
 }

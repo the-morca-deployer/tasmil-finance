@@ -2,14 +2,14 @@ import { expect, test } from "@playwright/test";
 import { loginAsAdmin } from "./helpers/admin-auth";
 
 /**
- * Admin cohort sponsor UI — covers the three v2 cards on /admin/sponsor:
+ * Admin cohort sponsor UI - covers the three v2 cards on /admin/sponsor:
  *   - CohortConfigCard (GET + PATCH /api/admin/sponsorship/config)
  *   - CohortMembersTable (GET /api/admin/sponsorship/members)
  *   - CohortFallbackLogTable (GET /api/admin/sponsorship/fallback-log)
  *
  * Auth is synthesized (unsigned JWT with future exp) so AdminAuthGuard
  * passes. All /api/admin/sponsorship/** calls are mocked via page.route()
- * — no real backend hit.
+ * - no real backend hit.
  */
 
 const SAMPLE_CONFIG = {
@@ -70,7 +70,7 @@ const SAMPLE_FALLBACK = {
   nextCursor: null,
 };
 
-test.describe("Admin — cohort sponsor v2", () => {
+test.describe("Admin - cohort sponsor v2", () => {
   test.skip(process.env.NODE_ENV === "production", "admin login disabled on production");
 
   test("renders all 3 cards with mocked data", async ({ page }) => {

@@ -124,7 +124,7 @@ function StrategyCard({
       <GlassCardContent className="px-5 pt-4 pb-2">
         <div className="mb-1 flex items-center gap-2 text-xs text-zinc-500">
           <span className="font-mono text-cyan-500/80">Strategy</span>
-          <span>•</span>
+          <span>-</span>
           <span>{strategy.chain?.alt || "Ethereum"}</span>
         </div>
         <h3 className="mb-1 font-bold text-lg text-white transition-colors group-hover:text-cyan-400">

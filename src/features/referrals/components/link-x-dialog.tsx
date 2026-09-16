@@ -71,7 +71,7 @@ export function LinkXDialog({ open, onOpenChange }: LinkXDialogProps) {
         if (status === 501) {
           setState({
             kind: "disabled",
-            message: "X linking is not yet available — coming soon",
+            message: "X linking is not yet available - coming soon",
           });
         } else {
           const message = err instanceof Error ? err.message : "Failed to start X linking flow";
@@ -99,7 +99,7 @@ export function LinkXDialog({ open, onOpenChange }: LinkXDialogProps) {
       if (status === 501) {
         setState({
           kind: "disabled",
-          message: "X linking is not yet available — coming soon",
+          message: "X linking is not yet available - coming soon",
         });
         return;
       }
@@ -120,7 +120,7 @@ export function LinkXDialog({ open, onOpenChange }: LinkXDialogProps) {
 
         {state.kind === "loading" && (
           <p data-testid="link-x-dialog-loading" className="text-muted-foreground text-sm">
-            Preparing verification…
+            Preparing verification...
           </p>
         )}
 
@@ -178,7 +178,7 @@ export function LinkXDialog({ open, onOpenChange }: LinkXDialogProps) {
               onClick={handleVerify}
               disabled={state.kind === "verifying"}
             >
-              {state.kind === "verifying" ? "Verifying…" : "Verify tweet"}
+              {state.kind === "verifying" ? "Verifying..." : "Verify tweet"}
             </Button>
           </div>
         )}

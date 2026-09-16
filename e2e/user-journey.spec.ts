@@ -4,7 +4,7 @@ import { freshWallet, loginAsWallet } from "./helpers/auth";
 /**
  * 20 end-user journey tests covering real interactions across the redesigned
  * UI surface. These exercise click flows, dropdowns, navigation, and state
- * transitions — the things a user actually does, not just static markup.
+ * transitions - the things a user actually does, not just static markup.
  *
  * Run against the local mainnet stack:
  *   PLAYWRIGHT_BASE_URL=http://localhost:3001 \
@@ -12,43 +12,43 @@ import { freshWallet, loginAsWallet } from "./helpers/auth";
  *   pnpm exec playwright test user-journey.spec.ts
  */
 
-test.describe("User journey — top nav navigation", () => {
-  test("J01 — clicking Chat link in top nav navigates to /chat", async ({ page }) => {
+test.describe("User journey - top nav navigation", () => {
+  test("J01 - clicking Chat link in top nav navigates to /chat", async ({ page }) => {
     await page.goto("/farming");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     await topNav.getByRole("link", { name: /^Chat$/i }).click();
     await expect(page).toHaveURL(/\/chat/);
   });
 
-  test("J02 — clicking Farming link navigates to /farming", async ({ page }) => {
+  test("J02 - clicking Farming link navigates to /farming", async ({ page }) => {
     await page.goto("/chat/new");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     await topNav.getByRole("link", { name: /^Farming$/i }).click();
     await expect(page).toHaveURL(/\/farming/);
   });
 
-  test("J03 — clicking Aggregator link navigates to /aggregator", async ({ page }) => {
+  test("J03 - clicking Aggregator link navigates to /aggregator", async ({ page }) => {
     await page.goto("/farming");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     await topNav.getByRole("link", { name: /^Aggregator$/i }).click();
     await expect(page).toHaveURL(/\/aggregator/);
   });
 
-  test("J04 — clicking Portfolio link navigates to /portfolio", async ({ page }) => {
+  test("J04 - clicking Portfolio link navigates to /portfolio", async ({ page }) => {
     await page.goto("/farming");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     await topNav.getByRole("link", { name: /^Portfolio$/i }).click();
     await expect(page).toHaveURL(/\/portfolio/);
   });
 
-  test("J05 — clicking the brand logo returns to /chat/new", async ({ page }) => {
+  test("J05 - clicking the brand logo returns to /chat/new", async ({ page }) => {
     await page.goto("/portfolio");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     await topNav.locator('a[href="/chat/new"]').first().click();
     await expect(page).toHaveURL(/\/chat\/new/);
   });
 
-  test("J06 — multi-step journey: chat → farming → aggregator → portfolio", async ({ page }) => {
+  test("J06 - multi-step journey: chat → farming → aggregator → portfolio", async ({ page }) => {
     await page.goto("/chat/new");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     await topNav.getByRole("link", { name: /^Farming$/i }).click();
@@ -60,16 +60,16 @@ test.describe("User journey — top nav navigation", () => {
   });
 });
 
-test.describe("User journey — chat history (Clock removed from header)", () => {
-  test("J07 — /chat/new top nav has no Clock chat-history button", async ({ page }) => {
+test.describe("User journey - chat history (Clock removed from header)", () => {
+  test("J07 - /chat/new top nav has no Clock chat-history button", async ({ page }) => {
     await page.goto("/chat/new");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     await expect(topNav.locator("svg.lucide-clock")).toHaveCount(0);
   });
 });
 
-test.describe("User journey — wallet dropdown actions", () => {
-  test("J08 — clicking Copy address writes wallet address to clipboard", async ({
+test.describe("User journey - wallet dropdown actions", () => {
+  test("J08 - clicking Copy address writes wallet address to clipboard", async ({
     page,
     context,
   }) => {
@@ -86,7 +86,7 @@ test.describe("User journey — wallet dropdown actions", () => {
     expect(clipboardText).toBe(wallet);
   });
 
-  test("J09 — clicking Credits row navigates to /profile/credits", async ({ page, context }) => {
+  test("J09 - clicking Credits row navigates to /profile/credits", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
@@ -95,7 +95,7 @@ test.describe("User journey — wallet dropdown actions", () => {
     await expect(page).toHaveURL(/\/profile\/credits/);
   });
 
-  test("J10 — Disconnect from dropdown clears connected state", async ({ page, context }) => {
+  test("J10 - Disconnect from dropdown clears connected state", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
@@ -107,7 +107,7 @@ test.describe("User journey — wallet dropdown actions", () => {
     await expect(topNav.getByTestId("wallet-connected")).toHaveCount(0);
   });
 
-  test("J11 — Escape key closes the wallet dropdown", async ({ page, context }) => {
+  test("J11 - Escape key closes the wallet dropdown", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
@@ -118,7 +118,7 @@ test.describe("User journey — wallet dropdown actions", () => {
   });
 });
 
-test.describe("User journey — wizard preset selection (in modal)", () => {
+test.describe("User journey - wizard preset selection (in modal)", () => {
   async function gotoStepPreset(page: import("@playwright/test").Page) {
     await page.goto("/farming");
     await page.getByTestId("setup-cta").click();
@@ -132,7 +132,7 @@ test.describe("User journey — wizard preset selection (in modal)", () => {
     return dialog;
   }
 
-  test("J12 — Aggressive selection updates aria-checked, deselects Balanced", async ({
+  test("J12 - Aggressive selection updates aria-checked, deselects Balanced", async ({
     page,
     context,
   }) => {
@@ -149,7 +149,7 @@ test.describe("User journey — wizard preset selection (in modal)", () => {
     await expect(balanced).toHaveAttribute("aria-checked", "false");
   });
 
-  test("J13 — Safe selection updates aria-checked", async ({ page, context }) => {
+  test("J13 - Safe selection updates aria-checked", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     const dialog = await gotoStepPreset(page);
@@ -160,23 +160,23 @@ test.describe("User journey — wizard preset selection (in modal)", () => {
   });
 });
 
-test.describe("User journey — page-level chrome by route", () => {
-  test("J14 — /portfolio loads with top nav visible", async ({ page, context }) => {
+test.describe("User journey - page-level chrome by route", () => {
+  test("J14 - /portfolio loads with top nav visible", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/portfolio");
     await expect(page.locator('[data-testid="top-nav-bar"]')).toBeVisible();
   });
 
-  test("J15 — /aggregator loads with top nav visible", async ({ page, context }) => {
+  test("J15 - /aggregator loads with top nav visible", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/aggregator");
     await expect(page.locator('[data-testid="top-nav-bar"]')).toBeVisible();
   });
 
-  test("J16 — /profile/credits page loads with credits content", async ({ page, context }) => {
-    // Note: /profile/credits has no MultiSidebarLayout wrapper — only the
+  test("J16 - /profile/credits page loads with credits content", async ({ page, context }) => {
+    // Note: /profile/credits has no MultiSidebarLayout wrapper - only the
     // /profile/referrals subroute has one. Verify the credits page itself
     // renders for a logged-in user.
     await context.clearCookies();
@@ -187,7 +187,7 @@ test.describe("User journey — page-level chrome by route", () => {
     });
   });
 
-  test("J17 — deep link to /chat/<id> renders top nav (no Clock trigger)", async ({
+  test("J17 - deep link to /chat/<id> renders top nav (no Clock trigger)", async ({
     page,
     context,
   }) => {
@@ -200,10 +200,10 @@ test.describe("User journey — page-level chrome by route", () => {
   });
 });
 
-test.describe("User journey — mobile interactions", () => {
+test.describe("User journey - mobile interactions", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("J18 — mobile hamburger opens sheet then close button dismisses it", async ({ page }) => {
+  test("J18 - mobile hamburger opens sheet then close button dismisses it", async ({ page }) => {
     await page.goto("/farming");
     const header = page.locator("header").first();
     await header.getByRole("button").first().click();
@@ -218,7 +218,7 @@ test.describe("User journey — mobile interactions", () => {
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
 
-  test("J19 — mobile sheet brand link navigates to /chat/new", async ({ page }) => {
+  test("J19 - mobile sheet brand link navigates to /chat/new", async ({ page }) => {
     await page.goto("/farming");
     const header = page.locator("header").first();
     await header.getByRole("button").first().click();
@@ -231,7 +231,7 @@ test.describe("User journey — mobile interactions", () => {
     }
   });
 
-  test("J20 — mobile wallet pill is reachable in the right cluster", async ({ page, context }) => {
+  test("J20 - mobile wallet pill is reachable in the right cluster", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");

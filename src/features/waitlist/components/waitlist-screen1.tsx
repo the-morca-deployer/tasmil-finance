@@ -113,7 +113,7 @@ export function WaitlistScreen1({ referredByCode, onJoined }: WaitlistScreen1Pro
             {isAuthenticating ? (
               <>
                 <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" />
-                Connecting…
+                Connecting...
               </>
             ) : (
               "Connect & Join Waitlist"
@@ -170,7 +170,7 @@ export function WaitlistScreen1({ referredByCode, onJoined }: WaitlistScreen1Pro
         {registerWallet.isPending ? (
           <button className="btn btn-primary btn-block btn-lg" style={{ marginTop: 22 }} disabled>
             <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" />
-            Registering…
+            Registering...
           </button>
         ) : (
           <button

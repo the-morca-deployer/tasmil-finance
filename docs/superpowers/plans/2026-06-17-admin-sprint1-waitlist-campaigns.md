@@ -1,10 +1,10 @@
-# Admin Panel Sprint 1 — Waitlist Complete + Email Campaigns
+# Admin Panel Sprint 1 - Waitlist Complete + Email Campaigns
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Complete the waitlist admin flow (per-row send access, bulk send, assign code, dispatch history) and enhance the email campaigns page (rename, target filter, campaign detail drawer).
 
-**Architecture:** Two-layer: backend NestJS service methods (TDD first) → controller endpoints → Next.js API proxy routes → React hooks → page components. All new service logic is test-driven — write the failing test, then implement.
+**Architecture:** Two-layer: backend NestJS service methods (TDD first) → controller endpoints → Next.js API proxy routes → React hooks → page components. All new service logic is test-driven - write the failing test, then implement.
 
 **Tech Stack:** NestJS + Prisma (backend), Next.js App Router + TanStack Query + Tailwind (frontend), Jest (both), existing `adminFetch` helper + `useAdminAuthStore` pattern.
 
@@ -79,13 +79,13 @@ git commit -m "feat(admin): add BulkSendAccessDto, BulkSendResultDto, EmailDispa
 
 ---
 
-## Task 2: Backend Service — `bulkSendAccess` (TDD)
+## Task 2: Backend Service - `bulkSendAccess` (TDD)
 
 **Files:**
 - Modify: `backend/src/modules/admin/admin.service.spec.ts`
 - Modify: `backend/src/modules/admin/admin.service.ts`
 
-- [ ] **Step 1: Write failing tests** — append new `describe('bulkSendAccess')` block before the final `});` in `admin.service.spec.ts`:
+- [ ] **Step 1: Write failing tests** - append new `describe('bulkSendAccess')` block before the final `});` in `admin.service.spec.ts`:
 
 ```typescript
 describe('bulkSendAccess', () => {
@@ -148,7 +148,7 @@ pnpm test -- --testPathPattern="admin.service.spec" --no-coverage 2>&1 | tail -1
 ```
 Expected: `bulkSendAccess is not a function`.
 
-- [ ] **Step 3: Implement `bulkSendAccess`** — add `BulkSendResultDto` to imports at top of `admin.service.ts`:
+- [ ] **Step 3: Implement `bulkSendAccess`** - add `BulkSendResultDto` to imports at top of `admin.service.ts`:
 ```typescript
 import {
   CampaignSendDto,
@@ -247,7 +247,7 @@ git commit -m "feat(admin): add bulkSendAccess service method with TDD"
 
 ---
 
-## Task 3: Backend Service — `getWaitlistEntryDispatches` (TDD)
+## Task 3: Backend Service - `getWaitlistEntryDispatches` (TDD)
 
 **Files:**
 - Modify: `backend/src/modules/admin/admin.service.spec.ts`
@@ -263,7 +263,7 @@ emailDispatch: {
 },
 ```
 
-- [ ] **Step 2: Write failing tests** — append `describe('getWaitlistEntryDispatches')` before final `});`:
+- [ ] **Step 2: Write failing tests** - append `describe('getWaitlistEntryDispatches')` before final `});`:
 
 ```typescript
 describe('getWaitlistEntryDispatches', () => {
@@ -325,7 +325,7 @@ pnpm test -- --testPathPattern="admin.service.spec" --no-coverage 2>&1 | tail -1
 ```
 Expected: `getWaitlistEntryDispatches is not a function`.
 
-- [ ] **Step 4: Implement** — add after `bulkSendAccess` in `admin.service.ts`:
+- [ ] **Step 4: Implement** - add after `bulkSendAccess` in `admin.service.ts`:
 
 ```typescript
 async getWaitlistEntryDispatches(entryId: string): Promise<EmailDispatchDto[]> {
@@ -359,7 +359,7 @@ git commit -m "feat(admin): add getWaitlistEntryDispatches with TDD"
 
 ---
 
-## Task 4: Backend Controller — Wire New Endpoints
+## Task 4: Backend Controller - Wire New Endpoints
 
 **Files:**
 - Modify: `backend/src/modules/admin/admin.controller.ts`
@@ -616,7 +616,7 @@ git commit -m "feat(admin): add EmailDispatch type and waitlist action hooks"
 
 ---
 
-## Task 7: Waitlist Page — Full Enhancement
+## Task 7: Waitlist Page - Full Enhancement
 
 **Files:**
 - Modify: `src/app/admin/(app)/waitlist/page.tsx`
@@ -665,11 +665,11 @@ interface Entry {
 function StatusCards() {
   const { data } = useAdminDashboard();
   const cards = [
-    { label: "Total", value: data?.waitlist?.allTime ?? "—" },
-    { label: "Access Sent", value: data?.emailDispatches?.accessSent ?? "—" },
-    { label: "Email Confirmed", value: data?.emailDispatches?.confirmationSent ?? "—" },
-    { label: "Wallets", value: data?.walletStats?.totalWalletEntries ?? "—" },
-    { label: "Referrals", value: data?.walletStats?.totalSuccessfulReferrals ?? "—" },
+    { label: "Total", value: data?.waitlist?.allTime ?? "-" },
+    { label: "Access Sent", value: data?.emailDispatches?.accessSent ?? "-" },
+    { label: "Email Confirmed", value: data?.emailDispatches?.confirmationSent ?? "-" },
+    { label: "Wallets", value: data?.walletStats?.totalWalletEntries ?? "-" },
+    { label: "Referrals", value: data?.walletStats?.totalSuccessfulReferrals ?? "-" },
   ];
   return (
     <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -759,10 +759,10 @@ function DispatchHistory({ entryId, email }: { entryId: string; email: string | 
                     {d.status}
                   </td>
                   <td style={{ padding: "4px 8px", color: "rgba(245,248,252,0.5)" }}>
-                    {d.sentAt ? new Date(d.sentAt).toLocaleString() : "—"}
+                    {d.sentAt ? new Date(d.sentAt).toLocaleString() : "-"}
                   </td>
                   <td style={{ padding: "4px 8px", color: "#FB7185" }}>
-                    {d.errorMessage ?? "—"}
+                    {d.errorMessage ?? "-"}
                   </td>
                 </tr>
               ))}
@@ -944,7 +944,7 @@ export default function WaitlistPage() {
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <input
-          placeholder="Search wallet or email…"
+          placeholder="Search wallet or email..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           style={{
@@ -1030,10 +1030,10 @@ export default function WaitlistPage() {
                   </td>
                   <td style={{ padding: "10px", fontFamily: "monospace" }}>
                     {e.walletAddress
-                      ? `${e.walletAddress.slice(0, 6)}…${e.walletAddress.slice(-4)}`
-                      : "—"}
+                      ? `${e.walletAddress.slice(0, 6)}...${e.walletAddress.slice(-4)}`
+                      : "-"}
                   </td>
-                  <td style={{ padding: "10px" }}>{e.email ?? "—"}</td>
+                  <td style={{ padding: "10px" }}>{e.email ?? "-"}</td>
                   <td style={{ padding: "10px" }}>
                     <StatusPill status={e.status} />
                   </td>
@@ -1368,7 +1368,7 @@ function NewCampaignForm() {
 }
 ```
 
-- [ ] **Step 5: Update table rows to be clickable** — in the `<tr>` inside `campaigns?.map`:
+- [ ] **Step 5: Update table rows to be clickable** - in the `<tr>` inside `campaigns?.map`:
 ```tsx
 <tr
   key={c.id}
@@ -1377,7 +1377,7 @@ function NewCampaignForm() {
 >
 ```
 
-- [ ] **Step 6: Add drawer + update title** — at bottom of `AdminCampaignsPage` return, before final closing `</div>`:
+- [ ] **Step 6: Add drawer + update title** - at bottom of `AdminCampaignsPage` return, before final closing `</div>`:
 ```tsx
 {drawerCampaign && (
   <CampaignDetailDrawer
@@ -1396,7 +1396,7 @@ pnpm type-check 2>&1 | grep -E "^.*error" | head -20
 - [ ] **Step 8: Commit**
 ```bash
 git add src/app/admin/(app)/campaigns/page.tsx
-git commit -m "feat(admin): campaigns page — rename, target filter, detail drawer"
+git commit -m "feat(admin): campaigns page - rename, target filter, detail drawer"
 ```
 
 ---
@@ -1421,7 +1421,7 @@ import {
 } from "lucide-react";
 ```
 
-- [ ] **Step 2: Replace `adminSidebarData.navGroups`** (lines 137–154 of sidebar-data.ts):
+- [ ] **Step 2: Replace `adminSidebarData.navGroups`** (lines 137-154 of sidebar-data.ts):
 ```typescript
 navGroups: [
   {
@@ -1461,7 +1461,7 @@ pnpm lint 2>&1 | grep -E "error" | head -10
 - [ ] **Step 4: Commit**
 ```bash
 git add src/shared/layout/sidebar-data.ts
-git commit -m "feat(admin): sidebar — rename Campaigns to Email Campaigns, add Quest Management + Analytics"
+git commit -m "feat(admin): sidebar - rename Campaigns to Email Campaigns, add Quest Management + Analytics"
 ```
 
 ---
@@ -1491,7 +1491,7 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/admin/login
 ```
 Expected: `200`.
 
-- [ ] **Step 4: Playwright UI test loop** — run browser tests against admin pages:
+- [ ] **Step 4: Playwright UI test loop** - run browser tests against admin pages:
 ```bash
 pnpm test:e2e -- --grep "admin" --reporter=line 2>&1 | tail -30
 ```

@@ -18,7 +18,7 @@ export function SecurityModal({ onRefresh, onRevoke, isPending }: SecurityModalP
           <p className="font-medium text-foreground">Refresh Session Key</p>
           <p className="text-muted-foreground">
             Re-sign the session-key policy if the bot reports "not authorized" after a strategy
-            upgrade. Safe to run anytime — it replaces the current policy with one scoped to the
+            upgrade. Safe to run anytime - it replaces the current policy with one scoped to the
             latest deployed strategies.
           </p>
         </div>

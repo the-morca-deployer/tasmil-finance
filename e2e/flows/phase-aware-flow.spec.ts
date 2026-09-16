@@ -2,7 +2,7 @@ import { expect, test } from "../fixtures/phase-mock.fixture";
 import { mockAccount } from "../helpers/mock-account";
 import { mockAgUiStream } from "../helpers/mock-sse";
 
-test.describe("Phase-aware flow — integration over mocked SSE", () => {
+test.describe("Phase-aware flow - integration over mocked SSE", () => {
   test("mainnet + hasPositions shows Phase 3 SuggestedPrompts", async ({ page }) => {
     await mockAccount(page, { phase: "mainnet", hasPositions: true, isFirstLogin: false });
     await mockAgUiStream(page, []);

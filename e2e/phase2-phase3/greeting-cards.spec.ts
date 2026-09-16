@@ -1,7 +1,7 @@
 import { expect, test } from "../fixtures/phase-mock.fixture";
 import { mockAccount } from "../helpers/mock-account";
 
-test.describe("Greeting — phase-aware welcome cards", () => {
+test.describe("Greeting - phase-aware welcome cards", () => {
   test("Phase 2 first login: welcome + Claim reward link", async ({ page }) => {
     await mockAccount(page, { phase: "beta", isFirstLogin: true });
     await page.goto("/chat/new");

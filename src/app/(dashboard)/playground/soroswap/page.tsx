@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Soroswap DEX Playground — /playground/soroswap
+ * Soroswap DEX Playground - /playground/soroswap
  *
  * Features: 3 Operations (Swap, Add Liquidity, Remove Liquidity)
  *           8 Queries (Pools, Pool Detail, Quote, Positions, Yield, Price, Pairs, Pool Liquidity)
@@ -54,7 +54,7 @@ interface Field {
   placeholder?: string;
 }
 
-// ── QueryPanel ──────────────────────────────────────────────────
+// -- QueryPanel --------------------------------------------------
 function QueryPanel({
   title,
   endpoint,
@@ -168,7 +168,7 @@ function QueryPanel({
   );
 }
 
-// ── OpPanel ─────────────────────────────────────────────────────
+// -- OpPanel -----------------------------------------------------
 function OpPanel({
   title,
   endpoint,
@@ -290,7 +290,7 @@ function OpPanel({
           {/* NEW unified swap/bridge execute card preview */}
           <div className="border-t border-border/50 pt-4 mt-4">
             <p className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-3">
-              NEW — Unified Swap/Bridge Execute Card
+              NEW - Unified Swap/Bridge Execute Card
             </p>
             <SwapExecuteCard
               tx={{
@@ -313,7 +313,7 @@ function OpPanel({
   );
 }
 
-// ── PoolsFilterPanel ────────────────────────────────────────────
+// -- PoolsFilterPanel --------------------------------------------
 function PoolsFilterPanel() {
   const [protocol, setProtocol] = useState("soroswap");
   const [page, setPage] = useState(1);
@@ -429,7 +429,7 @@ function PoolsFilterPanel() {
   );
 }
 
-// ── YieldTable ──────────────────────────────────────────────────
+// -- YieldTable --------------------------------------------------
 function YieldTable({ data }: { data: any }) {
   const yields = normalizeSoroswapYieldFromSdk(data);
   if (!yields.length)
@@ -453,13 +453,13 @@ function YieldTable({ data }: { data: any }) {
             >
               <td className="py-1.5 text-foreground font-medium">{y.assets.join(" / ")}</td>
               <td className="py-1.5 text-right tabular-nums">
-                {y.apy.base != null ? `${Number(y.apy.base).toFixed(2)}%` : "—"}
+                {y.apy.base != null ? `${Number(y.apy.base).toFixed(2)}%` : "-"}
               </td>
               <td className="py-1.5 text-right tabular-nums text-muted-foreground">
-                {y.tvl != null ? `$${Number(y.tvl).toLocaleString()}` : "—"}
+                {y.tvl != null ? `$${Number(y.tvl).toLocaleString()}` : "-"}
               </td>
               <td className="py-1.5 text-right tabular-nums text-muted-foreground">
-                {y.fee ?? "—"}
+                {y.fee ?? "-"}
               </td>
             </tr>
           ))}
@@ -469,7 +469,7 @@ function YieldTable({ data }: { data: any }) {
   );
 }
 
-// ── Main ────────────────────────────────────────────────────────
+// -- Main --------------------------------------------------------
 export default function SoroswapPlaygroundPage() {
   const { address: walletAddress } = useWallet();
   const [tab, setTab] = useState<"queries" | "operations">("queries");
@@ -534,7 +534,7 @@ export default function SoroswapPlaygroundPage() {
           ))}
         </div>
 
-        {/* ═══ Queries ═══ */}
+        {/* --- Queries --- */}
         {tab === "queries" && (
           <div className="space-y-6">
             <div>
@@ -585,19 +585,19 @@ export default function SoroswapPlaygroundPage() {
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Reserve {p.tokenA}</span>
                           <span className="text-foreground tabular-nums">
-                            {p.reserveA != null ? (Number(p.reserveA) / 1e7).toLocaleString() : "—"}
+                            {p.reserveA != null ? (Number(p.reserveA) / 1e7).toLocaleString() : "-"}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Reserve {p.tokenB}</span>
                           <span className="text-foreground tabular-nums">
-                            {p.reserveB != null ? (Number(p.reserveB) / 1e7).toLocaleString() : "—"}
+                            {p.reserveB != null ? (Number(p.reserveB) / 1e7).toLocaleString() : "-"}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">TVL</span>
                           <span className="text-foreground tabular-nums">
-                            {p.tvl != null ? `$${Number(p.tvl).toLocaleString()}` : "—"}
+                            {p.tvl != null ? `$${Number(p.tvl).toLocaleString()}` : "-"}
                           </span>
                         </div>
                       </div>
@@ -707,13 +707,13 @@ export default function SoroswapPlaygroundPage() {
           </div>
         )}
 
-        {/* ═══ Operations ═══ */}
+        {/* --- Operations --- */}
         {tab === "operations" && (
           <>
-            {/* ── Mock preview of the NEW unified swap/bridge card ── */}
+            {/* -- Mock preview of the NEW unified swap/bridge card -- */}
             <div className="mb-6 rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
               <p className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-3">
-                PREVIEW — Unified Swap Execute Card (no API needed)
+                PREVIEW - Unified Swap Execute Card (no API needed)
               </p>
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 <SwapExecuteCard
@@ -828,7 +828,7 @@ export default function SoroswapPlaygroundPage() {
         <div className="border-t border-border pt-4 text-center">
           <Typography variant="small" className="text-muted-foreground/40 text-xs">
             Soroswap DEX Playground · Aggregator: Soroswap + Phoenix + Aquarius + SDEX · Operations
-            build XDR only — wallet signing required
+            build XDR only - wallet signing required
           </Typography>
         </div>
       </div>

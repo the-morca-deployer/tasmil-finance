@@ -66,7 +66,7 @@ export default function Leaderboard() {
     () => ({ ...$, query: { ...$.query, enabled: metric === "streak" } }),
     [metric]
   );
-  // Only fetch "my result" when the user is authenticated — avoids 401 cascades
+  // Only fetch "my result" when the user is authenticated - avoids 401 cascades
   // that contribute to infinite re-render loops.
   const myResultOpts = useMemo(
     () => ({ ...$, query: { ...$.query, enabled: isAuthenticated } }),
@@ -76,7 +76,7 @@ export default function Leaderboard() {
   const { data: streakRaw } = useAnalyticsControllerStreakLeaderboard(streakOpts);
   const { data: seasonRaw } = useSeasonsControllerCurrent($);
   const { data: myResultRaw } = useSeasonsControllerMyResult(myResultOpts);
-  // `seasons/me` only ever returns finalized (ENDED/REVEALED) season results —
+  // `seasons/me` only ever returns finalized (ENDED/REVEALED) season results -
   // it can't report a rank while a season is still ACTIVE. For a live season we
   // derive "my position" from the season leaderboard instead (see myPosition).
   const { data: seasonLeaderboardRaw } = useSeasonsControllerLeaderboard($);
@@ -97,7 +97,7 @@ export default function Leaderboard() {
     return myResult ? { rank: myResult.finalRank, points: myResult.finalPoints } : null;
   }, [season?.status, seasonLeaderboard, currentUser, myResult]);
   // `season?.endAt` is a primitive (string | undefined), so it's a stable
-  // effect dependency on its own — no need to coin a fresh fallback timestamp
+  // effect dependency on its own - no need to coin a fresh fallback timestamp
   // each render. Passing undefined when there's no active season lets the
   // hook report `ended: true` for the right reason instead of always
   // recomputing against "now".
@@ -132,7 +132,7 @@ export default function Leaderboard() {
         <header className="text-center mb-[40px]">
           {/* page-eyebrow */}
           <div className="text-[12px] font-semibold tracking-[0.24em] uppercase text-quest-accent inline-flex items-center gap-[10px] mb-[14px]">
-            {season?.name ?? "—"}
+            {season?.name ?? "-"}
           </div>
           {/* page-title */}
           <h1 className="text-[clamp(38px,5.5vw,64px)] font-extrabold tracking-[-0.04em] leading-none">
@@ -155,7 +155,7 @@ export default function Leaderboard() {
       </Rise>
 
       {/* PODIUM */}
-      {/* podium-wrap outer — the Podium component renders its own podium-wrap */}
+      {/* podium-wrap outer - the Podium component renders its own podium-wrap */}
       <div className="relative">
         <div
           className="absolute top-[-330px] left-1/2 -translate-x-1/2 w-screen h-[1020px] pointer-events-none z-0 overflow-visible"

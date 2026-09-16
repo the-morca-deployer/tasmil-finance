@@ -6,7 +6,7 @@
 import { findRegistryRenderer } from "../render-tool";
 
 describe("findRegistryRenderer", () => {
-  // ─── resolve_pool routing by protocol ───────────────────────
+  // --- resolve_pool routing by protocol -----------------------
 
   describe("resolve_pool routing", () => {
     it("returns entry for aquarius protocol", () => {
@@ -34,7 +34,7 @@ describe("findRegistryRenderer", () => {
     });
   });
 
-  // ─── Blend tools ────────────────────────────────────────────
+  // --- Blend tools --------------------------------------------
 
   describe("Blend tools", () => {
     it("finds blend_get_pool_info (info)", () => {
@@ -72,7 +72,7 @@ describe("findRegistryRenderer", () => {
     });
   });
 
-  // ─── Aquarius tools ─────────────────────────────────────────
+  // --- Aquarius tools -----------------------------------------
 
   describe("Aquarius tools", () => {
     it("finds aquarius_list_pools (info)", () => {
@@ -99,7 +99,7 @@ describe("findRegistryRenderer", () => {
     });
   });
 
-  // ─── Soroswap tools ─────────────────────────────────────────
+  // --- Soroswap tools -----------------------------------------
 
   describe("Soroswap tools", () => {
     it("finds swap_get_pools (info)", () => {
@@ -114,7 +114,7 @@ describe("findRegistryRenderer", () => {
     });
   });
 
-  // ─── DeFindex tools ──────────────────────────────────────────
+  // --- DeFindex tools ------------------------------------------
 
   describe("DeFindex tools", () => {
     it("finds vault_list_vaults (info)", () => {
@@ -146,7 +146,7 @@ describe("findRegistryRenderer", () => {
     });
   });
 
-  // ─── Allbridge tools ────────────────────────────────────────
+  // --- Allbridge tools ----------------------------------------
 
   describe("Allbridge tools", () => {
     it("finds allbridge_pool_list (info)", () => {
@@ -161,7 +161,7 @@ describe("findRegistryRenderer", () => {
     });
   });
 
-  // ─── Blend new tools ───────────────────────────────────────
+  // --- Blend new tools ---------------------------------------
 
   describe("Blend new tools", () => {
     it("finds blend_join_comet (operation)", () => {
@@ -183,7 +183,7 @@ describe("findRegistryRenderer", () => {
     });
   });
 
-  // ─── Aquarius lock_aqua ─────────────────────────────────────
+  // --- Aquarius lock_aqua -------------------------------------
 
   describe("Aquarius lock_aqua", () => {
     it("finds aquarius_lock_aqua (operation)", () => {
@@ -193,7 +193,7 @@ describe("findRegistryRenderer", () => {
     });
   });
 
-  // ─── Unknown tools ──────────────────────────────────────────
+  // --- Unknown tools ------------------------------------------
 
   describe("Unknown tools", () => {
     it("returns null for unknown tool", () => {

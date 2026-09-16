@@ -16,6 +16,16 @@ export type TractionSummaryDto = {
     */
     totalUsers: number;
     /**
+     * @description App wallets — waitlist entries with a connected wallet (matches admin dashboard)
+     * @type number
+    */
+    appWallets: number;
+    /**
+     * @description Quest wallets — user quest profiles (matches admin dashboard)
+     * @type number
+    */
+    questWallets: number;
+    /**
      * @description Average APY across pools in the last 24h
      * @type number
     */

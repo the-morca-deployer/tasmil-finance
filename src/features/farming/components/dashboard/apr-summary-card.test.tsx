@@ -5,32 +5,52 @@ describe("AprSummaryCard", () => {
   it("renders APR rows, activation date, total deposits", () => {
     render(
       <AprSummaryCard
-        netApr={15}
-        currentPositionApr={7.61}
+        blendedApy={0.15}
+        currentPositionApr={0.0761}
         currentMarketName="Moonwell"
         activatedAt="2025-02-05T22:28:00Z"
         totalDepositsUsd={49874.8}
       />
     );
-    expect(screen.getByText("Tasmil Net APR")).toBeInTheDocument();
+    // Computed the same way AprSummaryCard formats it, so this assertion
+    // doesn't depend on the test runner's local timezone.
+    const expectedDate = new Date("2025-02-05T22:28:00Z").toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    expect(screen.getByText("Portfolio APY")).toBeInTheDocument();
     expect(screen.getByText("15.00%")).toBeInTheDocument();
     expect(screen.getByText("Moonwell 7.61%")).toBeInTheDocument();
-    expect(screen.getByText(/feb 5, 2025/i)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(expectedDate, "i"))).toBeInTheDocument();
     expect(screen.getByText(/49,874.80/)).toBeInTheDocument();
   });
 
-  it("renders rewards APR row when provided", () => {
+  it("renders a placeholder instead of a fabricated position line when there is no position", () => {
     render(
       <AprSummaryCard
-        netApr={15}
-        currentPositionApr={7.61}
-        currentMarketName="Moonwell"
-        rewardsApr={7.39}
+        blendedApy={0.15}
+        currentPositionApr={0}
+        currentMarketName="-"
         activatedAt="2025-02-05T22:28:00Z"
         totalDepositsUsd={0}
       />
     );
-    expect(screen.getByText(/rewards apr/i)).toBeInTheDocument();
-    expect(screen.getByText("7.39%")).toBeInTheDocument();
+    const currentPositionLabel = screen.getByText("Current Position APR");
+    expect(currentPositionLabel.nextElementSibling).toHaveTextContent("-");
+    expect(currentPositionLabel.nextElementSibling?.textContent).not.toMatch(/%/);
+  });
+
+  it("renders a placeholder instead of a fabricated activation date when absent", () => {
+    render(
+      <AprSummaryCard
+        blendedApy={0.05}
+        currentPositionApr={0.05}
+        currentMarketName="Moonwell"
+        activatedAt=""
+        totalDepositsUsd={0}
+      />
+    );
+    expect(screen.getByText("-")).toBeInTheDocument();
   });
 });

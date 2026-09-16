@@ -37,7 +37,7 @@ interface PoolReward {
   token: string;
   amount: number;
   amountUsd: number;
-  /** On-chain pool/contract address — required to build the claim TX. */
+  /** On-chain pool/contract address - required to build the claim TX. */
   poolAddress?: string;
 }
 
@@ -68,7 +68,7 @@ function expandRewards(groups: ProtocolPositionGroup[]): PoolReward[] {
       });
     }
 
-    // Position-level rewards (Aquarius uses this — one row per pool)
+    // Position-level rewards (Aquarius uses this - one row per pool)
     for (const p of g.positions) {
       if (!p.rewards || p.rewards.amount <= 0) continue;
       const price = priceMap[p.rewards.token.toUpperCase()] ?? 0;
@@ -133,7 +133,7 @@ export function ProtocolRewardsCard({ groups, className }: ProtocolRewardsCardPr
     }
 
     setPendingKey(r.key);
-    const id = toast.loading(`Claiming ${r.protocolName} · ${r.poolName}…`, {
+    const id = toast.loading(`Claiming ${r.protocolName} · ${r.poolName}...`, {
       description: `${r.amount.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${r.token}`,
     });
     try {
@@ -144,7 +144,7 @@ export function ProtocolRewardsCard({ groups, className }: ProtocolRewardsCardPr
       });
       toast.success(`Claimed ${r.protocolName} · ${r.poolName}`, {
         id,
-        description: `tx ${txHash.slice(0, 8)}…${txHash.slice(-6)}`,
+        description: `tx ${txHash.slice(0, 8)}...${txHash.slice(-6)}`,
       });
     } catch (err: unknown) {
       const userRejected = (err as { userRejected?: boolean })?.userRejected === true;

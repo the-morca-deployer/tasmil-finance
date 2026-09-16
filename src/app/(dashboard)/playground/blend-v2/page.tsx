@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Blend v2 Playground — /dev/blend-v2
+ * Blend v2 Playground - /dev/blend-v2
  *
  * Direct HTTP playground for all Blend v2 operations and queries.
  * Uses SDK-backed routes (/api/blend/...) for queries and operations.
@@ -35,7 +35,7 @@ import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
 
-// ── Mock stream so BlendExecuteCard's useStreamContext() doesn't throw ────────
+// -- Mock stream so BlendExecuteCard's useStreamContext() doesn't throw --------
 const MOCK_STREAM = {
   messages: [],
   values: {},
@@ -50,13 +50,13 @@ const MOCK_STREAM = {
 const SDK_QUERY_URL = "/api/blend";
 const SDK_OP_URL = "/api/blend/op";
 
-// ── Styles ────────────────────────────────────────────────────────────────────
+// -- Styles --------------------------------------------------------------------
 const inputCls =
   "w-full rounded-lg bg-secondary border border-border px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20";
 const labelCls = "block text-muted-foreground text-[11px] mb-0.5 font-medium";
 const panelCls = "rounded-xl border border-border bg-card/80 p-4 space-y-3 flex flex-col";
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+// -- Types ----------------------------------------------------------------------
 interface PoolReserve {
   symbol: string;
   asset: string;
@@ -73,7 +73,7 @@ interface Field {
   isAmount?: boolean;
 }
 
-// ── QueryPanel ────────────────────────────────────────────────────────────────
+// -- QueryPanel ----------------------------------------------------------------
 // Thin form wrapper: collects params, fetches, passes result to StellarInfoDispatcher.
 interface QueryPanelProps {
   title: string;
@@ -81,13 +81,13 @@ interface QueryPanelProps {
   infoType: string;
   fields: Field[];
   defaults?: Record<string, string>;
-  /** Base URL for query — defaults to SDK route (/api/blend), falls back to MCP for unsupported endpoints */
+  /** Base URL for query - defaults to SDK route (/api/blend), falls back to MCP for unsupported endpoints */
   baseUrl?: string;
   /** Extra CSS classes for the panel container (e.g. col-span for grid) */
   className?: string;
   /** Auto-fetch on mount (no manual click needed) */
   autoFetch?: boolean;
-  /** Custom renderer — replaces StellarInfoDispatcher for portfolio-style cards */
+  /** Custom renderer - replaces StellarInfoDispatcher for portfolio-style cards */
   renderResult?: (data: any) => React.ReactNode;
 }
 
@@ -135,7 +135,7 @@ function QueryPanel({
           ? e.message
           : isSdk
             ? "Network error"
-            : "Network error — is mcp-stellar running?"
+            : "Network error - is mcp-stellar running?"
       );
     } finally {
       setLoading(false);
@@ -197,7 +197,7 @@ function QueryPanel({
         </Typography>
       )}
 
-      {/* Render result — custom portfolio-style card or fallback to raw JSON */}
+      {/* Render result - custom portfolio-style card or fallback to raw JSON */}
       {result && (
         <div className="mt-1">
           {renderResult ? (
@@ -213,9 +213,9 @@ function QueryPanel({
   );
 }
 
-// ── OpPanel ───────────────────────────────────────────────────────────────────
+// -- OpPanel -------------------------------------------------------------------
 // Thin form wrapper: collects params, posts to op endpoint, passes result to
-// StellarOperationDispatcher — same as when the AI builds the TX.
+// StellarOperationDispatcher - same as when the AI builds the TX.
 /** Operations that receive a new asset and may need a trustline */
 const TRUSTLINE_OPS = new Set(["borrow"]);
 
@@ -294,7 +294,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
       if (!d.success) setError(d.error ?? "Simulation failed");
       else setResult(d);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Network error — is mcp-stellar running?");
+      setError(e instanceof Error ? e.message : "Network error - is mcp-stellar running?");
     } finally {
       setLoading(false);
     }
@@ -405,7 +405,7 @@ function OpPanel({ title, endpoint, operation, fields, defaults = {} }: OpPanelP
   );
 }
 
-// ── Pool selector ──────────────────────────────────────────────────────────────
+// -- Pool selector --------------------------------------------------------------
 function PoolSelector({
   pools,
   selected,
@@ -428,7 +428,7 @@ function PoolSelector({
         >
           {pools.map((p) => (
             <option key={p.address} value={p.address}>
-              {p.name} — {p.address.slice(0, 8)}…
+              {p.name} - {p.address.slice(0, 8)}...
             </option>
           ))}
         </select>
@@ -441,14 +441,14 @@ function PoolSelector({
   );
 }
 
-// ── Main playground ───────────────────────────────────────────────────────────
+// -- Main playground -----------------------------------------------------------
 export default function BlendV2PlaygroundPage() {
   const { address: walletAddress } = useWallet();
   const [tab, setTab] = useState<"queries" | "operations">("queries");
   const [pools, setPools] = useState<KnownPool[]>([]);
   const [selectedPool, setSelectedPool] = useState("");
   const [networkInfo, setNetworkInfo] = useState<string>("");
-  // Comet LP pool tokens — separate from lending pool reserves (testnet uses different USDC)
+  // Comet LP pool tokens - separate from lending pool reserves (testnet uses different USDC)
   const [cometUsdc, setCometUsdc] = useState("");
   const [_cometBlnd, setCometBlnd] = useState("");
 
@@ -503,7 +503,7 @@ export default function BlendV2PlaygroundPage() {
   return (
     <StreamContext.Provider value={MOCK_STREAM}>
       <div className="min-h-screen bg-background text-foreground p-6 space-y-6">
-        {/* ── Header ── */}
+        {/* -- Header -- */}
         <div className="space-y-3">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
@@ -511,8 +511,8 @@ export default function BlendV2PlaygroundPage() {
                 Blend v2 Playground
               </Typography>
               <Typography variant="p" className="text-muted-foreground text-sm mt-1">
-                Direct SDK — no AI, no MCP server needed for queries. Operations still use MCP.{" "}
-                <span className="font-mono text-cyan-400 text-xs">/api/blend/…</span>
+                Direct SDK - no AI, no MCP server needed for queries. Operations still use MCP.{" "}
+                <span className="font-mono text-cyan-400 text-xs">/api/blend/...</span>
               </Typography>
             </div>
             <div className="flex items-center gap-2">
@@ -523,7 +523,7 @@ export default function BlendV2PlaygroundPage() {
               )}
               {walletAddress && (
                 <span className="text-[11px] px-2 py-0.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 font-mono">
-                  {walletAddress.slice(0, 8)}…
+                  {walletAddress.slice(0, 8)}...
                 </span>
               )}
             </div>
@@ -534,7 +534,7 @@ export default function BlendV2PlaygroundPage() {
           )}
         </div>
 
-        {/* ── Tabs ── */}
+        {/* -- Tabs -- */}
         <div className="flex gap-1 bg-card rounded-lg p-1 w-fit border border-border">
           {(["queries", "operations"] as const).map((t) => (
             <Button
@@ -552,9 +552,9 @@ export default function BlendV2PlaygroundPage() {
           ))}
         </div>
 
-        {/* ══════════════════════════════════════════════════════
-            QUERY TAB — all results rendered by StellarInfoDispatcher
-        ══════════════════════════════════════════════════════ */}
+        {/* ------------------------------------------------------
+            QUERY TAB - all results rendered by StellarInfoDispatcher
+        ------------------------------------------------------ */}
         {tab === "queries" && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {/* 1. List Pools */}
@@ -669,9 +669,9 @@ export default function BlendV2PlaygroundPage() {
           </div>
         )}
 
-        {/* ══════════════════════════════════════════════════════
-            OPERATIONS TAB — all results rendered by StellarOperationDispatcher
-        ══════════════════════════════════════════════════════ */}
+        {/* ------------------------------------------------------
+            OPERATIONS TAB - all results rendered by StellarOperationDispatcher
+        ------------------------------------------------------ */}
         {tab === "operations" && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {/* 1. Deposit → blend_supply → BlendExecuteCard */}
@@ -745,7 +745,7 @@ export default function BlendV2PlaygroundPage() {
               defaults={{ ...fromDefaults, asset: XLM_SAC, amount: "0.5", enable: "true" }}
             />
 
-            {/* 6. Join Pool (Comet LP) — uses Blend-config USDC/BLND (different from lending pool reserves on testnet) */}
+            {/* 6. Join Pool (Comet LP) - uses Blend-config USDC/BLND (different from lending pool reserves on testnet) */}
             <OpPanel
               title="Join Pool (Comet LP)"
               endpoint="join-pool"
@@ -852,10 +852,10 @@ export default function BlendV2PlaygroundPage() {
           </div>
         )}
 
-        {/* ── Footer ── */}
+        {/* -- Footer -- */}
         <div className="border-t border-border pt-4 text-center">
           <Typography variant="small" className="text-muted-foreground/40 text-xs">
-            Blend v2 Playground · SDK{" · "}Operations build XDR only — wallet signing required to
+            Blend v2 Playground · SDK{" · "}Operations build XDR only - wallet signing required to
             submit on-chain
           </Typography>
         </div>

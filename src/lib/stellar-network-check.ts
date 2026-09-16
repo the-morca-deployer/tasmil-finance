@@ -32,7 +32,7 @@ function stringifyError(error: unknown): string {
  */
 export async function checkWalletNetwork(): Promise<void> {
   try {
-    // Only Freighter exposes getNetwork() — other wallets skip silently
+    // Only Freighter exposes getNetwork() - other wallets skip silently
     const freighterApi = await import("@stellar/freighter-api").catch(() => null);
     if (!freighterApi) return;
 

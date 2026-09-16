@@ -13,19 +13,19 @@ import { freshWallet, loginAsWallet } from "./helpers/auth";
  * - Mobile sidebar slide-out
  */
 
-test.describe("Redesign UI suite — disconnected /farming", () => {
-  test("01 — ConnectPrompt heading 'Connect Your Wallet' renders", async ({ page }) => {
+test.describe("Redesign UI suite - disconnected /farming", () => {
+  test("01 - ConnectPrompt heading 'Connect Your Wallet' renders", async ({ page }) => {
     await page.goto("/farming");
     await expect(page.getByRole("heading", { name: /^Connect Your Wallet$/i })).toBeVisible();
   });
 
-  test("02 — top-bar Connect Wallet button visible when disconnected", async ({ page }) => {
+  test("02 - top-bar Connect Wallet button visible when disconnected", async ({ page }) => {
     await page.goto("/farming");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     await expect(topNav.getByTestId("connect-wallet")).toBeVisible();
   });
 
-  test("03 — ConnectPrompt explainer text renders", async ({ page }) => {
+  test("03 - ConnectPrompt explainer text renders", async ({ page }) => {
     await page.goto("/farming");
     await expect(
       page.getByText(/Connect your Stellar wallet to view the farming agent\./i)
@@ -33,8 +33,8 @@ test.describe("Redesign UI suite — disconnected /farming", () => {
   });
 });
 
-test.describe("Redesign UI suite — Get Started empty state (authed, no Position)", () => {
-  test("04 — heading 'Set up your farming account' renders", async ({ page, context }) => {
+test.describe("Redesign UI suite - Get Started empty state (authed, no Position)", () => {
+  test("04 - heading 'Set up your farming account' renders", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
@@ -43,7 +43,7 @@ test.describe("Redesign UI suite — Get Started empty state (authed, no Positio
     });
   });
 
-  test("05 — explainer mentions asset + strategy + signatures", async ({ page, context }) => {
+  test("05 - explainer mentions asset + strategy + signatures", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
@@ -52,7 +52,7 @@ test.describe("Redesign UI suite — Get Started empty state (authed, no Positio
     });
   });
 
-  test("06 — Get started CTA button visible and links into wizard", async ({ page, context }) => {
+  test("06 - Get started CTA button visible and links into wizard", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
@@ -62,7 +62,7 @@ test.describe("Redesign UI suite — Get Started empty state (authed, no Positio
   });
 });
 
-test.describe("Redesign UI suite — Setup wizard step 3 (StepPreset, in modal)", () => {
+test.describe("Redesign UI suite - Setup wizard step 3 (StepPreset, in modal)", () => {
   // Open the wizard Dialog and drive to step 3.
   async function gotoStepPreset(
     page: import("@playwright/test").Page,
@@ -82,14 +82,14 @@ test.describe("Redesign UI suite — Setup wizard step 3 (StepPreset, in modal)"
     return dialog;
   }
 
-  test("07 — three preset rows render: Safe, Balanced, Aggressive", async ({ page, context }) => {
+  test("07 - three preset rows render: Safe, Balanced, Aggressive", async ({ page, context }) => {
     const dialog = await gotoStepPreset(page, context);
     await expect(dialog.getByRole("radio", { name: /Safe/ })).toBeVisible();
     await expect(dialog.getByRole("radio", { name: /Balanced/ })).toBeVisible();
     await expect(dialog.getByRole("radio", { name: /Aggressive/ })).toBeVisible();
   });
 
-  test("08 — Balanced row is preselected by default (aria-checked)", async ({ page, context }) => {
+  test("08 - Balanced row is preselected by default (aria-checked)", async ({ page, context }) => {
     const dialog = await gotoStepPreset(page, context);
     await expect(dialog.getByRole("radio", { name: /Balanced/ })).toHaveAttribute(
       "aria-checked",
@@ -97,7 +97,7 @@ test.describe("Redesign UI suite — Setup wizard step 3 (StepPreset, in modal)"
     );
   });
 
-  test("09 — each preset row shows pool count + risk hint", async ({ page, context }) => {
+  test("09 - each preset row shows pool count + risk hint", async ({ page, context }) => {
     const dialog = await gotoStepPreset(page, context);
     const rows = dialog.getByRole("radio");
     const count = await rows.count();
@@ -107,7 +107,7 @@ test.describe("Redesign UI suite — Setup wizard step 3 (StepPreset, in modal)"
     }
   });
 
-  test("10 — each preset row exposes a numeric APY value", async ({ page, context }) => {
+  test("10 - each preset row exposes a numeric APY value", async ({ page, context }) => {
     const dialog = await gotoStepPreset(page, context);
     const rows = dialog.getByRole("radio");
     for (let i = 0; i < 3; i++) {
@@ -115,7 +115,7 @@ test.describe("Redesign UI suite — Setup wizard step 3 (StepPreset, in modal)"
     }
   });
 
-  test("11 — clicking Aggressive flips aria-checked from Balanced", async ({ page, context }) => {
+  test("11 - clicking Aggressive flips aria-checked from Balanced", async ({ page, context }) => {
     const dialog = await gotoStepPreset(page, context);
     const aggressive = dialog.getByRole("radio", { name: /Aggressive/ });
     await aggressive.click();
@@ -127,15 +127,15 @@ test.describe("Redesign UI suite — Setup wizard step 3 (StepPreset, in modal)"
   });
 });
 
-test.describe("Redesign UI suite — sidebar & Quest visibility", () => {
-  test("12 — top nav does NOT contain Quest link on /farming (mainnet)", async ({ page }) => {
+test.describe("Redesign UI suite - sidebar & Quest visibility", () => {
+  test("12 - top nav does NOT contain Quest link on /farming (mainnet)", async ({ page }) => {
     await page.goto("/farming");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     await expect(topNav).toBeVisible();
     await expect(topNav.getByRole("link", { name: /^Quest$/i })).toHaveCount(0);
   });
 
-  test("13 — top nav does NOT contain Quest link on /chat/new (mainnet)", async ({ page }) => {
+  test("13 - top nav does NOT contain Quest link on /chat/new (mainnet)", async ({ page }) => {
     await page.goto("/chat/new");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     await expect(topNav).toBeVisible();
@@ -143,8 +143,8 @@ test.describe("Redesign UI suite — sidebar & Quest visibility", () => {
   });
 });
 
-test.describe("Redesign UI suite — wallet dropdown", () => {
-  test("14 — connected wallet pill has chevron icon", async ({ page, context }) => {
+test.describe("Redesign UI suite - wallet dropdown", () => {
+  test("14 - connected wallet pill has chevron icon", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
@@ -152,7 +152,7 @@ test.describe("Redesign UI suite — wallet dropdown", () => {
     await expect(pill.locator("svg.lucide-chevron-down")).toBeVisible();
   });
 
-  test("15 — wallet dropdown header shows Mainnet network", async ({ page, context }) => {
+  test("15 - wallet dropdown header shows Mainnet network", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
@@ -160,7 +160,7 @@ test.describe("Redesign UI suite — wallet dropdown", () => {
     await expect(page.getByText(/^Mainnet$/i).first()).toBeVisible();
   });
 
-  test("16 — Credits row links to /profile/credits", async ({ page, context }) => {
+  test("16 - Credits row links to /profile/credits", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
@@ -170,15 +170,15 @@ test.describe("Redesign UI suite — wallet dropdown", () => {
   });
 });
 
-test.describe("Redesign UI suite — farming chrome", () => {
-  test("17 — /farming renders with top nav visible", async ({ page, context }) => {
+test.describe("Redesign UI suite - farming chrome", () => {
+  test("17 - /farming renders with top nav visible", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/farming");
     await expect(page.locator('[data-testid="top-nav-bar"]')).toBeVisible();
   });
 
-  test("18 — /chat/new renders without Clock trigger (removed from header)", async ({
+  test("18 - /chat/new renders without Clock trigger (removed from header)", async ({
     page,
     context,
   }) => {
@@ -190,7 +190,7 @@ test.describe("Redesign UI suite — farming chrome", () => {
     await expect(topNav.locator("svg.lucide-clock")).toHaveCount(0);
   });
 
-  test("19 — /portfolio renders without Clock trigger", async ({ page, context }) => {
+  test("19 - /portfolio renders without Clock trigger", async ({ page, context }) => {
     await context.clearCookies();
     await loginAsWallet(page, freshWallet());
     await page.goto("/portfolio");
@@ -200,10 +200,10 @@ test.describe("Redesign UI suite — farming chrome", () => {
   });
 });
 
-test.describe("Redesign UI suite — mobile", () => {
+test.describe("Redesign UI suite - mobile", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("20 — mobile hamburger opens left sidebar sheet", async ({ page }) => {
+  test("20 - mobile hamburger opens left sidebar sheet", async ({ page }) => {
     await page.goto("/farming");
     const header = page.locator("header").first();
     await expect(header).toBeVisible();

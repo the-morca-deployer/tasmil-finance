@@ -1,16 +1,16 @@
 import { expect, test } from "@playwright/test";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
-test.describe("Journey — Returning User (5 tests)", () => {
+test.describe("Journey - Returning User (5 tests)", () => {
   test.skip(process.env.NODE_ENV === "production", "disabled on production");
 
   test("Returning user lands on dashboard with position", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
-    // First login — seed some data
+    // First login - seed some data
     await page.goto("/farming");
     await page.waitForLoadState("networkidle");
-    // Second login — should see existing data
+    // Second login - should see existing data
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
     const content = await page.content();
@@ -47,7 +47,7 @@ test.describe("Journey — Returning User (5 tests)", () => {
     // Navigate away
     await page.goto("/farming");
     await page.waitForLoadState("networkidle");
-    // Come back — thread should be there
+    // Come back - thread should be there
     await page.goto("/chat/new");
     await page.waitForLoadState("networkidle");
     await expect(page).toHaveURL(/\/chat/);

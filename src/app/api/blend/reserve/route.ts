@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
         liabilityFactor: reserve.liabilityFactor,
         utilization: reserve.utilization,
         decimals: reserve.decimals,
-        // Not available from SDK — set null (cards handle null gracefully)
+        // Not available from SDK - set null (cards handle null gracefully)
         supplyEmissionApy: null,
         borrowEmissionApy: null,
         supplyCap: null,

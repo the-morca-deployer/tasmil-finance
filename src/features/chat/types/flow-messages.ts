@@ -1,11 +1,11 @@
 import type { z } from "zod";
 import type { policyDecisionMessageSchema } from "../schemas/flow-messages.schema";
 
-// ─── Flow Message Types ────────────────────────────────────────
+// --- Flow Message Types ----------------------------------------
 // PRD §5.2: Typed server→client messages for the option-select flow.
 // The agent generates these dynamically based on missing fields.
 
-// ─── Suggestion (agent-generated tappable option) ──────────────
+// --- Suggestion (agent-generated tappable option) --------------
 
 export interface Suggestion {
   /** Human-readable text shown on the button */
@@ -18,7 +18,7 @@ export interface Suggestion {
   description?: string;
 }
 
-// ─── Clarify Question (for multi-clarify card) ───────────────
+// --- Clarify Question (for multi-clarify card) ---------------
 // Questions and options are generated dynamically by the AI agent.
 
 export interface ClarifyQuestion {
@@ -34,7 +34,7 @@ export interface ClarifyQuestion {
   placeholder?: string;
 }
 
-// ─── Plan + Steps ──────────────────────────────────────────────
+// --- Plan + Steps ----------------------------------------------
 
 export interface PlanStep {
   index: number;
@@ -62,7 +62,7 @@ export interface Plan {
   idle_amount?: number;
 }
 
-// ─── Simulation Report ─────────────────────────────────────────
+// --- Simulation Report -----------------------------------------
 
 export type SimulationStatus = "success" | "partial_fail" | "fail";
 
@@ -85,7 +85,7 @@ export interface SimulationReport {
   simulated_at_ledger: number;
 }
 
-// ─── Position ──────────────────────────────────────────────────
+// --- Position --------------------------------------------------
 
 export interface FlowPosition {
   deposit: string;
@@ -95,7 +95,7 @@ export interface FlowPosition {
   tx_hash: string;
 }
 
-// ─── AssistantMessage (discriminated union by kind) ─────────────
+// --- AssistantMessage (discriminated union by kind) -------------
 
 export type TxStatus = "submitting" | "confirmed" | "failed";
 export type PolicyDecisionMessage = z.infer<typeof policyDecisionMessageSchema>;

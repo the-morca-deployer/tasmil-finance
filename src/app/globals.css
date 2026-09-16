@@ -44,7 +44,7 @@
   .animate-wave {
     animation: wave 1.2s ease-in-out infinite;
   }
-  /* Quest brand gradient — app-aqua gradient for ported quest UI (bg-brand-gradient) */
+  /* Quest brand gradient - app-aqua gradient for ported quest UI (bg-brand-gradient) */
   .bg-brand-gradient {
     background-image: linear-gradient(
       110deg,
@@ -93,7 +93,7 @@
   --radius: 0.5rem;
   --sidebar: hsl(0 0% 98%);
 
-  /* ── Tasmil brand gradient (design system) — shared landing + in-app ── */
+  /* -- Tasmil brand gradient (design system) - shared landing + in-app -- */
   --brand-accent: #67e8f9;
   --brand-accent-2: #0ea5e9;
   --brand-ink: #04141a;
@@ -102,7 +102,7 @@
   --brand-grad-hover: linear-gradient(110deg, #d9fbff 0%, #67e8f9 45%, #0ea5e9 100%);
 }
 
-/* Canonical brand gradient surface — buttons, tabs, progress, etc. all use this
+/* Canonical brand gradient surface - buttons, tabs, progress, etc. all use this
    so the gradient is identical from landing through the app. */
 .brand-gradient {
   background-image: var(--brand-grad);
@@ -195,7 +195,7 @@
   --color-sponsor-gold: #fbc54a;
   --color-sponsor-gold-hi: #fff0c2;
 
-  /* Quest palette — aligned to tasmil-strategy's solid dark tokens for
+  /* Quest palette - aligned to tasmil-strategy's solid dark tokens for
      consistent card/border/text contrast across the two apps. */
   --color-quest-bg: #09090b;
   --color-quest-bg-2: #141416;
@@ -254,7 +254,7 @@
   --color-primary-foreground: var(--primary-foreground);
 
   /* Quest design tokens (used only by ported quest UI under .quest-scope). Quest's
-     original palette — accent is white, not the app aqua — to match quest 1:1. */
+     original palette - accent is white, not the app aqua - to match quest 1:1. */
   --color-brand-mid: #f4f7fb;
   --color-surface: #111111;
   --color-accent-ink: #0d111a;
@@ -407,7 +407,7 @@
     @apply bg-background text-foreground;
     /* Horizontal-overflow guard lives on BODY, as `clip` (not `hidden`):
        `clip` doesn't create a scroll container, so descendant `position: sticky`
-       still pins. The root <html> MUST stay overflow: visible — any non-visible
+       still pins. The root <html> MUST stay overflow: visible - any non-visible
        overflow-x on the root (even `clip`) breaks page-level sticky. */
     overflow-x: clip;
     position: relative;
@@ -596,7 +596,7 @@
     @apply after:pointer-events-none after:absolute after:bottom-0 after:left-0 after:hidden after:h-32 after:w-full after:bg-[linear-gradient(180deg,_transparent_10%,_hsl(var(--background))_70%)] after:md:block;
   }
 
-  /* Active sidebar item styling — !important needed to override
+  /* Active sidebar item styling - !important needed to override
      Tailwind's data-[active=true]:bg-sidebar-accent (higher specificity
      from attribute selector) */
   .sidebar-item-active {
@@ -825,7 +825,7 @@
   * {
     @apply border-border;
   }
-  /* NOTE: do NOT set overflow-x on <html> — it breaks page-level position:sticky.
+  /* NOTE: do NOT set overflow-x on <html> - it breaks page-level position:sticky.
      Horizontal overflow is clipped on <body> (overflow-x: clip) above. */
   body {
     @apply min-h-svh w-full bg-background text-foreground;
@@ -933,12 +933,12 @@
 
 /* =====================================================================
    Quest feature styles (relocated from quest.css)
-   All class rules are scoped to .quest-scope — nothing leaks globally.
+   All class rules are scoped to .quest-scope - nothing leaks globally.
    @keyframes live at top-level (not inside @layer) so they are always
    reachable regardless of layer order.
    ===================================================================== */
 
-/* ── Quest @keyframes (top-level, not layered) ── */
+/* -- Quest @keyframes (top-level, not layered) -- */
 @keyframes quest-pulse {
   0%,
   100% {
@@ -1058,11 +1058,11 @@
 
 @layer components {
   /* ============================================================
-   TASMIL QUEST — pixel-matched from reference HTML
+   TASMIL QUEST - pixel-matched from reference HTML
    Scoped to .quest-scope
    ============================================================ */
 
-  /* ── Design Tokens ── */
+  /* -- Design Tokens -- */
   .quest-scope {
     --bg: #09090b;
     --bg-2: #141416;
@@ -1186,9 +1186,9 @@
     display: block;
   }
 
-  /* ── Navbar — converted to Tailwind in QuestNav.tsx / Navbar.tsx ── */
+  /* -- Navbar - converted to Tailwind in QuestNav.tsx / Navbar.tsx -- */
 
-  /* ── Page shell ── */
+  /* -- Page shell -- */
   .quest-scope .page {
     max-width: 1240px;
     margin: 0 auto;
@@ -1225,7 +1225,7 @@
     color: var(--dim);
   }
 
-  /* ── Coins (unified sizes) ── */
+  /* -- Coins (unified sizes) -- */
   .quest-scope .pcoin {
     width: 15px;
     height: 15px;
@@ -1297,7 +1297,7 @@
     margin-left: 4px;
   }
 
-  /* ── Buttons ── */
+  /* -- Buttons -- */
   .quest-scope .btn {
     display: inline-flex;
     align-items: center;
@@ -1381,7 +1381,7 @@
     width: 100%;
   }
 
-  /* ── Badges ── */
+  /* -- Badges -- */
   .quest-scope .badge {
     display: inline-flex;
     align-items: center;
@@ -1414,7 +1414,7 @@
     height: 13px;
   }
 
-  /* ── Campaign Card ── */
+  /* -- Campaign Card -- */
   .quest-scope .camp-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1520,7 +1520,7 @@
     padding: 14px 20px 18px;
   }
 
-  /* ── Avatar stack ── */
+  /* -- Avatar stack -- */
   .quest-scope .av-stack {
     display: flex;
     align-items: center;
@@ -1542,7 +1542,7 @@
     color: var(--muted);
   }
 
-  /* ── Closed card state ── */
+  /* -- Closed card state -- */
   .quest-scope .camp-card.closed {
     opacity: 0.62;
   }
@@ -1556,7 +1556,7 @@
     transform: none;
   }
 
-  /* ── Skeleton ── */
+  /* -- Skeleton -- */
   .quest-scope .skel {
     background: var(--card-grad);
     border: 1px solid var(--line);
@@ -1580,7 +1580,7 @@
     background: rgba(255, 255, 255, 0.05);
   }
 
-  /* ── Empty state ── */
+  /* -- Empty state -- */
   .quest-scope .empty {
     display: flex;
     flex-direction: column;
@@ -1605,7 +1605,7 @@
     color: var(--muted);
   }
 
-  /* ── Section header ── */
+  /* -- Section header -- */
   .quest-scope .sec-head {
     display: flex;
     align-items: flex-end;
@@ -1634,7 +1634,7 @@
     transform: translateX(4px);
   }
 
-  /* ── Rise animation ── */
+  /* -- Rise animation -- */
   .quest-scope .rise {
     opacity: 0;
     transform: translateY(22px);
@@ -1654,7 +1654,7 @@
     }
   }
 
-  /* ── Spinner ── */
+  /* -- Spinner -- */
   .quest-scope .spin {
     width: 13px;
     height: 13px;
@@ -1666,7 +1666,7 @@
   }
 
   /* ============================================================
-   EXPLORE — hero / why / stats
+   EXPLORE - hero / why / stats
    ============================================================ */
   .quest-scope .x-hero {
     position: relative;
@@ -1820,7 +1820,7 @@
   }
 
   /* ============================================================
-   CAMPAIGNS LIST — search + segmented + header
+   CAMPAIGNS LIST - search + segmented + header
    ============================================================ */
   .quest-scope .search-wrap {
     position: relative;
@@ -1998,7 +1998,7 @@
     font-family: var(--font-mono);
   }
 
-  /* ── Progress bar ── */
+  /* -- Progress bar -- */
   .quest-scope .prog-block {
     margin: 30px 0 26px;
   }
@@ -2036,7 +2036,7 @@
     transition: width 0.8s var(--ease-out);
   }
 
-  /* ── Quest items (accordion) ── */
+  /* -- Quest items (accordion) -- */
   .quest-scope .quests {
     display: flex;
     flex-direction: column;
@@ -2146,7 +2146,7 @@
     flex-wrap: wrap;
   }
 
-  /* ── Detail sidebar ── */
+  /* -- Detail sidebar -- */
   .quest-scope .d-side-card {
     border: 1px solid var(--line);
     border-radius: var(--r-card);
@@ -2236,7 +2236,7 @@
     animation: ctapulse 2.4s ease infinite;
   }
 
-  /* ── More For You ── */
+  /* -- More For You -- */
   .quest-scope .mfy {
     margin-top: 24px;
   }
@@ -2303,7 +2303,7 @@
     flex: none;
   }
 
-  /* ── Join stats ── */
+  /* -- Join stats -- */
   .quest-scope .join-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -2350,7 +2350,7 @@
     margin-top: 5px;
   }
 
-  /* ── Share / Modal ── */
+  /* -- Share / Modal -- */
   .quest-scope .modal-back {
     position: fixed;
     inset: 0;
@@ -2482,7 +2482,7 @@
     color: var(--muted);
   }
 
-  /* Banner + Countdown — converted to Tailwind in prize-pool-banner.tsx / Leaderboard.tsx */
+  /* Banner + Countdown - converted to Tailwind in prize-pool-banner.tsx / Leaderboard.tsx */
 
   /* Board grid */
   .quest-scope .board-grid {
@@ -3874,7 +3874,7 @@
     letter-spacing: 0.06em;
   }
 
-  /* Social cards — soc-card/soc-ico/soc-meta/soc-name/soc-sub still used in Profile.tsx */
+  /* Social cards - soc-card/soc-ico/soc-meta/soc-name/soc-sub still used in Profile.tsx */
   .quest-scope .social-list {
     display: flex;
     flex-direction: column;
@@ -4562,7 +4562,7 @@
   /* ============================================================
    RESPONSIVE HELPERS
    ============================================================ */
-  /* @media (max-width:680px) nav rules — removed; nav is now Tailwind in QuestNav.tsx / Navbar.tsx */
+  /* @media (max-width:680px) nav rules - removed; nav is now Tailwind in QuestNav.tsx / Navbar.tsx */
   @media (max-width: 720px) {
     .quest-scope .shell {
       grid-template-columns: 1fr;
@@ -4583,7 +4583,7 @@
       height: 64px;
     }
   }
-  /* @media (max-width:920px) banner rules — removed; banner is now Tailwind in prize-pool-banner.tsx / Leaderboard.tsx */
+  /* @media (max-width:920px) banner rules - removed; banner is now Tailwind in prize-pool-banner.tsx / Leaderboard.tsx */
   @media (max-width: 440px) {
     .quest-scope .lh {
       flex-direction: column;
@@ -4629,7 +4629,7 @@
   }
 
   /* ============================================================
-   PROFILE ADDITIONS — cards, lists, referral, social
+   PROFILE ADDITIONS - cards, lists, referral, social
    ============================================================ */
   .quest-scope .card {
     border: 1px solid var(--line);
@@ -4721,7 +4721,7 @@
     color: var(--dim);
     margin-left: 6px;
   }
-  /* .social-card — converted to Tailwind in SocialConnectCard.tsx */
+  /* .social-card - converted to Tailwind in SocialConnectCard.tsx */
   .quest-scope .rl-head {
     display: grid;
     grid-template-columns: 2fr auto auto auto;
@@ -4815,7 +4815,7 @@
   }
 } /* end @layer components (Quest feature styles) */
 
-/* Design feedback: remove decorative eyebrow flanking lines ("— —") app-wide */
+/* Design feedback: remove decorative eyebrow flanking lines ("- -") app-wide */
 .quest-scope .eyebrow::before,
 .quest-scope .eyebrow::after,
 .quest-scope .page-eyebrow::before,

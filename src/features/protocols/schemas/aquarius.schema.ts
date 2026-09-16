@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { apySchema } from "./common.schema";
 
-// ─── Pool token ──────��─────────────────────────────────────────
+// --- Pool token ------��-----------------------------------------
 
 export const aquaTokenSchema = z.object({
   address: z.string(),
@@ -9,7 +9,7 @@ export const aquaTokenSchema = z.object({
 });
 export type AquaToken = z.infer<typeof aquaTokenSchema>;
 
-// ─── Pool ──────────────────────────────────────────────────────
+// --- Pool ------------------------------------------------------
 
 export const aquaPoolCardPropsSchema = z.object({
   address: z.string(),
@@ -25,7 +25,7 @@ export const aquaPoolCardPropsSchema = z.object({
 });
 export type AquaPoolCardProps = z.infer<typeof aquaPoolCardPropsSchema>;
 
-// ─── Quote ──────────────────────────────────��──────────────────
+// --- Quote ----------------------------------��------------------
 
 export const aquaQuoteCardPropsSchema = z.object({
   protocol: z.literal("aquarius").optional(),
@@ -39,7 +39,7 @@ export const aquaQuoteCardPropsSchema = z.object({
 });
 export type AquaQuoteCardProps = z.infer<typeof aquaQuoteCardPropsSchema>;
 
-// ─── LP Position ─────��─────────────────────────────────────────
+// --- LP Position -----��-----------------------------------------
 
 export const aquaPositionItemSchema = z.object({
   poolAddress: z.string(),
@@ -60,7 +60,7 @@ export const aquaPositionsCardPropsSchema = z.object({
 });
 export type AquaPositionsCardProps = z.infer<typeof aquaPositionsCardPropsSchema>;
 
-// ─── Yield opportunity ─────────────────────────────────────────
+// --- Yield opportunity -----------------------------------------
 
 export const aquaYieldCardPropsSchema = z.object({
   protocol: z.literal("aquarius").optional(),
@@ -82,7 +82,7 @@ export const aquaYieldCardPropsSchema = z.object({
 });
 export type AquaYieldCardProps = z.infer<typeof aquaYieldCardPropsSchema>;
 
-// ─── Lock AQUA info ────────────────────────────────────────────
+// --- Lock AQUA info --------------------------------------------
 
 export const aquaLockInfoSchema = z.object({
   amount: z.string(),
@@ -94,7 +94,7 @@ export const aquaLockInfoSchema = z.object({
 });
 export type AquaLockInfo = z.infer<typeof aquaLockInfoSchema>;
 
-// ─── AQUA Daily Rewards ────────────────────────────────────────
+// --- AQUA Daily Rewards ----------------------------------------
 
 export const aquaRewardItemSchema = z.object({
   pair: z.string(),
@@ -112,7 +112,7 @@ export const aquaRewardsCardPropsSchema = z.object({
 });
 export type AquaRewardsCardProps = z.infer<typeof aquaRewardsCardPropsSchema>;
 
-// ─── Pool Incentive ────────────────────────────────────────────
+// --- Pool Incentive --------------------------------------------
 
 export const aquaPoolIncentiveSchema = z.object({
   poolAddress: z.string(),
@@ -123,7 +123,7 @@ export const aquaPoolIncentiveSchema = z.object({
 });
 export type AquaPoolIncentive = z.infer<typeof aquaPoolIncentiveSchema>;
 
-// ─── Deposit/Withdraw Preview ──────────────────────────────────
+// --- Deposit/Withdraw Preview ----------------------------------
 
 export const aquaDepositPreviewSchema = z.object({
   poolAddress: z.string(),
@@ -144,7 +144,7 @@ export const aquaWithdrawPreviewSchema = z.object({
 });
 export type AquaWithdrawPreview = z.infer<typeof aquaWithdrawPreviewSchema>;
 
-// ─── Vote / Governance ─────────────────────────────────────────
+// --- Vote / Governance -----------------------------------------
 
 export const aquaVoteMarketSchema = z.object({
   pair: z.string(),
@@ -156,7 +156,7 @@ export const aquaVoteMarketSchema = z.object({
 });
 export type AquaVoteMarket = z.infer<typeof aquaVoteMarketSchema>;
 
-// ─── Transaction ───────────────────────────────────────────────
+// --- Transaction -----------------------------------------------
 
 export const aquaOperationContextSchema = z
   .object({

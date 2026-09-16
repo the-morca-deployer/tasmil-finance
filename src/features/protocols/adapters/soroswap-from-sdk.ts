@@ -14,7 +14,7 @@ import {
   soroswapTxCardPropsSchema,
 } from "../schemas/soroswap.schema";
 
-// ─── Helpers ───────────────────────────────────────────────────
+// --- Helpers ---------------------------------------------------
 
 function resolveSymbol(raw: string): string {
   if (!raw) return "?";
@@ -35,7 +35,7 @@ function num(obj: Record<string, unknown>, ...keys: string[]): number | null {
   return null;
 }
 
-// ─── Pool normalization ────────────────────────────────────────
+// --- Pool normalization ----------------------------------------
 
 export function normalizeSoroswapPoolFromSdk(
   raw: Record<string, unknown>
@@ -86,7 +86,7 @@ export function normalizeSoroswapPoolsFromSdk(
     .filter((p): p is SoroswapPoolCardProps => p !== null);
 }
 
-// ─── Quote normalization ───────────────────────────────────────
+// --- Quote normalization ---------------------------------------
 
 export function normalizeSoroswapQuoteFromSdk(
   raw: Record<string, unknown>
@@ -109,7 +109,7 @@ export function normalizeSoroswapQuoteFromSdk(
   return result.data;
 }
 
-// ─── Positions normalization ───────────────────────────────────
+// --- Positions normalization -----------------------------------
 
 export function normalizeSoroswapPositionsFromSdk(
   raw: Record<string, unknown>
@@ -138,7 +138,7 @@ export function normalizeSoroswapPositionsFromSdk(
   return result.data;
 }
 
-// ─── Yield normalization ───────────────────────────────────────
+// --- Yield normalization ---------------------------------------
 
 export function normalizeSoroswapYieldFromSdk(
   raw: Record<string, unknown>
@@ -172,7 +172,7 @@ export function normalizeSoroswapYieldFromSdk(
   });
 }
 
-// ─── Transaction normalization ─────────────────────────────────
+// --- Transaction normalization ---------------------------------
 
 export function normalizeSoroswapTxFromSdk(
   raw: Record<string, unknown>,

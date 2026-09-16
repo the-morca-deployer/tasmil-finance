@@ -74,7 +74,7 @@ function SupervisorAgentCallCardComponent(props: SupervisorAgentCallCardProps) {
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger className="group flex items-center gap-2 py-1.5 text-sm transition-colors hover:opacity-80">
-        {/* Agent icon — always show logo, pulse when calling */}
+        {/* Agent icon - always show logo, pulse when calling */}
         <div className="shrink-0">
           {isError ? (
             <AlertCircle className="h-4 w-4 text-red-400" />

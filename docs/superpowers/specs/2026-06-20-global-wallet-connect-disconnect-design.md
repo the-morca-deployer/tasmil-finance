@@ -1,4 +1,4 @@
-# Global Wallet Connect / Disconnect — Design
+# Global Wallet Connect / Disconnect - Design
 
 Date: 2026-06-20
 Branch: `feat/merge-landing-quest` (frontend repo `tasmil-finance`)
@@ -9,18 +9,18 @@ Status: Approved (design)
 Wallet connection state is fragmented across the app. There are two parallel
 systems:
 
-- **Shared** — `useWalletStore` (`wallet-storage`) + `useAuthStore`
+- **Shared** - `useWalletStore` (`wallet-storage`) + `useAuthStore`
   (`auth-storage`), authenticating against the main backend
   (`NEXT_PUBLIC_BACKEND_URL`, httpOnly cookie JWT). Used by landing, waitlist,
   access, chat, dashboard.
-- **Quest** — `useQuestWalletStore` (`quest-wallet-storage`) + `useQuestAuthStore`
+- **Quest** - `useQuestWalletStore` (`quest-wallet-storage`) + `useQuestAuthStore`
   (`quest-auth-storage`), authenticating against a separate quest backend
   (`NEXT_PUBLIC_QUEST_API_URL`, access/refresh tokens in localStorage). Mounted
   by its own `WalletProvider` in `src/app/(quest)/layout.tsx`.
 
 Each surface implements its own `connect()` / `disconnect()`. Result: connecting
 on one surface does not reflect on another, and a Disconnect button only clears
-that surface's stores — not a true global sign-out.
+that surface's stores - not a true global sign-out.
 
 ## Goal
 
@@ -38,13 +38,13 @@ Auth remains per-backend (the two backends cannot share one token), but each
 backend auto-authenticates from the already-connected wallet, so the user never
 re-connects the wallet.
 
-## Approach (chosen: A — frontend only)
+## Approach (chosen: A - frontend only)
 
 Separate two concerns cleanly:
 
-1. **Wallet connection** (which Stellar address, connected flag) — GLOBAL,
+1. **Wallet connection** (which Stellar address, connected flag) - GLOBAL,
    single source of truth.
-2. **Authentication** (backend session) — per-backend, layered on top of the
+2. **Authentication** (backend session) - per-backend, layered on top of the
    shared connection.
 
 No backend changes. All work is in `tasmil-finance` on `feat/merge-landing-quest`.
@@ -65,7 +65,7 @@ No backend changes. All work is in `tasmil-finance` on `feat/merge-landing-quest
 connectWallet(): Promise<string | null>
   - open StellarWalletsKit authModal, read address
   - set useWalletStore({ connected: true, account: address })
-  - return address (no auth here — each backend authenticates separately)
+  - return address (no auth here - each backend authenticates separately)
 
 disconnectAll(): Promise<void>
   - StellarWalletsKit.disconnect()
@@ -99,10 +99,10 @@ path. Each context keeps only its backend-specific auth handshake.
 
 ## Files to change
 
-1. `src/features/quest/store/use-quest-wallet.ts` — re-export shared store *(done)*
-2. `src/shared/lib/wallet-session.ts` — new canonical module
-3. `src/shared/context/wallet-context.tsx` — `connect()`/`disconnect()` delegate to the module
-4. `src/features/quest/context/wallet-context.tsx` — `connect()`/`disconnect()` delegate to the module
+1. `src/features/quest/store/use-quest-wallet.ts` - re-export shared store *(done)*
+2. `src/shared/lib/wallet-session.ts` - new canonical module
+3. `src/shared/context/wallet-context.tsx` - `connect()`/`disconnect()` delegate to the module
+4. `src/features/quest/context/wallet-context.tsx` - `connect()`/`disconnect()` delegate to the module
 
 ## Edge cases & error handling
 
@@ -114,7 +114,7 @@ path. Each context keeps only its backend-specific auth handshake.
 - Stale `quest-wallet-storage` in localStorage from previous sessions is ignored
   (no reader after the re-export).
 - Dev bypass (`window.__TASMIL_E2E_WALLET__`, `src/lib/dev-bypass.ts`) sets the
-  shared store, so quest now also reads as connected under bypass — convenient
+  shared store, so quest now also reads as connected under bypass - convenient
   for tests.
 - `wallet-session.ts` loads the quest auth store via dynamic import to avoid an
   eager shared→feature coupling.

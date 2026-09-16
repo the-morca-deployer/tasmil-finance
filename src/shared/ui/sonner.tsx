@@ -14,7 +14,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           // Use `--card` (lighter than page `--background`) so the toast
           // visibly separates from the pitch-black page on dark theme.
           // Sonner sets inline styles from these vars, so Tailwind classes
-          // alone are not enough — set both layers.
+          // alone are not enough - set both layers.
           "--normal-bg": "var(--card)",
           "--normal-text": "var(--card-foreground)",
           "--normal-border": "var(--border)",

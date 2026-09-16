@@ -1,6 +1,6 @@
 import { expect, test } from "../fixtures/chat.fixture";
 
-test.describe("Clarify Flow — Ambiguous Prompts", () => {
+test.describe("Clarify Flow - Ambiguous Prompts", () => {
   test.describe.configure({ mode: "serial" });
 
   test("ambiguous yield request triggers ClarifyCard with pool options", async ({ chatPage }) => {

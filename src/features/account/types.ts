@@ -39,7 +39,7 @@ export interface PositionData {
   sessionKeyStale?: boolean;
   /** ISO timestamp the managed account was created (used for `activatedAt` UI). */
   createdAt: string;
-  /** Keeper wallet address — used by the portfolio history endpoint. */
+  /** Keeper wallet address - used by the portfolio history endpoint. */
   keeperWalletAddress: string;
 }
 

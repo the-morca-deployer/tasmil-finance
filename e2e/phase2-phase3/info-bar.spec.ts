@@ -2,7 +2,7 @@
 import { expect, test } from "../fixtures/phase-mock.fixture";
 import { mockAccount } from "../helpers/mock-account";
 
-test.describe("InfoBar — Phase 2/3 static APY banner", () => {
+test.describe("InfoBar - Phase 2/3 static APY banner", () => {
   test("renders APY text", async ({ page }) => {
     await mockAccount(page, { phase: "beta", isFirstLogin: true });
     await page.goto("/chat/new");

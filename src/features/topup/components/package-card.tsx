@@ -44,7 +44,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
           : undefined
       }
     >
-      {/* RECOMMENDED ribbon — sits on top edge of Pro card */}
+      {/* RECOMMENDED ribbon - sits on top edge of Pro card */}
       {recommended && (
         <div className="-top-2.5 -translate-x-1/2 absolute left-1/2 z-10">
           <span className="rounded-sm bg-[#59C3FF] px-2 py-0.5 font-semibold text-[10px] text-black uppercase tracking-[0.14em]">
@@ -66,7 +66,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
         ) : null}
       </div>
 
-      {/* Price — big number, USD small + muted */}
+      {/* Price - big number, USD small + muted */}
       <div className="px-5 pb-4">
         <div className="flex items-baseline gap-1.5">
           <span
@@ -82,7 +82,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
       {/* Hairline divider before stats */}
       <div className="mx-5 h-px bg-[#262626]" />
 
-      {/* Stats — Credits / Points rows */}
+      {/* Stats - Credits / Points rows */}
       <div className="flex flex-1 flex-col gap-2.5 px-5 py-4">
         <div
           className="flex items-center justify-between text-sm"
@@ -107,7 +107,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
       {/* Hairline divider before action */}
       <div className="mx-5 h-px bg-[#262626]" />
 
-      {/* Action — Pro = solid blue, others = dark gray */}
+      {/* Action - Pro = solid blue, others = dark gray */}
       <div className="flex flex-col gap-2 p-5">
         <Link
           href={cryptoHref}

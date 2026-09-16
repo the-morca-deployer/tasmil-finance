@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -31,7 +31,7 @@ import { BlendPoolsCard } from "../cards/blend/blend-pools-card";
 import { SoroswapPoolsCard } from "../cards/soroswap/soroswap-pools-card";
 
 describe("MCP -> Adapter -> Card Pipeline", () => {
-  // ─── Aquarius ────────────────────────────────────────────────
+  // --- Aquarius ------------------------------------------------
 
   describe("Aquarius: resolve_pool -> AquaPoolsCard", () => {
     it("renders XLM/USDC pool from enriched MCP output", () => {
@@ -72,7 +72,7 @@ describe("MCP -> Adapter -> Card Pipeline", () => {
     });
   });
 
-  // ─── Soroswap ────────────────────────────────────────────────
+  // --- Soroswap ------------------------------------------------
 
   describe("Soroswap: resolve_pool -> SoroswapPoolsCard", () => {
     it("renders XLM/USDC from correct string format", () => {
@@ -103,10 +103,10 @@ describe("MCP -> Adapter -> Card Pipeline", () => {
         // This documents the bug: if pools come through, they may have [object Object]
         // When MCP is fixed, this will not contain [object Object]
         if (text.includes("[object Object]")) {
-          // Bug is present — document it as expected
+          // Bug is present - document it as expected
           expect(text).toContain("[object Object]");
         } else {
-          // Bug was fixed or adapter handles it — great!
+          // Bug was fixed or adapter handles it - great!
           expect(text).not.toContain("[object Object]");
         }
       } else {
@@ -121,7 +121,7 @@ describe("MCP -> Adapter -> Card Pipeline", () => {
     });
   });
 
-  // ─── Blend ───────────────────────────────────────────────────
+  // --- Blend ---------------------------------------------------
 
   describe("Blend: resolve_pool -> BlendPoolsCard", () => {
     it("renders Fixed Pool with USDC and XLM reserves", () => {
@@ -152,7 +152,7 @@ describe("MCP -> Adapter -> Card Pipeline", () => {
     });
   });
 
-  // ─── V2 Format Pipeline (new MCP output → adapter → card) ──
+  // --- V2 Format Pipeline (new MCP output → adapter → card) --
 
   describe("V2: Aquarius card-ready format", () => {
     it("renders XLM/USDC from V2 format through adapter", () => {

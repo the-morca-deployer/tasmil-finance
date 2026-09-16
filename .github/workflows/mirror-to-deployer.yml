@@ -2,7 +2,7 @@ name: Mirror to deployer
 
 on:
   push:
-    branches: [deploy/prod]
+    branches: [deploy/prod, deploy/staging]
 
 jobs:
   mirror:
@@ -22,4 +22,6 @@ jobs:
           git commit --allow-empty -m "chore: deploy"
 
           gh auth setup-git
-          git push https://github.com/the-morca-deployer/tasmil-finance.git HEAD:refs/heads/main --force
+          # deploy/prod -> mirror main (Vercel production); deploy/staging -> mirror staging (Vercel preview)
+          if [ "${{ github.ref_name }}" = "deploy/prod" ]; then TARGET=main; else TARGET=staging; fi
+          git push https://github.com/the-morca-deployer/tasmil-finance.git HEAD:refs/heads/$TARGET --force

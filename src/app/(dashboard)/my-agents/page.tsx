@@ -5,7 +5,16 @@ import { AlertCircle, Loader2, Power, RefreshCw, Shield } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:6756";
+// Same-origin: the /api/marketplace rewrite in next.config proxies to the backend and
+// carries the caller's credentials. Hitting the backend URL directly skips that and 401s.
+async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(path, init);
+  if (!res.ok) {
+    throw new Error(`${init?.method ?? "GET"} ${path} failed: ${res.status}`);
+  }
+  const body = await res.json();
+  return body.data as T;
+}
 
 interface MyAgent {
   keeperWalletAddress: string;
@@ -22,9 +31,7 @@ interface MyAgent {
 }
 
 function fetchMyAgents(): Promise<{ vaults: MyAgent[] }> {
-  return fetch(`${BASE_URL}/api/marketplace/my-strategies`)
-    .then((r) => r.json())
-    .then((j) => j.data);
+  return apiJson<{ vaults: MyAgent[] }>("/api/marketplace/my-strategies");
 }
 
 export default function MyAgentsPage() {
@@ -37,9 +44,7 @@ export default function MyAgentsPage() {
 
   const deactivate = useMutation({
     mutationFn: (strategyId: string) =>
-      fetch(`${BASE_URL}/api/marketplace/strategies/${strategyId}/deactivate`, {
-        method: "POST",
-      }).then((r) => r.json()),
+      apiJson(`/api/marketplace/strategies/${strategyId}/deactivate`, { method: "POST" }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["my-agents"] }),
   });
 

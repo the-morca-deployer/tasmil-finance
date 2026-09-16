@@ -1,1 +1,0 @@
-{"type":"object","properties":{"date":{"type":"string"},"volumeUsd":{"type":"number"},"cumulativeTvlUsd":{"type":"number"}},"required":["date","volumeUsd","cumulativeTvlUsd"],"x-readme-ref-name":"VolumeTvlPointDto"}

@@ -4,7 +4,7 @@
  * This module is referenced by kubb.config.backend.js as the `importPath`
  * for pluginClient, so every generated file in src/gen-backend/client/ will
  * import its `fetch` default and RequestConfig / ResponseErrorConfig types
- * from here — automatically routing all requests through `backendAxios`
+ * from here - automatically routing all requests through `backendAxios`
  * (which attaches JWT Bearer tokens and handles 401s globally).
  *
  * We re-export RequestConfig / ResponseErrorConfig from the official Kubb axios

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make the Quest L1/L2/L3 referral commission system work end-to-end — referral codes are captured on wallet connect and persisted to the DB (first-touch, no conflict), commissions cascade up 3 levels on every point-award path, and the UI shares correct links and shows the user's code + referrer.
+**Goal:** Make the Quest L1/L2/L3 referral commission system work end-to-end - referral codes are captured on wallet connect and persisted to the DB (first-touch, no conflict), commissions cascade up 3 levels on every point-award path, and the UI shares correct links and shows the user's code + referrer.
 
 **Architecture:** Two repos. **Backend** (`backend/`, NestJS + Prisma): thread an optional `referredByCode` through `/auth/verify`, persist `UserQuestProfile.referredById` once (first-touch), call the already-existing `CommissionService.applyCommissions` from all four point-award paths, and expose the referrer in `/referral/me`. **Frontend** (`tasmil-finance/`, Next.js): unify the share link to `/r/<code>` → `/quest?ref=`, send `referredByCode` on connect, fix the broken Profile copy/share/set-code buttons, and surface the code + referrer in the account dropdown.
 
@@ -16,29 +16,29 @@
 - Commission cascade depth is capped at 3 layers (`MAX_LAYERS = 3`, existing).
 - `referredByCode` on `/auth/verify` must be strictly optional and must not change existing login behavior when absent.
 - Commission rates are config-driven (`QuestReferralConfig`: L1=1000, L2=300, L3=100 bps, seeded). Do not hard-code rates in new code.
-- **Referral code format: UPPERCASE letters + digits only** (plus the existing `TASMIL-` style hyphen), e.g. `TASMIL-X7K9` — never lowercase. Generated codes use uppercase+digits. Custom codes are validated/normalized to uppercase (`.trim().toUpperCase()`, allowed charset `[A-Z0-9-]`). Any incoming `referredByCode` (from `?ref=`, localStorage, or a typed code) is normalized with `.trim().toUpperCase()` **before** the DB lookup, so a lowercased URL still matches.
-- Backend lint/format: follow existing module style. Frontend: Biome — 2-space indent, double quotes, `import type`, no `any`, no `console.log`.
+- **Referral code format: UPPERCASE letters + digits only** (plus the existing `TASMIL-` style hyphen), e.g. `TASMIL-X7K9` - never lowercase. Generated codes use uppercase+digits. Custom codes are validated/normalized to uppercase (`.trim().toUpperCase()`, allowed charset `[A-Z0-9-]`). Any incoming `referredByCode` (from `?ref=`, localStorage, or a typed code) is normalized with `.trim().toUpperCase()` **before** the DB lookup, so a lowercased URL still matches.
+- Backend lint/format: follow existing module style. Frontend: Biome - 2-space indent, double quotes, `import type`, no `any`, no `console.log`.
 
 ---
 
 ## File Structure
 
 **Backend (`backend/`)**
-- `src/modules/auth/auth.dto.ts` — add optional `referredByCode` to `WalletVerifyDto`.
-- `src/modules/auth/auth.service.ts` — call `usersService.linkReferrer` inside `walletLogin` after user upsert.
-- `src/modules/quest/users/users.service.ts` — new `linkReferrer(userId, code)`; remove dead `ensureWalletUser`; add commission call in `dailyLoginReward`.
-- `src/modules/quest/claims/claims.service.ts` — add `applyCommissions` to `claimDailyTask` and `claimCampaign`.
-- `src/modules/quest/referral/referral.service.ts` — `getMyReferral` returns `referredBy`.
-- `prisma/migrations/<ts>_quest_referral_commission_unique/migration.sql` — unique index on `QuestReferralCommission`.
-- `prisma/schema.prisma` — matching `@@unique` on `QuestReferralCommission`.
+- `src/modules/auth/auth.dto.ts` - add optional `referredByCode` to `WalletVerifyDto`.
+- `src/modules/auth/auth.service.ts` - call `usersService.linkReferrer` inside `walletLogin` after user upsert.
+- `src/modules/quest/users/users.service.ts` - new `linkReferrer(userId, code)`; remove dead `ensureWalletUser`; add commission call in `dailyLoginReward`.
+- `src/modules/quest/claims/claims.service.ts` - add `applyCommissions` to `claimDailyTask` and `claimCampaign`.
+- `src/modules/quest/referral/referral.service.ts` - `getMyReferral` returns `referredBy`.
+- `prisma/migrations/<ts>_quest_referral_commission_unique/migration.sql` - unique index on `QuestReferralCommission`.
+- `prisma/schema.prisma` - matching `@@unique` on `QuestReferralCommission`.
 - Tests: `*.spec.ts` colocated next to each service (existing convention).
 
 **Frontend (`tasmil-finance/`)**
-- `src/app/r/[code]/page.tsx` — redirect to `/quest?ref=`.
-- `src/features/quest/context/wallet-context.tsx` — send `referredByCode`.
-- `src/features/quest/lib/referral-link.ts` — new tiny helper `buildShareUrl` + `readPendingReferralCode`.
-- `src/features/quest/components/Profile.tsx` — wire share/set-code/copy-guard.
-- `src/features/quest/components/Navbar.tsx` — dropdown shows code + referrer.
+- `src/app/r/[code]/page.tsx` - redirect to `/quest?ref=`.
+- `src/features/quest/context/wallet-context.tsx` - send `referredByCode`.
+- `src/features/quest/lib/referral-link.ts` - new tiny helper `buildShareUrl` + `readPendingReferralCode`.
+- `src/features/quest/components/Profile.tsx` - wire share/set-code/copy-guard.
+- `src/features/quest/components/Navbar.tsx` - dropdown shows code + referrer.
 - Tests: colocated `__tests__/*.test.tsx` (existing convention).
 
 ---
@@ -68,7 +68,7 @@ cd ../tasmil-finance && git checkout -b feat/quest-referral-e2e
 - Test: `backend/src/modules/quest/users/users.service.spec.ts` (create if absent)
 
 **Interfaces:**
-- Produces: `linkReferrer(userId: string, referredByCode?: string | null): Promise<void>` — resolves a referrer by quest `referralCode`; ensures the connecting user's `UserQuestProfile` exists; sets `referredById` only when currently null, referrer ≠ self, and not a direct cycle (referrer's own `referredById` ≠ userId). No-op otherwise. Never throws for missing/invalid input.
+- Produces: `linkReferrer(userId: string, referredByCode?: string | null): Promise<void>` - resolves a referrer by quest `referralCode`; ensures the connecting user's `UserQuestProfile` exists; sets `referredById` only when currently null, referrer ≠ self, and not a direct cycle (referrer's own `referredById` ≠ userId). No-op otherwise. Never throws for missing/invalid input.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -162,11 +162,11 @@ describe('UsersService.linkReferrer', () => {
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run: `cd backend && pnpm test -- users.service.spec`
-Expected: FAIL — `linkReferrer is not a function`.
+Expected: FAIL - `linkReferrer is not a function`.
 
 - [ ] **Step 3: Implement `linkReferrer`**
 
-In `backend/src/modules/quest/users/users.service.ts` add the method (use the file's established prisma accessor — `db(this.prisma)` or `this.prisma` — to match neighboring methods):
+In `backend/src/modules/quest/users/users.service.ts` add the method (use the file's established prisma accessor - `db(this.prisma)` or `this.prisma` - to match neighboring methods):
 
 ```ts
 /**
@@ -261,7 +261,7 @@ it('walletLogin forwards referredByCode to linkReferrer', async () => {
 - [ ] **Step 3: Run test to verify it fails**
 
 Run: `cd backend && pnpm test -- auth.service.spec`
-Expected: FAIL — `linkReferrer` not called.
+Expected: FAIL - `linkReferrer` not called.
 
 - [ ] **Step 4: Wire the call in `walletLogin`**
 
@@ -282,7 +282,7 @@ Ensure the quest `UsersService` is injected into `AuthService`. If this creates 
 Run: `cd backend && pnpm test -- auth.service.spec`
 Expected: PASS.
 
-- [ ] **Step 6: Regression — login without a code still works**
+- [ ] **Step 6: Regression - login without a code still works**
 
 Add a test calling `walletLogin` with no `referredByCode`; assert it resolves to tokens and `linkReferrer` is called with `undefined` (a no-op per Task 1).
 
@@ -332,7 +332,7 @@ it('claimCampaign cascades commission with base reward points', async () => {
 - [ ] **Step 2: Run to verify they fail**
 
 Run: `cd backend && pnpm test -- claims.service.spec`
-Expected: FAIL — `applyCommissions` not called in those paths.
+Expected: FAIL - `applyCommissions` not called in those paths.
 
 - [ ] **Step 3: Wire `claimDailyTask`**
 
@@ -370,7 +370,7 @@ Inject `CommissionService` into `UsersService`. If this creates a circular depen
 Run: `cd backend && pnpm test -- claims.service.spec`
 Expected: PASS.
 
-- [ ] **Step 7: Idempotency test — re-claim does not double-credit**
+- [ ] **Step 7: Idempotency test - re-claim does not double-credit**
 
 Add a test calling `claimDailyTask` twice for the same `(userId, taskId, today)`; the second throws `ALREADY_COMPLETED` (P2002) before reaching `applyCommissions`, so it is called exactly once.
 
@@ -413,7 +413,7 @@ it('getMyReferral returns referredBy = null when user has no referrer', async ()
 - [ ] **Step 2: Run to verify fail**
 
 Run: `cd backend && pnpm test -- referral.service.spec`
-Expected: FAIL — `referredBy` undefined.
+Expected: FAIL - `referredBy` undefined.
 
 - [ ] **Step 3: Implement**
 
@@ -530,7 +530,7 @@ it("stores the code and redirects to /quest?ref=", async () => {
 - [ ] **Step 2: Run to verify fail**
 
 Run: ``cd tasmil-finance && pnpm test -- 'r/\[code\]'``
-Expected: FAIL — redirect target is `/?ref=CODE-A`.
+Expected: FAIL - redirect target is `/?ref=CODE-A`.
 
 - [ ] **Step 3: Change the redirect target**
 
@@ -585,7 +585,7 @@ describe("referral-link", () => {
 - [ ] **Step 2: Run to verify fail**
 
 Run: `cd tasmil-finance && pnpm test -- referral-link`
-Expected: FAIL — module does not exist.
+Expected: FAIL - module does not exist.
 
 - [ ] **Step 3: Implement the helper**
 
@@ -667,15 +667,15 @@ it("Share Link copies the canonical /r/ url", async () => {
 it("Copy Code does not copy the placeholder dash", async () => {
   const writeText = jest.fn();
   Object.assign(navigator, { clipboard: { writeText } });
-  // referralCode resolves to "—"; click "Copy Code"
-  expect(writeText).not.toHaveBeenCalledWith("—");
+  // referralCode resolves to "-"; click "Copy Code"
+  expect(writeText).not.toHaveBeenCalledWith("-");
 });
 ```
 
 - [ ] **Step 2: Run to verify fail**
 
 Run: `cd tasmil-finance && pnpm test -- profile-referral-actions`
-Expected: FAIL — Share Link has no handler; Copy Code copies "—".
+Expected: FAIL - Share Link has no handler; Copy Code copies "-".
 
 - [ ] **Step 3: Wire the buttons**
 
@@ -698,7 +698,7 @@ const onSetCustomCode = async () => {
 
 ```ts
 const onShareLink = () => {
-  if (!referralCode || referralCode === "—") return;
+  if (!referralCode || referralCode === "-") return;
   navigator.clipboard?.writeText(buildShareUrl(referralCode));
 };
 ```
@@ -707,7 +707,7 @@ const onShareLink = () => {
 
 ```ts
 onClick={() => {
-  if (!referralCode || referralCode === "—") return;
+  if (!referralCode || referralCode === "-") return;
   navigator.clipboard?.writeText(referralCode);
 }}
 ```
@@ -761,7 +761,7 @@ it("dropdown shows a placeholder when there is no referrer", () => {
 - [ ] **Step 2: Run to verify fail**
 
 Run: `cd tasmil-finance && pnpm test -- navbar-referral`
-Expected: FAIL — no referral rows.
+Expected: FAIL - no referral rows.
 
 - [ ] **Step 3: Implement**
 
@@ -778,7 +778,7 @@ const referrer = ref?.referredBy ?? null;
 const referrerLabel =
   referrer?.name ??
   referrer?.code ??
-  (referrer?.walletAddress ? `${referrer.walletAddress.slice(0, 4)}…${referrer.walletAddress.slice(-4)}` : "—");
+  (referrer?.walletAddress ? `${referrer.walletAddress.slice(0, 4)}...${referrer.walletAddress.slice(-4)}` : "-");
 ```
 
 In **both** dropdown panels, insert above "Copy Address":
@@ -861,7 +861,7 @@ cd ../tasmil-finance && git push -u origin feat/quest-referral-e2e
 - §5.4 dropdown code + referrer → Task 9. ✓
 - §7 tests + manual E2E → per-task tests + Task 10. ✓
 
-**Placeholder scan:** No TBD/TODO. Code steps show concrete code; spots that depend on exact existing signatures (set-referral-code request shape, `db()` accessor, `user` relation name, `$` config token) are flagged with how to confirm — not left blank.
+**Placeholder scan:** No TBD/TODO. Code steps show concrete code; spots that depend on exact existing signatures (set-referral-code request shape, `db()` accessor, `user` relation name, `$` config token) are flagged with how to confirm - not left blank.
 
 **Type consistency:** `linkReferrer(userId, referredByCode?)`, `buildShareUrl(code)`, `readPendingReferralCode()`, and `referredBy: { code, name, walletAddress } | null` are used identically across producing and consuming tasks.
 

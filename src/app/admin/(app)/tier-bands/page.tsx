@@ -6,7 +6,6 @@ import {
   useTierBands,
   useUpdateTierBand,
 } from "@/features/admin/hooks/use-admin-tier-bands";
-import { ExportCsvButton } from "@/shared/components/export-csv-button";
 
 const inputStyle: React.CSSProperties = {
   padding: "9px 12px",
@@ -94,7 +93,7 @@ function TierRow({
       </div>
 
       <button type="submit" disabled={update.isPending} style={primaryBtnStyle}>
-        {update.isPending ? "Saving…" : `Save ${row.tier}`}
+        {update.isPending ? "Saving..." : `Save ${row.tier}`}
       </button>
     </form>
   );
@@ -106,23 +105,13 @@ export default function TierBandsPage() {
 
   return (
     <div style={{ padding: 24, maxWidth: 720 }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 6,
-        }}
-      >
-        <h1 style={{ fontSize: 22, fontWeight: 700 }}>Quest Tier Bands</h1>
-        <ExportCsvButton endpoint="/api/admin/tier-bands/export" />
-      </div>
+      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>Quest Tier Bands</h1>
       <p style={{ fontSize: 13, opacity: 0.6, marginBottom: 20 }}>
         Set the total quest points required to reach each tier. Thresholds must stay strictly
-        ascending — the server rejects a value that isn&apos;t between its neighbors.
+        ascending - the server rejects a value that isn&apos;t between its neighbors.
       </p>
 
-      {isLoading && <p style={{ fontSize: 13, opacity: 0.6 }}>Loading tier bands…</p>}
+      {isLoading && <p style={{ fontSize: 13, opacity: 0.6 }}>Loading tier bands...</p>}
       {error && <p style={{ fontSize: 13, color: "#f87171" }}>Failed to load: {error.message}</p>}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

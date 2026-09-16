@@ -68,7 +68,7 @@ const AGENT_ICONS: Record<string, typeof ArrowRightLeft> = {
 };
 
 /**
- * Supervisor step approval UI — shown when the supervisor pauses for user confirmation.
+ * Supervisor step approval UI - shown when the supervisor pauses for user confirmation.
  */
 function SupervisorApprovalCard({ interrupt }: { interrupt: Interrupt<any> }) {
   const stream = useStreamContext();

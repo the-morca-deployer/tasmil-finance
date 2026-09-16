@@ -24,6 +24,9 @@ jest.mock("@/gen-quest/hooks", () => ({
   useUsersControllerDailyLogin: () => ({ mutate: jest.fn(), isPending: false }),
   useUsersControllerGetMyCampaigns: () => ({ data: undefined }),
   usersControllerGetMeQueryKey: () => ["users", "me"],
+  // Navbar also calls useReferralControllerGetMyReferral (added after this mock
+  // was written). It reads `const { data: refRaw } = ...`, so undefined is safe.
+  useReferralControllerGetMyReferral: () => ({ data: undefined }),
 }));
 
 describe("Quest Navbar", () => {

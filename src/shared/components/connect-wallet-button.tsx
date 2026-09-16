@@ -91,7 +91,7 @@ export function ConnectWalletButton({ variant = "sidebar", rankSlot }: ConnectWa
     );
   }
 
-  // ── Connected: expanded sidebar (default) ───────────────────────────
+  // -- Connected: expanded sidebar (default) ---------------------------
   if (!isConnected) {
     return (
       <Button className="w-full" onClick={connect} variant="gradient" data-testid="connect-wallet">
@@ -179,9 +179,9 @@ function TopbarWallet({
 }: TopbarWalletProps) {
   const { data: creditsData, isLoading: creditsLoading } = useCredits();
   const credits = creditsData?.credits ?? 0;
-  const creditsDisplay = creditsLoading ? "—" : new Intl.NumberFormat("en-US").format(credits);
+  const creditsDisplay = creditsLoading ? "-" : new Intl.NumberFormat("en-US").format(credits);
 
-  // Quest points + streak — sourced like QuestHeaderBadges (`$` unwraps the
+  // Quest points + streak - sourced like QuestHeaderBadges (`$` unwraps the
   // `{ success, data }` envelope, so `me.data` IS the profile).
   const me = useUsersControllerGetMe($);
   const profile = (me.data as { totalPoints?: number; loginStreak?: number } | undefined) ?? null;
@@ -189,7 +189,7 @@ function TopbarWallet({
   const streak = profile?.loginStreak ?? 0;
   const rankStyle = RANK_STYLES[rankFromPoints(points).rank];
 
-  // Native XLM balance — same fetch/queryKey pattern as the strategy WalletMenu.
+  // Native XLM balance - same fetch/queryKey pattern as the strategy WalletMenu.
   const { data: balance, isLoading: balanceLoading } = useQuery({
     queryKey: ["native-balance", address],
     queryFn: () => fetchNativeBalance(address ?? ""),
@@ -199,7 +199,7 @@ function TopbarWallet({
   const balanceLabel =
     balance != null
       ? `${Number(balance).toLocaleString(undefined, { maximumFractionDigits: 4 })} XLM`
-      : "—";
+      : "-";
 
   if (!isConnected) {
     return (
@@ -238,7 +238,7 @@ function TopbarWallet({
         <div className="px-2 py-2">
           <p className="text-[11px] text-quest-muted uppercase tracking-[0.08em]">Balance</p>
           <p className="mt-0.5 font-mono font-semibold text-[16px]">
-            {balanceLoading ? "Loading…" : balanceLabel}
+            {balanceLoading ? "Loading..." : balanceLabel}
           </p>
           <div className="mt-2 flex items-center gap-2.5 text-[13px]">
             <img

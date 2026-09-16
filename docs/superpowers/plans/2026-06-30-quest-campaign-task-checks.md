@@ -17,16 +17,16 @@
 - **Tasmil Explorer: Your First Steps** (5 one-time tasks): Connect wallet (BROWSE/`wallet_connect`), Sign message (BROWSE/`sign_message`), Chat agent (AGENT_CHAT/`first_chat`), Vault preview (BROWSE/`vault_preview`), Supply to Blend (ONCHAIN, contract `CBDIZJSO2KFKZK3ODKLBL6CH2DKXPLNMOKSJBBBUFKWGZJN3JHRBKGI`).
 
 ## Key files (from audit)
-- `backend/src/modules/quest/social-verification/social-verification.service.ts` — the `/quest/tasks/:id/verify` dispatcher (switch on `task.type`); BROWSE→visit proof (`:102-124`), AGENT_CHAT (`:131-156`), ONCHAIN→`verifyOnchain` (`:361`) with hard-coded `CONTRACT_PROTOCOL_MAP` (`:19-24`).
-- `backend/src/modules/quest/.../shared-db.service.ts` — `hasProtocolActivity` over `reward_volume_events`.
-- `backend/src/modules/quest/claims/claims.service.ts` — `claimDailyTask` (REFERRAL count `:61-72`, LOGIN_CHECKIN).
+- `backend/src/modules/quest/social-verification/social-verification.service.ts` - the `/quest/tasks/:id/verify` dispatcher (switch on `task.type`); BROWSE→visit proof (`:102-124`), AGENT_CHAT (`:131-156`), ONCHAIN→`verifyOnchain` (`:361`) with hard-coded `CONTRACT_PROTOCOL_MAP` (`:19-24`).
+- `backend/src/modules/quest/.../shared-db.service.ts` - `hasProtocolActivity` over `reward_volume_events`.
+- `backend/src/modules/quest/claims/claims.service.ts` - `claimDailyTask` (REFERRAL count `:61-72`, LOGIN_CHECKIN).
 - Auth signature verification to reuse: `backend/src/modules/auth/auth.service.ts` `verifySignedMessage` (`:257`).
 - Seed: `backend/prisma/quest-seed.ts` (`:201-250`) + `backend/scripts/seed-week1-campaigns.ts` read a JSON that now only exists under `deprecated/side-repo/...` → ENOENT.
 - Frontend: `tasmil-finance/src/features/quest/components/CampaignDetail.tsx` branches on `type.toLowerCase()==="visit"` but backend returns `BROWSE`.
 
 ## Global Constraints
 - Do not break the `/verify` path the frontend actually uses (`useTasksControllerVerifyTask`).
-- Reuse existing services; do not hard-code contract ids in new code — read from env/registry.
+- Reuse existing services; do not hard-code contract ids in new code - read from env/registry.
 - Backend follows existing module style; TDD with Jest `*.spec.ts`. Frontend Biome (2-space, double quotes, no any, no console.log), Jest+RTL.
 - Each task ends with a commit and passing focused tests.
 
@@ -48,7 +48,7 @@ Genuine signature verification, distinct from wallet_connect.
 - [ ] When the user actions the sign_message task, prompt a wallet signature via the existing StellarWalletsKit signMessage path (the same kit `wallet-context.tsx` uses) over the task challenge, then submit to the backend endpoint above. Show success/failure. Add a focused test for the submit wiring.
 - [ ] Commit backend and frontend separately: `feat(quest): sign_message task verifies a real Stellar signature`.
 
-## Task P2-3 (backend): Blend deposit — de-hardcode contract ids, keep `reward_volume_events`
+## Task P2-3 (backend): Blend deposit - de-hardcode contract ids, keep `reward_volume_events`
 **File:** `social-verification.service.ts` (`CONTRACT_PROTOCOL_MAP`, `verifyOnchain`).
 - [ ] Replace the hard-coded `CONTRACT_PROTOCOL_MAP` with values sourced from env/registry (read the strategy/protocol contract ids from config the way other modules do; cross-check the mainnet registry id in CLAUDE.md / `backend/.env`). Keep the `reward_volume_events` + `hasProtocolActivity` check unchanged.
 - [ ] Keep protocol scoping (the ONCHAIN task must check the protocol matching its configured contract). Confirm the Blend id in the campaign seed maps to `blend`.
@@ -58,7 +58,7 @@ Genuine signature verification, distinct from wallet_connect.
 ## Task P2-4 (backend): Fix campaign seed ENOENT
 **Files:** `backend/prisma/quest-seed.ts`, `backend/scripts/seed-week1-campaigns.ts`.
 The week1 campaign JSON moved to `deprecated/side-repo/...`; both loaders read a path that no longer resolves.
-- [ ] Move/copy the canonical `week1-campaigns-seed.json` into the live `backend/` tree (e.g. `backend/data/week1-campaigns-seed.json`) and update both loaders to read the live path. Strip the stale ngrok `urlAction` URLs (`wisdom-rover-sphere.ngrok-free.dev`) — replace with the real app/quest URLs or relative paths.
+- [ ] Move/copy the canonical `week1-campaigns-seed.json` into the live `backend/` tree (e.g. `backend/data/week1-campaigns-seed.json`) and update both loaders to read the live path. Strip the stale ngrok `urlAction` URLs (`wisdom-rover-sphere.ngrok-free.dev`) - replace with the real app/quest URLs or relative paths.
 - [ ] Verify the seed loads without ENOENT (dry-run the loader logic or a focused unit that resolves the path). Commit `fix(quest): restore week1 campaign seed to live path, drop stale ngrok urls`.
 
 ## Task P2-5 (frontend): Fix `visit` vs `BROWSE` type mismatch
@@ -76,7 +76,7 @@ Backend returns `taskType: "BROWSE"` but the UI branches on `type.toLowerCase()=
 ## Out of scope
 - `VOLUME_SWAP` / swap task (skipped per decision).
 - X / Discord verification env keys (not used by either campaign).
-- Deduping the two `complete-by-action` endpoints — note for follow-up; the frontend uses `/verify`, so it does not affect the two campaigns. If time permits, gate or remove the unused one.
+- Deduping the two `complete-by-action` endpoints - note for follow-up; the frontend uses `/verify`, so it does not affect the two campaigns. If time permits, gate or remove the unused one.
 
 ## Verification
 - Backend: focused specs per task green; full quest suite no new failures.

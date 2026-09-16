@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // API error or 404 — return empty
+    // API error or 404 - return empty
     return NextResponse.json({
       success: true,
       network,

@@ -84,7 +84,7 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
   const txSetup = setupTxState(deploySubStep, setupCompleted, deployCompleted);
 
   const ctaLabel = isDeploying
-    ? "Signing…"
+    ? "Signing..."
     : deployCompleted && !setupCompleted
       ? "Continue (2 of 2)"
       : "Create";
@@ -109,7 +109,7 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
           </h1>
           <p className="mx-auto max-w-xl text-muted-foreground text-sm leading-relaxed md:text-base">
             You'll sign <span className="font-semibold text-foreground">two transactions</span> in
-            your wallet — one to deploy your smart account, one to grant the agent permission to
+            your wallet - one to deploy your smart account, one to grant the agent permission to
             rebalance. We never hold your keys.
           </p>
         </div>

@@ -7,7 +7,7 @@ import { INFO_ENTRIES, OPERATION_ENTRIES } from "./protocol-data";
 
 for (const { toolName, entry } of INFO_ENTRIES) toolRendererRegistry.register(toolName, entry);
 for (const { toolName, entry } of OPERATION_ENTRIES) toolRendererRegistry.register(toolName, entry);
-// FIX: previously exported but never imported — Blend/Aquarius cards never rendered in production
+// FIX: previously exported but never imported - Blend/Aquarius cards never rendered in production
 for (const { toolName, entry } of BLEND_RENDERER_ENTRIES)
   toolRendererRegistry.register(toolName, entry);
 for (const { toolName, entry } of AQUARIUS_RENDERER_ENTRIES)

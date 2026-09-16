@@ -1,4 +1,4 @@
-# Quest UI — Tailwind + shared/ui Refactor
+# Quest UI - Tailwind + shared/ui Refactor
 
 **Date:** 2026-06-25
 **Repo:** `tasmil-finance`
@@ -30,7 +30,7 @@ components**. This is a CSS-architecture refactor, **not a redesign**.
 | Topic | Decision |
 |-------|----------|
 | Component strategy | Wrap/reuse existing `src/shared/ui/`; **no new shadcn dep** |
-| Visual design | **Keep identical** — same colors, cards, no restyling |
+| Visual design | **Keep identical** - same colors, cards, no restyling |
 | Pages in scope | **All 5**: Explore, Campaigns list, Campaign detail, Profile, Leaderboard |
 | Effects | **Port all**: THREE.js beams, Rank Reveal, TF Loader |
 | Data | Use **mock data** (mock UI first) so pages render without backend |
@@ -56,12 +56,12 @@ components**. This is a CSS-architecture refactor, **not a redesign**.
   state: only keyframes + a few complex selectors remain (ideally near-empty).
 
 ### 3. Pages (build order: simple → complex)
-1. **Explore** (`/quest`, `/quest/explore`) — hero, "why quest" cards, stats.
-2. **Campaigns list** (`/quest/campaigns`) — filterable/searchable card grid.
-3. **Campaign detail** (`/quest/campaign/[id]`) — quest checklist, progress
+1. **Explore** (`/quest`, `/quest/explore`) - hero, "why quest" cards, stats.
+2. **Campaigns list** (`/quest/campaigns`) - filterable/searchable card grid.
+3. **Campaign detail** (`/quest/campaign/[id]`) - quest checklist, progress
    bars, expandable items, sidebar.
-4. **Leaderboard** (`/quest/leaderboard`) — ranked list, podium.
-5. **Profile** (`/quest/profile`) — sidebar, questlog, referrals, tier.
+4. **Leaderboard** (`/quest/leaderboard`) - ranked list, podium.
+5. **Profile** (`/quest/profile`) - sidebar, questlog, referrals, tier.
 
 ### 4. Effects (port all)
 - **Beams 3D**: client component `QuestBeams` using THREE.js (add `three` dep),
@@ -82,7 +82,7 @@ components**. This is a CSS-architecture refactor, **not a redesign**.
 
 ### 7. Risks & mitigations
 - `shared/ui` may lack a few primitives (progress bar, tabs, expandable). If so,
-  **add 1–2 new components to `shared/ui`** following existing patterns.
+  **add 1-2 new components to `shared/ui`** following existing patterns.
 - THREE.js bundle weight → lazy-load and code-split.
 - Tailwind v4 token scoping → verified via the `quest-` prefix approach.
 

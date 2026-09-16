@@ -47,26 +47,26 @@ export const AGENTS: Record<string, AgentConfig> = {
     supportedChains: ["Stellar"],
     testnetAvailable: true,
     suggestions: [
-      // ── Beginner-friendly (new to DeFi) ──────────────────────
+      // -- Beginner-friendly (new to DeFi) ----------------------
       "I have $5, how can I start earning?",
       "How can I make money with my USDC?",
       "What is Blend and how does it work?",
       "Is it safe to lend my crypto here?",
       "How much can I earn on $100?",
 
-      // ── Easy actions ─────────────────────────────────────────
+      // -- Easy actions -----------------------------------------
       "Start earning with my USDC",
       "Put my XLM to work",
       "Show me the best rates right now",
       "What's the current APY?",
 
-      // ── Intermediate ─────────────────────────────────────────
+      // -- Intermediate -----------------------------------------
       "Supply 100 USDC to Blend",
       "Show my Blend positions",
       "Claim my BLND rewards",
       "Borrow XLM against my collateral",
 
-      // ── Advanced ─────────────────────────────────────────────
+      // -- Advanced ---------------------------------------------
       "Deposit to backstop pool",
       "Toggle my USDC as collateral",
       "Queue backstop withdrawal",

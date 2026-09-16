@@ -11,7 +11,7 @@ import type { TxGroup } from "../lib/types";
 const explorerLedgerBase = activeNetwork.explorerUrl;
 
 function formatFeeXlm(stroops: string | undefined): string {
-  if (!stroops) return "—";
+  if (!stroops) return "-";
   const n = Number(stroops);
   if (Number.isNaN(n)) return stroops;
   return `${(n / 10_000_000).toFixed(7)} XLM`;

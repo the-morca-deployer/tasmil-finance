@@ -5,7 +5,7 @@ export { AutoReconnect } from "./components/auto-reconnect";
 export { CampaignCard, type CampaignCardData } from "./components/CampaignCard";
 export { default as CampaignDetail } from "./components/CampaignDetail";
 export { default as Campaigns } from "./components/Campaigns";
-// Components — read views
+// Components - read views
 export { default as Explore } from "./components/Explore";
 export { default as FomoBanner } from "./components/FomoBanner";
 export { default as QuestFooter } from "./components/Footer";

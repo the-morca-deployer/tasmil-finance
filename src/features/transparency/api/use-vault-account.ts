@@ -1,6 +1,6 @@
 "use client";
 
-import { useMarketplaceControllerGetMyStrategies } from "@/gen-backend/hooks";
+import { useMarketplaceControllerGetMyStrategies } from "@/gen-backend/hooks/use-marketplace-controller-get-my-strategies";
 import { useWalletStore } from "@/store/use-wallet";
 import { unwrapBackendData } from "./transport";
 

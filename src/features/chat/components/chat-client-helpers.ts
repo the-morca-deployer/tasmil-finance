@@ -2,7 +2,7 @@ import type { Message } from "@langchain/langgraph-sdk";
 
 export const DO_NOT_RENDER_PREFIXES = ["__do_not_render__", "__hidden__"];
 
-// Flow tools that produce UI cards — never filter mid-stream even if tool result
+// Flow tools that produce UI cards - never filter mid-stream even if tool result
 // hasn't arrived yet (it arrives milliseconds later in the same SSE stream).
 const FLOW_CARD_TOOLS = new Set([
   "flow_clarify",
@@ -62,7 +62,7 @@ export const shouldFilterMessage = (
   // Filter intermediate tool-only messages, BUT keep them if a tool result
   // exists in the messages (so the ToolCallRenderer can show cards).
   if (hasToolCalls && !content) {
-    // Check if any tool result exists for these tool calls — if so, keep for card rendering.
+    // Check if any tool result exists for these tool calls - if so, keep for card rendering.
     // Use fullMessages (includes tool-type messages) since allMessages has them filtered out.
     const searchIn = fullMessages ?? allMessages;
     const toolCallIds = new Set(aiMsg.tool_calls.map((tc: any) => tc.id).filter(Boolean));
@@ -71,7 +71,7 @@ export const shouldFilterMessage = (
     );
 
     if (hasToolResult) {
-      // Even with a result, filter if this is a duplicate tool call — an earlier
+      // Even with a result, filter if this is a duplicate tool call - an earlier
       // AI message already called the same tool(s) with results.  DeepSeek
       // sometimes re-calls parse_user_intent in the same turn; the backend
       // returns _duplicate:true but both AI messages survive to the frontend.
@@ -87,13 +87,13 @@ export const shouldFilterMessage = (
           const earlierHasResults = searchIn.some(
             (m: any) => m.type === "tool" && earlierIds.has(m.tool_call_id)
           );
-          if (earlierHasResults) return true; // Filter — earlier message already shows this tool
+          if (earlierHasResults) return true; // Filter - earlier message already shows this tool
         }
       }
-      return false; // Keep — tool UI needs this message
+      return false; // Keep - tool UI needs this message
     }
 
-    // Never filter flow card tools mid-stream — the tool result arrives
+    // Never filter flow card tools mid-stream - the tool result arrives
     // milliseconds later; filtering now causes the card to miss the result.
     const hasFlowCardTool = aiMsg.tool_calls.some((tc: any) => FLOW_CARD_TOOLS.has(tc.name));
     if (hasFlowCardTool) return false;
@@ -106,7 +106,7 @@ export const shouldFilterMessage = (
     return !allAreSupervisorCalls;
   }
 
-  // Filter duplicate AI messages with identical tool_calls — when a graph retry
+  // Filter duplicate AI messages with identical tool_calls - when a graph retry
   // or double-POST creates multiple AI messages calling the same tools with the
   // same args, keep only the LAST one (which has the most recent result).
   // BUT: prefer the message that actually has tool results.  If the later
@@ -167,7 +167,7 @@ export const mergeMessagesWithCache = (cached: Message[], incoming: Message[]): 
         // Only do this when the new content is an extension of the cached content
         // (streaming).  When the backend middleware intentionally replaces a
         // message (e.g. stripping unexecuted tool_calls after flow_clarify),
-        // the new content is completely different — in that case DONʼT restore.
+        // the new content is completely different - in that case DONʼT restore.
         const cachedToolCalls = (cachedMsg as any).tool_calls;
         const newToolCalls = (newMsg as any).tool_calls;
         if (cachedToolCalls?.length > 0 && (!newToolCalls || newToolCalls.length === 0)) {
@@ -191,7 +191,7 @@ export const mergeMessagesWithCache = (cached: Message[], incoming: Message[]): 
                 : "";
           // Restore tool_calls when:
           // 1. New content starts with cached content (streaming append dropped them temporarily)
-          // 2. Both are empty — Guard 4 middleware replaces the tool-call-only AI message with
+          // 2. Both are empty - Guard 4 middleware replaces the tool-call-only AI message with
           //    content="" to prevent re-execution, but the frontend still needs tool_calls to
           //    keep the TX card visible.  When Guard 1 (flow_clarify) intentionally strips
           //    tool_calls, the replacement content is non-empty ("Please select an option..."),

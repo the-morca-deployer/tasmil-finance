@@ -18,7 +18,12 @@ export function DefindexBalanceCard({ balance, mode = "playground" }: Props) {
 
   if (!hasPosition) {
     return (
-      <ProtocolCard mode={mode} title="Vault Balance" icon={Wallet}>
+      <ProtocolCard
+        data-testid="card-defindex-balance"
+        mode={mode}
+        title="Vault Balance"
+        icon={Wallet}
+      >
         <EmptyState icon={Layers} text="No position in this vault" />
       </ProtocolCard>
     );
@@ -26,6 +31,7 @@ export function DefindexBalanceCard({ balance, mode = "playground" }: Props) {
 
   return (
     <ProtocolCard
+      data-testid="card-defindex-balance"
       mode={mode}
       title={mode === "chat" ? "Vault Balance" : undefined}
       icon={mode === "chat" ? Wallet : undefined}

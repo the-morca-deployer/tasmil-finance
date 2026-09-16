@@ -1,5 +1,5 @@
 // @ts-nocheck
-/* beams.js — vanilla three.js port of React Bits <Beams /> (no r3f/drei).
+/* beams.js - vanilla three.js port of React Bits <Beams /> (no r3f/drei).
    Exposes window.mountBeams(canvas, opts) -> { dispose }. Requires THREE (UMD) global. */
 import * as THREE from "three";
 

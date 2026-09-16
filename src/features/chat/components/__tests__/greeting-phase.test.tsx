@@ -75,7 +75,7 @@ test("Phase 3 returning ≥7d shows reinvest card and calls onReinvest", () => {
   expect(onReinvest).toHaveBeenCalled();
 });
 
-test("No phase card when conditions not met — renders default content", () => {
+test("No phase card when conditions not met - renders default content", () => {
   render(
     <Greeting
       agentId="supervisor"

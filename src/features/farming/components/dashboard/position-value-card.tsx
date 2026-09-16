@@ -36,7 +36,10 @@ export function PositionValueCard({
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
-      <div className="flex items-center justify-between gap-3">
+      {/* flex-wrap, not just justify-between: at 390px the two tab pills fill
+          the row and pushed the actions past the right edge, so "Add funds" -
+          the page's primary action - was unreachable on a phone. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-1 rounded-full bg-muted p-1 text-xs">
           <button
             type="button"
@@ -59,7 +62,7 @@ export function PositionValueCard({
             Yield Projection
           </button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={onDeactivate}
@@ -122,7 +125,7 @@ export function PositionValueCard({
           </ResponsiveContainer>
         ) : (
           <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-            History building…
+            History building...
           </div>
         )}
       </div>

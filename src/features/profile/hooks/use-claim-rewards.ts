@@ -42,7 +42,7 @@ export function useClaimRewards() {
   return useMutation({
     mutationFn: async ({ protocol, publicKey, poolAddress }: ClaimArgs) => {
       // 0. Pre-flight auth guard. The backend AuthGuard will return 401 with
-      //    a generic message if the JWT is absent — surfacing this earlier
+      //    a generic message if the JWT is absent - surfacing this earlier
       //    avoids a confusing silent failure and gives the UI a chance to
       //    prompt re-authentication.
       const auth = useAuthStore.getState();
@@ -82,7 +82,7 @@ export function useClaimRewards() {
     },
 
     // After a confirmed claim, the position's reward balance just zeroed
-    // on-chain — invalidate so the UI shows it immediately.
+    // on-chain - invalidate so the UI shows it immediately.
     onSuccess: () => {
       qc.invalidateQueries({
         predicate: (q) => {

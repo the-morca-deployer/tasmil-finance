@@ -39,7 +39,7 @@ export function WithdrawalWarningModal({
         </p>
 
         <p className="text-sm text-[#c8d8d0]">
-          Current vesting: Week {vesting.currentWeek} of {vesting.totalWeeks} —{" "}
+          Current vesting: Week {vesting.currentWeek} of {vesting.totalWeeks} -{" "}
           <span className="text-orange-400 font-medium">
             {vesting.lockedPercent}% of your reward (${vesting.lockedAmount}) is still locked
           </span>

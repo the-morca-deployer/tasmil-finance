@@ -13,7 +13,7 @@ import type { CardType } from "../page-objects/chat.page";
  * and at the end of a test run, generates an HTML report.
  */
 
-// ─── Types ───────────────────────────────────────────────────────
+// --- Types -------------------------------------------------------
 
 export interface EvaluationDimension {
   /** What's being checked */
@@ -47,14 +47,14 @@ export interface EvaluationRecord {
   verdict: "pass" | "fail" | "warning";
 }
 
-// ─── Configuration ───────────────────────────────────────────────
+// --- Configuration -----------------------------------------------
 
 const LANGSMITH_API_URL = process.env.LANGSMITH_ENDPOINT || "https://api.smith.langchain.com";
 const LANGSMITH_API_KEY = process.env.LANGSMITH_API_KEY || "";
 const LANGSMITH_PROJECT = process.env.LANGSMITH_PROJECT || "tasmil-ai";
 const REPORT_DIR = join(process.cwd(), "test-results", "evaluation");
 
-// ─── Evaluation Reporter Class ───────────────────────────────────
+// --- Evaluation Reporter Class -----------------------------------
 
 export class EvaluationReporter {
   private records: EvaluationRecord[] = [];
@@ -82,7 +82,7 @@ export class EvaluationReporter {
   }): Promise<EvaluationRecord> {
     const dimensions: EvaluationDimension[] = [];
 
-    // ─── Dimension 1: Correct Card Rendered ────────────────────
+    // --- Dimension 1: Correct Card Rendered --------------------
     const cardMatch = params.cardType === params.expectedCard;
     dimensions.push({
       name: "Card Type",
@@ -92,7 +92,7 @@ export class EvaluationReporter {
         : `Expected ${params.expectedCard}, got ${params.cardType ?? "none"}`,
     });
 
-    // ─── Dimension 2: Response Time ────────────────────────────
+    // --- Dimension 2: Response Time ----------------------------
     const responseOk = params.responseTimeMs < 60_000;
     dimensions.push({
       name: "Response Time",
@@ -100,7 +100,7 @@ export class EvaluationReporter {
       detail: `${(params.responseTimeMs / 1000).toFixed(1)}s`,
     });
 
-    // ─── Dimension 3: Text Content ────────────────────────────
+    // --- Dimension 3: Text Content ----------------------------
     if (params.expectedTextFragments?.length && params.cardLocator) {
       const cardText = await params.cardLocator.textContent().catch(() => "");
       const allFound = params.expectedTextFragments.every((frag) =>
@@ -115,7 +115,7 @@ export class EvaluationReporter {
       });
     }
 
-    // ─── Dimension 4: LangSmith Trace ──────────────────────────
+    // --- Dimension 4: LangSmith Trace --------------------------
     let langsmithUrl: string | null = null;
     if (LANGSMITH_API_KEY && params.expectedTool) {
       const traceResult = await this.fetchTrace(params.threadId);
@@ -152,7 +152,7 @@ export class EvaluationReporter {
       }
     }
 
-    // ─── Dimension 5: Screenshot ───────────────────────────────
+    // --- Dimension 5: Screenshot -------------------------------
     let screenshotPath: string | null = null;
     if (params.cardLocator) {
       try {
@@ -173,7 +173,7 @@ export class EvaluationReporter {
       }
     }
 
-    // ─── Build record ──────────────────────────────────────────
+    // --- Build record ------------------------------------------
     const verdict = dimensions.some((d) => d.status === "fail")
       ? "fail"
       : dimensions.some((d) => d.status === "warning")
@@ -278,13 +278,13 @@ export class EvaluationReporter {
         <td><code>${r.testId}</code></td>
         <td class="prompt">${escapeHtml(r.prompt)}</td>
         <td><span class="badge badge-${r.verdict}">${r.verdict.toUpperCase()}</span></td>
-        <td><code>${r.cardRendered ?? "—"}</code></td>
+        <td><code>${r.cardRendered ?? "-"}</code></td>
         <td>${(r.responseTimeMs / 1000).toFixed(1)}s</td>
         <td>
-          ${r.screenshotPath ? `<a href="screenshots/${r.testId.replace(/\./g, "-")}.png" target="_blank">View</a>` : "—"}
+          ${r.screenshotPath ? `<a href="screenshots/${r.testId.replace(/\./g, "-")}.png" target="_blank">View</a>` : "-"}
         </td>
         <td>
-          ${r.langsmithUrl ? `<a href="${r.langsmithUrl}" target="_blank">Trace</a>` : "—"}
+          ${r.langsmithUrl ? `<a href="${r.langsmithUrl}" target="_blank">Trace</a>` : "-"}
         </td>
         <td>
           <details>

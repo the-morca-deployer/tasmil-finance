@@ -12,7 +12,7 @@ import type { CardMode } from "../../schemas/common.schema";
 import { DetailRow } from "../base/indicators";
 import { ProtocolCard } from "../base/protocol-card";
 
-// ─── Operation config ───────────────────────────────────────────
+// --- Operation config -------------------------------------------
 
 interface OpConfig {
   label: string;
@@ -100,7 +100,7 @@ const DEFAULT_OP_CONFIG: OpConfig = {
   iconBg: "bg-primary/10",
 };
 
-// ─── Props ──────────────────────────────────────────────────────
+// --- Props ------------------------------------------------------
 
 interface AquaTxCardComponentProps {
   tx: AquaTxCardProps;
@@ -110,7 +110,7 @@ interface AquaTxCardComponentProps {
   respond?: (result: Record<string, unknown>) => void;
 }
 
-// ─── Component ──────────────────────────────────────────────────
+// --- Component --------------------------------------------------
 
 export function AquaTxCard({
   tx,
@@ -145,7 +145,7 @@ export function AquaTxCard({
 
   const handleSign = () => sign(xdr);
 
-  // ─── Chat mode ────────────────────────────────────────────────
+  // --- Chat mode ------------------------------------------------
   if (mode === "chat") {
     return (
       <ProtocolCard
@@ -214,7 +214,7 @@ export function AquaTxCard({
     );
   }
 
-  // ─── Playground mode (Aquarius-style confirm card) ─────────────
+  // --- Playground mode (Aquarius-style confirm card) -------------
   const routeTokens = tx.route?.tokens ?? [];
   const firstToken = routeTokens[0] ?? "";
   const lastToken = routeTokens[routeTokens.length - 1] ?? "";
@@ -237,7 +237,7 @@ export function AquaTxCard({
       </div>
 
       {isLiquidity && routeTokens.length >= 2 ? (
-        /* ─── Liquidity layout: show both token amounts ─── */
+        /* --- Liquidity layout: show both token amounts --- */
         <div className="space-y-0 px-5 pb-3">
           {/* Amount rows with token icons */}
           <div className="flex items-center justify-between border-border/30 border-b py-3">
@@ -254,7 +254,7 @@ export function AquaTxCard({
             <span className="text-muted-foreground text-sm">{lastToken} Amount</span>
             <div className="flex items-center gap-2">
               <span className="font-medium text-foreground text-sm tabular-nums">
-                {txAmounts[1] ?? "—"}
+                {txAmounts[1] ?? "-"}
               </span>
               <TokenImage src={null} alt={lastToken} className="h-5 w-5 rounded-full" />
               <span className="text-muted-foreground text-xs">{lastToken}</span>
@@ -299,7 +299,7 @@ export function AquaTxCard({
           )}
         </div>
       ) : (
-        /* ─── Swap layout ─── */
+        /* --- Swap layout --- */
         <>
           {/* Token direction */}
           {routeTokens.length >= 2 && (

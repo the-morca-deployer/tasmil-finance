@@ -47,7 +47,7 @@ test.describe("Welcome Reward (/rewards/welcome)", () => {
       if (isEnabled) {
         await claimBtn.click();
         await page.waitForTimeout(2000);
-        // Either wallet modal or processing state — page still functional
+        // Either wallet modal or processing state - page still functional
         await expect(page).toHaveURL(/\/rewards\/welcome/);
       }
     }
@@ -69,7 +69,7 @@ test.describe("Welcome Reward (/rewards/welcome)", () => {
     await page.goto("/rewards/welcome");
     await page.waitForLoadState("networkidle");
     const content = await page.content();
-    // Either success state OR error state shown — not raw 500
+    // Either success state OR error state shown - not raw 500
     const hasOutcome = /success|error|failed|claimed|claim/i.test(content);
     expect(hasOutcome).toBeTruthy();
   });
@@ -102,7 +102,7 @@ test.describe("Welcome Reward (/rewards/welcome)", () => {
     await page.goto("/rewards/welcome");
     await page.waitForTimeout(3000);
     const content = await page.content();
-    // Graceful degradation — not raw 503
+    // Graceful degradation - not raw 503
     expect(content.length).toBeGreaterThan(100);
   });
 

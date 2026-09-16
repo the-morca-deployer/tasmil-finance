@@ -17,7 +17,7 @@ import {
   txCardPropsSchema,
 } from "../schemas/blend.schema";
 
-// ─── Reserve normalization ──────────────────────────────────────
+// --- Reserve normalization --------------------------------------
 
 function normalizeReserveRaw(r: Record<string, unknown>): ReserveCardProps {
   return {
@@ -48,7 +48,7 @@ function normalizeReserveRaw(r: Record<string, unknown>): ReserveCardProps {
   };
 }
 
-// ─── Pool normalization ────────────��────────────────────────────
+// --- Pool normalization ------------��----------------------------
 
 export function normalizePoolFromSdk(raw: Record<string, unknown>): PoolCardProps | null {
   const pool = (raw.pool ?? raw) as Record<string, unknown>;
@@ -74,14 +74,14 @@ export function normalizePoolsFromSdk(raw: Record<string, unknown>): PoolCardPro
   return pools.map((p) => normalizePoolFromSdk(p)).filter((p): p is PoolCardProps => p !== null);
 }
 
-// ─── Reserve normalization (single) ─���───────────────────────────
+// --- Reserve normalization (single) -���---------------------------
 
 export function normalizeReserveFromSdk(raw: Record<string, unknown>): ReserveCardProps {
   const r = (raw.reserve ?? raw) as Record<string, unknown>;
   return normalizeReserveRaw(r);
 }
 
-// ─── Positions normalization ──────────���─────────────────────────
+// --- Positions normalization ----------���-------------------------
 
 export function normalizePositionsFromSdk(raw: Record<string, unknown>): PositionsCardProps | null {
   const result = positionsCardPropsSchema.safeParse({
@@ -100,7 +100,7 @@ export function normalizePositionsFromSdk(raw: Record<string, unknown>): Positio
   return result.data;
 }
 
-// ─── Transaction normalization ──────────────────────────────────
+// --- Transaction normalization ----------------------------------
 
 export function normalizeTxFromSdk(
   raw: Record<string, unknown>,
@@ -126,7 +126,7 @@ export function normalizeTxFromSdk(
   return result.data;
 }
 
-// ─── Backstop normalization ─────────────────────��───────────────
+// --- Backstop normalization ---------------------��---------------
 
 export function normalizeBackstopFromSdk(raw: Record<string, unknown>): BackstopCardProps | null {
   const backstop = (raw.backstop ?? raw) as Record<string, unknown>;
@@ -138,7 +138,7 @@ export function normalizeBackstopFromSdk(raw: Record<string, unknown>): Backstop
   return result.data;
 }
 
-// ─── Backstop Balance normalization ────────────────────────────
+// --- Backstop Balance normalization ----------------------------
 
 export function normalizeBackstopBalanceFromSdk(
   raw: Record<string, unknown>

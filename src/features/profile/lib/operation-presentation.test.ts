@@ -25,7 +25,7 @@ function makeGroup(over: Partial<TxGroup> = {}): TxGroup {
   return { ...base, ...over };
 }
 
-describe("presentRow — failed override", () => {
+describe("presentRow - failed override", () => {
   it("returns the failed shape regardless of kind when group.successful is false", () => {
     const g = makeGroup({ successful: false });
     const row = presentRow(g, VIEWER);
@@ -48,7 +48,7 @@ describe("presentRow — failed override", () => {
   });
 });
 
-describe("presentRow — payment kinds", () => {
+describe("presentRow - payment kinds", () => {
   it("send: title is asset code, subline is Sent, avatar is token, amount is signed debit", () => {
     const g = makeGroup({
       primary: {
@@ -104,7 +104,7 @@ describe("presentRow — payment kinds", () => {
   });
 });
 
-describe("presentRow — defi / trustline / create-account / claim", () => {
+describe("presentRow - defi / trustline / create-account / claim", () => {
   function single(
     kind: TxGroup["primary"]["kind"],
     delta: { code: string; amount: string; isCredit: boolean }
@@ -263,7 +263,7 @@ describe("presentRow — defi / trustline / create-account / claim", () => {
   });
 });
 
-describe("presentRow — contract / classic-other / mint / multi-asset", () => {
+describe("presentRow - contract / classic-other / mint / multi-asset", () => {
   it("contract-other shows 'Contract Function' + 'Interacted'", () => {
     const g = makeGroup({
       primary: { ...makeGroup().primary, kind: "contract-other", deltas: [], rawFnName: "exec" },

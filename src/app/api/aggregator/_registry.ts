@@ -22,7 +22,7 @@ export interface TokenInfo {
   swappableOn: string[];
 }
 
-// ─── Supported Chains ───────────────────────────────────────────
+// --- Supported Chains -------------------------------------------
 
 export const SUPPORTED_CHAINS: ChainInfo[] = [
   { id: "stellar", name: "Stellar", symbol: "SRB", logo: "/chains/stellar.png" },
@@ -36,7 +36,7 @@ export const SUPPORTED_CHAINS: ChainInfo[] = [
   { id: "optimism", name: "Optimism", symbol: "OPT", logo: "/chains/optimism.png" },
 ];
 
-// ─── Chain groupings ────────────────────────────────────────────
+// --- Chain groupings --------------------------------------------
 
 const EVM_CHAINS = ["ethereum", "arbitrum", "base", "polygon", "bsc", "avalanche", "optimism"];
 const ALL_BRIDGE_CHAINS = [...EVM_CHAINS, "solana"];
@@ -61,7 +61,7 @@ const TEMPLAR_ONLY = ["templar"];
 const SE = "https://stellar.expert/explorer/public/asset";
 const seIcon = (code: string, issuer: string) => `${SE}/${code}-${issuer}/icon`;
 
-// Local token images — takes priority over external URLs when available
+// Local token images - takes priority over external URLs when available
 const LOCAL_TOKEN: Record<string, string> = {
   XLM: "/token/xlm.png",
   USDC: "/token/usdc.png",
@@ -110,7 +110,7 @@ function stellarToken(
   };
 }
 
-// ─── Mainnet Registry ────────────────────────────────────────────
+// --- Mainnet Registry --------------------------------------------
 
 export const TOKEN_REGISTRY: TokenInfo[] = [
   {
@@ -345,7 +345,7 @@ export const TOKEN_REGISTRY: TokenInfo[] = [
   ),
 ];
 
-// ─── Testnet Registry ────────────────────────────────────────────
+// --- Testnet Registry --------------------------------------------
 
 export const TOKEN_REGISTRY_TESTNET: TokenInfo[] = [
   {
@@ -443,7 +443,7 @@ export const TOKEN_REGISTRY_TESTNET: TokenInfo[] = [
   ),
 ];
 
-// ─── Helpers ────────────────────────────────────────────────────
+// --- Helpers ----------------------------------------------------
 
 export function getStellarNetworkFromEnv(): "mainnet" | "testnet" {
   return "testnet";

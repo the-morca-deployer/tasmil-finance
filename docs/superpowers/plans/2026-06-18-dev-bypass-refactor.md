@@ -328,7 +328,7 @@ Find and remove:
 if (process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === "true") return;
 ```
 
-This early return is no longer needed because the module-level pre-seeding in `dev-bypass.ts` sets `accessToken` before any React render. AuthBootstrap's own `if (accessToken) return;` guard then fires — skipping the `/api/auth/me` call without needing a separate bypass check.
+This early return is no longer needed because the module-level pre-seeding in `dev-bypass.ts` sets `accessToken` before any React render. AuthBootstrap's own `if (accessToken) return;` guard then fires - skipping the `/api/auth/me` call without needing a separate bypass check.
 
 - [ ] **Step 3: Verify TypeScript compiles**
 

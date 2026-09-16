@@ -21,7 +21,7 @@ import {
   allbridgeWithdrawQuoteSchema,
 } from "../schemas/allbridge.schema";
 
-// ─── Pools normalization ──────────────────────────────────────────
+// --- Pools normalization ------------------------------------------
 
 export function normalizeAllbridgePoolsFromSdk(
   raw: Record<string, unknown>
@@ -39,7 +39,7 @@ export function normalizeAllbridgePoolsFromSdk(
     .filter((p): p is AllbridgePoolCardProps => p !== null);
 }
 
-// ─── Pool Info normalization ──────────────────────────────────────
+// --- Pool Info normalization --------------------------------------
 
 export function normalizeAllbridgePoolInfoFromSdk(
   raw: Record<string, unknown>
@@ -52,7 +52,7 @@ export function normalizeAllbridgePoolInfoFromSdk(
   return result.data;
 }
 
-// ─── User Balance normalization ───────────────────────────────────
+// --- User Balance normalization -----------------------------------
 
 export function normalizeAllbridgeUserBalanceFromSdk(
   raw: Record<string, unknown>
@@ -65,7 +65,7 @@ export function normalizeAllbridgeUserBalanceFromSdk(
   return result.data;
 }
 
-// ─── Quote normalization ──────────────────────────────────────────
+// --- Quote normalization ------------------------------------------
 
 export function normalizeAllbridgeQuoteFromSdk(
   raw: Record<string, unknown>
@@ -79,7 +79,7 @@ export function normalizeAllbridgeQuoteFromSdk(
   return result.data;
 }
 
-// ─── Routes normalization ─────────────────────────────────────────
+// --- Routes normalization -----------------------------------------
 
 export function normalizeAllbridgeRoutesFromSdk(raw: Record<string, unknown>): AllbridgeRoute[] {
   const routes = (raw.routes ?? []) as Record<string, unknown>[];
@@ -91,7 +91,7 @@ export function normalizeAllbridgeRoutesFromSdk(raw: Record<string, unknown>): A
     .filter((r): r is AllbridgeRoute => r !== null);
 }
 
-// ─── Deposit Quote normalization ──────────────────────────────────
+// --- Deposit Quote normalization ----------------------------------
 
 export function normalizeAllbridgeDepositQuoteFromSdk(
   raw: Record<string, unknown>
@@ -104,7 +104,7 @@ export function normalizeAllbridgeDepositQuoteFromSdk(
   return result.data;
 }
 
-// ─── Withdraw Quote normalization ─────────────────────────────────
+// --- Withdraw Quote normalization ---------------------------------
 
 export function normalizeAllbridgeWithdrawQuoteFromSdk(
   raw: Record<string, unknown>
@@ -117,7 +117,7 @@ export function normalizeAllbridgeWithdrawQuoteFromSdk(
   return result.data;
 }
 
-// ─── Supported Chains normalization ───────────────────────────────
+// --- Supported Chains normalization -------------------------------
 
 export function normalizeAllbridgeSupportedChainsFromSdk(
   raw: Record<string, unknown>

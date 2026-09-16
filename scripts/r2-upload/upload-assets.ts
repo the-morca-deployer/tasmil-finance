@@ -145,7 +145,7 @@ export async function run(opts: RunOpts): Promise<{
   return { uploaded, skipped, manifest };
 }
 
-// CLI entry — only runs when invoked directly, not when imported by tests.
+// CLI entry - only runs when invoked directly, not when imported by tests.
 if (import.meta.url === `file://${process.argv[1]}`) {
   const required = [
     "DO_SPACES_KEY",

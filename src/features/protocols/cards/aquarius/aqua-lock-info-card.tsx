@@ -17,6 +17,7 @@ export function AquaLockInfoCard({ data, mode = "playground" }: AquaLockInfoCard
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-aqua-lock-info"
         mode="chat"
         title="Lock AQUA for ICE"
         icon={Lock}
@@ -36,7 +37,7 @@ export function AquaLockInfoCard({ data, mode = "playground" }: AquaLockInfoCard
 
   // Playground mode
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-aqua-lock-info" mode="playground">
       <div className="flex items-center gap-3 border-border border-b px-4 py-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
           <Snowflake className="h-4 w-4 text-blue-500" />

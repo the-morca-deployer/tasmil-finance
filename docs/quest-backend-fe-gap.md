@@ -1,13 +1,13 @@
 # Quest Backend ↔ Frontend Endpoint Gap Checklist
 
-> Generated after Plans 2–3 (`feat/quest-cross-surface`).  
+> Generated after Plans 2-3 (`feat/quest-cross-surface`).  
 > Scope: quest backend controllers only (gen-quest client). The main backend (gen-backend) is out of scope.
 
 ---
 
 ## How This Was Built
 
-**Step 1 — consumed-hooks grep** (run in `tasmil-finance/`):
+**Step 1 - consumed-hooks grep** (run in `tasmil-finance/`):
 
 ```
 grep -rhoE "use[A-Z][a-zA-Z]*Controller[A-Za-z]*" \
@@ -29,12 +29,12 @@ Auth flows that bypass hooks and call `apiClient` directly (via
 |---|---|---|---|---|
 | `POST /auth/challenge` | direct `apiClient.post` | ✅ | `wallet-context.tsx` | Step 1 of wallet auth flow; called directly, not via gen-quest hook |
 | `POST /auth/verify` | direct `apiClient.post` | ✅ | `wallet-context.tsx` | Step 2 of wallet auth; exchanges signed message for JWT |
-| `POST /auth/wallet-login` | `useAuthControllerWalletLogin` | ❌ | — | Superseded by challenge/verify two-step flow; hook generated but unused (intentional) |
+| `POST /auth/wallet-login` | `useAuthControllerWalletLogin` | ❌ | - | Superseded by challenge/verify two-step flow; hook generated but unused (intentional) |
 | `POST /auth/refresh` | direct `apiClient` interceptor | ✅ | `src/features/quest/lib/api-client.ts` | Called automatically in the axios response interceptor on 401 |
 | `POST /auth/logout` | `useAuthControllerLogout` | ✅ | `wallet-context.tsx` (disconnect handler) | |
 | `POST /auth/dev-login` | direct `fetch` | ✅ | `src/features/quest/lib/dev-login-bridge.ts` | Dev/test bypass only; never present in prod builds |
-| `POST /auth/username-login` | `useAuthControllerUsernameLogin` | ❌ | — | No username/password UI implemented; backlog |
-| `GET /auth/nonce` | `useAuthControllerGetWalletNonce` | ❌ | — | Challenge endpoint replaced the nonce flow; intentionally unused |
+| `POST /auth/username-login` | `useAuthControllerUsernameLogin` | ❌ | - | No username/password UI implemented; backlog |
+| `GET /auth/nonce` | `useAuthControllerGetWalletNonce` | ❌ | - | Challenge endpoint replaced the nonce flow; intentionally unused |
 
 ---
 
@@ -44,7 +44,7 @@ Auth flows that bypass hooks and call `apiClient` directly (via
 |---|---|---|---|---|
 | `GET /users/me` | `useUsersControllerGetMe` | ✅ | `wallet-context.tsx`, `QuestHeaderBadges`, `WalletRankInfo`, `QuestNav`, `CampaignDetail` | Core identity fetch used across the surface |
 | `PATCH /users/profile` | `useUsersControllerUpdateProfile` | ✅ | `Profile` | Edit-profile form |
-| `GET /users/:id` | `useUsersControllerGetUser` | ❌ | — | No public-profile-by-ID route exists in the app; backlog |
+| `GET /users/:id` | `useUsersControllerGetUser` | ❌ | - | No public-profile-by-ID route exists in the app; backlog |
 | `GET /users/points-history` | `useUsersControllerGetPointsHistory` | ✅ | `Profile` (points ledger tab) | Closed by Plan 2/3 |
 | `GET /users/referrals` | `useUsersControllerGetReferrals` | ✅ | `Profile` (referral list) | |
 | `POST /users/daily-login` | `useUsersControllerDailyLogin` | ✅ | `Navbar`, `QuestHeaderBadges`, `QuestNav` | Check-in mutation |
@@ -62,8 +62,8 @@ Auth flows that bypass hooks and call `apiClient` directly (via
 | `POST /campaigns/:id/join` | `useCampaignsControllerJoinCampaign` | ✅ | `CampaignDetail` | |
 | `POST /campaigns/:id/claim` | `useCampaignsControllerClaimCampaign` | ✅ | `CampaignDetail` | |
 | `GET /campaigns/not-joined` | `useCampaignsControllerGetNotJoinedCampaigns` | ✅ | `CampaignDetail` (discover sidebar) | |
-| `GET /campaigns/:id/tasks` | `useCampaignsControllerGetTasks` | ❌ | — | Tasks are fetched inline from the `findOne` response; standalone tasks endpoint not called. Intentional (data already included). |
-| `GET /campaigns/:id/claims` | `useCampaignsControllerGetClaims` | ❌ | — | Claim status is tracked per-task via `useTasksControllerGetClaimStatus`; the campaign-level claims endpoint is not needed. Intentional. |
+| `GET /campaigns/:id/tasks` | `useCampaignsControllerGetTasks` | ❌ | - | Tasks are fetched inline from the `findOne` response; standalone tasks endpoint not called. Intentional (data already included). |
+| `GET /campaigns/:id/claims` | `useCampaignsControllerGetClaims` | ❌ | - | Claim status is tracked per-task via `useTasksControllerGetClaimStatus`; the campaign-level claims endpoint is not needed. Intentional. |
 
 ---
 
@@ -71,13 +71,13 @@ Auth flows that bypass hooks and call `apiClient` directly (via
 
 | Endpoint | Hook | Consumed? | Component | Note |
 |---|---|---|---|---|
-| `GET /tasks/:id` | `useTasksControllerGetTask` | ❌ | — | Task detail surfaced via campaign `findOne`; standalone task fetch not needed. Intentional. |
+| `GET /tasks/:id` | `useTasksControllerGetTask` | ❌ | - | Task detail surfaced via campaign `findOne`; standalone task fetch not needed. Intentional. |
 | `GET /tasks/:id/status` | `useTasksControllerGetStatus` | ✅ | `CampaignDetail` | Per-task completion status |
 | `GET /tasks/:id/claim-status` | `useTasksControllerGetClaimStatus` | ✅ | `CampaignDetail` | Per-task claim/reward state |
 | `POST /tasks/:id/claim` | `useTasksControllerClaimTask` | ✅ | `CampaignDetail` | |
 | `POST /tasks/:id/verify` | `useTasksControllerVerifyTask` | ✅ | `CampaignDetail` | On-chain or social verification call |
-| `POST /tasks/:id/submit-proof` | `useTasksControllerSubmitProof` | ❌ | — | No proof-upload UI implemented; backlog (required for manual/image-proof task types) |
-| `POST /tasks/:id/complete-by-action` | `useTasksControllerCompleteByAction` | ❌ | — | Server-side action completion (e.g. webhook-triggered); no FE trigger surface needed. Intentional. |
+| `POST /tasks/:id/submit-proof` | `useTasksControllerSubmitProof` | ❌ | - | No proof-upload UI implemented; backlog (required for manual/image-proof task types) |
+| `POST /tasks/:id/complete-by-action` | `useTasksControllerCompleteByAction` | ❌ | - | Server-side action completion (e.g. webhook-triggered); no FE trigger surface needed. Intentional. |
 | `POST /tasks/:id/record-visit` | `useTasksControllerRecordVisit` | ✅ | `src/app/(quest)/quest/visit/[taskId]/page.tsx` | Redirect-and-record page |
 
 ---
@@ -87,7 +87,7 @@ Auth flows that bypass hooks and call `apiClient` directly (via
 | Endpoint | Hook | Consumed? | Component | Note |
 |---|---|---|---|---|
 | `GET /seasons/current` | `useSeasonsControllerCurrent` | ✅ | `Leaderboard` | Active season metadata |
-| `GET /seasons/leaderboard` | `useSeasonsControllerLeaderboard` | ❌ | — | Leaderboard uses the Analytics controller (`globalLeaderboard` / `streakLeaderboard`) instead; seasons leaderboard endpoint not called. Intentional. |
+| `GET /seasons/leaderboard` | `useSeasonsControllerLeaderboard` | ❌ | - | Leaderboard uses the Analytics controller (`globalLeaderboard` / `streakLeaderboard`) instead; seasons leaderboard endpoint not called. Intentional. |
 | `GET /seasons/my-result` | `useSeasonsControllerMyResult` | ✅ | `Leaderboard`, `WalletRankInfo`, `RankRevealGate` | Closed by Plan 3 |
 | `POST /seasons/reveal-ack` | `useSeasonsControllerRevealAck` | ✅ | `RankRevealGate` | One-time rank-reveal acknowledgement |
 
@@ -99,7 +99,7 @@ Auth flows that bypass hooks and call `apiClient` directly (via
 |---|---|---|---|---|
 | `GET /referral/me` | `useReferralControllerGetMyReferral` | ✅ | `Profile` (referral tab) | My referral code + stats |
 | `GET /referral/tree` | `useReferralControllerGetTree` | ✅ | `Referrals` | Referral tree visualization |
-| `GET /referral/leaderboard` | `useReferralControllerGetLeaderboard` | ❌ | — | No referral leaderboard UI surfaced; backlog |
+| `GET /referral/leaderboard` | `useReferralControllerGetLeaderboard` | ❌ | - | No referral leaderboard UI surfaced; backlog |
 
 ---
 
@@ -117,8 +117,8 @@ Auth flows that bypass hooks and call `apiClient` directly (via
 
 | Endpoint | Hook | Consumed? | Component | Note |
 |---|---|---|---|---|
-| `GET /notifications` | `useNotificationsControllerList` | ❌ | — | No notification feed/bell UI in quest surface; backlog |
-| `POST /notifications/send` | `useNotificationsControllerSend` | ❌ | — | Admin/server-triggered only; no user-facing send UI. Intentional. |
+| `GET /notifications` | `useNotificationsControllerList` | ❌ | - | No notification feed/bell UI in quest surface; backlog |
+| `POST /notifications/send` | `useNotificationsControllerSend` | ❌ | - | Admin/server-triggered only; no user-facing send UI. Intentional. |
 
 ---
 
@@ -128,7 +128,7 @@ Auth flows that bypass hooks and call `apiClient` directly (via
 |---|---|---|---|---|
 | `GET /analytics/global-leaderboard` | `useAnalyticsControllerGlobalLeaderboard` | ✅ | `Leaderboard` | Points leaderboard tab; closed by Plan 3 |
 | `GET /analytics/streak-leaderboard` | `useAnalyticsControllerStreakLeaderboard` | ✅ | `Leaderboard` | Streak leaderboard tab; closed by Plan 3 |
-| `GET /analytics/system` | `useAnalyticsControllerSystemAnalytics` | ❌ | — | Admin-only aggregates; intentionally unused in user-facing FE |
+| `GET /analytics/system` | `useAnalyticsControllerSystemAnalytics` | ❌ | - | Admin-only aggregates; intentionally unused in user-facing FE |
 
 ---
 
@@ -146,7 +146,7 @@ All admin-controller hooks (`useAdminController*`, `useAdminSeasonsController*`)
 
 ---
 
-## Closed by This Effort (Plans 2–3)
+## Closed by This Effort (Plans 2-3)
 
 The following gaps were open before `feat/quest-cross-surface` and are now wired:
 
@@ -163,7 +163,7 @@ The following gaps were open before `feat/quest-cross-surface` and are now wired
 
 ---
 
-## Still Unwired — Classification
+## Still Unwired - Classification
 
 ### Intentional (no user-facing action needed)
 

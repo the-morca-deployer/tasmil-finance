@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useActivityControllerFeed } from "@/gen-backend/hooks";
+import { useActivityControllerFeed } from "@/gen-backend/hooks/use-activity-controller-feed";
 import type { ActivityControllerFeedQueryParams } from "@/gen-backend/types/activity-controller-feed";
 import { adaptActivityPage } from "./adapters";
 import { unwrapBackendData } from "./transport";

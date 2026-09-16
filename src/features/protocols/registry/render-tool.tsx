@@ -26,7 +26,7 @@ import {
   SOROSWAP_OPERATION_CARDS,
 } from "./card-registry";
 
-// ─── Combined lookups ────────────────────────────────────────
+// --- Combined lookups ----------------------------------------
 
 const ALL_INFO: InfoCardEntry[] = [
   ...BLEND_INFO_CARDS,
@@ -44,7 +44,7 @@ const ALL_OPERATIONS: OperationCardEntry[] = [
   ...DEFINDEX_OPERATION_CARDS,
 ];
 
-// ─── Shared render props type (same as tool-call-renderer.tsx) ─
+// --- Shared render props type (same as tool-call-renderer.tsx) -
 
 type SharedRenderProps = {
   status: "inProgress" | "executing" | "complete";
@@ -63,18 +63,18 @@ type RegistryRenderResult =
  * Find a card renderer for the given tool name using card-registry entries.
  *
  * For `resolve_pool`, routes by `args.protocol` to the correct protocol's pools card.
- * Falls through to null if not found — caller should try legacy registries.
+ * Falls through to null if not found - caller should try legacy registries.
  */
 export function findRegistryRenderer(
   toolName: string,
   args?: Record<string, unknown>
 ): RegistryRenderResult {
-  // ─── resolve_pool: special routing by protocol ─────────────
+  // --- resolve_pool: special routing by protocol -------------
   if (toolName === "resolve_pool") {
     return resolvePoolRenderer(args);
   }
 
-  // ─── Info cards ────────────────────────────────────────────
+  // --- Info cards --------------------------------------------
   const info = ALL_INFO.find((e) => e.toolName === toolName);
   if (info) {
     return {
@@ -89,7 +89,7 @@ export function findRegistryRenderer(
     };
   }
 
-  // ─── Operation cards ───────────────────────────────────────
+  // --- Operation cards ---------------------------------------
   const op = ALL_OPERATIONS.find((e) => e.toolName === toolName);
   if (op) {
     return {
@@ -113,7 +113,7 @@ export function findRegistryRenderer(
   return null;
 }
 
-// ─── resolve_pool routing ─────────────────────────────────────
+// --- resolve_pool routing -------------------------------------
 
 /** Try fromMcp, with fallback rewrap for already-parsed objects. */
 function tryFromMcp<T>(fromMcp: (result: unknown) => T | null, result: unknown): T | null {

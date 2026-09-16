@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ExportCsvButton } from "@/shared/components/export-csv-button";
 import { Button } from "@/shared/ui/button";
 import { useCancelTopup, useFiatPendingTopups, useFulfillTopup } from "../hooks/use-admin-topups";
 
@@ -31,7 +30,7 @@ export function AdminTopupsPage() {
         data-testid="admin-topups-loading"
         className="mx-auto w-full max-w-5xl px-6 py-10 text-muted-foreground text-sm"
       >
-        Loading pending fiat topups…
+        Loading pending fiat topups...
       </main>
     );
   }
@@ -49,10 +48,7 @@ export function AdminTopupsPage() {
 
   return (
     <main data-testid="admin-topups-root" className="mx-auto w-full max-w-5xl px-6 py-10">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-bold text-2xl tracking-tight">Pending fiat topups</h1>
-        <ExportCsvButton endpoint="/api/admin/topups/export" />
-      </div>
+      <h1 className="mb-6 font-bold text-2xl tracking-tight">Pending fiat topups</h1>
       {topups.length === 0 ? (
         <p data-testid="admin-topups-empty" className="text-muted-foreground">
           No pending fiat topups.
@@ -78,7 +74,7 @@ export function AdminTopupsPage() {
                 className="border-b last:border-0"
               >
                 <td className="py-2 font-mono">{t.id.slice(-8)}</td>
-                <td className="font-mono">{t.user.stellarPubkey.slice(0, 8)}…</td>
+                <td className="font-mono">{t.user.stellarPubkey.slice(0, 8)}...</td>
                 <td>{t.package.id}</td>
                 <td>${t.pricingSnapshotUsd}</td>
                 <td className="font-mono">{t.reference}</td>

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "@/features/landing/landing.css";
 
 export const metadata: Metadata = {
-  title: "Tasmil Finance — One Vault. Every Protocol.",
+  title: "Tasmil Finance - One Vault. Every Protocol.",
   description:
-    "Autonomous DeFi yield optimization on Stellar. One vault, every protocol — deposit USDC or XLM and earn optimal yield automatically.",
+    "Autonomous DeFi yield optimization on Stellar. One vault, every protocol - deposit USDC or XLM and earn optimal yield automatically.",
 };
 
 export default function LandingLayout({ children }: { children: React.ReactNode }) {

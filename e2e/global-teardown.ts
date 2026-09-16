@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 /**
- * Global teardown — runs after all tests complete.
+ * Global teardown - runs after all tests complete.
  * Merges individual evaluation records into a final summary.
  */
 export default function globalTeardown() {

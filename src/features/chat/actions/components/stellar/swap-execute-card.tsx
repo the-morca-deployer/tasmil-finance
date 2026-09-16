@@ -12,7 +12,7 @@ import { getExplorerUrl } from "@/shared/config/stellar";
 import { Input } from "@/shared/ui/input";
 import { useWalletStore } from "@/store/use-wallet";
 
-// ─── Chain labels (mirrors aggregator) ───────────────────────────────
+// --- Chain labels (mirrors aggregator) -------------------------------
 
 const CHAIN_LABELS: Record<string, string> = {
   stellar: "Stellar",
@@ -38,7 +38,7 @@ function chainLabel(chain: string): string {
   return CHAIN_LABELS[chain.toLowerCase()] ?? chain;
 }
 
-// ─── Protocol colors ──────────────────────────────────────────────
+// --- Protocol colors ----------------------------------------------
 
 const PROTOCOL_COLOR: Record<string, string> = {
   soroswap: "text-violet-500",
@@ -58,7 +58,7 @@ const PROTOCOL_BG: Record<string, string> = {
   allbridge: "bg-purple-500/10",
 };
 
-// ─── Operation config ─────────────────────────────────────────────
+// --- Operation config ---------------------------------------------
 
 interface OpConfig {
   label: string;
@@ -107,7 +107,7 @@ const DEFAULT_OP: OpConfig = {
   iconBg: "bg-primary/10",
 };
 
-// ─── Props ────────────────────────────────────────────────────────
+// --- Props --------------------------------------------------------
 
 export interface SwapExecuteCardProps {
   operation: string;
@@ -140,7 +140,7 @@ interface SwapExecuteCardComponentProps {
   respond?: (result: Record<string, unknown>) => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------
 
 function priceImpactColor(impact: string): string {
   const n = parseFloat(impact);
@@ -158,7 +158,7 @@ function resolveTokenSymbol(raw: string): string {
   return raw;
 }
 
-// ─── Sub-components ───────────────────────────────────────────────
+// --- Sub-components -----------------------------------------------
 
 function SwapBridgeHeader({
   cfg,
@@ -198,7 +198,7 @@ function SwapBridgeHeader({
   );
 }
 
-// ─── Bridge address picker (matches aggregator AddressPicker) ──────
+// --- Bridge address picker (matches aggregator AddressPicker) ------
 
 type ChainType = "stellar" | "evm";
 
@@ -307,7 +307,7 @@ function BridgeAddressPicker({
         )}
       </button>
 
-      {/* Popover inside card — backdrop handled at card level */}
+      {/* Popover inside card - backdrop handled at card level */}
       {open && (
         <div className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 z-50 w-[420px] max-w-[calc(100%-2rem)] rounded-2xl border border-border bg-card p-4 shadow-2xl">
           {/* Header */}
@@ -443,7 +443,7 @@ function BridgeAddressPicker({
   );
 }
 
-// ─── Balance formatter (mirrors aggregator) ──────────────────────────
+// --- Balance formatter (mirrors aggregator) --------------------------
 
 function formatBalanceShort(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`;
@@ -452,7 +452,7 @@ function formatBalanceShort(value: number): string {
   return "0";
 }
 
-// ─── Aggregate-style bridge direction ─────────────────────────────
+// --- Aggregate-style bridge direction -----------------------------
 // Mirrors aggregator-page.tsx layout exactly:
 //   label + AddressPicker on top row,
 //   amount (big) on left + token/chain stacked on right,
@@ -530,7 +530,7 @@ function BridgeDirectionCard({
 
   return (
     <div className="flex flex-col px-5 pb-1">
-      {/* ── You pay ── */}
+      {/* -- You pay -- */}
       <div className="rounded-2xl bg-secondary p-4 pb-[15px]">
         <div className="grid h-7 grid-cols-9 items-center gap-2">
           <span className="col-span-5 font-normal text-muted-foreground text-sm">You pay</span>
@@ -578,14 +578,14 @@ function BridgeDirectionCard({
         </div>
       </div>
 
-      {/* ── Arrow ── */}
+      {/* -- Arrow -- */}
       <div className="-my-2 relative z-10 flex justify-center">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary">
           <ArrowRightLeft className="h-5 w-5 text-muted-foreground" />
         </div>
       </div>
 
-      {/* ── You receive ── */}
+      {/* -- You receive -- */}
       <div className="rounded-2xl bg-secondary p-4 pb-[15px]">
         <div className="grid h-7 grid-cols-9 items-center gap-2">
           <span className="col-span-5 font-normal text-muted-foreground text-sm">You receive</span>
@@ -911,7 +911,7 @@ function ActionBar({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────
+// --- Main component -----------------------------------------------
 
 export function SwapExecuteCard({
   tx,

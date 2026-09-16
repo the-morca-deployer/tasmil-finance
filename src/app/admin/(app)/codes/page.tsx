@@ -7,7 +7,6 @@ import {
   useGenerateCodes,
   useRevokeCode,
 } from "@/features/admin-whitelist/hooks/use-admin-codes";
-import { ExportCsvButton } from "@/shared/components/export-csv-button";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -48,7 +47,7 @@ export default function AdminCodesPage() {
 
   return (
     <div className="flex h-full gap-6 p-8">
-      {/* Left panel — generate */}
+      {/* Left panel - generate */}
       <div className="w-72 flex-shrink-0 space-y-6">
         <div>
           <Typography variant="h2" className="font-bold text-xl">
@@ -62,7 +61,7 @@ export default function AdminCodesPage() {
         <div className="space-y-3">
           <div>
             <label htmlFor="quantity" className="mb-1.5 block font-medium text-sm">
-              Quantity (1–100)
+              Quantity (1-100)
             </label>
             <Input
               id="quantity"
@@ -118,20 +117,17 @@ export default function AdminCodesPage() {
         )}
       </div>
 
-      {/* Right panel — table */}
+      {/* Right panel - table */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Typography variant="h2" className="font-bold text-xl">
-              All Codes
-            </Typography>
-            {data && (
-              <span className="rounded-full bg-muted px-2.5 py-0.5 font-semibold text-xs">
-                {data.total}
-              </span>
-            )}
-          </div>
-          <ExportCsvButton endpoint="/api/admin/codes/export" />
+        <div className="mb-4 flex items-center gap-3">
+          <Typography variant="h2" className="font-bold text-xl">
+            All Codes
+          </Typography>
+          {data && (
+            <span className="rounded-full bg-muted px-2.5 py-0.5 font-semibold text-xs">
+              {data.total}
+            </span>
+          )}
         </div>
 
         {isLoadingCodes ? (

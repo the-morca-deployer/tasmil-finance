@@ -148,7 +148,7 @@ export const useChatAgentStore = create<ChatAgentStoreState>()((set, get) => ({
         try {
           parsed = JSON.parse(event.delta);
         } catch {
-          // incomplete JSON — ignore
+          // incomplete JSON - ignore
         }
         set((s) => ({
           toolCallSlots: { ...s.toolCallSlots, [event.toolCallId]: { ...slot, args: parsed } },

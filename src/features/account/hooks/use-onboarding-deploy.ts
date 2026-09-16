@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { activeNetwork } from "@/shared/config/stellar";
-import type { DeploySubStep, RiskPreset } from "../types";
 import {
   useDeployAccount,
-  usePosition,
   useSetupAccount,
   useSubmitTx,
   useUpdatePreset,
-} from "./use-account-api";
+} from "@/shared/hooks/use-account-mutations";
+import type { DeploySubStep, RiskPreset } from "../types";
+import { usePosition } from "./use-account-api";
 
 const DEFAULT_PRESET: RiskPreset = "Balanced";
 
@@ -66,7 +66,7 @@ export function useOnboardingDeploy({
 
   // Authoritative server view of the account. Used to seed completion flags
   // on hydration so a page reload mid-flow doesn't lose progress and trigger
-  // a destructive redeploy. Refetches on the existing usePosition cadence —
+  // a destructive redeploy. Refetches on the existing usePosition cadence -
   // no extra network traffic.
   const position = usePosition(publicKey ?? undefined);
   const serverStatus = position.data?.status;
@@ -81,7 +81,7 @@ export function useOnboardingDeploy({
   const flowInProgressRef = useRef(false);
 
   // Seed completion flags from server. We never *unset* a flag from server
-  // state — only flip false → true — so an in-flight local mutation that
+  // state - only flip false → true - so an in-flight local mutation that
   // hasn't landed in the DB yet won't be clobbered by a stale fetch.
   useEffect(() => {
     if (!serverStatus) return;
@@ -94,7 +94,7 @@ export function useOnboardingDeploy({
       serverStatus === "HALTED" ||
       serverStatus === "REVOKED"
     ) {
-      // TX 1 (deploy) confirmed in DB — keeper wallet exists on-chain.
+      // TX 1 (deploy) confirmed in DB - keeper wallet exists on-chain.
       setDeployCompleted((prev) => prev || true);
     }
 
@@ -103,7 +103,7 @@ export function useOnboardingDeploy({
       serverStatus === "ACTIVE" ||
       serverStatus === "HALTED"
     ) {
-      // TX 2 (setup) confirmed in DB — session key registered & valid.
+      // TX 2 (setup) confirmed in DB - session key registered & valid.
       // REVOKED is excluded: the on-chain session key has been revoked, so
       // the keeper can't act until the user re-signs setup via the separate
       // reactivate flow. Don't pretend the flow is done.
@@ -191,13 +191,13 @@ export function useOnboardingDeploy({
       setupResult = await setupAccount.mutateAsync(publicKey);
     } catch (err) {
       // Backend reports the keeper contract has no on-chain instance state.
-      // This is the legacy-bug stuck state — DB row references a keeper
+      // This is the legacy-bug stuck state - DB row references a keeper
       // address that was never properly deployed. Auto-recover: run an
       // explicit redeploy (recover=true wipes the stale row + returns a
       // fresh deploy XDR), then rebuild the setup TX against the new keeper.
       if (!isKeeperNotDeployedError(err)) throw err;
 
-      // Reset local flag — we're about to re-sign deploy TX 1.
+      // Reset local flag - we're about to re-sign deploy TX 1.
       setDeployCompleted(false);
       await buildSignSubmitDeploy(true);
 
@@ -280,7 +280,7 @@ export function useOnboardingDeploy({
         setDeployErrorWasRejection(true);
         setDeployError(
           deployCompleted && !setupCompleted
-            ? "Signing was cancelled. Your account was deployed but session-key setup didn't complete — click Retry to finish."
+            ? "Signing was cancelled. Your account was deployed but session-key setup didn't complete - click Retry to finish."
             : "Signing was cancelled in your wallet. Click Retry to try again."
         );
       } else if (message.includes("insufficient") || message.includes("Insufficient")) {

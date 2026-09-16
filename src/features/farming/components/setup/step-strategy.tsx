@@ -33,7 +33,7 @@ const PRESETS: PresetMeta[] = [
     value: "Balanced",
     label: "Balanced",
     description:
-      "Your agent blends yield with safety — diversified across solid pools while still chasing competitive APY across protocols.",
+      "Your agent blends yield with safety - diversified across solid pools while still chasing competitive APY across protocols.",
     gradient:
       "radial-gradient(circle at 30% 28%, #d8f4ff 0%, #7ad6ff 32%, #1d6c9a 75%, #07243a 100%)",
     textColor: "text-sky-950",
@@ -42,7 +42,7 @@ const PRESETS: PresetMeta[] = [
     value: "Aggressive",
     label: "Aggressive",
     description:
-      "Your agent goes for the highest yield — concentrating allocation into top-APY pools and accepting higher volatility.",
+      "Your agent goes for the highest yield - concentrating allocation into top-APY pools and accepting higher volatility.",
     gradient:
       "radial-gradient(circle at 30% 28%, #ffe0b3 0%, #ff9d4a 32%, #b3520c 75%, #3a1605 100%)",
     textColor: "text-orange-950",

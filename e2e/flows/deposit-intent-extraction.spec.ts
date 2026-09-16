@@ -1,4 +1,4 @@
-// REAL-AI suite — requires `ai/` running on http://localhost:8001 (or AI_HEALTH_URL).
+// REAL-AI suite - requires `ai/` running on http://localhost:8001 (or AI_HEALTH_URL).
 import { expect, test } from "../fixtures/real-ai.fixture";
 import { freshWallet, loginAsWallet } from "../helpers/auth";
 import { ChatPage } from "../page-objects/chat.page";
@@ -19,7 +19,7 @@ async function go(page: import("@playwright/test").Page): Promise<ChatPage> {
 
 test.describe.configure({ mode: "serial" });
 
-test.describe("Deposit intent extraction — real AI", () => {
+test.describe("Deposit intent extraction - real AI", () => {
   test("'I wanna deposit 10$' triggers asset clarify with USDC and XLM", async ({ page }) => {
     const chat = await go(page);
     await chat.sendMessage("I wanna deposit 10$");

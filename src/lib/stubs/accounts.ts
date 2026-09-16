@@ -1,5 +1,5 @@
 // Stub for @wagmi/core Tempo Wallet "accounts" dependency.
-// This module is dynamically imported but never used in our app — we only use
+// This module is dynamically imported but never used in our app - we only use
 // WagmiAdapter with standard EVM networks. Providing this stub prevents
 // Turbopack/webpack from failing on the missing dependency.
 const noop = () => {

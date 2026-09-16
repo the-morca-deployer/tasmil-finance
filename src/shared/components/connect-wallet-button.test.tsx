@@ -47,13 +47,13 @@ describe("ConnectWalletButton variant='topbar'", () => {
     mockWallet.mockReturnValue({
       isConnected: true,
       address: "GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXY",
-      displayAddress: "GABC…XY",
+      displayAddress: "GABC...XY",
       connect: jest.fn(),
       disconnect: jest.fn(),
     });
     render(<ConnectWalletButton variant="topbar" />);
     const trigger = screen.getByTestId("wallet-connected");
-    expect(trigger).toHaveTextContent("GABC…XY");
+    expect(trigger).toHaveTextContent("GABC...XY");
     expect(trigger.querySelector(".rounded-full")).not.toBeNull();
   });
 
@@ -61,7 +61,7 @@ describe("ConnectWalletButton variant='topbar'", () => {
     mockWallet.mockReturnValue({
       isConnected: true,
       address: "GABC123",
-      displayAddress: "GABC…123",
+      displayAddress: "GABC...123",
       connect: jest.fn(),
       disconnect: jest.fn(),
     });
@@ -77,7 +77,7 @@ describe("ConnectWalletButton variant='topbar'", () => {
     mockWallet.mockReturnValue({
       isConnected: true,
       address: "GABC123",
-      displayAddress: "GABC…123",
+      displayAddress: "GABC...123",
       connect: jest.fn(),
       disconnect: jest.fn(),
     });
@@ -86,6 +86,6 @@ describe("ConnectWalletButton variant='topbar'", () => {
     render(<ConnectWalletButton variant="topbar" />);
     await user.click(screen.getByTestId("wallet-connected"));
     const creditsRow = await screen.findByTestId("wallet-credits-row");
-    expect(creditsRow).toHaveTextContent("—");
+    expect(creditsRow).toHaveTextContent("-");
   });
 });

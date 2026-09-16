@@ -343,7 +343,7 @@ test.describe("Portfolio (Tasks 5+6+7)", () => {
     // Wait past the debounce
     await page.waitForTimeout(300);
 
-    // Require BLND in registry — failing here surfaces a real registry
+    // Require BLND in registry - failing here surfaces a real registry
     // regression instead of silently passing.
     const watchBtn = page.getByRole("button", { name: /^Watch$/ }).first();
     await expect(watchBtn).toBeVisible({ timeout: 5_000 });
@@ -353,7 +353,7 @@ test.describe("Portfolio (Tasks 5+6+7)", () => {
     const chip = page.getByRole("button", { name: /Open BLND in aggregator/i });
     await expect(chip).toBeVisible();
 
-    // Reload — chip persists
+    // Reload - chip persists
     await page.reload();
     await expect(page.getByRole("button", { name: /Open BLND in aggregator/i })).toBeVisible();
 

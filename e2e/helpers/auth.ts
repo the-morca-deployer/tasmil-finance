@@ -101,7 +101,7 @@ export async function loginAsWallet(page: Page, walletAddress: string): Promise<
  * Minimal sibling of `loginAsWallet` that exercises the cookie-only
  * rehydrate path. The backend still sets the `tasmil_auth` cookie via
  * `Set-Cookie`, but the persisted Zustand state is seeded WITHOUT
- * accessToken — mimicking what survives a real page reload.
+ * accessToken - mimicking what survives a real page reload.
  *
  * The `<AuthBootstrap />` effect must call `GET /api/auth/me` to
  * repopulate the in-memory token before any chat call goes out.

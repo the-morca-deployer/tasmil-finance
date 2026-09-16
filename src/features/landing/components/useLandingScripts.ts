@@ -385,7 +385,7 @@ export function useLandingScripts() {
           setTimeout(() => {
             if (sign) {
               sign.classList.add("signing");
-              sign.textContent = "Signing…";
+              sign.textContent = "Signing...";
             }
             scrollDown();
           }, 7200)
@@ -397,7 +397,7 @@ export function useLandingScripts() {
     })();
 
     /* ===== aggregator ===== */
-    /* ===== aggregator — swap card animation ===== */
+    /* ===== aggregator - swap card animation ===== */
     (() => {
       const pad = document.querySelector(".swap-pad");
       if (!pad) return;
@@ -471,7 +471,7 @@ export function useLandingScripts() {
           showFinal();
           return;
         }
-        // 1 — type the pay amount
+        // 1 - type the pay amount
         wait(() => {
           payAmt.classList.remove("zero");
           count(payAmt, PAY, 560, "int");
@@ -483,7 +483,7 @@ export function useLandingScripts() {
             if (k < 1) requestAnimationFrame(su);
           })(performance.now());
         }, 650);
-        // 2 — quote venues (cycle through), settle on best
+        // 2 - quote venues (cycle through), settle on best
         wait(() => {
           cta.className = "swap-cta quoting";
         }, 1300);
@@ -495,7 +495,7 @@ export function useLandingScripts() {
             1300 + i * 430
           );
         });
-        // 3 — fill receive + best route
+        // 3 - fill receive + best route
         wait(
           () => {
             recvAmt.classList.remove("zero");
@@ -514,7 +514,7 @@ export function useLandingScripts() {
           },
           1300 + quotes.length * 430 + 220
         );
-        // 4 — loop
+        // 4 - loop
         wait(run, 1300 + quotes.length * 430 + 220 + 2600);
       }
       if (flip)
@@ -525,7 +525,7 @@ export function useLandingScripts() {
     })();
 
     /* ===== convergence ===== */
-    /* ===== convergence — protocols flow into the vault, emerge as coins ===== */
+    /* ===== convergence - protocols flow into the vault, emerge as coins ===== */
     (() => {
       const stage = document.getElementById("convStage");
       if (!stage) return;
@@ -702,7 +702,7 @@ export function useLandingScripts() {
       apply();
     })();
 
-    /* fees word rotator — hugs each word, fee. glides */
+    /* fees word rotator - hugs each word, fee. glides */
     (() => {
       const fr = document.getElementById("feesFr");
       if (!fr) return;

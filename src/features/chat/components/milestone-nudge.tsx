@@ -42,7 +42,7 @@ export function MilestoneNudge({ type, topPercent, spotsLeft, onReinvest }: Mile
       data-testid="milestone-nudge"
       className="rounded-xl border border-orange-700/40 bg-orange-950/20 px-4 py-3 text-sm text-orange-200"
     >
-      Pool C is filling up —{" "}
+      Pool C is filling up -{" "}
       <span className="font-semibold text-orange-400">{spotsLeft} spots left</span> at this APY
       rate.
     </div>

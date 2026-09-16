@@ -98,7 +98,7 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"], channel: "chrome" },
     },
 
-    /* AI Chat E2E — relaxed timeouts for LLM response latency */
+    /* AI Chat E2E - relaxed timeouts for LLM response latency */
     {
       name: "e2e-chat",
       testDir: "./e2e",
@@ -137,7 +137,7 @@ export default defineConfig({
       timeout: 240_000,
     },
 
-    /* Quest E2E — seeded backend on :5555 + dev-bypass auth bridge */
+    /* Quest E2E - seeded backend on :5555 + dev-bypass auth bridge */
     {
       name: "quest",
       testDir: "./e2e",
@@ -164,7 +164,7 @@ export default defineConfig({
         },
       }),
 
-  /* Global setup/teardown — creates artifact dirs + summary report */
+  /* Global setup/teardown - creates artifact dirs + summary report */
   globalSetup: "./e2e/global-setup.ts",
   globalTeardown: "./e2e/global-teardown.ts",
 
@@ -176,6 +176,6 @@ export default defineConfig({
     timeout: 5000,
   },
 
-  /* Output directory — timestamped so each run is preserved */
+  /* Output directory - timestamped so each run is preserved */
   outputDir: `e2e/test-results/${runTimestamp}/`,
 });

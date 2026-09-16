@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     const raw = await res.json();
 
     if (period === "totals") {
-      // Historical daily data — normalize liquidity_usd/volume_usd (stroops → USD)
+      // Historical daily data - normalize liquidity_usd/volume_usd (stroops → USD)
       const items = ((raw.items ?? []) as Record<string, unknown>[]).map((d) => ({
         date: d.date_str,
         volume: Number(d.volume_usd ?? 0) / 1e7,

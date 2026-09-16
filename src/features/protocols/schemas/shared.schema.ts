@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// ─── Swap / Bridge card ──────────────────────────────────────
+// --- Swap / Bridge card --------------------------------------
 
 export const swapBridgeCardPropsSchema = z.object({
   operation: z.enum(["swap", "bridge", "add_liquidity", "remove_liquidity"]).default("swap"),

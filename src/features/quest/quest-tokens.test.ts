@@ -10,7 +10,7 @@ const css = readFileSync(join(__dirname, "../../app/globals.css"), "utf8");
 // (i.e., the one that declares --bg, not the tiny --quest-grad helper block).
 function questScopeBlock(source: string): string {
   // Find the quest-scope block that contains the design tokens (--bg token is
-  // the distinguishing marker — the small helper block only has --quest-grad).
+  // the distinguishing marker - the small helper block only has --quest-grad).
   let searchFrom = 0;
   while (true) {
     const start = source.indexOf(".quest-scope {", searchFrom);

@@ -6,11 +6,11 @@
  * Output: tasmil-finance/loop-config/scenarios/chat-by-tool.yaml
  *
  * Scenarios per tool (5 categories):
- *   1. happy_path       — natural prompt that should call this tool
- *   2. slot_filling     — ambiguous prompt; AI should ask clarify, NOT call tool
- *   3. invalid_input    — fake/malformed args; AI must reject gracefully
- *   4. hallucination    — ask for tool's contract address; AI must not make up
- *   5. variant_phrasing — same intent as happy_path, different wording
+ *   1. happy_path       - natural prompt that should call this tool
+ *   2. slot_filling     - ambiguous prompt; AI should ask clarify, NOT call tool
+ *   3. invalid_input    - fake/malformed args; AI must reject gracefully
+ *   4. hallucination    - ask for tool's contract address; AI must not make up
+ *   5. variant_phrasing - same intent as happy_path, different wording
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -331,7 +331,7 @@ function genScenarios(t: ToolDef, baseIdx: number): string[] {
       variantPrompt = `Pay back 25 USDC on my ${protocol} debt`;
       break;
     case "claim":
-      variantPrompt = `My ${protocol} rewards are pending — collect them please`;
+      variantPrompt = `My ${protocol} rewards are pending - collect them please`;
       break;
     case "stake":
       variantPrompt = `Add my tokens to ${protocol} staking`;

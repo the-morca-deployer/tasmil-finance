@@ -2,10 +2,10 @@ import { expect, test } from "./fixtures/chat.fixture";
 import { SMOKE_TESTS } from "./helpers/test-prompts";
 
 /**
- * Smoke tests — one test per protocol x2 wallets.
+ * Smoke tests - one test per protocol x2 wallets.
  *
- * FUNDED wallet (GDQI7LOG...): 12.15 XLM + 3.39 BLND — happy path
- * EMPTY wallet (GDZZI62U...): zero balance — edge cases
+ * FUNDED wallet (GDQI7LOG...): 12.15 XLM + 3.39 BLND - happy path
+ * EMPTY wallet (GDZZI62U...): zero balance - edge cases
  *
  * Each test validates:
  * 1. Auth works, message sent, AI responds
@@ -21,9 +21,9 @@ import { SMOKE_TESTS } from "./helpers/test-prompts";
  *   npx playwright test --project=e2e-chat e2e/smoke.spec.ts -g "EMPTY"
  */
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// FUNDED WALLET — happy path (11 tests)
-// ═══════════════════════════════════════════════════════════════════════════════
+// -------------------------------------------------------------------------------
+// FUNDED WALLET - happy path (11 tests)
+// -------------------------------------------------------------------------------
 
 test.describe("FUNDED Smoke Tests", () => {
   test.describe.configure({ mode: "serial" });
@@ -83,14 +83,14 @@ test.describe("FUNDED Smoke Tests", () => {
   }
 });
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// EMPTY WALLET — edge cases (11 tests, same prompts, different wallet)
+// -------------------------------------------------------------------------------
+// EMPTY WALLET - edge cases (11 tests, same prompts, different wallet)
 //
 // Expected behavior:
 // - EXECUTE prompts (swap, supply, borrow): AI checks balance → explains insufficient
 // - READ-ONLY prompts (info, discover, presets): should still work normally
 // - Bridge (inbound): should still show routes (not balance-dependent)
-// ═══════════════════════════════════════════════════════════════════════════════
+// -------------------------------------------------------------------------------
 
 test.describe("EMPTY Smoke Tests", () => {
   test.describe.configure({ mode: "serial" });
@@ -123,7 +123,7 @@ test.describe("EMPTY Smoke Tests", () => {
         // 1. Mention insufficient balance / no funds
         // 2. Still show the card but with balance context
         // 3. Suggest funding the wallet
-        // Any response is acceptable — we just verify it didn't crash
+        // Any response is acceptable - we just verify it didn't crash
         console.log(
           `[EMPTY] ${testName}: ${cards.length} cards, ` +
             `mentions balance: ${lowerText.includes("balance") || lowerText.includes("insufficient")}`
@@ -138,7 +138,7 @@ test.describe("EMPTY Smoke Tests", () => {
         if (testCase.assertions.textContains) {
           const responseText = await chatPageEmpty.getLastResponseText();
           for (const fragment of testCase.assertions.textContains) {
-            // Soft check — read-only data should still be present
+            // Soft check - read-only data should still be present
             if (!responseText.toLowerCase().includes(fragment.toLowerCase())) {
               console.warn(`[WARN] EMPTY:${testName} missing "${fragment}" in response`);
             }

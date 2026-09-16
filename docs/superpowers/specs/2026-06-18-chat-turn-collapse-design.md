@@ -1,9 +1,9 @@
-# Chat Turn Collapse — Design Spec
+# Chat Turn Collapse - Design Spec
 _Date: 2026-06-18_
 
 ## Goal
 
-Fix render order so "Thinking..." always appears before response text within a single AI turn. Currently, intermediate supervisor text streams in first, then a separate "Thinking..." bubble appears below it — backwards from the expected UX.
+Fix render order so "Thinking..." always appears before response text within a single AI turn. Currently, intermediate supervisor text streams in first, then a separate "Thinking..." bubble appears below it - backwards from the expected UX.
 
 ## Problem
 
@@ -38,7 +38,7 @@ In `chat-client.tsx`, before the `filtered.map(...)` render loop:
 
 ### Single file changed
 
-`src/features/chat/components/chat-client.tsx` — ~15 lines added to the rendering loop. No other files touched.
+`src/features/chat/components/chat-client.tsx` - ~15 lines added to the rendering loop. No other files touched.
 
 ---
 
@@ -51,13 +51,13 @@ In `chat-client.tsx`, before the `filtered.map(...)` render loop:
 | Streaming in progress | Sub-agent text streams; supervisor text still hidden |
 | Turn complete (`effectiveIsLoading = false`) | Sub-agent text complete; supervisor's earlier text reveals as bubble above |
 
-The Thinking → streaming transition is fully preserved — no pop-in on the response itself. Only the supervisor's intermediate text reveals after completion.
+The Thinking → streaming transition is fully preserved - no pop-in on the response itself. Only the supervisor's intermediate text reveals after completion.
 
 ---
 
 ## Production Safety
 
-- Logic is gated on `effectiveIsLoading` — zero behavior change when not loading
+- Logic is gated on `effectiveIsLoading` - zero behavior change when not loading
 - No new state, no new components, no backend changes
 - Single-turn conversations (no sub-agents) unaffected: current turn has 1 AI message → it's the last, never suppressed
 - Existing `shouldFilterMessage` and cache merge logic untouched
@@ -100,4 +100,4 @@ if (
 }
 ```
 
-The last message in the turn (`index === filtered.length - 1`) is never suppressed — it's the one displaying "Thinking..." or streaming text.
+The last message in the turn (`index === filtered.length - 1`) is never suppressed - it's the one displaying "Thinking..." or streaming text.

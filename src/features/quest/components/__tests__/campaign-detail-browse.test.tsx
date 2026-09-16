@@ -1,11 +1,11 @@
 /**
- * P2-5: BROWSE task type — icon/label regression tests.
+ * P2-5: BROWSE task type - icon/label regression tests.
  *
  * Backend emits taskType "BROWSE" for tasks like wallet_connect, sign_message,
  * vault_preview, and first_chat. Prior to this fix, getStepIcon and
  * getActionLabel inside QuestItem only checked `type === "visit"`, so the
- * checkId-specific labels (Connect Wallet, Sign and Verify, …) were never
- * reached — the button fell through to the default "Open Link" label.
+ * checkId-specific labels (Connect Wallet, Sign and Verify, ...) were never
+ * reached - the button fell through to the default "Open Link" label.
  *
  * These tests render QuestItem directly with step.type = "browse" (the raw
  * backend value, bypassing mapTaskType) to confirm the functions handle it.
@@ -48,7 +48,7 @@ jest.mock("sonner", () => ({
 }));
 
 /**
- * Build a CampaignStep with type "browse" — the raw value the backend sends.
+ * Build a CampaignStep with type "browse" - the raw value the backend sends.
  * The cast bypasses the CampaignStep union so we can exercise getStepIcon /
  * getActionLabel with the exact string before mapTaskType normalises it.
  */
@@ -61,7 +61,7 @@ const browseStep = (checkId: string): CampaignStep =>
     checkId,
   }) as unknown as CampaignStep;
 
-describe("QuestItem — BROWSE taskType renders checkId-specific labels (P2-5)", () => {
+describe("QuestItem - BROWSE taskType renders checkId-specific labels (P2-5)", () => {
   it("wallet_connect → 'Connect Wallet' (not the generic 'Open Link')", () => {
     render(<QuestItem step={browseStep("wallet_connect")} taskId="t1" isAuthenticated />);
     fireEvent.click(screen.getByText("Test Browse Task"));

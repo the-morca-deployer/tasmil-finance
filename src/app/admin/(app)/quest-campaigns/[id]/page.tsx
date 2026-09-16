@@ -26,67 +26,6 @@ const TASK_TYPES = [
 ];
 const CATEGORIES = ["BLEND", "SOROSWAP", "AQUARIUS"];
 
-// checkId input spec per task type. Both enum casings map to one group.
-// See the plan's "checkId / urlAction per taskType" table.
-type CheckIdSpec = { label: string; placeholder: string; required: boolean } | null;
-
-function checkIdSpecFor(taskType: string): CheckIdSpec {
-  switch (taskType) {
-    case "X_FOLLOW":
-    case "X_Follow":
-      return { label: "Twitter handle to follow", placeholder: "handle (no @)", required: true };
-    case "X_RETWEET":
-    case "X_Retweet":
-      return { label: "Tweet ID to retweet", placeholder: "1234567890", required: true };
-    case "X_COMMENT":
-    case "X_Comment":
-      return { label: "Tweet ID to comment on", placeholder: "1234567890", required: true };
-    case "X_Like":
-    case "X_LIKE":
-      return { label: "Tweet ID to like", placeholder: "1234567890", required: true };
-    case "TELEGRAM_JOIN":
-    case "Telegram":
-      return { label: "Telegram channel ID", placeholder: "channel_id", required: true };
-    case "DISCORD_JOIN":
-    case "Discord":
-      return { label: "Discord guild ID", placeholder: "guild_id", required: true };
-    case "ONCHAIN":
-    case "Onchain":
-      return {
-        label: "Contract address or sentinel",
-        placeholder: "C... or wallet_connect / sign_message",
-        required: true,
-      };
-    case "BROWSE":
-    case "Visit":
-      return { label: "Check ID (optional)", placeholder: "e.g. vault_preview", required: false };
-    default:
-      return null; // AGENT_*, VOLUME_SWAP, LOGIN_CHECKIN, STRATEGY_CHECKIN, REFERRAL
-  }
-}
-
-// Per the plan's mapping table, BROWSE/Visit task types require a urlAction link.
-function urlRequiredFor(taskType: string): boolean {
-  switch (taskType) {
-    case "BROWSE":
-    case "Visit":
-      return true;
-    default:
-      return false;
-  }
-}
-
-// Validates the advanced raw-JSON metadata textarea. Empty text counts as valid (no extra keys).
-function validateMetadataJson(text: string): string | null {
-  if (!text.trim()) return null;
-  try {
-    JSON.parse(text);
-    return null;
-  } catch {
-    return "Invalid JSON. Fix it or clear the field.";
-  }
-}
-
 const inputStyle: React.CSSProperties = {
   padding: "8px 12px",
   borderRadius: 8,
@@ -113,14 +52,7 @@ interface CampaignFormState {
   protocol: string;
   category: string;
   description: string;
-  descriptionDetail: string;
-  coverUrl: string;
   isActive: boolean;
-  isDaily: boolean;
-  isFeatured: boolean;
-  rewardPoints: number;
-  minTasksToComplete: number;
-  maxParticipants: string;
   startAt: string;
   endAt: string;
 }
@@ -132,9 +64,7 @@ interface TaskFormState {
   pointReward: number;
   order: number;
   isActive: boolean;
-  checkId: string;
-  urlAction: string;
-  extraMetadata: string; // advanced escape hatch, raw JSON for keys outside checkId/urlAction
+  metadata: string;
 }
 
 const defaultTaskForm: TaskFormState = {
@@ -144,66 +74,8 @@ const defaultTaskForm: TaskFormState = {
   pointReward: 100,
   order: 0,
   isActive: true,
-  checkId: "",
-  urlAction: "",
-  extraMetadata: "",
+  metadata: "{}",
 };
-
-function taskToForm(t: QuestTask): TaskFormState {
-  const meta = (t.metadata ?? {}) as Record<string, unknown>;
-  const rest: Record<string, unknown> = { ...meta };
-
-  // Legacy raw-JSON entries may have stored checkId/urlAction as a non-string
-  // (e.g. a numeric ID). Coerce scalars into the field; leave objects/arrays
-  // untouched in the rest-bucket so they survive in extraMetadata instead of
-  // being silently dropped.
-  const resolveField = (key: "checkId" | "urlAction"): string => {
-    const value = meta[key];
-    if (typeof value === "string") {
-      delete rest[key];
-      return value;
-    }
-    if (value !== null && typeof value === "object") {
-      return "";
-    }
-    if (value !== undefined && value !== null) {
-      delete rest[key];
-      return String(value);
-    }
-    delete rest[key];
-    return "";
-  };
-
-  const checkId = resolveField("checkId");
-  const urlAction = resolveField("urlAction");
-
-  return {
-    title: t.title,
-    description: t.description ?? "",
-    type: t.type,
-    pointReward: t.pointReward,
-    order: t.order,
-    isActive: t.isActive,
-    checkId,
-    urlAction,
-    extraMetadata: Object.keys(rest).length ? JSON.stringify(rest) : "",
-  };
-}
-
-function buildTaskMetadata(data: TaskFormState): Record<string, unknown> {
-  let extra: Record<string, unknown> = {};
-  if (data.extraMetadata.trim()) {
-    try {
-      extra = JSON.parse(data.extraMetadata);
-    } catch {
-      extra = {};
-    }
-  }
-  const meta: Record<string, unknown> = { ...extra };
-  if (data.checkId.trim()) meta.checkId = data.checkId.trim();
-  if (data.urlAction.trim()) meta.urlAction = data.urlAction.trim();
-  return meta;
-}
 
 function TaskForm({
   initial,
@@ -217,15 +89,7 @@ function TaskForm({
   isPending: boolean;
 }) {
   const [form, setForm] = useState(initial);
-  const [metadataError, setMetadataError] = useState<string | null>(() =>
-    validateMetadataJson(initial.extraMetadata)
-  );
   const set = (k: keyof TaskFormState, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
-
-  const spec = checkIdSpecFor(form.type);
-  const checkIdMissing = !!spec?.required && !form.checkId.trim();
-  const urlActionMissing = urlRequiredFor(form.type) && !form.urlAction.trim();
-  const canSave = !metadataError && !checkIdMissing && !urlActionMissing && !!form.title.trim();
 
   return (
     <div
@@ -279,32 +143,6 @@ function TaskForm({
           style={inputStyle}
         />
       </div>
-      {spec && (
-        <div>
-          <label
-            style={{
-              fontSize: 12,
-              color: "rgba(245,248,252,0.5)",
-              display: "block",
-              marginBottom: 4,
-            }}
-          >
-            {spec.label}
-          </label>
-          <input
-            placeholder={spec.placeholder}
-            value={form.checkId}
-            onChange={(e) => set("checkId", e.target.value)}
-            style={inputStyle}
-            aria-label={spec.label}
-          />
-          {checkIdMissing && (
-            <div style={{ fontSize: 11, color: "#FB7185", marginTop: 4 }}>
-              {spec.label} is required.
-            </div>
-          )}
-        </div>
-      )}
       <div>
         <label
           style={{
@@ -314,46 +152,15 @@ function TaskForm({
             marginBottom: 4,
           }}
         >
-          Link (opens for the user)
+          Metadata (JSON)
         </label>
-        <input
-          placeholder="https://..."
-          value={form.urlAction}
-          onChange={(e) => set("urlAction", e.target.value)}
-          style={inputStyle}
-          aria-label="Task link"
-        />
-        {urlActionMissing && (
-          <div style={{ fontSize: 11, color: "#FB7185", marginTop: 4 }}>
-            A link is required for this task type.
-          </div>
-        )}
-      </div>
-      <details>
-        <summary style={{ fontSize: 12, color: "rgba(245,248,252,0.5)", cursor: "pointer" }}>
-          Advanced (raw JSON metadata)
-        </summary>
         <textarea
-          value={form.extraMetadata}
-          onChange={(e) => {
-            const value = e.target.value;
-            set("extraMetadata", value);
-            setMetadataError(validateMetadataJson(value));
-          }}
+          value={form.metadata}
+          onChange={(e) => set("metadata", e.target.value)}
           rows={2}
-          placeholder='{"customKey":"value"}'
-          style={{
-            ...inputStyle,
-            resize: "none",
-            fontFamily: "monospace",
-            fontSize: 11,
-            marginTop: 6,
-          }}
+          style={{ ...inputStyle, resize: "none", fontFamily: "monospace", fontSize: 11 }}
         />
-        {metadataError && (
-          <div style={{ fontSize: 11, color: "#FB7185", marginTop: 4 }}>{metadataError}</div>
-        )}
-      </details>
+      </div>
       <label
         style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, cursor: "pointer" }}
       >
@@ -368,7 +175,7 @@ function TaskForm({
         <button
           type="button"
           onClick={() => onSave(form)}
-          disabled={isPending || !canSave}
+          disabled={isPending || !form.title.trim()}
           style={primaryBtnStyle}
         >
           {isPending ? <Loader2 size={14} className="animate-spin" /> : "Save"}
@@ -425,26 +232,14 @@ export default function QuestCampaignDetailPage() {
     protocol: campaign.protocol,
     category: campaign.category,
     description: campaign.description ?? "",
-    descriptionDetail: campaign.metadata?.descriptionDetail ?? "",
-    coverUrl: campaign.logoUrl ?? "",
     isActive: campaign.isActive,
-    isDaily: campaign.isDaily ?? false,
-    isFeatured: campaign.isFeatured ?? false,
-    rewardPoints: campaign.metadata?.rewardPoints ?? 0,
-    minTasksToComplete: campaign.metadata?.minTasksToComplete ?? 1,
-    maxParticipants: campaign.maxParticipants != null ? String(campaign.maxParticipants) : "",
     startAt: campaign.startAt ? campaign.startAt.slice(0, 10) : "",
     endAt: campaign.endAt ? campaign.endAt.slice(0, 10) : "",
   };
 
   async function handleSaveCampaign() {
     if (!campaignForm) return;
-    await updateCampaign.mutateAsync({
-      ...campaignForm,
-      maxParticipants: campaignForm.maxParticipants
-        ? Number(campaignForm.maxParticipants)
-        : undefined,
-    });
+    await updateCampaign.mutateAsync(campaignForm);
     setCampaignForm(null);
   }
 
@@ -454,31 +249,24 @@ export default function QuestCampaignDetailPage() {
   }
 
   async function handleAddTask(data: TaskFormState) {
-    await addTask.mutateAsync({
-      title: data.title,
-      description: data.description,
-      type: data.type,
-      pointReward: data.pointReward,
-      order: data.order,
-      isActive: data.isActive,
-      metadata: buildTaskMetadata(data),
-    });
+    let metadata: Record<string, unknown> | undefined;
+    try {
+      metadata = JSON.parse(data.metadata);
+    } catch {
+      metadata = undefined;
+    }
+    await addTask.mutateAsync({ ...data, metadata });
     setAddingTask(false);
   }
 
   async function handleUpdateTask(taskId: string, data: TaskFormState) {
-    await updateTask.mutateAsync({
-      taskId,
-      data: {
-        title: data.title,
-        description: data.description,
-        type: data.type,
-        pointReward: data.pointReward,
-        order: data.order,
-        isActive: data.isActive,
-        metadata: buildTaskMetadata(data),
-      },
-    });
+    let metadata: Record<string, unknown> | undefined;
+    try {
+      metadata = JSON.parse(data.metadata);
+    } catch {
+      metadata = undefined;
+    }
+    await updateTask.mutateAsync({ taskId, data: { ...data, metadata } });
     setEditingTaskId(null);
   }
 
@@ -527,15 +315,6 @@ export default function QuestCampaignDetailPage() {
               { label: "Title", key: "title" as const, type: "text" },
               { label: "Protocol", key: "protocol" as const, type: "text" },
               { label: "Description", key: "description" as const, type: "text" },
-              { label: "Cover URL", key: "coverUrl" as const, type: "text" },
-              { label: "Detailed description", key: "descriptionDetail" as const, type: "text" },
-              { label: "Reward points", key: "rewardPoints" as const, type: "number" },
-              {
-                label: "Min tasks to complete",
-                key: "minTasksToComplete" as const,
-                type: "number",
-              },
-              { label: "Max participants", key: "maxParticipants" as const, type: "number" },
               { label: "Start Date", key: "startAt" as const, type: "date" },
               { label: "End Date", key: "endAt" as const, type: "date" },
             ] satisfies { label: string; key: keyof CampaignFormState; type: string }[]
@@ -553,15 +332,8 @@ export default function QuestCampaignDetailPage() {
               </label>
               <input
                 type={type}
-                value={String(form[key] ?? "")}
-                onChange={(e) => {
-                  const raw = e.target.value;
-                  if (key === "rewardPoints" || key === "minTasksToComplete") {
-                    setCampaignForm({ ...form, [key]: Number(raw) });
-                  } else {
-                    setCampaignForm({ ...form, [key]: raw });
-                  }
-                }}
+                value={(form[key] as string) ?? ""}
+                onChange={(e) => setCampaignForm({ ...form, [key]: e.target.value })}
                 style={inputStyle}
               />
             </div>
@@ -590,56 +362,22 @@ export default function QuestCampaignDetailPage() {
               ))}
             </select>
           </div>
-          <div style={{ display: "flex", gap: 18 }}>
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                fontSize: 13,
-                cursor: "pointer",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={form.isActive ?? true}
-                onChange={(e) => setCampaignForm({ ...form, isActive: e.target.checked })}
-              />
-              Active
-            </label>
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                fontSize: 13,
-                cursor: "pointer",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={form.isDaily ?? false}
-                onChange={(e) => setCampaignForm({ ...form, isDaily: e.target.checked })}
-              />
-              Daily campaign
-            </label>
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                fontSize: 13,
-                cursor: "pointer",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={form.isFeatured ?? false}
-                onChange={(e) => setCampaignForm({ ...form, isFeatured: e.target.checked })}
-              />
-              Featured
-            </label>
-          </div>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={(form.isActive as boolean) ?? true}
+              onChange={(e) => setCampaignForm({ ...form, isActive: e.target.checked })}
+            />
+            Active
+          </label>
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <button
               type="button"
@@ -728,7 +466,15 @@ export default function QuestCampaignDetailPage() {
             <div key={task.id}>
               {editingTaskId === task.id ? (
                 <TaskForm
-                  initial={taskToForm(task)}
+                  initial={{
+                    title: task.title,
+                    description: task.description ?? "",
+                    type: task.type,
+                    pointReward: task.pointReward,
+                    order: task.order,
+                    isActive: task.isActive,
+                    metadata: task.metadata ? JSON.stringify(task.metadata, null, 2) : "{}",
+                  }}
                   onSave={(data) => handleUpdateTask(task.id, data)}
                   onCancel={() => setEditingTaskId(null)}
                   isPending={updateTask.isPending}

@@ -1,4 +1,4 @@
-# Waitlist Mode Toggle — Design
+# Waitlist Mode Toggle - Design
 
 Date: 2026-06-20
 Branch: `feat/merge-landing-quest` (frontend repo `tasmil-finance`)
@@ -12,10 +12,10 @@ The app should run in two modes, switched by a single env flag:
   code is required to enter the app, and unauthenticated visitors are gated back
   to `/`.
 - **Waitlist OFF**: no `/waitlist`, no `/access`, no access code. Users go
-  straight to the app routes (`/chat`, `/farming`, …) and connect a wallet
+  straight to the app routes (`/chat`, `/farming`, ...) and connect a wallet
   in-app.
 
-Today `WAITLIST_MODE=true` exists in `.env.local` but nothing in `src` reads it —
+Today `WAITLIST_MODE=true` exists in `.env.local` but nothing in `src` reads it -
 the toggle is not wired up. It is also server-only (`WAITLIST_MODE`), while the
 gating needs to run on both the server (proxy) and the client (auth bootstrap,
 landing CTAs).
@@ -45,17 +45,17 @@ two layers never disagree.
 
 ## Components
 
-### `src/lib/waitlist-mode.ts` (new — single source of truth)
+### `src/lib/waitlist-mode.ts` (new - single source of truth)
 - `WAITLIST_MODE = process.env.NEXT_PUBLIC_WAITLIST_MODE === "true"`
-- `PUBLIC_PATHS` — the canonical public-route list (shared by proxy + auth-bootstrap)
+- `PUBLIC_PATHS` - the canonical public-route list (shared by proxy + auth-bootstrap)
 - `APP_ENTRY = "/chat"`
 - `isPublicPath(pathname): boolean`
-- `isStaticAsset(pathname): boolean` — paths under public asset folders / with a
+- `isStaticAsset(pathname): boolean` - paths under public asset folders / with a
   file extension, so the gate never touches them
 
 ### `src/proxy.ts`
 - Always let static assets and `/api`, `/_next`, `/admin`, `/`, `/quest` through.
-- ON: keep the current gate — require the `tasmil_auth` cookie for protected
+- ON: keep the current gate - require the `tasmil_auth` cookie for protected
   routes; redirect to `/` when missing. `/waitlist` + `/access` are public.
 - OFF: redirect `/waitlist` and `/access` → `APP_ENTRY` (`/chat`); do NOT gate
   the app routes (open; connect in-app).
@@ -80,10 +80,10 @@ server restart / redeploy.
 
 - `/admin`, `/api`, `/quest` keep their own auth and are unaffected by the flag.
 - App routes when OFF still show the existing "connect wallet" screens when no
-  wallet is connected (e.g. chat-page-wrapper) — viewing is open, actions need a
+  wallet is connected (e.g. chat-page-wrapper) - viewing is open, actions need a
   wallet.
 - Static assets pass the gate in both modes (fixes the 307→`/` bug).
-- Flipping the flag without a restart leaves stale inlined values — documented.
+- Flipping the flag without a restart leaves stale inlined values - documented.
 
 ## Verification (Playwright, both modes)
 

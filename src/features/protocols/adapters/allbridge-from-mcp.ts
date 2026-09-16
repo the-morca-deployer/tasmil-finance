@@ -1,6 +1,6 @@
 /**
  * Adapters that normalize MCP tool results into typed card props for Allbridge.
- * MCP results are wrapped differently than SDK — unwrap and delegate to SDK adapter.
+ * MCP results are wrapped differently than SDK - unwrap and delegate to SDK adapter.
  */
 
 import type {

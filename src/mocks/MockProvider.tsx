@@ -14,6 +14,6 @@ if (typeof window !== "undefined" && MOCK) {
 }
 
 export function MockProvider({ children }: { children: ReactNode }) {
-  // No async setup needed — everything happens synchronously above.
+  // No async setup needed - everything happens synchronously above.
   return <>{children}</>;
 }

@@ -15,9 +15,9 @@
 - Default to Server Components; add `"use client"` only when needed.
 - Path alias `@/*` → `src/*`. Import from feature barrels (`@/features/landing`), not deep sub-paths, from outside the feature.
 - Features must never import from other features; cross-cutting code lives in `src/shared/`.
-- **Never edit `src/gen-ai/` or `src/gen-backend/` by hand** — they are kubb-generated.
+- **Never edit `src/gen-ai/` or `src/gen-backend/` by hand** - they are kubb-generated.
 - **English only** in all UI copy and source strings.
-- `pnpm build` must exit 0 locally before any push. **Never push directly to `deploy/prod` or `deploy/staging`** — feature branch → PR → merge.
+- `pnpm build` must exit 0 locally before any push. **Never push directly to `deploy/prod` or `deploy/staging`** - feature branch → PR → merge.
 - **Branching:** cut the feature branch from `origin/deploy/staging` and open the PR back into `deploy/staging` (NOT `deploy/prod`). The local `main` is stale (behind `origin/deploy/staging`); always base on `origin/deploy/staging`.
 - Work on branch `feat/merge-landing-quest` (already created from `origin/deploy/staging`).
 - Source repo paths below are relative to the workspace root `/Users/nathan/Documents/morcalab/tasmil`. The target repo is `tasmil-finance/`.
@@ -43,11 +43,11 @@
 | `src/app/admin/access-codes/page.tsx` + `src/app/admin/login/page.tsx` (create) | Admin access-codes UI (redesigned). |
 | `e2e/landing.smoke.spec.ts` (create) | Playwright smoke for landing/waitlist/access. |
 
-> The waitlist/access/admin-codes/admin-auth **API routes already exist** in `tasmil-finance/src/app/api/` and are reused unchanged. `shared/ui` primitives (`button`, `button-v2`, `badge`, `card`, `input`, `label`, `tooltip`, `typography`, `scroll-based-velocity`), `lib/utils`, `shared/context/wallet-context`, and `jose` already exist in the target — do not recreate them.
+> The waitlist/access/admin-codes/admin-auth **API routes already exist** in `tasmil-finance/src/app/api/` and are reused unchanged. `shared/ui` primitives (`button`, `button-v2`, `badge`, `card`, `input`, `label`, `tooltip`, `typography`, `scroll-based-velocity`), `lib/utils`, `shared/context/wallet-context`, and `jose` already exist in the target - do not recreate them.
 
 ---
 
-### Task 1: Foundation — deps, fonts, scoped CSS, stores/env/constants
+### Task 1: Foundation - deps, fonts, scoped CSS, stores/env/constants
 
 Cross-cutting prerequisites every later task depends on. Deliverable: the app still builds, and the ported features' non-UI dependencies (fonts, CSS file, stores, env, route constants) resolve.
 
@@ -94,7 +94,7 @@ to:
 
 - [ ] **Step 3: Create scoped landing CSS**
 
-Copy `tasmil-finance-new/src/app/globals.css` to `tasmil-finance/src/features/landing/landing.css`, then **delete** from the copy: the top `@import "tailwindcss";` line and the base design-token `:root { --background … }` block (the target's `src/app/globals.css` already owns Tailwind + the design tokens). Keep all landing-specific selectors (`.wl-page`, `[data-grid]`, `[data-motion]`, `.shake`, accent variables, `@keyframes`).
+Copy `tasmil-finance-new/src/app/globals.css` to `tasmil-finance/src/features/landing/landing.css`, then **delete** from the copy: the top `@import "tailwindcss";` line and the base design-token `:root { --background ... }` block (the target's `src/app/globals.css` already owns Tailwind + the design tokens). Keep all landing-specific selectors (`.wl-page`, `[data-grid]`, `[data-motion]`, `.shake`, accent variables, `@keyframes`).
 
 Verify it contains no `@import "tailwindcss"`:
 Run: `grep -c '@import "tailwindcss"' tasmil-finance/src/features/landing/landing.css`
@@ -171,7 +171,7 @@ Apply this mapping to every copied file (these are the only prefixes used by the
 | `@/lib/utils` | unchanged (exists) |
 | `@/shared/context/...` | unchanged (exists) |
 | `@/shared/constants/routes` | unchanged (created in Task 1) |
-| `@/features/access`, `@/features/waitlist` | unchanged (created in Tasks 6–7; may show as unresolved until then) |
+| `@/features/access`, `@/features/waitlist` | unchanged (created in Tasks 6-7; may show as unresolved until then) |
 
 Run a sweep to find any remaining `@/components/`:
 Run: `grep -rn "@/components/" tasmil-finance/src/features/landing || echo "none"`
@@ -180,7 +180,7 @@ Expected: `none`.
 - [ ] **Step 3: Format + type-check (expect known forward-refs only)**
 
 Run: `cd tasmil-finance && pnpm check:fix && pnpm type-check 2>&1 | grep -E "error" | grep -v "features/access\|features/waitlist" || echo "no unexpected errors"`
-Expected: `no unexpected errors` (errors referencing not-yet-created `features/access` / `features/waitlist` are acceptable here and resolved in Tasks 6–7).
+Expected: `no unexpected errors` (errors referencing not-yet-created `features/access` / `features/waitlist` are acceptable here and resolved in Tasks 6-7).
 
 - [ ] **Step 4: Commit**
 
@@ -218,7 +218,7 @@ cp tasmil-finance-new/src/features/landing/index.ts tasmil-finance/src/features/
 
 - [ ] **Step 2: Rewrite imports in the landing components**
 
-These components import each other with relative paths (`./Hero`, `./useLandingScripts`) — leave those unchanged. Rewrite only `@/`-prefixed imports per the mapping table in Task 2 Step 2. Sweep:
+These components import each other with relative paths (`./Hero`, `./useLandingScripts`) - leave those unchanged. Rewrite only `@/`-prefixed imports per the mapping table in Task 2 Step 2. Sweep:
 Run: `grep -rn "@/components/" tasmil-finance/src/features/landing || echo "none"`
 Expected: `none`.
 
@@ -265,9 +265,9 @@ import type { Metadata } from "next";
 import "@/features/landing/landing.css";
 
 export const metadata: Metadata = {
-  title: "Tasmil Finance — One Vault. Every Protocol.",
+  title: "Tasmil Finance - One Vault. Every Protocol.",
   description:
-    "Autonomous DeFi yield optimization on Stellar. One vault, every protocol — deposit USDC or XLM and earn optimal yield automatically.",
+    "Autonomous DeFi yield optimization on Stellar. One vault, every protocol - deposit USDC or XLM and earn optimal yield automatically.",
 };
 
 export default function LandingLayout({ children }: { children: React.ReactNode }) {
@@ -568,7 +568,7 @@ Phase 1 of merging landing + quest into tasmil-finance: full redesigned landing 
 EOF
 )"
 ```
-> Do NOT merge here — hand the PR to the user. The PR targets `deploy/staging` (never `deploy/prod`). After any merge, check `gh run list --repo Tasmil-Finance/tasmil-finance --limit 3`.
+> Do NOT merge here - hand the PR to the user. The PR targets `deploy/staging` (never `deploy/prod`). After any merge, check `gh run list --repo Tasmil-Finance/tasmil-finance --limit 3`.
 
 ---
 

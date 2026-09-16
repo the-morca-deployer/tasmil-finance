@@ -36,7 +36,7 @@ type Target = {
 const stripSlash = (u: string) => u.replace(/\/$/, "");
 
 const TARGETS: Record<string, Target> = {
-  // FastAPI (LangGraph) — default axios client.
+  // FastAPI (LangGraph) - default axios client.
   ai: {
     dir: "./src/gen-ai",
     tempSpec: "./temp-openapi.json",
@@ -44,7 +44,7 @@ const TARGETS: Record<string, Target> = {
       `${stripSlash(process.env.NEXT_PUBLIC_AI_URL || "http://localhost:8001")}/openapi.json`,
     clientImportPath: "@kubb/plugin-client/clients/axios",
   },
-  // NestJS main backend — shared custom client.
+  // NestJS main backend - shared custom client.
   backend: {
     dir: "./src/gen-backend",
     tempSpec: "./temp-openapi-backend.json",

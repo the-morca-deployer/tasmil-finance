@@ -147,7 +147,7 @@ export function WaitlistScreen2({ onEmailSuccess, onSkip }: WaitlistScreen2Props
           {attachContact.isPending ? (
             <>
               <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" />
-              Sending…
+              Sending...
             </>
           ) : (
             <>Send my Access Code →</>

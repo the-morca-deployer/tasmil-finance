@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// ─── LP Pool ──────────────────────────────────────────────────────
+// --- LP Pool ------------------------------------------------------
 
 export const allbridgePoolCardPropsSchema = z.object({
   chain: z.string(),
@@ -16,7 +16,7 @@ export const allbridgePoolCardPropsSchema = z.object({
 });
 export type AllbridgePoolCardProps = z.infer<typeof allbridgePoolCardPropsSchema>;
 
-// ─── Pool Info (on-chain state) ───────────────────────────────────
+// --- Pool Info (on-chain state) -----------------------------------
 
 export const allbridgePoolInfoSchema = z.object({
   chain: z.string(),
@@ -40,7 +40,7 @@ export const allbridgePoolInfoSchema = z.object({
 });
 export type AllbridgePoolInfoProps = z.infer<typeof allbridgePoolInfoSchema>;
 
-// ─── User Balance (LP position) ───────────────────────────────────
+// --- User Balance (LP position) -----------------------------------
 
 export const allbridgeUserBalanceSchema = z.object({
   chain: z.string(),
@@ -55,7 +55,7 @@ export const allbridgeUserBalanceSchema = z.object({
 });
 export type AllbridgeUserBalanceProps = z.infer<typeof allbridgeUserBalanceSchema>;
 
-// ─── Bridge Quote ─────────────────────────────────────────────────
+// --- Bridge Quote -------------------------------------------------
 
 export const allbridgeQuoteCardPropsSchema = z.object({
   provider: z.string().optional(),
@@ -70,7 +70,7 @@ export const allbridgeQuoteCardPropsSchema = z.object({
 });
 export type AllbridgeQuoteCardProps = z.infer<typeof allbridgeQuoteCardPropsSchema>;
 
-// ─── Bridge Routes ────────────────────────────────────────────────
+// --- Bridge Routes ------------------------------------------------
 
 export const allbridgeRouteSchema = z.object({
   provider: z.string(),
@@ -83,7 +83,7 @@ export const allbridgeRouteSchema = z.object({
 });
 export type AllbridgeRoute = z.infer<typeof allbridgeRouteSchema>;
 
-// ─── Deposit/Withdraw Quote ───────────────────────────────────────
+// --- Deposit/Withdraw Quote ---------------------------------------
 
 export const allbridgeDepositQuoteSchema = z.object({
   chain: z.string(),
@@ -106,7 +106,7 @@ export const allbridgeWithdrawQuoteSchema = z.object({
 });
 export type AllbridgeWithdrawQuoteProps = z.infer<typeof allbridgeWithdrawQuoteSchema>;
 
-// ─── Supported Chain ──────────────────────────────────────────────
+// --- Supported Chain ----------------------------------------------
 
 export const allbridgeSupportedChainSchema = z.object({
   chain: z.string(),
@@ -124,7 +124,7 @@ export const allbridgeSupportedChainSchema = z.object({
 });
 export type AllbridgeSupportedChain = z.infer<typeof allbridgeSupportedChainSchema>;
 
-// ─── Transaction (bridge + LP operations) ─────────────────────────
+// --- Transaction (bridge + LP operations) -------------------------
 
 export const allbridgeTxCardPropsSchema = z.object({
   operation: z.string(),

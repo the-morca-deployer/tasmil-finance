@@ -109,7 +109,7 @@ export function PresetCard({ preset, selected, onSelect }: PresetCardProps) {
           </span>
         </div>
 
-        {/* APY — hero number, neutral foreground */}
+        {/* APY - hero number, neutral foreground */}
         <div>
           <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest">Est. APY</p>
           <div className="mt-1 flex items-baseline gap-1">
@@ -154,7 +154,7 @@ export function PresetCard({ preset, selected, onSelect }: PresetCardProps) {
           ))}
         </div>
 
-        {/* Risk tags — neutral, pinned to bottom so cards align across grid row */}
+        {/* Risk tags - neutral, pinned to bottom so cards align across grid row */}
         <div className="mt-auto flex flex-wrap gap-1.5">
           {preset.risks.map((risk) => (
             <span

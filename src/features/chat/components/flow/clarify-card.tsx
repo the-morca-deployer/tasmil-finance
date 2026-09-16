@@ -21,7 +21,7 @@ interface ClarifyCardProps {
   initialAnswers?: Record<string, unknown>;
 }
 
-// ─── Option row (shared between single & multi mode) ─────────
+// --- Option row (shared between single & multi mode) ---------
 
 function OptionRow({
   suggestion,
@@ -88,7 +88,7 @@ function OptionRow({
   );
 }
 
-// ─── Multi-question stepper mode ─────────────────────────────
+// --- Multi-question stepper mode -----------------------------
 
 function MultiClarifyCardStepper({
   questions,
@@ -282,7 +282,7 @@ function MultiClarifyCardStepper({
   );
 }
 
-// ─── Unified ClarifyCard ─────────────────────────────────────
+// --- Unified ClarifyCard -------------------------------------
 
 export function ClarifyCard({
   questions,

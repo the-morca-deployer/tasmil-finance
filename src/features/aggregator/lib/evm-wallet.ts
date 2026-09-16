@@ -1,6 +1,6 @@
 /**
  * Minimal EVM wallet integration via window.ethereum (MetaMask).
- * No wagmi/viem dependency — uses raw provider requests.
+ * No wagmi/viem dependency - uses raw provider requests.
  */
 
 type EvmRequestArgs = {

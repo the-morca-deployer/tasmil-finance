@@ -25,6 +25,7 @@ export function AquaPositionsCard({ data, mode = "playground" }: AquaPositionsCa
   if (!data.hasPosition || positions.length === 0) {
     return (
       <ProtocolCard
+        data-testid="card-aqua-positions"
         mode={mode}
         title="LP Positions"
         icon={Wallet}
@@ -39,6 +40,7 @@ export function AquaPositionsCard({ data, mode = "playground" }: AquaPositionsCa
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-aqua-positions"
         mode="chat"
         title="Aquarius LP Positions"
         icon={Wallet}
@@ -82,7 +84,7 @@ export function AquaPositionsCard({ data, mode = "playground" }: AquaPositionsCa
 
   // Playground mode
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-aqua-positions" mode="playground">
       <CardHeader
         icon={<Wallet className="h-3.5 w-3.5" />}
         title="Aquarius LP Positions"

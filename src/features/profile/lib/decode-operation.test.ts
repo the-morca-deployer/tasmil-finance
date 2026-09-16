@@ -18,7 +18,7 @@ function base(over: Partial<RawHorizonOp> = {}): RawHorizonOp {
 
 const noMeta = () => undefined;
 
-describe("decodeOperation — classic ops", () => {
+describe("decodeOperation - classic ops", () => {
   it("classifies outgoing payment as send", () => {
     const op = base({
       type: "payment",
@@ -152,7 +152,7 @@ const META: Record<string, SorobanTokenMeta> = {
 };
 const meta = (id: string) => META[id];
 
-describe("decodeOperation — Soroban via asset_balance_changes", () => {
+describe("decodeOperation - Soroban via asset_balance_changes", () => {
   it("classifies single-credit transfer as receive", () => {
     const op = base({
       type: "invoke_host_function",
@@ -319,7 +319,7 @@ describe("decodeOperation — Soroban via asset_balance_changes", () => {
   // Regression: Horizon's `asset_balance_changes[*].amount` is already
   // human-readable (e.g. "0.1000000" for 0.1 XLM). Earlier code passed it
   // through scaleByDecimals(_, 7), divided by 1e7, then formatAmount
-  // truncated the result to "0" — UI rendered "−0 XLM" for any small debit.
+  // truncated the result to "0" - UI rendered "−0 XLM" for any small debit.
   it("does not re-scale amounts that Horizon already returned in decimal form", () => {
     const op = base({
       type: "invoke_host_function",
@@ -333,7 +333,7 @@ describe("decodeOperation — Soroban via asset_balance_changes", () => {
   });
 });
 
-describe("decodeOperation — extended Horizon ops", () => {
+describe("decodeOperation - extended Horizon ops", () => {
   it.each([
     ["manage_data", "manage-data"],
     ["set_options", "set-options"],

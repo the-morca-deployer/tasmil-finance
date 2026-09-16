@@ -9,5 +9,5 @@ export function txExplorerUrl(network: "mainnet" | "testnet", hash: string): str
 
 export function truncateHash(hash: string, head = 4, tail = 4): string {
   if (hash.length <= head + tail + 1) return hash;
-  return `${hash.slice(0, head)}…${hash.slice(-tail)}`;
+  return `${hash.slice(0, head)}...${hash.slice(-tail)}`;
 }

@@ -10,7 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
 
-// ─── Sidebar ───────────────────────────────────────────────────
+// --- Sidebar ---------------------------------------------------
 
 function PlaygroundSidebar({ currentPath }: { currentPath: string }) {
   const grouped = new Map<string, typeof PROTOCOL_CONFIGS>();
@@ -92,7 +92,7 @@ function PlaygroundSidebar({ currentPath }: { currentPath: string }) {
   );
 }
 
-// ─── Layout ────────────────────────────────────────────────────
+// --- Layout ----------------------------------------------------
 
 export default function PlaygroundLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

@@ -16,7 +16,7 @@ function formatUsd(value: number): string {
   }).format(value);
 }
 
-// ─── Loading skeleton ───────────────────────────────────────────────────────
+// --- Loading skeleton -------------------------------------------------------
 
 function PositionsSkeleton({ count = 2 }: { count?: number }) {
   return (
@@ -41,7 +41,7 @@ function PositionsSkeleton({ count = 2 }: { count?: number }) {
   );
 }
 
-// ─── Empty state ────────────────────────────────────────────────────────────
+// --- Empty state ------------------------------------------------------------
 
 function EmptyState() {
   return (
@@ -57,7 +57,7 @@ function EmptyState() {
   );
 }
 
-// ─── Disconnected state ─────────────────────────────────────────────────────
+// --- Disconnected state -----------------------------------------------------
 
 function DisconnectedState() {
   return (
@@ -73,7 +73,7 @@ function DisconnectedState() {
   );
 }
 
-// ─── Main panel ─────────────────────────────────────────────────────────────
+// --- Main panel -------------------------------------------------------------
 
 export function PositionsSidebarPanel() {
   const account = useWalletStore((s) => s.account);
@@ -142,7 +142,7 @@ export function PositionsSidebarPanel() {
         </div>
       </div>
 
-      {/* Protocol list — flat sections separated by borders */}
+      {/* Protocol list - flat sections separated by borders */}
       <div className="flex-1 overflow-y-auto">
         <AnimatePresence initial={false}>
           {groups.map((group) => (

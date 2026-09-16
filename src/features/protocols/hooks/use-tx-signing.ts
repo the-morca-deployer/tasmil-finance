@@ -29,7 +29,7 @@ const sessionTxCache = {
     try {
       sessionStorage.setItem(`${TX_CACHE_PREFIX}${key}`, JSON.stringify(value));
     } catch {
-      /* sessionStorage full or unavailable — degrade silently */
+      /* sessionStorage full or unavailable - degrade silently */
     }
   },
   has(key: string): boolean {
@@ -41,7 +41,7 @@ const sessionTxCache = {
  * Auto-cancel all pending TX cards by scanning messages for operation tool
  * calls that haven't been resolved yet. Writes "cancelled" to sessionStorage
  * so cards show "Transaction cancelled" on next render. Does NOT send any
- * message to the backend — purely local UI state.
+ * message to the backend - purely local UI state.
  */
 export function cancelPendingTxCards(
   messages: Array<{ type: string; tool_calls?: Array<{ id: string; name: string }> }>
@@ -112,7 +112,7 @@ interface TxSigningOptions {
   operation?: string;
   /** Respond callback for chat mode (notifies the agent of TX result). */
   respond?: (result: Record<string, unknown>) => void;
-  /** Volume tracking context — protocol, asset, amount for reward tracking. */
+  /** Volume tracking context - protocol, asset, amount for reward tracking. */
   volumeContext?: TrackVolumeContext;
 }
 
@@ -307,7 +307,7 @@ export function useTxSigning(options: TxSigningOptions): TxSigningResult {
 
         if (isRejection) {
           if (mode === "playground") {
-            // In playground, rejection is just a cancel — don't show as error
+            // In playground, rejection is just a cancel - don't show as error
             return { success: false, error: "cancelled" };
           }
           toast.error("Transaction rejected", { description: "You cancelled the transaction" });

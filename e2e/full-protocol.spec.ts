@@ -3,7 +3,7 @@ import type { ProtocolTestCase } from "./helpers/test-prompts";
 import { ALL_PROTOCOL_TESTS } from "./helpers/test-prompts";
 
 /**
- * Full Protocol Tests — all protocol actions x2 wallets.
+ * Full Protocol Tests - all protocol actions x2 wallets.
  *
  * FUNDED wallet (GDQI7LOG...): 12.15 XLM + 3.39 BLND
  * EMPTY wallet  (GDZZI62U...): zero balance
@@ -16,7 +16,7 @@ import { ALL_PROTOCOL_TESTS } from "./helpers/test-prompts";
  *   npx playwright test --project=e2e-chat e2e/full-protocol.spec.ts -g "EMPTY: soroswap"
  */
 
-// ─── Shared assertion helpers ──────────────────────────────────────────────
+// --- Shared assertion helpers ----------------------------------------------
 
 async function runFundedTest(
   chatPage: import("./page-objects/chat.page").ChatPage,
@@ -120,9 +120,9 @@ async function runEmptyTest(
   expect((await thinking.count()) > 0, `AI stuck: EMPTY ${label}`).toBe(false);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// FUNDED WALLET — all protocols
-// ═══════════════════════════════════════════════════════════════════════════════
+// -------------------------------------------------------------------------------
+// FUNDED WALLET - all protocols
+// -------------------------------------------------------------------------------
 
 for (const [suiteName, suite] of Object.entries(ALL_PROTOCOL_TESTS)) {
   test.describe(`FUNDED: ${suiteName}`, () => {
@@ -136,9 +136,9 @@ for (const [suiteName, suite] of Object.entries(ALL_PROTOCOL_TESTS)) {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// EMPTY WALLET — all protocols (same prompts, zero-balance wallet)
-// ═══════════════════════════════════════════════════════════════════════════════
+// -------------------------------------------------------------------------------
+// EMPTY WALLET - all protocols (same prompts, zero-balance wallet)
+// -------------------------------------------------------------------------------
 
 for (const [suiteName, suite] of Object.entries(ALL_PROTOCOL_TESTS)) {
   test.describe(`EMPTY: ${suiteName}`, () => {

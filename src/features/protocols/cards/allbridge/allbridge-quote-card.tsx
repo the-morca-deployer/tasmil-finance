@@ -27,6 +27,7 @@ export function AllbridgeQuoteCard({
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-allbridge-quote"
         mode="chat"
         title="Bridge Quote"
         icon={ArrowRightLeft}
@@ -50,7 +51,7 @@ export function AllbridgeQuoteCard({
 
   if (hasError) {
     return (
-      <ProtocolCard mode="playground">
+      <ProtocolCard data-testid="card-allbridge-quote" mode="playground">
         <div className="border-border border-b px-4 py-3">
           <p className="font-medium text-foreground text-sm">Bridge Quote</p>
         </div>
@@ -64,7 +65,7 @@ export function AllbridgeQuoteCard({
   }
 
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-allbridge-quote" mode="playground">
       <div className="border-border border-b px-4 py-3">
         <p className="font-medium text-foreground text-sm">Bridge Quote</p>
       </div>

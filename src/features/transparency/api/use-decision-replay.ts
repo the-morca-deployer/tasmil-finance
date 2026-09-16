@@ -1,6 +1,6 @@
 "use client";
 
-import { useActivityControllerReplay } from "@/gen-backend/hooks";
+import { useActivityControllerReplay } from "@/gen-backend/hooks/use-activity-controller-replay";
 import { adaptReplay } from "./adapters";
 import { unwrapBackendData } from "./transport";
 

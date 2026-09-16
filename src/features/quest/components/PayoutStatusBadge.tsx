@@ -8,7 +8,7 @@ interface PayoutStatusBadgeProps {
 }
 
 const truncate = (hash: string) =>
-  hash.length > 12 ? `${hash.slice(0, 6)}…${hash.slice(-4)}` : hash;
+  hash.length > 12 ? `${hash.slice(0, 6)}...${hash.slice(-4)}` : hash;
 
 /** Small Pending/Paid pill for a season USDC payout. */
 export function PayoutStatusBadge({ status, paidTxHash }: PayoutStatusBadgeProps) {

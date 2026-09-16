@@ -7,7 +7,6 @@ import React from "react";
 import { ZodError } from "zod";
 import { ExecutionCard } from "@/features/chat/components/flow/execution-card";
 import { FlowMessageRouter } from "@/features/chat/components/flow/flow-message-router";
-import { OptionCard } from "@/features/chat/components/flow/option-card";
 import { PlanPreviewCard } from "@/features/chat/components/flow/plan-preview-card";
 import { SuggestedPrompts } from "@/features/chat/components/suggested-prompts";
 import { assistantFlowMessageSchema } from "@/features/chat/schemas/flow-messages.schema";
@@ -69,27 +68,34 @@ function makeSimReport(overrides: Partial<SimulationReport> = {}): SimulationRep
 // ─── Test 1: Full clarify → select → plan_preview → confirm flow ─
 
 describe("E2E: Full clarify → select → plan_preview → confirm flow", () => {
+  // clarify model is now `{ kind: "clarify", questions: ClarifyQuestion[] }`.
   const clarifyMessage: AssistantFlowMessage = {
     kind: "clarify",
-    question: "Which pool do you want to deposit into?",
-    suggestions: [
-      makeSuggestion({
-        label: "Blend USDC Pool",
-        value: { protocol: "blend", asset: "USDC" },
-        tags: ["recommended"],
-        description: "14.2% APY, low risk",
-      }),
-      makeSuggestion({
-        label: "Soroswap XLM/USDC",
-        value: { protocol: "soroswap", pair: "XLM/USDC" },
-        tags: ["il_risk"],
-        description: "18.5% APY, impermanent loss risk",
-      }),
-      makeSuggestion({
-        label: "Phoenix XLM/USDC",
-        value: { protocol: "phoenix", pair: "XLM/USDC" },
-        tags: ["high_tvl"],
-      }),
+    questions: [
+      {
+        field_name: "pool",
+        question: "Which pool do you want to deposit into?",
+        input_type: "select",
+        suggestions: [
+          makeSuggestion({
+            label: "Blend USDC Pool",
+            value: { protocol: "blend", asset: "USDC" },
+            tags: ["recommended"],
+            description: "14.2% APY, low risk",
+          }),
+          makeSuggestion({
+            label: "Soroswap XLM/USDC",
+            value: { protocol: "soroswap", pair: "XLM/USDC" },
+            tags: ["il_risk"],
+            description: "18.5% APY, impermanent loss risk",
+          }),
+          makeSuggestion({
+            label: "Phoenix XLM/USDC",
+            value: { protocol: "phoenix", pair: "XLM/USDC" },
+            tags: ["high_tvl"],
+          }),
+        ],
+      },
     ],
   };
 
@@ -115,16 +121,17 @@ describe("E2E: Full clarify → select → plan_preview → confirm flow", () =>
     expect(screen.getByText("Phoenix XLM/USDC")).toBeInTheDocument();
   });
 
-  it("clicking a suggestion row fires onOptionSelect with the correct value", () => {
-    const onOptionSelect = jest.fn();
-    render(<FlowMessageRouter message={clarifyMessage} onOptionSelect={onOptionSelect} />);
+  it("fires onSubmit with the selected answer after choosing an option and confirming", () => {
+    const onSubmit = jest.fn();
+    render(<FlowMessageRouter message={clarifyMessage} onSubmit={onSubmit} />);
 
+    // Single select question: click a row to set the answer, then Continue submits.
     fireEvent.click(screen.getByText("Soroswap XLM/USDC"));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
-    expect(onOptionSelect).toHaveBeenCalledTimes(1);
-    expect(onOptionSelect).toHaveBeenCalledWith({
-      protocol: "soroswap",
-      pair: "XLM/USDC",
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith({
+      pool: { protocol: "soroswap", pair: "XLM/USDC" },
     });
   });
 

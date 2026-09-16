@@ -18,7 +18,7 @@ type QuestProfile = {
   loginStreak?: number;
 };
 
-// Shared chip base — mirrors QuestNav so the PTS, streak and wallet chips in the
+// Shared chip base - mirrors QuestNav so the PTS, streak and wallet chips in the
 // main-app top bar render identically (same height, radius, border, surface).
 const CHIP_BASE = cn(
   "inline-flex h-10 items-center gap-[7px]",
@@ -27,7 +27,7 @@ const CHIP_BASE = cn(
   "transition-colors"
 );
 
-// Hover card — same visual language as the gas-sponsor indicator tooltip
+// Hover card - same visual language as the gas-sponsor indicator tooltip
 // (dark surface, glow ring, uppercase eyebrow, fade + slide on reveal).
 function HoverCard({
   show,
@@ -47,7 +47,7 @@ function HoverCard({
   return (
     // Outer wrapper anchors at the chip's bottom edge and adds a transparent
     // top "bridge" (paddingTop) so the pointer can travel from the chip into the
-    // card without crossing a dead gap — keeps the card open long enough to
+    // card without crossing a dead gap - keeps the card open long enough to
     // click the CTA.
     <span
       style={{
@@ -137,7 +137,7 @@ export function QuestHeaderBadges() {
   const [ptsHover, setPtsHover] = useState(false);
   const [streakHover, setStreakHover] = useState(false);
   // `$` routes through questApiClient, whose interceptor already unwraps the
-  // `{ success, data }` envelope — so `me.data` IS the profile (no extra `.data`).
+  // `{ success, data }` envelope - so `me.data` IS the profile (no extra `.data`).
   const me = useUsersControllerGetMe($);
   const profile = (me.data as QuestProfile | undefined) ?? null;
 

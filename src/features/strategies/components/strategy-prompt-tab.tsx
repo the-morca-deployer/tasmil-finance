@@ -152,7 +152,7 @@ export function StrategyPromptTab({
       <Card>
         <CardContent className="pt-6">
           <p className="text-muted-foreground text-sm">
-            Prompted by {creatorName} {creatorHandle} • {createdAt}
+            Prompted by {creatorName} {creatorHandle} - {createdAt}
           </p>
         </CardContent>
       </Card>

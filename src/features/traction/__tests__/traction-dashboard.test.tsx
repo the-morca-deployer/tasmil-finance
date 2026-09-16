@@ -6,10 +6,23 @@ jest.mock("../hooks/use-traction", () => ({
   useTraction: jest.fn(),
 }));
 
+jest.mock("../hooks/use-quest-volume", () => ({
+  useQuestVolume: () => ({
+    data: { pages: [{ items: [], nextCursor: null }] },
+    isLoading: false,
+    isError: false,
+    hasNextPage: false,
+    isFetchingNextPage: false,
+    fetchNextPage: jest.fn(),
+  }),
+}));
+
 const payload = {
   summary: {
     totalTvlUsd: 125_040,
     totalUsers: 342,
+    appWallets: 183,
+    questWallets: 151,
     avgApyPercent: 8.45,
     totalTransactions: 1580,
   },
@@ -80,9 +93,10 @@ describe("TractionDashboard", () => {
       "href",
       `https://stellar.expert/explorer/public/contract/${payload.publicLedger.sourceContract}`
     );
-    expect(screen.getByText("Volume & TVL — last 90 days")).toBeInTheDocument();
-    expect(screen.getByText("User growth — last 90 days")).toBeInTheDocument();
-    expect(screen.getByText(/Live data — updated/)).toBeInTheDocument();
+    expect(screen.getByText("Volume & TVL - last 90 days")).toBeInTheDocument();
+    expect(screen.getByText("App wallet growth - last 90 days")).toBeInTheDocument();
+    expect(screen.getByText(/Live data - updated/)).toBeInTheDocument();
+    expect(screen.getByText("Quest volume - recent transactions")).toBeInTheDocument();
   });
 
   it("distinguishes a real on-chain zero from unavailable Horizon verification", () => {
@@ -138,7 +152,7 @@ describe("TractionDashboard", () => {
 
     render(<TractionDashboard />);
 
-    expect(screen.getAllByTestId("kpi-skeleton")).toHaveLength(4);
+    expect(screen.getAllByTestId("kpi-skeleton")).toHaveLength(5);
   });
 
   it("shows the error state and retries on click", () => {
@@ -155,5 +169,7 @@ describe("TractionDashboard", () => {
     expect(screen.getByText("Data temporarily unavailable")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     expect(refetch).toHaveBeenCalled();
+    // Quest volume is an independent endpoint - it must still render when traction fails.
+    expect(screen.getByText("Quest volume - recent transactions")).toBeInTheDocument();
   });
 });

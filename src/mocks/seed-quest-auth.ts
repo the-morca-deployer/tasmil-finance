@@ -3,7 +3,7 @@
  * render without requiring a Stellar wallet connection.
  *
  * Must be called SYNCHRONOUSLY before AppProvider renders.
- * Uses Zustand's setState directly — no React hooks needed.
+ * Uses Zustand's setState directly - no React hooks needed.
  */
 import { useQuestAuthStore } from "@/features/quest/store/use-quest-auth";
 import { useQuestWalletStore } from "@/features/quest/store/use-quest-wallet";
@@ -42,7 +42,7 @@ export function seedQuestAuth() {
       account: MOCK_PUBLIC_KEY,
     });
 
-    console.warn("[msw] Quest auth + wallet seeded — no wallet connect needed");
+    console.warn("[msw] Quest auth + wallet seeded - no wallet connect needed");
   } catch (e) {
     console.error("[msw] Failed to seed quest auth:", e);
   }

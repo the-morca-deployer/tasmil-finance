@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
-test.describe("Header bar — Morpho-style strip (desktop)", () => {
+test.describe("Header bar - Morpho-style strip (desktop)", () => {
   test("brand text uses shimmer animation (gradient + animate-shimmer-text)", async ({ page }) => {
     await page.goto("/farming");
     const brand = page.locator('[data-testid="top-nav-bar"]').getByText("Tasmil");
@@ -11,7 +11,7 @@ test.describe("Header bar — Morpho-style strip (desktop)", () => {
     expect(className).toMatch(/bg-clip-text/);
   });
 
-  test("nav links are text-only — no svg icons", async ({ page }) => {
+  test("nav links are text-only - no svg icons", async ({ page }) => {
     await page.goto("/farming");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
     const navLinks = topNav
@@ -51,7 +51,7 @@ test.describe("Header bar — Morpho-style strip (desktop)", () => {
   });
 });
 
-test.describe("Header bar — Clock chat-history trigger (desktop)", () => {
+test.describe("Header bar - Clock chat-history trigger (desktop)", () => {
   test("Clock trigger does NOT render on /portfolio", async ({ page }) => {
     await page.goto("/portfolio");
     const topNav = page.locator('[data-testid="top-nav-bar"]');
@@ -72,7 +72,7 @@ test.describe("Header bar — Clock chat-history trigger (desktop)", () => {
   });
 });
 
-test.describe("Header bar — connected wallet pill + dropdown", () => {
+test.describe("Header bar - connected wallet pill + dropdown", () => {
   test("connected pill shows displayAddress + opens dropdown with Credits row", async ({
     page,
     context,
@@ -94,7 +94,7 @@ test.describe("Header bar — connected wallet pill + dropdown", () => {
   });
 });
 
-test.describe("Header bar — mobile", () => {
+test.describe("Header bar - mobile", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   test("mobile header has hamburger + brand + wallet, no page title", async ({ page }) => {

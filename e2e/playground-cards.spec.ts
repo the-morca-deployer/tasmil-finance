@@ -1,16 +1,16 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * Playground card UI tests — screenshot each card variant
+ * Playground card UI tests - screenshot each card variant
  * at /playground/chat-cards with mock data.
  *
- * No AI backend needed — pure frontend rendering with hardcoded mock data.
+ * No AI backend needed - pure frontend rendering with hardcoded mock data.
  * Used to iterate on card UI/UX before running full E2E tests.
  */
 
 const PLAYGROUND_URL = "/playground/chat-cards";
 
-test.describe("Playground Chat Cards — Visual UI Tests", () => {
+test.describe("Playground Chat Cards - Visual UI Tests", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(PLAYGROUND_URL, { waitUntil: "networkidle" });
 
@@ -41,7 +41,7 @@ test.describe("Playground Chat Cards — Visual UI Tests", () => {
     });
   });
 
-  test("EarnDiscoveryCard — happy path (3 results)", async ({ page }) => {
+  test("EarnDiscoveryCard - happy path (3 results)", async ({ page }) => {
     // Find the first EarnDiscoveryCard (happy path)
     const card = page.locator('[data-testid="card-earn-discovery"]').first();
     await expect(card).toBeVisible({ timeout: 5_000 });
@@ -62,7 +62,7 @@ test.describe("Playground Chat Cards — Visual UI Tests", () => {
     await card.screenshot({ path: "e2e/test-results/cards/earn-discovery-happy.png" });
   });
 
-  test("EarnDiscoveryCard — empty state", async ({ page }) => {
+  test("EarnDiscoveryCard - empty state", async ({ page }) => {
     // Second EarnDiscoveryCard is the empty one
     const card = page.locator('[data-testid="card-earn-discovery"]').nth(1);
     await expect(card).toBeVisible({ timeout: 5_000 });
@@ -80,7 +80,7 @@ test.describe("Playground Chat Cards — Visual UI Tests", () => {
     await card.screenshot({ path: "e2e/test-results/cards/earn-discovery-empty.png" });
   });
 
-  test("EarnDiscoveryCard — null APY edge case", async ({ page }) => {
+  test("EarnDiscoveryCard - null APY edge case", async ({ page }) => {
     // Third EarnDiscoveryCard has null APY
     const card = page.locator('[data-testid="card-earn-discovery"]').nth(2);
     await expect(card).toBeVisible({ timeout: 5_000 });
@@ -93,8 +93,8 @@ test.describe("Playground Chat Cards — Visual UI Tests", () => {
     await card.screenshot({ path: "e2e/test-results/cards/earn-discovery-null-apy.png" });
   });
 
-  test("AccountInfoCard — XLM native balance shows 'XLM' not '?'", async ({ page }) => {
-    // Find balance cards — the XLM native one
+  test("AccountInfoCard - XLM native balance shows 'XLM' not '?'", async ({ page }) => {
+    // Find balance cards - the XLM native one
     const cards = page.locator('[data-testid="card-account-info"]');
     const count = await cards.count();
     expect(count).toBeGreaterThan(0);
@@ -112,7 +112,7 @@ test.describe("Playground Chat Cards — Visual UI Tests", () => {
     await xlmCard.screenshot({ path: "e2e/test-results/cards/account-balance-xlm.png" });
   });
 
-  test("AccountInfoCard — USDC balance shows 'USDC' not '?'", async ({ page }) => {
+  test("AccountInfoCard - USDC balance shows 'USDC' not '?'", async ({ page }) => {
     const cards = page.locator('[data-testid="card-account-info"]');
 
     // Third card should be USDC balance
@@ -126,7 +126,7 @@ test.describe("Playground Chat Cards — Visual UI Tests", () => {
     await usdcCard.screenshot({ path: "e2e/test-results/cards/account-balance-usdc.png" });
   });
 
-  test("AccountInfoCard — missing asset shows 'Unknown' not '?'", async ({ page }) => {
+  test("AccountInfoCard - missing asset shows 'Unknown' not '?'", async ({ page }) => {
     const cards = page.locator('[data-testid="card-account-info"]');
 
     // Fourth card has missing asset name
@@ -134,13 +134,13 @@ test.describe("Playground Chat Cards — Visual UI Tests", () => {
     await expect(unknownCard).toBeVisible({ timeout: 5_000 });
 
     const text = await unknownCard.textContent();
-    // Should NOT show "?" — should show "Unknown" or some fallback
+    // Should NOT show "?" - should show "Unknown" or some fallback
     expect(text).not.toMatch(/Asset\s*\?$/);
 
     await unknownCard.screenshot({ path: "e2e/test-results/cards/account-balance-unknown.png" });
   });
 
-  test("BridgeDiscoveryCard — with quotes", async ({ page }) => {
+  test("BridgeDiscoveryCard - with quotes", async ({ page }) => {
     const card = page.locator('[data-testid="card-bridge-discovery"]').first();
     await expect(card).toBeVisible({ timeout: 5_000 });
 
@@ -153,7 +153,7 @@ test.describe("Playground Chat Cards — Visual UI Tests", () => {
     await card.screenshot({ path: "e2e/test-results/cards/bridge-discovery-quotes.png" });
   });
 
-  test("BridgeDiscoveryCard — empty state", async ({ page }) => {
+  test("BridgeDiscoveryCard - empty state", async ({ page }) => {
     const card = page.locator('[data-testid="card-bridge-discovery"]').nth(1);
     await expect(card).toBeVisible({ timeout: 5_000 });
 
@@ -163,7 +163,7 @@ test.describe("Playground Chat Cards — Visual UI Tests", () => {
     await card.screenshot({ path: "e2e/test-results/cards/bridge-discovery-empty.png" });
   });
 
-  test("StrategyPresetCard — 3 presets", async ({ page }) => {
+  test("StrategyPresetCard - 3 presets", async ({ page }) => {
     const card = page.locator('[data-testid="card-strategy-preset"]').first();
     await expect(card).toBeVisible({ timeout: 5_000 });
 
@@ -175,14 +175,14 @@ test.describe("Playground Chat Cards — Visual UI Tests", () => {
     await card.screenshot({ path: "e2e/test-results/cards/strategy-presets.png" });
   });
 
-  test("AccountSetupCard — deploy step", async ({ page }) => {
+  test("AccountSetupCard - deploy step", async ({ page }) => {
     const card = page.locator('[data-testid="card-account-setup"]').first();
     await expect(card).toBeVisible({ timeout: 5_000 });
 
     await card.screenshot({ path: "e2e/test-results/cards/account-setup-deploy.png" });
   });
 
-  test("AccountSetupCard — active account", async ({ page }) => {
+  test("AccountSetupCard - active account", async ({ page }) => {
     const cards = page.locator('[data-testid="card-account-setup"]');
     const count = await cards.count();
     if (count > 1) {

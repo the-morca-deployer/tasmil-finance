@@ -34,7 +34,7 @@ export function PrizePoolBanner({
     >
       {/* .banner-grid: 3-col (1.12fr 0.66fr 1.28fr), collapses to 1 col at ≤920px */}
       <div className={cn("grid grid-cols-[1.12fr_0.66fr_1.28fr]", "max-[920px]:grid-cols-1")}>
-        {/* .bn-seg.bn-prize — first segment, no left border */}
+        {/* .bn-seg.bn-prize - first segment, no left border */}
         <div
           className={cn("p-[24px_26px] flex flex-col justify-center", "items-center text-center")}
         >
@@ -135,7 +135,7 @@ export function PrizePoolBanner({
           </div>
         </div>
 
-        {/* .bn-seg.bn-time — second segment, border-left from .bn-seg+.bn-seg */}
+        {/* .bn-seg.bn-time - second segment, border-left from .bn-seg+.bn-seg */}
         <div
           className={cn(
             "p-[24px_26px] flex flex-col justify-center",

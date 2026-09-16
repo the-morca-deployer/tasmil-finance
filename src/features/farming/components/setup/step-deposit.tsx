@@ -160,15 +160,15 @@ export function StepDeposit({
 
         <Divider />
 
-        {/* Stats — 2x2 grid */}
+        {/* Stats - 2x2 grid */}
         <section className="grid grid-cols-2 gap-x-12 gap-y-8">
           <StatCell label="You'll earn /per year">
             {projectedYearly === null
-              ? "—"
+              ? "-"
               : `$${projectedYearly.toLocaleString("en-US", { maximumFractionDigits: 2 })}`}
           </StatCell>
           <StatCell label="APR" hint>
-            {isValid ? `${estimatedApy.toFixed(1)}%` : "—"}
+            {isValid ? `${estimatedApy.toFixed(1)}%` : "-"}
           </StatCell>
           <StatCell label="Markets" hint>
             {poolCount} markets

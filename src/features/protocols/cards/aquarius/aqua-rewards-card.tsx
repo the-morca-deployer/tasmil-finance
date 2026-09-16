@@ -19,6 +19,7 @@ export function AquaRewardsCard({ data, mode = "playground" }: AquaRewardsCardCo
   if (!rewards.length) {
     return (
       <ProtocolCard
+        data-testid="card-aqua-rewards"
         mode={mode}
         title="AQUA Rewards"
         icon={Gift}
@@ -33,6 +34,7 @@ export function AquaRewardsCard({ data, mode = "playground" }: AquaRewardsCardCo
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-aqua-rewards"
         mode="chat"
         title="AQUA Daily Rewards"
         icon={Gift}
@@ -64,7 +66,7 @@ export function AquaRewardsCard({ data, mode = "playground" }: AquaRewardsCardCo
 
   // Playground mode
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-aqua-rewards" mode="playground">
       <CardHeader
         icon={<Gift className="h-3.5 w-3.5" />}
         title="AQUA Daily Rewards"

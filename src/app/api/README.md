@@ -1,7 +1,7 @@
 # API & proxy architecture
 
-The frontend talks to two upstream services — the **main backend** (NestJS) and
-the **AI service** (FastAPI/LangGraph) — plus the **quest backend** (NestJS).
+The frontend talks to two upstream services - the **main backend** (NestJS) and
+the **AI service** (FastAPI/LangGraph) - plus the **quest backend** (NestJS).
 Requests reach them through one of two mechanisms. Pick by whether the request
 needs server-side logic.
 
@@ -15,24 +15,24 @@ forwarded verbatim to the upstream service URL (`BACKEND_INTERNAL_URL` /
 
 **To expose a new pass-through path:** add one entry to `PROXY_TARGETS`
 (`prefixes` for `<p>/:path*`, `exact` for a single endpoint). Do **not** edit
-`next.config.ts` or hand-write the rewrite shape — the list and the test derive
+`next.config.ts` or hand-write the rewrite shape - the list and the test derive
 from this single table.
 
 ## 2. Route handlers (`src/app/api/**/route.ts`)
 
 Use a handler **only when the request needs server-side logic**, e.g.:
 
-- **Auth translation** — read the `tasmil_auth` httpOnly cookie and add an
+- **Auth translation** - read the `tasmil_auth` httpOnly cookie and add an
   `Authorization: Bearer` header (see `auth/me`, `auth/verify`). A rewrite can't
   touch cookies, so these must be handlers.
-- **OAuth callbacks** — `auth/{callback,discord,telegram,x}`.
-- **BFF / SDK calls** — protocol data assembled in-process from on-chain SDKs
+- **OAuth callbacks** - `auth/{callback,discord,telegram,x}`.
+- **BFF / SDK calls** - protocol data assembled in-process from on-chain SDKs
   (`aggregator/*`, `blend/*`, `aquarius/*`, `allbridge/*`, `defindex/*`).
 - **Response shaping / validation** before returning to the browser.
 
 A handler shadows **only its exact path**; sibling paths under the same prefix
 still fall through to the rewrite. So `auth/me` is a handler while
-`auth/challenge` (no handler) is proxied — both coexist by design.
+`auth/challenge` (no handler) is proxied - both coexist by design.
 
 ## Rule of thumb
 

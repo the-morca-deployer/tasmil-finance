@@ -55,10 +55,10 @@ describe("DeployStepper", () => {
         subStep="signing_deploy"
         deployCompleted={false}
         setupCompleted={false}
-        statusText="Sign transaction 1 of 2 — Deploy Account"
+        statusText="Sign transaction 1 of 2 - Deploy Account"
       />
     );
-    expect(screen.getByText(/Sign transaction 1 of 2 — Deploy Account/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sign transaction 1 of 2 - Deploy Account/i)).toBeInTheDocument();
     expect(screen.getByText(/keep Freighter open/i)).toBeInTheDocument();
   });
 

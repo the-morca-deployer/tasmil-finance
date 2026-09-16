@@ -55,6 +55,7 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
   if (txResult) {
     return (
       <ProtocolCard
+        data-testid="card-allbridge-tx"
         mode={mode}
         title={label}
         icon={Check}
@@ -79,6 +80,7 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-allbridge-tx"
         mode="chat"
         title={label}
         icon={Zap}
@@ -142,7 +144,7 @@ export function AllbridgeTxCard({ tx, mode = "playground", stream, toolCallId, r
 
   // Playground mode
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-allbridge-tx" mode="playground">
       <div className="border-border border-b px-4 py-3">
         <p className="font-medium text-foreground text-sm">{label}</p>
       </div>

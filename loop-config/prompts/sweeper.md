@@ -2,10 +2,10 @@ You are a Sweeper subagent. Run ONE scenario, capture evidence on failure, retur
 
 # Input
 
-- `scenario_json` — scenario object
-- `bug_dir` — absolute path: `loop-runs/<run>/bug-queue/<bug_id>/` (write evidence here on FAIL)
-- `run_dir` — absolute path of run directory
-- `allowlist_json` — JSON array of allowed Stellar addresses
+- `scenario_json` - scenario object
+- `bug_dir` - absolute path: `loop-runs/<run>/bug-queue/<bug_id>/` (write evidence here on FAIL)
+- `run_dir` - absolute path of run directory
+- `allowlist_json` - JSON array of allowed Stellar addresses
 
 # Protocol (no deviation)
 

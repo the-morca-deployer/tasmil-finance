@@ -4,7 +4,7 @@ import type { PositionItem } from "@/features/profile/hooks/use-defi-positions";
 import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
 
-// ─── Type badge config ──────────────────────────────────────────────────────
+// --- Type badge config ------------------------------------------------------
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   vault: { label: "Vault", color: "text-violet-400", bg: "bg-violet-400/10" },
@@ -14,7 +14,7 @@ const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string }> 
   stake: { label: "Staked", color: "text-violet-400", bg: "bg-violet-400/10" },
 };
 
-// ─── Formatters ─────────────────────────────────────────────────────────────
+// --- Formatters -------------------------------------------------------------
 
 function formatUsd(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -29,7 +29,7 @@ function formatRewardAmount(amount: number): string {
   return amount.toLocaleString("en-US", { maximumFractionDigits: 7 });
 }
 
-// ─── Token pair icon ────────────────────────────────────────────────────────
+// --- Token pair icon --------------------------------------------------------
 
 function TokenPairIconSmall({ token0, token1 }: { token0: string; token1: string }) {
   return (
@@ -46,7 +46,7 @@ function TokenPairIconSmall({ token0, token1 }: { token0: string; token1: string
   );
 }
 
-// ─── Position card ──────────────────────────────────────────────────────────
+// --- Position card ----------------------------------------------------------
 
 interface CompactPositionRowProps {
   position: PositionItem;

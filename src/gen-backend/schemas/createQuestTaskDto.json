@@ -1,1 +1,0 @@
-{"type":"object","properties":{"title":{"type":"string"},"description":{"type":"string"},"type":{"type":"string"},"pointReward":{"type":"number"},"order":{"type":"number"},"isActive":{"type":"boolean"},"metadata":{"type":"object"}},"required":["title"],"x-readme-ref-name":"CreateQuestTaskDto"}

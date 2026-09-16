@@ -8,7 +8,7 @@ import { PROTOCOL_ICONS, TOKEN_ICONS } from "@/shared/constants/asset-manifest";
 // CDN host that powers the optimized pipeline (must match next.config.ts).
 const CDN_HOST = "tasmil-assets.sgp1.cdn.digitaloceanspaces.com";
 
-// Local chain logos in /public/chains/ — kept here because chain artwork is
+// Local chain logos in /public/chains/ - kept here because chain artwork is
 // not part of the token manifest yet.
 const CHAIN_IMAGES: Record<string, string> = {
   STELLAR: "/chains/stellar.png",
@@ -45,7 +45,7 @@ const LOCAL_TOKEN_OVERRIDES: Record<string, string> = {
   OP: "/chains/optimism.png",
 };
 
-// Local protocol logo overrides — use bundled agent SVGs instead of CDN.
+// Local protocol logo overrides - use bundled agent SVGs instead of CDN.
 const LOCAL_PROTOCOL_OVERRIDES: Record<string, string> = {
   allbridge: "/agents/allbridge-agent.svg",
   aquarius: "/agents/aquarius-agent.svg",
@@ -126,7 +126,7 @@ interface TokenImageProps {
  *   3. First-letter avatar with deterministic color
  *
  * If the external `src` fails to load, falls back to the local image (if any)
- * before showing the letter avatar — so bridge tokens always look correct
+ * before showing the letter avatar - so bridge tokens always look correct
  * even when stellar.expert or other CDNs are unreachable.
  *
  * Wraps the Next.js `<Image>` component so the optimizer pipeline
@@ -165,7 +165,7 @@ export function TokenImage({ src, alt, className, width = 40, height = 40 }: Tok
     );
   }
 
-  // No image available — show letter avatar
+  // No image available - show letter avatar
   const letter = (alt || "?").trim().charAt(0).toUpperCase();
   const color = colorFor(alt);
   const hasTextClass = !!className?.match(/\btext-/);

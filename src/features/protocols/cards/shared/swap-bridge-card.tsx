@@ -11,7 +11,7 @@ import type { CardMode } from "../../schemas/common.schema";
 import type { SwapBridgeCardProps } from "../../schemas/shared.schema";
 import { ProtocolCard } from "../base/protocol-card";
 
-// ─── Operation config ───────────────────────────────────────────
+// --- Operation config -------------------------------------------
 
 const OP_LABELS: Record<string, { label: string; icon: typeof ArrowLeftRight }> = {
   swap: { label: "Swap", icon: ArrowLeftRight },
@@ -20,7 +20,7 @@ const OP_LABELS: Record<string, { label: string; icon: typeof ArrowLeftRight }> 
   remove_liquidity: { label: "Remove Liquidity", icon: ArrowUpDown },
 };
 
-// ─── Props ──────────────────────────────────────────────────────
+// --- Props ------------------------------------------------------
 
 interface SwapBridgeCardComponentProps {
   data: SwapBridgeCardProps;
@@ -30,7 +30,7 @@ interface SwapBridgeCardComponentProps {
   respond?: (result: Record<string, unknown>) => void;
 }
 
-// ─── Component ──────────────────────────────────────────────────
+// --- Component --------------------------------------------------
 
 export function SwapBridgeCard({
   data,
@@ -69,11 +69,12 @@ export function SwapBridgeCard({
 
   const isBridge = operation === "bridge";
 
-  // ─── Chat mode (compact) ───────────────────────────────────────
+  // --- Chat mode (compact) ---------------------------------------
 
   if (mode === "chat") {
     return (
       <ProtocolCard
+        data-testid="card-swap-bridge"
         mode="chat"
         title={`${opCfg.label} via ${protocolLabel}`}
         icon={opCfg.icon}
@@ -201,7 +202,7 @@ export function SwapBridgeCard({
     );
   }
 
-  // ─── Playground mode ───────────────────────────────────────────
+  // --- Playground mode -------------------------------------------
 
   return (
     <div className="relative overflow-hidden rounded-xl border border-border bg-card">

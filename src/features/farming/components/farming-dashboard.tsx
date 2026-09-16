@@ -13,10 +13,9 @@ interface Props {
   lifetimeEarningsPct: number;
   chartSeries: ChartPoint[];
   agentEvents: AgentHistoryEvent[];
-  netApr: number;
+  blendedApy: number;
   currentPositionApr: number;
   currentMarketName: string;
-  rewardsApr?: number;
   activatedAt: string;
   onAddFunds: () => void;
   onDeactivate: () => void;
@@ -39,10 +38,9 @@ export function FarmingDashboard(props: Props) {
       </div>
       <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-80">
         <AprSummaryCard
-          netApr={props.netApr}
+          blendedApy={props.blendedApy}
           currentPositionApr={props.currentPositionApr}
           currentMarketName={props.currentMarketName}
-          rewardsApr={props.rewardsApr}
           activatedAt={props.activatedAt}
           totalDepositsUsd={props.totalDepositedUsd}
         />

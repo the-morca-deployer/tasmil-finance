@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing type errors against @tasmil/adapter-sdk;
+// @ts-nocheck - pre-existing type errors against @tasmil/adapter-sdk;
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
@@ -36,7 +36,7 @@ interface ProtocolPositionGroup {
   positions: PositionItem[];
 }
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// --- Helpers ----------------------------------------------------------------
 
 function parseTokenSymbol(raw: string): string {
   if (raw === "native") return "XLM";
@@ -60,7 +60,7 @@ function poolPairName(pool: {
   return `Pool ${pool.address.slice(0, 6)}\u2026`;
 }
 
-// ─── Route handler ──────────────────────────────────────────────────────────
+// --- Route handler ----------------------------------------------------------
 
 export async function GET(req: NextRequest) {
   const user = req.nextUrl.searchParams.get("user");

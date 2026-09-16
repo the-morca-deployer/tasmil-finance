@@ -4,6 +4,8 @@ const evidence = {
   summary: {
     totalTvlUsd: 0,
     totalUsers: 0,
+    appWallets: 183,
+    questWallets: 151,
     avgApyPercent: 0,
     totalTransactions: 0,
   },
@@ -53,6 +55,7 @@ describe("traction evidence boundary", () => {
     });
 
     expect(parsed.publicLedger.volumeByVenue[0]?.amountBaseUnits).toBe("90071992547409931234");
+    expect(parsed.summary).toMatchObject({ appWallets: 183, questWallets: 151 });
   });
 
   it.each(["1.5", "01", "-1"])("rejects non-canonical base-unit value %s", (value) => {

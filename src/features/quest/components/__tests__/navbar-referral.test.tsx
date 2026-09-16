@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import Navbar from "../Navbar";
 
-// Base wallet-context mock — disconnected by default; overridden per test
+// Base wallet-context mock - disconnected by default; overridden per test
 const mockUseWallet = jest.fn();
 jest.mock("@/features/quest/context/wallet-context", () => ({
   useWallet: () => mockUseWallet(),
@@ -25,7 +25,7 @@ jest.mock("@/gen-quest/hooks", () => ({
 // Separate mock fn so each test can configure the referral response
 const mockUseReferral = jest.fn();
 
-// WalletRankInfo fetches its own data — stub it out
+// WalletRankInfo fetches its own data - stub it out
 jest.mock("../WalletRankInfo", () => ({ WalletRankInfo: () => null }));
 
 // sonner is not installed in test env
@@ -34,7 +34,7 @@ jest.mock("sonner", () => ({ toast: { success: jest.fn(), error: jest.fn() } }))
 const connectedWallet = {
   isAuthenticating: false,
   address: "GABCDEF1234567890",
-  displayAddress: "GABC…7890",
+  displayAddress: "GABC...7890",
   points: 100,
   user: { loginStreak: 3, avatarUrl: null, referralCode: null },
   connect: jest.fn(),

@@ -1,4 +1,4 @@
-// @ts-nocheck — surfaced by Biome auto-fix; pre-existing type drift unrelated to this PR.
+// @ts-nocheck - surfaced by Biome auto-fix; pre-existing type drift unrelated to this PR.
 
 "use client";
 
@@ -8,7 +8,7 @@ import { useWelcomeReward } from "@/features/welcome-reward/hooks/use-welcome-re
 import { checkWalletNetwork, parseSigningError } from "@/lib/stellar-network-check";
 import { useWallet } from "@/shared/context/wallet-context";
 
-// ─── Types matching MCP Stellar aggregator API ──────────────────
+// --- Types matching MCP Stellar aggregator API ------------------
 
 // All aggregator operations go through local Next.js API routes (no MCP dependency)
 
@@ -109,9 +109,9 @@ export interface AggregatorState {
   signingTrustline: string | null;
 }
 
-// ─── API helpers ────────────────────────────────────────────────
+// --- API helpers ------------------------------------------------
 
-// ── SDK-backed endpoints (Next.js API routes, no MCP server needed) ──
+// -- SDK-backed endpoints (Next.js API routes, no MCP server needed) --
 
 async function fetchRegistry(): Promise<{ chains: ChainInfo[]; tokens: TokenInfo[] }> {
   const res = await fetch(`/api/tokens`);
@@ -194,7 +194,7 @@ const SUPPORTED_CHAINS = new Set([
   "unichain",
 ]);
 
-// ─── Hook ───────────────────────────────────────────────────────
+// --- Hook -------------------------------------------------------
 
 export function useAggregator(): AggregatorState {
   const { address: stellarAddress, signTransaction } = useWallet();
@@ -246,7 +246,7 @@ export function useAggregator(): AggregatorState {
 
   const quoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ─── Load registry on mount ─────────────────────────────────
+  // --- Load registry on mount ---------------------------------
 
   useEffect(() => {
     let cancelled = false;
@@ -284,7 +284,7 @@ export function useAggregator(): AggregatorState {
     };
   }, []);
 
-  // ─── Filter tokens when tokenIn changes ─────────────────────
+  // --- Filter tokens when tokenIn changes ---------------------
 
   useEffect(() => {
     if (!tokenIn) return;
@@ -300,7 +300,7 @@ export function useAggregator(): AggregatorState {
       .catch(() => {});
   }, [tokenIn, chainIn]);
 
-  // ─── Filter tokens when tokenOut changes ────────────────────
+  // --- Filter tokens when tokenOut changes --------------------
 
   useEffect(() => {
     if (!tokenOut) return;
@@ -316,7 +316,7 @@ export function useAggregator(): AggregatorState {
       .catch(() => {});
   }, [tokenOut, chainOut]);
 
-  // ─── Quote fetching ──────────────────────────────────────────
+  // --- Quote fetching ------------------------------------------
   // Use refs to avoid stale closures in setInterval
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -374,7 +374,7 @@ export function useAggregator(): AggregatorState {
     } finally {
       if (showLoader) setIsLoadingQuotes(false);
     }
-  }, []); // no deps — always reads from ref
+  }, []); // no deps - always reads from ref
 
   // Debounced initial fetch + auto-refresh every 15s
   // Pauses when tab is hidden, resumes when visible
@@ -433,7 +433,7 @@ export function useAggregator(): AggregatorState {
     doFetchQuotes(true);
   }, [doFetchQuotes]);
 
-  // ─── Best quote ─────────────────────────────────────────────
+  // --- Best quote ---------------------------------------------
 
   const bestQuote = useMemo(() => {
     const ok = quotes.filter((q) => q.status === "ok");
@@ -443,7 +443,7 @@ export function useAggregator(): AggregatorState {
     );
   }, [quotes]);
 
-  // ─── Actions ────────────────────────────────────────────────
+  // --- Actions ------------------------------------------------
 
   const setTokenIn = useCallback((token: TokenInfo, chain: string) => {
     setTokenInState(token);
@@ -479,7 +479,7 @@ export function useAggregator(): AggregatorState {
     setChainOut(chainIn);
   }, [tokenIn, tokenOut, chainIn, chainOut]);
 
-  // ─── Trustline check (both tokenIn and tokenOut) ─────────────
+  // --- Trustline check (both tokenIn and tokenOut) -------------
 
   const [needsTrustline, setNeedsTrustline] = useState(false);
   const [trustlineToken, setTrustlineToken] = useState<string | null>(null);
@@ -532,7 +532,7 @@ export function useAggregator(): AggregatorState {
             .then((has) => ({ symbol: t.symbol, has }))
             // Aggregator policy: on Horizon failure, treat as MISSING so the user
             // is prompted to add. The hook policy (assume true on error) is the
-            // opposite — see use-trustline-check.ts.
+            // opposite - see use-trustline-check.ts.
             .catch(() => ({ symbol: t.symbol, has: false }))
         );
       })
@@ -583,7 +583,7 @@ export function useAggregator(): AggregatorState {
     return Promise.resolve();
   }, [missingTrustlines, addTrustlineFor]);
 
-  // ─── Execute swap/bridge ────────────────────────────────────
+  // --- Execute swap/bridge ------------------------------------
 
   const [isExecuting, setIsExecuting] = useState(false);
   const [executeError, setExecuteError] = useState<string | null>(null);
@@ -624,7 +624,7 @@ export function useAggregator(): AggregatorState {
         const numAmount = Number.parseFloat(amount);
         const rawAmount = String(Math.floor(numAmount * 10 ** tokenIn.decimals));
 
-        // ── Allbridge cross-chain bridge (client-side via Tasmil SDK) ──
+        // -- Allbridge cross-chain bridge (client-side via Tasmil SDK) --
         if (protocol === "allbridge" && opts?.allbridgeExecute) {
           let bridgeTxHash: string | undefined;
           try {
@@ -685,7 +685,7 @@ export function useAggregator(): AggregatorState {
           return;
         }
 
-        // ── Standard Stellar protocol execute (soroswap, aquarius, etc.) ──
+        // -- Standard Stellar protocol execute (soroswap, aquarius, etc.) --
         const result = await fetchExecute({
           mode: mode || "swap",
           protocol,

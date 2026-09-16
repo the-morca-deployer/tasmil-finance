@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 import { BrandLogo } from "@/shared/components/brand-logo";
 import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
 
-// Shared chip base — mirrors the quest navbar (QuestNav) so the PTS, streak
+// Shared chip base - mirrors the quest navbar (QuestNav) so the PTS, streak
 // and wallet chips render identically (same height, radius, border, surface).
 const CHIP_BASE = cn(
   "inline-flex h-10 items-center gap-[7px]",
@@ -33,7 +33,7 @@ const CHIP_BASE = cn(
   "transition-colors"
 );
 
-// ─── NavItem ─────────────────────────────────────────────────────────────────
+// --- NavItem -----------------------------------------------------------------
 
 function NavItem({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
@@ -53,7 +53,7 @@ function NavItem({ href, label }: { href: string; label: string }) {
   );
 }
 
-// ─── Navbar ──────────────────────────────────────────────────────────────────
+// --- Navbar ------------------------------------------------------------------
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -72,7 +72,7 @@ const Navbar: React.FC = () => {
 
   const queryClient = useQueryClient();
 
-  // Referral data — guard matches sibling hooks so it only fires when authenticated
+  // Referral data - guard matches sibling hooks so it only fires when authenticated
   const { data: refRaw } = useReferralControllerGetMyReferral({
     ...withAuth,
     query: { enabled: isAuthenticated && !!user },
@@ -87,8 +87,8 @@ const Navbar: React.FC = () => {
     referrer?.name ??
     referrer?.code ??
     (referrer?.walletAddress
-      ? `${referrer.walletAddress.slice(0, 4)}…${referrer.walletAddress.slice(-4)}`
-      : "—");
+      ? `${referrer.walletAddress.slice(0, 4)}...${referrer.walletAddress.slice(-4)}`
+      : "-");
 
   // Streak lives on the user object from the auth store
   const streak = user?.loginStreak ?? 0;
@@ -141,7 +141,7 @@ const Navbar: React.FC = () => {
     },
   });
 
-  // Sponsor badge — first joined campaign with metadata.sponsor
+  // Sponsor badge - first joined campaign with metadata.sponsor
   const myCampaigns = useUsersControllerGetMyCampaigns();
   const sponsoredName = (
     (myCampaigns.data?.data as { metadata?: { sponsor?: string } }[] | undefined) ?? []
@@ -210,7 +210,7 @@ const Navbar: React.FC = () => {
         ) : null}
       </div>
 
-      {/* Desktop nav links — .nav-links: flex; gap:2px */}
+      {/* Desktop nav links - .nav-links: flex; gap:2px */}
       <nav className="hidden md:flex gap-[2px]">
         <NavItem href="/quest/explore" label="Explore" />
         <NavItem href="/quest/campaigns" label="Campaigns" />
@@ -218,7 +218,7 @@ const Navbar: React.FC = () => {
         <NavItem href="/quest/profile" label="Profile" />
       </nav>
 
-      {/* Right side — .nav-right: flex; align-items:center; gap:12px */}
+      {/* Right side - .nav-right: flex; align-items:center; gap:12px */}
       <div className="hidden md:flex items-center gap-3">
         {!isConnected ? (
           <Button
@@ -243,13 +243,13 @@ const Navbar: React.FC = () => {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            {/* Points pill — .stat-pill.pts: color:var(--green) */}
+            {/* Points pill - .stat-pill.pts: color:var(--green) */}
             <span className={cn(CHIP_BASE, "text-quest-green [&_svg]:text-quest-green")}>
               <Coins className="w-[14px] h-[14px]" />
               {points.toLocaleString()}
             </span>
 
-            {/* Streak pill — with check-in button if not yet checked in today */}
+            {/* Streak pill - with check-in button if not yet checked in today */}
             {!hasCheckedIn ? (
               <button
                 type="button"
@@ -281,7 +281,7 @@ const Navbar: React.FC = () => {
               </span>
             )}
 
-            {/* Wallet chip — .wallet-chip: inline-flex; align-items:center; gap:10px; padding:5px 14px 5px 6px;
+            {/* Wallet chip - .wallet-chip: inline-flex; align-items:center; gap:10px; padding:5px 14px 5px 6px;
                  border-radius:var(--r-pill); background:var(--surface); border:1px solid var(--line-2) */}
             <div className="relative group">
               <span className={cn(CHIP_BASE, "cursor-pointer gap-[10px] pl-[6px] text-quest-text")}>

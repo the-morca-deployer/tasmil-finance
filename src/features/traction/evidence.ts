@@ -74,6 +74,8 @@ const summarySchema = z
   .object({
     totalTvlUsd: z.number().finite(),
     totalUsers: safeCount,
+    appWallets: safeCount,
+    questWallets: safeCount,
     avgApyPercent: z.number().finite(),
     totalTransactions: safeCount,
   })

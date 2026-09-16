@@ -6,7 +6,17 @@ export interface RebalanceStatus {
 
 export interface DiscoveredPool {
   id: string;
-  protocol: "blend" | "soroswap" | "aquarius" | "sdex";
+  /**
+   * UPPER-CASE, mirroring `enum Protocol` in the backend's Prisma schema -
+   * `GET /api/pools` serialises the enum member verbatim, so the wire value is
+   * `"BLEND"`, never `"blend"`. This field was typed lower-case for a long
+   * time, which meant every `pool.protocol === "blend"` comparison written
+   * against the type was dead code. Compare case-insensitively when matching
+   * against anything that isn't this same field.
+   */
+  protocol: "BLEND" | "SOROSWAP" | "AQUARIUS" | "SDEX";
+  /** Lower-case on the wire, unlike `protocol` - the backend maps `PoolType`
+   *  down before serialising. Verified against `GET /api/pools`. */
   poolType: "lending" | "backstop" | "lp";
   poolAddress: string;
   strategyContractAddress?: string;

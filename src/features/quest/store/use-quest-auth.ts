@@ -8,7 +8,6 @@ export interface AuthUser {
   username: string;
   walletAddress: string;
   avatarUrl?: string | null;
-  email?: string | null;
   tier: string;
   totalPoints: number;
   loginStreak: number;
@@ -26,7 +25,7 @@ interface AuthState {
   logout: () => void;
 }
 
-// Quest auth store — now backed by main backend cookie session.
+// Quest auth store - now backed by main backend cookie session.
 // isAuthenticated is set by wallet-context after GET /api/auth/me succeeds.
 export const useQuestAuthStore = create<AuthState>()((set, get) => ({
   user: null,

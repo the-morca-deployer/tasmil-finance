@@ -14,7 +14,7 @@ async function bootMainnetWithNudge(
   await input.press("Enter");
 }
 
-test.describe("MilestoneNudge — Phase 3 inline cards", () => {
+test.describe("MilestoneNudge - Phase 3 inline cards", () => {
   test("five-dollar variant", async ({ page }) => {
     await bootMainnetWithNudge(page, milestoneNudgeEvent("five-dollar", { topPercent: 15 }));
     await expect(page.getByText(/\$5/)).toBeVisible({ timeout: 8000 });

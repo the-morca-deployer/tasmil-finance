@@ -4,20 +4,20 @@
 
 **Goal:** Replace the four divergent avatar techniques with one shared `boring-avatars` component so avatars look consistent across the tasmil-finance main app, the tasmil-finance quest area, and tasmil-strategy.
 
-**Architecture:** A single `TasmilAvatar` component (deterministic `boring-avatars`, brand palette, seeded by identity) is created once per repo — identical file content. Within tasmil-finance the main app and quest both import it. Quest keeps an avatar picker that lets users choose a `boring-avatars` variant, persisted as a compact `tasmil:<variant>` token in the existing `avatarUrl` field (no backend schema change). Strategy seeds best-effort by `publisherId ?? publisherName`.
+**Architecture:** A single `TasmilAvatar` component (deterministic `boring-avatars`, brand palette, seeded by identity) is created once per repo - identical file content. Within tasmil-finance the main app and quest both import it. Quest keeps an avatar picker that lets users choose a `boring-avatars` variant, persisted as a compact `tasmil:<variant>` token in the existing `avatarUrl` field (no backend schema change). Strategy seeds best-effort by `publisherId ?? publisherName`.
 
 **Tech Stack:** Next.js 16, React, TypeScript, Tailwind, `boring-avatars`; finance tests = Jest + jsdom + Testing Library; strategy has NO test runner (gate = `tsc` + Biome).
 
 ## Global Constraints
 - Brand palette (both repos' globals.css), use exactly: `["#67e8f9", "#0ea5e9", "#0369a1", "#04141a", "#d9fbff"]`.
 - Default variant: `marble`. Quest picker variants in order: `marble`, `bauhaus`, `beam`, `pixel`, `ring`, `sunset`.
-- Persisted picker token: `tasmil:<variant>`. Legacy `https://api.dicebear.com/...` and empty values must fall back to `marble` — no migration.
+- Persisted picker token: `tasmil:<variant>`. Legacy `https://api.dicebear.com/...` and empty values must fall back to `marble` - no migration.
 - `cn` util is `@/lib/utils` in BOTH repos. Path alias `@/*` -> `src/*` in both.
 - Biome: 2-space indent, double quotes, width 100, `import type` for types, no console.log. Run `pnpm check:fix` before commit.
 - `boring-avatars` NOT installed in either repo. Default export = avatar component; props: `name` (seed), `size` (number), `variant`, `colors` (string[]). Verify prop names against installed version at Task 1.
 - The two `tasmil-avatar.tsx` files (finance `src/shared/components/`, strategy `src/shared/ui/`) must stay byte-identical in config.
-- `farming-2/components/farming-header.tsx` only mentions avatar size in a COMMENT — NOT an avatar; do not touch.
-- WORKING TREE NOTE: both repos are on branch `feat/freighter-network-watcher` with pre-existing uncommitted WIP. `connect-wallet-button.tsx` (Task 2) and `Profile.tsx` (Task 4) already have unstaged user changes. User approved proceeding; `git add` ONLY the avatar paths listed per task (those two files will carry the user's WIP into the commit — accepted).
+- `farming-2/components/farming-header.tsx` only mentions avatar size in a COMMENT - NOT an avatar; do not touch.
+- WORKING TREE NOTE: both repos are on branch `feat/freighter-network-watcher` with pre-existing uncommitted WIP. `connect-wallet-button.tsx` (Task 2) and `Profile.tsx` (Task 4) already have unstaged user changes. User approved proceeding; `git add` ONLY the avatar paths listed per task (those two files will carry the user's WIP into the commit - accepted).
 
 ---
 
@@ -128,7 +128,7 @@ Add `import { TasmilAvatar } from "@/shared/components/tasmil-avatar";`. Remove 
 
 ### Task 3: Rewrite quest avatar lib to variant-token helpers (tasmil-finance)
 Files: replace contents of `src/features/quest/lib/avatar.ts` and `src/features/quest/lib/avatar.test.ts`.
-Consumes: `TasmilAvatarVariant`. Produces: `QUEST_AVATAR_VARIANTS`, `variantToken(v)`, `variantFromAvatarUrl(url?)`. Removes `qHash`/`qAvatar` (used by Task 4 sites — do Task 4 same branch, commit 3+4 together).
+Consumes: `TasmilAvatarVariant`. Produces: `QUEST_AVATAR_VARIANTS`, `variantToken(v)`, `variantFromAvatarUrl(url?)`. Removes `qHash`/`qAvatar` (used by Task 4 sites - do Task 4 same branch, commit 3+4 together).
 
 - [ ] Step 1: Replace `avatar.test.ts`:
 ```ts
@@ -186,11 +186,11 @@ export function variantFromAvatarUrl(avatarUrl?: string | null): TasmilAvatarVar
 Files: `Navbar.tsx`, `Profile.tsx`, `LeaderboardRow.tsx`, `Podium.tsx`, `Referrals.tsx`, `AvatarStack.tsx` under `src/features/quest/components/`.
 Consumes: `TasmilAvatar`, `variantFromAvatarUrl`/`variantToken`/`QUEST_AVATAR_VARIANTS`. Convention: keep existing sized/rounded/bordered wrapper; delete `style={{ background: <gradientFn>(...) }}`; render `<TasmilAvatar seed size="full"/>` (or fixed numeric size) inside. Seed = wallet where available; referral rows/trees keep seeding by existing name/username.
 
-- [ ] Step 1: Navbar.tsx — add `import { TasmilAvatar } from "@/shared/components/tasmil-avatar";` and `import { variantFromAvatarUrl } from "@/features/quest/lib/avatar";`. Delete `avatarFromAddress` (~L32-38) and `getAvatarUrl` (~L143-146). Remove unused `Avatar, AvatarFallback, AvatarImage` import (L9). Replace the wallet chip avatar block (~L297-307, the `<span style={{background: avatarFromAddress(...)}}>` wrapping Radix Avatar) with:
+- [ ] Step 1: Navbar.tsx - add `import { TasmilAvatar } from "@/shared/components/tasmil-avatar";` and `import { variantFromAvatarUrl } from "@/features/quest/lib/avatar";`. Delete `avatarFromAddress` (~L32-38) and `getAvatarUrl` (~L143-146). Remove unused `Avatar, AvatarFallback, AvatarImage` import (L9). Replace the wallet chip avatar block (~L297-307, the `<span style={{background: avatarFromAddress(...)}}>` wrapping Radix Avatar) with:
 ```tsx
 <TasmilAvatar seed={address ?? ""} variant={variantFromAvatarUrl(user?.avatarUrl)} size={30} className="flex-none" />
 ```
-- [ ] Step 2: Profile.tsx — delete `avatarBg` (~L91-100) and `AV_COLORS` (~L107-118). Change L18 import to `import { QUEST_AVATAR_VARIANTS, variantFromAvatarUrl, variantToken } from "@/features/quest/lib/avatar";`. Add `import { TasmilAvatar } from "@/shared/components/tasmil-avatar";`.
+- [ ] Step 2: Profile.tsx - delete `avatarBg` (~L91-100) and `AV_COLORS` (~L107-118). Change L18 import to `import { QUEST_AVATAR_VARIANTS, variantFromAvatarUrl, variantToken } from "@/features/quest/lib/avatar";`. Add `import { TasmilAvatar } from "@/shared/components/tasmil-avatar";`.
 - [ ] Step 3: Profile.tsx sidebar avatar (~L229-245): keep bordered ring, fill with TasmilAvatar, keep the Edit2 button:
 ```tsx
 <div className="relative w-24 h-24 mb-[14px] max-[720px]:w-16 max-[720px]:h-16">
@@ -218,22 +218,22 @@ Consumes: `TasmilAvatar`, `variantFromAvatarUrl`/`variantToken`/`QUEST_AVATAR_VA
 ```
 Note: preserves prior behavior of writing local store `user.avatarUrl` (old code also only did updateUser). Backend update-avatar endpoint out of scope.
 - [ ] Step 5: Profile.tsx TreeRow avatar (~L1140-1143) -> `<TasmilAvatar seed={node.name} size={28} className="flex-none" />`. Referrals list row (~L1518-1522) -> `<TasmilAvatar seed={r.username ?? "u"} size={30} className="flex-none" />`.
-- [ ] Step 6: LeaderboardRow.tsx — delete `avatarGradient` (~L13-18); add TasmilAvatar import; replace avatar span (~L63) -> `<TasmilAvatar seed={address} size={40} className="flex-none" />`.
-- [ ] Step 7: Podium.tsx — delete `avatarGradient` (~L6-11); add TasmilAvatar import; replace avatar `<span>` (~L58-66) keeping rank ring classes + add `overflow-hidden`, inner `<TasmilAvatar seed={r.address} size="full" />`. (`cn` already imported.)
-- [ ] Step 8: Referrals.tsx — change L5 import to TasmilAvatar; tree avatar (~L71-74) -> `<TasmilAvatar seed={node.name} size={28} className="flex-none" />`; list avatar (~L219-222) -> `<TasmilAvatar seed={u.name} size={28} className="flex-none" />`.
-- [ ] Step 9: AvatarStack.tsx — change L1 import to TasmilAvatar; fallback circle (~L46-49) -> `<TasmilAvatar key={`fb-${i}`} seed={seed + i} size={28} className="border-2 border-[#0c0c0e] -ml-[9px] first:ml-0" />`. Real-image circles unchanged.
+- [ ] Step 6: LeaderboardRow.tsx - delete `avatarGradient` (~L13-18); add TasmilAvatar import; replace avatar span (~L63) -> `<TasmilAvatar seed={address} size={40} className="flex-none" />`.
+- [ ] Step 7: Podium.tsx - delete `avatarGradient` (~L6-11); add TasmilAvatar import; replace avatar `<span>` (~L58-66) keeping rank ring classes + add `overflow-hidden`, inner `<TasmilAvatar seed={r.address} size="full" />`. (`cn` already imported.)
+- [ ] Step 8: Referrals.tsx - change L5 import to TasmilAvatar; tree avatar (~L71-74) -> `<TasmilAvatar seed={node.name} size={28} className="flex-none" />`; list avatar (~L219-222) -> `<TasmilAvatar seed={u.name} size={28} className="flex-none" />`.
+- [ ] Step 9: AvatarStack.tsx - change L1 import to TasmilAvatar; fallback circle (~L46-49) -> `<TasmilAvatar key={`fb-${i}`} seed={seed + i} size={28} className="border-2 border-[#0c0c0e] -ml-[9px] first:ml-0" />`. Real-image circles unchanged.
 - [ ] Step 10: `grep -rnE "qAvatar|qHash|avatarBg|avatarGradient|avatarFromAddress|api\.dicebear\.com|AV_COLORS" src/features/quest` -> no matches.
 - [ ] Step 11: `pnpm test -- src/features/quest && pnpm type-check && pnpm check:fix` -> PASS/clean.
 - [ ] Step 12: Commit `git add src/features/quest && git commit -m "feat(avatar): unify quest avatars on TasmilAvatar + variant picker"`.
 
 ---
 
-### Task 5: Strategy — install dep, add TasmilAvatar, swap card initials (tasmil-strategy)
+### Task 5: Strategy - install dep, add TasmilAvatar, swap card initials (tasmil-strategy)
 Files: `package.json`; Create `src/shared/ui/tasmil-avatar.tsx`; `src/features/marketplace/components/strategy-card.tsx`.
 Strategy has NO test runner; gate = `pnpm type-check` + `pnpm check:fix` + visual.
 
 - [ ] Step 1: `pnpm add boring-avatars` (from tasmil-strategy/).
-- [ ] Step 2: Create `src/shared/ui/tasmil-avatar.tsx` with the EXACT same content as the finance component (Task 1 Step 4) — `cn` from `@/lib/utils` resolves in strategy too.
+- [ ] Step 2: Create `src/shared/ui/tasmil-avatar.tsx` with the EXACT same content as the finance component (Task 1 Step 4) - `cn` from `@/lib/utils` resolves in strategy too.
 - [ ] Step 3: In `strategy-card.tsx`: add `import { TasmilAvatar } from "@/shared/ui/tasmil-avatar";`; delete `const avatar = publisher.slice(0, 2).toUpperCase();` (L31); add after the `publisher` line (~L30) `const publisherSeed = strategy.publisherId ?? strategy.publisherName ?? "unknown";`; replace the publisher avatar `<span>` (~L54-60, the `<span ... bg-[image:var(--grad)]>{avatar}</span>`) with `<TasmilAvatar seed={publisherSeed} size={22} className="flex-none" />`. Keep `by {publisher.slice(0, 12)}`.
 - [ ] Step 4: `pnpm type-check && pnpm check:fix` -> clean.
 - [ ] Step 5: Visual: `pnpm dev` (port 3001), marketplace shows boring-avatars blobs (not initials); same publisher -> same blob.
@@ -242,4 +242,4 @@ Strategy has NO test runner; gate = `pnpm type-check` + `pnpm check:fix` + visua
 ---
 
 ## Self-Review
-Covers: shared component (T1,T5); delete main-app User-icon gradient (T2, both copies); delete quest blob/DiceBear (T4 grep gate); delete strategy initials (T5); picker variants + token (T3,T4); seed by identity (T2 wallet, T4 wallet/name, T5 publisher); offline render no dicebear (T1,T5 install + T4 removal); reuse avatarUrl field graceful fallback (T3); replace avatar.test.ts (T3). Line numbers reflect plan-writing time — locate by quoted symbol if shifted.
+Covers: shared component (T1,T5); delete main-app User-icon gradient (T2, both copies); delete quest blob/DiceBear (T4 grep gate); delete strategy initials (T5); picker variants + token (T3,T4); seed by identity (T2 wallet, T4 wallet/name, T5 publisher); offline render no dicebear (T1,T5 install + T4 removal); reuse avatarUrl field graceful fallback (T3); replace avatar.test.ts (T3). Line numbers reflect plan-writing time - locate by quoted symbol if shifted.

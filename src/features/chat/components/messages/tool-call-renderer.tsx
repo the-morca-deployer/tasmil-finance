@@ -135,8 +135,8 @@ export function ToolCallRenderer({ message, messages }: { message: Message; mess
   // Several flow tools render the same Confirm Supply card: flow_compose_plan
   // and flow_compose_and_execute auto-run the execute engine and return its
   // result, while the MCP `execute` tool also renders one. When more than one
-  // card-producing call exists — repeated compose attempts after the user
-  // refines the request, or a compose followed by a redundant execute — only
+  // card-producing call exists - repeated compose attempts after the user
+  // refines the request, or a compose followed by a redundant execute - only
   // the latest one is actionable. Keep every status row but suppress the
   // stale signing cards so only the latest card is shown.
   const supersededCardCalls = useMemo(() => {
@@ -147,7 +147,7 @@ export function ToolCallRenderer({ message, messages }: { message: Message; mess
     // compose + execute in parallel; both eventually produce a card.
     //
     // Pick exactly one WINNER for the whole turn by priority (lower index =
-    // richer card) and suppress every other card render in the turn — even
+    // richer card) and suppress every other card render in the turn - even
     // when the calls are spread across multiple AI messages. The associated
     // status rows are untouched, only the card render is gated.
     const PRIORITY: string[] = ["flow_compose_plan", "flow_compose_and_execute", "execute"];
@@ -162,7 +162,7 @@ export function ToolCallRenderer({ message, messages }: { message: Message; mess
     const myCardCalls = toolCalls.filter((tc) => CARD_TOOL_NAMES.has(tc.name));
     if (myCardCalls.length === 0) return stale;
 
-    // Find the start of the current turn — last human message at or before me.
+    // Find the start of the current turn - last human message at or before me.
     let turnStart = 0;
     for (let i = msgIdx; i >= 0; i--) {
       if ((messages[i] as any)?.type === "human") {
@@ -228,7 +228,7 @@ export function ToolCallRenderer({ message, messages }: { message: Message; mess
           }
         }
 
-        // O(1) registry lookup — replaces 3 separate O(n) .find() calls
+        // O(1) registry lookup - replaces 3 separate O(n) .find() calls
         const entry = isComplete ? toolRendererRegistry.get(tc.name) : null;
         const shouldRenderCard =
           entry && !(entry.kind === "info" && !TASMIL_INFO_TOOLS.has(tc.name));

@@ -5,7 +5,7 @@ export function buildReferralUrl(referralCode: string | undefined): string | und
 }
 
 export function buildXShareText(referralUrl: string): string {
-  return `Just joined the @TasmilFinance waitlist — autonomous DeFi yield on Stellar.\n\nJoin with my link: ${referralUrl}`;
+  return `Just joined the @TasmilFinance waitlist - autonomous DeFi yield on Stellar.\n\nJoin with my link: ${referralUrl}`;
 }
 
 export async function copyToClipboard(text: string): Promise<boolean> {

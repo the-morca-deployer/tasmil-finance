@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// ─── Vault list item ──────────────────────────────────────────
+// --- Vault list item ------------------------------------------
 
 export const defindexVaultCardSchema = z.object({
   address: z.string(),
@@ -10,11 +10,14 @@ export const defindexVaultCardSchema = z.object({
   totalSupply: z.string().nullable().optional(),
   tvl: z.union([z.string(), z.number()]).nullable().optional(),
   apy: z.number().nullable().optional(),
-  status: z.enum(["ok", "unavailable"]).catch("unavailable"),
+  // Optional, not defaulted: MCP's resolve_pool sends no status field, and
+  // coercing that absence to "unavailable" put a red herring badge on live
+  // vaults. Absent status now renders no badge at all.
+  status: z.enum(["ok", "unavailable"]).catch("unavailable").optional(),
 });
 export type DefindexVaultCardProps = z.infer<typeof defindexVaultCardSchema>;
 
-// ─── Strategy ──────────────────────────────────────────────────
+// --- Strategy --------------------------------------------------
 
 export const defindexStrategySchema = z.object({
   address: z.string(),
@@ -23,7 +26,7 @@ export const defindexStrategySchema = z.object({
 });
 export type DefindexStrategyProps = z.infer<typeof defindexStrategySchema>;
 
-// ─── Vault asset ───────────────────────────────────────────────
+// --- Vault asset -----------------------------------------------
 
 export const defindexVaultAssetSchema = z.object({
   address: z.string(),
@@ -33,7 +36,7 @@ export const defindexVaultAssetSchema = z.object({
 });
 export type DefindexVaultAssetProps = z.infer<typeof defindexVaultAssetSchema>;
 
-// ─── Fund breakdown ────────────────────────────────────────────
+// --- Fund breakdown --------------------------------------------
 
 export const defindexStrategyAllocationSchema = z.object({
   amount: z.string(),
@@ -50,7 +53,7 @@ export const defindexFundBreakdownSchema = z.object({
 });
 export type DefindexFundBreakdownProps = z.infer<typeof defindexFundBreakdownSchema>;
 
-// ─── Vault detail ──────────────────────────────────────────────
+// --- Vault detail ----------------------------------------------
 
 export const defindexVaultDetailSchema = z.object({
   address: z.string(),
@@ -77,7 +80,7 @@ export const defindexVaultDetailSchema = z.object({
 });
 export type DefindexVaultDetailProps = z.infer<typeof defindexVaultDetailSchema>;
 
-// ─── User balance ──────────────────────────────────────────────
+// --- User balance ----------------------------------------------
 
 export const defindexUserBalanceSchema = z.object({
   dfTokens: z.string(),
@@ -85,7 +88,7 @@ export const defindexUserBalanceSchema = z.object({
 });
 export type DefindexUserBalanceProps = z.infer<typeof defindexUserBalanceSchema>;
 
-// ─── Transaction ───────────────────────────────────────────────
+// --- Transaction -----------------------------------------------
 
 export const defindexTxContextSchema = z
   .object({
@@ -118,7 +121,7 @@ export const defindexTxCardSchema = z.object({
 });
 export type DefindexTxCardProps = z.infer<typeof defindexTxCardSchema>;
 
-// ─── History ───────────────────────────────────────────────────
+// --- History ---------------------------------------------------
 
 export const defindexVaultHistorySchema = z
   .object({
@@ -130,7 +133,7 @@ export const defindexVaultHistorySchema = z
   .passthrough();
 export type DefindexVaultHistoryProps = z.infer<typeof defindexVaultHistorySchema>;
 
-// ─── Account performance ───────────────────────────────────────
+// --- Account performance ---------------------------------------
 
 export const defindexAccountPerformanceSchema = z
   .object({

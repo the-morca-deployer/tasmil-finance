@@ -1,10 +1,10 @@
-# Quest Plan 3 — Cross-surface badges + dev-bypass bridge + gap-check + Playwright (Implementation Plan)
+# Quest Plan 3 - Cross-surface badges + dev-bypass bridge + gap-check + Playwright (Implementation Plan)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Surface quest data on shared app surfaces (point/streak badges in the `/chat` header, sponsor badge in the quest header, rank/tier/points in the shared wallet dropdown), bridge the frontend dev-bypass to a real quest JWT so authenticated screens load seeded data, finalize the backend↔FE gap checklist, and build a Playwright suite that verifies quest logic + captures screenshots against the reference images.
 
-**Architecture:** Quest data reaches shared surfaces by following the codebase's existing pattern — `top-nav-bar.tsx` (shared layout) already composes `SponsorIndicator` (a feature widget) and `ConnectWalletButton` already calls `useCredits` (a feature hook). So: A5a adds a quest `QuestHeaderBadges` widget rendered in `top-nav-bar`; A5c adds an optional `rankSlot?: ReactNode` prop to the shared `ConnectWalletButton`, fed a quest `WalletRankInfo` widget from the composition sites. The dev-bypass bridge calls the new quest `POST /auth/dev-login` (Plan 1) to populate `useQuestAuthStore` with a real JWT.
+**Architecture:** Quest data reaches shared surfaces by following the codebase's existing pattern - `top-nav-bar.tsx` (shared layout) already composes `SponsorIndicator` (a feature widget) and `ConnectWalletButton` already calls `useCredits` (a feature hook). So: A5a adds a quest `QuestHeaderBadges` widget rendered in `top-nav-bar`; A5c adds an optional `rankSlot?: ReactNode` prop to the shared `ConnectWalletButton`, fed a quest `WalletRankInfo` widget from the composition sites. The dev-bypass bridge calls the new quest `POST /auth/dev-login` (Plan 1) to populate `useQuestAuthStore` with a real JWT.
 
 **Tech Stack:** Next.js 16, React 19, TanStack Query, Kubb hooks (`@/gen-quest`), Jest + RTL (`pnpm test`), Playwright (`pnpm test:e2e`).
 
@@ -24,14 +24,14 @@
 
 ## File Structure
 
-- Create: `src/features/quest/lib/dev-login-bridge.ts` — fetch quest JWT via `/auth/dev-login`, set `useQuestAuthStore`.
-- Create: `src/features/quest/components/QuestHeaderBadges.tsx` — point + streak badge widget (with check-in).
-- Create: `src/features/quest/components/WalletRankInfo.tsx` — rank/tier/points row for the wallet dropdown.
-- Modify: `src/features/quest/components/Navbar.tsx` — add sponsor badge (A5b).
-- Modify: `src/shared/layout/top-nav-bar.tsx` — render `QuestHeaderBadges`; pass `rankSlot={<WalletRankInfo />}`.
-- Modify: `src/shared/components/connect-wallet-button.tsx` — add `rankSlot?: ReactNode` prop, render in both variants.
-- Modify: `src/features/quest/context/wallet-context.tsx` (or `(quest)/layout.tsx`) — invoke the dev-login bridge under dev-bypass.
-- Create: `docs/quest-backend-fe-gap.md` — gap checklist.
+- Create: `src/features/quest/lib/dev-login-bridge.ts` - fetch quest JWT via `/auth/dev-login`, set `useQuestAuthStore`.
+- Create: `src/features/quest/components/QuestHeaderBadges.tsx` - point + streak badge widget (with check-in).
+- Create: `src/features/quest/components/WalletRankInfo.tsx` - rank/tier/points row for the wallet dropdown.
+- Modify: `src/features/quest/components/Navbar.tsx` - add sponsor badge (A5b).
+- Modify: `src/shared/layout/top-nav-bar.tsx` - render `QuestHeaderBadges`; pass `rankSlot={<WalletRankInfo />}`.
+- Modify: `src/shared/components/connect-wallet-button.tsx` - add `rankSlot?: ReactNode` prop, render in both variants.
+- Modify: `src/features/quest/context/wallet-context.tsx` (or `(quest)/layout.tsx`) - invoke the dev-login bridge under dev-bypass.
+- Create: `docs/quest-backend-fe-gap.md` - gap checklist.
 - Create: `playwright.config.ts` quest project + `e2e/quest/*.spec.ts`.
 
 ---
@@ -44,7 +44,7 @@
 - Test: `src/features/quest/lib/__tests__/dev-login-bridge.test.ts`
 
 **Interfaces:**
-- Produces: `async function ensureQuestDevSession(): Promise<void>` — when `NEXT_PUBLIC_DEV_BYPASS_AUTH === "true"` and the quest store has no token, POSTs `{ walletAddress: DEV_WALLET }` to `${NEXT_PUBLIC_QUEST_API_URL}/auth/dev-login`, then calls `useQuestAuthStore.getState().setAuthState({ accessToken, refreshToken: "", user })`.
+- Produces: `async function ensureQuestDevSession(): Promise<void>` - when `NEXT_PUBLIC_DEV_BYPASS_AUTH === "true"` and the quest store has no token, POSTs `{ walletAddress: DEV_WALLET }` to `${NEXT_PUBLIC_QUEST_API_URL}/auth/dev-login`, then calls `useQuestAuthStore.getState().setAuthState({ accessToken, refreshToken: "", user })`.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -86,7 +86,7 @@ describe("ensureQuestDevSession", () => {
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test -- dev-login-bridge`
-Expected: FAIL — cannot find module `../dev-login-bridge`.
+Expected: FAIL - cannot find module `../dev-login-bridge`.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -147,7 +147,7 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 
 ---
 
-### Task 2: A5a — `/chat` header point + streak badges (with check-in)
+### Task 2: A5a - `/chat` header point + streak badges (with check-in)
 
 **Files:**
 - Create: `src/features/quest/components/QuestHeaderBadges.tsx`
@@ -156,7 +156,7 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 
 **Interfaces:**
 - Consumes: `useUsersControllerGetMe`, `useUsersControllerGetCheckInStatus`, `useUsersControllerDailyLogin`, `usersControllerGetMeQueryKey` (`@/gen-quest/hooks`); `useQueryClient`.
-- Produces: `QuestHeaderBadges` — renders a points pill + a streak pill (flame). The streak pill triggers daily check-in. Renders `null` when there is no quest profile.
+- Produces: `QuestHeaderBadges` - renders a points pill + a streak pill (flame). The streak pill triggers daily check-in. Renders `null` when there is no quest profile.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -194,7 +194,7 @@ describe("QuestHeaderBadges", () => {
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test -- quest-header-badges`
-Expected: FAIL — cannot find module `../QuestHeaderBadges`.
+Expected: FAIL - cannot find module `../QuestHeaderBadges`.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -263,7 +263,7 @@ import { QuestHeaderBadges } from "@/features/quest/components/QuestHeaderBadges
       </div>
 ```
 
-> The `rankSlot={<WalletRankInfo />}` addition belongs to Task 4 — add only the `QuestHeaderBadges` line in this task; the `rankSlot` prop line lands in Task 4. (Keeps each task independently testable.)
+> The `rankSlot={<WalletRankInfo />}` addition belongs to Task 4 - add only the `QuestHeaderBadges` line in this task; the `rankSlot` prop line lands in Task 4. (Keeps each task independently testable.)
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -283,14 +283,14 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 
 ---
 
-### Task 3: A5b — sponsor badge in the quest header
+### Task 3: A5b - sponsor badge in the quest header
 
 **Files:**
 - Modify: `src/features/quest/components/Navbar.tsx`
 - Test: `src/features/quest/components/__tests__/quest-sponsor-badge.test.tsx`
 
 **Interfaces:**
-- Consumes: `useUsersControllerGetMyCampaigns` (`@/gen-quest/hooks`) — the user's joined campaigns; a campaign's `metadata.sponsor` marks it sponsored.
+- Consumes: `useUsersControllerGetMyCampaigns` (`@/gen-quest/hooks`) - the user's joined campaigns; a campaign's `metadata.sponsor` marks it sponsored.
 - Produces: a sponsor badge element (`data-testid="quest-sponsor-badge"`) rendered in the quest `Navbar` when the user has joined at least one campaign carrying `metadata.sponsor`; shows the sponsor name.
 
 - [ ] **Step 1: Write the failing test**
@@ -333,7 +333,7 @@ describe("Quest header sponsor badge", () => {
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test -- quest-sponsor-badge`
-Expected: FAIL — `useUsersControllerGetMyCampaigns` not used by Navbar yet / badge missing.
+Expected: FAIL - `useUsersControllerGetMyCampaigns` not used by Navbar yet / badge missing.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -377,7 +377,7 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 
 ---
 
-### Task 4: A5c — rank/tier/points in the shared wallet dropdown
+### Task 4: A5c - rank/tier/points in the shared wallet dropdown
 
 **Files:**
 - Create: `src/features/quest/components/WalletRankInfo.tsx`
@@ -386,7 +386,7 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 - Test: `src/features/quest/components/__tests__/wallet-rank-info.test.tsx`, `src/shared/components/__tests__/connect-wallet-button-rank-slot.test.tsx`
 
 **Interfaces:**
-- Consumes: `useUsersControllerGetMe` (tier, totalPoints), `useSeasonsControllerMyResult` (rank) — both `@/gen-quest/hooks`.
+- Consumes: `useUsersControllerGetMe` (tier, totalPoints), `useSeasonsControllerMyResult` (rank) - both `@/gen-quest/hooks`.
 - Produces: `WalletRankInfo` rendering `#<rank> · top <pct>% · <tier> · <points> pts` (rank/top% only when a season result exists); `ConnectWalletButton` gains `rankSlot?: ReactNode` rendered at the top of both dropdown variants.
 
 - [ ] **Step 1: Write the failing tests**
@@ -437,7 +437,7 @@ describe("ConnectWalletButton rankSlot", () => {
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run: `pnpm test -- wallet-rank-info connect-wallet-button-rank-slot`
-Expected: FAIL — `../WalletRankInfo` missing; `rankSlot` prop not rendered.
+Expected: FAIL - `../WalletRankInfo` missing; `rankSlot` prop not rendered.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -524,7 +524,7 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 **Files:**
 - Create: `docs/quest-backend-fe-gap.md`
 
-This task is analysis + documentation (no production code, so no TDD cycle). It records, per quest backend endpoint, whether the FE now consumes it (after Plans 2–3), with a reason for any that remain unwired.
+This task is analysis + documentation (no production code, so no TDD cycle). It records, per quest backend endpoint, whether the FE now consumes it (after Plans 2-3), with a reason for any that remain unwired.
 
 - [ ] **Step 1: Inventory consumers**
 
@@ -536,7 +536,7 @@ Capture the set of consumed hooks.
 
 - [ ] **Step 2: Write the checklist**
 
-Create `docs/quest-backend-fe-gap.md` with a table: every quest backend endpoint (from the 10 controllers — auth, users, campaigns, tasks, referral, seasons, social-accounts, notifications, analytics, admin) × column `consumed? (component)` × column `note`. Mark closed-by-this-effort items (My Quests → `useUsersControllerGetMyCampaigns` in Profile; points ledger → `useUsersControllerGetPointsHistory`; social unlink → `useSocialAccountsControllerUnlinkAccount`; streak board → `useAnalyticsControllerStreakLeaderboard`; rank → `useSeasonsControllerMyResult` in WalletRankInfo; check-in → `QuestHeaderBadges`). For anything still unwired (e.g. `notifications/send` is admin-only; `tasks/submit-proof` if no proof task UI; `referral/leaderboard` if not surfaced), state the reason and whether it is backlog or intentionally unused.
+Create `docs/quest-backend-fe-gap.md` with a table: every quest backend endpoint (from the 10 controllers - auth, users, campaigns, tasks, referral, seasons, social-accounts, notifications, analytics, admin) × column `consumed? (component)` × column `note`. Mark closed-by-this-effort items (My Quests → `useUsersControllerGetMyCampaigns` in Profile; points ledger → `useUsersControllerGetPointsHistory`; social unlink → `useSocialAccountsControllerUnlinkAccount`; streak board → `useAnalyticsControllerStreakLeaderboard`; rank → `useSeasonsControllerMyResult` in WalletRankInfo; check-in → `QuestHeaderBadges`). For anything still unwired (e.g. `notifications/send` is admin-only; `tasks/submit-proof` if no proof task UI; `referral/leaderboard` if not surfaced), state the reason and whether it is backlog or intentionally unused.
 
 - [ ] **Step 3: Commit**
 
@@ -562,9 +562,9 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 
 **Pre-req runbook (documented at the top of `quest-screens.spec.ts` as a comment):**
 ```
-# Terminal 1 — seeded quest backend (see Plan 1 for TEST_DB_URL setup)
+# Terminal 1 - seeded quest backend (see Plan 1 for TEST_DB_URL setup)
 cd tasmil-quest-folder/backend && QUEST_DEV_LOGIN=true DATABASE_URL=$TEST_DB_URL pnpm dev
-# Terminal 2 — Playwright (starts finance dev itself via webServer)
+# Terminal 2 - Playwright (starts finance dev itself via webServer)
 cd tasmil-finance && NEXT_PUBLIC_DEV_BYPASS_AUTH=true pnpm test:e2e --project=quest
 ```
 
@@ -626,11 +626,11 @@ test.describe("quest screens render seeded data", () => {
 });
 ```
 
-- [ ] **Step 3: Run to verify it fails (then passes once Plans 1–2 + Tasks 1–4 are in place)**
+- [ ] **Step 3: Run to verify it fails (then passes once Plans 1-2 + Tasks 1-4 are in place)**
 
 Run: `NEXT_PUBLIC_DEV_BYPASS_AUTH=true pnpm test:e2e --project=quest -g "quest screens"`
-Expected (before the data/bridge are wired): FAIL — text not found / badges missing.
-After Plans 1–2 and Tasks 1–2 are complete and the seeded backend is running: PASS.
+Expected (before the data/bridge are wired): FAIL - text not found / badges missing.
+After Plans 1-2 and Tasks 1-2 are complete and the seeded backend is running: PASS.
 
 - [ ] **Step 4: Write the flow spec + screenshot spec**
 
@@ -685,7 +685,7 @@ Expected: logic specs PASS; screenshots produced under the run output dir. Open 
 ```bash
 pnpm check:fix
 git add playwright.config.ts e2e/quest
-git commit -m "test(quest): Playwright quest suite — seeded logic specs + screenshot capture
+git commit -m "test(quest): Playwright quest suite - seeded logic specs + screenshot capture
 
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
@@ -702,9 +702,9 @@ Claude-Session: https://claude.ai/code/session_012NHwXrkNtuVzWRoAMsJGNP"
 - C2 frontend dev-bypass bridge to a real quest JWT → Task 1. ✓
 - Workstream B gap checklist → Task 5. ✓
 - C3 Playwright logic specs + screenshot capture against references → Task 6. ✓
-- TDD: Tasks 1–4 are RED→GREEN with full tests; Task 6's specs are themselves the test-first artifacts (fail before data/bridge, pass after). Task 5 is documentation (no code). ✓
+- TDD: Tasks 1-4 are RED→GREEN with full tests; Task 6's specs are themselves the test-first artifacts (fail before data/bridge, pass after). Task 5 is documentation (no code). ✓
 
-**Architecture note vs spec:** the spec's "shared never imports feature; props/slot only" is relaxed to match the codebase's actual, established pattern — `top-nav-bar` already imports `SponsorIndicator` and `connect-wallet-button` already imports `useCredits`. A5a follows the `SponsorIndicator` precedent (feature widget in shared layout); A5c keeps the shared button decoupled via a `rankSlot` ReactNode prop (no quest import inside `connect-wallet-button.tsx`).
+**Architecture note vs spec:** the spec's "shared never imports feature; props/slot only" is relaxed to match the codebase's actual, established pattern - `top-nav-bar` already imports `SponsorIndicator` and `connect-wallet-button` already imports `useCredits`. A5a follows the `SponsorIndicator` precedent (feature widget in shared layout); A5c keeps the shared button decoupled via a `rankSlot` ReactNode prop (no quest import inside `connect-wallet-button.tsx`).
 
 **Placeholder scan:** every code step has concrete, runnable content; the gap-checklist task specifies the exact grep + table columns to produce.
 

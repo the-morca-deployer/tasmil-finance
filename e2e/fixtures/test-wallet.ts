@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-// ─── Wallet Configuration ───────────────────────────────────────
+// --- Wallet Configuration ---------------------------------------
 
 interface WalletConfig {
   publicKey: string;
@@ -9,7 +9,7 @@ interface WalletConfig {
   hdIndex: number;
 }
 
-/** Funded wallet — has real balances for happy-path tests. */
+/** Funded wallet - has real balances for happy-path tests. */
 export const FUNDED_WALLET: WalletConfig = {
   publicKey:
     process.env.E2E_WALLET_PUBLIC_KEY || "GDQI7LOGDRQRM5OXEIEY7TDHUYEHGQ7RX3KOJU3FNUP6HBDHUGWA3I6R",
@@ -18,7 +18,7 @@ export const FUNDED_WALLET: WalletConfig = {
   hdIndex: parseInt(process.env.E2E_WALLET_HD_INDEX || "0", 10),
 };
 
-/** Empty wallet — zero balance for edge-case tests. */
+/** Empty wallet - zero balance for edge-case tests. */
 export const EMPTY_WALLET: WalletConfig = {
   publicKey:
     process.env.E2E_WALLET_EMPTY_PUBLIC_KEY ||
@@ -28,7 +28,7 @@ export const EMPTY_WALLET: WalletConfig = {
   hdIndex: parseInt(process.env.E2E_WALLET_EMPTY_HD_INDEX || "0", 10),
 };
 
-// ─── Key Derivation ─────────────────────────────────────────────
+// --- Key Derivation ---------------------------------------------
 
 /**
  * Derive the Stellar secret key from a wallet config.
@@ -57,7 +57,7 @@ export async function deriveSecretKey(wallet: WalletConfig): Promise<string | nu
 }
 
 /**
- * Resolve public key — from config or derived from mnemonic.
+ * Resolve public key - from config or derived from mnemonic.
  */
 export async function resolvePublicKey(wallet: WalletConfig): Promise<string> {
   if (wallet.publicKey) return wallet.publicKey;
@@ -76,7 +76,7 @@ export async function resolvePublicKey(wallet: WalletConfig): Promise<string> {
   return wallet.publicKey;
 }
 
-// ─── Page Injection ─────────────────────────────────────────────
+// --- Page Injection ---------------------------------------------
 
 /**
  * Injects a mock Stellar wallet into the page.

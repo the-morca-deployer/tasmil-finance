@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useFeeControllerList } from "@/gen-backend/hooks";
+import { useFeeControllerList } from "@/gen-backend/hooks/use-fee-controller-list";
 import type { FeeControllerListQueryParams } from "@/gen-backend/types/fee-controller-list";
 import { adaptFeePage } from "./adapters";
 import { unwrapBackendData } from "./transport";

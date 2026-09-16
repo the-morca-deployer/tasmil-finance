@@ -1,7 +1,7 @@
 const PENDING_KEY = "tasmil.referral.pendingCode";
 
 export function buildShareUrl(code: string): string {
-  // Always use the domain the user is currently on — never .env or a hard-coded
+  // Always use the domain the user is currently on - never .env or a hard-coded
   // host. Share links are built inside click handlers, so window is defined; the
   // empty-origin branch only guards SSR (where this is never actually called).
   const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -28,13 +28,13 @@ export function clearPendingReferralCode(): void {
   try {
     window.localStorage.removeItem(PENDING_KEY);
   } catch {
-    // ignore – e.g. storage access blocked
+    // ignore - e.g. storage access blocked
   }
 }
 
 /**
  * Build the payload for the /api/auth/verify POST.
- * Pure function — extracted so the referredByCode merging logic can be unit-tested
+ * Pure function - extracted so the referredByCode merging logic can be unit-tested
  * without driving the full wallet-context harness.
  */
 export function buildVerifyPayload(

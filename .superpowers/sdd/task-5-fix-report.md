@@ -1,4 +1,4 @@
-# Task 5 — Phase 0 Defect Fix Report
+# Task 5 - Phase 0 Defect Fix Report
 
 **Date:** 2026-06-25
 **Branch:** `feat/landing-tailwind-shadcn-migration`
@@ -6,7 +6,7 @@
 
 ---
 
-## Defect 1 — Non-deterministic Visual Baseline
+## Defect 1 - Non-deterministic Visual Baseline
 
 ### What changed
 
@@ -23,12 +23,12 @@ await page.screenshot({ path: filePath, fullPage: FULL_PAGE, animations: "disabl
 ```
 
 Two options added:
-- `animations: "disabled"` — Playwright freezes all CSS `@keyframes` animations at their
+- `animations: "disabled"` - Playwright freezes all CSS `@keyframes` animations at their
   initial frame before the screenshot is taken. This eliminates frame-timing variance for
   the 11 named animation tokens in `globals.css` (`animate-float`, `animate-shimmer`,
   `animate-twinkle`, `animate-shimmer-text`, etc.) and any `@keyframes` blocks from
   `landing.css` that are still in use.
-- `caret: "hide"` — removes the blinking text cursor from any focused `<input>` or
+- `caret: "hide"` - removes the blinking text cursor from any focused `<input>` or
   `<textarea>` element. Without this, a focused input captured mid-blink produces a
   different pixel value than one captured at the cursor's off phase.
 
@@ -41,7 +41,7 @@ Diff computed with `pixelmatch` (from repo `node_modules/pixelmatch`) at thresho
 
 **Tool:** `node diff.mjs baseline/ baseline2/` using `pixelmatch` + `pngjs`.
 
-**Results — after fix (with animation freeze):**
+**Results - after fix (with animation freeze):**
 
 | Shot | AE (absolute pixel error) |
 |---|---|
@@ -58,7 +58,7 @@ Diff computed with `pixelmatch` (from repo `node_modules/pixelmatch`) at thresho
 | `access-1440.png` | 4 117 |
 | `access-390.png` | 576 |
 
-### CORRECTION (2026-06-25) — the residual AE is JS animation, not "a stable baseline"
+### CORRECTION (2026-06-25) - the residual AE is JS animation, not "a stable baseline"
 
 An earlier version of this report claimed the residual AE (notably `home-1440` at ~57k) was a
 *stable* baseline caused by CSS `transition`s + sub-pixel font hinting. **That diagnosis was
@@ -66,11 +66,11 @@ wrong and has been corrected in both docs.**
 
 `page.screenshot({ animations: "disabled" })` freezes CSS `@keyframes` AND CSS `transition`s, but
 it does NOT stop JavaScript-driven (`requestAnimationFrame`) animation. The landing homepage runs
-several JS rAF demos via the `useLandingScripts` engine — the Partners ticker marquee, the Features
+several JS rAF demos via the `useLandingScripts` engine - the Partners ticker marquee, the Features
 demos (chat typing, swap USD calc, portfolio chart, auto-advancing position deck) and StellarReel.
 A fullPage `/` capture includes all of these, each at a different motion phase per capture.
 
-**Proof — three identical-code `home-1440` fullPage captures, diffed pairwise (pixelmatch, threshold 0):**
+**Proof - three identical-code `home-1440` fullPage captures, diffed pairwise (pixelmatch, threshold 0):**
 
 | pair | AE |
 |---|---|
@@ -78,7 +78,7 @@ A fullPage `/` capture includes all of these, each at a different motion phase p
 | run1 vs run3 | 57 768 |
 | run2 vs run3 | 53 704 |
 
-The AE **swings run-to-run** (10k → 58k) rather than holding ~57k — confirming JS-animation motion
+The AE **swings run-to-run** (10k → 58k) rather than holding ~57k - confirming JS-animation motion
 phase, not a stable residual. For contrast, the predominantly-static `/waitlist` and `/access`
 shots over the same runs gave ~3 445 and ~4 220 AE.
 
@@ -87,15 +87,15 @@ shots over the same runs gave ~3 445 and ~4 220 AE.
 - For shots containing JS-animated regions (all fullPage `/` shots), **pixel-AE is a TRIAGE signal,
   not a pass/fail threshold.** These are verified by **visual comparison of layout, typography,
   color, spacing, and component structure**; motion-phase differences are expected and ignored.
-- Predominantly-static surfaces (`/waitlist`, `/access`, footer, nav-at-rest) SHOULD show low AE —
+- Predominantly-static surfaces (`/waitlist`, `/access`, footer, nav-at-rest) SHOULD show low AE -
   a large AE jump there IS meaningful and worth investigating.
 
-`animations: "disabled"` + `caret: "hide"` are kept — they correctly eliminate CSS-keyframe and
+`animations: "disabled"` + `caret: "hide"` are kept - they correctly eliminate CSS-keyframe and
 caret-blink noise; they simply cannot freeze JS-driven canvases/widgets.
 
 ---
 
-## Defect 2 — Lint Gate Scope
+## Defect 2 - Lint Gate Scope
 
 ### What changed
 
@@ -110,7 +110,7 @@ File: `docs/superpowers/landing-migration-conventions.md`, Section 6 (Per-Sectio
 
 **After:**
 ```
-- [ ] **Biome clean:** **`pnpm lint` introduces no NEW errors in files this section touches** —
+- [ ] **Biome clean:** **`pnpm lint` introduces no NEW errors in files this section touches** -
       the repo has pre-existing lint debt in `loop-config/scenarios/generate-tool-scenarios.ts`,
       `src/app/(quest)/loading.tsx`, `src/shared/utils/date-group.ts` which are out of scope.
       Verify with `pnpm lint <changed-files>` or by confirming the error count/locations are
@@ -131,14 +131,14 @@ for fixing pre-existing errors in unrelated files.
 
 ## Doc Updates
 
-- `docs/superpowers/landing-baseline-manifest.md` — added `animations` and `caret` rows to the
+- `docs/superpowers/landing-baseline-manifest.md` - added `animations` and `caret` rows to the
   locked renderer settings table; added a "Determinism Fix" section documenting the change,
   the diff tool used, and the rule for expected AE values on re-runs.
-- `docs/superpowers/landing-migration-conventions.md` — updated lint criterion in Section 6
+- `docs/superpowers/landing-migration-conventions.md` - updated lint criterion in Section 6
   DoD checklist as described above.
 
 ---
 
 ## Commit SHA
 
-`01b8014d` — `fix(landing): freeze animations for deterministic visual baseline; scope lint gate to changed files`
+`01b8014d` - `fix(landing): freeze animations for deterministic visual baseline; scope lint gate to changed files`

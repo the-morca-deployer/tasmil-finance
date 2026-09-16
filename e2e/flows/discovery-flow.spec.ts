@@ -1,6 +1,6 @@
 import { expect, test } from "../fixtures/chat.fixture";
 
-test.describe("Discovery Flow — Information & Yield Discovery", () => {
+test.describe("Discovery Flow - Information & Yield Discovery", () => {
   test.describe.configure({ mode: "serial" });
 
   test("discover yield opportunities shows EarnDiscoveryCard", async ({ chatPage }) => {

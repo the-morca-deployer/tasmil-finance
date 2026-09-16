@@ -1,4 +1,4 @@
-/* Landing-specific styles — scoped CSS ported from tasmil-finance-new.
+/* Landing-specific styles - scoped CSS ported from tasmil-finance-new.
    Do NOT add @import "tailwindcss" here; the root globals.css owns Tailwind. */
 
 @layer base {
@@ -23,7 +23,7 @@
 }
 
 /* ============================================================
-   LANDING v4 — scoped under .landing-page (hybrid bespoke CSS)
+   LANDING v4 - scoped under .landing-page (hybrid bespoke CSS)
    ============================================================ */
 :root {
   --bg: #000000;
@@ -2268,7 +2268,7 @@ svg {
   --deny-soft: rgba(252, 165, 165, 0.1);
   --deny-line: rgba(252, 165, 165, 0.26);
 }
-/* ===== Security ledger — "permission boundary" redesign ===== */
+/* ===== Security ledger - "permission boundary" redesign ===== */
 .landing-page .sec-ledger {
   position: relative;
   isolation: isolate;
@@ -4156,22 +4156,22 @@ svg {
 }
 
 /* ============================================================
-   WAITLIST + ACCESS — scoped under .wl-page (keyframes namespaced wl-*)
+   WAITLIST + ACCESS - scoped under .wl-page (keyframes namespaced wl-*)
    ============================================================ */
 :root {
-  /* Backgrounds — matched to Tasmil Landing v4 */
+  /* Backgrounds - matched to Tasmil Landing v4 */
   --bg: #000000;
   --bg-2: #07090f;
   --surface: #0d111a;
   --surface-2: #141c28;
 
-  /* Text — matched to Tasmil Landing v4 */
+  /* Text - matched to Tasmil Landing v4 */
   --text: #f4f7fb;
   --muted: rgba(244, 247, 251, 0.58);
   --dim: rgba(244, 247, 251, 0.34);
   --faint: rgba(244, 247, 251, 0.12);
 
-  /* Accent — pinned to Tasmil Landing v4 (#67E8F9) for an exact color match */
+  /* Accent - pinned to Tasmil Landing v4 (#67E8F9) for an exact color match */
   --h: 200;
   --accent: #67e8f9;
   --accent-2: #0ea5e9;
@@ -4184,7 +4184,7 @@ svg {
   --ok: #6ee7b7;
   --err: #fb7185;
 
-  /* Borders / hairlines — matched to Tasmil Landing v4 */
+  /* Borders / hairlines - matched to Tasmil Landing v4 */
   --line: rgba(255, 255, 255, 0.08);
   --line-2: rgba(255, 255, 255, 0.14);
 
@@ -4668,7 +4668,7 @@ img {
     transform 0.25s var(--ease);
   white-space: nowrap;
 }
-/* hamburger — mobile only */
+/* hamburger - mobile only */
 .wl-page .nav-burger {
   display: none;
   flex-direction: column;
@@ -6582,7 +6582,7 @@ img {
 .wl-page .tier.peak .t-boost {
   color: var(--accent);
 }
-/* ── 02 — How it works · loop3 + cohort table + points ── */
+/* -- 02 - How it works · loop3 + cohort table + points -- */
 .wl-page .loop3 {
   display: grid;
   grid-template-columns: 1fr auto 1fr auto 1fr;

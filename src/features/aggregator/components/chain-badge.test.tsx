@@ -21,7 +21,7 @@ describe("ChainBadge", () => {
 
   it("falls back to Globe icon for an unknown chain id", () => {
     render(<ChainBadge chainIn="linea" chainOut="linea" />);
-    // No <img> for unknown — Globe SVG only
+    // No <img> for unknown - Globe SVG only
     expect(screen.queryByRole("img")).toBeNull();
     expect(document.querySelector("svg")).toBeInTheDocument();
   });

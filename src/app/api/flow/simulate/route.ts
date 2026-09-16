@@ -4,7 +4,7 @@ import { requireEnv } from "@/lib/env";
 
 const MCP_URL = requireEnv("NEXT_PUBLIC_MCP_STELLAR_URL", "http://localhost:3009");
 
-// ─── Request schema ──────────────────────────────────────────────
+// --- Request schema ----------------------------------------------
 
 const StepSchema = z.object({
   typed_intent: z.string().min(1, "typed_intent is required"),
@@ -22,7 +22,7 @@ const RequestSchema = z.object({
 
 type Step = z.infer<typeof StepSchema>;
 
-// ─── MCP execute response type ───────────────────────────────────
+// --- MCP execute response type -----------------------------------
 
 interface McpExecuteResponse {
   success: boolean;
@@ -32,7 +32,7 @@ interface McpExecuteResponse {
   error?: string;
 }
 
-// ─── Step simulation result ──────────────────────────────────────
+// --- Step simulation result --------------------------------------
 
 interface StepResult {
   step_index: number;
@@ -42,7 +42,7 @@ interface StepResult {
   error?: string;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────
+// --- Helpers -----------------------------------------------------
 
 async function simulateStep(
   step: Step,

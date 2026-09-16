@@ -6,7 +6,8 @@ const POOLS_GRID = "grid-cols-[2fr_1fr_1fr_1fr_80px_24px]";
 
 const samplePool: DiscoveredPool = {
   id: "p1",
-  protocol: "blend",
+  // Upper-case, as `GET /api/pools` actually serialises the Prisma enum.
+  protocol: "BLEND",
   poolAddress: "C...",
   poolType: "lending",
   asset: "USDC",

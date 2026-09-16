@@ -203,7 +203,7 @@ test.describe("Aggregator (Task 3)", () => {
       "/aggregator?tokenIn=XLM&tokenOut=USDC&chainIn=stellar&chainOut=stellar&amount=1"
     );
 
-    // Wait for routes to render — at least one route card appears
+    // Wait for routes to render - at least one route card appears
     await expect(page.locator('[data-testid="chain-badge"]').first()).toBeVisible({
       timeout: 10000,
     });

@@ -1,14 +1,35 @@
 "use client";
 
-import { Copy, Loader2 } from "lucide-react";
+import { Copy, Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAdminQuestWallets } from "@/features/admin/hooks/use-admin-quest-wallets";
-import { ExportCsvButton } from "@/shared/components/export-csv-button";
 
 const LIMIT = 50;
 
 function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text).catch(() => null);
+}
+
+function exportCsv(
+  rows: {
+    rank: number;
+    walletAddress: string;
+    username: string | null;
+    totalPoints: number;
+    tier: string | null;
+  }[]
+) {
+  const header = "rank,wallet_address,username,total_points,tier";
+  const lines = rows.map(
+    (r) => `${r.rank},${r.walletAddress},${r.username ?? ""},${r.totalPoints},${r.tier ?? ""}`
+  );
+  const blob = new Blob([[header, ...lines].join("\n")], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `quest-wallets-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 export default function AdminQuestWalletsPage() {
@@ -36,11 +57,30 @@ export default function AdminQuestWalletsPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <h1 style={{ fontSize: 22, fontWeight: 800 }}>Quest Wallets</h1>
-        <ExportCsvButton endpoint="/api/admin/quest-wallets/export" />
+        <button
+          type="button"
+          onClick={() => exportCsv(entries)}
+          disabled={entries.length === 0}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "8px 14px",
+            borderRadius: 10,
+            border: "1px solid rgba(255,255,255,0.12)",
+            background: "rgba(255,255,255,0.06)",
+            color: "#F5F8FC",
+            cursor: "pointer",
+            fontSize: 13,
+          }}
+        >
+          <Download size={14} />
+          Export CSV
+        </button>
       </div>
 
       <input
-        placeholder="Search by wallet address…"
+        placeholder="Search by wallet address..."
         value={searchInput}
         onChange={(e) => setSearchInput(e.target.value)}
         style={{
@@ -86,7 +126,7 @@ export default function AdminQuestWalletsPage() {
                 <td style={{ padding: "10px", fontFamily: "monospace" }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     {e.walletAddress.length > 12
-                      ? `${e.walletAddress.slice(0, 6)}…${e.walletAddress.slice(-6)}`
+                      ? `${e.walletAddress.slice(0, 6)}...${e.walletAddress.slice(-6)}`
                       : e.walletAddress}
                     <button
                       type="button"
@@ -105,7 +145,7 @@ export default function AdminQuestWalletsPage() {
                   </span>
                 </td>
                 <td style={{ padding: "10px", color: "rgba(245,248,252,0.6)", fontSize: 12 }}>
-                  {e.username ?? "—"}
+                  {e.username ?? "-"}
                 </td>
                 <td style={{ padding: "10px" }}>
                   {e.tier ? (
@@ -122,7 +162,7 @@ export default function AdminQuestWalletsPage() {
                       {e.tier}
                     </span>
                   ) : (
-                    <span style={{ color: "rgba(245,248,252,0.3)" }}>—</span>
+                    <span style={{ color: "rgba(245,248,252,0.3)" }}>-</span>
                   )}
                 </td>
                 <td style={{ padding: "10px", textAlign: "right", fontWeight: 600 }}>

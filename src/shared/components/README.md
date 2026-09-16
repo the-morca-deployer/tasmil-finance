@@ -49,12 +49,12 @@ This implementation uses **Local Components** approach where UI components are r
 
 ```
 Backend (LangGraph)                 React Frontend (Agent Chat UI)
-─────────────────────              ────────────────────────────────
+---------------------              --------------------------------
 Your Agent Node                    LoadExternalComponent
     ↓                                      ↓
 push_ui_message() / ui.push()      ComponentMap (Local Registry)
     ↓                                      ↓
-Stream to Frontend    ────────>    Render Component
+Stream to Frontend    -------->    Render Component
 ```
 
 ## Available Components

@@ -19,6 +19,7 @@ export function AllbridgePoolInfoCard({ data, mode = "playground" }: Props) {
   if (isChat) {
     return (
       <ProtocolCard
+        data-testid="card-allbridge-pool-info"
         mode="chat"
         title={`${data.symbol} Pool (${data.chain})`}
         icon={Database}
@@ -37,10 +38,10 @@ export function AllbridgePoolInfoCard({ data, mode = "playground" }: Props) {
   }
 
   return (
-    <ProtocolCard mode="playground">
+    <ProtocolCard data-testid="card-allbridge-pool-info" mode="playground">
       <div className="border-border border-b px-4 py-3">
         <p className="font-medium text-foreground text-sm">
-          {data.symbol} Pool — <span className="capitalize">{data.chain}</span>
+          {data.symbol} Pool - <span className="capitalize">{data.chain}</span>
         </p>
         {data.poolAddress && (
           <p className="mt-0.5 font-mono text-[10px] text-muted-foreground/60">

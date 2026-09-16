@@ -1,6 +1,6 @@
 "use client";
 
-import { usePolicyControllerGetRulebook } from "@/gen-backend/hooks";
+import { usePolicyControllerGetRulebook } from "@/gen-backend/hooks/use-policy-controller-get-rulebook";
 import { adaptRulebook, type Rulebook } from "./adapters";
 import { unwrapBackendData } from "./transport";
 import { useVaultAccount } from "./use-vault-account";

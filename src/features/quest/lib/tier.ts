@@ -1,8 +1,8 @@
-// ─── Quest rank (single source of truth) ─────────────────────────────────────
+// --- Quest rank (single source of truth) -------------------------------------
 // Eight points-based ranks, low → high:
 //   Unranked → Bronze → Silver → Gold → Platinum → Emerald → Diamond → Master
 // Display rank is derived purely from `totalPoints`. The backend `UserTier`
-// enum (5 cohorts) is intentionally NOT used for display — every quest surface
+// enum (5 cohorts) is intentionally NOT used for display - every quest surface
 // derives its rank from THIS module so label and progress always agree.
 
 export type QuestRank =

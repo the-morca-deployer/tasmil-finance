@@ -10,7 +10,7 @@ Consolidate three separate frontends into one path-based Next.js app:
 
 - **Landing** (`tasmil-finance-new`, currently `tasmil-finance.xyz`)
 - **Quest** (`tasmil-quest-folder/frontend`, currently `quest.tasmil-finance.xyz`)
-- **Main app** (`tasmil-finance`, currently `app.tasmil-finance.xyz`) — the merge target
+- **Main app** (`tasmil-finance`, currently `app.tasmil-finance.xyz`) - the merge target
 
 The result is a single deployment serving the marketing landing at `/`, the app at `/chat` (etc.), and quest under `/quest/*`, all unified under the tasmil-finance theme.
 
@@ -53,7 +53,7 @@ src/app/
     quest/profile/page.tsx
     quest/leaderboard/page.tsx
     quest/visit/[taskId]/page.tsx
-  (dashboard)/             # existing app (/chat, /portfolio, …); remove old /quest stub
+  (dashboard)/             # existing app (/chat, /portfolio, ...); remove old /quest stub
   admin/                   # access-codes, quest-stats, waitlist (already present)
   api/                     # existing routes kept + NEW /api/auth/{discord,telegram,x}(+callbacks)
 ```
@@ -63,10 +63,10 @@ src/app/
 
 ## 2. Feature modules (`src/features/`)
 
-- **`landing/`** — full replace with the redesigned components from `tasmil-finance-new`. Keep 3D/GSAP code-split so app/quest bundles never pull `three`.
-- **`access/` + `waitlist/`** — ported from landing's `features/access` + `components/wl`; reuse existing `shared/context/wallet-context`.
-- **`quest/`** — converted from quest's `components/ + context/ + data/` into the feature layout (`components/`, `hooks/`, `lib/`, `context/`). Keep the existing `quest/lib/tier.ts` + leaderboard.
-- **`admin-*`** — access-codes / quest-stats / waitlist features already exist; wire the redesigned admin access-codes UI to them.
+- **`landing/`** - full replace with the redesigned components from `tasmil-finance-new`. Keep 3D/GSAP code-split so app/quest bundles never pull `three`.
+- **`access/` + `waitlist/`** - ported from landing's `features/access` + `components/wl`; reuse existing `shared/context/wallet-context`.
+- **`quest/`** - converted from quest's `components/ + context/ + data/` into the feature layout (`components/`, `hooks/`, `lib/`, `context/`). Keep the existing `quest/lib/tier.ts` + leaderboard.
+- **`admin-*`** - access-codes / quest-stats / waitlist features already exist; wire the redesigned admin access-codes UI to them.
 
 Feature isolation rule (per CLAUDE.md) preserved: features never import from each other; cross-cutting code lives in `src/shared/`.
 
@@ -75,7 +75,7 @@ Feature isolation rule (per CLAUDE.md) preserved: features never import from eac
 - **New `gen-quest` client**: add `kubb.config.quest.js` + `pnpm generate:quest`, generated from quest backend OpenAPI (`/api/docs-json`). Browser calls quest backend directly via `NEXT_PUBLIC_QUEST_API_URL` (`:5555` locally). **Requires CORS** enabled on the quest backend for the merged origin.
 - Existing `gen-ai` (`:8001`) and `gen-backend` (`:6756`) untouched.
 - **Social OAuth** stays server-side: port `/api/auth/{discord,x}` + `/api/auth/callback/{discord,x}` + `/api/auth/telegram` routes. Secrets (`DISCORD_CLIENT_ID/SECRET`, `X_CLIENT_ID/SECRET`, `TELEGRAM_BOT_TOKEN`) server-only; `NEXT_PUBLIC_TELEGRAM_BOT_USERNAME` public.
-- Waitlist/access/admin-codes/admin-auth API routes already in target — reused as-is.
+- Waitlist/access/admin-codes/admin-auth API routes already in target - reused as-is.
 
 ## 4. Theme unification
 
@@ -85,7 +85,7 @@ Feature isolation rule (per CLAUDE.md) preserved: features never import from eac
 ## 5. Dependencies
 
 - Quest deps are a subset of target's; landing deps (`three`, `gsap`, `@react-three/*`, `motion`) already present.
-- Add only what's missing — notably **`jose`** (used by landing admin-auth routes).
+- Add only what's missing - notably **`jose`** (used by landing admin-auth routes).
 - Drop quest's `vitest`; use the target's Jest.
 
 ## 6. Testing
@@ -105,10 +105,10 @@ Feature isolation rule (per CLAUDE.md) preserved: features never import from eac
 
 ## 8. Phasing (shippable slices)
 
-1. **Landing + shell** — full landing port, unified theme/provider/nav/footer, access + waitlist wired to existing routes.
-2. **Quest read** — `gen-quest` client; native leaderboard/campaigns/profile reskinned.
-3. **Quest write/auth** — `visit/[taskId]` task flow + social OAuth routes.
-4. **Cutover** — domains, OAuth URIs, CORS, remove iframe/CSP, archive repos.
+1. **Landing + shell** - full landing port, unified theme/provider/nav/footer, access + waitlist wired to existing routes.
+2. **Quest read** - `gen-quest` client; native leaderboard/campaigns/profile reskinned.
+3. **Quest write/auth** - `visit/[taskId]` task flow + social OAuth routes.
+4. **Cutover** - domains, OAuth URIs, CORS, remove iframe/CSP, archive repos.
 
 Each phase is independently shippable and reviewable; OAuth/domain cutover is isolated to the final phase.
 

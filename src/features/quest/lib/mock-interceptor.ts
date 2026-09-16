@@ -1,5 +1,5 @@
 /**
- * Quest API mock interceptor — loaded only when NEXT_PUBLIC_MOCK_API=true.
+ * Quest API mock interceptor - loaded only when NEXT_PUBLIC_MOCK_API=true.
  * Installed directly by api-client.ts at module creation time.
  */
 import type { AxiosInstance } from "axios";

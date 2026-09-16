@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Generic Protocol Playground — /playground/[protocol]
+ * Generic Protocol Playground - /playground/[protocol]
  *
  * Same visual style as blend-v2 playground.
  * Calls SDK-backed routes (/api/protocols/[protocol]/...) and renders JSON results.
@@ -19,20 +19,20 @@ import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
 
-// ── Styles (same as blend-v2) ─────────────────────────────────────────────────
+// -- Styles (same as blend-v2) -------------------------------------------------
 const inputCls =
   "w-full rounded-lg bg-secondary border border-border px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20";
 const labelCls = "block text-muted-foreground text-[11px] mb-0.5 font-medium";
 const panelCls = "rounded-xl border border-border bg-card/80 p-4 space-y-3 flex flex-col";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 interface Field {
   key: string;
   label: string;
   placeholder?: string;
 }
 
-// ── QueryPanel ────────────────────────────────────────────────────────────────
+// -- QueryPanel ----------------------------------------------------------------
 interface QueryPanelProps {
   title: string;
   protocol: string;
@@ -141,7 +141,7 @@ function QueryPanel({
   );
 }
 
-// ── Protocol endpoint configs ─────────────────────────────────────────────────
+// -- Protocol endpoint configs -------------------------------------------------
 
 interface EndpointConfig {
   title: string;
@@ -262,7 +262,7 @@ const PROTOCOL_ENDPOINTS: Record<string, EndpointConfig[]> = {
   ],
 };
 
-// ── Main Page ─────────────────────────────────────────────────────────────────
+// -- Main Page -----------------------------------------------------------------
 
 export default function ProtocolPlaygroundPage({
   params,
@@ -319,7 +319,7 @@ export default function ProtocolPlaygroundPage({
           )}
           {walletAddress && (
             <span className="text-[11px] px-2 py-0.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 font-mono">
-              {walletAddress.slice(0, 8)}…
+              {walletAddress.slice(0, 8)}...
             </span>
           )}
         </div>
@@ -344,7 +344,7 @@ export default function ProtocolPlaygroundPage({
       <div className="border-t border-border pt-4 text-center">
         <Typography variant="small" className="text-muted-foreground/40 text-xs">
           {config.name} Playground · SDK-backed queries via{" "}
-          <span className="font-mono text-muted-foreground/60">/api/protocols/{protocolId}/…</span>
+          <span className="font-mono text-muted-foreground/60">/api/protocols/{protocolId}/...</span>
         </Typography>
       </div>
     </div>

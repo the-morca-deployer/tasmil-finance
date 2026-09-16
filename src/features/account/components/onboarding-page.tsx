@@ -19,13 +19,13 @@ function getDeployStatusLabel(subStep: DeploySubStep): string {
     case "building_deploy":
       return "Preparing deploy transaction...";
     case "signing_deploy":
-      return "Sign transaction 1 of 2 — Deploy Account";
+      return "Sign transaction 1 of 2 - Deploy Account";
     case "submitting_deploy":
       return "Submitting deploy transaction...";
     case "building_setup":
       return "Preparing setup transaction...";
     case "signing_setup":
-      return "Sign transaction 2 of 2 — Configure Session Key";
+      return "Sign transaction 2 of 2 - Configure Session Key";
     case "submitting_setup":
       return "Submitting setup transaction...";
     case "applying_preset":
@@ -100,12 +100,12 @@ export function OnboardingPage() {
     false;
 
   const selectedApy =
-    presets?.find((p) => p.name === selectedPreset)?.estimatedApy?.toFixed(2) ?? "—";
+    presets?.find((p) => p.name === selectedPreset)?.estimatedApy?.toFixed(2) ?? "-";
 
   const allocationSummary = useMemo(() => {
     const preset = presets?.find((p) => p.name === selectedPreset);
     const topPools = preset?.topPools ?? [];
-    if (topPools.length === 0) return "—";
+    if (topPools.length === 0) return "-";
     return topPools
       .slice(0, 3)
       .map((p) => `${p.name} ${Math.round(p.weight)}%`)
@@ -159,7 +159,7 @@ export function OnboardingPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-6 py-8">
-      {/* Header — page title + explainer + page-level trust chips */}
+      {/* Header - page title + explainer + page-level trust chips */}
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
           <h1 className="font-medium text-muted-foreground text-xs uppercase tracking-widest">
@@ -176,7 +176,7 @@ export function OnboardingPage() {
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <ShieldCheck className="h-3 w-3 text-emerald-400" />
-            Self-custody — your keys, your funds
+            Self-custody - your keys, your funds
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Zap className="h-3 w-3 text-emerald-400" />
@@ -189,7 +189,7 @@ export function OnboardingPage() {
         </div>
       </div>
 
-      {/* ── Row 1: asset picker (compact inline) ─────────────────────────── */}
+      {/* -- Row 1: asset picker (compact inline) --------------------------- */}
       <div className="flex flex-wrap items-center gap-3">
         <span className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-widest">
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] text-muted-foreground">
@@ -225,7 +225,7 @@ export function OnboardingPage() {
         </div>
       </div>
 
-      {/* ── Row 2: strategy cards ────────────────────────────────────────── */}
+      {/* -- Row 2: strategy cards ------------------------------------------ */}
       <div className="flex items-center gap-2">
         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] text-muted-foreground">
           2
@@ -250,7 +250,7 @@ export function OnboardingPage() {
         </div>
       ) : (
         <div className="rounded-2xl border border-border bg-muted/10 p-4 text-center text-muted-foreground text-sm">
-          Strategy options are loading — refresh the page if this persists.
+          Strategy options are loading - refresh the page if this persists.
         </div>
       )}
 
@@ -263,13 +263,13 @@ export function OnboardingPage() {
               {selectedPreset} with {selectedBaseAsset} pays &lt;1% right now.
             </span>{" "}
             {selectedBaseAsset === "XLM"
-              ? "Mainnet XLM lending demand is near zero. Balanced/Aggressive route through liquidity pools (3–5%), or switch to USDC for 5–9% APY."
-              : "Pool yields fluctuate — you can change strategy any time."}
+              ? "Mainnet XLM lending demand is near zero. Balanced/Aggressive route through liquidity pools (3-5%), or switch to USDC for 5-9% APY."
+              : "Pool yields fluctuate - you can change strategy any time."}
           </p>
         </div>
       )}
 
-      {/* ── Row 3: CTA bar (summary + create button + guarantees) ────────── */}
+      {/* -- Row 3: CTA bar (summary + create button + guarantees) ---------- */}
       <div className="mt-1 rounded-2xl border border-border bg-card/40 p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
           {/* Selection summary */}

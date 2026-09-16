@@ -8,7 +8,7 @@ import { useWallet as useWalletCtx } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
 import { mountBeams } from "./beams";
 
-/* shared.jsx — icons, background FX, Nav, Footer, Stepper, helpers (window globals) */
+/* shared.jsx - icons, background FX, Nav, Footer, Stepper, helpers (window globals) */
 
 /* ---------- icons (simple, stroke-based) ---------- */
 const Ico = {
@@ -179,7 +179,7 @@ function makeAddr() {
   for (let i = 0; i < 55; i++) s += c[Math.floor(Math.random() * c.length)];
   return s;
 }
-const trunc = (a) => (a ? a.slice(0, 6) + "…" + a.slice(-6) : "");
+const trunc = (a) => (a ? a.slice(0, 6) + "..." + a.slice(-6) : "");
 
 const LINKS = {
   telegram: "https://t.me/tasmilfinance",
@@ -260,7 +260,7 @@ function WalletAnim() {
             <circle cx="74" cy="26" r="3.4" fill="rgba(0,0,0,0.22)"></circle>
           </g>
         </g>
-        {/* wallet front pocket — covers the lower half of the card */}
+        {/* wallet front pocket - covers the lower half of the card */}
         <g
           className="wa-body"
           stroke="currentColor"
@@ -563,7 +563,7 @@ function Nav({ variant, codeHref, homeHref }) {
                 Join Waitlist <span className="arr">→</span>
               </Link>
             )}
-            {/* Hamburger — mobile only */}
+            {/* Hamburger - mobile only */}
             <Button
               variant="ghost"
               className="nav-burger"

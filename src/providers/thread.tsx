@@ -58,7 +58,7 @@ export function ThreadProvider({ children, agentId }: { children: ReactNode; age
       if (!apiUrl || !finalAssistantId) return [];
       const client = createClient(apiUrl, getApiKey() ?? undefined);
 
-      // Filter by wallet address — fall back to persisted store value during kit init
+      // Filter by wallet address - fall back to persisted store value during kit init
       const effectiveWallet = walletAddress ?? useWalletStore.getState().account;
 
       const threads = await client.threads.search({

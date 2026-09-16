@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, SendHorizontal, XIcon } from "lucide-react";
 import { TooltipIconButton } from "@/features/chat/thread/components/tooltip-icon-button";
 import { Button } from "@/shared/ui/button";
 
-/* Temporarily hidden — ContentCopyable
+/* Temporarily hidden - ContentCopyable
 function ContentCopyable({ content, disabled }: { content: string; disabled: boolean }) {
   const [copied, setCopied] = useState(false);
 
@@ -160,10 +160,10 @@ export function CommandBar({
 
   return (
     <div className="flex items-center gap-2">
-      {/* Temporarily hidden — copy button
+      {/* Temporarily hidden - copy button
       {content.length > 0 && <ContentCopyable content={content} disabled={isLoading} />}
       */}
-      {/* Temporarily hidden — regenerate button
+      {/* Temporarily hidden - regenerate button
       {isAiMessage && !!handleRegenerate && (
         <TooltipIconButton
           disabled={isLoading}
@@ -175,7 +175,7 @@ export function CommandBar({
         </TooltipIconButton>
       )}
       */}
-      {/* Temporarily hidden — edit button
+      {/* Temporarily hidden - edit button
       {showEdit && (
         <TooltipIconButton
           disabled={isLoading}

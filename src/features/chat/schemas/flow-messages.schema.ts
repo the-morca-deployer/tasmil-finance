@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// ─── Suggestion ────────────────────────────────────────────────
+// --- Suggestion ------------------------------------------------
 
 export const suggestionSchema = z.object({
   label: z.string().min(1),
@@ -9,7 +9,7 @@ export const suggestionSchema = z.object({
   description: z.string().optional(),
 });
 
-// ─── PlanStep ──────────────────────────────────────────────────
+// --- PlanStep --------------------------------------------------
 
 export const planStepSchema = z.object({
   index: z.number().int().nonnegative(),
@@ -23,7 +23,7 @@ export const planStepSchema = z.object({
   expected_apy_bps: z.number().int().optional(),
 });
 
-// ─── Plan ──────────────────────────────────────────────────────
+// --- Plan ------------------------------------------------------
 
 export const planSchema = z.object({
   id: z.string().min(1),
@@ -33,7 +33,7 @@ export const planSchema = z.object({
   idle_amount: z.number().nonnegative().optional(),
 });
 
-// ─── StepSimulation ────────────────────────────────────────────
+// --- StepSimulation --------------------------------------------
 
 export const stepSimulationSchema = z.object({
   step_index: z.number().int().nonnegative(),
@@ -43,7 +43,7 @@ export const stepSimulationSchema = z.object({
   error: z.string().optional(),
 });
 
-// ─── SimulationReport ──────────────────────────────────────────
+// --- SimulationReport ------------------------------------------
 
 export const simulationReportSchema = z.object({
   status: z.enum(["success", "partial_fail", "fail"]),
@@ -54,7 +54,7 @@ export const simulationReportSchema = z.object({
   simulated_at_ledger: z.number().int().positive(),
 });
 
-// ─── FlowPosition ──────────────────────────────────────────────
+// --- FlowPosition ----------------------------------------------
 
 export const flowPositionSchema = z.object({
   deposit: z.string(),
@@ -64,7 +64,7 @@ export const flowPositionSchema = z.object({
   tx_hash: z.string(),
 });
 
-// ─── AssistantFlowMessage (discriminated union) ────────────────
+// --- AssistantFlowMessage (discriminated union) ----------------
 
 const textMessageSchema = z.object({
   kind: z.literal("text"),
