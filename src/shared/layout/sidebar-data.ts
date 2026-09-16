@@ -110,6 +110,11 @@ const _sidebarData: SidebarData = {
           url: "/rulebook",
           icon: Shield,
         },
+        {
+          title: "Activity",
+          url: "/activity",
+          icon: ListChecks,
+        },
       ],
     },
     {
