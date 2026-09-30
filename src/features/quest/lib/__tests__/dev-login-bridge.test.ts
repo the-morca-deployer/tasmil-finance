@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/store/use-auth";
 import { useQuestAuthStore } from "../../store/use-quest-auth";
 import { ensureQuestDevSession } from "../dev-login-bridge";
 
@@ -6,6 +7,7 @@ describe("ensureQuestDevSession", () => {
   afterEach(() => {
     global.fetch = realFetch;
     useQuestAuthStore.getState().logout();
+    useAuthStore.getState().logout();
     delete process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH;
     delete process.env.NEXT_PUBLIC_QUEST_API_URL;
   });
@@ -45,6 +47,10 @@ describe("ensureQuestDevSession", () => {
     );
     expect(useQuestAuthStore.getState().user?.id).toBe("u1");
     expect(useQuestAuthStore.getState().isAuthenticated).toBe(true);
+    expect(useAuthStore.getState().accessToken).toBe("quest-jwt");
+    expect(useAuthStore.getState().user?.walletAddress).toBe(
+      "GDQI7LOGDRQRM5OXEIEY7TDHUYEHGQ7RX3KOJU3FNUP6HBDHUGWA3I6R"
+    );
   });
 
   it("does nothing when bypass is off", async () => {
