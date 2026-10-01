@@ -164,8 +164,9 @@ function FarmingContent() {
   useEffect(() => {
     const addr = position?.keeperWalletAddress;
     if (!addr) return;
-    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
-    fetch(`${apiBase}/api/portfolio/snapshot`, {
+    // Keep this same-origin so the browser sends the Tasmil session cookie.
+    // The route handler forwards that credential to the backend.
+    fetch("/api/portfolio/snapshot", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
