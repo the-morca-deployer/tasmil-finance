@@ -92,10 +92,7 @@ export function FarmingVaultHeader({
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
               <span className="font-medium text-primary">{(currentApy * 100).toFixed(2)}% APY</span>
               <span
-                className={cn(
-                  "font-medium",
-                  pnlPositive ? "text-emerald-400" : "text-destructive"
-                )}
+                className={cn("font-medium", pnlPositive ? "text-emerald-400" : "text-destructive")}
               >
                 {pnlPositive ? "+" : ""}
                 {formatUsd(allTimePnlUsd)} ({pnlPositive ? "+" : ""}
@@ -119,11 +116,7 @@ export function FarmingVaultHeader({
             onClick={onSecurity}
             className={cn("col-span-2 gap-2", !isRevoked && "text-muted-foreground")}
           >
-            {isRevoked ? (
-              <ShieldCheck className="h-4 w-4" />
-            ) : (
-              <ShieldOff className="h-4 w-4" />
-            )}
+            {isRevoked ? <ShieldCheck className="h-4 w-4" /> : <ShieldOff className="h-4 w-4" />}
             {isRevoked ? "Activate Session Key" : "Revoke"}
           </Button>
         </div>

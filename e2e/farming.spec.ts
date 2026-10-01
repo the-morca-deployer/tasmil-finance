@@ -2,25 +2,7 @@ import { expect, type Page, test } from "@playwright/test";
 import { Keypair } from "@stellar/stellar-sdk";
 import { freshWallet, loginAsWallet } from "./helpers/auth";
 
-/**
- * `/farming` as it exists today.
- *
- * The tabs this file used to drive - Overview / Pools / Strategy / Activity,
- * and later Performance / Manage with its pool rows - were deleted on purpose
- * in f6ba8027 ("replace tabs+modals body with FarmingDashboard ... Tabs/
- * manage-tab UI removed"). Those tests were rewritten or dropped rather than
- * repaired: a test that asserts a screen the product no longer has is not a
- * failing test, it is a stale one, and keeping it green would have meant
- * putting the screen back.
- *
- * What the route is now:
- *   - no managed account  → client redirect to the /farming/setup wizard
- *   - a managed account   → FarmingDashboard: PositionValueCard (balance,
- *                           deposited, lifetime earnings, chart) +
- *                           AgentHistoryCard, with AprSummaryCard alongside
- *   - `?tab=activity`     → the Activity Timeline drawer over the dashboard
- *   - "Add funds"         → the fund dialog
- */
+/** `/farming` keeps the SOW2 controller while presenting the farming-2 layout. */
 
 /** Shaped exactly like `GET /api/account/position/:publicKey` on mainnet. */
 const ACTIVE_POSITION = {
@@ -53,6 +35,54 @@ const ACTIVE_POSITION = {
     createdAt: "2026-08-16T21:36:07.767Z",
     keeperWalletAddress: "CDALQPJ4IPYKEM52ZB7QKCUAOIOFNVQ2V4AXPNWERJS565WTSSZPQSL4",
   },
+};
+
+const POOLS = {
+  success: true,
+  data: [
+    {
+      id: "blend-usdc",
+      protocol: "BLEND",
+      poolAddress: `C${"B".repeat(55)}`,
+      poolType: "lending",
+      asset: "USDC",
+      assetSymbol: "USDC",
+      currentApy: 0.067031,
+      tvlUsd: 1_000_000,
+      riskScore: 3,
+      strategyContractAddress: `C${"S".repeat(55)}`,
+      enabled: true,
+      lastUpdated: "2026-10-01T00:00:00.000Z",
+    },
+  ],
+};
+
+const PRESETS = {
+  data: [
+    {
+      name: "Balanced",
+      estimatedApy: 6.7,
+      poolCount: 1,
+      poolTypes: ["lending"],
+      risks: ["Smart contract risk"],
+      topPools: [{ name: "Blend USDC", apy: 6.7, weight: 100 }],
+    },
+  ],
+};
+
+const RULEBOOK = {
+  accountId: "vault-e2e",
+  network: "mainnet",
+  contract: `C${"P".repeat(55)}`,
+  readAtLedger: "60000000",
+  instanceLiveUntilLedger: "60100000",
+  killSwitch: false,
+  killSwitchSource: "STORED",
+  executionRouter: null,
+  interfaceRegistry: null,
+  globalDailyCalls: { used: "0", resetLedger: null, max: "48" },
+  sessions: [],
+  explorerUrl: `https://stellar.expert/explorer/public/contract/C${"P".repeat(55)}`,
 };
 
 /**
@@ -94,6 +124,34 @@ async function mockPosition(page: Page, delayMs = 0): Promise<void> {
       body: JSON.stringify(ACTIVE_POSITION),
     });
   });
+  await page.route("**/api/pools*", (route) => route.fulfill({ json: POOLS }));
+  await page.route("**/api/account/presets*", (route) => route.fulfill({ json: PRESETS }));
+  await page.route("**/api/account/activity/**", (route) =>
+    route.fulfill({ json: { success: true, data: { items: [], nextCursor: null } } })
+  );
+  await page.route("**/api/portfolio/snapshot", (route) =>
+    route.fulfill({ json: { success: true, data: { registered: false } } })
+  );
+  await page.route("**/api/marketplace/my-strategies*", (route) =>
+    route.fulfill({
+      json: {
+        data: {
+          vaults: [
+            {
+              accountId: "vault-e2e",
+              purpose: "VAULT",
+              keeperWalletAddress: ACTIVE_POSITION.data.keeperWalletAddress,
+              baseAsset: "USDC",
+              status: "ACTIVE",
+            },
+          ],
+        },
+      },
+    })
+  );
+  await page.route("**/api/policy/rulebook/**", (route) =>
+    route.fulfill({ json: { data: RULEBOOK } })
+  );
 }
 
 test.describe("Farming route", () => {
@@ -117,17 +175,40 @@ test.describe("Farming route", () => {
     await expect(page).toHaveURL(/\/farming\/setup/, { timeout: 15_000 });
   });
 
-  test("a wallet with an account renders the dashboard instead of onboarding", async ({ page }) => {
+  test("a wallet with an account renders the dashboard instead of onboarding", async ({
+    page,
+  }, testInfo) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await primeWallet(page, wallet);
     await mockPosition(page);
+    const pageErrors: string[] = [];
+    const serverErrors: string[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+    page.on("response", (response) => {
+      if (response.url().includes("/api/") && response.status() >= 500) {
+        serverErrors.push(`${response.status()} ${response.url()}`);
+      }
+    });
     await page.goto("/farming", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByText("Total balance", { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText("USD portfolio value", { exact: true })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByRole("tab", { name: "Overview" })).toHaveAttribute(
+      "aria-selected",
+      "true"
+    );
+    await expect(page.getByRole("button", { name: "Deposit", exact: true })).toBeVisible();
     await expect(page).toHaveURL(/\/farming(\?|$)/);
     // The setup CTA belongs to the empty state; it must not be on a dashboard.
     await expect(page.getByTestId("setup-cta")).toHaveCount(0);
+    await page.screenshot({
+      path: testInfo.outputPath(`farming-overview-${testInfo.project.name}.png`),
+      fullPage: true,
+    });
+    expect(pageErrors).toEqual([]);
+    expect(serverErrors).toEqual([]);
   });
 
   test("dashboard figures come from the position payload", async ({ page }) => {
@@ -137,13 +218,11 @@ test.describe("Farming route", () => {
     await mockPosition(page);
     await page.goto("/farming", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByText("12.34 USDC")).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText("Total deposited")).toBeVisible();
-    // Deposits appear twice - PositionValueCard and AprSummaryCard both read
-    // `totalDepositedUsd` - so assert the value is on screen, not that it is
-    // on screen exactly once.
-    await expect(page.getByText("10.00 USDC").first()).toBeVisible();
-    await expect(page.getByText("2.34 USDC (23.40%)")).toBeVisible();
+    const header = page.locator('[data-onborda="farming-header"]');
+    await expect(header.getByText("$12.34", { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText("6.70% APY")).toBeVisible();
+    await expect(page.getByText("+$2.34 (+23.40%) all time")).toBeVisible();
+    await expect(page.getByText(/12\.34 USDC/)).toHaveCount(0);
   });
 
   /**
@@ -165,7 +244,9 @@ test.describe("Farming route", () => {
     });
 
     await page.goto("/farming", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText("Total balance", { exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText("USD portfolio value", { exact: true })).toBeVisible({
+      timeout: 20_000,
+    });
     expect(visited.filter((url) => url.includes("/farming/setup"))).toHaveLength(0);
   });
 
@@ -186,20 +267,20 @@ test.describe("Farming route", () => {
     await expect(page).toHaveURL(/\/farming(\?|$)/);
   });
 
-  test("Add funds opens the deposit dialog", async ({ page }) => {
+  test("Deposit opens the current deposit dialog", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await primeWallet(page, wallet);
     await mockPosition(page);
     await page.goto("/farming", { waitUntil: "domcontentloaded" });
 
-    await page.getByRole("button", { name: /add funds/i }).click({ timeout: 15_000 });
+    await page.getByRole("button", { name: "Deposit", exact: true }).click({ timeout: 15_000 });
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText(/deposit more/i)).toBeVisible();
   });
 
-  test("?tab=activity opens the activity drawer with its category filters", async ({ page }) => {
+  test("?tab=activity renders the activity tab with its category filters", async ({ page }) => {
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
     await primeWallet(page, wallet);
@@ -212,13 +293,47 @@ test.describe("Farming route", () => {
     await expect(page.getByRole("tab", { name: /^Reward$/ })).toBeVisible();
   });
 
+  test("all farming sections are directly linkable", async ({ page }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await primeWallet(page, wallet);
+    await mockPosition(page);
+
+    for (const [query, label] of [
+      ["", "Overview"],
+      ["?tab=pools", "Pools"],
+      ["?tab=strategy", "Strategy"],
+      ["?tab=activity", "Activity"],
+      ["?tab=rulebook", "My Rulebook"],
+    ] as const) {
+      await page.goto(`/farming${query}`, { waitUntil: "domcontentloaded" });
+      await expect(page.getByRole("tab", { name: label })).toHaveAttribute("aria-selected", "true");
+    }
+
+    await expect(page.getByRole("heading", { name: "My Rulebook" })).toBeVisible();
+    await expect(page.getByText("Kill switch is off")).toBeVisible();
+  });
+
+  test("an unknown tab falls back to Overview", async ({ page }) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await primeWallet(page, wallet);
+    await mockPosition(page);
+    await page.goto("/farming?tab=unknown", { waitUntil: "domcontentloaded" });
+
+    await expect(page.getByRole("tab", { name: "Overview" })).toHaveAttribute(
+      "aria-selected",
+      "true"
+    );
+  });
+
   // NOTE: the old "No error overlay on success" test asserted that no
   // `role="alert"` element was visible. It is not a usable signal here - the
   // sonner toaster mounts a permanently visible empty `role="alert"` region on
   // every page - so it was dropped rather than rewritten into something that
   // passes without meaning anything. The happy-path render is covered above.
 
-  test("mobile viewport - dashboard fits without horizontal scroll", async ({ page }) => {
+  test("mobile viewport - dashboard fits without horizontal scroll", async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 375, height: 667 });
     const wallet = freshWallet();
     await loginAsWallet(page, wallet);
@@ -226,9 +341,15 @@ test.describe("Farming route", () => {
     await mockPosition(page);
     await page.goto("/farming", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByText("Total balance", { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText("USD portfolio value", { exact: true })).toBeVisible({
+      timeout: 15_000,
+    });
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1);
+    await page.screenshot({
+      path: testInfo.outputPath(`farming-mobile-${testInfo.project.name}.png`),
+      fullPage: true,
+    });
   });
 });

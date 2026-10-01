@@ -17,10 +17,7 @@ describe("FarmingTabs", () => {
     render(<FarmingTabs value="pools" onValueChange={() => {}} />);
 
     expect(screen.getByRole("tab", { name: "Pools" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByRole("tab", { name: "Overview" })).toHaveAttribute(
-      "aria-selected",
-      "false"
-    );
+    expect(screen.getByRole("tab", { name: "Overview" })).toHaveAttribute("aria-selected", "false");
   });
 
   it("emits the selected tab", () => {
@@ -30,5 +27,14 @@ describe("FarmingTabs", () => {
     fireEvent.click(screen.getByRole("tab", { name: "My Rulebook" }));
 
     expect(onValueChange).toHaveBeenCalledWith("rulebook");
+  });
+
+  it("supports arrow-key navigation", () => {
+    const onValueChange = jest.fn();
+    render(<FarmingTabs value="overview" onValueChange={onValueChange} />);
+
+    fireEvent.keyDown(screen.getByRole("tab", { name: "Overview" }), { key: "ArrowRight" });
+
+    expect(onValueChange).toHaveBeenCalledWith("pools");
   });
 });

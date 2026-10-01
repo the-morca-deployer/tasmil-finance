@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import type { KeyboardEvent } from "react";
 import { cn } from "@/lib/utils";
 
 export const FARMING_TABS = ["overview", "pools", "strategy", "activity", "rulebook"] as const;
@@ -25,6 +26,21 @@ interface FarmingTabsProps {
 }
 
 export function FarmingTabs({ value, onValueChange }: FarmingTabsProps) {
+  const selectFromKeyboard = (event: KeyboardEvent<HTMLButtonElement>, tab: FarmingTab) => {
+    const index = FARMING_TABS.indexOf(tab);
+    let next: FarmingTab | undefined;
+    if (event.key === "ArrowRight") next = FARMING_TABS[(index + 1) % FARMING_TABS.length];
+    else if (event.key === "ArrowLeft") {
+      next = FARMING_TABS[(index - 1 + FARMING_TABS.length) % FARMING_TABS.length];
+    } else if (event.key === "Home") next = FARMING_TABS[0];
+    else if (event.key === "End") next = FARMING_TABS[FARMING_TABS.length - 1];
+    if (!next) return;
+
+    event.preventDefault();
+    onValueChange(next);
+    document.getElementById(`farming-tab-${next}`)?.focus();
+  };
+
   return (
     <div className="overflow-x-auto border-border border-b" data-onborda="farming-tabs">
       <div
@@ -44,6 +60,7 @@ export function FarmingTabs({ value, onValueChange }: FarmingTabsProps) {
               id={`farming-tab-${tab}`}
               tabIndex={selected ? 0 : -1}
               onClick={() => onValueChange(tab)}
+              onKeyDown={(event) => selectFromKeyboard(event, tab)}
               className={cn(
                 "relative whitespace-nowrap pb-3 font-medium text-sm transition-colors sm:text-base",
                 selected ? "text-primary" : "text-muted-foreground hover:text-foreground"
