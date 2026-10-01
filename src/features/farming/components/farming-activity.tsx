@@ -180,80 +180,84 @@ export function FarmingActivitySidebar({
   const items = (activities ?? []).slice(0, 6);
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
-      <div className="px-6 pt-6 pb-4">
-        <h3 className="font-semibold text-foreground text-xl">Activity</h3>
-      </div>
+    // On desktop the card is taken out of flow (absolute inset-0) so the grid row
+    // height comes from the Allocation chart beside it; the list scrolls inside.
+    <div className="relative">
+      <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card lg:absolute lg:inset-0">
+        <div className="px-6 pt-6 pb-4">
+          <h3 className="font-semibold text-foreground text-xl">Activity</h3>
+        </div>
 
-      {isLoading ? (
-        <div className="flex flex-col divide-y divide-border">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3 px-6 py-3.5">
-              <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
-              <div className="flex-1 space-y-1.5">
-                <Skeleton className="h-4 w-28" />
-                <Skeleton className="h-3 w-16" />
+        {isLoading ? (
+          <div className="flex flex-col divide-y divide-border">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 px-6 py-3.5">
+                <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+                <Skeleton className="h-4 w-14" />
               </div>
-              <Skeleton className="h-4 w-14" />
-            </div>
-          ))}
-        </div>
-      ) : items.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center px-6 pb-8">
-          <Clock className="mb-3 h-8 w-8 text-muted-foreground/40" />
-          <p className="mb-1 font-medium text-muted-foreground text-sm">No activity yet</p>
-          <p className="text-center text-muted-foreground/60 text-xs">
-            Events will appear here as the agent operates.
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col divide-y divide-border">
-          {items.map((activity) => {
-            const iconConfig = getActivityIcon(activity);
-            const Icon = iconConfig.icon;
-            const label = getActivityLabel(activity);
+            ))}
+          </div>
+        ) : items.length === 0 ? (
+          <div className="flex flex-1 flex-col items-center justify-center px-6 pb-8">
+            <Clock className="mb-3 h-8 w-8 text-muted-foreground/40" />
+            <p className="mb-1 font-medium text-muted-foreground text-sm">No activity yet</p>
+            <p className="text-center text-muted-foreground/60 text-xs">
+              Events will appear here as the agent operates.
+            </p>
+          </div>
+        ) : (
+          <div className="flex min-h-0 flex-1 flex-col divide-y divide-border overflow-y-auto">
+            {items.map((activity) => {
+              const iconConfig = getActivityIcon(activity);
+              const Icon = iconConfig.icon;
+              const label = getActivityLabel(activity);
 
-            return (
-              <div
-                key={activity.id}
-                className="flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-muted/20"
-              >
+              return (
                 <div
-                  className={cn(
-                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                    iconConfig.bg
-                  )}
+                  key={activity.id}
+                  className="flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-muted/20"
                 >
-                  <Icon className={cn("h-3.5 w-3.5", iconConfig.fg)} />
+                  <div
+                    className={cn(
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+                      iconConfig.bg
+                    )}
+                  >
+                    <Icon className={cn("h-3.5 w-3.5", iconConfig.fg)} />
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <span className="truncate font-medium text-foreground text-sm">{label}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {formatRelativeTime(activity.createdAt)}
+                    </span>
+                  </div>
+                  {activity.amount != null && activity.token && (
+                    <span className="shrink-0 font-semibold text-foreground text-sm">
+                      {activity.amount} {activity.token}
+                    </span>
+                  )}
                 </div>
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate font-medium text-foreground text-sm">{label}</span>
-                  <span className="text-muted-foreground text-xs">
-                    {formatRelativeTime(activity.createdAt)}
-                  </span>
-                </div>
-                {activity.amount != null && activity.token && (
-                  <span className="shrink-0 font-semibold text-foreground text-sm">
-                    {activity.amount} {activity.token}
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
 
-      {onSeeAll && (
-        <div className="mt-auto border-border border-t px-4 py-3">
-          <Button
-            variant="ghost"
-            className="w-full font-medium text-muted-foreground text-sm hover:text-foreground"
-            onClick={onSeeAll}
-          >
-            See all
-          </Button>
-        </div>
-      )}
+        {onSeeAll && (
+          <div className="mt-auto border-border border-t px-4 py-3">
+            <Button
+              variant="ghost"
+              className="w-full font-medium text-muted-foreground text-sm hover:text-foreground"
+              onClick={onSeeAll}
+            >
+              See all
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

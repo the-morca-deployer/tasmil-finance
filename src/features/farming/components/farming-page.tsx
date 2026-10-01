@@ -12,6 +12,7 @@ import { Button } from "@/shared/ui/button";
 import { useWalletHydrated, useWalletStore } from "@/store/use-wallet";
 import { useFarmingActions } from "../hooks/use-farming-actions";
 import { usePools } from "../hooks/use-farming-api";
+import { type HistoryRange, usePortfolioHistory } from "../hooks/use-portfolio-history";
 import type { DiscoveredPool } from "../types";
 import { FarmingActivity, FarmingActivitySidebar } from "./farming-activity";
 import { FarmingAllocation } from "./farming-allocation";
@@ -20,6 +21,7 @@ import { FarmingPools } from "./farming-pools";
 import { FarmingStatusBanners } from "./farming-status-banners";
 import { type FarmingTab, FarmingTabs, parseFarmingTab } from "./farming-tabs";
 import { FarmingVaultHeader } from "./farming-vault-header";
+import { PerformanceChart } from "./performance-chart";
 import { PoolDetailDrawer } from "./pool-detail-drawer";
 import { ManageTab } from "./tabs/manage-tab";
 
@@ -87,6 +89,7 @@ function FarmingContent() {
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [strategyPreviewAsset, setStrategyPreviewAsset] = useState<"USDC" | "XLM">("USDC");
   const [selectedPreset, setSelectedPreset] = useState<RiskPreset | null>(null);
+  const [historyRange, setHistoryRange] = useState<HistoryRange>("7d");
 
   const {
     data: position,
@@ -96,6 +99,11 @@ function FarmingContent() {
     error: positionError,
     refetch: refetchPosition,
   } = usePosition(publicKey);
+  const portfolioHistory = usePortfolioHistory(
+    position?.keeperWalletAddress,
+    historyRange,
+    position?.displayAsset ?? position?.baseAsset
+  );
 
   // `GET /api/account/position/:publicKey` answers 404 for a wallet with no
   // managed account, so "no account" arrives as an error like any other. Only
@@ -360,6 +368,11 @@ function FarmingContent() {
     typeof position.totalDepositedUsd === "number" &&
     typeof position.profitUsd === "number" &&
     typeof position.profitPercent === "number" &&
+    typeof position.totalValueAsset === "number" &&
+    typeof position.profitAsset === "number" &&
+    typeof position.profitPercentAsset === "number" &&
+    typeof position.assetPriceUsd === "number" &&
+    typeof position.displayAsset === "string" &&
     typeof position.currentApy === "number";
 
   if (!hasCompletePositionData) {
@@ -382,8 +395,13 @@ function FarmingContent() {
 
         <FarmingVaultHeader
           totalValueUsd={position.totalValueUsd}
+          totalValueAsset={position.totalValueAsset}
+          displayAsset={position.displayAsset}
+          assetPriceUsd={position.assetPriceUsd}
           allTimePnlUsd={position.profitUsd}
+          allTimePnlAsset={position.profitAsset}
           allTimePnlPercent={position.profitPercent}
+          allTimePnlPercentAsset={position.profitPercentAsset}
           currentApy={position.currentApy}
           status={position.status}
           vaultAddress={position.keeperWalletAddress}
@@ -415,6 +433,14 @@ function FarmingContent() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.25 }}
             >
+              <PerformanceChart
+                data={portfolioHistory.data}
+                assetSymbol={position.displayAsset}
+                range={portfolioHistory.range}
+                isPlaceholder={portfolioHistory.isPlaceholder}
+                isLoading={portfolioHistory.isLoading}
+                onRangeChange={setHistoryRange}
+              />
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
                 <FarmingAllocation
                   positions={positionsList}

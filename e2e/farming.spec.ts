@@ -14,6 +14,14 @@ const ACTIVE_POSITION = {
     netDepositsUsd: 10,
     profitUsd: 2.34,
     profitPercent: 23.4,
+    displayAsset: "USDC",
+    assetPriceUsd: 1,
+    totalValueAsset: 12.34,
+    totalDepositedAsset: 10,
+    totalWithdrawnAsset: 0,
+    netDepositsAsset: 10,
+    profitAsset: 2.34,
+    profitPercentAsset: 23.4,
     currentApy: 0.067031,
     preset: "BALANCED",
     status: "ACTIVE",
@@ -85,6 +93,34 @@ const RULEBOOK = {
   explorerUrl: `https://stellar.expert/explorer/public/contract/C${"P".repeat(55)}`,
 };
 
+const PORTFOLIO_HISTORY = {
+  success: true,
+  data: [
+    {
+      timestamp: "2026-10-01T17:40:00.000Z",
+      totalValueUsd: 10,
+      walletUsd: 10,
+      defiUsd: 0,
+      totalValueAsset: 10,
+      walletAsset: 10,
+      defiAsset: 0,
+      assetSymbol: "USDC",
+      assetPriceUsd: 1,
+    },
+    {
+      timestamp: "2026-10-01T17:45:00.000Z",
+      totalValueUsd: 12.34,
+      walletUsd: 0,
+      defiUsd: 12.34,
+      totalValueAsset: 12.34,
+      walletAsset: 0,
+      defiAsset: 12.34,
+      assetSymbol: "USDC",
+      assetPriceUsd: 1,
+    },
+  ],
+};
+
 /**
  * Two things `loginAsWallet` does not cover on this route:
  *
@@ -131,6 +167,22 @@ async function mockPosition(page: Page, delayMs = 0): Promise<void> {
   );
   await page.route("**/api/portfolio/snapshot", (route) =>
     route.fulfill({ json: { success: true, data: { registered: false } } })
+  );
+  await page.route("**/api/portfolio/history/**", (route) =>
+    route.fulfill({ json: PORTFOLIO_HISTORY })
+  );
+  await page.route(/\/api\/quest\/users\/me(?:\?.*)?$/, (route) =>
+    route.fulfill({
+      json: {
+        success: true,
+        data: { id: "quest-user-e2e", points: 0, streak: 0 },
+      },
+    })
+  );
+  await page.route("**/api/quest/users/me/check-in-status", (route) =>
+    route.fulfill({
+      json: { success: true, data: { hasCheckedIn: false, streak: 0 } },
+    })
   );
   await page.route("**/api/marketplace/my-strategies*", (route) =>
     route.fulfill({
@@ -192,7 +244,7 @@ test.describe("Farming route", () => {
     });
     await page.goto("/farming", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByText("USD portfolio value", { exact: true })).toBeVisible({
+    await expect(page.getByText("USDC portfolio value", { exact: true })).toBeVisible({
       timeout: 15_000,
     });
     await expect(page.getByRole("heading", { name: "Farming", exact: true })).toBeVisible();
@@ -204,9 +256,17 @@ test.describe("Farming route", () => {
       "true"
     );
     await expect(page.getByRole("button", { name: "Deposit", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Portfolio Value" })).toBeVisible();
+    await expect(page.getByTestId("portfolio-value-chart")).toBeVisible();
+    await expect(
+      page.getByTestId("portfolio-value-chart").locator(".recharts-area-curve")
+    ).toBeVisible();
     await expect(page).toHaveURL(/\/farming(\?|$)/);
     // The setup CTA belongs to the empty state; it must not be on a dashboard.
     await expect(page.getByTestId("setup-cta")).toHaveCount(0);
+    // Let the intentional 650ms chart entrance animation settle before the
+    // visual artifact is captured; assertions above already prove rendering.
+    await page.waitForTimeout(700);
     await page.screenshot({
       path: testInfo.outputPath(`farming-overview-${testInfo.project.name}.png`),
       fullPage: true,
@@ -223,10 +283,13 @@ test.describe("Farming route", () => {
     await page.goto("/farming", { waitUntil: "domcontentloaded" });
 
     const header = page.locator('[data-onborda="farming-header"]');
-    await expect(header.getByText("$12.34", { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(header.getByText("12.34 USDC", { exact: true })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(header.getByText("≈ $12.34", { exact: true })).toBeVisible();
     await expect(page.getByText("6.70% APY")).toBeVisible();
-    await expect(page.getByText("+$2.34 (+23.40%) all time")).toBeVisible();
-    await expect(page.getByText(/12\.34 USDC/)).toHaveCount(0);
+    await expect(page.getByText("+2.34 USDC (+23.40%) all time")).toBeVisible();
+    await expect(page.getByText("≈ +$2.34 (+23.40% USD)", { exact: true })).toBeVisible();
   });
 
   /**
@@ -248,7 +311,7 @@ test.describe("Farming route", () => {
     });
 
     await page.goto("/farming", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText("USD portfolio value", { exact: true })).toBeVisible({
+    await expect(page.getByText("USDC portfolio value", { exact: true })).toBeVisible({
       timeout: 20_000,
     });
     expect(visited.filter((url) => url.includes("/farming/setup"))).toHaveLength(0);
@@ -345,7 +408,7 @@ test.describe("Farming route", () => {
     await mockPosition(page);
     await page.goto("/farming", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByText("USD portfolio value", { exact: true })).toBeVisible({
+    await expect(page.getByText("USDC portfolio value", { exact: true })).toBeVisible({
       timeout: 15_000,
     });
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);

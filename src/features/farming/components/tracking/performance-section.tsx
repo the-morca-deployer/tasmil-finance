@@ -10,6 +10,7 @@ interface Props {
   range: HistoryRange;
   isLoading: boolean;
   isPlaceholder: boolean;
+  assetSymbol?: string;
   onRangeChange: (range: HistoryRange) => void;
 }
 
@@ -20,6 +21,7 @@ export function PerformanceSection({
   range,
   isLoading,
   isPlaceholder,
+  assetSymbol = "USDC",
   onRangeChange,
 }: Props) {
   return (
@@ -52,6 +54,7 @@ export function PerformanceSection({
       <Hairline />
       <PerformanceChart
         data={data ?? []}
+        assetSymbol={assetSymbol}
         range={range}
         isLoading={isLoading}
         isPlaceholder={isPlaceholder}
