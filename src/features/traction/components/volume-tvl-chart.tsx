@@ -31,7 +31,7 @@ export function VolumeTvlChart({
             Volume &amp; TVL - last 90 days
           </Typography>
           <Typography variant="p" className="text-muted-foreground text-xs">
-            Application-index USD estimates; compare against the public-ledger reconciliation above
+            Daily deposit/withdraw volume and cumulative net-deposit TVL
           </Typography>
         </div>
         {isLoading ? (

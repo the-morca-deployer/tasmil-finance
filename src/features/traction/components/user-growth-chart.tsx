@@ -31,8 +31,7 @@ export function UserGrowthChart({
             App wallet growth - last 90 days
           </Typography>
           <Typography variant="p" className="text-muted-foreground text-xs">
-            Cumulative app wallets and daily new connections; public-ledger wallet count is shown
-            above
+            Cumulative app wallets and daily new connections
           </Typography>
         </div>
         {isLoading ? (
