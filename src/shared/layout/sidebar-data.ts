@@ -99,11 +99,6 @@ const _sidebarData: SidebarData = {
           url: "/farming",
           icon: Tractor,
         },
-        {
-          title: "Activity",
-          url: "/activity",
-          icon: ListChecks,
-        },
       ],
     },
     {

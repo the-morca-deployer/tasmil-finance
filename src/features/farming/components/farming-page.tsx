@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useActivity, usePosition, usePresets } from "@/features/account/hooks/use-account-api";
 import type { RiskPreset } from "@/features/account/types";
+import { usePolicyTimeline } from "@/features/transparency/api/policy-timeline";
 import { RulebookPanel } from "@/features/transparency/components/rulebook-page";
 import { isNotFoundError } from "@/lib/query-error";
 import { Button } from "@/shared/ui/button";
@@ -182,6 +183,7 @@ function FarmingContent() {
   );
 
   const activitiesList = useMemo(() => (Array.isArray(activities) ? activities : []), [activities]);
+  const policyTimeline = usePolicyTimeline();
   const registryPools = useMemo(
     () => (Array.isArray(registryPoolsData) ? registryPoolsData : []),
     [registryPoolsData]
@@ -494,7 +496,11 @@ function FarmingContent() {
               role="tabpanel"
               aria-labelledby="farming-tab-activity"
             >
-              <FarmingActivity activities={activitiesList} isLoading={activitiesLoading} />
+              <FarmingActivity
+                activities={activitiesList}
+                isLoading={activitiesLoading}
+                policyItems={policyTimeline.items}
+              />
             </section>
           )}
 

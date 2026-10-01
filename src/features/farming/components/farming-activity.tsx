@@ -5,21 +5,25 @@ import {
   ArrowDownLeft,
   ArrowLeftRight,
   ArrowUpRight,
+  Ban,
   CheckCircle2,
   Clock,
   Crosshair,
   Droplets,
   Layers,
+  Lightbulb,
   type LucideIcon,
   Pause,
   RefreshCw,
   Settings,
+  ShieldAlert,
   ShieldOff,
   TrendingUp,
   XCircle,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import type { ActivityItem } from "@/features/account/types";
 import { cn } from "@/lib/utils";
 import { getExplorerUrl } from "@/shared/config/stellar";
@@ -88,7 +92,46 @@ const REBALANCE_SUB: {
   },
 ];
 
-type ActivityCategory = "all" | "protocol" | "reward";
+type ActivityCategory = "all" | "protocol" | "reward" | "policy";
+
+/**
+ * One agent policy decision (Net-Edge / price guard / Policy Guard), already
+ * mapped by the transparency feature. Declared structurally here so this
+ * component does not depend on another feature's module.
+ */
+export interface PolicyTimelineRow {
+  id: string;
+  createdAt: string;
+  outcome: "declined" | "refused" | "rejected" | "executed" | "proposed" | "no_action" | "pending";
+  title: string;
+  reason: string | null;
+  txUrl: string | null;
+  replayHref: string | null;
+}
+
+type TimelineEntry =
+  | { source: "account"; id: string; createdAt: string; activity: ActivityItem }
+  | { source: "policy"; id: string; createdAt: string; row: PolicyTimelineRow };
+
+const POLICY_ICONS: Record<
+  PolicyTimelineRow["outcome"],
+  { icon: LucideIcon; bg: string; fg: string }
+> = {
+  declined: { icon: Ban, bg: "bg-amber-500/10", fg: "text-amber-400" },
+  refused: { icon: ShieldAlert, bg: "bg-amber-500/10", fg: "text-amber-400" },
+  rejected: { icon: XCircle, bg: "bg-destructive/10", fg: "text-destructive" },
+  executed: { icon: CheckCircle2, bg: "bg-primary/10", fg: "text-primary" },
+  proposed: { icon: Lightbulb, bg: "bg-muted/30", fg: "text-muted-foreground" },
+  no_action: { icon: Clock, bg: "bg-muted/30", fg: "text-muted-foreground" },
+  pending: { icon: Clock, bg: "bg-muted/30", fg: "text-muted-foreground" },
+};
+
+const EMPTY_TEXT: Record<ActivityCategory, string> = {
+  all: "No activity yet",
+  protocol: "No protocol activity yet",
+  reward: "No rewards yet",
+  policy: "No agent decisions yet",
+};
 
 const PROTOCOL_TYPES: ReadonlySet<string> = new Set([
   "DEPLOY",
@@ -263,11 +306,122 @@ export function FarmingActivitySidebar({
 interface FarmingActivityProps {
   activities: ActivityItem[] | undefined;
   isLoading: boolean;
+  /** Agent decisions from the policy ledger; merged into "All" and shown alone under "Policy". */
+  policyItems?: PolicyTimelineRow[];
 }
 
-export function FarmingActivity({ activities, isLoading }: FarmingActivityProps) {
-  const items = activities ?? [];
+function PolicyRowView({ row }: { row: PolicyTimelineRow }) {
+  const iconConfig = POLICY_ICONS[row.outcome];
+  const Icon = iconConfig.icon;
+  return (
+    <>
+      <div
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+          iconConfig.bg
+        )}
+      >
+        <Icon className={cn("h-[15px] w-[15px]", iconConfig.fg)} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium text-foreground text-sm">{row.title}</p>
+        {row.reason && (
+          <p className="truncate text-muted-foreground text-sm" title={row.reason}>
+            {row.reason}
+          </p>
+        )}
+      </div>
+      {row.replayHref && (
+        <Link href={row.replayHref} className="shrink-0 text-primary text-sm hover:underline">
+          Replay
+        </Link>
+      )}
+      {row.txUrl && (
+        <a
+          href={row.txUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shrink-0 text-primary text-sm hover:underline"
+        >
+          TX
+        </a>
+      )}
+    </>
+  );
+}
+
+function AccountRowView({ activity }: { activity: ActivityItem }) {
+  const iconConfig = getActivityIcon(activity);
+  const Icon = iconConfig.icon;
+  const label = getActivityLabel(activity);
+  const reward = isReward(activity.type);
+  return (
+    <>
+      <div
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+          iconConfig.bg
+        )}
+      >
+        <Icon className={cn("h-[15px] w-[15px]", iconConfig.fg)} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium text-foreground text-sm">{label}</p>
+        {activity.detail && (
+          <p className="truncate text-muted-foreground text-sm">{activity.detail}</p>
+        )}
+      </div>
+      {activity.amount != null && activity.token && (
+        <span
+          className={cn(
+            "shrink-0 font-semibold text-sm",
+            reward ? "text-emerald-400" : "text-foreground"
+          )}
+        >
+          {reward ? "+" : ""}
+          {activity.amount} {activity.token}
+        </span>
+      )}
+      {activity.txHash && (
+        <a
+          href={getExplorerUrl("tx", activity.txHash)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shrink-0 text-primary text-sm hover:underline"
+        >
+          TX
+        </a>
+      )}
+    </>
+  );
+}
+
+export function FarmingActivity({ activities, isLoading, policyItems }: FarmingActivityProps) {
   const [category, setCategory] = useState<ActivityCategory>("all");
+
+  const entries = useMemo<TimelineEntry[]>(() => {
+    const account: TimelineEntry[] =
+      category === "policy"
+        ? []
+        : (activities ?? []).filter(categoryFilter(category)).map((activity) => ({
+            source: "account",
+            id: `a:${activity.id}`,
+            createdAt: activity.createdAt,
+            activity,
+          }));
+    const policy: TimelineEntry[] =
+      category === "all" || category === "policy"
+        ? (policyItems ?? []).map((row) => ({
+            source: "policy",
+            id: `p:${row.id}`,
+            createdAt: row.createdAt,
+            row,
+          }))
+        : [];
+    return [...account, ...policy].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [activities, policyItems, category]);
 
   if (isLoading) {
     return (
@@ -296,8 +450,7 @@ export function FarmingActivity({ activities, isLoading }: FarmingActivityProps)
     );
   }
 
-  const filtered = items.filter(categoryFilter(category));
-  const groups = groupActivitiesByDate(filtered);
+  const groups = groupActivitiesByDate(entries);
 
   return (
     <motion.div
@@ -310,7 +463,8 @@ export function FarmingActivity({ activities, isLoading }: FarmingActivityProps)
         <div>
           <h2 className="font-semibold text-foreground text-xl">Activity Timeline</h2>
           <p className="text-muted-foreground text-sm">
-            Full history of account actions and automation events.
+            Account actions and every agent decision, including declines and Policy Guard
+            rejections.
           </p>
         </div>
         <Tabs value={category} onValueChange={(v) => setCategory(v as ActivityCategory)}>
@@ -318,20 +472,21 @@ export function FarmingActivity({ activities, isLoading }: FarmingActivityProps)
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="protocol">Protocol</TabsTrigger>
             <TabsTrigger value="reward">Reward</TabsTrigger>
+            <TabsTrigger value="policy">Policy</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
 
-      {filtered.length === 0 ? (
+      {entries.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground">
           <Clock className="h-8 w-8 opacity-40" />
-          <p className="text-sm">
-            {category === "reward"
-              ? "No rewards yet"
-              : category === "protocol"
-                ? "No protocol activity yet"
-                : "No activity yet"}
-          </p>
+          <p className="text-sm">{EMPTY_TEXT[category]}</p>
+          {category === "policy" && (
+            <p className="max-w-sm text-center text-xs">
+              Each time the agent weighs a move, the outcome is recorded here: executed, declined by
+              Net-Edge, refused by the price guard, or rejected on-chain by Policy Guard.
+            </p>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-4">
@@ -342,63 +497,24 @@ export function FarmingActivity({ activities, isLoading }: FarmingActivityProps)
               </h3>
               <div className="overflow-hidden rounded-xl border border-border bg-card">
                 <div className="flex flex-col divide-y divide-border">
-                  {group.items.map((activity, idx) => {
-                    const iconConfig = getActivityIcon(activity);
-                    const Icon = iconConfig.icon;
-                    const label = getActivityLabel(activity);
-                    const reward = isReward(activity.type);
-
-                    return (
-                      <motion.div
-                        key={activity.id}
-                        className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-muted/20"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.25, delay: idx * 0.02 }}
-                      >
-                        <div
-                          className={cn(
-                            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                            iconConfig.bg
-                          )}
-                        >
-                          <Icon className={cn("h-[15px] w-[15px]", iconConfig.fg)} />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-medium text-foreground text-sm">{label}</p>
-                          {activity.detail && (
-                            <p className="truncate text-muted-foreground text-sm">
-                              {activity.detail}
-                            </p>
-                          )}
-                        </div>
-                        {activity.amount != null && activity.token && (
-                          <span
-                            className={cn(
-                              "shrink-0 font-semibold text-sm",
-                              reward ? "text-emerald-400" : "text-foreground"
-                            )}
-                          >
-                            {reward ? "+" : ""}
-                            {activity.amount} {activity.token}
-                          </span>
-                        )}
-                        {activity.txHash && (
-                          <a
-                            href={getExplorerUrl("tx", activity.txHash)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="shrink-0 text-primary text-sm hover:underline"
-                          >
-                            TX
-                          </a>
-                        )}
-                        <span className="shrink-0 text-muted-foreground text-sm">
-                          {formatRelativeTime(activity.createdAt)}
-                        </span>
-                      </motion.div>
-                    );
-                  })}
+                  {group.items.map((entry, idx) => (
+                    <motion.div
+                      key={entry.id}
+                      className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-muted/20"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.25, delay: idx * 0.02 }}
+                    >
+                      {entry.source === "policy" ? (
+                        <PolicyRowView row={entry.row} />
+                      ) : (
+                        <AccountRowView activity={entry.activity} />
+                      )}
+                      <span className="shrink-0 text-muted-foreground text-sm">
+                        {formatRelativeTime(entry.createdAt)}
+                      </span>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             </section>
