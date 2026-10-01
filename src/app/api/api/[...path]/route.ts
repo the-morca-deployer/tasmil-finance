@@ -108,7 +108,7 @@ function handleMock(fullPath: string, req: Request, method = "GET") {
   // Notifications
   if (p === "notifications" && method === "GET") return json({ data: [] });
 
-  return NextResponse.json({ error: "no mock for: " + p }, { status: 404 });
+  return NextResponse.json({ error: `no mock for: ${p}` }, { status: 404 });
 }
 
 function json(data: unknown) {

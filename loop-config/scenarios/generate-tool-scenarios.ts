@@ -400,7 +400,7 @@ for (const [cat, catTools] of byCategory) {
   allScenarios.push(``);
 }
 
-writeFileSync(OUT_PATH, allScenarios.join("\n") + "\n", "utf-8");
+writeFileSync(OUT_PATH, `${allScenarios.join("\n")}\n`, "utf-8");
 
 console.log(`Generated ${tools.length} tools x 5 = ${tools.length * 5} scenarios`);
 console.log(`Output: ${OUT_PATH}`);
