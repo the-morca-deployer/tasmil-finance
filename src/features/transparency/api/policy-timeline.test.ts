@@ -36,7 +36,7 @@ describe("toPolicyTimelineItem", () => {
       outcome: "declined",
       title: "Agent declined a move",
       reason: "Gain $0.04 is below cost $0.11",
-      replayHref: "/activity/d1",
+      decisionId: "d1",
     });
   });
 
@@ -60,7 +60,7 @@ describe("toPolicyTimelineItem", () => {
     expect(toPolicyTimelineItem(vdl({ txStatus: "CONFIRMED" })).outcome).toBe("executed");
   });
 
-  it("has no replay link without a decision id", () => {
-    expect(toPolicyTimelineItem(vdl({ decisionId: null })).replayHref).toBeNull();
+  it("has no replay dialog target without a decision id", () => {
+    expect(toPolicyTimelineItem(vdl({ decisionId: null })).decisionId).toBeNull();
   });
 });

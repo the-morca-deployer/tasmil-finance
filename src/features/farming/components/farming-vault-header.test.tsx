@@ -3,8 +3,13 @@ import { FarmingVaultHeader } from "./farming-vault-header";
 
 const baseProps = {
   totalValueUsd: 2.19,
+  totalValueAsset: 10,
+  displayAsset: "XLM",
+  assetPriceUsd: 0.219,
   allTimePnlUsd: -0.22,
+  allTimePnlAsset: 0.004,
   allTimePnlPercent: -9.94,
+  allTimePnlPercentAsset: 0.04,
   currentApy: 0.061,
   status: "ACTIVE" as const,
   onDeposit: jest.fn(),
@@ -17,12 +22,14 @@ beforeEach(() => {
 });
 
 describe("FarmingVaultHeader", () => {
-  it("labels the total as a USD valuation instead of a token balance", () => {
+  it("shows the vault asset as primary value and USD only as an approximation", () => {
     render(<FarmingVaultHeader {...baseProps} />);
 
-    expect(screen.getByText("$2.19")).toBeInTheDocument();
-    expect(screen.getByText(/USD portfolio value/i)).toBeInTheDocument();
-    expect(screen.queryByText(/2.19 USDC/i)).toBeNull();
+    expect(screen.getByText("10.00 XLM")).toBeInTheDocument();
+    expect(screen.getByText("≈ $2.19")).toBeInTheDocument();
+    expect(screen.getByText(/XLM portfolio value/i)).toBeInTheDocument();
+    expect(screen.getByText(/\+0\.004 XLM/)).toBeInTheDocument();
+    expect(screen.getByText(/\+0\.04%/)).toBeInTheDocument();
     expect(screen.getByText("6.10% APY")).toBeInTheDocument();
   });
 

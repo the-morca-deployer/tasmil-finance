@@ -33,6 +33,19 @@ describe("StepDeposit", () => {
     expect((screen.getByLabelText(/deposit amount/i) as HTMLInputElement).value).toBe("250.00");
   });
 
+  it("shows XLM principal and source-wallet reserve separately", async () => {
+    render(<StepDeposit {...baseProps} asset="XLM" />);
+
+    await userEvent.type(screen.getByLabelText(/deposit amount/i), "10");
+
+    expect(screen.getByText(/investment amount/i)).toBeInTheDocument();
+    expect(screen.getByText("10 XLM")).toBeInTheDocument();
+    expect(screen.getByText(/recommended wallet reserve/i)).toBeInTheDocument();
+    expect(screen.getByText("2 XLM")).toBeInTheDocument();
+    expect(screen.getByText(/at least 12 XLM.*network fee/i)).toBeInTheDocument();
+    expect(screen.getByText(/freighter.*exact network fee/i)).toBeInTheDocument();
+  });
+
   it("Deposit button disabled when amount empty or below min", async () => {
     render(<StepDeposit {...baseProps} />);
     expect(screen.getByRole("button", { name: /deposit/i })).toBeDisabled();

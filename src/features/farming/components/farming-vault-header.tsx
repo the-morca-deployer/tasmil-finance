@@ -32,8 +32,13 @@ const formatUsd = (value: number) =>
 
 interface FarmingVaultHeaderProps {
   totalValueUsd: number;
+  totalValueAsset: number;
+  displayAsset: string;
+  assetPriceUsd: number;
   allTimePnlUsd: number;
+  allTimePnlAsset: number;
   allTimePnlPercent: number;
+  allTimePnlPercentAsset: number;
   currentApy: number;
   status: AccountStatus;
   /** Keeper-wallet (vault) contract address; shows its avatar + explorer link. */
@@ -45,8 +50,13 @@ interface FarmingVaultHeaderProps {
 
 export function FarmingVaultHeader({
   totalValueUsd,
+  totalValueAsset,
+  displayAsset,
+  assetPriceUsd,
   allTimePnlUsd,
+  allTimePnlAsset,
   allTimePnlPercent,
+  allTimePnlPercentAsset,
   currentApy,
   status,
   vaultAddress,
@@ -55,7 +65,14 @@ export function FarmingVaultHeader({
   onSecurity,
 }: FarmingVaultHeaderProps) {
   const isRevoked = status === "REVOKED";
-  const pnlPositive = allTimePnlUsd >= 0;
+  const pnlPositive = allTimePnlAsset >= 0;
+  const assetPnlSign = pnlPositive ? "+" : "";
+  const formatAsset = (value: number) =>
+    new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 7,
+    }).format(value);
+  const usdPnlSign = allTimePnlUsd >= 0 ? "+" : "";
 
   return (
     <motion.section
@@ -87,7 +104,7 @@ export function FarmingVaultHeader({
 
           <div className="min-w-0">
             <div className="mb-1 flex flex-wrap items-center gap-2">
-              <span className="text-muted-foreground text-sm">USD portfolio value</span>
+              <span className="text-muted-foreground text-sm">{displayAsset} portfolio value</span>
               <span
                 className={cn(
                   "rounded-full px-2 py-0.5 font-medium text-xs",
@@ -114,16 +131,24 @@ export function FarmingVaultHeader({
               )}
             </div>
             <p className="font-semibold text-3xl text-foreground tracking-tight sm:text-4xl">
-              {formatUsd(totalValueUsd)}
+              {formatAsset(totalValueAsset)} {displayAsset}
+            </p>
+            <p className="mt-0.5 text-muted-foreground text-sm">
+              <span>≈ {formatUsd(totalValueUsd)}</span> at {formatUsd(assetPriceUsd)}/{displayAsset}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
               <span className="font-medium text-primary">{(currentApy * 100).toFixed(2)}% APY</span>
               <span
                 className={cn("font-medium", pnlPositive ? "text-emerald-400" : "text-destructive")}
               >
-                {pnlPositive ? "+" : ""}
-                {formatUsd(allTimePnlUsd)} ({pnlPositive ? "+" : ""}
-                {allTimePnlPercent.toFixed(2)}%) all time
+                {assetPnlSign}
+                {formatAsset(allTimePnlAsset)} {displayAsset} ({assetPnlSign}
+                {allTimePnlPercentAsset.toFixed(2)}%) all time
+              </span>
+              <span className="text-muted-foreground text-xs">
+                ≈ {usdPnlSign}
+                {formatUsd(allTimePnlUsd)} ({usdPnlSign}
+                {allTimePnlPercent.toFixed(2)}% USD)
               </span>
             </div>
           </div>

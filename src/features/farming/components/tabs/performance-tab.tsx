@@ -26,7 +26,11 @@ export function PerformanceTab({
   onOpenDrawer,
 }: PerformanceTabProps) {
   const [range, setRange] = useState<HistoryRange>("7d");
-  const history = usePortfolioHistory(publicKey, range);
+  const history = usePortfolioHistory(
+    position.keeperWalletAddress ?? publicKey,
+    range,
+    position.displayAsset ?? position.baseAsset
+  );
 
   return (
     <motion.div
@@ -39,6 +43,7 @@ export function PerformanceTab({
     >
       <PerformanceChart
         data={history.data}
+        assetSymbol={position.displayAsset ?? position.baseAsset ?? "USDC"}
         range={history.range}
         isPlaceholder={history.isPlaceholder}
         isLoading={history.isLoading}

@@ -12,6 +12,7 @@ const MIN_AMOUNTS: Record<Asset, number> = {
   USDC: 1,
   XLM: 10,
 };
+const XLM_SOURCE_WALLET_RESERVE = 2;
 
 const OPTIMIZER_THRESHOLD = 25_000;
 
@@ -45,7 +46,8 @@ export function StepDeposit({
   const parsed = Number.parseFloat(amount);
   const min = MIN_AMOUNTS[asset];
   const isValid = !Number.isNaN(parsed) && parsed >= min;
-  const exceedsBalance = isValid && parsed > balance;
+  const requiredWalletBalance = asset === "XLM" ? parsed + XLM_SOURCE_WALLET_RESERVE : parsed;
+  const exceedsBalance = isValid && requiredWalletBalance > balance;
   const canSubmit = isValid && !exceedsBalance && !isFunding;
   const projectedYearly = isValid ? parsed * (estimatedApy / 100) : null;
 
@@ -67,7 +69,7 @@ export function StepDeposit({
 
   const handleMax = () => {
     if (balance <= 0) return;
-    const max = asset === "XLM" ? Math.max(0, balance - 2) : balance;
+    const max = asset === "XLM" ? Math.max(0, balance - XLM_SOURCE_WALLET_RESERVE) : balance;
     setAmount(max.toFixed(asset === "USDC" ? 2 : 4));
   };
 
@@ -157,6 +159,25 @@ export function StepDeposit({
             {formattedAvailable} {asset} available
           </p>
         </section>
+
+        {asset === "XLM" && isValid && (
+          <section className="grid gap-3 rounded-xl bg-sky-400/[0.06] p-4 text-xs md:grid-cols-2">
+            <div className="flex items-center justify-between gap-4 md:block">
+              <p className="text-muted-foreground">Investment amount</p>
+              <p className="font-mono text-foreground tabular-nums md:mt-1">{parsed} XLM</p>
+            </div>
+            <div className="flex items-center justify-between gap-4 md:block">
+              <p className="text-muted-foreground">Recommended wallet reserve</p>
+              <p className="font-mono text-foreground tabular-nums md:mt-1">
+                {XLM_SOURCE_WALLET_RESERVE} XLM
+              </p>
+            </div>
+            <p className="text-muted-foreground leading-relaxed md:col-span-2">
+              Required wallet balance: at least {requiredWalletBalance} XLM + network fee. Freighter
+              will show the exact network fee before signing.
+            </p>
+          </section>
+        )}
 
         <Divider />
 
