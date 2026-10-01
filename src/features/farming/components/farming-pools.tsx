@@ -123,13 +123,13 @@ export function FarmingPools({
         className="overflow-x-auto rounded-xl border border-border bg-card"
       >
         <div className="min-w-[720px]">
-          {/* Summary header - like TokenList's "Wallet · $3,556.77 10 assets" */}
+          {/* Summary header */}
           <div className="flex items-center gap-3 px-6 py-4">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
               <TrendingUp className="h-4 w-4 text-primary" />
             </div>
             <span className="font-medium text-base text-foreground">
-              Available · {sorted.length} pool{sorted.length !== 1 ? "s" : ""}
+              Available pools ({sorted.length})
             </span>
           </div>
 

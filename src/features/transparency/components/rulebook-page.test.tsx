@@ -108,7 +108,7 @@ describe("RulebookPage", () => {
   });
 
   it("renders live ceilings, conversion evidence, provenance and owner exit", () => {
-    render(<RulebookPage />);
+    const { container } = render(<RulebookPage />);
 
     expect(screen.getByText("5000000000")).toBeInTheDocument();
     expect(screen.getByText(/\$500\.00 at scope set/i)).toBeInTheDocument();
@@ -120,6 +120,7 @@ describe("RulebookPage", () => {
       "href",
       `https://stellar.expert/explorer/public/contract/${contract}`
     );
+    expect(container).not.toHaveTextContent(/[·•]/);
   });
 
   it("shows the global kill switch independently of color", () => {

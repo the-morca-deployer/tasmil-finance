@@ -35,9 +35,10 @@ describe("FarmingPools", () => {
   });
 
   it("renders pool name and APY", () => {
-    render(<FarmingPools pools={[samplePool]} isLoading={false} />);
+    const { container } = render(<FarmingPools pools={[samplePool]} isLoading={false} />);
     expect(screen.getByText("USDC")).toBeInTheDocument();
     expect(screen.getByText("5.00%")).toBeInTheDocument();
+    expect(container).not.toHaveTextContent(/[·•]/);
   });
 
   it("contains the wide grid inside a horizontal scroll boundary", () => {

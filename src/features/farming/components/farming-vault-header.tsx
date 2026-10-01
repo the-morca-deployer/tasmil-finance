@@ -49,22 +49,22 @@ export function FarmingVaultHeader({
   return (
     <motion.section
       data-onborda="farming-header"
-      className="overflow-hidden p-4 sm:p-6"
+      className="overflow-hidden px-1 py-3 sm:px-2 sm:py-4"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex min-w-0 items-center gap-4">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+        <div className="flex min-w-0 items-center gap-4 sm:gap-5">
           <div
             className={cn(
-              "flex size-16 shrink-0 items-center justify-center rounded-full sm:size-20",
+              "flex size-14 shrink-0 items-center justify-center rounded-full sm:size-16",
               status === "ACTIVE" ? "bg-primary/15" : "bg-muted/30"
             )}
           >
             <Tractor
               className={cn(
-                "size-7 sm:size-9",
+                "size-6 sm:size-7",
                 status === "ACTIVE" ? "text-primary" : "text-muted-foreground"
               )}
             />
@@ -102,19 +102,25 @@ export function FarmingVaultHeader({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap lg:justify-end">
-          <Button variant="gradient" onClick={onDeposit} className="gap-2">
+        <div
+          data-testid="vault-header-actions"
+          className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap lg:flex-nowrap lg:justify-self-end"
+        >
+          <Button variant="gradient" onClick={onDeposit} className="h-11 gap-2 px-5">
             <ArrowDownToLine className="h-4 w-4" />
             Deposit
           </Button>
-          <Button variant="outline" onClick={onWithdraw} className="gap-2">
+          <Button variant="outline" onClick={onWithdraw} className="h-11 gap-2 px-5">
             <ArrowUpFromLine className="h-4 w-4" />
             Withdraw
           </Button>
           <Button
             variant={isRevoked ? "gradient" : "ghost"}
             onClick={onSecurity}
-            className={cn("col-span-2 gap-2", !isRevoked && "text-muted-foreground")}
+            className={cn(
+              "col-span-2 h-11 gap-2 px-5 sm:col-span-1",
+              !isRevoked && "text-muted-foreground"
+            )}
           >
             {isRevoked ? <ShieldCheck className="h-4 w-4" /> : <ShieldOff className="h-4 w-4" />}
             {isRevoked ? "Activate Session Key" : "Revoke"}

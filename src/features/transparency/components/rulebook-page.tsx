@@ -44,9 +44,12 @@ function RulebookContent({ rulebook }: { rulebook: Rulebook }) {
             <p className="mt-1 font-medium text-lg">
               {rulebook.killSwitch ? "Kill switch is ON" : "Kill switch is off"}
             </p>
-            <p className="mt-1 text-muted-foreground text-sm">
-              Read at ledger {rulebook.readAtLedger} · {rulebook.network}
-            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-muted-foreground text-sm">
+              <span>Read at ledger {rulebook.readAtLedger}</span>
+              <span className="rounded-md border border-white/10 px-1.5 py-0.5 text-[10px] uppercase">
+                {rulebook.network}
+              </span>
+            </div>
           </div>
           <a
             className="inline-flex max-w-full items-center gap-2 break-all font-mono text-blue-400 text-xs hover:underline"
@@ -118,8 +121,11 @@ function RulebookContent({ rulebook }: { rulebook: Rulebook }) {
                       className="rounded-lg border border-white/10 p-4"
                     >
                       <div className="flex flex-wrap justify-between gap-2">
-                        <p className="font-medium">
-                          {rule.selector} · {rule.amount.asset}
+                        <p className="flex flex-wrap items-center gap-2 font-medium">
+                          <span>{rule.selector}</span>
+                          <span className="rounded-md bg-white/5 px-1.5 py-0.5 text-xs">
+                            {rule.amount.asset}
+                          </span>
                         </p>
                         <span className="text-muted-foreground text-xs">
                           {rule.allowed ? "Allowed" : "Blocked"}
@@ -134,17 +140,23 @@ function RulebookContent({ rulebook }: { rulebook: Rulebook }) {
                       {rule.conversionEvidence ? (
                         <div className="mt-3 border-white/10 border-t pt-3 text-sm">
                           <p>{usdE7(rule.conversionEvidence.usdValueE7)} at scope set</p>
-                          <p className="mt-1 text-muted-foreground text-xs">
-                            Rate{" "}
-                            {fixed(
-                              rule.conversionEvidence.rateRaw,
-                              rule.conversionEvidence.rateDecimals
-                            )}{" "}
-                            USD · ledger {rule.conversionEvidence.setAtLedger} · published{" "}
-                            {new Date(
-                              Number(rule.conversionEvidence.ratePublishedAtMs)
-                            ).toISOString()}
-                          </p>
+                          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground text-xs">
+                            <span>
+                              Rate{" "}
+                              {fixed(
+                                rule.conversionEvidence.rateRaw,
+                                rule.conversionEvidence.rateDecimals
+                              )}{" "}
+                              USD
+                            </span>
+                            <span>Ledger {rule.conversionEvidence.setAtLedger}</span>
+                            <span>
+                              Published{" "}
+                              {new Date(
+                                Number(rule.conversionEvidence.ratePublishedAtMs)
+                              ).toISOString()}
+                            </span>
+                          </div>
                           <p className="mt-1 text-amber-200/80 text-xs">
                             Informational conversion captured at scope set; the contract
                             continuously enforces token base units, not this USD figure.

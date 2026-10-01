@@ -51,6 +51,7 @@ describe("PoolDetailDrawer", () => {
     expect(screen.getByText(/USDC\/XLM/i)).toBeInTheDocument();
     expect(screen.getByText(/12\.34%/)).toBeInTheDocument();
     expect(screen.getByText(/\$4\.20M/)).toBeInTheDocument();
+    expect(document.body).not.toHaveTextContent(/[·•]/);
   });
 
   it("renders Deposit button when not revoked", () => {

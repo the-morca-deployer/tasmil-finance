@@ -147,10 +147,11 @@ export function FarmingAllocation({
                   return (
                     <div className="rounded-lg border border-border bg-popover px-3 py-2 shadow-md">
                       <p className="font-medium text-foreground text-sm">{d.name}</p>
-                      <p className="text-muted-foreground text-xs">
-                        {d.protocol} · {formatUsd(d.value)}
-                        {d.apy > 0 && ` · ${formatApyPercent(d.apy)}`}
-                      </p>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-2 text-muted-foreground text-xs">
+                        <span className="capitalize">{d.protocol}</span>
+                        <span>{formatUsd(d.value)}</span>
+                        {d.apy > 0 && <span>{formatApyPercent(d.apy)}</span>}
+                      </div>
                     </div>
                   );
                 }}

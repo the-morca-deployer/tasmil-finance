@@ -38,6 +38,12 @@ describe("FarmingVaultHeader", () => {
     expect(baseProps.onSecurity).toHaveBeenCalledTimes(1);
   });
 
+  it("anchors the action group to the right on desktop", () => {
+    render(<FarmingVaultHeader {...baseProps} />);
+
+    expect(screen.getByTestId("vault-header-actions")).toHaveClass("lg:justify-self-end");
+  });
+
   it("offers activation for a revoked vault", () => {
     render(<FarmingVaultHeader {...baseProps} status="REVOKED" />);
 
