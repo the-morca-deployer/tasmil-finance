@@ -1,7 +1,9 @@
 import { useCallback, useState } from "react";
 import type { RiskPreset } from "@/features/account/types";
+import { signOwnerWithdrawAuth } from "@/features/farming/utils/owner-withdraw-auth";
 import { activeNetwork } from "@/shared/config/stellar";
 import {
+  useFinalizeOwnerWithdraw,
   useFundAccount,
   useReactivate,
   useRevoke,
@@ -22,6 +24,7 @@ async function signXdr(xdr: string, publicKey: string): Promise<string> {
 export function useFarmingActions(publicKey: string | undefined) {
   const fundAccount = useFundAccount();
   const withdrawMutation = useWithdraw();
+  const finalizeOwnerWithdraw = useFinalizeOwnerWithdraw();
   const revokeMutation = useRevoke();
   const reactivateMutation = useReactivate();
   const submitTx = useSubmitTx();
@@ -31,6 +34,7 @@ export function useFarmingActions(publicKey: string | undefined) {
   const isPending =
     fundAccount.isPending ||
     withdrawMutation.isPending ||
+    finalizeOwnerWithdraw.isPending ||
     revokeMutation.isPending ||
     reactivateMutation.isPending ||
     submitTx.isPending ||
@@ -69,7 +73,13 @@ export function useFarmingActions(publicKey: string | undefined) {
           throw new Error("No withdrawal transaction returned from server");
         }
         for (const [i, xdr] of xdrs.entries()) {
-          const signedXdr = await signXdr(xdr, publicKey);
+          const authSignedXdr = await signOwnerWithdrawAuth(xdr, publicKey);
+          const finalized = await finalizeOwnerWithdraw.mutateAsync({
+            publicKey,
+            authSignedXdr,
+          });
+          if (!finalized?.xdr) throw new Error("No finalized withdrawal transaction returned");
+          const signedXdr = await signXdr(finalized.xdr, publicKey);
           const isLast = i === xdrs.length - 1 && signedXdrs.length === 0;
           await submitTx.mutateAsync({
             signedXdr,
@@ -92,7 +102,7 @@ export function useFarmingActions(publicKey: string | undefined) {
         return false;
       }
     },
-    [publicKey, withdrawMutation, submitTx]
+    [publicKey, withdrawMutation, finalizeOwnerWithdraw, submitTx]
   );
 
   const revoke = useCallback(async (): Promise<boolean> => {

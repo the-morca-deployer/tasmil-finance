@@ -4,6 +4,7 @@ import { useFarmingActions } from "./use-farming-actions";
 const mocks = {
   fundMutate: jest.fn(),
   withdrawMutate: jest.fn(),
+  finalizeWithdrawMutate: jest.fn(),
   revokeMutate: jest.fn(),
   reactivateMutate: jest.fn(),
   submitTxMutate: jest.fn(),
@@ -13,10 +14,18 @@ const mocks = {
 jest.mock("@/shared/hooks/use-account-mutations", () => ({
   useFundAccount: () => ({ mutateAsync: mocks.fundMutate, isPending: false }),
   useWithdraw: () => ({ mutateAsync: mocks.withdrawMutate, isPending: false }),
+  useFinalizeOwnerWithdraw: () => ({
+    mutateAsync: mocks.finalizeWithdrawMutate,
+    isPending: false,
+  }),
   useRevoke: () => ({ mutateAsync: mocks.revokeMutate, isPending: false }),
   useReactivate: () => ({ mutateAsync: mocks.reactivateMutate, isPending: false }),
   useSubmitTx: () => ({ mutateAsync: mocks.submitTxMutate, isPending: false }),
   useUpdatePreset: () => ({ mutateAsync: mocks.updatePresetMutate, isPending: false }),
+}));
+
+jest.mock("@/features/farming/utils/owner-withdraw-auth", () => ({
+  signOwnerWithdrawAuth: jest.fn().mockResolvedValue("auth-signed-xdr"),
 }));
 
 jest.mock("@creit.tech/stellar-wallets-kit/sdk", () => ({
@@ -70,12 +79,17 @@ describe("useFarmingActions", () => {
       xdrs: ["xdr-a"],
       signedXdrs: ["pre-signed-b"],
     });
+    mocks.finalizeWithdrawMutate.mockResolvedValue({ xdr: "finalized-owner-xdr" });
     mocks.submitTxMutate.mockResolvedValue({});
     const { result } = renderHook(() => useFarmingActions("GABC"));
     await act(async () => {
       await result.current.withdraw(50);
     });
     expect(mocks.submitTxMutate).toHaveBeenCalledTimes(2);
+    expect(mocks.finalizeWithdrawMutate).toHaveBeenCalledWith({
+      publicKey: "GABC",
+      authSignedXdr: "auth-signed-xdr",
+    });
     // First submit (client-signed xdr): no txType because signedXdrs follows
     expect(mocks.submitTxMutate).toHaveBeenNthCalledWith(1, {
       signedXdr: "signed-xdr",

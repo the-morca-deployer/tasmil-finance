@@ -162,6 +162,22 @@ export function useWithdraw() {
   });
 }
 
+export function useFinalizeOwnerWithdraw() {
+  return useMutation({
+    mutationFn: async (dto: { publicKey: string; authSignedXdr: string }) => {
+      try {
+        const { data } = await backendAxios.post<{ data: { xdr: string } }>(
+          "/api/account/withdraw/finalize-owner-auth",
+          dto
+        );
+        return data.data;
+      } catch (err: unknown) {
+        return rethrowWithBackendMessage(err);
+      }
+    },
+  });
+}
+
 // --- strategy / session key ----------------------------------------------
 
 export function useUpdatePreset() {

@@ -1,5 +1,10 @@
 import "@testing-library/jest-dom";
+import { TextDecoder, TextEncoder } from "node:util";
 import { configure } from "@testing-library/react";
+
+// jsdom in Jest 29 does not expose these Web APIs, while Stellar SDK's modern
+// Ed25519 implementation requires them during module initialization.
+Object.assign(globalThis, { TextDecoder, TextEncoder });
 
 // Configure React Testing Library
 configure({
@@ -93,19 +98,21 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
 }));
 
 // Mock matchMedia
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: jest.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
+if (typeof window !== "undefined") {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: jest.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(), // deprecated
+      removeListener: jest.fn(), // deprecated
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+}
 
 // Suppress console warnings in tests
 const originalError = console.error;
