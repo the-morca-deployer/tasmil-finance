@@ -5,5 +5,5 @@ interface Props {
 }
 
 export function Hairline({ className }: Props) {
-  return <div role="separator" aria-hidden className={cn("h-px bg-[#1a1a1a]", className)} />;
+  return <div aria-hidden className={cn("h-px bg-[#1a1a1a]", className)} />;
 }

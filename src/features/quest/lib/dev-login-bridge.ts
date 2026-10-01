@@ -1,6 +1,6 @@
+import { DEV_WALLET } from "@/lib/dev-bypass";
+import { useAuthStore } from "@/store/use-auth";
 import { type AuthUser, useQuestAuthStore } from "../store/use-quest-auth";
-
-const DEV_WALLET = "GDQI7LOGDRQRM5OXEIEY7TDHUYEHGQ7RX3KOJU3FNUP6HBDHUGWA3I6R";
 
 /**
  * What POST /api/auth/wallet/test-login actually returns.
@@ -27,7 +27,12 @@ interface TestLoginEnvelope {
 
 export async function ensureQuestDevSession(): Promise<void> {
   if (process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH !== "true") return;
-  if (useQuestAuthStore.getState().isAuthenticated) return;
+  if (
+    useQuestAuthStore.getState().isAuthenticated &&
+    useAuthStore.getState().accessToken !== null
+  ) {
+    return;
+  }
 
   try {
     const res = await fetch("/api/auth/wallet/test-login", {
@@ -39,9 +44,21 @@ export async function ensureQuestDevSession(): Promise<void> {
 
     const body = (await res.json()) as TestLoginEnvelope;
     const account = body.data?.user;
+    const accessToken = body.data?.accessToken;
     // No account means no session. Setting a half-built user would report
     // authenticated to the rest of the app while holding nothing usable.
-    if (!account?.id || !account.publicKey) return;
+    if (!account?.id || !account.publicKey || !accessToken) return;
+
+    useAuthStore.getState().setAuthState({
+      accessToken,
+      user: {
+        id: account.id,
+        walletAddress: account.publicKey,
+        type: "regular",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    });
 
     // The quest fields have no source in this response. They are placeholders
     // for a local bypass, deliberately zeroed rather than invented, so nothing

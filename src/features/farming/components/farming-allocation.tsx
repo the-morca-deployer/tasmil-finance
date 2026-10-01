@@ -72,7 +72,7 @@ export function FarmingAllocation({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:p-6">
+      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
         <div className="flex items-center gap-2">
           <Skeleton className="h-5 w-32" />
         </div>
@@ -85,7 +85,7 @@ export function FarmingAllocation({
   // No positions - show chart-like empty state (matching Performance card shape)
   if (positions.length === 0) {
     return (
-      <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:p-6">
+      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
         <div className="flex items-center gap-2">
           <h2 className="font-semibold text-foreground text-xl">Allocation</h2>
           <Info className="h-4 w-4 text-muted-foreground" />
@@ -104,7 +104,7 @@ export function FarmingAllocation({
   // Has positions - donut chart + legend
   return (
     <motion.div
-      className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:p-6"
+      className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:p-6"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -147,10 +147,11 @@ export function FarmingAllocation({
                   return (
                     <div className="rounded-lg border border-border bg-popover px-3 py-2 shadow-md">
                       <p className="font-medium text-foreground text-sm">{d.name}</p>
-                      <p className="text-muted-foreground text-xs">
-                        {d.protocol} · {formatUsd(d.value)}
-                        {d.apy > 0 && ` · ${formatApyPercent(d.apy)}`}
-                      </p>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-2 text-muted-foreground text-xs">
+                        <span className="capitalize">{d.protocol}</span>
+                        <span>{formatUsd(d.value)}</span>
+                        {d.apy > 0 && <span>{formatApyPercent(d.apy)}</span>}
+                      </div>
                     </div>
                   );
                 }}

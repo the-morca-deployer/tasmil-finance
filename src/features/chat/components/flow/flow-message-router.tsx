@@ -4,6 +4,7 @@ import type { AssistantFlowMessage } from "@/features/chat/types/flow-messages";
 import { ClarifyCard } from "./clarify-card";
 import { ExecutionCard } from "./execution-card";
 import { PlanPreviewCard } from "./plan-preview-card";
+import { PolicyDeclineCard } from "./policy-decline-card";
 
 interface FlowMessageRouterProps {
   message: AssistantFlowMessage;
@@ -11,6 +12,7 @@ interface FlowMessageRouterProps {
   onConfirm?: () => void;
   onCancel?: () => void;
   onRetry?: () => void;
+  onRefreshStatus?: (decisionId: string) => void;
 }
 
 function bpsToPercent(bps: number): string {
@@ -23,6 +25,7 @@ export function FlowMessageRouter({
   onConfirm,
   onCancel,
   onRetry,
+  onRefreshStatus,
 }: FlowMessageRouterProps) {
   switch (message.kind) {
     case "text":
@@ -79,6 +82,9 @@ export function FlowMessageRouter({
           </div>
         </div>
       );
+
+    case "policy_decision":
+      return <PolicyDeclineCard message={message} onRefreshStatus={onRefreshStatus} />;
 
     case "error":
       return (

@@ -25,6 +25,7 @@ const MIN_AMOUNTS: Record<Token, number> = {
   USDC: 1,
   XLM: 10,
 };
+const XLM_SOURCE_WALLET_RESERVE = 2;
 
 export function FundForm({ onFund, isLoading }: FundFormProps) {
   const [amount, setAmount] = useState("");
@@ -37,12 +38,15 @@ export function FundForm({ onFund, isLoading }: FundFormProps) {
   const minAmount = MIN_AMOUNTS[token];
   const balance = token === "USDC" ? (balances?.usdc ?? 0) : (balances?.xlm ?? 0);
   const isValid = !Number.isNaN(parsedAmount) && parsedAmount >= minAmount;
-  const exceedsBalance = isValid && parsedAmount > balance;
+  const requiredWalletBalance =
+    token === "XLM" ? parsedAmount + XLM_SOURCE_WALLET_RESERVE : parsedAmount;
+  const exceedsBalance = isValid && requiredWalletBalance > balance;
 
   const handleMax = () => {
     if (balance > 0) {
-      // Leave a small XLM reserve for tx fees
-      const maxAmount = token === "XLM" ? Math.max(0, balance - 2) : balance;
+      // The source wallet, not the keeper contract, pays the transaction fee.
+      const maxAmount =
+        token === "XLM" ? Math.max(0, balance - XLM_SOURCE_WALLET_RESERVE) : balance;
       setAmount(maxAmount.toFixed(token === "USDC" ? 2 : 4));
     }
   };
@@ -176,11 +180,35 @@ export function FundForm({ onFund, isLoading }: FundFormProps) {
         )}
       </div>
 
+      {token === "XLM" && isValid && (
+        <div className="space-y-3 rounded-xl bg-sky-400/[0.06] p-4 text-xs">
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-muted-foreground">Investment amount</span>
+            <span className="font-mono text-foreground tabular-nums">{parsedAmount} XLM</span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-muted-foreground">Recommended wallet reserve</span>
+            <span className="font-mono text-foreground tabular-nums">
+              {XLM_SOURCE_WALLET_RESERVE} XLM
+            </span>
+          </div>
+          <p className="text-muted-foreground leading-relaxed">
+            Required wallet balance: at least {requiredWalletBalance} XLM + network fee.
+          </p>
+          <p className="text-muted-foreground/70 leading-relaxed">
+            Freighter will show the exact network fee before signing.
+          </p>
+        </div>
+      )}
+
       {/* Quick amounts */}
       <div className="flex gap-2">
         {[25, 50, 75, 100].map((pct) => {
           const quickVal = balance * (pct / 100);
-          const adjusted = token === "XLM" && pct === 100 ? Math.max(0, quickVal - 2) : quickVal;
+          const adjusted =
+            token === "XLM" && pct === 100
+              ? Math.max(0, quickVal - XLM_SOURCE_WALLET_RESERVE)
+              : quickVal;
           return (
             <button
               key={pct}

@@ -77,7 +77,10 @@ describe("useFarmingActions", () => {
     });
     expect(mocks.submitTxMutate).toHaveBeenCalledTimes(2);
     // First submit (client-signed xdr): no txType because signedXdrs follows
-    expect(mocks.submitTxMutate).toHaveBeenNthCalledWith(1, { signedXdr: "signed-xdr" });
+    expect(mocks.submitTxMutate).toHaveBeenNthCalledWith(1, {
+      signedXdr: "signed-xdr",
+      publicKey: "GABC",
+    });
     // Last submit (pre-signed): tagged with txType
     expect(mocks.submitTxMutate).toHaveBeenNthCalledWith(
       2,
@@ -108,7 +111,10 @@ describe("useFarmingActions", () => {
       await result.current.reactivate();
     });
     expect(mocks.submitTxMutate).toHaveBeenCalledTimes(2);
-    expect(mocks.submitTxMutate).toHaveBeenNthCalledWith(1, { signedXdr: "signed-xdr" });
+    expect(mocks.submitTxMutate).toHaveBeenNthCalledWith(1, {
+      signedXdr: "signed-xdr",
+      publicKey: "GABC",
+    });
     expect(mocks.submitTxMutate).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({ signedXdr: "signed-xdr", txType: "reactivate" })

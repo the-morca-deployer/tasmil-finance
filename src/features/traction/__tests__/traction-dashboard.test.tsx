@@ -6,6 +6,11 @@ jest.mock("../hooks/use-traction", () => ({
   useTraction: jest.fn(),
 }));
 
+// The on-chain evidence section has its own tests (onchain-evidence-section.test.tsx).
+jest.mock("../components/onchain-evidence-section", () => ({
+  OnchainEvidenceSection: () => <div data-testid="onchain-evidence" />,
+}));
+
 jest.mock("../hooks/use-quest-volume", () => ({
   useQuestVolume: () => ({
     data: { pages: [{ items: [], nextCursor: null }] },

@@ -5,6 +5,7 @@ import { Button } from "@/shared/ui/button";
 import { Typography } from "@/shared/ui/typography";
 import { useTraction } from "../hooks/use-traction";
 import { KpiCards } from "./kpi-cards";
+import { OnchainEvidenceSection } from "./onchain-evidence-section";
 import { QuestVolumeList } from "./quest-volume-list";
 import { UserGrowthChart } from "./user-growth-chart";
 import { VolumeTvlChart } from "./volume-tvl-chart";
@@ -28,6 +29,7 @@ export function TractionDashboard() {
             Retry
           </Button>
         </div>
+        <OnchainEvidenceSection />
         <QuestVolumeList />
       </div>
     );
@@ -50,6 +52,7 @@ export function TractionDashboard() {
         )}
       </header>
 
+      <OnchainEvidenceSection />
       <KpiCards summary={data?.summary} isLoading={isLoading} />
       <VolumeTvlChart data={data?.volumeTvl} isLoading={isLoading} />
       <UserGrowthChart data={data?.userGrowth} isLoading={isLoading} />

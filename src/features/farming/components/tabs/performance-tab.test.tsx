@@ -2,6 +2,16 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import type { ActivityItem, PositionData } from "@/features/account/types";
 import { PerformanceTab } from "./performance-tab";
 
+jest.mock("../../hooks/use-portfolio-history", () => ({
+  usePortfolioHistory: (_address: string | undefined, range: string) => ({
+    data: [],
+    range,
+    isLoading: false,
+    isPlaceholder: true,
+    error: null,
+  }),
+}));
+
 const position = {
   positions: [],
   status: "ACTIVE",
