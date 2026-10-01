@@ -1,5 +1,7 @@
-import { FeePage } from "@/features/transparency/components/fee-page";
+import { redirect } from "next/navigation";
 
+// Fees and policy rejections now live on the public evidence page; keep the old
+// URL working for links already shared as SOW2 evidence.
 export default function Page() {
-  return <FeePage />;
+  redirect("/traction?tab=fees");
 }

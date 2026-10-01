@@ -3,6 +3,9 @@ import { getProxyRewrites } from "./src/lib/runtime-urls";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Dev only: Next 16 blocks /_next dev resources (HMR, chunks) for non-localhost
+  // origins, so a page opened through a VS Code / devtunnel URL never hydrates.
+  allowedDevOrigins: ["**.devtunnels.ms"],
   serverExternalPackages: ["@blend-capital/blend-sdk", "@stellar/stellar-sdk"],
   reactStrictMode: false,
   // Disable built-in compression - SSE (text/event-stream) responses get

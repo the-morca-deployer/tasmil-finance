@@ -5,6 +5,7 @@ import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import type { FeePage as FeePageData } from "../api/adapters";
 import { useFeeEvents } from "../api/use-fee-events";
+import { PolicyRejections } from "./policy-rejections";
 
 type FeeEvent = FeePageData["events"][number];
 
@@ -129,6 +130,7 @@ export function FeePage() {
         </div>
       </div>
       <FeeBody state={state} />
+      <PolicyRejections />
     </main>
   );
 }

@@ -1,11 +1,13 @@
 "use client";
 
 import { Check, ChevronLeft, Loader2 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useOnboardingDeploy } from "@/features/account/hooks/use-onboarding-deploy";
 import type { DeploySubStep, RiskPreset } from "@/features/account/types";
 import { cn } from "@/lib/utils";
+import { GUARDED_BETA_POINTS } from "@/shared/components/guarded-beta-notice";
+import { useAcceptBetaTerms, useBetaOptInStatus } from "@/shared/hooks/use-beta-opt-in";
 
 interface Props {
   publicKey: string;
@@ -48,6 +50,27 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
   useEffect(() => {
     if (allDone) onComplete();
   }, [allDone, onComplete]);
+
+  // SOW2 guarded beta: the backend refuses vault creation until the wallet
+  // accepts the current terms, so collect that explicitly before signing.
+  const betaStatus = useBetaOptInStatus(Boolean(publicKey));
+  const acceptTerms = useAcceptBetaTerms();
+  const alreadyOptedIn = betaStatus.data?.optedIn === true;
+  const [accepted, setAccepted] = useState(false);
+  const canStart = alreadyOptedIn || accepted;
+
+  const start = async () => {
+    if (deployErrorWasRejection) return void retry();
+    if (!alreadyOptedIn) {
+      try {
+        await acceptTerms.mutateAsync();
+      } catch {
+        toast.error("Could not record your beta opt-in. Please try again.");
+        return;
+      }
+    }
+    void deploy();
+  };
 
   const lastErrorRef = useRef<string | null>(null);
   useEffect(() => {
@@ -101,13 +124,13 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
 
         <button
           type="button"
-          onClick={() => (deployErrorWasRejection ? void retry() : void deploy())}
-          disabled={isDeploying}
+          onClick={() => void start()}
+          disabled={isDeploying || acceptTerms.isPending || !canStart}
           aria-label={ctaLabel}
           className={cn(
             "relative flex h-[240px] w-[240px] shrink-0 items-center justify-center rounded-full font-medium text-lg text-zinc-900 transition-transform duration-200 md:h-[280px] md:w-[280px] md:text-xl",
-            !isDeploying && "hover:scale-[1.02] active:scale-[0.99]",
-            isDeploying && "cursor-not-allowed opacity-90"
+            !isDeploying && canStart && "hover:scale-[1.02] active:scale-[0.99]",
+            (isDeploying || !canStart) && "cursor-not-allowed opacity-60"
           )}
           style={{
             background:
@@ -120,6 +143,27 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
         </button>
 
         <TxLabeledCircle index={1} label="Create + Policy" state={txState} />
+
+        {!alreadyOptedIn && (
+          <label className="flex max-w-xl cursor-pointer items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-left text-sm">
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4 shrink-0 accent-amber-400"
+              checked={accepted}
+              onChange={(e) => setAccepted(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-foreground">
+                I join the guarded mainnet beta and understand that:
+              </span>
+              <ul className="mt-1 list-disc space-y-0.5 pl-4 text-muted-foreground">
+                {GUARDED_BETA_POINTS.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            </span>
+          </label>
+        )}
       </div>
     </div>
   );

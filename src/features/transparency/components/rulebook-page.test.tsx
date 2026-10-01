@@ -108,7 +108,7 @@ describe("RulebookPage", () => {
   });
 
   it("renders live ceilings, conversion evidence, provenance and owner exit", () => {
-    render(<RulebookPage />);
+    const { container } = render(<RulebookPage />);
 
     expect(screen.getByText("5000000000")).toBeInTheDocument();
     expect(screen.getByText(/\$500\.00 at scope set/i)).toBeInTheDocument();
@@ -120,6 +120,19 @@ describe("RulebookPage", () => {
       "href",
       `https://stellar.expert/explorer/public/contract/${contract}`
     );
+    expect(container).not.toHaveTextContent(/[·•]/);
+  });
+
+  it("shows token amounts and durations in human units next to the raw values", () => {
+    render(<RulebookPage />);
+
+    // perTx 5000000000 base units at 7 decimals = 500 USDC; cumulative 120 of 2,000.
+    expect(screen.getByText("500 USDC")).toBeInTheDocument();
+    expect(screen.getByText("120 / 2,000 USDC")).toBeInTheDocument();
+    expect(screen.getByText("3 / 48")).toBeInTheDocument();
+    // 65000000 - 64422326 = 577674 ledgers at ~5s each.
+    expect(screen.getByText("~33 days")).toBeInTheDocument();
+    expect(screen.getByText(/at ledger 65000000/i)).toBeInTheDocument();
   });
 
   it("shows the global kill switch independently of color", () => {

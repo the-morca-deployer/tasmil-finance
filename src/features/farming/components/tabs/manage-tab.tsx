@@ -123,9 +123,9 @@ export function ManageTab({
               (isRevoked || isUpdatingPreset) && "opacity-60"
             )}
           >
-            <p className="text-sm">
+            <p className="flex flex-wrap items-center gap-x-3 text-sm">
               <span className="font-medium text-foreground">{selectedPreset} selected</span>
-              <span className="text-muted-foreground"> · current: {currentPresetLabel}</span>
+              <span className="text-muted-foreground">Current: {currentPresetLabel}</span>
             </p>
             <div className="flex items-center gap-3">
               {actionError && <p className="text-destructive text-xs">{actionError}</p>}
