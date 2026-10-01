@@ -195,6 +195,10 @@ test.describe("Farming route", () => {
     await expect(page.getByText("USD portfolio value", { exact: true })).toBeVisible({
       timeout: 15_000,
     });
+    await expect(page.getByRole("heading", { name: "Farming", exact: true })).toBeVisible();
+    await expect(
+      page.getByText("Manage your automated vault and on-chain positions.")
+    ).toBeVisible();
     await expect(page.getByRole("tab", { name: "Overview" })).toHaveAttribute(
       "aria-selected",
       "true"

@@ -180,7 +180,7 @@ export function FarmingActivitySidebar({
   const items = (activities ?? []).slice(0, 6);
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
       <div className="px-6 pt-6 pb-4">
         <h3 className="font-semibold text-foreground text-xl">Activity</h3>
       </div>

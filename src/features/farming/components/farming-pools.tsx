@@ -69,7 +69,7 @@ export function FarmingPools({
         <h2 className="font-semibold text-foreground text-xl">Pools</h2>
         <div
           data-testid="farming-pools-scroll"
-          className="overflow-x-auto rounded-xl border border-border bg-card"
+          className="overflow-x-auto rounded-2xl border border-border bg-card"
         >
           <div className="min-w-[720px]">
             <div className="flex items-center gap-3 px-6 py-4">
@@ -107,7 +107,7 @@ export function FarmingPools({
     return (
       <div className="flex flex-col gap-4">
         <h2 className="font-semibold text-foreground text-xl">Pools</h2>
-        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card p-12 text-muted-foreground">
           <p className="text-sm">No depositable pools available yet.</p>
         </div>
       </div>
@@ -120,7 +120,7 @@ export function FarmingPools({
 
       <div
         data-testid="farming-pools-scroll"
-        className="overflow-x-auto rounded-xl border border-border bg-card"
+        className="overflow-x-auto rounded-2xl border border-border bg-card"
       >
         <div className="min-w-[720px]">
           {/* Summary header */}

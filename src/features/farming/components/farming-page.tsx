@@ -372,7 +372,14 @@ function FarmingContent() {
 
   return (
     <>
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+        <header className="px-1 sm:px-2">
+          <h1 className="font-semibold text-2xl text-foreground tracking-tight">Farming</h1>
+          <p className="mt-1 text-muted-foreground text-sm">
+            Manage your automated vault and on-chain positions.
+          </p>
+        </header>
+
         <FarmingVaultHeader
           totalValueUsd={position.totalValueUsd}
           allTimePnlUsd={position.profitUsd}

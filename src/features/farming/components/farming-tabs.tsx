@@ -42,11 +42,11 @@ export function FarmingTabs({ value, onValueChange }: FarmingTabsProps) {
   };
 
   return (
-    <div className="overflow-x-auto border-border border-b" data-onborda="farming-tabs">
+    <div className="overflow-x-auto border-border/70 border-b" data-onborda="farming-tabs">
       <div
         role="tablist"
         aria-label="Vault sections"
-        className="flex min-w-max items-center gap-5 px-0.5"
+        className="flex min-w-max items-center gap-6 px-1 sm:gap-7 sm:px-2"
       >
         {FARMING_TABS.map((tab) => {
           const selected = tab === value;

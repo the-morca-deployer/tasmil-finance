@@ -49,22 +49,22 @@ export function FarmingVaultHeader({
   return (
     <motion.section
       data-onborda="farming-header"
-      className="overflow-hidden px-1 py-3 sm:px-2 sm:py-4"
+      className="overflow-hidden px-1 py-2 sm:px-2 sm:py-3"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-        <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
           <div
             className={cn(
-              "flex size-14 shrink-0 items-center justify-center rounded-full sm:size-16",
+              "flex size-12 shrink-0 items-center justify-center rounded-full sm:size-14",
               status === "ACTIVE" ? "bg-primary/15" : "bg-muted/30"
             )}
           >
             <Tractor
               className={cn(
-                "size-6 sm:size-7",
+                "size-5 sm:size-6",
                 status === "ACTIVE" ? "text-primary" : "text-muted-foreground"
               )}
             />
@@ -86,7 +86,7 @@ export function FarmingVaultHeader({
                 {STATUS_LABEL[status]}
               </span>
             </div>
-            <p className="font-bold text-4xl text-foreground tracking-tight sm:text-5xl">
+            <p className="font-semibold text-3xl text-foreground tracking-tight sm:text-4xl">
               {formatUsd(totalValueUsd)}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
@@ -106,11 +106,11 @@ export function FarmingVaultHeader({
           data-testid="vault-header-actions"
           className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap lg:flex-nowrap lg:justify-self-end"
         >
-          <Button variant="gradient" onClick={onDeposit} className="h-11 gap-2 px-5">
+          <Button variant="gradient" onClick={onDeposit} className="h-10 gap-2 rounded-full px-4">
             <ArrowDownToLine className="h-4 w-4" />
             Deposit
           </Button>
-          <Button variant="outline" onClick={onWithdraw} className="h-11 gap-2 px-5">
+          <Button variant="outline" onClick={onWithdraw} className="h-10 gap-2 rounded-full px-4">
             <ArrowUpFromLine className="h-4 w-4" />
             Withdraw
           </Button>
@@ -118,7 +118,7 @@ export function FarmingVaultHeader({
             variant={isRevoked ? "gradient" : "ghost"}
             onClick={onSecurity}
             className={cn(
-              "col-span-2 h-11 gap-2 px-5 sm:col-span-1",
+              "col-span-2 h-10 gap-2 rounded-full px-4 sm:col-span-1",
               !isRevoked && "text-muted-foreground"
             )}
           >
