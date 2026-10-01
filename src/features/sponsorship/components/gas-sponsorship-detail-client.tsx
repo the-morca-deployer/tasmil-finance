@@ -367,8 +367,8 @@ export function GasSponsorshipDetailClient() {
               </p>
               <div className="flex flex-wrap items-center" style={{ marginTop: 28, gap: 13 }}>
                 {state === "guest" && (
-                  <a
-                    href="#"
+                  <Link
+                    href="/farming"
                     className="inline-flex items-center justify-center"
                     style={{
                       gap: 10,
@@ -386,7 +386,7 @@ export function GasSponsorshipDetailClient() {
                   >
                     {I.wallet}
                     Check eligibility
-                  </a>
+                  </Link>
                 )}
                 {state === "exhausted" && (
                   <Chip muted>
@@ -1039,6 +1039,7 @@ function UItem({
         {label}
         {hint && (
           <span
+            role="img"
             aria-label={hint}
             title={hint}
             style={{
