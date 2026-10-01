@@ -46,7 +46,7 @@ const TITLES: Record<FarmingModalTab, { title: string; description: string }> = 
   },
   security: {
     title: "Revoke Session Key",
-    description: "Pause bot automation - reversible any time.",
+    description: "Permanently disable the current session key.",
   },
   activate: {
     title: "Activate Session Key",

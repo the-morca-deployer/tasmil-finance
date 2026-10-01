@@ -89,7 +89,42 @@ const RULEBOOK = {
   executionRouter: null,
   interfaceRegistry: null,
   globalDailyCalls: { used: "0", resetLedger: null, max: "48" },
-  sessions: [],
+  sessions: [
+    {
+      pubkey: "GSESSION",
+      revoked: false,
+      expiresAtLedger: "60518400",
+      allowedContracts: [`C${"V".repeat(55)}`],
+      maxCallsPerDay: "48",
+      coolDownLedgers: "0",
+      scopeVersion: "3",
+      cumulative: {
+        limit: "1000000000",
+        denom: "TokenBase",
+        windowLedgers: "120960",
+        spent: "0",
+        windowStartLedger: "60000000",
+      },
+      position: { maxExposureBps: "0", maxPositionUsdE7: "0" },
+      dailyCalls: { used: "1", resetLedger: "60017280", lastCallLedger: "60000001" },
+      rules: [
+        {
+          contract: `C${"V".repeat(55)}`,
+          selector: "deposit",
+          allowed: true,
+          amount: {
+            argIndex: "0",
+            argType: "i128",
+            semantics: "TokenBase",
+            asset: "USDC",
+            flow: "INCREASE",
+          },
+          perTx: { limit: "100000000", denom: "TokenBase" },
+          conversionEvidence: null,
+        },
+      ],
+    },
+  ],
   explorerUrl: `https://stellar.expert/explorer/public/contract/C${"P".repeat(55)}`,
 };
 
@@ -377,8 +412,33 @@ test.describe("Farming route", () => {
       await expect(page.getByRole("tab", { name: label })).toHaveAttribute("aria-selected", "true");
     }
 
-    await expect(page.getByRole("heading", { name: "My Rulebook" })).toBeVisible();
-    await expect(page.getByText("Kill switch is off")).toBeVisible();
+    await expect(page.getByText("Policy Guard active")).toBeVisible();
+    await expect(page.getByText("OFF", { exact: true })).toBeVisible();
+  });
+
+  test("My Rulebook stays compact and exposes safety controls", async ({ page }, testInfo) => {
+    const wallet = freshWallet();
+    await loginAsWallet(page, wallet);
+    await primeWallet(page, wallet);
+    await mockPosition(page);
+    await page.goto("/farming?tab=rulebook", { waitUntil: "domcontentloaded" });
+
+    await expect(page.getByText("Policy Guard active")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("button", { name: "Pause agent" })).toBeVisible();
+    await expect(page.getByText("1 / 48")).toBeVisible();
+    await expect(page.getByText("10 USDC")).toBeVisible();
+    await expect(page.getByText("100000000")).toHaveCount(0);
+
+    await page.getByRole("button", { name: /technical details/i }).click();
+    await expect(page.getByText("100000000")).toBeVisible();
+    await expect(page.getByText(/ledger 60000000/i)).toBeVisible();
+
+    await page.getByRole("button", { name: "Pause agent" }).click();
+    await expect(page.getByRole("dialog")).toContainText("All agent sessions will stop");
+    await page.screenshot({
+      path: testInfo.outputPath(`rulebook-compact-${testInfo.project.name}.png`),
+      fullPage: false,
+    });
   });
 
   test("an unknown tab falls back to Overview", async ({ page }) => {

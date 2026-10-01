@@ -1,9 +1,20 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { useWalletStore } from "@/store/use-wallet";
 import type { Rulebook } from "../api/adapters";
 import { useRulebook } from "../api/use-rulebook";
 import { RulebookPage } from "./rulebook-page";
 
 jest.mock("../api/use-rulebook", () => ({ useRulebook: jest.fn() }));
+
+const killSwitchAction = {
+  setEnabled: jest.fn(),
+  isPending: false,
+  error: null as string | null,
+};
+
+jest.mock("../api/use-vault-kill-switch", () => ({
+  useVaultKillSwitch: () => killSwitchAction,
+}));
 
 const mockUseRulebook = useRulebook as jest.MockedFunction<typeof useRulebook>;
 const contract = "CABCDEF";
@@ -79,7 +90,13 @@ function state(overrides: Record<string, unknown> = {}) {
 }
 
 describe("RulebookPage", () => {
-  beforeEach(() => mockUseRulebook.mockReturnValue(state()));
+  beforeEach(() => {
+    mockUseRulebook.mockReturnValue(state());
+    killSwitchAction.setEnabled.mockReset().mockResolvedValue(true);
+    killSwitchAction.isPending = false;
+    killSwitchAction.error = null;
+    useWalletStore.setState({ connected: true, account: "GOWNER", signing: false });
+  });
 
   it("renders loading state", () => {
     mockUseRulebook.mockReturnValue(state({ data: undefined, isLoading: true }));
@@ -107,16 +124,18 @@ describe("RulebookPage", () => {
     expect(screen.getByText(/no active policy sessions/i)).toBeInTheDocument();
   });
 
-  it("renders live ceilings, conversion evidence, provenance and owner exit", () => {
+  it("keeps technical provenance behind a disclosure", () => {
     const { container } = render(<RulebookPage />);
 
+    expect(screen.queryByText("5000000000")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /technical details/i }));
     expect(screen.getByText("5000000000")).toBeInTheDocument();
     expect(screen.getByText(/\$500\.00 at scope set/i)).toBeInTheDocument();
     expect(screen.getByText(/0\.9999000 usd/i)).toBeInTheDocument();
     expect(screen.getByText(/ledger 64000000/i)).toBeInTheDocument();
-    expect(screen.getByText(/owner can always exit/i)).toBeInTheDocument();
-    expect(screen.getByText(/read at ledger 64422326/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /open contract on stellar\.expert/i })).toHaveAttribute(
+    expect(screen.getByText(/withdrawals stay available/i)).toBeInTheDocument();
+    expect(screen.getByText(/ledger 64422326/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /^stellar\.expert$/i })).toHaveAttribute(
       "href",
       `https://stellar.expert/explorer/public/contract/${contract}`
     );
@@ -132,13 +151,41 @@ describe("RulebookPage", () => {
     expect(screen.getByText("3 / 48")).toBeInTheDocument();
     // 65000000 - 64422326 = 577674 ledgers at ~5s each.
     expect(screen.getByText("~33 days")).toBeInTheDocument();
-    expect(screen.getByText(/at ledger 65000000/i)).toBeInTheDocument();
+    expect(screen.queryByText(/at ledger 65000000/i)).not.toBeInTheDocument();
   });
 
   it("shows the global kill switch independently of color", () => {
     mockUseRulebook.mockReturnValue(state({ data: { ...liveRulebook, killSwitch: true } }));
     render(<RulebookPage />);
-    expect(screen.getByText(/^kill switch is on$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^on$/i)).toBeInTheDocument();
+    expect(screen.getByText(/withdrawals stay available/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /resume agent/i }));
+    expect(killSwitchAction.setEnabled).toHaveBeenCalledWith(false);
+  });
+
+  it("confirms before pausing every agent session", async () => {
+    render(<RulebookPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: /pause agent/i }));
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveTextContent(/all agent sessions will stop/i);
+    fireEvent.click(within(dialog).getByRole("button", { name: /pause agent/i }));
+
+    await waitFor(() => expect(killSwitchAction.setEnabled).toHaveBeenCalledWith(true));
+  });
+
+  it("disables the kill-switch action while the wallet transaction is pending", () => {
+    killSwitchAction.isPending = true;
+    render(<RulebookPage />);
+
+    expect(screen.getByRole("button", { name: /pause agent/i })).toBeDisabled();
+  });
+
+  it("shows a kill-switch transaction error in the policy card", () => {
+    killSwitchAction.error = "Wallet rejected";
+    render(<RulebookPage />);
+
+    expect(screen.getByText("Wallet rejected")).toBeVisible();
   });
 
   it.each([

@@ -172,7 +172,7 @@ export function FarmingVaultHeader({
             className="col-span-2 h-10 gap-2 rounded-full px-4 sm:col-span-1"
           >
             {isRevoked ? <ShieldCheck className="h-4 w-4" /> : <ShieldOff className="h-4 w-4" />}
-            {isRevoked ? "Activate Session Key" : "Revoke"}
+            {isRevoked ? "Activate Session Key" : "Revoke Session Key"}
           </Button>
         </div>
       </div>

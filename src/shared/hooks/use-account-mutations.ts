@@ -193,6 +193,18 @@ export function useRevoke() {
   });
 }
 
+export function useBuildKillSwitch() {
+  return useMutation({
+    mutationFn: async (body: { publicKey: string; enabled: boolean }) => {
+      const { data } = await backendAxios.post<{ data: { xdr: string } }>(
+        "/api/account/kill-switch",
+        body
+      );
+      return data.data;
+    },
+  });
+}
+
 export function useReactivate() {
   return useMutation({
     mutationFn: async (publicKey: string) => {

@@ -3,23 +3,37 @@
 import {
   AlertTriangle,
   CheckCircle2,
+  ChevronDown,
   ExternalLink,
   KeyRound,
   Loader2,
-  LogOut,
+  PauseCircle,
+  PlayCircle,
   RefreshCw,
   ShieldAlert,
   ShieldCheck,
   XCircle,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui/collapsible";
 import { CopyButton } from "@/shared/ui/copy-button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/ui/dialog";
+import { useWalletStore } from "@/store/use-wallet";
 import type { Rulebook } from "../api/adapters";
 import { useRulebook } from "../api/use-rulebook";
+import { useVaultKillSwitch } from "../api/use-vault-kill-switch";
 import {
   assetSymbol,
   formatTokenAmount,
@@ -149,7 +163,6 @@ function SessionCard({
   const symbol = sessionAssetSymbol(session);
   const ledgersLeft = BigInt(session.expiresAtLedger) - BigInt(readAtLedger);
   const cooldown = BigInt(session.coolDownLedgers);
-  const contracts = session.allowedContracts.length;
 
   return (
     <Card className="border-white/10 bg-white/3 p-5 sm:p-6">
@@ -175,107 +188,121 @@ function SessionCard({
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
-          label="Spent in current window"
+          label="Spent"
           value={`${symbol ? formatTokenAmount(session.cumulative.spent) : session.cumulative.spent} / ${amountLabel(session.cumulative.limit, symbol)}`}
-          hint={`Window resets every ${ledgersToDuration(BigInt(session.cumulative.windowLedgers))}`}
+          hint={`${ledgersToDuration(BigInt(session.cumulative.windowLedgers))} window`}
         >
           <UsageBar percent={usedPercent(session.cumulative.spent, session.cumulative.limit)} />
         </Stat>
-        <Stat
-          label="Agent calls today"
-          value={`${session.dailyCalls.used} / ${session.maxCallsPerDay}`}
-        >
+        <Stat label="Calls today" value={`${session.dailyCalls.used} / ${session.maxCallsPerDay}`}>
           <UsageBar percent={usedPercent(session.dailyCalls.used, session.maxCallsPerDay)} />
         </Stat>
-        <Stat
-          label="Expires in"
-          value={ledgersLeft > 0n ? ledgersToDuration(ledgersLeft) : "Ended"}
-          hint={`At ledger ${session.expiresAtLedger}`}
-        />
-        <Stat
-          label="Cooldown between actions"
-          value={cooldown > 0n ? ledgersToDuration(cooldown) : "None"}
-          hint={`${session.coolDownLedgers} ledgers`}
-        />
+        <Stat label="Expires" value={ledgersLeft > 0n ? ledgersToDuration(ledgersLeft) : "Ended"} />
+        <Stat label="Cooldown" value={cooldown > 0n ? ledgersToDuration(cooldown) : "None"} />
       </div>
 
-      <div className="mt-6">
-        <p className="mb-3 font-medium text-sm">What the agent may do</p>
+      <div className="mt-5">
+        <p className="mb-2 font-medium text-sm">Allowed actions</p>
         <div className="space-y-3">
           {session.rules.map((rule) => {
             const ruleSymbol = assetSymbol(rule.amount.asset);
             return (
               <div
                 key={`${rule.contract}:${rule.selector}`}
-                className="rounded-xl border border-white/10 bg-white/2 p-4"
+                className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/2 px-3 py-2.5 text-sm"
               >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {rule.allowed ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                    ) : (
-                      <XCircle className="h-4 w-4 text-destructive" />
-                    )}
-                    <span className="font-medium capitalize">{rule.selector}</span>
-                    <AssetChip asset={rule.amount.asset} />
-                    <span className="text-muted-foreground text-xs">on</span>
-                    <AddressChip
-                      value={rule.contract}
-                      href={`https://stellar.expert/explorer/public/contract/${rule.contract}`}
-                    />
-                  </div>
-                  <div className="text-right">
-                    <p className="text-muted-foreground text-xs">Max per transaction</p>
-                    <p className="font-semibold tabular-nums">
-                      {ruleSymbol
-                        ? `${formatTokenAmount(rule.perTx.limit)} ${ruleSymbol}`
-                        : "See base units"}
-                    </p>
-                    <p className="text-muted-foreground text-xs">
-                      <span className="font-mono">{rule.perTx.limit}</span> base units
-                    </p>
-                  </div>
-                </div>
-
-                {rule.conversionEvidence ? (
-                  <div className="mt-3 border-white/10 border-t pt-3 text-muted-foreground text-xs">
-                    <p className="text-foreground text-sm">
-                      Worth {usdE7(rule.conversionEvidence.usdValueE7)} at scope set
-                    </p>
-                    <p className="mt-1">
-                      Rate{" "}
-                      {fixed(rule.conversionEvidence.rateRaw, rule.conversionEvidence.rateDecimals)}{" "}
-                      USD, set at ledger {rule.conversionEvidence.setAtLedger}, price published{" "}
-                      {new Date(Number(rule.conversionEvidence.ratePublishedAtMs)).toISOString()}.
-                      The contract enforces token units, not this USD figure.
-                    </p>
-                  </div>
+                {rule.allowed ? (
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                 ) : (
-                  <p className="mt-3 text-muted-foreground text-xs">
-                    No USD reference price was recorded when this limit was set; the limit is
-                    enforced in token units.
-                  </p>
+                  <XCircle className="h-4 w-4 text-destructive" />
                 )}
+                <span className="font-medium capitalize">{rule.selector}</span>
+                <AssetChip asset={rule.amount.asset} />
+                <span className="text-muted-foreground">Max</span>
+                <span className="font-semibold tabular-nums">
+                  {ruleSymbol
+                    ? `${formatTokenAmount(rule.perTx.limit)} ${ruleSymbol}`
+                    : "See details"}
+                </span>
+                <span className="ml-auto">
+                  <AddressChip
+                    value={rule.contract}
+                    href={`https://stellar.expert/explorer/public/contract/${rule.contract}`}
+                  />
+                </span>
               </div>
             );
           })}
         </div>
       </div>
-
-      <p className="mt-5 text-muted-foreground text-xs">
-        The agent can only call {contracts} approved contract{contracts === 1 ? "" : "s"}, at most{" "}
-        {session.maxCallsPerDay} times a day, within the limits above.
-      </p>
     </Card>
   );
 }
 
-function RulebookContent({ rulebook }: { rulebook: Rulebook }) {
-  const killed = rulebook.killSwitch;
+function TechnicalDetails({ rulebook }: { rulebook: Rulebook }) {
   return (
-    <div className="space-y-4">
+    <Card className="space-y-4 border-white/10 bg-white/3 p-4 text-sm">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground">
+        <span className="uppercase">{rulebook.network}</span>
+        <span>Ledger {rulebook.readAtLedger}</span>
+        <a
+          className="inline-flex items-center gap-1 text-blue-400 hover:underline"
+          href={rulebook.explorerUrl}
+          rel="noreferrer"
+          target="_blank"
+        >
+          Stellar.expert <ExternalLink className="h-3.5 w-3.5" />
+        </a>
+        <AddressChip value={rulebook.contract} />
+      </div>
+
+      {rulebook.sessions.map((session) => (
+        <div key={session.pubkey} className="space-y-3 border-white/10 border-t pt-4">
+          <div className="grid gap-2 text-muted-foreground text-xs sm:grid-cols-2">
+            <span>Expiry ledger {session.expiresAtLedger}</span>
+            <span>Cooldown {session.coolDownLedgers} ledgers</span>
+            <span>Window starts {session.cumulative.windowStartLedger}</span>
+            <span>Window length {session.cumulative.windowLedgers} ledgers</span>
+          </div>
+          {session.rules.map((rule) => (
+            <div key={`${rule.contract}:${rule.selector}`} className="rounded-lg bg-white/2 p-3">
+              <p>
+                <span className="font-medium capitalize">{rule.selector}</span>:{" "}
+                <span className="font-mono">{rule.perTx.limit}</span> base units
+              </p>
+              {rule.conversionEvidence ? (
+                <div className="mt-2 text-muted-foreground text-xs">
+                  <p>Worth {usdE7(rule.conversionEvidence.usdValueE7)} at scope set</p>
+                  <p>
+                    Rate{" "}
+                    {fixed(rule.conversionEvidence.rateRaw, rule.conversionEvidence.rateDecimals)}{" "}
+                    USD at ledger {rule.conversionEvidence.setAtLedger}
+                  </p>
+                </div>
+              ) : (
+                <p className="mt-2 text-muted-foreground text-xs">No USD reference.</p>
+              )}
+            </div>
+          ))}
+        </div>
+      ))}
+    </Card>
+  );
+}
+
+function PolicyGuardCard({ killed, onRefresh }: { killed: boolean; onRefresh: () => void }) {
+  const publicKey = useWalletStore((state) => state.account) ?? undefined;
+  const action = useVaultKillSwitch(publicKey, onRefresh);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const confirmPause = async () => {
+    if (await action.setEnabled(true)) setConfirmOpen(false);
+  };
+
+  return (
+    <>
       <Card className="border-white/10 bg-white/3 p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div
               className={cn(
@@ -290,51 +317,85 @@ function RulebookContent({ rulebook }: { rulebook: Rulebook }) {
               )}
             </div>
             <div>
-              <p className="font-semibold text-lg">
-                {killed ? "Agent automation is blocked" : "Policy Guard is protecting your vault"}
-              </p>
-              <div className="mt-1.5 flex flex-wrap items-center gap-2 text-muted-foreground text-sm">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-semibold text-lg">
+                  {killed ? "Agent paused" : "Policy Guard active"}
+                </p>
                 <span
                   className={cn(
                     "rounded-full px-2 py-0.5 font-medium text-xs",
                     killed ? "bg-amber-500/15 text-amber-300" : "bg-white/5 text-foreground"
                   )}
                 >
-                  {killed ? "Kill switch is ON" : "Kill switch is off"}
+                  {killed ? "ON" : "OFF"}
                 </span>
-                <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase">
-                  {rulebook.network}
-                </span>
-                <span>Read at ledger {rulebook.readAtLedger}</span>
               </div>
+              <p className="mt-1 text-muted-foreground text-sm">
+                Stops all agent sessions. Withdrawals stay available.
+              </p>
             </div>
           </div>
-          <div className="flex flex-col items-start gap-1 sm:items-end">
-            <a
-              className="inline-flex items-center gap-1.5 text-blue-400 text-sm hover:underline"
-              href={rulebook.explorerUrl}
-              rel="noreferrer"
-              target="_blank"
-            >
-              Open contract on Stellar.expert <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-            </a>
-            <AddressChip value={rulebook.contract} />
-          </div>
+          <Button
+            variant={killed ? "gradient" : "destructive"}
+            size="sm"
+            disabled={action.isPending || !publicKey}
+            onClick={() => {
+              if (killed) void action.setEnabled(false);
+              else setConfirmOpen(true);
+            }}
+          >
+            {action.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : killed ? (
+              <PlayCircle className="h-4 w-4" />
+            ) : (
+              <PauseCircle className="h-4 w-4" />
+            )}
+            {killed ? "Resume agent" : "Pause agent"}
+          </Button>
         </div>
-        {killed && (
-          <div className="mt-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-amber-200 text-sm">
-            Automated session-key actions are blocked while the kill switch is on.
+        {action.error && (
+          <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive text-sm">
+            {action.error}
           </div>
         )}
       </Card>
 
-      <div className="flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm">
-        <LogOut className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-        <p>
-          <strong>Owner can always exit.</strong> These rules only limit what the agent can do; you
-          can always withdraw with your own wallet.
-        </p>
-      </div>
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className="w-[calc(100%-2rem)] rounded-lg">
+          <DialogHeader>
+            <DialogTitle>Pause agent?</DialogTitle>
+            <DialogDescription>
+              All agent sessions will stop. Withdrawals stay available.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <DialogClose asChild>
+              <Button variant="outline" disabled={action.isPending}>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              disabled={action.isPending}
+              onClick={() => void confirmPause()}
+            >
+              {action.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              Pause agent
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+function RulebookContent({ rulebook, onRefresh }: { rulebook: Rulebook; onRefresh: () => void }) {
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
+  return (
+    <div className="space-y-4">
+      <PolicyGuardCard killed={rulebook.killSwitch} onRefresh={onRefresh} />
 
       {rulebook.sessions.length === 0 ? (
         <StateCard>No active policy sessions were found on-chain.</StateCard>
@@ -347,6 +408,20 @@ function RulebookContent({ rulebook }: { rulebook: Rulebook }) {
           />
         ))
       )}
+
+      <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground">
+            Technical details
+            <ChevronDown
+              className={cn("h-4 w-4 transition-transform", detailsOpen && "rotate-180")}
+            />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-2">
+          <TechnicalDetails rulebook={rulebook} />
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }
@@ -396,7 +471,7 @@ function RulebookBody({ state }: { state: ReturnType<typeof useRulebook> }) {
           Ledger read may be stale. Refresh before making a policy decision.
         </div>
       )}
-      <RulebookContent rulebook={state.data} />
+      <RulebookContent rulebook={state.data} onRefresh={state.refetch} />
     </>
   );
 }
@@ -409,9 +484,7 @@ export function RulebookPage() {
         <ShieldCheck className="h-7 w-7 text-emerald-400" />
         <div>
           <h1 className="font-bold text-2xl">My Rulebook</h1>
-          <p className="text-muted-foreground text-sm">
-            Live policy state read from Stellar ledger
-          </p>
+          <p className="text-muted-foreground text-sm">On-chain limits for your agent</p>
         </div>
       </div>
       <RulebookBody state={state} />
@@ -426,9 +499,6 @@ export function RulebookPanel() {
   const state = useRulebook();
   return (
     <section className="w-full pb-8" aria-label="My Rulebook">
-      <p className="mb-4 text-muted-foreground text-sm">
-        Live limits your vault enforces on the agent, read directly from the Stellar ledger.
-      </p>
       <RulebookBody state={state} />
     </section>
   );

@@ -38,7 +38,7 @@ describe("FarmingVaultHeader", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Deposit" }));
     fireEvent.click(screen.getByRole("button", { name: "Withdraw" }));
-    fireEvent.click(screen.getByRole("button", { name: "Revoke" }));
+    fireEvent.click(screen.getByRole("button", { name: "Revoke Session Key" }));
 
     expect(baseProps.onDeposit).toHaveBeenCalledTimes(1);
     expect(baseProps.onWithdraw).toHaveBeenCalledTimes(1);
