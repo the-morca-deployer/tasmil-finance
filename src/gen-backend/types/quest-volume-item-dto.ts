@@ -30,6 +30,11 @@ export type QuestVolumeItemDto = {
    */
   walletMasked: string;
   /**
+   * @description Full Stellar pubkey, for linking out to an explorer
+   * @type string
+   */
+  walletAddress: string;
+  /**
    * @description ISO timestamp
    * @type string
    */

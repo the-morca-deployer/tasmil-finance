@@ -1,6 +1,6 @@
-import type { TractionData } from "./evidence";
+import type { TractionResponseDto } from "@/gen-backend/types/traction-response-dto";
 
-export type { TractionData };
-export type TractionSummary = TractionData["summary"];
-export type VolumeTvlPoint = TractionData["volumeTvl"][number];
-export type UserGrowthPoint = TractionData["userGrowth"][number];
+export type TractionData = TractionResponseDto;
+export type TractionSummary = TractionResponseDto["summary"];
+export type VolumeTvlPoint = TractionResponseDto["volumeTvl"][number];
+export type UserGrowthPoint = TractionResponseDto["userGrowth"][number];
