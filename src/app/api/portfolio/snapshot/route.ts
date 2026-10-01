@@ -11,12 +11,21 @@ function unwrap<T>(payload: T | { success?: boolean; data?: T }): T {
   return payload as T;
 }
 
+function forwardedAuth(request: NextRequest): HeadersInit {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const authorization = request.headers.get("authorization");
+  if (authorization) headers.authorization = authorization;
+  const cookie = request.headers.get("cookie");
+  if (cookie) headers.cookie = cookie;
+  return headers;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const response = await fetch(`${BACKEND_URL}/api/portfolio/snapshot`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: forwardedAuth(request),
       body: JSON.stringify({ address: body.address }),
     });
     const data = await response.json();
