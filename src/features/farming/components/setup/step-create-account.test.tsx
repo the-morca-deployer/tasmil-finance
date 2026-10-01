@@ -12,6 +12,13 @@ jest.mock("@/features/account/hooks/use-onboarding-deploy", () => ({
   useOnboardingDeploy: (...args: unknown[]) => mockHook(...args),
 }));
 
+const mockAccept = jest.fn(async () => ({ optedIn: true }));
+let mockOptedIn = true;
+jest.mock("@/shared/hooks/use-beta-opt-in", () => ({
+  useBetaOptInStatus: () => ({ data: { optedIn: mockOptedIn } }),
+  useAcceptBetaTerms: () => ({ mutateAsync: mockAccept, isPending: false }),
+}));
+
 const idleState = {
   deploy: jest.fn(),
   retry: jest.fn(),
@@ -26,13 +33,15 @@ const idleState = {
 
 beforeEach(() => {
   mockHook.mockReturnValue({ ...idleState });
+  mockOptedIn = true;
+  mockAccept.mockClear();
 });
 
 describe("StepCreateAccount", () => {
-  it("renders title, two-tx explainer, and Sign orb", () => {
+  it("renders title, one-transaction explainer, and Sign orb", () => {
     render(<StepCreateAccount publicKey="GABC" preset="Balanced" onComplete={jest.fn()} />);
     expect(screen.getByRole("heading", { name: /create smart wallet/i })).toBeInTheDocument();
-    expect(screen.getByText(/two transactions/i)).toBeInTheDocument();
+    expect(screen.getByText(/one transaction/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^create$/i })).toBeInTheDocument();
   });
 
@@ -103,5 +112,29 @@ describe("StepCreateAccount", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: /back/i }));
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("requires the guarded-beta opt-in before a new wallet can create a vault", async () => {
+    mockOptedIn = false;
+    const deploy = jest.fn();
+    mockHook.mockReturnValue({ ...idleState, deploy });
+    render(<StepCreateAccount publicKey="GABC" preset="Balanced" onComplete={jest.fn()} />);
+
+    const create = screen.getByRole("button", { name: /^create$/i });
+    expect(create).toBeDisabled();
+    expect(screen.getByText(/not yet externally audited/i)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("checkbox"));
+    expect(create).toBeEnabled();
+    await userEvent.click(create);
+
+    expect(mockAccept).toHaveBeenCalledTimes(1);
+    expect(deploy).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips the checkbox for a wallet that already opted in", () => {
+    render(<StepCreateAccount publicKey="GABC" preset="Balanced" onComplete={jest.fn()} />);
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^create$/i })).toBeEnabled();
   });
 });

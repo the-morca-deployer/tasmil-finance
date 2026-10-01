@@ -1,0 +1,228 @@
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { useWalletStore } from "@/store/use-wallet";
+import type { Rulebook } from "../api/adapters";
+import { useRulebook } from "../api/use-rulebook";
+import { RulebookPage } from "./rulebook-page";
+
+jest.mock("../api/use-rulebook", () => ({ useRulebook: jest.fn() }));
+
+const killSwitchAction = {
+  setEnabled: jest.fn(),
+  isPending: false,
+  error: null as string | null,
+};
+
+jest.mock("../api/use-vault-kill-switch", () => ({
+  useVaultKillSwitch: () => killSwitchAction,
+}));
+
+const mockUseRulebook = useRulebook as jest.MockedFunction<typeof useRulebook>;
+const contract = "CABCDEF";
+
+const liveRulebook: Rulebook = {
+  accountId: "vault-1",
+  network: "mainnet",
+  contract,
+  readAtLedger: "64422326",
+  instanceLiveUntilLedger: "65000000",
+  killSwitch: false,
+  killSwitchSource: "STORED",
+  executionRouter: "CROUTER",
+  interfaceRegistry: "CREGISTRY",
+  globalDailyCalls: { used: "2", resetLedger: "64423000", max: "100" },
+  sessions: [
+    {
+      pubkey: "GSESSION",
+      revoked: false,
+      expiresAtLedger: "65000000",
+      allowedContracts: ["CVENUE"],
+      maxCallsPerDay: "48",
+      coolDownLedgers: "20",
+      scopeVersion: "3",
+      cumulative: {
+        limit: "20000000000",
+        denom: "TokenBase",
+        windowLedgers: "17280",
+        spent: "1200000000",
+        windowStartLedger: "64400000",
+      },
+      position: { maxExposureBps: "2500", maxPositionUsdE7: "5000000000" },
+      dailyCalls: { used: "3", resetLedger: "64423000", lastCallLedger: "64422000" },
+      rules: [
+        {
+          contract: "CVENUE",
+          selector: "deposit",
+          allowed: true,
+          amount: {
+            argIndex: "0",
+            argType: "i128",
+            semantics: "TokenBase",
+            asset: "USDC",
+            flow: "INCREASE",
+          },
+          perTx: { limit: "5000000000", denom: "TokenBase" },
+          conversionEvidence: {
+            usdValueE7: "5000000000",
+            rateRaw: "9999000",
+            rateDecimals: 7,
+            tokenDecimals: 7,
+            setAtLedger: "64000000",
+            ratePublishedAtMs: "1789516800000",
+          },
+        },
+      ],
+    },
+  ],
+  explorerUrl: `https://stellar.expert/explorer/public/contract/${contract}`,
+};
+
+function state(overrides: Record<string, unknown> = {}) {
+  return {
+    walletConnected: true,
+    accountId: "vault-1",
+    data: liveRulebook,
+    isLoading: false,
+    isStale: false,
+    error: null,
+    refetch: jest.fn(),
+    ...overrides,
+  } as ReturnType<typeof useRulebook>;
+}
+
+describe("RulebookPage", () => {
+  beforeEach(() => {
+    mockUseRulebook.mockReturnValue(state());
+    killSwitchAction.setEnabled.mockReset().mockResolvedValue(true);
+    killSwitchAction.isPending = false;
+    killSwitchAction.error = null;
+    useWalletStore.setState({ connected: true, account: "GOWNER", signing: false });
+  });
+
+  it("renders loading state", () => {
+    mockUseRulebook.mockReturnValue(state({ data: undefined, isLoading: true }));
+    render(<RulebookPage />);
+    expect(screen.getByRole("status")).toHaveTextContent(/reading live stellar policy/i);
+  });
+
+  it("asks for wallet authentication before reading private policy", () => {
+    mockUseRulebook.mockReturnValue(
+      state({ walletConnected: false, accountId: null, data: undefined })
+    );
+    render(<RulebookPage />);
+    expect(screen.getByText(/connect your wallet/i)).toBeInTheDocument();
+  });
+
+  it("shows an account-missing state without guessing an id", () => {
+    mockUseRulebook.mockReturnValue(state({ accountId: null, data: undefined }));
+    render(<RulebookPage />);
+    expect(screen.getByText(/no sow2 vault account/i)).toBeInTheDocument();
+  });
+
+  it("shows an empty on-chain policy", () => {
+    mockUseRulebook.mockReturnValue(state({ data: { ...liveRulebook, sessions: [] } }));
+    render(<RulebookPage />);
+    expect(screen.getByText(/no active policy sessions/i)).toBeInTheDocument();
+  });
+
+  it("keeps technical provenance behind a disclosure", () => {
+    const { container } = render(<RulebookPage />);
+
+    expect(screen.queryByText("5000000000")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /technical details/i }));
+    expect(screen.getByText("5000000000")).toBeInTheDocument();
+    expect(screen.getByText(/\$500\.00 at scope set/i)).toBeInTheDocument();
+    expect(screen.getByText(/0\.9999000 usd/i)).toBeInTheDocument();
+    expect(screen.getByText(/ledger 64000000/i)).toBeInTheDocument();
+    expect(screen.getByText(/withdrawals stay available/i)).toBeInTheDocument();
+    expect(screen.getByText(/ledger 64422326/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /^stellar\.expert$/i })).toHaveAttribute(
+      "href",
+      `https://stellar.expert/explorer/public/contract/${contract}`
+    );
+    expect(container).not.toHaveTextContent(/[·•]/);
+  });
+
+  it("shows token amounts and durations in human units next to the raw values", () => {
+    render(<RulebookPage />);
+
+    // perTx 5000000000 base units at 7 decimals = 500 USDC; cumulative 120 of 2,000.
+    expect(screen.getByText("500 USDC")).toBeInTheDocument();
+    expect(screen.getByText("120 / 2,000 USDC")).toBeInTheDocument();
+    expect(screen.getByText("3 / 48")).toBeInTheDocument();
+    // 65000000 - 64422326 = 577674 ledgers at ~5s each.
+    expect(screen.getByText("~33 days")).toBeInTheDocument();
+    expect(screen.queryByText(/at ledger 65000000/i)).not.toBeInTheDocument();
+  });
+
+  it("shows the global kill switch independently of color", () => {
+    mockUseRulebook.mockReturnValue(state({ data: { ...liveRulebook, killSwitch: true } }));
+    render(<RulebookPage />);
+    expect(screen.getByText(/^on$/i)).toBeInTheDocument();
+    expect(screen.getByText(/withdrawals stay available/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /resume agent/i }));
+    expect(killSwitchAction.setEnabled).toHaveBeenCalledWith(false);
+  });
+
+  it("confirms before pausing every agent session", async () => {
+    render(<RulebookPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: /pause agent/i }));
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveTextContent(/all agent sessions will stop/i);
+    fireEvent.click(within(dialog).getByRole("button", { name: /pause agent/i }));
+
+    await waitFor(() => expect(killSwitchAction.setEnabled).toHaveBeenCalledWith(true));
+  });
+
+  it("disables the kill-switch action while the wallet transaction is pending", () => {
+    killSwitchAction.isPending = true;
+    render(<RulebookPage />);
+
+    expect(screen.getByRole("button", { name: /pause agent/i })).toBeDisabled();
+  });
+
+  it("shows a kill-switch transaction error in the policy card", () => {
+    killSwitchAction.error = "Wallet rejected";
+    render(<RulebookPage />);
+
+    expect(screen.getByText("Wallet rejected")).toBeVisible();
+  });
+
+  it.each([
+    [{ revoked: true }, /revoked/i],
+    [{ expiresAtLedger: "64000000" }, /expired/i],
+  ])("labels revoked and expired sessions", (sessionPatch, label) => {
+    mockUseRulebook.mockReturnValue(
+      state({
+        data: {
+          ...liveRulebook,
+          sessions: [{ ...liveRulebook.sessions[0], ...sessionPatch }],
+        },
+      })
+    );
+    render(<RulebookPage />);
+    expect(screen.getByText(label)).toBeInTheDocument();
+  });
+
+  it("does not turn missing persistent spend into zero", () => {
+    mockUseRulebook.mockReturnValue(
+      state({ data: undefined, error: new Error("WindowSpend is missing or archived") })
+    );
+    render(<RulebookPage />);
+    expect(screen.getByText(/persistent spend evidence unavailable/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^0$/)).not.toBeInTheDocument();
+  });
+
+  it("shows an RPC error with retry", () => {
+    mockUseRulebook.mockReturnValue(state({ data: undefined, error: new Error("RPC timeout") }));
+    render(<RulebookPage />);
+    expect(screen.getByText(/could not read stellar ledger/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();
+  });
+
+  it("labels a stale cached ledger read", () => {
+    mockUseRulebook.mockReturnValue(state({ isStale: true }));
+    render(<RulebookPage />);
+    expect(screen.getByText(/ledger read may be stale/i)).toBeInTheDocument();
+  });
+});

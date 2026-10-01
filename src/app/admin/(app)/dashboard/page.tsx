@@ -27,7 +27,7 @@ function fmtUsd(n: number): string {
   if (n === 0) return "0";
   if (n < 1) return n.toFixed(2);
   if (n < 1000) return n.toFixed(0);
-  return (n / 1000).toFixed(1) + "k";
+  return `${(n / 1000).toFixed(1)}k`;
 }
 
 // -- Primitives ----------------------------------------------------------------

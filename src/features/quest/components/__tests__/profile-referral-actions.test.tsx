@@ -13,7 +13,6 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import type { Mock } from "jest-mock";
 import Profile from "../Profile";
 
 // ---- next/navigation: force the referrals tab ----
@@ -128,11 +127,11 @@ const rq = require("@tanstack/react-query");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const setCodeClient = require("@/gen-quest/client/users-controller-set-referral-code");
 
-const mockGetMyReferral = hooks.useReferralControllerGetMyReferral as Mock;
-const mockGetReferrals = hooks.useUsersControllerGetReferrals as Mock;
-const mockGetTree = hooks.useReferralControllerGetTree as Mock;
-const mockSetReferralCode = setCodeClient.usersControllerSetReferralCode as Mock;
-const mockInvalidateQueries = rq.__invalidateQueries as Mock;
+const mockGetMyReferral = hooks.useReferralControllerGetMyReferral as jest.Mock;
+const mockGetReferrals = hooks.useUsersControllerGetReferrals as jest.Mock;
+const mockGetTree = hooks.useReferralControllerGetTree as jest.Mock;
+const mockSetReferralCode = setCodeClient.usersControllerSetReferralCode as jest.Mock;
+const mockInvalidateQueries = rq.__invalidateQueries as jest.Mock;
 
 describe("Profile referral actions", () => {
   // Clear NEXT_PUBLIC_APP_URL so buildShareUrl falls back to window.location.origin

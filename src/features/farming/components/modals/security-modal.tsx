@@ -38,9 +38,9 @@ export function SecurityModal({ onRefresh, onRevoke, isPending }: SecurityModalP
       <div className="mt-6 flex items-start gap-3 rounded-lg border border-border bg-muted/10 p-3">
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
         <div className="text-xs">
-          <p className="font-medium text-foreground">Revoke stops bot automation.</p>
+          <p className="font-medium text-foreground">Revoke this session key</p>
           <p className="text-muted-foreground">
-            You can still deposit and withdraw. Activate a new session key any time to resume.
+            Permanently disables this key. This is not the vault kill switch.
           </p>
         </div>
       </div>

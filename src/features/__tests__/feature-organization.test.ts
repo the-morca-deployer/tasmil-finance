@@ -43,6 +43,7 @@ describe("Feature Module Organization Property Tests", () => {
     "strategies",
     "topup",
     "traction",
+    "transparency",
     "waitlist",
     "welcome-reward",
   ];

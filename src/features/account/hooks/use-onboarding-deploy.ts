@@ -47,10 +47,10 @@ export interface UseOnboardingDeployResult {
 }
 
 /**
- * Encapsulates the multi-TX onboarding flow:
- *   1. Deploy keeper-wallet contract (sign + submit)
- *   2. Configure session key (sign + submit)
- *   3. Apply chosen risk preset (best-effort)
+ * Encapsulates atomic SOW2 onboarding:
+ *   1. Deploy KeeperWallet + configure every Policy Guard field (one signature)
+ *   2. Apply chosen off-chain risk preset (best-effort, no wallet signature)
+ * Existing partial deployments use one configure-existing transaction.
  *
  * Surfaces sub-step state, classified errors, and a single deploy() entry.
  * Caller decides post-success routing (e.g. router.push("/farming")).
@@ -120,8 +120,7 @@ export function useOnboardingDeploy({
 
   const handleDeployTx = async (): Promise<boolean> => {
     if (!publicKey) return false;
-    await buildSignSubmitDeploy(false);
-    return true;
+    return buildSignSubmitDeploy(false);
   };
 
   const isKeeperNotDeployedError = (err: unknown): boolean => {
@@ -144,8 +143,8 @@ export function useOnboardingDeploy({
 
   /** Build, sign, and submit the deploy TX. Optionally pass `recover: true`
    *  to opt into the destructive cleanup path on the server. */
-  const buildSignSubmitDeploy = async (recover: boolean): Promise<void> => {
-    if (!publicKey) return;
+  const buildSignSubmitDeploy = async (recover: boolean): Promise<boolean> => {
+    if (!publicKey) return false;
     setDeploySubStep("building_deploy");
     const result = await deployAccount.mutateAsync({ publicKey, recover });
 
@@ -156,8 +155,9 @@ export function useOnboardingDeploy({
       setDeployCompleted(true);
       if (result.status && result.status !== "DEPLOYING") {
         setSetupCompleted(true);
+        return true;
       }
-      return;
+      return false;
     }
 
     if (!result?.xdr) {
@@ -176,10 +176,12 @@ export function useOnboardingDeploy({
     await submitTx.mutateAsync({
       signedXdr: signedTxXdr,
       publicKey,
-      txType: "deploy",
+      txType: "deploy_setup",
     });
 
     setDeployCompleted(true);
+    setSetupCompleted(true);
+    return true;
   };
 
   const handleSetupTx = async (): Promise<boolean> => {
@@ -199,10 +201,7 @@ export function useOnboardingDeploy({
 
       // Reset local flag - we're about to re-sign deploy TX 1.
       setDeployCompleted(false);
-      await buildSignSubmitDeploy(true);
-
-      setDeploySubStep("building_setup");
-      setupResult = await setupAccount.mutateAsync(publicKey);
+      return buildSignSubmitDeploy(true);
     }
 
     const setupXdrs = setupResult?.setupTxs ?? [];
@@ -224,11 +223,7 @@ export function useOnboardingDeploy({
     const signedTxXdr = assertSigned(signed);
 
     setDeploySubStep("submitting_setup");
-    await submitTx.mutateAsync({
-      signedXdr: signedTxXdr,
-      publicKey,
-      txType: "setup",
-    });
+    await submitTx.mutateAsync({ signedXdr: signedTxXdr, publicKey, txType: "setup" });
 
     setSetupCompleted(true);
     return true;
@@ -255,8 +250,10 @@ export function useOnboardingDeploy({
 
     let succeeded = false;
     try {
-      if (!deployCompleted) await handleDeployTx();
-      if (!setupCompleted) await handleSetupTx();
+      let policyReady = setupCompleted;
+      if (!deployCompleted) policyReady = await handleDeployTx();
+      if (!policyReady) policyReady = await handleSetupTx();
+      if (!policyReady) throw new Error("Policy Guard setup did not complete");
       try {
         await applyChosenPreset();
       } catch (presetErr: unknown) {
@@ -280,7 +277,7 @@ export function useOnboardingDeploy({
         setDeployErrorWasRejection(true);
         setDeployError(
           deployCompleted && !setupCompleted
-            ? "Signing was cancelled. Your account was deployed but session-key setup didn't complete - click Retry to finish."
+            ? "Signing was cancelled. Your vault exists, but Policy Guard setup didn't complete - click Retry to finish with one signature."
             : "Signing was cancelled in your wallet. Click Retry to try again."
         );
       } else if (message.includes("insufficient") || message.includes("Insufficient")) {

@@ -18,6 +18,14 @@ export interface PositionData {
   netDepositsUsd: number;
   profitUsd: number;
   profitPercent: number;
+  displayAsset: string;
+  assetPriceUsd: number;
+  totalValueAsset: number;
+  totalDepositedAsset: number;
+  totalWithdrawnAsset: number;
+  netDepositsAsset: number;
+  profitAsset: number;
+  profitPercentAsset: number;
   currentApy: number;
   preset: string;
   status: AccountStatus;

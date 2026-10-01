@@ -1,23 +1,31 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Loader2, Wallet } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { useActivity, usePosition } from "@/features/account/hooks/use-account-api";
+import { useActivity, usePosition, usePresets } from "@/features/account/hooks/use-account-api";
+import type { RiskPreset } from "@/features/account/types";
+import { usePolicyTimeline } from "@/features/transparency/api/policy-timeline";
+import { RulebookPanel } from "@/features/transparency/components/rulebook-page";
 import { isNotFoundError } from "@/lib/query-error";
+import { GuardedBetaNotice } from "@/shared/components/guarded-beta-notice";
 import { Button } from "@/shared/ui/button";
 import { useWalletHydrated, useWalletStore } from "@/store/use-wallet";
 import { useFarmingActions } from "../hooks/use-farming-actions";
 import { usePools } from "../hooks/use-farming-api";
-import { usePositionHistory } from "../hooks/use-position-history";
+import { type HistoryRange, usePortfolioHistory } from "../hooks/use-portfolio-history";
 import type { DiscoveredPool } from "../types";
-import { ActivityDrawer } from "./activity-drawer";
-import type { AgentHistoryEvent } from "./dashboard/agent-history-card";
-import { ACTIVITY_LABEL } from "./farming-activity";
-import { FarmingDashboard } from "./farming-dashboard";
+import { FarmingActivity, FarmingActivitySidebar } from "./farming-activity";
+import { FarmingAllocation } from "./farming-allocation";
 import { FarmingModals, type FarmingModalTab } from "./farming-modals";
+import { FarmingPools } from "./farming-pools";
+import { FarmingStatusBanners } from "./farming-status-banners";
+import { type FarmingTab, FarmingTabs, parseFarmingTab } from "./farming-tabs";
+import { FarmingVaultHeader } from "./farming-vault-header";
+import { PerformanceChart } from "./performance-chart";
 import { PoolDetailDrawer } from "./pool-detail-drawer";
+import { ManageTab } from "./tabs/manage-tab";
 
 /**
  * Empty state shown to a connected user who has no Position yet (or whose
@@ -41,7 +49,7 @@ function GetStartedEmptyState({ resuming, onStart }: { resuming: boolean; onStar
       <p className="mb-6 max-w-md text-muted-foreground text-sm">
         {resuming
           ? "Your previous setup didn't finish. Pick up where you left off - your selections are saved."
-          : "Choose the asset and strategy your agent will use. Two wallet signatures, ~30 seconds."}
+          : "Choose the asset and strategy your agent will use. One wallet signature, ~30 seconds."}
       </p>
       <Button
         variant="gradient"
@@ -63,19 +71,27 @@ function FarmingContent() {
   const walletHydrated = useWalletHydrated();
   const publicKey = account ?? undefined;
 
-  const tabParam = searchParams.get("tab");
+  const activeTab = parseFarmingTab(searchParams.get("tab"));
 
-  const [activityDrawerOpen, setActivityDrawerOpen] = useState(false);
+  const setActiveTab = useCallback(
+    (tab: FarmingTab) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (tab === "overview") params.delete("tab");
+      else params.set("tab", tab);
+      const query = params.toString();
+      router.replace(query ? `/farming?${query}` : "/farming");
+    },
+    [router, searchParams]
+  );
+
   const [poolDrawer, setPoolDrawer] = useState<DiscoveredPool | null>(null);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: open drawer once on mount when ?tab=activity
-  useEffect(() => {
-    if (tabParam === "activity") setActivityDrawerOpen(true);
-  }, []);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<FarmingModalTab>("fund");
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [strategyPreviewAsset, setStrategyPreviewAsset] = useState<"USDC" | "XLM">("USDC");
+  const [selectedPreset, setSelectedPreset] = useState<RiskPreset | null>(null);
+  const [historyRange, setHistoryRange] = useState<HistoryRange>("7d");
 
   const {
     data: position,
@@ -85,6 +101,11 @@ function FarmingContent() {
     error: positionError,
     refetch: refetchPosition,
   } = usePosition(publicKey);
+  const portfolioHistory = usePortfolioHistory(
+    position?.keeperWalletAddress,
+    historyRange,
+    position?.displayAsset ?? position?.baseAsset
+  );
 
   // `GET /api/account/position/:publicKey` answers 404 for a wallet with no
   // managed account, so "no account" arrives as an error like any other. Only
@@ -120,9 +141,21 @@ function FarmingContent() {
     if (noManagedAccount) router.replace("/farming/setup");
   }, [walletHydrated, publicKey, noManagedAccount, router]);
 
-  const { isLoading: registryPoolsLoading } = usePools();
+  const { data: registryPoolsData, isLoading: registryPoolsLoading } = usePools();
+  const { data: presets, isLoading: presetsLoading } = usePresets(strategyPreviewAsset);
 
-  const { data: positionHistory } = usePositionHistory(position?.keeperWalletAddress);
+  useEffect(() => {
+    const baseAsset = position?.baseAsset?.toUpperCase();
+    if (baseAsset === "USDC" || baseAsset === "XLM") setStrategyPreviewAsset(baseAsset);
+  }, [position?.baseAsset]);
+
+  useEffect(() => {
+    if (selectedPreset !== null) return;
+    const normalized = position?.preset?.toLowerCase();
+    if (normalized === "safe") setSelectedPreset("Safe");
+    else if (normalized === "aggressive") setSelectedPreset("Aggressive");
+    else if (normalized === "balanced") setSelectedPreset("Balanced");
+  }, [position?.preset, selectedPreset]);
 
   // Defensive auto-register for portfolio snapshot history. Existing accounts
   // that predate the backend auto-register need this to start accumulating
@@ -159,6 +192,23 @@ function FarmingContent() {
   );
 
   const activitiesList = useMemo(() => (Array.isArray(activities) ? activities : []), [activities]);
+  const policyTimeline = usePolicyTimeline();
+  const registryPools = useMemo(
+    () => (Array.isArray(registryPoolsData) ? registryPoolsData : []),
+    [registryPoolsData]
+  );
+
+  const positionsTotalUsd = useMemo(
+    () => positionsList.reduce((sum, item) => sum + item.valueUsd, 0),
+    [positionsList]
+  );
+  const unallocatedWalletUsd = position?.balanceStale
+    ? 0
+    : Math.max((position?.totalValueUsd ?? 0) - positionsTotalUsd, 0);
+  const inPositionKeys = useMemo(
+    () => new Set(positionsList.map((item) => `${item.protocol.toLowerCase()}:${item.poolName}`)),
+    [positionsList]
+  );
 
   const { availableUsd, lockedUsd } = useMemo(() => {
     const isBalanceStale = Boolean(position?.balanceStale);
@@ -232,6 +282,12 @@ function FarmingContent() {
       setModalOpen(false);
     }
   }, [actions, refetchPosition, refetchActivity]);
+
+  const handleApplyPreset = async () => {
+    if (!selectedPreset) return;
+    const ok = await actions.applyPreset(selectedPreset);
+    if (ok) await refetchPosition();
+  };
 
   const handlePoolDeposit = useCallback(
     (_pool: DiscoveredPool) => {
@@ -315,6 +371,11 @@ function FarmingContent() {
     typeof position.totalDepositedUsd === "number" &&
     typeof position.profitUsd === "number" &&
     typeof position.profitPercent === "number" &&
+    typeof position.totalValueAsset === "number" &&
+    typeof position.profitAsset === "number" &&
+    typeof position.profitPercentAsset === "number" &&
+    typeof position.assetPriceUsd === "number" &&
+    typeof position.displayAsset === "string" &&
     typeof position.currentApy === "number";
 
   if (!hasCompletePositionData) {
@@ -325,79 +386,169 @@ function FarmingContent() {
     );
   }
 
-  const totalBalanceUsd = position.totalValueUsd;
-  const totalDepositedUsd = position.totalDepositedUsd;
-  const lifetimeEarningsUsd = position.profitUsd;
-  const lifetimeEarningsPct = position.profitPercent;
-  // Value-weighted average APY across all open positions - not "net" of
-  // fees/rewards, see AprSummaryCard.
-  const blendedApy = position.currentApy;
-  // Positions aren't guaranteed to come back ordered by size, so pick the
-  // one holding the most value rather than an arbitrary array position.
-  const topPosition = positionsList.length
-    ? positionsList.reduce((largest, p) => (p.valueUsd > largest.valueUsd ? p : largest))
-    : undefined;
-  const currentMarketName = topPosition?.poolName ?? "-";
-  const currentPositionApr = topPosition?.apy ?? 0;
-  // Never fabricate a fallback timestamp - an empty string renders "-" via
-  // AprSummaryCard's fmtDate rather than lying that the account activated
-  // "now".
-  const activatedAt = position.createdAt ?? "";
-
-  const chartSeries = (positionHistory ?? []).map((s) => ({
-    t: new Date(s.timestamp).getTime(),
-    v: s.totalValueUsd,
-  }));
-
-  // Include "reward" alongside "protocol": harvest rows are categorised
-  // "reward", so the event that actually realises yield never reached this
-  // card. The old `a.type === "rebalance"` clause matched nothing either — the
-  // API returns the enum upper-cased ("REBALANCE") — so that half of the
-  // filter was dead and only appeared to work via the category check.
-  const agentEvents: AgentHistoryEvent[] = activitiesList
-    .filter(
-      (a) =>
-        a.category === "protocol" ||
-        a.category === "reward" ||
-        a.type?.toUpperCase() === "REBALANCE"
-    )
-    .map((a) => {
-      // title and detail both fell back to `a.detail`, so every row without an
-      // amount printed the same sentence twice and never named its type.
-      const amount =
-        a.amount !== undefined
-          ? `${a.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${a.token ?? ""}`.trim()
-          : null;
-      return {
-        id: a.id,
-        title: ACTIVITY_LABEL[a.type] ?? a.type,
-        detail: amount ?? a.detail ?? "",
-        occurredAt: a.createdAt,
-      };
-    });
-
   return (
     <>
-      <FarmingDashboard
-        totalBalanceUsd={totalBalanceUsd}
-        totalDepositedUsd={totalDepositedUsd}
-        lifetimeEarningsUsd={lifetimeEarningsUsd}
-        lifetimeEarningsPct={lifetimeEarningsPct}
-        chartSeries={chartSeries}
-        agentEvents={agentEvents}
-        blendedApy={blendedApy}
-        currentPositionApr={currentPositionApr}
-        currentMarketName={currentMarketName}
-        activatedAt={activatedAt}
-        onAddFunds={() => {
-          setModalOpen(true);
-          setModalTab("fund");
-        }}
-        onDeactivate={() => {
-          setModalOpen(true);
-          setModalTab("security");
-        }}
-      />
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+        <header className="px-1 sm:px-2">
+          <h1 className="font-semibold text-2xl text-foreground tracking-tight">Farming</h1>
+          <p className="mt-1 text-muted-foreground text-sm">
+            Manage your automated vault and on-chain positions.
+          </p>
+        </header>
+
+        <FarmingVaultHeader
+          totalValueUsd={position.totalValueUsd}
+          totalValueAsset={position.totalValueAsset}
+          displayAsset={position.displayAsset}
+          assetPriceUsd={position.assetPriceUsd}
+          allTimePnlUsd={position.profitUsd}
+          allTimePnlAsset={position.profitAsset}
+          allTimePnlPercent={position.profitPercent}
+          allTimePnlPercentAsset={position.profitPercentAsset}
+          currentApy={position.currentApy}
+          status={position.status}
+          vaultAddress={position.keeperWalletAddress}
+          onDeposit={() => openModal("fund")}
+          onWithdraw={() => openModal("withdraw")}
+          onSecurity={() => openModal(isRevoked ? "activate" : "security")}
+        />
+
+        <FarmingStatusBanners
+          status={position.status}
+          balanceStale={Boolean(position.balanceStale)}
+          sessionKeyStale={Boolean(position.sessionKeyStale)}
+          onRefresh={() => openModal("security")}
+          onDeposit={() => openModal("fund")}
+        />
+
+        <GuardedBetaNotice variant="compact" />
+
+        <FarmingTabs value={activeTab} onValueChange={setActiveTab} />
+
+        <AnimatePresence mode="wait">
+          {activeTab === "overview" && (
+            <motion.section
+              key="overview"
+              id="farming-panel-overview"
+              role="tabpanel"
+              aria-labelledby="farming-tab-overview"
+              className="flex flex-col gap-6"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <PerformanceChart
+                data={portfolioHistory.data}
+                assetSymbol={position.displayAsset}
+                range={portfolioHistory.range}
+                isPlaceholder={portfolioHistory.isPlaceholder}
+                isLoading={portfolioHistory.isLoading}
+                onRangeChange={setHistoryRange}
+              />
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+                <FarmingAllocation
+                  positions={positionsList}
+                  unallocatedWalletUsd={unallocatedWalletUsd}
+                  isLoading={false}
+                />
+                <FarmingActivitySidebar
+                  activities={activitiesList}
+                  isLoading={activitiesLoading}
+                  onSeeAll={() => setActiveTab("activity")}
+                />
+              </div>
+              <FarmingPools
+                pools={registryPools}
+                isLoading={registryPoolsLoading}
+                inPositionKeys={inPositionKeys}
+                onSelectPool={setPoolDrawer}
+              />
+            </motion.section>
+          )}
+
+          {activeTab === "pools" && (
+            <motion.section
+              key="pools"
+              id="farming-panel-pools"
+              role="tabpanel"
+              aria-labelledby="farming-tab-pools"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <FarmingPools
+                pools={registryPools}
+                isLoading={registryPoolsLoading}
+                inPositionKeys={inPositionKeys}
+                onSelectPool={setPoolDrawer}
+              />
+            </motion.section>
+          )}
+
+          {activeTab === "strategy" && (
+            <section
+              key="strategy"
+              id="farming-panel-strategy"
+              role="tabpanel"
+              aria-labelledby="farming-tab-strategy"
+            >
+              <ManageTab
+                presets={presets}
+                presetsLoading={presetsLoading}
+                selectedPreset={selectedPreset}
+                onSelectPreset={(preset) => {
+                  actions.setActionError(null);
+                  setSelectedPreset(preset);
+                }}
+                currentPreset={position.preset}
+                previewAsset={strategyPreviewAsset}
+                onChangePreviewAsset={setStrategyPreviewAsset}
+                activeAssets={position.activeAssets ?? []}
+                isRevoked={isRevoked}
+                isUpdatingPreset={actions.isUpdatingPreset}
+                actionError={actions.actionError}
+                onApply={() => void handleApplyPreset()}
+                pools={registryPools}
+                poolsLoading={registryPoolsLoading}
+                inPositionKeys={inPositionKeys}
+                onSelectPool={setPoolDrawer}
+              />
+            </section>
+          )}
+
+          {activeTab === "activity" && (
+            <section
+              key="activity"
+              id="farming-panel-activity"
+              role="tabpanel"
+              aria-labelledby="farming-tab-activity"
+            >
+              <FarmingActivity
+                activities={activitiesList}
+                isLoading={activitiesLoading}
+                policyItems={policyTimeline.items}
+              />
+            </section>
+          )}
+
+          {activeTab === "rulebook" && (
+            <motion.section
+              key="rulebook"
+              id="farming-panel-rulebook"
+              role="tabpanel"
+              aria-labelledby="farming-tab-rulebook"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <RulebookPanel />
+            </motion.section>
+          )}
+        </AnimatePresence>
+      </main>
 
       <FarmingModals
         open={modalOpen}
@@ -416,13 +567,6 @@ function FarmingContent() {
         onWithdraw={handleWithdraw}
         onRevoke={handleRevoke}
         onReactivate={handleReactivate}
-      />
-
-      <ActivityDrawer
-        open={activityDrawerOpen}
-        onOpenChange={setActivityDrawerOpen}
-        activities={activitiesList}
-        isLoading={activitiesLoading}
       />
 
       <PoolDetailDrawer

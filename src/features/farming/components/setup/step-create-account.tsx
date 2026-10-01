@@ -1,11 +1,13 @@
 "use client";
 
 import { Check, ChevronLeft, Loader2 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useOnboardingDeploy } from "@/features/account/hooks/use-onboarding-deploy";
 import type { DeploySubStep, RiskPreset } from "@/features/account/types";
 import { cn } from "@/lib/utils";
+import { GUARDED_BETA_POINTS } from "@/shared/components/guarded-beta-notice";
+import { useAcceptBetaTerms, useBetaOptInStatus } from "@/shared/hooks/use-beta-opt-in";
 
 interface Props {
   publicKey: string;
@@ -16,25 +18,12 @@ interface Props {
 
 type TxState = "idle" | "active" | "done";
 
-function deployState(subStep: DeploySubStep, deployCompleted: boolean): TxState {
-  if (deployCompleted) return "done";
+function onboardingState(subStep: DeploySubStep, setupCompleted: boolean): TxState {
+  if (setupCompleted) return "done";
   if (
     subStep === "building_deploy" ||
     subStep === "signing_deploy" ||
-    subStep === "submitting_deploy"
-  ) {
-    return "active";
-  }
-  return "idle";
-}
-
-function setupTxState(
-  subStep: DeploySubStep,
-  setupCompleted: boolean,
-  deployCompleted: boolean
-): TxState {
-  if (setupCompleted) return "done";
-  if (
+    subStep === "submitting_deploy" ||
     subStep === "building_setup" ||
     subStep === "signing_setup" ||
     subStep === "submitting_setup" ||
@@ -42,7 +31,6 @@ function setupTxState(
   ) {
     return "active";
   }
-  if (deployCompleted) return "active";
   return "idle";
 }
 
@@ -63,6 +51,27 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
     if (allDone) onComplete();
   }, [allDone, onComplete]);
 
+  // SOW2 guarded beta: the backend refuses vault creation until the wallet
+  // accepts the current terms, so collect that explicitly before signing.
+  const betaStatus = useBetaOptInStatus(Boolean(publicKey));
+  const acceptTerms = useAcceptBetaTerms();
+  const alreadyOptedIn = betaStatus.data?.optedIn === true;
+  const [accepted, setAccepted] = useState(false);
+  const canStart = alreadyOptedIn || accepted;
+
+  const start = async () => {
+    if (deployErrorWasRejection) return void retry();
+    if (!alreadyOptedIn) {
+      try {
+        await acceptTerms.mutateAsync();
+      } catch {
+        toast.error("Could not record your beta opt-in. Please try again.");
+        return;
+      }
+    }
+    void deploy();
+  };
+
   const lastErrorRef = useRef<string | null>(null);
   useEffect(() => {
     if (!deployError) {
@@ -80,13 +89,12 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
     }
   }, [deployError, deployErrorWasRejection, retry]);
 
-  const txDeploy = deployState(deploySubStep, deployCompleted);
-  const txSetup = setupTxState(deploySubStep, setupCompleted, deployCompleted);
+  const txState = onboardingState(deploySubStep, setupCompleted);
 
   const ctaLabel = isDeploying
     ? "Signing..."
     : deployCompleted && !setupCompleted
-      ? "Continue (2 of 2)"
+      ? "Finish"
       : "Create";
 
   return (
@@ -108,21 +116,21 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
             Create Smart wallet
           </h1>
           <p className="mx-auto max-w-xl text-muted-foreground text-sm leading-relaxed md:text-base">
-            You'll sign <span className="font-semibold text-foreground">two transactions</span> in
-            your wallet - one to deploy your smart account, one to grant the agent permission to
-            rebalance. We never hold your keys.
+            You&apos;ll sign <span className="font-semibold text-foreground">one transaction</span>{" "}
+            in your wallet to create your smart account and apply its Phoenix Policy Guard limits
+            atomically. We never hold your keys.
           </p>
         </div>
 
         <button
           type="button"
-          onClick={() => (deployErrorWasRejection ? void retry() : void deploy())}
-          disabled={isDeploying}
+          onClick={() => void start()}
+          disabled={isDeploying || acceptTerms.isPending || !canStart}
           aria-label={ctaLabel}
           className={cn(
             "relative flex h-[240px] w-[240px] shrink-0 items-center justify-center rounded-full font-medium text-lg text-zinc-900 transition-transform duration-200 md:h-[280px] md:w-[280px] md:text-xl",
-            !isDeploying && "hover:scale-[1.02] active:scale-[0.99]",
-            isDeploying && "cursor-not-allowed opacity-90"
+            !isDeploying && canStart && "hover:scale-[1.02] active:scale-[0.99]",
+            (isDeploying || !canStart) && "cursor-not-allowed opacity-60"
           )}
           style={{
             background:
@@ -134,11 +142,28 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
           {isDeploying ? <Loader2 className="h-7 w-7 animate-spin" /> : ctaLabel}
         </button>
 
-        <div className="flex items-center gap-3 md:gap-5">
-          <TxLabeledCircle index={1} label="Deploy" state={txDeploy} />
-          <div className="h-px w-12 bg-border md:w-20" />
-          <TxLabeledCircle index={2} label="Setup" state={txSetup} />
-        </div>
+        <TxLabeledCircle index={1} label="Create + Policy" state={txState} />
+
+        {!alreadyOptedIn && (
+          <label className="flex max-w-xl cursor-pointer items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-left text-sm">
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4 shrink-0 accent-amber-400"
+              checked={accepted}
+              onChange={(e) => setAccepted(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-foreground">
+                I join the guarded mainnet beta and understand that:
+              </span>
+              <ul className="mt-1 list-disc space-y-0.5 pl-4 text-muted-foreground">
+                {GUARDED_BETA_POINTS.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            </span>
+          </label>
+        )}
       </div>
     </div>
   );
