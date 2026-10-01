@@ -9,6 +9,7 @@ import type { RiskPreset } from "@/features/account/types";
 import { usePolicyTimeline } from "@/features/transparency/api/policy-timeline";
 import { RulebookPanel } from "@/features/transparency/components/rulebook-page";
 import { isNotFoundError } from "@/lib/query-error";
+import { GuardedBetaNotice } from "@/shared/components/guarded-beta-notice";
 import { Button } from "@/shared/ui/button";
 import { useWalletHydrated, useWalletStore } from "@/store/use-wallet";
 import { useFarmingActions } from "../hooks/use-farming-actions";
@@ -401,6 +402,8 @@ function FarmingContent() {
           onRefresh={() => openModal("security")}
           onDeposit={() => openModal("fund")}
         />
+
+        <GuardedBetaNotice variant="compact" />
 
         <FarmingTabs value={activeTab} onValueChange={setActiveTab} />
 

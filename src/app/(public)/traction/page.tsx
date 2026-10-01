@@ -3,6 +3,7 @@ import Link from "next/link";
 import { TractionDashboard } from "@/features/traction";
 import { FeePage } from "@/features/transparency/components/fee-page";
 import { cn } from "@/lib/utils";
+import { GuardedBetaNotice } from "@/shared/components/guarded-beta-notice";
 
 export const metadata: Metadata = {
   title: "Tasmil - Traction",
@@ -46,6 +47,9 @@ export default async function TractionPage({
           </Link>
         ))}
       </nav>
+      <div className="mx-auto w-full max-w-5xl px-4 pt-4">
+        <GuardedBetaNotice />
+      </div>
       {active === "fees" ? <FeePage /> : <TractionDashboard />}
     </>
   );
