@@ -49,7 +49,7 @@ export function FarmingVaultHeader({
   return (
     <motion.section
       data-onborda="farming-header"
-      className="overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-primary/10 via-card to-background p-4 sm:p-6"
+      className="overflow-hidden rounded-2xl border border-border/50 bg-card p-4 sm:p-6"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
