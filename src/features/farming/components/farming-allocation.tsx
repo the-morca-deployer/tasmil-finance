@@ -72,7 +72,7 @@ export function FarmingAllocation({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+      <div className="flex flex-col gap-4 self-start rounded-2xl border border-border bg-card p-4 sm:p-6">
         <div className="flex items-center gap-2">
           <Skeleton className="h-5 w-32" />
         </div>
@@ -85,7 +85,7 @@ export function FarmingAllocation({
   // No positions - show chart-like empty state (matching Performance card shape)
   if (positions.length === 0) {
     return (
-      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+      <div className="flex flex-col gap-4 self-start rounded-2xl border border-border bg-card p-4 sm:p-6">
         <div className="flex items-center gap-2">
           <h2 className="font-semibold text-foreground text-xl">Allocation</h2>
           <Info className="h-4 w-4 text-muted-foreground" />
@@ -104,7 +104,7 @@ export function FarmingAllocation({
   // Has positions - donut chart + legend
   return (
     <motion.div
-      className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:p-6"
+      className="flex flex-col gap-4 self-start rounded-2xl border border-border bg-card p-4 sm:p-6"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
