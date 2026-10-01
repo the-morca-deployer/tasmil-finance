@@ -74,12 +74,16 @@ describe("useFarmingActions", () => {
     expect(mocks.withdrawMutate).not.toHaveBeenCalled();
   });
 
-  it("withdraw: signs xdrs and signedXdrs paths; only last submit gets txType", async () => {
+  it("withdraw: records the simulated asset payout for each owner-signed xdr", async () => {
     mocks.withdrawMutate.mockResolvedValue({
       xdrs: ["xdr-a"],
       signedXdrs: ["pre-signed-b"],
     });
-    mocks.finalizeWithdrawMutate.mockResolvedValue({ xdr: "finalized-owner-xdr" });
+    mocks.finalizeWithdrawMutate.mockResolvedValue({
+      xdr: "finalized-owner-xdr",
+      payoutAmount: 4.5791222,
+      payoutToken: "XLM",
+    });
     mocks.submitTxMutate.mockResolvedValue({});
     const { result } = renderHook(() => useFarmingActions("GABC"));
     await act(async () => {
@@ -90,16 +94,17 @@ describe("useFarmingActions", () => {
       publicKey: "GABC",
       authSignedXdr: "auth-signed-xdr",
     });
-    // First submit (client-signed xdr): no txType because signedXdrs follows
     expect(mocks.submitTxMutate).toHaveBeenNthCalledWith(1, {
       signedXdr: "signed-xdr",
       publicKey: "GABC",
+      txType: "withdraw",
+      amount: 4.5791222,
+      token: "XLM",
     });
-    // Last submit (pre-signed): tagged with txType
-    expect(mocks.submitTxMutate).toHaveBeenNthCalledWith(
-      2,
-      expect.objectContaining({ signedXdr: "pre-signed-b", txType: "withdraw", amount: 50 })
-    );
+    expect(mocks.submitTxMutate).toHaveBeenNthCalledWith(2, {
+      signedXdr: "pre-signed-b",
+      publicKey: "GABC",
+    });
   });
 
   it("revoke: signs and submits with txType=revoke", async () => {
