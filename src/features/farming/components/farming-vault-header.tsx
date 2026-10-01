@@ -1,9 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDownToLine, ArrowUpFromLine, ShieldCheck, ShieldOff, Tractor } from "lucide-react";
+import {
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  ExternalLink,
+  ShieldCheck,
+  ShieldOff,
+  Tractor,
+} from "lucide-react";
 import type { AccountStatus } from "@/features/account/types";
 import { cn } from "@/lib/utils";
+import { WalletAvatar } from "@/shared/components/wallet-avatar";
 import { Button } from "@/shared/ui/button";
 
 const STATUS_LABEL: Record<AccountStatus, string> = {
@@ -28,6 +36,8 @@ interface FarmingVaultHeaderProps {
   allTimePnlPercent: number;
   currentApy: number;
   status: AccountStatus;
+  /** Keeper-wallet (vault) contract address; shows its avatar + explorer link. */
+  vaultAddress?: string;
   onDeposit: () => void;
   onWithdraw: () => void;
   onSecurity: () => void;
@@ -39,6 +49,7 @@ export function FarmingVaultHeader({
   allTimePnlPercent,
   currentApy,
   status,
+  vaultAddress,
   onDeposit,
   onWithdraw,
   onSecurity,
@@ -56,19 +67,23 @@ export function FarmingVaultHeader({
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
         <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-          <div
-            className={cn(
-              "flex size-12 shrink-0 items-center justify-center rounded-full sm:size-14",
-              status === "ACTIVE" ? "bg-primary/15" : "bg-muted/30"
-            )}
-          >
-            <Tractor
+          {vaultAddress ? (
+            <WalletAvatar address={vaultAddress} size={56} className="size-12 sm:size-14" />
+          ) : (
+            <div
               className={cn(
-                "size-5 sm:size-6",
-                status === "ACTIVE" ? "text-primary" : "text-muted-foreground"
+                "flex size-12 shrink-0 items-center justify-center rounded-full sm:size-14",
+                status === "ACTIVE" ? "bg-primary/15" : "bg-muted/30"
               )}
-            />
-          </div>
+            >
+              <Tractor
+                className={cn(
+                  "size-5 sm:size-6",
+                  status === "ACTIVE" ? "text-primary" : "text-muted-foreground"
+                )}
+              />
+            </div>
+          )}
 
           <div className="min-w-0">
             <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -85,6 +100,18 @@ export function FarmingVaultHeader({
               >
                 {STATUS_LABEL[status]}
               </span>
+              {vaultAddress && (
+                <a
+                  href={`https://stellar.expert/explorer/public/contract/${vaultAddress}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 font-mono text-muted-foreground text-xs hover:text-foreground"
+                  title={vaultAddress}
+                >
+                  Vault {vaultAddress.slice(0, 4)}...{vaultAddress.slice(-4)}
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
             </div>
             <p className="font-semibold text-3xl text-foreground tracking-tight sm:text-4xl">
               {formatUsd(totalValueUsd)}
@@ -115,12 +142,9 @@ export function FarmingVaultHeader({
             Withdraw
           </Button>
           <Button
-            variant={isRevoked ? "gradient" : "ghost"}
+            variant={isRevoked ? "gradient" : "destructive"}
             onClick={onSecurity}
-            className={cn(
-              "col-span-2 h-10 gap-2 rounded-full px-4 sm:col-span-1",
-              !isRevoked && "text-muted-foreground"
-            )}
+            className="col-span-2 h-10 gap-2 rounded-full px-4 sm:col-span-1"
           >
             {isRevoked ? <ShieldCheck className="h-4 w-4" /> : <ShieldOff className="h-4 w-4" />}
             {isRevoked ? "Activate Session Key" : "Revoke"}

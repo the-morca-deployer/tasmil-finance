@@ -40,6 +40,8 @@
     "@ag-ui/core": "^0.0.52",
     "@allbridge/bridge-core-sdk": "^3.30.0",
     "@creit.tech/stellar-wallets-kit": "^2.1.0",
+    "@dicebear/core": "^10.7.0",
+    "@dicebear/styles": "^10.6.0",
     "@kubb/plugin-client": "^4.9.3",
     "@langchain/core": "^1.1.8",
     "@langchain/langgraph": "^1.0.7",

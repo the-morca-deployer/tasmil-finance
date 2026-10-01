@@ -1,11 +1,32 @@
 "use client";
 
-import { AlertTriangle, ExternalLink, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ExternalLink,
+  KeyRound,
+  Loader2,
+  LogOut,
+  RefreshCw,
+  ShieldAlert,
+  ShieldCheck,
+  XCircle,
+} from "lucide-react";
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { TokenImage } from "@/shared/components/token-image";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
+import { CopyButton } from "@/shared/ui/copy-button";
 import type { Rulebook } from "../api/adapters";
 import { useRulebook } from "../api/use-rulebook";
+import {
+  assetSymbol,
+  formatTokenAmount,
+  ledgersToDuration,
+  shortAddress,
+  usedPercent,
+} from "./rulebook-format";
 
 function fixed(raw: string, decimals: number): string {
   const negative = raw.startsWith("-");
@@ -34,156 +55,299 @@ function StateCard({ children }: { children: ReactNode }) {
   return <Card className="border-white/10 bg-white/3 p-8 text-center">{children}</Card>;
 }
 
-function RulebookContent({ rulebook }: { rulebook: Rulebook }) {
+const STATUS_STYLES: Record<string, string> = {
+  Active: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+  Revoked: "border-destructive/30 bg-destructive/10 text-destructive",
+  Expired: "border-white/15 bg-white/5 text-muted-foreground",
+};
+
+function AddressChip({ value, href }: { value: string; href?: string }) {
   return (
-    <>
-      <Card className="border-white/10 bg-white/3 p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+    <span className="inline-flex items-center gap-1 font-mono text-muted-foreground text-xs">
+      {href ? (
+        <a
+          className="hover:text-foreground hover:underline"
+          href={href}
+          rel="noreferrer"
+          target="_blank"
+          title={value}
+        >
+          {shortAddress(value)}
+        </a>
+      ) : (
+        <span title={value}>{shortAddress(value)}</span>
+      )}
+      <CopyButton text={value} iconSize="h-3 w-3" />
+    </span>
+  );
+}
+
+function AssetChip({ asset }: { asset: string }) {
+  const symbol = assetSymbol(asset);
+  if (!symbol) return <AddressChip value={asset} />;
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 py-0.5 pr-2.5 pl-1 font-medium text-xs">
+      <TokenImage alt={symbol} className="h-4 w-4 rounded-full" width={16} height={16} />
+      {symbol}
+    </span>
+  );
+}
+
+function UsageBar({ percent }: { percent: number }) {
+  return (
+    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+      <div
+        className={cn(
+          "h-full rounded-full",
+          percent >= 90 ? "bg-destructive" : percent >= 70 ? "bg-amber-400" : "bg-emerald-400"
+        )}
+        style={{ width: `${percent}%` }}
+      />
+    </div>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  hint,
+  children,
+}: {
+  label: string;
+  value: ReactNode;
+  hint?: ReactNode;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/2 p-4">
+      <p className="text-muted-foreground text-xs">{label}</p>
+      <p className="mt-1 font-semibold text-lg tabular-nums">{value}</p>
+      {children}
+      {hint && <p className="mt-1 text-muted-foreground text-xs tabular-nums">{hint}</p>}
+    </div>
+  );
+}
+
+/** Symbol shared by every rule of a session, so cumulative base units can be labelled. */
+function sessionAssetSymbol(session: RulebookSession): string | null {
+  const symbols = new Set(session.rules.map((rule) => assetSymbol(rule.amount.asset)));
+  return symbols.size === 1 ? ([...symbols][0] ?? null) : null;
+}
+
+function amountLabel(raw: string, symbol: string | null): string {
+  return symbol ? `${formatTokenAmount(raw)} ${symbol}` : `${raw} base units`;
+}
+
+function SessionCard({
+  session,
+  readAtLedger,
+}: {
+  session: RulebookSession;
+  readAtLedger: string;
+}) {
+  const status = sessionStatus(session, readAtLedger);
+  const symbol = sessionAssetSymbol(session);
+  const ledgersLeft = BigInt(session.expiresAtLedger) - BigInt(readAtLedger);
+  const cooldown = BigInt(session.coolDownLedgers);
+  const contracts = session.allowedContracts.length;
+
+  return (
+    <Card className="border-white/10 bg-white/3 p-5 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex size-9 items-center justify-center rounded-full bg-primary/10">
+            <KeyRound className="h-4 w-4 text-primary" />
+          </div>
           <div>
-            <p className="text-muted-foreground text-xs uppercase tracking-wider">Policy guard</p>
-            <p className="mt-1 font-medium text-lg">
-              {rulebook.killSwitch ? "Kill switch is ON" : "Kill switch is off"}
-            </p>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-muted-foreground text-sm">
-              <span>Read at ledger {rulebook.readAtLedger}</span>
-              <span className="rounded-md border border-white/10 px-1.5 py-0.5 text-[10px] uppercase">
-                {rulebook.network}
-              </span>
+            <p className="font-semibold">Agent session key</p>
+            <AddressChip value={session.pubkey} />
+          </div>
+        </div>
+        <span
+          className={cn(
+            "rounded-full border px-2.5 py-1 font-medium text-xs",
+            STATUS_STYLES[status]
+          )}
+        >
+          {status}
+        </span>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat
+          label="Spent in current window"
+          value={`${symbol ? formatTokenAmount(session.cumulative.spent) : session.cumulative.spent} / ${amountLabel(session.cumulative.limit, symbol)}`}
+          hint={`Window resets every ${ledgersToDuration(BigInt(session.cumulative.windowLedgers))}`}
+        >
+          <UsageBar percent={usedPercent(session.cumulative.spent, session.cumulative.limit)} />
+        </Stat>
+        <Stat
+          label="Agent calls today"
+          value={`${session.dailyCalls.used} / ${session.maxCallsPerDay}`}
+        >
+          <UsageBar percent={usedPercent(session.dailyCalls.used, session.maxCallsPerDay)} />
+        </Stat>
+        <Stat
+          label="Expires in"
+          value={ledgersLeft > 0n ? ledgersToDuration(ledgersLeft) : "Ended"}
+          hint={`At ledger ${session.expiresAtLedger}`}
+        />
+        <Stat
+          label="Cooldown between actions"
+          value={cooldown > 0n ? ledgersToDuration(cooldown) : "None"}
+          hint={`${session.coolDownLedgers} ledgers`}
+        />
+      </div>
+
+      <div className="mt-6">
+        <p className="mb-3 font-medium text-sm">What the agent may do</p>
+        <div className="space-y-3">
+          {session.rules.map((rule) => {
+            const ruleSymbol = assetSymbol(rule.amount.asset);
+            return (
+              <div
+                key={`${rule.contract}:${rule.selector}`}
+                className="rounded-xl border border-white/10 bg-white/2 p-4"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {rule.allowed ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-destructive" />
+                    )}
+                    <span className="font-medium capitalize">{rule.selector}</span>
+                    <AssetChip asset={rule.amount.asset} />
+                    <span className="text-muted-foreground text-xs">on</span>
+                    <AddressChip
+                      value={rule.contract}
+                      href={`https://stellar.expert/explorer/public/contract/${rule.contract}`}
+                    />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-muted-foreground text-xs">Max per transaction</p>
+                    <p className="font-semibold tabular-nums">
+                      {ruleSymbol
+                        ? `${formatTokenAmount(rule.perTx.limit)} ${ruleSymbol}`
+                        : "See base units"}
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      <span className="font-mono">{rule.perTx.limit}</span> base units
+                    </p>
+                  </div>
+                </div>
+
+                {rule.conversionEvidence ? (
+                  <div className="mt-3 border-white/10 border-t pt-3 text-muted-foreground text-xs">
+                    <p className="text-foreground text-sm">
+                      Worth {usdE7(rule.conversionEvidence.usdValueE7)} at scope set
+                    </p>
+                    <p className="mt-1">
+                      Rate{" "}
+                      {fixed(rule.conversionEvidence.rateRaw, rule.conversionEvidence.rateDecimals)}{" "}
+                      USD, set at ledger {rule.conversionEvidence.setAtLedger}, price published{" "}
+                      {new Date(Number(rule.conversionEvidence.ratePublishedAtMs)).toISOString()}.
+                      The contract enforces token units, not this USD figure.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="mt-3 text-muted-foreground text-xs">
+                    No USD reference price was recorded when this limit was set; the limit is
+                    enforced in token units.
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <p className="mt-5 text-muted-foreground text-xs">
+        The agent can only call {contracts} approved contract{contracts === 1 ? "" : "s"}, at most{" "}
+        {session.maxCallsPerDay} times a day, within the limits above.
+      </p>
+    </Card>
+  );
+}
+
+function RulebookContent({ rulebook }: { rulebook: Rulebook }) {
+  const killed = rulebook.killSwitch;
+  return (
+    <div className="space-y-4">
+      <Card className="border-white/10 bg-white/3 p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div
+              className={cn(
+                "flex size-11 shrink-0 items-center justify-center rounded-full",
+                killed ? "bg-amber-500/15" : "bg-emerald-500/15"
+              )}
+            >
+              {killed ? (
+                <ShieldAlert className="h-5 w-5 text-amber-400" />
+              ) : (
+                <ShieldCheck className="h-5 w-5 text-emerald-400" />
+              )}
+            </div>
+            <div>
+              <p className="font-semibold text-lg">
+                {killed ? "Agent automation is blocked" : "Policy Guard is protecting your vault"}
+              </p>
+              <div className="mt-1.5 flex flex-wrap items-center gap-2 text-muted-foreground text-sm">
+                <span
+                  className={cn(
+                    "rounded-full px-2 py-0.5 font-medium text-xs",
+                    killed ? "bg-amber-500/15 text-amber-300" : "bg-white/5 text-foreground"
+                  )}
+                >
+                  {killed ? "Kill switch is ON" : "Kill switch is off"}
+                </span>
+                <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase">
+                  {rulebook.network}
+                </span>
+                <span>Read at ledger {rulebook.readAtLedger}</span>
+              </div>
             </div>
           </div>
-          <a
-            className="inline-flex max-w-full items-center gap-2 break-all font-mono text-blue-400 text-xs hover:underline"
-            href={rulebook.explorerUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Open contract on Stellar.expert <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-          </a>
+          <div className="flex flex-col items-start gap-1 sm:items-end">
+            <a
+              className="inline-flex items-center gap-1.5 text-blue-400 text-sm hover:underline"
+              href={rulebook.explorerUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open contract on Stellar.expert <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+            </a>
+            <AddressChip value={rulebook.contract} />
+          </div>
         </div>
-        <p className="mt-4 break-all font-mono text-muted-foreground text-xs">
-          Contract {rulebook.contract}
-        </p>
-        {rulebook.killSwitch && (
+        {killed && (
           <div className="mt-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-amber-200 text-sm">
             Automated session-key actions are blocked while the kill switch is on.
           </div>
         )}
       </Card>
 
-      <div className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm">
-        <strong>Owner can always exit.</strong> Session policies restrict automation; they do not
-        remove the owner-authorized withdrawal path.
+      <div className="flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm">
+        <LogOut className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+        <p>
+          <strong>Owner can always exit.</strong> These rules only limit what the agent can do; you
+          can always withdraw with your own wallet.
+        </p>
       </div>
 
       {rulebook.sessions.length === 0 ? (
         <StateCard>No active policy sessions were found on-chain.</StateCard>
       ) : (
-        <div className="mt-6 space-y-4">
-          {rulebook.sessions.map((session) => {
-            const status = sessionStatus(session, rulebook.readAtLedger);
-            return (
-              <Card key={session.pubkey} className="border-white/10 bg-white/3 p-5">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="font-semibold">Session key</p>
-                    <p className="mt-1 break-all font-mono text-muted-foreground text-xs">
-                      {session.pubkey}
-                    </p>
-                  </div>
-                  <span className="rounded-full border border-white/15 px-2.5 py-1 text-xs">
-                    {status}
-                  </span>
-                </div>
-
-                <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
-                  <div>
-                    <dt className="text-muted-foreground">Expires at ledger</dt>
-                    <dd className="font-mono">{session.expiresAtLedger}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Daily calls</dt>
-                    <dd>
-                      {session.dailyCalls.used} / {session.maxCallsPerDay}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Cumulative spend</dt>
-                    <dd className="font-mono">
-                      {session.cumulative.spent} / {session.cumulative.limit}
-                    </dd>
-                  </div>
-                </dl>
-
-                <div className="mt-5 space-y-3">
-                  {session.rules.map((rule) => (
-                    <div
-                      key={`${rule.contract}:${rule.selector}`}
-                      className="rounded-lg border border-white/10 p-4"
-                    >
-                      <div className="flex flex-wrap justify-between gap-2">
-                        <p className="flex flex-wrap items-center gap-2 font-medium">
-                          <span>{rule.selector}</span>
-                          <span className="rounded-md bg-white/5 px-1.5 py-0.5 text-xs">
-                            {rule.amount.asset}
-                          </span>
-                        </p>
-                        <span className="text-muted-foreground text-xs">
-                          {rule.allowed ? "Allowed" : "Blocked"}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-muted-foreground text-xs">
-                        Token-base per-tx ceiling
-                      </p>
-                      <p className="break-all font-mono text-lg">{rule.perTx.limit}</p>
-                      <p className="text-muted-foreground text-xs">{rule.perTx.denom}</p>
-
-                      {rule.conversionEvidence ? (
-                        <div className="mt-3 border-white/10 border-t pt-3 text-sm">
-                          <p>{usdE7(rule.conversionEvidence.usdValueE7)} at scope set</p>
-                          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground text-xs">
-                            <span>
-                              Rate{" "}
-                              {fixed(
-                                rule.conversionEvidence.rateRaw,
-                                rule.conversionEvidence.rateDecimals
-                              )}{" "}
-                              USD
-                            </span>
-                            <span>Ledger {rule.conversionEvidence.setAtLedger}</span>
-                            <span>
-                              Published{" "}
-                              {new Date(
-                                Number(rule.conversionEvidence.ratePublishedAtMs)
-                              ).toISOString()}
-                            </span>
-                          </div>
-                          <p className="mt-1 text-amber-200/80 text-xs">
-                            Informational conversion captured at scope set; the contract
-                            continuously enforces token base units, not this USD figure.
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="mt-3 text-amber-200/80 text-xs">
-                          Scope-set USD conversion evidence unavailable. No current price was
-                          substituted.
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                <p className="mt-4 text-muted-foreground text-xs">
-                  Restricted to {session.allowedContracts.length} approved contract(s), listed
-                  function selectors, {session.maxCallsPerDay} calls/day, cooldown{" "}
-                  {session.coolDownLedgers} ledgers, and the displayed per-transaction/cumulative
-                  ceilings.
-                </p>
-              </Card>
-            );
-          })}
-        </div>
+        rulebook.sessions.map((session) => (
+          <SessionCard
+            key={session.pubkey}
+            session={session}
+            readAtLedger={rulebook.readAtLedger}
+          />
+        ))
       )}
-    </>
+    </div>
   );
 }
 
@@ -261,16 +425,10 @@ export function RulebookPage() {
 export function RulebookPanel() {
   const state = useRulebook();
   return (
-    <section className="mx-auto max-w-4xl px-4 pb-8">
-      <div className="mb-6 flex items-center gap-3">
-        <ShieldCheck className="h-7 w-7 text-emerald-400" />
-        <div>
-          <h2 className="font-bold text-2xl">My Rulebook</h2>
-          <p className="text-muted-foreground text-sm">
-            Live policy state read from Stellar ledger
-          </p>
-        </div>
-      </div>
+    <section className="w-full pb-8" aria-label="My Rulebook">
+      <p className="mb-4 text-muted-foreground text-sm">
+        Live limits your vault enforces on the agent, read directly from the Stellar ledger.
+      </p>
       <RulebookBody state={state} />
     </section>
   );

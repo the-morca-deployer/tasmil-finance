@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ChevronRight, TrendingUp } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { TokenImage } from "@/shared/components/token-image";
 import { Skeleton } from "@/shared/ui/skeleton";
@@ -19,6 +20,15 @@ function formatCompactUsd(value: number): string {
 
 function formatApyPercent(apyDecimal: number): string {
   return `${(apyDecimal * 100).toFixed(2)}%`;
+}
+
+// Protocols with a logo in public/protocols/. Others render the name only,
+// so a newly discovered protocol never shows a broken image.
+const PROTOCOL_LOGOS = new Set(["aquarius", "blend", "phoenix", "soroswap", "defindex", "sdex"]);
+
+function protocolLogo(protocol: string): string | null {
+  const key = protocol.toLowerCase();
+  return PROTOCOL_LOGOS.has(key) ? `/protocols/${key}.svg` : null;
 }
 
 function riskBadge(score: number): { label: string; className: string } {
@@ -211,7 +221,16 @@ export function FarmingPools({
                     </div>
                     {/* Wire value is upper-case ("BLEND"); lower it first so
                       `capitalize` renders "Blend" rather than "BLEND". */}
-                    <span className="text-muted-foreground text-xs capitalize">
+                    <span className="flex items-center gap-1.5 text-muted-foreground text-xs capitalize">
+                      {protocolLogo(pool.protocol) && (
+                        <Image
+                          src={protocolLogo(pool.protocol) as string}
+                          alt=""
+                          width={14}
+                          height={14}
+                          className="h-3.5 w-3.5 rounded-full"
+                        />
+                      )}
                       {pool.protocol.toLowerCase()}
                     </span>
                   </div>

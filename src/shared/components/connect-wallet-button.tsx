@@ -10,7 +10,7 @@ import { Flame, PtsCoin } from "@/features/quest/components/icons";
 import { $ } from "@/features/quest/lib/kubb-config";
 import { RANK_STYLES, rankFromPoints } from "@/features/quest/lib/tier";
 import { useUsersControllerGetMe } from "@/gen-quest/hooks";
-import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
+import { WalletAvatar } from "@/shared/components/wallet-avatar";
 import { activeNetwork, getExplorerUrl, isMainnet } from "@/shared/config/stellar";
 import { useWallet } from "@/shared/context/wallet-context";
 import { Button } from "@/shared/ui/button";
@@ -57,7 +57,7 @@ function sizeClassToPx(size: string): number {
 }
 
 const AddressAvatar = ({ address, size = "size-12" }: AddressAvatarProps) => (
-  <TasmilAvatar seed={address} size={sizeClassToPx(size)} />
+  <WalletAvatar address={address} size={sizeClassToPx(size)} />
 );
 
 interface ConnectWalletButtonProps {

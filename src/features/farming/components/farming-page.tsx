@@ -386,6 +386,7 @@ function FarmingContent() {
           allTimePnlPercent={position.profitPercent}
           currentApy={position.currentApy}
           status={position.status}
+          vaultAddress={position.keeperWalletAddress}
           onDeposit={() => openModal("fund")}
           onWithdraw={() => openModal("withdraw")}
           onSecurity={() => openModal(isRevoked ? "activate" : "security")}

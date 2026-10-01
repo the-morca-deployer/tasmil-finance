@@ -18,6 +18,7 @@ const config: Config = {
   moduleNameMapper: {
     "^react-markdown$": "<rootDir>/src/lib/test-utils/react-markdown-mock.tsx",
     "^boring-avatars$": "<rootDir>/src/lib/test-utils/boring-avatars-mock.tsx",
+    "^@dicebear/core$": "<rootDir>/src/lib/test-utils/dicebear-core-mock.ts",
     // uuid@13 is ESM-only and next/jest always ignores node_modules for
     // transforms, so bare `uuid` imports have to resolve to a CJS equivalent.
     "^uuid$": "<rootDir>/src/lib/test-utils/uuid-mock.ts",

@@ -17,7 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { BrandLogo } from "@/shared/components/brand-logo";
 import { ConnectWalletButton } from "@/shared/components/connect-wallet-button";
-import { TasmilAvatar } from "@/shared/components/tasmil-avatar";
+import { WalletAvatar } from "@/shared/components/wallet-avatar";
 import { useWallet } from "@/shared/context/wallet-context";
 import { sidebarData } from "@/shared/layout/sidebar-data";
 import { Badge } from "@/shared/ui/badge";
@@ -97,7 +97,7 @@ export function MobileSidebarContent({ onClose }: { onClose?: () => void }) {
         {isConnected && address && (
           <div className="flex flex-col gap-3 border-border border-b pb-4">
             <div className="flex items-center gap-2.5">
-              <TasmilAvatar seed={address} size={36} className="flex-none" />
+              <WalletAvatar address={address} size={36} className="flex-none" />
               <div className="flex min-w-0 flex-col">
                 <span className="font-mono text-quest-text text-sm">{displayAddress}</span>
                 <span className="mt-0.5 flex items-center gap-1.5">
