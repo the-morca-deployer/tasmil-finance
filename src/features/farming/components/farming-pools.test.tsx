@@ -39,6 +39,11 @@ describe("FarmingPools", () => {
     expect(screen.getByText("USDC")).toBeInTheDocument();
     expect(screen.getByText("5.00%")).toBeInTheDocument();
   });
+
+  it("contains the wide grid inside a horizontal scroll boundary", () => {
+    render(<FarmingPools pools={[samplePool]} isLoading={false} />);
+    expect(screen.getByTestId("farming-pools-scroll")).toHaveClass("overflow-x-auto");
+  });
 });
 
 const usdcPool = { ...samplePool, id: "p-usdc", assetSymbol: "USDC" } as DiscoveredPool;
