@@ -5,8 +5,10 @@ import { Loader2, Wallet } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useActivity, usePosition } from "@/features/account/hooks/use-account-api";
+import { RulebookPanel } from "@/features/transparency/components/rulebook-page";
 import { isNotFoundError } from "@/lib/query-error";
 import { Button } from "@/shared/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { useWalletHydrated, useWalletStore } from "@/store/use-wallet";
 import { useFarmingActions } from "../hooks/use-farming-actions";
 import { usePools } from "../hooks/use-farming-api";
@@ -41,7 +43,7 @@ function GetStartedEmptyState({ resuming, onStart }: { resuming: boolean; onStar
       <p className="mb-6 max-w-md text-muted-foreground text-sm">
         {resuming
           ? "Your previous setup didn't finish. Pick up where you left off - your selections are saved."
-          : "Choose the asset and strategy your agent will use. Two wallet signatures, ~30 seconds."}
+          : "Choose the asset and strategy your agent will use. One wallet signature, ~30 seconds."}
       </p>
       <Button
         variant="gradient"
@@ -64,6 +66,7 @@ function FarmingContent() {
   const publicKey = account ?? undefined;
 
   const tabParam = searchParams.get("tab");
+  const activeTab = tabParam === "rulebook" ? "rulebook" : "overview";
 
   const [activityDrawerOpen, setActivityDrawerOpen] = useState(false);
   const [poolDrawer, setPoolDrawer] = useState<DiscoveredPool | null>(null);
@@ -378,26 +381,44 @@ function FarmingContent() {
 
   return (
     <>
-      <FarmingDashboard
-        totalBalanceUsd={totalBalanceUsd}
-        totalDepositedUsd={totalDepositedUsd}
-        lifetimeEarningsUsd={lifetimeEarningsUsd}
-        lifetimeEarningsPct={lifetimeEarningsPct}
-        chartSeries={chartSeries}
-        agentEvents={agentEvents}
-        blendedApy={blendedApy}
-        currentPositionApr={currentPositionApr}
-        currentMarketName={currentMarketName}
-        activatedAt={activatedAt}
-        onAddFunds={() => {
-          setModalOpen(true);
-          setModalTab("fund");
-        }}
-        onDeactivate={() => {
-          setModalOpen(true);
-          setModalTab("security");
-        }}
-      />
+      <div className="mx-auto flex w-full max-w-7xl justify-center px-4 pt-5">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) =>
+            router.replace(value === "rulebook" ? "/farming?tab=rulebook" : "/farming")
+          }
+        >
+          <TabsList>
+            <TabsTrigger value="overview">Vault overview</TabsTrigger>
+            <TabsTrigger value="rulebook">My Rulebook</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {activeTab === "rulebook" ? (
+        <RulebookPanel />
+      ) : (
+        <FarmingDashboard
+          totalBalanceUsd={totalBalanceUsd}
+          totalDepositedUsd={totalDepositedUsd}
+          lifetimeEarningsUsd={lifetimeEarningsUsd}
+          lifetimeEarningsPct={lifetimeEarningsPct}
+          chartSeries={chartSeries}
+          agentEvents={agentEvents}
+          blendedApy={blendedApy}
+          currentPositionApr={currentPositionApr}
+          currentMarketName={currentMarketName}
+          activatedAt={activatedAt}
+          onAddFunds={() => {
+            setModalOpen(true);
+            setModalTab("fund");
+          }}
+          onDeactivate={() => {
+            setModalOpen(true);
+            setModalTab("security");
+          }}
+        />
+      )}
 
       <FarmingModals
         open={modalOpen}

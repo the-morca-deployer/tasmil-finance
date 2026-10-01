@@ -1,5 +1,5 @@
-import { RulebookPage } from "@/features/transparency/components/rulebook-page";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <RulebookPage />;
+  redirect("/farming?tab=rulebook");
 }

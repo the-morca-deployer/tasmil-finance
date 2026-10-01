@@ -242,3 +242,24 @@ export function RulebookPage() {
     </main>
   );
 }
+
+/** Embedded Farming tab: the rulebook belongs to the user's vault, not to a
+ * separate product surface. It reuses the exact same live-ledger query and
+ * states as the legacy route. */
+export function RulebookPanel() {
+  const state = useRulebook();
+  return (
+    <section className="mx-auto max-w-4xl px-4 pb-8">
+      <div className="mb-6 flex items-center gap-3">
+        <ShieldCheck className="h-7 w-7 text-emerald-400" />
+        <div>
+          <h2 className="font-bold text-2xl">My Rulebook</h2>
+          <p className="text-muted-foreground text-sm">
+            Live policy state read from Stellar ledger
+          </p>
+        </div>
+      </div>
+      <RulebookBody state={state} />
+    </section>
+  );
+}

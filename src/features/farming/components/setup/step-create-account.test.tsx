@@ -29,10 +29,10 @@ beforeEach(() => {
 });
 
 describe("StepCreateAccount", () => {
-  it("renders title, two-tx explainer, and Sign orb", () => {
+  it("renders title, one-transaction explainer, and Sign orb", () => {
     render(<StepCreateAccount publicKey="GABC" preset="Balanced" onComplete={jest.fn()} />);
     expect(screen.getByRole("heading", { name: /create smart wallet/i })).toBeInTheDocument();
-    expect(screen.getByText(/two transactions/i)).toBeInTheDocument();
+    expect(screen.getByText(/one transaction/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^create$/i })).toBeInTheDocument();
   });
 

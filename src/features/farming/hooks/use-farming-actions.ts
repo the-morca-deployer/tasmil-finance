@@ -55,8 +55,8 @@ export function useFarmingActions(publicKey: string | undefined) {
     [publicKey, fundAccount, submitTx]
   );
 
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: faithful extraction from useMemo; refactor deferred
   const withdraw = useCallback(
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: faithful extraction from useMemo; refactor deferred
     async (amount: number): Promise<boolean> => {
       if (!publicKey) return false;
       try {
@@ -73,14 +73,16 @@ export function useFarmingActions(publicKey: string | undefined) {
           const isLast = i === xdrs.length - 1 && signedXdrs.length === 0;
           await submitTx.mutateAsync({
             signedXdr,
-            ...(isLast ? { publicKey, txType: "withdraw" as const, amount } : {}),
+            publicKey,
+            ...(isLast ? { txType: "withdraw" as const, amount } : {}),
           });
         }
         for (const [i, signedXdr] of signedXdrs.entries()) {
           const isLast = i === signedXdrs.length - 1;
           await submitTx.mutateAsync({
             signedXdr,
-            ...(isLast ? { publicKey, txType: "withdraw" as const, amount } : {}),
+            publicKey,
+            ...(isLast ? { txType: "withdraw" as const, amount } : {}),
           });
         }
         return true;
@@ -123,7 +125,8 @@ export function useFarmingActions(publicKey: string | undefined) {
         const isLast = i === setupXdrs.length - 1;
         await submitTx.mutateAsync({
           signedXdr,
-          ...(isLast ? { publicKey, txType: "reactivate" as const } : {}),
+          publicKey,
+          ...(isLast ? { txType: "reactivate" as const } : {}),
         });
       }
       return true;

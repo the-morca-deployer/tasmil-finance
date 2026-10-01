@@ -97,6 +97,17 @@ export function useSetupAccount() {
   });
 }
 
+export function useSetupPolicyAccount() {
+  return useMutation({
+    mutationFn: async (publicKey: string) => {
+      const { data } = await backendAxios.post<{
+        data: { setupTxs: string[] };
+      }>("/api/account/setup-policy", { publicKey });
+      return data.data;
+    },
+  });
+}
+
 export function useResumeAccount() {
   return useMutation({
     mutationFn: async (publicKey: string) => {
@@ -199,7 +210,7 @@ export function useReactivate() {
 export interface SubmitTxParams {
   signedXdr: string;
   publicKey?: string;
-  txType?: "deploy" | "setup" | "fund" | "withdraw" | "revoke" | "reactivate";
+  txType?: "deploy" | "deploy_setup" | "setup" | "fund" | "withdraw" | "revoke" | "reactivate";
   amount?: number;
   token?: string;
 }

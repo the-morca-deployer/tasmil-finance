@@ -357,9 +357,8 @@ function FarmingContent() {
         const isLast = i === xdrs.length - 1 && signedXdrs.length === 0;
         await submitTx.mutateAsync({
           signedXdr,
-          ...(isLast
-            ? { publicKey, txType: "withdraw" as const, amount: parsedWithdrawAmount }
-            : {}),
+          publicKey,
+          ...(isLast ? { txType: "withdraw" as const, amount: parsedWithdrawAmount } : {}),
         });
       }
 
@@ -367,9 +366,8 @@ function FarmingContent() {
         const isLast = i === signedXdrs.length - 1;
         await submitTx.mutateAsync({
           signedXdr,
-          ...(isLast
-            ? { publicKey, txType: "withdraw" as const, amount: parsedWithdrawAmount }
-            : {}),
+          publicKey,
+          ...(isLast ? { txType: "withdraw" as const, amount: parsedWithdrawAmount } : {}),
         });
       }
 
@@ -396,7 +394,8 @@ function FarmingContent() {
         const isLast = i === setupXdrs.length - 1;
         await submitTx.mutateAsync({
           signedXdr,
-          ...(isLast ? { publicKey, txType: "reactivate" as const } : {}),
+          publicKey,
+          ...(isLast ? { txType: "reactivate" as const } : {}),
         });
       }
       await Promise.all([refetchPosition(), refetchActivity()]);

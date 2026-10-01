@@ -16,25 +16,12 @@ interface Props {
 
 type TxState = "idle" | "active" | "done";
 
-function deployState(subStep: DeploySubStep, deployCompleted: boolean): TxState {
-  if (deployCompleted) return "done";
+function onboardingState(subStep: DeploySubStep, setupCompleted: boolean): TxState {
+  if (setupCompleted) return "done";
   if (
     subStep === "building_deploy" ||
     subStep === "signing_deploy" ||
-    subStep === "submitting_deploy"
-  ) {
-    return "active";
-  }
-  return "idle";
-}
-
-function setupTxState(
-  subStep: DeploySubStep,
-  setupCompleted: boolean,
-  deployCompleted: boolean
-): TxState {
-  if (setupCompleted) return "done";
-  if (
+    subStep === "submitting_deploy" ||
     subStep === "building_setup" ||
     subStep === "signing_setup" ||
     subStep === "submitting_setup" ||
@@ -42,7 +29,6 @@ function setupTxState(
   ) {
     return "active";
   }
-  if (deployCompleted) return "active";
   return "idle";
 }
 
@@ -80,13 +66,12 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
     }
   }, [deployError, deployErrorWasRejection, retry]);
 
-  const txDeploy = deployState(deploySubStep, deployCompleted);
-  const txSetup = setupTxState(deploySubStep, setupCompleted, deployCompleted);
+  const txState = onboardingState(deploySubStep, setupCompleted);
 
   const ctaLabel = isDeploying
     ? "Signing..."
     : deployCompleted && !setupCompleted
-      ? "Continue (2 of 2)"
+      ? "Finish"
       : "Create";
 
   return (
@@ -108,9 +93,9 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
             Create Smart wallet
           </h1>
           <p className="mx-auto max-w-xl text-muted-foreground text-sm leading-relaxed md:text-base">
-            You'll sign <span className="font-semibold text-foreground">two transactions</span> in
-            your wallet - one to deploy your smart account, one to grant the agent permission to
-            rebalance. We never hold your keys.
+            You&apos;ll sign <span className="font-semibold text-foreground">one transaction</span>{" "}
+            in your wallet to create your smart account and apply its Phoenix Policy Guard limits
+            atomically. We never hold your keys.
           </p>
         </div>
 
@@ -134,11 +119,7 @@ export function StepCreateAccount({ publicKey, preset, onComplete, onBack }: Pro
           {isDeploying ? <Loader2 className="h-7 w-7 animate-spin" /> : ctaLabel}
         </button>
 
-        <div className="flex items-center gap-3 md:gap-5">
-          <TxLabeledCircle index={1} label="Deploy" state={txDeploy} />
-          <div className="h-px w-12 bg-border md:w-20" />
-          <TxLabeledCircle index={2} label="Setup" state={txSetup} />
-        </div>
+        <TxLabeledCircle index={1} label="Create + Policy" state={txState} />
       </div>
     </div>
   );

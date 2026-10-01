@@ -100,11 +100,6 @@ const _sidebarData: SidebarData = {
           icon: Tractor,
         },
         {
-          title: "Rulebook",
-          url: "/rulebook",
-          icon: Shield,
-        },
-        {
           title: "Activity",
           url: "/activity",
           icon: ListChecks,
