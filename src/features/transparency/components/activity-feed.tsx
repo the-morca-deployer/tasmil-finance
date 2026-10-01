@@ -1,11 +1,12 @@
 "use client";
 
 import { ExternalLink, Loader2, RefreshCw, ScrollText } from "lucide-react";
-import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import type { ActivityPage } from "../api/adapters";
 import { useActivityFeed } from "../api/use-activity-feed";
+import { DecisionReplayDialog } from "./decision-replay-dialog";
 
 type ActivityItem = ActivityPage["items"][number];
 
@@ -35,7 +36,13 @@ function activityReason(item: ActivityItem): string | null {
   );
 }
 
-function ActivityRow({ item }: { item: ActivityItem }) {
+function ActivityRow({
+  item,
+  onReplay,
+}: {
+  item: ActivityItem;
+  onReplay: (decisionId: string) => void;
+}) {
   const label = activityLabel(item);
   const reason = activityReason(item);
   const gate = payloadField(item, "gate") ?? payloadField(item, "rule");
@@ -80,12 +87,13 @@ function ActivityRow({ item }: { item: ActivityItem }) {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-muted-foreground text-xs">No transaction submitted</p>
             {item.decisionId && (
-              <Link
+              <button
+                type="button"
                 className="text-blue-400 text-xs hover:underline"
-                href={`/activity/${encodeURIComponent(item.decisionId)}`}
+                onClick={() => onReplay(item.decisionId!)}
               >
                 Replay evidence
-              </Link>
+              </button>
             )}
           </div>
         )}
@@ -94,7 +102,13 @@ function ActivityRow({ item }: { item: ActivityItem }) {
   );
 }
 
-function ActivityBody({ state }: { state: ReturnType<typeof useActivityFeed> }) {
+function ActivityBody({
+  state,
+  onReplay,
+}: {
+  state: ReturnType<typeof useActivityFeed>;
+  onReplay: (decisionId: string) => void;
+}) {
   if (!state.walletConnected) {
     return <Card className="p-8 text-center">Connect your wallet to read account evidence.</Card>;
   }
@@ -127,7 +141,7 @@ function ActivityBody({ state }: { state: ReturnType<typeof useActivityFeed> }) 
       ) : (
         <div className="space-y-3">
           {state.data.items.map((item) => (
-            <ActivityRow item={item} key={item.id} />
+            <ActivityRow item={item} key={item.id} onReplay={onReplay} />
           ))}
         </div>
       )}
@@ -149,18 +163,27 @@ function ActivityBody({ state }: { state: ReturnType<typeof useActivityFeed> }) 
 
 export function ActivityFeed() {
   const state = useActivityFeed();
+  const [replayDecisionId, setReplayDecisionId] = useState<string | null>(null);
   return (
-    <main className="mx-auto max-w-4xl px-4 py-10">
-      <div className="mb-6 flex items-center gap-3">
-        <ScrollText className="h-7 w-7 text-blue-400" />
-        <div>
-          <h1 className="font-bold text-2xl">Policy activity</h1>
-          <p className="text-muted-foreground text-sm">
-            Signed decisions, refusals and execution outcomes
-          </p>
+    <>
+      <main className="mx-auto max-w-4xl px-4 py-10">
+        <div className="mb-6 flex items-center gap-3">
+          <ScrollText className="h-7 w-7 text-blue-400" />
+          <div>
+            <h1 className="font-bold text-2xl">Policy activity</h1>
+            <p className="text-muted-foreground text-sm">
+              Signed decisions, refusals and execution outcomes
+            </p>
+          </div>
         </div>
-      </div>
-      <ActivityBody state={state} />
-    </main>
+        <ActivityBody state={state} onReplay={setReplayDecisionId} />
+      </main>
+      {replayDecisionId && (
+        <DecisionReplayDialog
+          decisionId={replayDecisionId}
+          onOpenChange={(open) => !open && setReplayDecisionId(null)}
+        />
+      )}
+    </>
   );
 }

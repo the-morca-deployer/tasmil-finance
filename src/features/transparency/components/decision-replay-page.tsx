@@ -12,7 +12,7 @@ function stageKey(stage: unknown): string {
   return JSON.stringify(stage) ?? String(stage);
 }
 
-export function DecisionReplayPage({ decisionId }: { decisionId: string }) {
+export function DecisionReplayEvidence({ decisionId }: { decisionId: string }) {
   const state = useDecisionReplay(decisionId);
   if (state.isLoading) {
     return (
@@ -23,7 +23,7 @@ export function DecisionReplayPage({ decisionId }: { decisionId: string }) {
   }
   if (state.error) {
     return (
-      <Card className="mx-auto mt-10 max-w-3xl p-8 text-center">
+      <Card className="p-8 text-center">
         <p>Replay unavailable</p>
         <p className="mt-2 text-muted-foreground text-sm">{state.error.message}</p>
         <Button className="mt-4 gap-2" onClick={state.refetch} variant="outline">
@@ -34,10 +34,8 @@ export function DecisionReplayPage({ decisionId }: { decisionId: string }) {
   }
   if (!state.data) return null;
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="font-bold text-2xl">Decision replay</h1>
-      <p className="mt-1 break-all font-mono text-muted-foreground text-xs">{decisionId}</p>
-      <Card className="mt-5 border-white/10 bg-white/3 p-5">
+    <div>
+      <Card className="border-white/10 bg-white/3 p-5">
         <p className="font-medium">
           {state.data.chainValid ? "Signature chain valid" : "Signature chain invalid"}
         </p>
@@ -71,6 +69,16 @@ export function DecisionReplayPage({ decisionId }: { decisionId: string }) {
           <p className="text-muted-foreground text-sm">No transaction submitted</p>
         )}
       </Card>
+    </div>
+  );
+}
+
+export function DecisionReplayPage({ decisionId }: { decisionId: string }) {
+  return (
+    <main className="mx-auto max-w-3xl px-4 py-10">
+      <h1 className="font-bold text-2xl">Decision replay</h1>
+      <p className="mt-1 mb-5 break-all font-mono text-muted-foreground text-xs">{decisionId}</p>
+      <DecisionReplayEvidence decisionId={decisionId} />
     </main>
   );
 }

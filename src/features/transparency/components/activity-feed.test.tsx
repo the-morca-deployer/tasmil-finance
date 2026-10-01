@@ -122,10 +122,7 @@ describe("ActivityFeed", () => {
   it("links only chain-bearing rows to transactions", () => {
     render(<ActivityFeed />);
     expect(screen.getAllByText(/no transaction submitted/i)).toHaveLength(3);
-    expect(screen.getAllByRole("link", { name: /replay evidence/i })[0]).toHaveAttribute(
-      "href",
-      "/activity/decision-1"
-    );
+    expect(screen.getAllByRole("button", { name: /replay evidence/i })).toHaveLength(3);
     expect(screen.getAllByRole("link", { name: /view transaction/i })).toHaveLength(2);
   });
 

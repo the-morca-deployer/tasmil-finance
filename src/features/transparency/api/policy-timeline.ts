@@ -27,7 +27,7 @@ export interface PolicyTimelineItem {
   title: string;
   reason: string | null;
   txUrl: string | null;
-  replayHref: string | null;
+  decisionId: string | null;
 }
 
 function field(item: VdlItem, key: string): string | null {
@@ -55,7 +55,7 @@ export function toPolicyTimelineItem(item: VdlItem): PolicyTimelineItem {
     id: item.id,
     createdAt: item.createdAt,
     txUrl: item.explorerUrl,
-    replayHref: item.decisionId ? `/activity/${encodeURIComponent(item.decisionId)}` : null,
+    decisionId: item.decisionId,
   };
   const gate = field(item, "gate");
 

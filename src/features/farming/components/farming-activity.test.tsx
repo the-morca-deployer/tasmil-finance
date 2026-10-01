@@ -31,7 +31,7 @@ const policyItems: PolicyTimelineRow[] = [
     title: "Agent declined a move",
     reason: "Gain $0.04 is below cost $0.11",
     txUrl: null,
-    replayHref: "/activity/d1",
+    decisionId: "d1",
   },
   {
     id: "p2",
@@ -40,7 +40,7 @@ const policyItems: PolicyTimelineRow[] = [
     title: "Rejected on-chain by Policy Guard",
     reason: "The transaction broke a vault rule and was reverted",
     txUrl: `https://stellar.expert/explorer/public/tx/${"c".repeat(64)}`,
-    replayHref: null,
+    decisionId: null,
   },
 ];
 
@@ -63,7 +63,7 @@ describe("FarmingActivity", () => {
       "Deposit",
     ]);
     expect(screen.getByText("Gain $0.04 is below cost $0.11")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Replay" })).toHaveAttribute("href", "/activity/d1");
+    expect(screen.getByRole("button", { name: "Replay" })).toBeInTheDocument();
   });
 
   it("filters to agent decisions only under Policy", () => {

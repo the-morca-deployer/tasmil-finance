@@ -22,9 +22,9 @@ import {
   XCircle,
   Zap,
 } from "lucide-react";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { ActivityItem } from "@/features/account/types";
+import { DecisionReplayDialog } from "@/features/transparency/components/decision-replay-dialog";
 import { cn } from "@/lib/utils";
 import { getExplorerUrl } from "@/shared/config/stellar";
 import { Button } from "@/shared/ui/button";
@@ -106,7 +106,7 @@ export interface PolicyTimelineRow {
   title: string;
   reason: string | null;
   txUrl: string | null;
-  replayHref: string | null;
+  decisionId: string | null;
 }
 
 type TimelineEntry =
@@ -314,7 +314,13 @@ interface FarmingActivityProps {
   policyItems?: PolicyTimelineRow[];
 }
 
-function PolicyRowView({ row }: { row: PolicyTimelineRow }) {
+function PolicyRowView({
+  row,
+  onReplay,
+}: {
+  row: PolicyTimelineRow;
+  onReplay: (decisionId: string) => void;
+}) {
   const iconConfig = POLICY_ICONS[row.outcome];
   const Icon = iconConfig.icon;
   return (
@@ -335,10 +341,14 @@ function PolicyRowView({ row }: { row: PolicyTimelineRow }) {
           </p>
         )}
       </div>
-      {row.replayHref && (
-        <Link href={row.replayHref} className="shrink-0 text-primary text-sm hover:underline">
+      {row.decisionId && (
+        <button
+          type="button"
+          onClick={() => onReplay(row.decisionId!)}
+          className="shrink-0 text-primary text-sm hover:underline"
+        >
           Replay
-        </Link>
+        </button>
       )}
       {row.txUrl && (
         <a
@@ -402,6 +412,7 @@ function AccountRowView({ activity }: { activity: ActivityItem }) {
 
 export function FarmingActivity({ activities, isLoading, policyItems }: FarmingActivityProps) {
   const [category, setCategory] = useState<ActivityCategory>("all");
+  const [replayDecisionId, setReplayDecisionId] = useState<string | null>(null);
 
   const entries = useMemo<TimelineEntry[]>(() => {
     const account: TimelineEntry[] =
@@ -457,7 +468,8 @@ export function FarmingActivity({ activities, isLoading, policyItems }: FarmingA
   const groups = groupActivitiesByDate(entries);
 
   return (
-    <motion.div
+    <>
+      <motion.div
       className="flex flex-col gap-4"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -510,7 +522,7 @@ export function FarmingActivity({ activities, isLoading, policyItems }: FarmingA
                       transition={{ duration: 0.25, delay: idx * 0.02 }}
                     >
                       {entry.source === "policy" ? (
-                        <PolicyRowView row={entry.row} />
+                        <PolicyRowView row={entry.row} onReplay={setReplayDecisionId} />
                       ) : (
                         <AccountRowView activity={entry.activity} />
                       )}
@@ -525,6 +537,13 @@ export function FarmingActivity({ activities, isLoading, policyItems }: FarmingA
           ))}
         </div>
       )}
-    </motion.div>
+      </motion.div>
+      {replayDecisionId && (
+        <DecisionReplayDialog
+          decisionId={replayDecisionId}
+          onOpenChange={(open) => !open && setReplayDecisionId(null)}
+        />
+      )}
+    </>
   );
 }
