@@ -166,7 +166,9 @@ export function useFinalizeOwnerWithdraw() {
   return useMutation({
     mutationFn: async (dto: { publicKey: string; authSignedXdr: string }) => {
       try {
-        const { data } = await backendAxios.post<{ data: { xdr: string } }>(
+        const { data } = await backendAxios.post<{
+          data: { xdr: string; payoutAmount: number; payoutToken: "XLM" | "USDC" };
+        }>(
           "/api/account/withdraw/finalize-owner-auth",
           dto
         );

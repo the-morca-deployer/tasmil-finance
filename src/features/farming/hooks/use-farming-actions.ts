@@ -72,7 +72,7 @@ export function useFarmingActions(publicKey: string | undefined) {
         if (xdrs.length === 0 && signedXdrs.length === 0 && serverSubmitted.length === 0) {
           throw new Error("No withdrawal transaction returned from server");
         }
-        for (const [i, xdr] of xdrs.entries()) {
+        for (const xdr of xdrs) {
           const authSignedXdr = await signOwnerWithdrawAuth(xdr, publicKey);
           const finalized = await finalizeOwnerWithdraw.mutateAsync({
             publicKey,
@@ -80,15 +80,16 @@ export function useFarmingActions(publicKey: string | undefined) {
           });
           if (!finalized?.xdr) throw new Error("No finalized withdrawal transaction returned");
           const signedXdr = await signXdr(finalized.xdr, publicKey);
-          const isLast = i === xdrs.length - 1 && signedXdrs.length === 0;
           await submitTx.mutateAsync({
             signedXdr,
             publicKey,
-            ...(isLast ? { txType: "withdraw" as const, amount } : {}),
+            txType: "withdraw" as const,
+            amount: finalized.payoutAmount,
+            token: finalized.payoutToken,
           });
         }
         for (const [i, signedXdr] of signedXdrs.entries()) {
-          const isLast = i === signedXdrs.length - 1;
+          const isLast = xdrs.length === 0 && i === signedXdrs.length - 1;
           await submitTx.mutateAsync({
             signedXdr,
             publicKey,
