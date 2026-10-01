@@ -6,8 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useActivity, usePosition, usePresets } from "@/features/account/hooks/use-account-api";
 import type { RiskPreset } from "@/features/account/types";
+import { usePolicyTimeline } from "@/features/transparency/api/policy-timeline";
 import { RulebookPanel } from "@/features/transparency/components/rulebook-page";
 import { isNotFoundError } from "@/lib/query-error";
+import { GuardedBetaNotice } from "@/shared/components/guarded-beta-notice";
 import { Button } from "@/shared/ui/button";
 import { useWalletHydrated, useWalletStore } from "@/store/use-wallet";
 import { useFarmingActions } from "../hooks/use-farming-actions";
@@ -190,6 +192,7 @@ function FarmingContent() {
   );
 
   const activitiesList = useMemo(() => (Array.isArray(activities) ? activities : []), [activities]);
+  const policyTimeline = usePolicyTimeline();
   const registryPools = useMemo(
     () => (Array.isArray(registryPoolsData) ? registryPoolsData : []),
     [registryPoolsData]
@@ -418,6 +421,8 @@ function FarmingContent() {
           onDeposit={() => openModal("fund")}
         />
 
+        <GuardedBetaNotice variant="compact" />
+
         <FarmingTabs value={activeTab} onValueChange={setActiveTab} />
 
         <AnimatePresence mode="wait">
@@ -520,7 +525,11 @@ function FarmingContent() {
               role="tabpanel"
               aria-labelledby="farming-tab-activity"
             >
-              <FarmingActivity activities={activitiesList} isLoading={activitiesLoading} />
+              <FarmingActivity
+                activities={activitiesList}
+                isLoading={activitiesLoading}
+                policyItems={policyTimeline.items}
+              />
             </section>
           )}
 

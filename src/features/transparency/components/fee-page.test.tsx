@@ -4,6 +4,8 @@ import { useFeeEvents } from "../api/use-fee-events";
 import { FeePage } from "./fee-page";
 
 jest.mock("../api/use-fee-events", () => ({ useFeeEvents: jest.fn() }));
+// Policy rejections have their own suite (policy-rejections.test.tsx).
+jest.mock("./policy-rejections", () => ({ PolicyRejections: () => null }));
 
 const mockUseFeeEvents = useFeeEvents as jest.MockedFunction<typeof useFeeEvents>;
 const txHash = "ab".repeat(32);
