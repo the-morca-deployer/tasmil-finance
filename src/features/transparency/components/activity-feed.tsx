@@ -18,15 +18,27 @@ function payloadField(item: ActivityItem, key: string): string | null {
 function activityLabel(item: ActivityItem): string {
   if (item.txStatus === "CONFIRMED") return "Execution confirmed";
   if (item.txStatus === "UNKNOWN" || item.entryType === "UNKNOWN") return "Submission unknown";
-  const rule = payloadField(item, "rule");
+  const rule = payloadField(item, "rule") ?? payloadField(item, "gate");
   if (rule === "NET_EDGE") return "Net-Edge declined";
-  if (rule === "PRICE_INTEGRITY") return "Price evidence refused";
+  if (rule === "PRICE_INTEGRITY" || rule === "PRICE" || rule === "NETWORK_FEE_PRICE")
+    return "Price evidence refused";
+  if (rule === "INTERFACE_REGISTRY") return "Interface registry refused";
   if (rule === "POLICY") return "Policy rejected";
   return item.entryType.replaceAll("_", " ").toLowerCase();
 }
 
+function activityReason(item: ActivityItem): string | null {
+  return (
+    payloadField(item, "plainLanguage") ??
+    payloadField(item, "reason") ??
+    payloadField(item, "code")
+  );
+}
+
 function ActivityRow({ item }: { item: ActivityItem }) {
   const label = activityLabel(item);
+  const reason = activityReason(item);
+  const gate = payloadField(item, "gate") ?? payloadField(item, "rule");
   return (
     <Card className="border-white/10 bg-white/3 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -43,6 +55,12 @@ function ActivityRow({ item }: { item: ActivityItem }) {
       <p className="mt-3 break-all font-mono text-muted-foreground text-xs">
         Decision {item.decisionId ?? "not assigned"}
       </p>
+      {reason && (
+        <div className="mt-3 rounded-md border border-amber-400/20 bg-amber-400/5 px-3 py-2">
+          <p className="text-amber-100 text-sm">Why: {reason}</p>
+          {gate && <p className="mt-1 text-amber-200/60 text-xs">Guard: {gate}</p>}
+        </div>
+      )}
       <div className="mt-3 border-white/10 border-t pt-3">
         {item.txHash && item.explorerUrl ? (
           <div className="flex flex-wrap items-end justify-between gap-3">

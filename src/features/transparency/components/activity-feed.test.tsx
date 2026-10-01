@@ -31,7 +31,11 @@ const activityData: ActivityPage = {
       ...baseItem,
       id: "edge",
       entryType: "DECISION",
-      payload: { decision: "DECLINED", rule: "NET_EDGE" },
+      payload: {
+        decision: "DECLINED",
+        gate: "NET_EDGE",
+        plainLanguage: "Expected gain does not cover execution costs.",
+      },
       txHash: null,
       txStatus: null,
       explorerUrl: null,
@@ -40,7 +44,7 @@ const activityData: ActivityPage = {
       ...baseItem,
       id: "price",
       entryType: "REFUSAL",
-      payload: { decision: "REFUSED", rule: "PRICE_INTEGRITY" },
+      payload: { decision: "REFUSED", gate: "PRICE", code: "PRICE_QUORUM_FAILED" },
       txHash: null,
       txStatus: null,
       explorerUrl: null,
@@ -110,6 +114,9 @@ describe("ActivityFeed", () => {
     expect(screen.getByText("Price evidence refused")).toBeInTheDocument();
     expect(screen.getByText("Submission unknown")).toBeInTheDocument();
     expect(screen.getByText("Execution confirmed")).toBeInTheDocument();
+    expect(screen.getByText("Why: Expected gain does not cover execution costs.")).toBeInTheDocument();
+    expect(screen.getByText("Why: PRICE_QUORUM_FAILED")).toBeInTheDocument();
+    expect(screen.getByText("Guard: NET_EDGE")).toBeInTheDocument();
   });
 
   it("links only chain-bearing rows to transactions", () => {
