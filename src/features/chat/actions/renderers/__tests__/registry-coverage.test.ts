@@ -120,10 +120,12 @@ jest.mock("@/features/protocols/adapters/soroswap-from-mcp", () => ({
 
 import { toolRendererRegistry } from "@/features/chat/lib/tool-renderer-registry";
 import "@/features/chat/actions/renderers/index";
+import { TASMIL_INFO_TOOLS } from "@/features/chat/actions/renderers/protocol-data";
 
 describe("toolRendererRegistry coverage", () => {
   it("registers get_account (info)", () => {
     expect(toolRendererRegistry.get("get_account")?.kind).toBe("info");
+    expect(TASMIL_INFO_TOOLS.has("get_account")).toBe(true);
   });
   it("registers swap_get_quote (info)", () => {
     expect(toolRendererRegistry.has("swap_get_quote")).toBe(true);

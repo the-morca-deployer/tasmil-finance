@@ -16,6 +16,7 @@ import type { RendererEntry } from "@/features/chat/lib/tool-renderer-registry";
 export const TASMIL_INFO_TOOLS = new Set([
   "get_strategy_presets",
   "get_account_strategy",
+  "get_account",
   "resolve_pool",
   "get_pool_details",
 ]);
