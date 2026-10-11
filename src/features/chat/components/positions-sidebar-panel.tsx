@@ -77,7 +77,7 @@ function DisconnectedState() {
 
 export function PositionsSidebarPanel() {
   const account = useWalletStore((s) => s.account);
-  const { groups, isLoading, loadingProtocols } = useDefiPositions(account);
+  const { groups, isLoading, loadingProtocols, incompleteProtocols } = useDefiPositions(account);
 
   if (!account) {
     return <DisconnectedState />;
@@ -88,6 +88,13 @@ export function PositionsSidebarPanel() {
   }
 
   if (!isLoading && groups.length === 0) {
+    if (incompleteProtocols.length > 0) {
+      return (
+        <div className="px-4 py-8 text-amber-600 text-sm dark:text-amber-500">
+          Could not check {incompleteProtocols.join(", ")} positions. Retry shortly.
+        </div>
+      );
+    }
     return <EmptyState />;
   }
 
@@ -105,6 +112,11 @@ export function PositionsSidebarPanel() {
       transition={{ duration: 0.2 }}
     >
       {/* Summary */}
+      {incompleteProtocols.length > 0 && (
+        <p className="px-4 pt-3 text-amber-600 text-xs dark:text-amber-500">
+          Could not check {incompleteProtocols.join(", ")}; positions may be incomplete.
+        </p>
+      )}
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-baseline justify-between">
           <span className="font-semibold text-base text-sidebar-foreground">Total Value</span>
@@ -147,7 +159,7 @@ export function PositionsSidebarPanel() {
         <AnimatePresence initial={false}>
           {groups.map((group) => (
             <ProtocolCollapsibleSection
-              key={group.protocol}
+              key={`${group.protocol}:${group.displayName}`}
               protocol={group.protocol}
               displayName={group.displayName}
               totalValueUsd={group.totalValueUsd}

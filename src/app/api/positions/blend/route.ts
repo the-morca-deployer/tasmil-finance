@@ -2,8 +2,9 @@
 // CI lint enforced via PR pipeline. See PR notes / follow-up to align
 // the SDK exports with what these route handlers + tests consume.
 
+import { getBlendV2Pools } from "@tasmil-finance/adapter-sdk";
 import { type NextRequest, NextResponse } from "next/server";
-import { getClient } from "../../protocols/_sdk";
+import { getClient, getNetwork } from "../../protocols/_sdk";
 
 interface PositionItem {
   name: string;
@@ -19,6 +20,7 @@ interface ProtocolPositionGroup {
   protocol: string;
   displayName: string;
   icon: string | null;
+  poolAddress?: string;
   totalValueUsd: number;
   positions: PositionItem[];
   rewards?: { amount: number; token: string };
@@ -36,11 +38,42 @@ export async function GET(req: NextRequest) {
 
   try {
     const sdk = getClient();
-    const pools = await sdk.blend.listPools();
+    // A pool can leave the reward zone while users still hold positions in it.
+    // The SDK's listPools() only discovers reward-zone pools in this release.
+    const knownPools = getBlendV2Pools(getNetwork());
+    const listedPools = await sdk.blend.listPools().catch((error) => {
+      console.warn("[api/positions/blend] pool discovery failed; scanning known pools", error);
+      return [];
+    });
+    const pools = [
+      ...new Map([...knownPools, ...listedPools].map((pool) => [pool.address, pool])).values(),
+    ];
 
     const results = await Promise.allSettled(
       pools.map((pool) => sdk.blend.getUserPositions(pool.address, user))
     );
+
+    // A rate-limited pool read must not become a successful empty portfolio.
+    for (let i = 0; i < results.length; i++) {
+      if (results[i]?.status !== "rejected") continue;
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      try {
+        results[i] = {
+          status: "fulfilled",
+          value: await sdk.blend.getUserPositions(pools[i]!.address, user),
+        };
+      } catch (reason) {
+        results[i] = { status: "rejected", reason };
+      }
+    }
+    const incompletePools = results.flatMap((result, index) =>
+      result.status === "rejected" ? [pools[index]!.address] : []
+    );
+    if (pools.length > 0 && incompletePools.length === pools.length) {
+      throw new Error(
+        `Blend position scan incomplete (${incompletePools.length}/${pools.length} pools failed)`
+      );
+    }
 
     const groups: ProtocolPositionGroup[] = [];
 
@@ -97,13 +130,14 @@ export async function GET(req: NextRequest) {
         protocol: "blend",
         displayName: `Blend \u00b7 ${pos.poolName}`,
         icon: null,
+        poolAddress: pos.poolAddress,
         totalValueUsd: 0,
         positions: items,
         rewards: groupRewards,
       });
     }
 
-    return NextResponse.json({ success: true, groups });
+    return NextResponse.json({ success: true, groups, incompletePools });
   } catch (e) {
     console.error("[api/positions/blend]", e);
     return NextResponse.json(

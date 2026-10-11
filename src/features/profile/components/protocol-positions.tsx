@@ -263,6 +263,7 @@ interface ProtocolPositionsProps {
   isLoading: boolean;
   /** Protocols still being fetched (shown as skeleton cards) */
   loadingProtocols?: string[];
+  incompleteProtocols?: string[];
   totalValueUsd: number;
 }
 
@@ -270,6 +271,7 @@ export function ProtocolPositions({
   groups,
   isLoading,
   loadingProtocols = [],
+  incompleteProtocols = [],
   totalValueUsd,
 }: ProtocolPositionsProps) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
@@ -368,7 +370,11 @@ export function ProtocolPositions({
         <h2 className="text-xl font-semibold text-foreground">Protocol Positions</h2>
         <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground">
           <Layers className="h-8 w-8 opacity-40" />
-          <p className="text-sm">No protocol positions found</p>
+          <p className="text-sm">
+            {incompleteProtocols.length > 0
+              ? `Could not check ${incompleteProtocols.join(", ")} positions. Retry shortly.`
+              : "No protocol positions found"}
+          </p>
         </div>
       </motion.div>
     );
@@ -382,6 +388,11 @@ export function ProtocolPositions({
       transition={{ duration: 0.3 }}
     >
       <h2 className="text-xl font-semibold text-foreground">Protocol Positions</h2>
+      {incompleteProtocols.length > 0 && (
+        <p className="text-amber-600 text-sm dark:text-amber-500">
+          Could not check {incompleteProtocols.join(", ")}; positions may be incomplete.
+        </p>
+      )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Summary card with pie chart */}

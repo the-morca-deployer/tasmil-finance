@@ -165,20 +165,37 @@ function enrichWithPrices(
 
 export function useDefiPositions(address: string | null | undefined) {
   const { group: tasmilGroup, vaultPnl, isLoading: tasmilLoading } = useTasmilGroup(address);
-  const { data: blendGroups, isLoading: blendLoading } = useBlendPositions(address);
-  const { data: aquaGroups, isLoading: aquaLoading } = useAquariusPositions(address);
+  const {
+    data: blendResponse,
+    isLoading: blendLoading,
+    isError: blendError,
+  } = useBlendPositions(address);
+  const {
+    data: aquaGroups,
+    isLoading: aquaLoading,
+    isError: aquaError,
+  } = useAquariusPositions(address);
   const { data: walletData } = useWalletTokens(address);
+  const blendGroups = blendResponse?.groups;
+  const blendIncomplete = blendError || (blendResponse?.incompletePools.length ?? 0) > 0;
 
-  // Keep last successful data so positions never disappear on transient failures
-  // blendGroups can be [] (empty array = truthy) when RPC fails, so check .length
-  const lastBlendRef = useRef<ProtocolPositionGroup[]>([]);
-  const lastAquaRef = useRef<ProtocolPositionGroup[]>([]);
+  // Preserve the last successful response for this wallet during a failed refetch.
+  // An empty successful response clears positions after a withdrawal.
+  const lastBlendRef = useRef<{ address: string; groups: ProtocolPositionGroup[] } | null>(null);
+  const lastAquaRef = useRef<{ address: string; groups: ProtocolPositionGroup[] } | null>(null);
 
-  if (blendGroups && blendGroups.length > 0) lastBlendRef.current = blendGroups;
-  if (aquaGroups && aquaGroups.length > 0) lastAquaRef.current = aquaGroups;
+  if (blendGroups && !blendIncomplete && address) {
+    lastBlendRef.current = { address, groups: blendGroups };
+  }
+  if (aquaGroups && address) {
+    lastAquaRef.current = { address, groups: aquaGroups };
+  }
 
-  const stableBlend = blendGroups && blendGroups.length > 0 ? blendGroups : lastBlendRef.current;
-  const stableAqua = aquaGroups && aquaGroups.length > 0 ? aquaGroups : lastAquaRef.current;
+  const lastBlend = lastBlendRef.current?.address === address ? lastBlendRef.current.groups : [];
+  const stableBlend =
+    blendGroups && (blendGroups.length > 0 || !blendIncomplete) ? blendGroups : lastBlend;
+  const stableAqua =
+    aquaGroups ?? (lastAquaRef.current?.address === address ? lastAquaRef.current.groups : []);
 
   // Build price map: CoinGecko cache first, then wallet token prices
   const priceMap: Record<string, number> = { ...getCachedPrices() };
@@ -198,12 +215,17 @@ export function useDefiPositions(address: string | null | undefined) {
   if (tasmilLoading) loadingProtocols.push("Tasmil Vault");
   if (blendLoading && stableBlend.length === 0) loadingProtocols.push("Blend");
   if (aquaLoading && stableAqua.length === 0) loadingProtocols.push("Aquarius");
+  const incompleteProtocols = [
+    ...(blendIncomplete ? ["Blend"] : []),
+    ...(aquaError ? ["Aquarius"] : []),
+  ];
 
   return {
     groups,
     vaultPnl,
     isLoading: tasmilLoading || blendLoading || aquaLoading,
     loadingProtocols,
+    incompleteProtocols,
     totalValueUsd: groups.reduce((s, g) => s + g.totalValueUsd, 0),
   };
 }

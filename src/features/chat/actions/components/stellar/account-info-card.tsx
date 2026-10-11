@@ -105,13 +105,9 @@ function QueryContent({
           {data.message ??
             "This wallet has no on-chain account yet. Stellar creates one on the first deposit."}
         </p>
-        {data.nextStep && (
-          <p className="text-foreground text-xs">{data.nextStep}</p>
-        )}
+        {data.nextStep && <p className="text-foreground text-xs">{data.nextStep}</p>}
         {data.address && (
-          <p className="break-all font-mono text-[10px] text-muted-foreground/60">
-            {data.address}
-          </p>
+          <p className="break-all font-mono text-[10px] text-muted-foreground/60">{data.address}</p>
         )}
       </div>
     );
@@ -430,9 +426,16 @@ function PriceView({ data }: { data: any }) {
 
 function PositionsView({ data, toolCallId }: { data: any; toolCallId?: string }) {
   const positions = data.positions ?? [];
+  const incompleteProtocols: string[] = data.incompleteProtocols ?? [];
   return (
     <div className="space-y-2">
       <MetricBox label="Positions" value={String(data.count ?? positions.length)} />
+      {incompleteProtocols.length > 0 && (
+        <p className="text-amber-600 text-xs dark:text-amber-500">
+          Could not check {incompleteProtocols.join(", ")}. Positions may be incomplete; retry
+          shortly.
+        </p>
+      )}
       <ScrollableList id={`positions-${toolCallId}`} maxHeight={250}>
         {positions.map((p: any, i: number) => (
           <div
@@ -443,8 +446,14 @@ function PositionsView({ data, toolCallId }: { data: any; toolCallId?: string })
               <ProtocolBadge name={p.protocol} />
               <span className="text-muted-foreground">{p.type}</span>
             </div>
-            <Row label="Pool" value={truncateAddress(p.pool ?? "")} />
-            <Row label="Shares" value={p.shares} />
+            <Row
+              label="Pool"
+              value={p.pool?.startsWith?.("C") ? truncateAddress(p.pool) : p.pool}
+            />
+            {p.asset && <Row label="Asset" value={p.asset} />}
+            {p.amount != null && <Row label="Amount" value={String(p.amount)} />}
+            {p.isCollateral && <Row label="Collateral" value="Yes" />}
+            {p.shares != null && <Row label="Shares" value={p.shares} />}
             {p.value && <Row label="Value" value={`$${formatNumber(p.value)}`} />}
           </div>
         ))}
